@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useSearchParams } from 'next/navigation'
+import { generarPDFDiagnostico } from '@/lib/pdf-generator'
 
 const AZUL = '#1F3A5F'
 const VERDE = '#2E8B57'
@@ -93,6 +94,9 @@ function CalculadoraInner() {
   const [sys, setSys] = useState<SysVars>(SYS_DEFAULT)
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [userId, setUserId] = useState('')
+  const [asesorNombre, setAsesorNombre] = useState('')
+  const [asesorEmail, setAsesorEmail] = useState('')
+  const [asesorLogoUrl, setAsesorLogoUrl] = useState<string | null>(null)
   const [escenarios, setEscenarios] = useState<Escenario[]>([])
   const [escSelected, setEscSelected] = useState('e4')
   const [saving, setSaving] = useState(false)
@@ -114,18 +118,25 @@ function CalculadoraInner() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) return
       setUserId(session.user.id)
+      setAsesorEmail(session.user.email ?? '')
       Promise.all([
         supabase.from('perfiles_usuario').select('*').eq('id', session.user.id).single(),
         supabase.from('clientes').select('id,nombre').eq('asesor_id', session.user.id).order('nombre'),
       ]).then(([{ data: sv }, { data: cli }]) => {
-        if (sv) setSys(p => ({ ...p, UMA_DIARIA: sv.uma_diaria ?? p.UMA_DIARIA, SALARIO_MIN: sv.salario_minimo ?? p.SALARIO_MIN, PMG_MENSUAL: sv.pmg_mensual ?? p.PMG_MENSUAL, RENDIMIENTO_DEFAULT: sv.rendimiento_afore_default ?? p.RENDIMIENTO_DEFAULT }))
+        if (sv) { setAsesorNombre(sv.nombre ?? ''); setAsesorLogoUrl(sv.logo_url ?? null); setSys(p => ({ ...p, UMA_DIARIA: sv.uma_diaria ?? p.UMA_DIARIA, SALARIO_MIN: sv.salario_minimo ?? p.SALARIO_MIN, PMG_MENSUAL: sv.pmg_mensual ?? p.PMG_MENSUAL, RENDIMIENTO_DEFAULT: sv.rendimiento_afore_default ?? p.RENDIMIENTO_DEFAULT })) }
         if (cli) setClientes(cli as Cliente[])
       })
     })
   }, [])
 
   const calcular = useCallback(() => {
-    const edad = edadActual(inp.fechaNac)
+    async function generarPDF() {
+    if (escenarios.length === 0) return
+    const clienteObj = clientes.find(c => c.id === clienteId)
+    await generarPDFDiagnostico({ asesorNombre, asesorEmail, asesorLogoUrl, clienteNombre: clienteObj?.nombre ?? 'Sin cliente', ley: inp.ley, semanas: inp.semanas, salarioDiario: inp.salarioDiario, edadRetiro: inp.edadRetiro, ingresoDes: inp.ingresoDes, aforeSaldo: inp.afore_saldo, pprMensual: inp.ppr_mensual, rendimiento: inp.rendimiento, escenarios, sys })
+  }
+
+  const edad = edadActual(inp.fechaNac)
     const anios = Math.max(0, inp.edadRetiro - (edad || 40))
 
     const p1 = inp.ley === '73' ? calcPensionLey73(inp.semanas, inp.salarioDiario, sys) : calcAfore(inp.afore_saldo, 0, inp.rendimiento, anios)
@@ -171,6 +182,12 @@ function CalculadoraInner() {
     })
     setSaving(false)
     setSaved(true)
+  }
+
+  async function generarPDF() {
+    if (escenarios.length === 0) return
+    const clienteObj = clientes.find(c => c.id === clienteId)
+    await generarPDFDiagnostico({ asesorNombre, asesorEmail, asesorLogoUrl, clienteNombre: clienteObj?.nombre ?? 'Sin cliente', ley: inp.ley, semanas: inp.semanas, salarioDiario: inp.salarioDiario, edadRetiro: inp.edadRetiro, ingresoDes: inp.ingresoDes, aforeSaldo: inp.afore_saldo, pprMensual: inp.ppr_mensual, rendimiento: inp.rendimiento, escenarios, sys })
   }
 
   const edad = edadActual(inp.fechaNac)
@@ -468,9 +485,14 @@ function CalculadoraInner() {
               </div>
             </div>
             {!clienteId && <p style={{ fontSize: '11px', color: NARANJA, margin: '0 0 8px' }}>⚠️ Selecciona un cliente para guardar el diagnóstico</p>}
+            <div style={{ display: 'flex', gap: '8px' }}>
             <button onClick={guardar} disabled={saving || !clienteId || saved}
-              style={{ width: '100%', padding: '10px', background: saved ? VERDE : (!clienteId ? '#94a3b8' : AZUL), color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: (!clienteId || saved) ? 'not-allowed' : 'pointer' }}>
+              style={{ flex: 1, padding: '10px', background: saved ? VERDE : (!clienteId ? '#94a3b8' : AZUL), color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: (!clienteId || saved) ? 'not-allowed' : 'pointer' }}>
               {saved ? '✓ Diagnóstico guardado' : saving ? 'Guardando...' : '💾 Guardar diagnóstico'}
+            </button>
+            <button onClick={generarPDF} disabled={escenarios.length === 0}
+              style={{ flex: 1, padding: '10px', background: escenarios.length === 0 ? '#94a3b8' : NARANJA, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: escenarios.length === 0 ? 'not-allowed' : 'pointer' }}>
+              📄 Generar PDF
             </button>
           </div>
         </div>
