@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 const AZUL = '#1F3A5F'
@@ -9,34 +9,53 @@ const NARANJA = '#F47920'
 
 interface Actividad {
   id: string
-  titulo: string
   tipo: string
+  titulo: string
+  notas: string | null
   fecha_programada: string | null
   estatus: string
-  notas: string | null
   cliente_id: string | null
-  clientes?: { nombre: string }
+  clientes?: { nombre: string } | null
 }
 
 interface Cliente { id: string; nombre: string }
 
-const TIPOS = ['llamada', 'whatsapp', 'cita', 'email', 'nota']
-const TIPO_ICONS: Record<string, string> = { llamada: '📞', whatsapp: '💬', cita: '📅', email: '✉️', nota: '📝' }
-const TIPO_COLORS: Record<string, string> = { llamada: '#3b82f6', whatsapp: '#22c55e', cita: AZUL, email: NARANJA, nota: '#94a3b8' }
+const TIPO_CONFIG: Record<string, { color: string; bg: string; border: string; label: string }> = {
+  llamada:  { color: '#1d4ed8', bg: '#dbeafe', border: '#93c5fd', label: 'Llamada' },
+  cita:     { color: '#9a3412', bg: '#ffedd5', border: '#fdba74', label: 'Cita' },
+  email:    { color: '#6d28d9', bg: '#ede9fe', border: '#c4b5fd', label: 'Email' },
+  whatsapp: { color: '#166534', bg: '#dcfce7', border: '#86efac', label: 'WhatsApp' },
+  nota:     { color: '#475569', bg: '#f1f5f9', border: '#cbd5e1', label: 'Nota' },
+}
 
-type Vista = 'hoy' | 'semana' | 'todos' | 'completados'
+const TIPO_ICONS: Record<string, string> = { llamada: '📞', cita: '📅', email: '✉️', whatsapp: '💬', nota: '📝' }
+const DIAS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre']
+const HORAS = Array.from({ length: 24 }, (_, i) => i)
+
+function isSameDay(a: Date, b: Date) {
+  return a.getDate() === b.getDate() && a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear()
+}
+function startOfWeek(d: Date) {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate() - d.getDay())
+}
 
 export default function SeguimientoPage() {
   const supabase = createClientComponentClient()
+  const [vista, setVista] = useState<'mes' | 'semana' | 'dia'>('semana')
+  const [fecha, setFecha] = useState(new Date())
   const [actividades, setActividades] = useState<Actividad[]>([])
   const [clientes, setClientes] = useState<Cliente[]>([])
-  const [loading, setLoading] = useState(true)
-  const [vista, setVista] = useState<Vista>('hoy')
+  const [cargando, setCargando] = useState(true)
   const [userId, setUserId] = useState('')
   const [showModal, setShowModal] = useState(false)
-  const [editando, setEditando] = useState<Actividad | null>(null)
-  const [form, setForm] = useState({ titulo: '', tipo: 'llamada', fecha_programada: '', notas: '', cliente_id: '' })
-  const [saving, setSaving] = useState(false)
+  const [fechaSel, setFechaSel] = useState('')
+  const [horaSel, setHoraSel] = useState('09:00')
+  const [form, setForm] = useState({ tipo: 'llamada', titulo: '', cliente_id: '', notas: '' })
+  const [guardando, setGuardando] = useState(false)
+  const [mensaje, setMensaje] = useState('')
+  const [detalle, setDetalle] = useState<Actividad | null>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -46,272 +65,364 @@ export default function SeguimientoPage() {
     })
   }, [])
 
+  useEffect(() => {
+    if (scrollRef.current && (vista === 'semana' || vista === 'dia')) {
+      scrollRef.current.scrollTop = 7 * 56
+    }
+  }, [vista])
+
   async function loadData(uid: string) {
-    setLoading(true)
+    setCargando(true)
     const [{ data: acts }, { data: clis }] = await Promise.all([
-      supabase.from('actividades').select('*, clientes(nombre)').eq('asesor_id', uid).order('fecha_programada', { ascending: true }),
+      supabase.from('actividades').select('*, clientes(nombre)').eq('asesor_id', uid).order('fecha_programada'),
       supabase.from('clientes').select('id, nombre').eq('asesor_id', uid).order('nombre'),
     ])
     setActividades((acts as Actividad[]) ?? [])
     setClientes((clis as Cliente[]) ?? [])
-    setLoading(false)
+    setCargando(false)
   }
 
-  async function saveActividad() {
+  async function guardar() {
     if (!form.titulo.trim()) return
-    setSaving(true)
-    if (editando) {
-      const { data } = await supabase.from('actividades').update({
-        titulo: form.titulo, tipo: form.tipo,
-        fecha_programada: form.fecha_programada || null,
-        notas: form.notas || null,
-        cliente_id: form.cliente_id || null,
-      }).eq('id', editando.id).select('*, clientes(nombre)').single()
-      if (data) setActividades(prev => prev.map(a => a.id === editando.id ? data as Actividad : a))
-    } else {
-      const { data } = await supabase.from('actividades').insert({
-        asesor_id: userId, titulo: form.titulo, tipo: form.tipo,
-        fecha_programada: form.fecha_programada || null,
-        notas: form.notas || null,
-        cliente_id: form.cliente_id || null,
-        estatus: 'pendiente',
-      }).select('*, clientes(nombre)').single()
-      if (data) setActividades(prev => [data as Actividad, ...prev])
+    setGuardando(true)
+    const fechaCompleta = fechaSel ? `${fechaSel}T${horaSel}:00` : null
+    const { data } = await supabase.from('actividades').insert({
+      asesor_id: userId, titulo: form.titulo, tipo: form.tipo,
+      fecha_programada: fechaCompleta,
+      notas: form.notas || null,
+      cliente_id: form.cliente_id || null,
+      estatus: 'pendiente',
+    }).select('*, clientes(nombre)').single()
+    if (data) {
+      setActividades(prev => [...prev, data as Actividad])
+      setMensaje('✓ Actividad creada')
+      setTimeout(() => setMensaje(''), 3000)
     }
-    setSaving(false)
-    closeModal()
+    setShowModal(false)
+    setForm({ tipo: 'llamada', titulo: '', cliente_id: '', notas: '' })
+    setGuardando(false)
   }
 
-  async function toggleEstatus(act: Actividad) {
+  async function completar(act: Actividad) {
     const nuevoEstatus = act.estatus === 'pendiente' ? 'completado' : 'pendiente'
     await supabase.from('actividades').update({ estatus: nuevoEstatus }).eq('id', act.id)
     setActividades(prev => prev.map(a => a.id === act.id ? { ...a, estatus: nuevoEstatus } : a))
+    setDetalle(null)
   }
 
-  async function deleteActividad(id: string) {
+  async function eliminar(id: string) {
     if (!confirm('¿Eliminar esta actividad?')) return
     await supabase.from('actividades').delete().eq('id', id)
     setActividades(prev => prev.filter(a => a.id !== id))
+    setDetalle(null)
   }
 
-  function openNueva() {
-    setEditando(null)
-    const now = new Date()
-    now.setMinutes(0)
-    setForm({ titulo: '', tipo: 'llamada', fecha_programada: now.toISOString().slice(0, 16), notas: '', cliente_id: '' })
+  function openModal(fecha: string, hora = '09:00') {
+    setFechaSel(fecha)
+    setHoraSel(hora)
+    setForm({ tipo: 'llamada', titulo: '', cliente_id: '', notas: '' })
     setShowModal(true)
   }
 
-  function openEditar(act: Actividad) {
-    setEditando(act)
-    setForm({
-      titulo: act.titulo, tipo: act.tipo,
-      fecha_programada: act.fecha_programada ? act.fecha_programada.slice(0, 16) : '',
-      notas: act.notas ?? '', cliente_id: act.cliente_id ?? '',
-    })
-    setShowModal(true)
+  function navegar(dir: number) {
+    const d = new Date(fecha)
+    if (vista === 'mes') d.setMonth(d.getMonth() + dir)
+    else if (vista === 'semana') d.setDate(d.getDate() + dir * 7)
+    else d.setDate(d.getDate() + dir)
+    setFecha(d)
   }
 
-  function closeModal() { setShowModal(false); setEditando(null) }
-
-  const hoy = new Date()
-  const startHoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate())
-  const endHoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate(), 23, 59, 59)
-  const startSemana = new Date(startHoy); startSemana.setDate(startHoy.getDate() - startHoy.getDay())
-  const endSemana = new Date(startSemana); endSemana.setDate(startSemana.getDate() + 6)
-
-  const filtradas = actividades.filter(a => {
-    const fecha = a.fecha_programada ? new Date(a.fecha_programada) : null
-    if (vista === 'hoy') return a.estatus === 'pendiente' && fecha && fecha >= startHoy && fecha <= endHoy
-    if (vista === 'semana') return a.estatus === 'pendiente' && fecha && fecha >= startSemana && fecha <= endSemana
-    if (vista === 'todos') return a.estatus === 'pendiente'
-    if (vista === 'completados') return a.estatus === 'completado'
-    return true
-  })
-
-  const pendientesHoy = actividades.filter(a => {
-    const fecha = a.fecha_programada ? new Date(a.fecha_programada) : null
-    return a.estatus === 'pendiente' && fecha && fecha >= startHoy && fecha <= endHoy
-  }).length
-
-  const fmt = (d: string | null) => {
-    if (!d) return 'Sin fecha'
-    const date = new Date(d)
-    const esHoy = date >= startHoy && date <= endHoy
-    if (esHoy) return `Hoy ${date.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}`
-    return date.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+  function actsDelDia(day: Date) {
+    return actividades.filter(a => a.fecha_programada && isSameDay(new Date(a.fecha_programada), day))
   }
 
-  const isVencida = (a: Actividad) => a.fecha_programada && new Date(a.fecha_programada) < startHoy && a.estatus === 'pendiente'
+  function titulo() {
+    if (vista === 'mes') return `${MESES[fecha.getMonth()]} ${fecha.getFullYear()}`
+    if (vista === 'semana') {
+      const ini = startOfWeek(fecha)
+      const fin = new Date(ini); fin.setDate(ini.getDate() + 6)
+      return `${ini.getDate()} ${MESES[ini.getMonth()].slice(0,3)} — ${fin.getDate()} ${MESES[fin.getMonth()].slice(0,3)} ${fin.getFullYear()}`
+    }
+    return fecha.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  }
 
-  const VISTAS: { key: Vista; label: string; count?: number }[] = [
-    { key: 'hoy', label: 'Hoy', count: pendientesHoy },
-    { key: 'semana', label: 'Esta semana' },
-    { key: 'todos', label: 'Todos los pendientes' },
-    { key: 'completados', label: 'Completados' },
-  ]
+  // ── RENDER MES ─────────────────────────────────────────────────
+  function renderMes() {
+    const ini = new Date(fecha.getFullYear(), fecha.getMonth(), 1)
+    const fin = new Date(fecha.getFullYear(), fecha.getMonth() + 1, 0)
+    const startPad = ini.getDay()
+    const days: (Date | null)[] = Array(startPad).fill(null)
+    for (let i = 1; i <= fin.getDate(); i++) days.push(new Date(fecha.getFullYear(), fecha.getMonth(), i))
+    while (days.length % 7 !== 0) days.push(null)
+    const hoy = new Date()
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)', background: '#F4F6FB', overflow: 'hidden' }}>
-      {/* Header */}
-      <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '14px 24px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <h1 style={{ color: AZUL, fontSize: '20px', fontWeight: '700', margin: 0, flex: 1 }}>Seguimiento</h1>
-        <button onClick={openNueva}
-          style={{ background: AZUL, color: 'white', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
-          + Nueva actividad
-        </button>
-      </div>
-
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        {/* Sidebar vistas */}
-        <div style={{ width: '200px', flexShrink: 0, background: 'white', borderRight: '1px solid #e2e8f0', padding: '12px 8px' }}>
-          {VISTAS.map(v => (
-            <button key={v.key} onClick={() => setVista(v.key)}
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '9px 12px', background: vista === v.key ? '#EEF2F8' : 'none', border: 'none', borderRadius: '8px', cursor: 'pointer', marginBottom: '2px', textAlign: 'left' }}>
-              <span style={{ fontSize: '13px', fontWeight: vista === v.key ? '600' : '400', color: vista === v.key ? AZUL : '#64748b' }}>{v.label}</span>
-              {v.count !== undefined && v.count > 0 && (
-                <span style={{ background: NARANJA, color: 'white', fontSize: '10px', fontWeight: '700', padding: '1px 6px', borderRadius: '10px' }}>{v.count}</span>
-              )}
-            </button>
+    return (
+      <div style={{ flex: 1, overflow: 'auto', padding: '0' }}>
+        {/* Cabecera días */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '1px solid #e2e8f0' }}>
+          {DIAS.map(d => (
+            <div key={d} style={{ padding: '8px 0', textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>{d}</div>
           ))}
-
-          <div style={{ borderTop: '1px solid #e2e8f0', margin: '12px 0', paddingTop: '12px' }}>
-            <p style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', padding: '0 12px', margin: '0 0 8px' }}>Por tipo</p>
-            {TIPOS.map(tipo => {
-              const count = actividades.filter(a => a.tipo === tipo && a.estatus === 'pendiente').length
+        </div>
+        {/* Semanas */}
+        {Array.from({ length: days.length / 7 }, (_, w) => (
+          <div key={w} style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '1px solid #f1f5f9' }}>
+            {days.slice(w * 7, w * 7 + 7).map((day, i) => {
+              const acts = day ? actsDelDia(day) : []
+              const esHoy = day ? isSameDay(day, hoy) : false
+              const esFecha = day ? isSameDay(day, fecha) : false
               return (
-                <div key={tipo} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px' }}>
-                  <span style={{ fontSize: '14px' }}>{TIPO_ICONS[tipo]}</span>
-                  <span style={{ fontSize: '12px', color: '#64748b', flex: 1, textTransform: 'capitalize' }}>{tipo}</span>
-                  {count > 0 && <span style={{ fontSize: '11px', color: '#94a3b8' }}>{count}</span>}
+                <div key={i} onClick={() => day && setFecha(day)}
+                  style={{ minHeight: '100px', padding: '6px', borderRight: i < 6 ? '1px solid #f1f5f9' : 'none', background: esFecha ? '#EEF2F8' : 'white', cursor: day ? 'pointer' : 'default' }}>
+                  {day && (
+                    <>
+                      <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: esHoy ? AZUL : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: esHoy ? '700' : '400', color: esHoy ? 'white' : day.getMonth() !== fecha.getMonth() ? '#cbd5e1' : '#374151', marginBottom: '4px' }}>
+                        {day.getDate()}
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        {acts.slice(0, 3).map(a => {
+                          const cfg = TIPO_CONFIG[a.tipo] ?? TIPO_CONFIG.nota
+                          return (
+                            <div key={a.id} onClick={e => { e.stopPropagation(); setDetalle(a) }}
+                              style={{ fontSize: '10px', padding: '2px 5px', borderRadius: '4px', background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer', textDecoration: a.estatus === 'completado' ? 'line-through' : 'none' }}>
+                              {TIPO_ICONS[a.tipo]} {a.titulo}
+                            </div>
+                          )
+                        })}
+                        {acts.length > 3 && <div style={{ fontSize: '10px', color: '#94a3b8', padding: '1px 4px' }}>+{acts.length - 3} más</div>}
+                      </div>
+                      <button onClick={e => { e.stopPropagation(); openModal(day.toISOString().split('T')[0]) }}
+                        style={{ marginTop: '4px', fontSize: '10px', color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', padding: '1px 4px', borderRadius: '4px' }}>+ agregar</button>
+                    </>
+                  )}
                 </div>
               )
             })}
           </div>
+        ))}
+      </div>
+    )
+  }
+
+  // ── RENDER SEMANA / DÍA ────────────────────────────────────────
+  function renderSemanaODia() {
+    const HORA_H = 56
+    const dias = vista === 'semana'
+      ? Array.from({ length: 7 }, (_, i) => { const d = startOfWeek(fecha); d.setDate(d.getDate() + i); return d })
+      : [fecha]
+    const hoy = new Date()
+
+    return (
+      <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        {/* Cabecera días */}
+        <div style={{ display: 'grid', gridTemplateColumns: `56px repeat(${dias.length}, 1fr)`, borderBottom: '1px solid #e2e8f0', background: 'white', flexShrink: 0 }}>
+          <div />
+          {dias.map((d, i) => {
+            const esHoy = isSameDay(d, hoy)
+            return (
+              <div key={i} onClick={() => { setFecha(d); if (vista === 'semana') setVista('dia') }}
+                style={{ padding: '8px 4px', textAlign: 'center', cursor: 'pointer', borderLeft: '1px solid #f1f5f9' }}>
+                <div style={{ fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: '600' }}>{DIAS[d.getDay()]}</div>
+                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: esHoy ? AZUL : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: esHoy ? '700' : '500', color: esHoy ? 'white' : '#374151', margin: '2px auto 0' }}>
+                  {d.getDate()}
+                </div>
+              </div>
+            )
+          })}
         </div>
-
-        {/* Lista actividades */}
-        <div style={{ flex: 1, overflow: 'auto', padding: '16px 20px' }}>
-          {loading ? (
-            <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8' }}>Cargando...</div>
-          ) : filtradas.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '60px' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>{vista === 'completados' ? '🏆' : '✅'}</div>
-              <div style={{ color: '#64748b', fontSize: '15px', fontWeight: '600', marginBottom: '8px' }}>
-                {vista === 'hoy' ? 'Sin actividades para hoy' : vista === 'completados' ? 'Sin actividades completadas' : 'Sin pendientes'}
-              </div>
-              <div style={{ color: '#94a3b8', fontSize: '13px' }}>
-                {vista !== 'completados' ? 'Agrega una nueva actividad con el botón de arriba' : ''}
-              </div>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {filtradas.map(act => (
-                <div key={act.id} style={{
-                  background: 'white', borderRadius: '10px', padding: '14px 16px',
-                  border: `1px solid ${isVencida(act) ? '#fecaca' : '#e2e8f0'}`,
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                  display: 'flex', alignItems: 'flex-start', gap: '12px',
-                  opacity: act.estatus === 'completado' ? 0.65 : 1,
-                }}>
-                  {/* Checkbox */}
-                  <button onClick={() => toggleEstatus(act)}
-                    style={{ width: '20px', height: '20px', borderRadius: '50%', border: `2px solid ${act.estatus === 'completado' ? VERDE : '#e2e8f0'}`, background: act.estatus === 'completado' ? VERDE : 'white', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '2px', padding: 0 }}>
-                    {act.estatus === 'completado' && <span style={{ color: 'white', fontSize: '10px', fontWeight: '700' }}>✓</span>}
-                  </button>
-
-                  {/* Tipo icon */}
-                  <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: `${TIPO_COLORS[act.tipo]}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>
-                    {TIPO_ICONS[act.tipo] ?? '📌'}
-                  </div>
-
-                  {/* Content */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '14px', fontWeight: '600', color: act.estatus === 'completado' ? '#94a3b8' : '#1e293b', textDecoration: act.estatus === 'completado' ? 'line-through' : 'none', marginBottom: '3px' }}>
-                      {act.titulo}
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                      {act.clientes?.nombre && (
-                        <span style={{ fontSize: '12px', color: AZUL, fontWeight: '500' }}>👤 {act.clientes.nombre}</span>
-                      )}
-                      <span style={{ fontSize: '11px', color: isVencida(act) ? '#ef4444' : '#94a3b8' }}>
-                        {isVencida(act) ? '⚠️ Vencida · ' : ''}{fmt(act.fecha_programada)}
-                      </span>
-                    </div>
-                    {act.notas && <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px', fontStyle: 'italic' }}>{act.notas}</div>}
-                  </div>
-
-                  {/* Badge tipo */}
-                  <span style={{ fontSize: '10px', padding: '3px 8px', borderRadius: '12px', fontWeight: '600', background: `${TIPO_COLORS[act.tipo]}15`, color: TIPO_COLORS[act.tipo], flexShrink: 0, textTransform: 'capitalize' }}>
-                    {act.tipo}
-                  </span>
-
-                  {/* Actions */}
-                  <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
-                    <button onClick={() => openEditar(act)}
-                      style={{ padding: '4px 8px', background: '#F1F5F9', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#64748b' }}>✏️</button>
-                    <button onClick={() => deleteActividad(act.id)}
-                      style={{ padding: '4px 8px', background: '#fef2f2', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', color: '#dc2626' }}>🗑️</button>
-                  </div>
+        {/* Grid de horas */}
+        <div ref={scrollRef} style={{ flex: 1, overflow: 'auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: `56px repeat(${dias.length}, 1fr)`, position: 'relative' }}>
+            {/* Columna horas */}
+            <div>
+              {HORAS.map(h => (
+                <div key={h} style={{ height: HORA_H, borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end', paddingRight: '8px', paddingTop: '2px' }}>
+                  <span style={{ fontSize: '10px', color: '#94a3b8' }}>{h.toString().padStart(2, '0')}:00</span>
                 </div>
               ))}
             </div>
-          )}
+            {/* Columnas días */}
+            {dias.map((dia, di) => (
+              <div key={di} style={{ borderLeft: '1px solid #f1f5f9', position: 'relative' }}>
+                {HORAS.map(h => (
+                  <div key={h} onClick={() => openModal(dia.toISOString().split('T')[0], `${h.toString().padStart(2, '0')}:00`)}
+                    style={{ height: HORA_H, borderBottom: '1px solid #f1f5f9', cursor: 'pointer' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#f8fafc')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                  />
+                ))}
+                {/* Actividades posicionadas */}
+                {actsDelDia(dia).map(a => {
+                  if (!a.fecha_programada) return null
+                  const d = new Date(a.fecha_programada)
+                  const top = (d.getHours() + d.getMinutes() / 60) * HORA_H
+                  const cfg = TIPO_CONFIG[a.tipo] ?? TIPO_CONFIG.nota
+                  return (
+                    <div key={a.id} onClick={e => { e.stopPropagation(); setDetalle(a) }}
+                      style={{ position: 'absolute', top, left: '2px', right: '2px', minHeight: '24px', borderRadius: '6px', padding: '3px 6px', background: cfg.bg, border: `1px solid ${cfg.border}`, cursor: 'pointer', zIndex: 10, opacity: a.estatus === 'completado' ? 0.5 : 1 }}>
+                      <div style={{ fontSize: '10px', fontWeight: '700', color: cfg.color, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: a.estatus === 'completado' ? 'line-through' : 'none' }}>
+                        {TIPO_ICONS[a.tipo]} {d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })} {a.titulo}
+                      </div>
+                      {a.clientes?.nombre && <div style={{ fontSize: '9px', color: cfg.color, opacity: 0.8 }}>{a.clientes.nombre}</div>}
+                    </div>
+                  )
+                })}
+                {/* Línea hora actual */}
+                {isSameDay(dia, hoy) && (
+                  <div style={{ position: 'absolute', left: 0, right: 0, top: (hoy.getHours() + hoy.getMinutes() / 60) * HORA_H, height: '2px', background: '#ef4444', zIndex: 20, pointerEvents: 'none' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444', position: 'absolute', left: '-4px', top: '-3px' }} />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
+    )
+  }
 
-      {/* Modal nueva/editar actividad */}
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)', background: 'white', overflow: 'hidden' }}>
+      {/* Header */}
+      <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '10px 20px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {/* Nav */}
+        <button onClick={() => navegar(-1)} style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>‹</button>
+        <button onClick={() => setFecha(new Date())} style={{ padding: '4px 12px', borderRadius: '6px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', fontSize: '12px', fontWeight: '600', color: '#374151' }}>Hoy</button>
+        <button onClick={() => navegar(1)} style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>›</button>
+
+        <h2 style={{ fontSize: '15px', fontWeight: '700', color: AZUL, margin: 0, flex: 1, textTransform: 'capitalize' }}>{titulo()}</h2>
+
+        {/* Vista toggles */}
+        <div style={{ display: 'flex', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
+          {(['mes', 'semana', 'dia'] as const).map(v => (
+            <button key={v} onClick={() => setVista(v)}
+              style={{ padding: '6px 12px', background: vista === v ? AZUL : 'white', color: vista === v ? 'white' : '#64748b', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '600', textTransform: 'capitalize' }}>
+              {v === 'dia' ? 'Día' : v === 'semana' ? 'Semana' : 'Mes'}
+            </button>
+          ))}
+        </div>
+
+        <button onClick={() => openModal(fecha.toISOString().split('T')[0])}
+          style={{ background: NARANJA, border: 'none', color: 'white', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+          + Nueva actividad
+        </button>
+      </div>
+
+      {mensaje && (
+        <div style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)', background: AZUL, color: 'white', padding: '12px 24px', borderRadius: '12px', fontSize: '13px', fontWeight: '600', zIndex: 700, boxShadow: '0 8px 24px rgba(0,0,0,0.25)' }}>
+          {mensaje}
+        </div>
+      )}
+
+      {cargando ? (
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '14px' }}>Cargando agenda...</div>
+      ) : (
+        vista === 'mes' ? renderMes() : renderSemanaODia()
+      )}
+
+      {/* Modal nueva actividad */}
       {showModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          onClick={e => { if (e.target === e.currentTarget) closeModal() }}>
-          <div style={{ background: 'white', borderRadius: '12px', padding: '28px', width: '480px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
-            <h2 style={{ color: AZUL, fontSize: '18px', fontWeight: '700', margin: '0 0 20px' }}>
-              {editando ? 'Editar actividad' : 'Nueva actividad'}
-            </h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          onClick={e => { if (e.target === e.currentTarget) setShowModal(false) }}>
+          <div style={{ background: 'white', borderRadius: '12px', padding: '24px', width: '440px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+            <h3 style={{ color: AZUL, fontSize: '16px', fontWeight: '700', margin: '0 0 18px' }}>Nueva actividad</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>Título *</label>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Título *</label>
                 <input value={form.titulo} onChange={e => setForm(p => ({ ...p, titulo: e.target.value }))} placeholder="Ej. Llamada de seguimiento"
-                  style={{ display: 'block', width: '100%', padding: '10px 14px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
+                  style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>Tipo</label>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Tipo</label>
                   <select value={form.tipo} onChange={e => setForm(p => ({ ...p, tipo: e.target.value }))}
-                    style={{ display: 'block', width: '100%', padding: '10px 14px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', background: 'white' }}>
-                    {TIPOS.map(t => <option key={t} value={t}>{TIPO_ICONS[t]} {t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
+                    style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', background: 'white' }}>
+                    {Object.entries(TIPO_CONFIG).map(([k, v]) => <option key={k} value={k}>{TIPO_ICONS[k]} {v.label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>Fecha y hora</label>
-                  <input type="datetime-local" value={form.fecha_programada} onChange={e => setForm(p => ({ ...p, fecha_programada: e.target.value }))}
-                    style={{ display: 'block', width: '100%', padding: '10px 14px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Hora</label>
+                  <input type="time" value={horaSel} onChange={e => setHoraSel(e.target.value)}
+                    style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
                 </div>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>Cliente</label>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Fecha</label>
+                <input type="date" value={fechaSel} onChange={e => setFechaSel(e.target.value)}
+                  style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Cliente</label>
                 <select value={form.cliente_id} onChange={e => setForm(p => ({ ...p, cliente_id: e.target.value }))}
-                  style={{ display: 'block', width: '100%', padding: '10px 14px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', background: 'white' }}>
+                  style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', background: 'white' }}>
                   <option value="">— Sin cliente —</option>
                   {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
                 </select>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>Notas</label>
-                <textarea value={form.notas} onChange={e => setForm(p => ({ ...p, notas: e.target.value }))} rows={2} placeholder="Detalles adicionales..."
-                  style={{ display: 'block', width: '100%', padding: '10px 14px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', resize: 'none', outline: 'none' }} />
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Notas</label>
+                <textarea value={form.notas} onChange={e => setForm(p => ({ ...p, notas: e.target.value }))} rows={2}
+                  style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', resize: 'none', outline: 'none' }} />
               </div>
             </div>
-            <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
-              <button onClick={closeModal}
+            <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+              <button onClick={() => setShowModal(false)}
                 style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
                 Cancelar
               </button>
-              <button onClick={saveActividad} disabled={saving || !form.titulo.trim()}
-                style={{ flex: 2, padding: '10px', background: saving || !form.titulo.trim() ? '#94a3b8' : AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer' }}>
-                {saving ? 'Guardando...' : editando ? 'Guardar cambios' : 'Crear actividad'}
+              <button onClick={guardar} disabled={guardando || !form.titulo.trim()}
+                style={{ flex: 2, padding: '10px', background: guardando || !form.titulo.trim() ? '#94a3b8' : NARANJA, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: guardando ? 'not-allowed' : 'pointer' }}>
+                {guardando ? 'Guardando...' : 'Crear actividad'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal detalle */}
+      {detalle && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          onClick={e => { if (e.target === e.currentTarget) setDetalle(null) }}>
+          <div style={{ background: 'white', borderRadius: '12px', padding: '24px', width: '380px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+            {(() => {
+              const cfg = TIPO_CONFIG[detalle.tipo] ?? TIPO_CONFIG.nota
+              return (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                    <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: cfg.bg, border: `1px solid ${cfg.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>
+                      {TIPO_ICONS[detalle.tipo]}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '15px', fontWeight: '700', color: '#1e293b' }}>{detalle.titulo}</div>
+                      <div style={{ fontSize: '11px', color: cfg.color, fontWeight: '600', textTransform: 'uppercase' }}>{cfg.label}</div>
+                    </div>
+                    <button onClick={() => setDetalle(null)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+                    {detalle.fecha_programada && (
+                      <div style={{ fontSize: '13px', color: '#64748b' }}>
+                        📅 {new Date(detalle.fecha_programada).toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    )}
+                    {detalle.clientes?.nombre && <div style={{ fontSize: '13px', color: '#64748b' }}>👤 {detalle.clientes.nombre}</div>}
+                    {detalle.notas && <div style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic' }}>📝 {detalle.notas}</div>}
+                    <div style={{ fontSize: '12px', padding: '4px 10px', borderRadius: '12px', background: detalle.estatus === 'completado' ? '#f0fdf4' : '#FEF4EC', color: detalle.estatus === 'completado' ? VERDE : NARANJA, fontWeight: '600', display: 'inline-block' }}>
+                      {detalle.estatus === 'completado' ? '✓ Completado' : '⏳ Pendiente'}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button onClick={() => completar(detalle)}
+                      style={{ flex: 2, padding: '9px', background: detalle.estatus === 'pendiente' ? VERDE : '#F1F5F9', color: detalle.estatus === 'pendiente' ? 'white' : '#64748b', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                      {detalle.estatus === 'pendiente' ? '✓ Marcar completado' : 'Reabrir'}
+                    </button>
+                    <button onClick={() => eliminar(detalle.id)}
+                      style={{ flex: 1, padding: '9px', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                      Eliminar
+                    </button>
+                  </div>
+                </>
+              )
+            })()}
           </div>
         </div>
       )}
