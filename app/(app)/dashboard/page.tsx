@@ -69,7 +69,7 @@ export default function DashboardPage() {
         seguimientosPendientesHoy: seguimientosPendientesHoy ?? 0,
         seguimientosPendientesTotal: seguimientosPendientesTotal ?? 0,
       })
-      setActividades((actividadesData as Actividad[]) ?? [])
+      setActividades((actividadesData as unknown as Actividad[]) ?? [])
       setLoading(false)
     }
     loadData()
