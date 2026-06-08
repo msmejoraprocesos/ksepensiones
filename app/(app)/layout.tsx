@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import Link from 'next/link'
 
-const AZUL = '#1F3A5F'
+const AZUL = '#1B3A6B'
 const NARANJA = '#F47920'
 
 type NavItem = { href: string; label: string; icon: string }
