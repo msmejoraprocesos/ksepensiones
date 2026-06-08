@@ -115,7 +115,7 @@ export default function ConfiguracionPage() {
 
         {/* Perfil del asesor */}
         <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-          <h2 style={{ color: AZUL, fontSize: '14px', fontWeight: '700', margin: '0 0 16px', textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '12px' }}>Perfil del asesor</h2>
+          <h2 style={{ color: AZUL, fontSize: '12px', fontWeight: '700', margin: '0 0 16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Perfil del asesor</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {/* Logo */}
             <div>
