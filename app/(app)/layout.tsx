@@ -24,10 +24,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClientComponentClient()
   const [userName, setUserName] = useState<string>('')
   const [collapsed, setCollapsed] = useState(false)
+  const [checking, setChecking] = useState(true)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) { router.push('/login'); return }
+      setChecking(false)
       supabase.from('perfiles_usuario').select('nombre').eq('id', session.user.id).single()
         .then(({ data }) => {
           setUserName(data?.nombre || session.user.email || '')
@@ -41,6 +43,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   const sidebarWidth = collapsed ? 64 : 220
+
+  if (checking) return (
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: '#F4F6FB', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ color: '#94a3b8', fontSize: '14px' }}>Cargando...</div>
+    </div>
+  )
 
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: '#F4F6FB' }}>
