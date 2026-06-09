@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/utils/supabase/client'
 
 const AZUL = '#1B3A6B'
 const VERDE = '#2E8B57'
@@ -109,7 +109,7 @@ interface Actividad {
 type Vista = 'lista' | 'pipeline'
 
 export default function ClientesPage() {
-  const supabase = createClientComponentClient()
+  const supabase = createClient()
   const [vista, setVista] = useState<Vista>('lista')
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [loading, setLoading] = useState(true)
