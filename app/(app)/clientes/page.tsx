@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 const AZUL = '#1B3A6B'
@@ -115,6 +115,7 @@ export default function ClientesPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [userId, setUserId] = useState('')
+  const userIdRef = useRef('')
 
   // Expediente
   const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null)
@@ -137,6 +138,7 @@ export default function ClientesPage() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) return
       setUserId(session.user.id)
+      userIdRef.current = session.user.id
       loadClientes(session.user.id)
     })
   }, [])
@@ -167,7 +169,7 @@ export default function ClientesPage() {
       form.monto_cobrado ? parseFloat(form.monto_cobrado) : null
     )
     await supabase.from('clientes').insert({
-      asesor_id: userId,
+      asesor_id: userIdRef.current || userId,
       nombre: form.nombre,
       telefono: form.telefono || null,
       email: form.email || null,
@@ -179,7 +181,7 @@ export default function ClientesPage() {
       estatus_pago: estatus,
     })
     // Reload fresh from DB to get all fields including defaults
-    await loadClientes(userId)
+    await loadClientes(userIdRef.current || userId)
     setSaving(false)
     setShowNuevo(false)
     setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '', monto_cobrado: '' })
