@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { createBrowserClient } from '@supabase/ssr'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 const AZUL = '#1B3A6B'
 const VERDE = '#2E8B57'
@@ -109,10 +109,7 @@ interface Actividad {
 type Vista = 'lista' | 'pipeline'
 
 export default function ClientesPage() {
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  const supabase = createClientComponentClient()
   const [vista, setVista] = useState<Vista>('lista')
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [loading, setLoading] = useState(true)
@@ -167,8 +164,11 @@ export default function ClientesPage() {
   async function guardarNuevo() {
     if (!form.nombre.trim()) return
     setSaving(true)
-    const uid = userIdRef.current || userId
-    if (!uid) { setSaving(false); alert('Error: sesión no iniciada'); return }
+    // Refresh session to ensure valid token
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { setSaving(false); alert('Error: sesión no iniciada'); return }
+    const uid = session.user.id
+    userIdRef.current = uid
     const estatus = calcEstatusPago(
       form.monto_acordado ? parseFloat(form.monto_acordado) : null,
       form.monto_cobrado ? parseFloat(form.monto_cobrado) : null
