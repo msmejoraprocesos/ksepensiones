@@ -338,15 +338,16 @@ export default function ClientesPage() {
                         <td style={{ padding: '11px 14px', fontSize: '12px', color: '#64748b' }}>{c.servicio_contratado ?? '—'}</td>
                         <td style={{ padding: '11px 14px', fontSize: '12px', fontWeight: '600', color: AZUL }}>{fmtMXN(c.monto_acordado)}</td>
                         <td style={{ padding: '11px 14px' }}>
-                          {c.estatus_pago ? (() => {
-                            const s = PAGO_SEMAFORO[c.estatus_pago] ?? PAGO_SEMAFORO['Pendiente']
+                          {(() => {
+                            const ep = calcEstatusPago(c.monto_acordado, c.monto_cobrado)
+                            const s = PAGO_SEMAFORO[ep]
                             return (
                               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: s.bg, border: `1px solid ${s.border}`, borderRadius: '8px', padding: '2px 8px' }}>
                                 <span style={{ fontSize: '12px' }}>{s.icon}</span>
                                 <span style={{ fontSize: '11px', color: s.color, fontWeight: '700' }}>{s.label}</span>
                               </span>
                             )
-                          })() : '—'}
+                          })()}
                         </td>
                         <td style={{ padding: '11px 14px', fontSize: '12px', color: '#94a3b8' }}>{fmtDias(c.ultimo_contacto)}</td>
                         <td style={{ padding: '11px 14px' }}>
@@ -408,8 +409,9 @@ export default function ClientesPage() {
                             💰 {fmtMXN(cliente.monto_acordado)}
                           </div>
                         )}
-                        {cliente.estatus_pago && (() => {
-                          const s = PAGO_SEMAFORO[cliente.estatus_pago] ?? PAGO_SEMAFORO['Pendiente']
+                        {(() => {
+                          const ep = calcEstatusPago(cliente.monto_acordado, cliente.monto_cobrado)
+                          const s = PAGO_SEMAFORO[ep]
                           return (
                             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: s.bg, border: `1px solid ${s.border}`, borderRadius: '6px', padding: '1px 6px', marginBottom: '3px' }}>
                               <span style={{ fontSize: '10px' }}>{s.icon}</span>
@@ -500,8 +502,8 @@ export default function ClientesPage() {
                       <div>
                         <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Estatus pago (auto)</label>
                         {(() => {
-                          const ep = selectedCliente.estatus_pago ?? 'Pendiente'
-                          const s = PAGO_SEMAFORO[ep] ?? PAGO_SEMAFORO['Pendiente']
+                          const ep = calcEstatusPago(selectedCliente.monto_acordado, selectedCliente.monto_cobrado)
+                          const s = PAGO_SEMAFORO[ep]
                           return (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: s.bg, border: `2px solid ${s.border}`, borderRadius: '8px' }}>
                               <span style={{ fontSize: '20px' }}>{s.icon}</span>
