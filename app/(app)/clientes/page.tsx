@@ -162,7 +162,11 @@ export default function ClientesPage() {
   async function guardarNuevo() {
     if (!form.nombre.trim()) return
     setSaving(true)
-    const { data } = await supabase.from('clientes').insert({
+    const estatus = calcEstatusPago(
+      form.monto_acordado ? parseFloat(form.monto_acordado) : null,
+      form.monto_cobrado ? parseFloat(form.monto_cobrado) : null
+    )
+    await supabase.from('clientes').insert({
       asesor_id: userId,
       nombre: form.nombre,
       telefono: form.telefono || null,
@@ -172,9 +176,10 @@ export default function ClientesPage() {
       servicio_contratado: form.servicio_contratado || null,
       monto_acordado: form.monto_acordado ? parseFloat(form.monto_acordado) : null,
       monto_cobrado: form.monto_cobrado ? parseFloat(form.monto_cobrado) : null,
-      estatus_pago: calcEstatusPago(form.monto_acordado ? parseFloat(form.monto_acordado) : null, form.monto_cobrado ? parseFloat(form.monto_cobrado) : null),
-    }).select().single()
-    if (data) setClientes(prev => [data as Cliente, ...prev])
+      estatus_pago: estatus,
+    })
+    // Reload fresh from DB to get all fields including defaults
+    await loadClientes(userId)
     setSaving(false)
     setShowNuevo(false)
     setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '', monto_cobrado: '' })
