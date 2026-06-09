@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/utils/supabase/client'
 
 const AZUL = '#1F3A5F'
 const VERDE = '#2E8B57'
@@ -41,7 +41,7 @@ function startOfWeek(d: Date) {
 }
 
 export default function SeguimientoPage() {
-  const supabase = createClientComponentClient()
+  const supabase = createClient()
   const [vista, setVista] = useState<'mes' | 'semana' | 'dia'>('semana')
   const [fecha, setFecha] = useState(new Date())
   const [actividades, setActividades] = useState<Actividad[]>([])
