@@ -117,6 +117,7 @@ export default function ClientesPage() {
   const [formPago, setFormPago] = useState({ monto: '', concepto: 'Anticipo', notas: '', fecha_pago: new Date().toISOString().split('T')[0] })
   const [savingPago, setSavingPago] = useState(false)
   const [uploadingComp, setUploadingComp] = useState<string | null>(null)
+  const [compFile, setCompFile] = useState<File | null>(null)
 
   // Drag & drop
   const [dragging, setDragging] = useState<string | null>(null)
@@ -186,6 +187,20 @@ export default function ClientesPage() {
     setSavingPago(true)
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) { setSavingPago(false); return }
+
+    // Upload comprobante if exists
+    let comprobante_url = null
+    if (compFile) {
+      const pagoTempId = crypto.randomUUID()
+      const ext = compFile.name.split('.').pop()
+      const path = `comprobantes/${pagoTempId}.${ext}`
+      const { error: uploadError } = await supabase.storage.from('comprobantes').upload(path, compFile, { upsert: true })
+      if (!uploadError) {
+        const { data: urlData } = supabase.storage.from('comprobantes').getPublicUrl(path)
+        comprobante_url = urlData.publicUrl
+      }
+    }
+
     const { data, error } = await supabase.from('pagos').insert({
       cliente_id: selected.id,
       asesor_id: session.user.id,
@@ -193,11 +208,11 @@ export default function ClientesPage() {
       concepto: formPago.concepto,
       notas: formPago.notas || null,
       fecha_pago: new Date(formPago.fecha_pago).toISOString(),
+      comprobante_url,
     }).select().single()
     if (!error && data) {
       const newPago = data as Pago
       setPagos(prev => [newPago, ...prev])
-      // Update total_pagado in selected and clientes list
       const nuevoTotal = (selected.total_pagado ?? 0) + newPago.monto
       const updatedCliente = { ...selected, total_pagado: nuevoTotal }
       setSelected(updatedCliente)
@@ -205,6 +220,7 @@ export default function ClientesPage() {
     }
     setSavingPago(false)
     setShowPago(false)
+    setCompFile(null)
     setFormPago({ monto: '', concepto: 'Anticipo', notas: '', fecha_pago: new Date().toISOString().split('T')[0] })
   }
 
@@ -441,7 +457,20 @@ export default function ClientesPage() {
                             <span style={{ fontSize: '10px' }}>{sem.icon}</span>
                             <span style={{ fontSize: '10px', color: sem.color, fontWeight: '700' }}>{estatus}</span>
                           </div>
-                          <div style={{ fontSize: '10px', color: '#94a3b8' }}>📅 {fmtDias(cliente.ultimo_contacto ?? cliente.created_at)}</div>
+                          {/* Mini historial de pagos */}
+                          {(cliente.total_pagado ?? 0) > 0 && (
+                            <div style={{ marginTop: '4px', padding: '4px 6px', background: '#f0fdf4', borderRadius: '6px', border: '1px solid #bbf7d0' }}>
+                              <div style={{ fontSize: '10px', color: VERDE, fontWeight: '700' }}>
+                                💰 {fmtMXN(cliente.total_pagado ?? 0)} pagado
+                              </div>
+                              {cliente.monto_acordado && (
+                                <div style={{ fontSize: '9px', color: '#94a3b8' }}>
+                                  de {fmtMXN(cliente.monto_acordado)} acordado
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '4px' }}>📅 {fmtDias(cliente.ultimo_contacto ?? cliente.created_at)}</div>
                         </div>
                       )
                     })}
@@ -654,7 +683,7 @@ export default function ClientesPage() {
       {/* ── MODAL NUEVO PAGO ── */}
       {showPago && selected && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          onClick={e => { if (e.target === e.currentTarget) setShowPago(false) }}>
+          onClick={e => { if (e.target === e.currentTarget) { setShowPago(false); setCompFile(null) } }}>
           <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '400px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
             <h3 style={{ color: AZUL, fontSize: '17px', fontWeight: '700', margin: '0 0 6px' }}>Registrar pago</h3>
             <p style={{ color: '#94a3b8', fontSize: '12px', margin: '0 0 20px' }}>{selected.nombre} · Acordado: {fmtMXN(selected.monto_acordado)} · Pagado: {fmtMXN(selected.total_pagado ?? 0)}</p>
@@ -678,6 +707,21 @@ export default function ClientesPage() {
               <div>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Notas</label>
                 <input value={formPago.notas} onChange={e => setFormPago(p => ({ ...p, notas: e.target.value }))} placeholder="Ej. Transferencia BBVA" style={inputSt} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Comprobante (opcional)</label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', border: `2px dashed ${compFile ? VERDE : '#e2e8f0'}`, borderRadius: '8px', cursor: 'pointer', background: compFile ? '#f0fdf4' : '#FAFBFC', transition: 'all 0.15s' }}>
+                  <span style={{ fontSize: '18px' }}>{compFile ? '✅' : '📎'}</span>
+                  <span style={{ fontSize: '12px', color: compFile ? VERDE : '#94a3b8', fontWeight: '600' }}>
+                    {compFile ? compFile.name : 'Adjuntar ficha de depósito o transferencia'}
+                  </span>
+                  <input type="file" accept="image/*,.pdf" onChange={e => setCompFile(e.target.files?.[0] ?? null)} style={{ display: 'none' }} />
+                </label>
+                {compFile && (
+                  <button onClick={() => setCompFile(null)} style={{ marginTop: '4px', fontSize: '10px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                    ✕ Quitar archivo
+                  </button>
+                )}
               </div>
             </div>
             <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
