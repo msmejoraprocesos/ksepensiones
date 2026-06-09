@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@supabase/supabase-js'
 
 const AZUL = '#1B3A6B'
 const VERDE = '#2E8B57'
@@ -110,6 +111,7 @@ type Vista = 'lista' | 'pipeline'
 
 export default function ClientesPage() {
   const supabase = createClientComponentClient()
+  const [supabaseWithAuth, setSupabaseWithAuth] = useState<ReturnType<typeof createClient> | null>(null)
   const [vista, setVista] = useState<Vista>('lista')
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [loading, setLoading] = useState(true)
@@ -139,13 +141,28 @@ export default function ClientesPage() {
       if (!session) return
       setUserId(session.user.id)
       userIdRef.current = session.user.id
-      loadClientes(session.user.id)
+      // Create authenticated Supabase client with access token
+      const authClient = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        { global: { headers: { Authorization: `Bearer ${session.access_token}` } } }
+      )
+      setSupabaseWithAuth(authClient)
+      loadClientesWithClient(session.user.id, authClient)
     })
   }, [])
 
   async function loadClientes(uid: string) {
+    const client = supabaseWithAuth || supabase
     setLoading(true)
-    const { data } = await supabase.from('clientes').select('*').eq('asesor_id', uid).order('created_at', { ascending: false })
+    const { data } = await client.from('clientes').select('*').eq('asesor_id', uid).order('created_at', { ascending: false })
+    setClientes((data as Cliente[]) ?? [])
+    setLoading(false)
+  }
+
+  async function loadClientesWithClient(uid: string, client: ReturnType<typeof createClient>) {
+    setLoading(true)
+    const { data } = await client.from('clientes').select('*').eq('asesor_id', uid).order('created_at', { ascending: false })
     setClientes((data as Cliente[]) ?? [])
     setLoading(false)
   }
@@ -170,7 +187,8 @@ export default function ClientesPage() {
       form.monto_acordado ? parseFloat(form.monto_acordado) : null,
       form.monto_cobrado ? parseFloat(form.monto_cobrado) : null
     )
-    const { data, error } = await supabase.from('clientes').insert({
+    const client = supabaseWithAuth || supabase
+    const { data, error } = await client.from('clientes').insert({
       asesor_id: uid,
       nombre: form.nombre,
       telefono: form.telefono || null,
@@ -189,7 +207,8 @@ export default function ClientesPage() {
       return
     }
     if (data) setClientes(prev => [data as Cliente, ...prev])
-    await loadClientes(uid)
+    if (supabaseWithAuth) await loadClientesWithClient(uid, supabaseWithAuth)
+    else await loadClientes(uid)
     setSaving(false)
     setShowNuevo(false)
     setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '', monto_cobrado: '' })
@@ -197,6 +216,7 @@ export default function ClientesPage() {
   }
 
   async function actualizarCliente(id: string, campos: Partial<Cliente>) {
+    const client = supabaseWithAuth || supabase
     // Auto-recalculate estatus_pago when monto changes
     const cliente = clientes.find(c => c.id === id)
     if (campos.monto_acordado !== undefined || campos.monto_cobrado !== undefined) {
@@ -204,7 +224,7 @@ export default function ClientesPage() {
       const cobrado = campos.monto_cobrado ?? cliente?.monto_cobrado ?? null
       campos.estatus_pago = calcEstatusPago(monto, cobrado)
     }
-    await supabase.from('clientes').update(campos).eq('id', id)
+    await client.from('clientes').update(campos).eq('id', id)
     setClientes(prev => prev.map(c => c.id === id ? { ...c, ...campos } : c))
     if (selectedCliente?.id === id) setSelectedCliente(prev => prev ? { ...prev, ...campos } : prev)
   }
@@ -216,7 +236,8 @@ export default function ClientesPage() {
 
   async function eliminarCliente(id: string) {
     if (!confirm('¿Eliminar este cliente?')) return
-    await supabase.from('clientes').delete().eq('id', id)
+    const client = supabaseWithAuth || supabase
+    await client.from('clientes').delete().eq('id', id)
     setClientes(prev => prev.filter(c => c.id !== id))
     setSelectedCliente(null)
   }
