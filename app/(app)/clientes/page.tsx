@@ -59,6 +59,13 @@ function validateEmail(val: string): string | null {
   return null
 }
 
+
+const PAGO_SEMAFORO: Record<string, { bg: string; border: string; color: string; icon: string; label: string }> = {
+  'Pendiente': { bg: '#fef2f2', border: '#fecaca', color: '#dc2626', icon: '🔴', label: 'Pendiente' },
+  'Parcial':   { bg: '#fff7ed', border: '#fed7aa', color: '#ea580c', icon: '🟡', label: 'Parcial' },
+  'Liquidado': { bg: '#f0fdf4', border: '#bbf7d0', color: '#16a34a', icon: '🟢', label: 'Liquidado' },
+}
+
 const TIPO_ICONS: Record<string, string> = { llamada: '📞', whatsapp: '💬', cita: '📅', email: '✉️', nota: '📝' }
 
 interface Cliente {
@@ -326,12 +333,15 @@ export default function ClientesPage() {
                         <td style={{ padding: '11px 14px', fontSize: '12px', color: '#64748b' }}>{c.servicio_contratado ?? '—'}</td>
                         <td style={{ padding: '11px 14px', fontSize: '12px', fontWeight: '600', color: AZUL }}>{fmtMXN(c.monto_acordado)}</td>
                         <td style={{ padding: '11px 14px' }}>
-                          {c.estatus_pago ? (
-                            <span style={{ fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: PAGO_COLOR[c.estatus_pago] ?? '#94a3b8' }} />
-                              <span style={{ color: PAGO_COLOR[c.estatus_pago] ?? '#94a3b8', fontWeight: '600' }}>{c.estatus_pago}</span>
-                            </span>
-                          ) : '—'}
+                          {c.estatus_pago ? (() => {
+                            const s = PAGO_SEMAFORO[c.estatus_pago] ?? PAGO_SEMAFORO['Pendiente']
+                            return (
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: s.bg, border: `1px solid ${s.border}`, borderRadius: '8px', padding: '2px 8px' }}>
+                                <span style={{ fontSize: '12px' }}>{s.icon}</span>
+                                <span style={{ fontSize: '11px', color: s.color, fontWeight: '700' }}>{s.label}</span>
+                              </span>
+                            )
+                          })() : '—'}
                         </td>
                         <td style={{ padding: '11px 14px', fontSize: '12px', color: '#94a3b8' }}>{fmtDias(c.ultimo_contacto)}</td>
                         <td style={{ padding: '11px 14px' }}>
@@ -393,12 +403,15 @@ export default function ClientesPage() {
                             💰 {fmtMXN(cliente.monto_acordado)}
                           </div>
                         )}
-                        {cliente.estatus_pago && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '3px' }}>
-                            <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: PAGO_COLOR[cliente.estatus_pago] ?? '#94a3b8' }} />
-                            <span style={{ fontSize: '10px', color: PAGO_COLOR[cliente.estatus_pago] ?? '#94a3b8', fontWeight: '600' }}>{cliente.estatus_pago}</span>
-                          </div>
-                        )}
+                        {cliente.estatus_pago && (() => {
+                          const s = PAGO_SEMAFORO[cliente.estatus_pago] ?? PAGO_SEMAFORO['Pendiente']
+                          return (
+                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: s.bg, border: `1px solid ${s.border}`, borderRadius: '6px', padding: '1px 6px', marginBottom: '3px' }}>
+                              <span style={{ fontSize: '10px' }}>{s.icon}</span>
+                              <span style={{ fontSize: '10px', color: s.color, fontWeight: '700' }}>{s.label}</span>
+                            </div>
+                          )
+                        })()}
                         <div style={{ fontSize: '10px', color: '#94a3b8' }}>📅 {fmtDias(cliente.ultimo_contacto ?? cliente.created_at)}</div>
                       </div>
                     ))}
@@ -481,9 +494,16 @@ export default function ClientesPage() {
                       </div>
                       <div>
                         <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Estatus pago (auto)</label>
-                        <div style={{ padding: '7px 10px', background: '#F4F6FB', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px', fontWeight: '700', color: PAGO_COLOR[selectedCliente.estatus_pago ?? 'Pendiente'] ?? '#94a3b8' }}>
-                          {selectedCliente.estatus_pago ?? 'Pendiente'}
-                        </div>
+                        {(() => {
+                          const ep = selectedCliente.estatus_pago ?? 'Pendiente'
+                          const s = PAGO_SEMAFORO[ep] ?? PAGO_SEMAFORO['Pendiente']
+                          return (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: s.bg, border: `2px solid ${s.border}`, borderRadius: '8px' }}>
+                              <span style={{ fontSize: '20px' }}>{s.icon}</span>
+                              <span style={{ fontSize: '13px', fontWeight: '800', color: s.color }}>{s.label}</span>
+                            </div>
+                          )
+                        })()}
                       </div>
                       <div>
                         <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Monto acordado</label>
@@ -649,12 +669,19 @@ export default function ClientesPage() {
                   <input type="number" value={form.monto_cobrado} onChange={e => setForm(p => ({ ...p, monto_cobrado: e.target.value }))} placeholder="0" style={inputSt} />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '2px' }}>
-                  <div style={{ fontSize: '10px', color: '#94a3b8', background: '#F4F6FB', borderRadius: '8px', padding: '9px 12px', width: '100%', border: '1px solid #e2e8f0' }}>
-                    <div style={{ fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '2px' }}>Pago (auto)</div>
-                    <div style={{ fontWeight: '700', color: PAGO_COLOR[calcEstatusPago(form.monto_acordado ? parseFloat(form.monto_acordado) : null, form.monto_cobrado ? parseFloat(form.monto_cobrado) : null)] ?? '#94a3b8' }}>
-                      {calcEstatusPago(form.monto_acordado ? parseFloat(form.monto_acordado) : null, form.monto_cobrado ? parseFloat(form.monto_cobrado) : null)}
-                    </div>
-                  </div>
+                  {(() => {
+                    const ep = calcEstatusPago(form.monto_acordado ? parseFloat(form.monto_acordado) : null, form.monto_cobrado ? parseFloat(form.monto_cobrado) : null)
+                    const s = PAGO_SEMAFORO[ep] ?? PAGO_SEMAFORO['Pendiente']
+                    return (
+                      <div style={{ width: '100%', background: s.bg, border: `2px solid ${s.border}`, borderRadius: '8px', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '18px' }}>{s.icon}</span>
+                        <div>
+                          <div style={{ fontSize: '9px', color: s.color, textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '700', marginBottom: '1px' }}>Pago (auto)</div>
+                          <div style={{ fontSize: '13px', fontWeight: '800', color: s.color }}>{s.label}</div>
+                        </div>
+                      </div>
+                    )
+                  })()}
                 </div>
               </div>
               <div>
