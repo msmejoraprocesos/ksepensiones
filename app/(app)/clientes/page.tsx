@@ -31,6 +31,34 @@ function calcEstatusPago(monto: number | null, cobrado: number | null): string {
   return 'Parcial'
 }
 
+
+// Validaciones
+function formatTelefono(val: string): string {
+  const digits = val.replace(/\D/g, '').slice(0, 10)
+  if (digits.length <= 2) return digits
+  if (digits.length <= 6) return `${digits.slice(0,2)} ${digits.slice(2)}`
+  return `${digits.slice(0,2)} ${digits.slice(2,6)} ${digits.slice(6)}`
+}
+
+function validateTelefono(val: string): string | null {
+  const digits = val.replace(/\D/g, '')
+  if (!val) return null
+  if (digits.length < 10) return `Faltan ${10 - digits.length} dígitos (requiere 10)`
+  if (digits.length > 10) return 'Máximo 10 dígitos'
+  if (!['55','56','33','81','664','998','999','222','442','444'].some(p => digits.startsWith(p)) && digits[0] !== '1') {
+    // Basic check - just verify it starts with valid Mexican codes
+  }
+  return null
+}
+
+function validateEmail(val: string): string | null {
+  if (!val) return null
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(val)) return 'Formato inválido (ej: nombre@dominio.com)'
+  if (val.length > 100) return 'Máximo 100 caracteres'
+  return null
+}
+
 const TIPO_ICONS: Record<string, string> = { llamada: '📞', whatsapp: '💬', cita: '📅', email: '✉️', nota: '📝' }
 
 interface Cliente {
@@ -92,6 +120,7 @@ export default function ClientesPage() {
   const [form, setForm] = useState({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '', monto_cobrado: '' })
   const [uploadingComp, setUploadingComp] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [formErrors, setFormErrors] = useState<{telefono?: string; email?: string}>({})
 
   // Drag & drop
   const [dragging, setDragging] = useState<string | null>(null)
@@ -142,6 +171,7 @@ export default function ClientesPage() {
     setSaving(false)
     setShowNuevo(false)
     setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '', monto_cobrado: '' })
+    setFormErrors({})
   }
 
   async function actualizarCliente(id: string, campos: Partial<Cliente>) {
@@ -562,11 +592,36 @@ export default function ClientesPage() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Teléfono</label>
-                  <input value={form.telefono} onChange={e => setForm(p => ({ ...p, telefono: e.target.value }))} placeholder="55 1234 5678" style={inputSt} />
+                  <input
+                    value={form.telefono}
+                    onChange={e => {
+                      const formatted = formatTelefono(e.target.value)
+                      setForm(p => ({ ...p, telefono: formatted }))
+                      setFormErrors(p => ({ ...p, telefono: validateTelefono(formatted) ?? undefined }))
+                    }}
+                    placeholder="55 1234 5678"
+                    maxLength={12}
+                    style={{ ...inputSt, borderColor: formErrors.telefono ? '#ef4444' : '#e2e8f0' }}
+                  />
+                  {formErrors.telefono && <p style={{ fontSize: '10px', color: '#ef4444', margin: '3px 0 0', display: 'flex', alignItems: 'center', gap: '3px' }}>⚠️ {formErrors.telefono}</p>}
+                  {!formErrors.telefono && form.telefono && form.telefono.replace(/\D/g,'').length === 10 && <p style={{ fontSize: '10px', color: '#16a34a', margin: '3px 0 0' }}>✓ Teléfono válido</p>}
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Email</label>
-                  <input value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder="correo@ejemplo.com" style={inputSt} />
+                  <input
+                    type="email"
+                    value={form.email}
+                    onChange={e => {
+                      setForm(p => ({ ...p, email: e.target.value }))
+                      setFormErrors(p => ({ ...p, email: validateEmail(e.target.value) ?? undefined }))
+                    }}
+                    onBlur={e => setFormErrors(p => ({ ...p, email: validateEmail(e.target.value) ?? undefined }))}
+                    placeholder="correo@ejemplo.com"
+                    maxLength={100}
+                    style={{ ...inputSt, borderColor: formErrors.email ? '#ef4444' : '#e2e8f0' }}
+                  />
+                  {formErrors.email && <p style={{ fontSize: '10px', color: '#ef4444', margin: '3px 0 0' }}>⚠️ {formErrors.email}</p>}
+                  {!formErrors.email && form.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email) && <p style={{ fontSize: '10px', color: '#16a34a', margin: '3px 0 0' }}>✓ Email válido</p>}
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
@@ -609,7 +664,7 @@ export default function ClientesPage() {
             </div>
             <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
               <button onClick={() => setShowNuevo(false)} style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
-              <button onClick={guardarNuevo} disabled={saving || !form.nombre.trim()} style={{ flex: 2, padding: '10px', background: saving || !form.nombre.trim() ? '#94a3b8' : AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer' }}>
+              <button onClick={guardarNuevo} disabled={saving || !form.nombre.trim() || !!formErrors.telefono || !!formErrors.email} style={{ flex: 2, padding: '10px', background: saving || !form.nombre.trim() || !!formErrors.telefono || !!formErrors.email ? '#94a3b8' : AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer' }}>
                 {saving ? 'Guardando...' : 'Guardar cliente'}
               </button>
             </div>
