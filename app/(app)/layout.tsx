@@ -11,7 +11,7 @@ const NARANJA = '#F47920'
 type NavItem = { href: string; label: string; icon: string }
 
 const NAV_ITEMS: NavItem[] = [
-  { href: '/dashboard',     label: 'Dashboard',     icon: '◈' },
+  { href: '/dashboard',     label: 'Mi día',     icon: '◈' },
   { href: '/clientes',      label: 'Clientes',      icon: '◎' },
   { href: '/calculadora',   label: 'Calculadora',   icon: '⊞' },
   { href: '/seguimiento',   label: 'Seguimiento',   icon: '◷' },
