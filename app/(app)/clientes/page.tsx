@@ -22,6 +22,15 @@ const SERVICIOS = ['Diagnóstico', 'Trámite', 'Combo']
 const PAGOS = ['Pendiente', 'Parcial', 'Liquidado']
 const PAGO_COLOR: Record<string, string> = { 'Pendiente': '#ef4444', 'Parcial': NARANJA, 'Liquidado': VERDE }
 
+
+// Auto-calcula estatus de pago
+function calcEstatusPago(monto: number | null, cobrado: number | null): string {
+  if (!cobrado || cobrado === 0) return 'Pendiente'
+  if (!monto || monto === 0) return cobrado > 0 ? 'Parcial' : 'Pendiente'
+  if (cobrado >= monto) return 'Liquidado'
+  return 'Parcial'
+}
+
 const TIPO_ICONS: Record<string, string> = { llamada: '📞', whatsapp: '💬', cita: '📅', email: '✉️', nota: '📝' }
 
 interface Cliente {
@@ -35,6 +44,7 @@ interface Cliente {
   monto_acordado: number | null
   monto_cobrado: number | null
   estatus_pago: string | null
+  comprobante_url: string | null
   ultimo_contacto: string | null
   created_at: string
 }
@@ -79,7 +89,8 @@ export default function ClientesPage() {
 
   // Nuevo cliente
   const [showNuevo, setShowNuevo] = useState(false)
-  const [form, setForm] = useState({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '', monto_cobrado: '', estatus_pago: 'Pendiente' })
+  const [form, setForm] = useState({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '', monto_cobrado: '' })
+  const [uploadingComp, setUploadingComp] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
   // Drag & drop
@@ -125,15 +136,22 @@ export default function ClientesPage() {
       servicio_contratado: form.servicio_contratado || null,
       monto_acordado: form.monto_acordado ? parseFloat(form.monto_acordado) : null,
       monto_cobrado: form.monto_cobrado ? parseFloat(form.monto_cobrado) : null,
-      estatus_pago: form.estatus_pago || null,
+      estatus_pago: calcEstatusPago(form.monto_acordado ? parseFloat(form.monto_acordado) : null, form.monto_cobrado ? parseFloat(form.monto_cobrado) : null),
     }).select().single()
     if (data) setClientes(prev => [data as Cliente, ...prev])
     setSaving(false)
     setShowNuevo(false)
-    setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '', monto_cobrado: '', estatus_pago: 'Pendiente' })
+    setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '', monto_cobrado: '' })
   }
 
   async function actualizarCliente(id: string, campos: Partial<Cliente>) {
+    // Auto-recalculate estatus_pago when monto changes
+    const cliente = clientes.find(c => c.id === id)
+    if (campos.monto_acordado !== undefined || campos.monto_cobrado !== undefined) {
+      const monto = campos.monto_acordado ?? cliente?.monto_acordado ?? null
+      const cobrado = campos.monto_cobrado ?? cliente?.monto_cobrado ?? null
+      campos.estatus_pago = calcEstatusPago(monto, cobrado)
+    }
     await supabase.from('clientes').update(campos).eq('id', id)
     setClientes(prev => prev.map(c => c.id === id ? { ...c, ...campos } : c))
     if (selectedCliente?.id === id) setSelectedCliente(prev => prev ? { ...prev, ...campos } : prev)
@@ -149,6 +167,19 @@ export default function ClientesPage() {
     await supabase.from('clientes').delete().eq('id', id)
     setClientes(prev => prev.filter(c => c.id !== id))
     setSelectedCliente(null)
+  }
+
+
+  async function uploadComprobante(clienteId: string, file: File) {
+    setUploadingComp(clienteId)
+    const ext = file.name.split('.').pop()
+    const path = `comprobantes/${clienteId}-${Date.now()}.${ext}`
+    const { error } = await supabase.storage.from('comprobantes').upload(path, file, { upsert: true })
+    if (!error) {
+      const { data } = supabase.storage.from('comprobantes').getPublicUrl(path)
+      await actualizarCliente(clienteId, { comprobante_url: data.publicUrl })
+    }
+    setUploadingComp(null)
   }
 
   const filtered = clientes.filter(c =>
@@ -419,10 +450,10 @@ export default function ClientesPage() {
                         </select>
                       </div>
                       <div>
-                        <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Estatus pago</label>
-                        <select defaultValue={selectedCliente.estatus_pago ?? 'Pendiente'} onChange={e => actualizarCliente(selectedCliente.id, { estatus_pago: e.target.value })} style={{ ...inputSt, fontSize: '12px', padding: '7px 10px' }}>
-                          {PAGOS.map(p => <option key={p} value={p}>{p}</option>)}
-                        </select>
+                        <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Estatus pago (auto)</label>
+                        <div style={{ padding: '7px 10px', background: '#F4F6FB', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px', fontWeight: '700', color: PAGO_COLOR[selectedCliente.estatus_pago ?? 'Pendiente'] ?? '#94a3b8' }}>
+                          {selectedCliente.estatus_pago ?? 'Pendiente'}
+                        </div>
                       </div>
                       <div>
                         <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Monto acordado</label>
@@ -433,6 +464,28 @@ export default function ClientesPage() {
                         <input type="number" defaultValue={selectedCliente.monto_cobrado ?? ''} onBlur={e => actualizarCliente(selectedCliente.id, { monto_cobrado: parseFloat(e.target.value) || null })} placeholder="0" style={{ ...inputSt, fontSize: '12px', padding: '7px 10px' }} />
                       </div>
                     </div>
+                  </div>
+
+                  {/* Comprobante de pago */}
+                  <div style={{ background: '#F4F6FB', borderRadius: '10px', padding: '14px' }}>
+                    <div style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px' }}>Comprobante de pago</div>
+                    {selectedCliente.comprobante_url ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <a href={selectedCliente.comprobante_url} target="_blank" rel="noopener noreferrer"
+                          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: 'white', borderRadius: '8px', border: '1px solid #e2e8f0', textDecoration: 'none', color: AZUL, fontSize: '12px', fontWeight: '600' }}>
+                          📎 Ver comprobante adjunto →
+                        </a>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px', background: '#fff7ed', borderRadius: '8px', border: '1px solid #fed7aa', cursor: 'pointer', fontSize: '11px', color: NARANJA, fontWeight: '600' }}>
+                          🔄 {uploadingComp === selectedCliente.id ? 'Subiendo...' : 'Reemplazar comprobante'}
+                          <input type="file" accept="image/*,.pdf" onChange={e => { const f = e.target.files?.[0]; if (f) uploadComprobante(selectedCliente.id, f) }} style={{ display: 'none' }} disabled={uploadingComp === selectedCliente.id} />
+                        </label>
+                      </div>
+                    ) : (
+                      <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px', background: 'white', borderRadius: '8px', border: '2px dashed #e2e8f0', cursor: uploadingComp === selectedCliente.id ? 'not-allowed' : 'pointer', fontSize: '13px', color: '#94a3b8', fontWeight: '600', transition: 'all 0.15s' }}>
+                        {uploadingComp === selectedCliente.id ? '⏳ Subiendo comprobante...' : '📎 Adjuntar ficha de depósito'}
+                        <input type="file" accept="image/*,.pdf" onChange={e => { const f = e.target.files?.[0]; if (f) uploadComprobante(selectedCliente.id, f) }} style={{ display: 'none' }} disabled={uploadingComp === selectedCliente.id} />
+                      </label>
+                    )}
                   </div>
 
                   {/* Acciones */}
@@ -540,11 +593,13 @@ export default function ClientesPage() {
                   <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Cobrado ($)</label>
                   <input type="number" value={form.monto_cobrado} onChange={e => setForm(p => ({ ...p, monto_cobrado: e.target.value }))} placeholder="0" style={inputSt} />
                 </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Pago</label>
-                  <select value={form.estatus_pago} onChange={e => setForm(p => ({ ...p, estatus_pago: e.target.value }))} style={inputSt}>
-                    {PAGOS.map(p => <option key={p} value={p}>{p}</option>)}
-                  </select>
+                <div style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '2px' }}>
+                  <div style={{ fontSize: '10px', color: '#94a3b8', background: '#F4F6FB', borderRadius: '8px', padding: '9px 12px', width: '100%', border: '1px solid #e2e8f0' }}>
+                    <div style={{ fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '2px' }}>Pago (auto)</div>
+                    <div style={{ fontWeight: '700', color: PAGO_COLOR[calcEstatusPago(form.monto_acordado ? parseFloat(form.monto_acordado) : null, form.monto_cobrado ? parseFloat(form.monto_cobrado) : null)] ?? '#94a3b8' }}>
+                      {calcEstatusPago(form.monto_acordado ? parseFloat(form.monto_acordado) : null, form.monto_cobrado ? parseFloat(form.monto_cobrado) : null)}
+                    </div>
+                  </div>
                 </div>
               </div>
               <div>
