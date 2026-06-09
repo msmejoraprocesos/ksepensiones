@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, Suspense } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/utils/supabase/client'
 import { useSearchParams } from 'next/navigation'
 
 const AZUL = '#1B3A6B'
@@ -103,7 +103,7 @@ const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency'
 // ── COMPONENTE PRINCIPAL ──────────────────────────────────────────
 
 function CalculadoraInner() {
-  const supabase = createClientComponentClient()
+  const supabase = createClient()
   const searchParams = useSearchParams()
 
   const [sys, setSys] = useState<SysVars>(SYS_DEFAULT)
