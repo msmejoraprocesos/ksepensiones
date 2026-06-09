@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
 
 const AZUL = '#1B3A6B'
@@ -21,7 +21,7 @@ const NAV_ITEMS: NavItem[] = [
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
-  const supabase = createClientComponentClient()
+  const supabase = createClient()
   const [userName, setUserName] = useState<string>('')
   const [collapsed, setCollapsed] = useState(false)
   const [checking, setChecking] = useState(true)
