@@ -164,12 +164,14 @@ export default function ClientesPage() {
   async function guardarNuevo() {
     if (!form.nombre.trim()) return
     setSaving(true)
+    const uid = userIdRef.current || userId
+    if (!uid) { setSaving(false); alert('Error: sesión no iniciada'); return }
     const estatus = calcEstatusPago(
       form.monto_acordado ? parseFloat(form.monto_acordado) : null,
       form.monto_cobrado ? parseFloat(form.monto_cobrado) : null
     )
-    await supabase.from('clientes').insert({
-      asesor_id: userIdRef.current || userId,
+    const { data, error } = await supabase.from('clientes').insert({
+      asesor_id: uid,
       nombre: form.nombre,
       telefono: form.telefono || null,
       email: form.email || null,
@@ -179,9 +181,15 @@ export default function ClientesPage() {
       monto_acordado: form.monto_acordado ? parseFloat(form.monto_acordado) : null,
       monto_cobrado: form.monto_cobrado ? parseFloat(form.monto_cobrado) : null,
       estatus_pago: estatus,
-    })
-    // Reload fresh from DB to get all fields including defaults
-    await loadClientes(userIdRef.current || userId)
+    }).select('*').single()
+    if (error) {
+      console.error('Insert error:', error)
+      alert('Error al guardar: ' + error.message)
+      setSaving(false)
+      return
+    }
+    if (data) setClientes(prev => [data as Cliente, ...prev])
+    await loadClientes(uid)
     setSaving(false)
     setShowNuevo(false)
     setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '', monto_cobrado: '' })
