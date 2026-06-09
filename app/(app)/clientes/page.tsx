@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createBrowserClient } from '@supabase/ssr'
 
 const AZUL = '#1B3A6B'
 const VERDE = '#2E8B57'
@@ -109,7 +109,10 @@ interface Actividad {
 type Vista = 'lista' | 'pipeline'
 
 export default function ClientesPage() {
-  const supabase = createClientComponentClient()
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
   const [vista, setVista] = useState<Vista>('lista')
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [loading, setLoading] = useState(true)
@@ -139,8 +142,6 @@ export default function ClientesPage() {
       if (!session) return
       setUserId(session.user.id)
       userIdRef.current = session.user.id
-      // Set session explicitly so RLS works
-      supabase.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token ?? '' })
       loadClientes(session.user.id)
     })
   }, [])
