@@ -29,9 +29,9 @@ export default function ConfiguracionPage() {
 
   const [form, setForm] = useState({
     nombre: '',
-    uma_diaria: 113.45,
-    salario_minimo: 263.12,
-    pmg_mensual: 5953,
+    uma_diaria: 117.31,
+    salario_minimo: 315.04,
+    pmg_mensual: 10636.54,
     rendimiento_afore_default: 6,
     inflacion_uma: 4.5,
   })
