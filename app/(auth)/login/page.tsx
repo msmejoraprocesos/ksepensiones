@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 
 const AZUL = '#1B3A6B'
@@ -10,7 +10,7 @@ const NARANJA = '#F47920'
 
 export default function LoginPage() {
   const router = useRouter()
-  const supabase = createClientComponentClient()
+  const supabase = createClient()
 
   const [mode, setMode] = useState<'login' | 'recover'>('login')
   const [email, setEmail] = useState('')
