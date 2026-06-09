@@ -7,9 +7,9 @@ CREATE TABLE IF NOT EXISTS perfiles_usuario (
   id UUID PRIMARY KEY REFERENCES auth.users(id),
   nombre TEXT,
   logo_url TEXT,
-  uma_diaria NUMERIC DEFAULT 113.45,
-  salario_minimo NUMERIC DEFAULT 263.12,
-  pmg_mensual NUMERIC DEFAULT 5953,
+  uma_diaria NUMERIC DEFAULT 117.31,
+  salario_minimo NUMERIC DEFAULT 315.04,
+  pmg_mensual NUMERIC DEFAULT 10636.54,
   rendimiento_afore_default NUMERIC DEFAULT 6,
   inflacion_uma NUMERIC DEFAULT 4.5,
   created_at TIMESTAMPTZ DEFAULT NOW()
