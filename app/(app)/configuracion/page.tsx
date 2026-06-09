@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/utils/supabase/client'
 
 const AZUL = '#1F3A5F'
 const VERDE = '#2E8B57'
@@ -18,7 +18,7 @@ interface Perfil {
 }
 
 export default function ConfiguracionPage() {
-  const supabase = createClientComponentClient()
+  const supabase = createClient()
   const [perfil, setPerfil] = useState<Perfil | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
