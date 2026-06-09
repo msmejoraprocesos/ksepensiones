@@ -218,6 +218,9 @@ export default function ClientesPage() {
       setSelected(updatedCliente)
       setClientes(prev => prev.map(c => c.id === selected.id ? updatedCliente : c))
     }
+    // Reload all clientes to get fresh total_pagado
+    const uid = userIdRef.current
+    if (uid) await loadClientes(uid)
     setSavingPago(false)
     setShowPago(false)
     setCompFile(null)
@@ -228,11 +231,11 @@ export default function ClientesPage() {
     if (!confirm('¿Eliminar este pago?')) return
     await supabase.from('pagos').delete().eq('id', pagoId)
     setPagos(prev => prev.filter(p => p.id !== pagoId))
+    const uid = userIdRef.current
+    if (uid) await loadClientes(uid)
     if (selected) {
       const nuevoTotal = (selected.total_pagado ?? 0) - monto
-      const updatedCliente = { ...selected, total_pagado: nuevoTotal }
-      setSelected(updatedCliente)
-      setClientes(prev => prev.map(c => c.id === selected.id ? updatedCliente : c))
+      setSelected(prev => prev ? { ...prev, total_pagado: nuevoTotal } : prev)
     }
   }
 
