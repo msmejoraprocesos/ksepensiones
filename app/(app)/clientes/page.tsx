@@ -20,6 +20,16 @@ const COLUMNAS = [
 ]
 
 const SERVICIOS = ['Diagnóstico', 'Trámite', 'Combo']
+
+// Detecta automáticamente el concepto según número de pago y saldo
+function detectarConcepto(numPagos: number, monto: number, saldoPendiente: number, montoAcordado: number | null): string {
+  if (numPagos === 0) return 'Anticipo'
+  if (montoAcordado && Math.abs(monto - saldoPendiente) < 1) return 'Liquidación'
+  if (numPagos === 1) return 'Segunda exhibición'
+  if (numPagos === 2) return 'Tercera exhibición'
+  return 'Liquidación'
+}
+
 const TIPO_ICONS: Record<string, string> = { llamada: '📞', whatsapp: '💬', cita: '📅', email: '✉️', nota: '📝' }
 const CONCEPTOS = ['Anticipo', 'Segunda exhibición', 'Tercera exhibición', 'Liquidación', 'Otro']
 
@@ -594,7 +604,15 @@ export default function ClientesPage() {
               {/* ── TAB PAGOS ── */}
               {modalTab === 'pagos' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {/* Resumen */}
+                  {/* Resumen con número de pagos */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                    {pagos.map((p, i) => (
+                      <span key={p.id} style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '10px', background: '#EEF2F8', color: AZUL, fontWeight: '600' }}>
+                        #{i+1} {p.concepto} · {fmtMXN(p.monto)}
+                      </span>
+                    ))}
+                    {pagos.length === 0 && <span style={{ fontSize: '11px', color: '#94a3b8' }}>Sin pagos registrados aún</span>}
+                  </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
                     {[
                       { label: 'Acordado', value: fmtMXN(selected.monto_acordado), color: AZUL },
@@ -614,10 +632,24 @@ export default function ClientesPage() {
                   </div>
 
                   {/* Botón nuevo pago */}
-                  <button onClick={() => setShowPago(true)}
-                    style={{ width: '100%', padding: '10px', background: VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
-                    + Registrar pago
-                  </button>
+                  {(() => {
+                    const saldo = Math.max(0, (selected.monto_acordado ?? 0) - (selected.total_pagado ?? 0))
+                    const liquidado = selected.monto_acordado != null && saldo <= 0
+                    return liquidado ? (
+                      <div style={{ width: '100%', padding: '10px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', textAlign: 'center', fontSize: '13px', fontWeight: '700', color: VERDE }}>
+                        🟢 Pago completado — cuenta liquidada
+                      </div>
+                    ) : (
+                      <button onClick={() => {
+                        const concepto = detectarConcepto(pagos.length, 0, saldo, selected.monto_acordado)
+                        setFormPago(p => ({ ...p, concepto }))
+                        setShowPago(true)
+                      }}
+                        style={{ width: '100%', padding: '10px', background: VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+                        + Registrar {pagos.length === 0 ? 'anticipo' : pagos.length === 1 ? 'segunda exhibición' : pagos.length === 2 ? 'tercera exhibición' : 'liquidación'}
+                      </button>
+                    )
+                  })()}
 
                   {/* Lista de pagos */}
                   {pagos.length === 0 ? (
@@ -702,7 +734,12 @@ export default function ClientesPage() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => { if (e.target === e.currentTarget) { setShowPago(false); setCompFile(null) } }}>
           <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '400px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
-            <h3 style={{ color: AZUL, fontSize: '17px', fontWeight: '700', margin: '0 0 6px' }}>Registrar pago</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+              <h3 style={{ color: AZUL, fontSize: '17px', fontWeight: '700', margin: 0 }}>Registrar pago</h3>
+              <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 10px', borderRadius: '10px', background: '#EEF2F8', color: AZUL }}>
+                Pago #{pagos.length + 1}
+              </span>
+            </div>
             {(() => {
           const saldo = Math.max(0, (selected.monto_acordado ?? 0) - (selected.total_pagado ?? 0))
           return (
@@ -726,7 +763,12 @@ export default function ClientesPage() {
               <div>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Monto *</label>
                 <input type="number" value={formPago.monto}
-                  onChange={e => setFormPago(p => ({ ...p, monto: e.target.value }))}
+                  onChange={e => {
+                      const val = e.target.value
+                      const saldo = Math.max(0, (selected.monto_acordado ?? 0) - (selected.total_pagado ?? 0))
+                      const concepto = detectarConcepto(pagos.length, parseFloat(val) || 0, saldo, selected.monto_acordado)
+                      setFormPago(p => ({ ...p, monto: val, concepto }))
+                    }}
                   placeholder="0"
                   max={Math.max(0, (selected.monto_acordado ?? 0) - (selected.total_pagado ?? 0))}
                   style={{ ...inputSt, borderColor: formPago.monto && selected.monto_acordado && parseFloat(formPago.monto) > Math.max(0, selected.monto_acordado - (selected.total_pagado ?? 0)) ? '#ef4444' : '#e2e8f0' }}
