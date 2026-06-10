@@ -238,7 +238,7 @@ export default function MiDiaPage() {
           </h1>
           <p style={{ color: '#94a3b8', fontSize: '12px', margin: '2px 0 0', textTransform: 'capitalize' }}>{fechaStr}</p>
         </div>
-        <button onClick={() => router.push('/clientes')}
+        <button onClick={() => router.push('/clientes?nuevo=true')}
           style={{ background: AZUL, color: 'white', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
           + Nuevo cliente
         </button>
@@ -375,7 +375,7 @@ export default function MiDiaPage() {
                   const etapa = ETAPAS[c.etapa_kanban] ?? ETAPAS.prospecto
                   return (
                     <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 10px', background: '#F8FAFC', borderRadius: '8px', border: '1px solid #e2e8f0', cursor: 'pointer' }}
-                      onClick={() => router.push('/clientes')}>
+                      onClick={() => router.push('/clientes?nuevo=true')}>
                       <div style={{ width: '28px', height: '28px', background: AZUL, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '10px', fontWeight: '700', flexShrink: 0 }}>
                         {c.nombre.charAt(0).toUpperCase()}
                       </div>
