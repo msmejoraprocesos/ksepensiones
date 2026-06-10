@@ -148,6 +148,8 @@ function CalculadoraInner() {
   const [notas, setNotas] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [uploadingPDF, setUploadingPDF] = useState(false)
+  const [pdfMsg, setPdfMsg] = useState<string | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -176,7 +178,59 @@ function CalculadoraInner() {
   }, [])
 
   const calcular = useCallback(() => {
-    const edad = edadDesde(fechaNac) || 40
+    async function extraerDatosPDF(file: File) {
+    setUploadingPDF(true)
+    setPdfMsg(null)
+    try {
+      const reader = new FileReader()
+      reader.onload = async (e) => {
+        const base64 = (e.target?.result as string).split(',')[1]
+        const mediaType = file.type === 'application/pdf' ? 'application/pdf' : 'image/jpeg'
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1000,
+            messages: [{
+              role: 'user',
+              content: [
+                {
+                  type: 'document',
+                  source: { type: 'base64', media_type: mediaType, data: base64 }
+                },
+                {
+                  type: 'text',
+                  text: 'Extrae del documento los siguientes datos de semanas cotizadas al IMSS. Responde SOLO con JSON sin markdown, con estos campos: { "semanas": number, "salario_diario": number, "nombre": string, "nss": string, "fecha_nac": "YYYY-MM-DD" }. Si no encuentras algún campo ponlo en null. Las semanas son el total acumulado. El salario diario es el último salario base de cotización en pesos. La fecha de nacimiento en formato YYYY-MM-DD.'
+                }
+              ]
+            }]
+          })
+        })
+        const data = await res.json()
+        const text = data.content?.[0]?.text ?? ''
+        try {
+          const clean = text.replace(/```json|```/g, '').trim()
+          const parsed = JSON.parse(clean)
+          if (parsed.semanas) setSemanas(parsed.semanas)
+          if (parsed.salario_diario && sys.SALARIO_MIN > 0) {
+            setSalarioDiario(Math.round((parsed.salario_diario / sys.SALARIO_MIN) * 10) / 10)
+          }
+          if (parsed.fecha_nac) setFechaNac(parsed.fecha_nac)
+          setPdfMsg(`✅ Datos extraídos: ${parsed.semanas ? parsed.semanas + ' semanas' : ''}${parsed.nombre ? ' · ' + parsed.nombre : ''}`)
+        } catch {
+          setPdfMsg('⚠️ No se pudieron extraer los datos. Verifica que el archivo sea legible.')
+        }
+        setUploadingPDF(false)
+      }
+      reader.readAsDataURL(file)
+    } catch {
+      setPdfMsg('⚠️ Error al procesar el archivo.')
+      setUploadingPDF(false)
+    }
+  }
+
+  const edad = edadDesde(fechaNac) || 40
     const aniosRetiro = Math.max(0, edadRetiro - edad)
 
     // Semanas totales con portabilidad ISSSTE
@@ -308,20 +362,72 @@ function CalculadoraInner() {
     setSaved(true)
   }
 
+  async function extraerDatosPDF(file: File) {
+    setUploadingPDF(true)
+    setPdfMsg(null)
+    try {
+      const reader = new FileReader()
+      reader.onload = async (e) => {
+        const base64 = (e.target?.result as string).split(',')[1]
+        const mediaType = file.type === 'application/pdf' ? 'application/pdf' : 'image/jpeg'
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1000,
+            messages: [{
+              role: 'user',
+              content: [
+                {
+                  type: 'document',
+                  source: { type: 'base64', media_type: mediaType, data: base64 }
+                },
+                {
+                  type: 'text',
+                  text: 'Extrae del documento los siguientes datos de semanas cotizadas al IMSS. Responde SOLO con JSON sin markdown, con estos campos: { "semanas": number, "salario_diario": number, "nombre": string, "nss": string, "fecha_nac": "YYYY-MM-DD" }. Si no encuentras algún campo ponlo en null. Las semanas son el total acumulado. El salario diario es el último salario base de cotización en pesos. La fecha de nacimiento en formato YYYY-MM-DD.'
+                }
+              ]
+            }]
+          })
+        })
+        const data = await res.json()
+        const text = data.content?.[0]?.text ?? ''
+        try {
+          const clean = text.replace(/```json|```/g, '').trim()
+          const parsed = JSON.parse(clean)
+          if (parsed.semanas) setSemanas(parsed.semanas)
+          if (parsed.salario_diario && sys.SALARIO_MIN > 0) {
+            setSalarioDiario(Math.round((parsed.salario_diario / sys.SALARIO_MIN) * 10) / 10)
+          }
+          if (parsed.fecha_nac) setFechaNac(parsed.fecha_nac)
+          setPdfMsg(`✅ Datos extraídos: ${parsed.semanas ? parsed.semanas + ' semanas' : ''}${parsed.nombre ? ' · ' + parsed.nombre : ''}`)
+        } catch {
+          setPdfMsg('⚠️ No se pudieron extraer los datos. Verifica que el archivo sea legible.')
+        }
+        setUploadingPDF(false)
+      }
+      reader.readAsDataURL(file)
+    } catch {
+      setPdfMsg('⚠️ Error al procesar el archivo.')
+      setUploadingPDF(false)
+    }
+  }
+
   const edad = edadDesde(fechaNac)
   const aniosRetiro = Math.max(0, edadRetiro - (edad || 40))
   const semanasConPortabilidad = semanas + (tieneISSSTe ? aniosISSSTe * 52 : 0)
   const escAct = escenarios.find(e => e.tag === escSelected) ?? escenarios[0]
 
   const inputSt: React.CSSProperties = { width: '100%', border: '1.5px solid #475569', borderRadius: '8px', padding: '8px 12px', fontSize: '13px', color: '#f1f5f9', outline: 'none', boxSizing: 'border-box', background: '#334155', fontFamily: 'inherit' }
-  const labelSt: React.CSSProperties = { display: 'block', fontSize: '10px', color: '#94a3b8', fontWeight: '700', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }
+  const labelSt: React.CSSProperties = { display: 'block', fontSize: '10px', color: '#475569', fontWeight: '700', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }
   const stepBadge = (n: number, color: string) => (
     <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: color, color: 'white', fontSize: '11px', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{n}</div>
   )
   const sectionTitle = (n: number, title: string, color: string) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
       {stepBadge(n, color)}
-      <span style={{ fontSize: '11px', fontWeight: '700', color: '#e2e8f0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{title}</span>
+      <span style={{ fontSize: '11px', fontWeight: '700', color: AZUL, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{title}</span>
     </div>
   )
 
@@ -341,7 +447,7 @@ function CalculadoraInner() {
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
 
         {/* ── PANEL IZQUIERDO — INPUTS ── */}
-        <div style={{ width: '300px', flexShrink: 0, borderRight: '1px solid #e2e8f0', background: '#1e293b', overflowY: 'auto', padding: '14px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div style={{ width: '300px', flexShrink: 0, borderRight: '1px solid #e2e8f0', background: 'white', overflowY: 'auto', padding: '14px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
           {/* Régimen */}
           <div>
@@ -393,7 +499,7 @@ function CalculadoraInner() {
           {/* Portabilidad ISSSTE */}
           <div style={{ background: '#f0fdf4', borderRadius: '10px', padding: '12px', border: '1px solid #bbf7d0' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <span style={{ fontSize: '11px', fontWeight: '700', color: '#86efac', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Portabilidad ISSSTE</span>
+              <span style={{ fontSize: '11px', fontWeight: '700', color: '#166534', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Portabilidad ISSSTE</span>
               <button onClick={() => setTieneISSSTe(p => !p)}
                 style={{ width: '36px', height: '20px', borderRadius: '10px', border: 'none', background: tieneISSSTe ? VERDE : '#cbd5e1', cursor: 'pointer', position: 'relative', transition: 'background 0.2s' }}>
                 <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'white', position: 'absolute', top: '2px', transition: 'left 0.2s', left: tieneISSSTe ? '18px' : '2px', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
@@ -402,7 +508,7 @@ function CalculadoraInner() {
             {tieneISSSTe && (
               <div>
                 <label style={{ ...labelSt, color: '#166534' }}>Años cotizados en ISSSTE</label>
-                <input type="number" value={aniosISSSTe || ''} onChange={e => setAniosISSSTe(parseInt(e.target.value) || 0)} placeholder="Ej. 5" style={{ ...inputSt, background: '#1e4534', border: '1px solid #4ade80' }} />
+                <input type="number" value={aniosISSSTe || ''} onChange={e => setAniosISSSTe(parseInt(e.target.value) || 0)} placeholder="Ej. 5" style={{ ...inputSt, background: '#f0fdf4', border: '1px solid #86efac' }} />
                 <p style={{ fontSize: '10px', color: '#166534', margin: '3px 0 0' }}>= {aniosISSSTe * 52} semanas adicionales · Total: {semanasConPortabilidad} semanas</p>
               </div>
             )}
@@ -415,6 +521,20 @@ function CalculadoraInner() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div>
                   <label style={labelSt}>Semanas cotizadas en IMSS</label>
+                  {/* Botón cargar PDF NSS */}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '8px 12px', background: uploadingPDF ? '#f1f5f9' : '#EEF2F8', border: `1.5px dashed ${uploadingPDF ? '#cbd5e1' : AZUL}`, borderRadius: '8px', cursor: uploadingPDF ? 'not-allowed' : 'pointer', marginBottom: '6px', transition: 'all 0.15s' }}>
+                    <span style={{ fontSize: '16px' }}>{uploadingPDF ? '⏳' : '📄'}</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '11px', fontWeight: '700', color: AZUL }}>{uploadingPDF ? 'Analizando documento...' : 'Cargar NSS / Reporte IMSS'}</div>
+                      <div style={{ fontSize: '10px', color: '#94a3b8' }}>PDF o imagen — extrae semanas y salario automáticamente</div>
+                    </div>
+                    <input type="file" accept=".pdf,image/*" onChange={e => { const f = e.target.files?.[0]; if (f) extraerDatosPDF(f) }} style={{ display: 'none' }} disabled={uploadingPDF} />
+                  </label>
+                  {pdfMsg && (
+                    <p style={{ fontSize: '11px', color: pdfMsg.startsWith('✅') ? VERDE : NARANJA, margin: '0 0 6px', padding: '6px 10px', background: pdfMsg.startsWith('✅') ? '#f0fdf4' : '#fff7ed', borderRadius: '6px' }}>
+                      {pdfMsg}
+                    </p>
+                  )}
                   <input type="number" value={semanas || ''} onChange={e => setSemanas(parseInt(e.target.value) || 0)} placeholder="Ej. 800" style={inputSt} />
                   {semanasConPortabilidad > 0 && (
                     <p style={{ fontSize: '10px', margin: '3px 0 0', color: semanasConPortabilidad >= 500 ? VERDE : '#ef4444', fontWeight: '600' }}>
@@ -439,6 +559,15 @@ function CalculadoraInner() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div>
                   <label style={labelSt}>Semanas cotizadas</label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '8px 12px', background: uploadingPDF ? '#f1f5f9' : '#EEF2F8', border: `1.5px dashed ${uploadingPDF ? '#cbd5e1' : AZUL}`, borderRadius: '8px', cursor: uploadingPDF ? 'not-allowed' : 'pointer', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '16px' }}>{uploadingPDF ? '⏳' : '📄'}</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '11px', fontWeight: '700', color: AZUL }}>{uploadingPDF ? 'Analizando...' : 'Cargar NSS / Reporte IMSS'}</div>
+                      <div style={{ fontSize: '10px', color: '#94a3b8' }}>PDF o imagen — extrae datos automáticamente</div>
+                    </div>
+                    <input type="file" accept=".pdf,image/*" onChange={e => { const f = e.target.files?.[0]; if (f) extraerDatosPDF(f) }} style={{ display: 'none' }} disabled={uploadingPDF} />
+                  </label>
+                  {pdfMsg && <p style={{ fontSize: '11px', color: pdfMsg.startsWith('✅') ? VERDE : NARANJA, margin: '0 0 6px' }}>{pdfMsg}</p>}
                   <input type="number" value={semanas || ''} onChange={e => setSemanas(parseInt(e.target.value) || 0)} placeholder="Ej. 800" style={inputSt} />
                   <p style={{ fontSize: '10px', margin: '3px 0 0', color: semanasConPortabilidad >= 1250 ? VERDE : '#ef4444', fontWeight: '600' }}>
                     {semanasConPortabilidad >= 1250 ? '✓ Califica para pensión garantizada' : `⚠️ ${semanasConPortabilidad}/1,250 para pensión garantizada`}
@@ -469,7 +598,7 @@ function CalculadoraInner() {
                 {/* Mod 10 */}
                 <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '10px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: '700', color: '#93c5fd' }}>MODALIDAD 10</span>
+                    <span style={{ fontSize: '11px', fontWeight: '700', color: '#1e40af' }}>MODALIDAD 10</span>
                     <button onClick={() => setMod10Activo(p => !p)}
                       style={{ width: '36px', height: '20px', borderRadius: '10px', border: 'none', background: mod10Activo ? '#3b82f6' : '#cbd5e1', cursor: 'pointer', position: 'relative', transition: 'background 0.2s' }}>
                       <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'white', position: 'absolute', top: '2px', transition: 'left 0.2s', left: mod10Activo ? '18px' : '2px', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
@@ -488,9 +617,9 @@ function CalculadoraInner() {
                 </div>
 
                 {/* Mod 40 */}
-                <div style={{ background: '#3d1f0d', border: '1px solid #f97316', borderRadius: '10px', padding: '10px' }}>
+                <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '10px', padding: '10px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: '700', color: '#fdba74' }}>MODALIDAD 40</span>
+                    <span style={{ fontSize: '11px', fontWeight: '700', color: '#9a3412' }}>MODALIDAD 40</span>
                     <button onClick={() => setMod40Activo(p => !p)}
                       style={{ width: '36px', height: '20px', borderRadius: '10px', border: 'none', background: mod40Activo ? NARANJA : '#cbd5e1', cursor: 'pointer', position: 'relative', transition: 'background 0.2s' }}>
                       <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'white', position: 'absolute', top: '2px', transition: 'left 0.2s', left: mod40Activo ? '18px' : '2px', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
