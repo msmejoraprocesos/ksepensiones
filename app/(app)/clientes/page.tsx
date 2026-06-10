@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, Suspense } from 'react'
 import { createClient } from '@/utils/supabase/client'
+import { useSearchParams, useRouter } from 'next/navigation'
 
 const AZUL = '#1B3A6B'
 const VERDE = '#2E8B57'
