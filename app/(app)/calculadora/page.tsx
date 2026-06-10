@@ -464,6 +464,67 @@ function CalculadoraInner() {
     doc.setTextColor(255,255,255); doc.setFontSize(6)
     doc.text('Powered by KSE Pensiones', W-margin, 290, { align: 'right' })
 
+    // If analisis exists, add page 2
+    if (analisis) {
+      doc.addPage()
+      // Page 2 header
+      doc.setFillColor(...AZUL_R)
+      doc.rect(0, 0, W, 20, 'F')
+      doc.setTextColor(255,255,255)
+      doc.setFontSize(12); doc.setFont('helvetica','bold')
+      doc.text('Análisis del Diagnóstico Pensional', margin, 13)
+      doc.setFontSize(8); doc.setFont('helvetica','normal')
+      doc.text(clienteObj?.nombre || '', W-margin, 13, { align: 'right' })
+
+      let y2 = 28
+      const sections = [
+        { label: 'CONTEXTO DEL ASEGURADO', text: analisis.contexto, color: AZUL_R },
+        { label: 'DIAGNÓSTICO ACTUAL', text: analisis.diagnostico_actual, color: [220,38,38] as [number,number,number] },
+        { label: 'OPCIONES DISPONIBLES', text: analisis.opciones_disponibles, color: [240,91,33] as [number,number,number] },
+        { label: 'RECOMENDACIÓN', text: analisis.recomendacion, color: VER_R },
+        { label: 'PRÓXIMOS PASOS', text: analisis.proximos_pasos, color: [139,92,246] as [number,number,number] },
+      ]
+
+      for (const sec of sections) {
+        if (y2 > 260) { doc.addPage(); y2 = 20 }
+        doc.setTextColor(...sec.color)
+        doc.setFontSize(8); doc.setFont('helvetica','bold')
+        doc.text(sec.label, margin, y2); y2 += 5
+        doc.setTextColor(55,65,81)
+        doc.setFontSize(9); doc.setFont('helvetica','normal')
+        const lines = doc.splitTextToSize(sec.text, W-margin*2)
+        doc.text(lines, margin, y2)
+        y2 += lines.length * 4.5 + 6
+      }
+
+      // QR IMSS at bottom of last page
+      const qrUrl = \`https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=\${encodeURIComponent('https://serviciosdigitales.imss.gob.mx/semanascotizadas-web/usuarios/IngresoAsegurado')}\`
+      try {
+        const qrRes = await fetch(qrUrl)
+        const qrBlob = await qrRes.blob()
+        const qrB64 = await new Promise<string>(resolve => {
+          const reader = new FileReader()
+          reader.onloadend = () => resolve((reader.result as string).split(',')[1])
+          reader.readAsDataURL(qrBlob)
+        })
+        if (y2 > 240) { doc.addPage(); y2 = 20 }
+        doc.setFillColor(248,250,252)
+        doc.roundedRect(margin, y2, W-margin*2, 30, 2, 2, 'F')
+        doc.addImage(qrB64, 'PNG', margin+4, y2+4, 22, 22)
+        doc.setTextColor(...AZUL_R); doc.setFontSize(8); doc.setFont('helvetica','bold')
+        doc.text('Verificar semanas cotizadas', margin+30, y2+10)
+        doc.setTextColor(100,116,139); doc.setFontSize(7); doc.setFont('helvetica','normal')
+        doc.text('Escanea el código QR o visita imss.gob.mx para verificar', margin+30, y2+16)
+        doc.text('tus semanas cotizadas y mantener actualizado tu expediente.', margin+30, y2+21)
+      } catch {}
+
+      // Footer page 2
+      doc.setFillColor(...AZUL_R); doc.rect(0, 284, W, 13, 'F')
+      doc.setTextColor(255,255,255); doc.setFontSize(7)
+      doc.text(\`Folio: \${folio}\`, margin, 290)
+      doc.text('Powered by KSE Pensiones', W-margin, 290, { align: 'right' })
+    }
+
     const fname = `diagnostico-${(clienteObj?.nombre || 'cliente').replace(/\s+/g,'-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.pdf`
     doc.save(fname)
   }
@@ -602,7 +663,7 @@ function CalculadoraInner() {
     })
     setSaving(false)
     setSaved(true)
-    loadHistorial(userIdRef.current)
+    loadHistorial(userIdRef.current || userId)
   }
 
   async function extraerDatosPDF(file: File) {
@@ -994,6 +1055,18 @@ function CalculadoraInner() {
                 <div>
                   <label style={labelSt}>Semanas cotizadas en IMSS <span style={{ color: '#ef4444' }}>*</span></label>
                   {/* Botón cargar PDF NSS */}
+                  {/* Botón abrir IMSS */}
+                  <a href="https://serviciosdigitales.imss.gob.mx/semanascotizadas-web/usuarios/IngresoAsegurado"
+                    target="_blank" rel="noopener noreferrer"
+                    style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '8px 12px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', marginBottom: '6px', textDecoration: 'none', cursor: 'pointer' }}>
+                    <span style={{ fontSize: '14px' }}>🏛️</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '11px', fontWeight: '700', color: VERDE }}>Obtener constancia en imss.gob.mx</div>
+                      <div style={{ fontSize: '10px', color: '#94a3b8' }}>Abre el portal del IMSS para descargar el PDF oficial</div>
+                    </div>
+                    <span style={{ fontSize: '10px', color: VERDE }}>↗</span>
+                  </a>
+
                   {!pdfCargado ? (
                     <label style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '8px 12px', background: uploadingPDF ? '#f1f5f9' : '#EEF2F8', border: `1.5px dashed ${uploadingPDF ? '#cbd5e1' : AZUL}`, borderRadius: '8px', cursor: uploadingPDF ? 'not-allowed' : 'pointer', marginBottom: '6px' }}>
                       <span style={{ fontSize: '16px' }}>{uploadingPDF ? '⏳' : '📄'}</span>
