@@ -153,6 +153,7 @@ function CalculadoraInner() {
   const [pdfMsg, setPdfMsg] = useState<string | null>(null)
   const [pdfCargado, setPdfCargado] = useState(false)
   const [showConfirmReplace, setShowConfirmReplace] = useState(false)
+  const [leyDetectada, setLeyDetectada] = useState<'73' | '97' | 'ambas' | null>(null)
   const [appAlert, setAppAlert] = useState<string | null>(null)
 
   useEffect(() => {
@@ -227,11 +228,28 @@ function CalculadoraInner() {
           setSalarioDiario(Math.round((parsed.salario_diario / sys.SALARIO_MIN) * 10) / 10)
         }
         if (parsed.fecha_nac) setFechaNac(parsed.fecha_nac)
-        if (parsed.fecha_nac) {
+        // Detectar ley desde historial laboral
+        const antes97 = parsed.cotizo_antes_97 === true
+        const despues97 = parsed.cotizo_despues_97 === true
+
+        if (antes97 && despues97) {
+          // Cotizó en ambos períodos — puede elegir
+          setLeyDetectada('ambas')
+          setLey('73') // default a 73 que generalmente es más favorable
+        } else if (antes97) {
+          setLeyDetectada('73')
+          setLey('73')
+        } else if (despues97) {
+          setLeyDetectada('97')
+          setLey('97')
+        } else if (parsed.fecha_nac) {
+          // Fallback: estimar por año de nacimiento
           const anioNac = new Date(parsed.fecha_nac).getFullYear()
-          if (anioNac < 1979) setLey('73')
-          else setLey('97')
+          const leyEstimada = anioNac < 1975 ? '73' : '97'
+          setLeyDetectada(leyEstimada)
+          setLey(leyEstimada)
         }
+
         setPdfCargado(true)
         setPdfMsg(`✅ Constancia válida · ${parsed.semanas} semanas · ${parsed.nombre ?? ''} · NSS: ${parsed.nss}`)
         setUploadingPDF(false)
@@ -582,11 +600,28 @@ function CalculadoraInner() {
           setSalarioDiario(Math.round((parsed.salario_diario / sys.SALARIO_MIN) * 10) / 10)
         }
         if (parsed.fecha_nac) setFechaNac(parsed.fecha_nac)
-        if (parsed.fecha_nac) {
+        // Detectar ley desde historial laboral
+        const antes97 = parsed.cotizo_antes_97 === true
+        const despues97 = parsed.cotizo_despues_97 === true
+
+        if (antes97 && despues97) {
+          // Cotizó en ambos períodos — puede elegir
+          setLeyDetectada('ambas')
+          setLey('73') // default a 73 que generalmente es más favorable
+        } else if (antes97) {
+          setLeyDetectada('73')
+          setLey('73')
+        } else if (despues97) {
+          setLeyDetectada('97')
+          setLey('97')
+        } else if (parsed.fecha_nac) {
+          // Fallback: estimar por año de nacimiento
           const anioNac = new Date(parsed.fecha_nac).getFullYear()
-          if (anioNac < 1979) setLey('73')
-          else setLey('97')
+          const leyEstimada = anioNac < 1975 ? '73' : '97'
+          setLeyDetectada(leyEstimada)
+          setLey(leyEstimada)
         }
+
         setPdfCargado(true)
         setPdfMsg(`✅ Constancia válida · ${parsed.semanas} semanas · ${parsed.nombre ?? ''} · NSS: ${parsed.nss}`)
         setUploadingPDF(false)
@@ -765,13 +800,59 @@ function CalculadoraInner() {
           <div>
             {sectionTitle(1, 'Régimen de pensión', AZUL)}
             <div style={{ display: 'flex', gap: '6px' }}>
-              {(['73', '97'] as const).map(l => (
-                <button key={l} onClick={() => setLey(l)}
-                  style={{ flex: 1, padding: '8px', borderRadius: '8px', border: `2px solid ${ley === l ? AZUL : '#e2e8f0'}`, background: ley === l ? AZUL : 'white', color: ley === l ? 'white' : '#64748b', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>
-                  Ley {l} {l === '73' ? '(pre-97)' : '(AFORE)'}
-                </button>
-              ))}
+              {(['73', '97'] as const).map(l => {
+                const disabled = leyDetectada !== null && leyDetectada !== 'ambas' && leyDetectada !== l
+                const isActive = ley === l
+                return (
+                  <button key={l}
+                    onClick={() => !disabled && setLey(l)}
+                    style={{ flex: 1, padding: '8px', borderRadius: '8px', border: `2px solid ${isActive ? AZUL : disabled ? '#f1f5f9' : '#e2e8f0'}`, background: isActive ? AZUL : disabled ? '#f8fafc' : 'white', color: isActive ? 'white' : disabled ? '#cbd5e1' : '#64748b', fontSize: '12px', fontWeight: '700', cursor: disabled ? 'not-allowed' : 'pointer', position: 'relative' }}>
+                    Ley {l} {l === '73' ? '(pre-97)' : '(AFORE)'}
+                    {disabled && <span style={{ display: 'block', fontSize: '8px', color: '#94a3b8', fontWeight: '400' }}>No aplica</span>}
+                    {leyDetectada === l && !disabled && <span style={{ display: 'block', fontSize: '8px', color: VERDE, fontWeight: '700' }}>✓ Detectada</span>}
+                    {leyDetectada === 'ambas' && <span style={{ display: 'block', fontSize: '8px', color: NARANJA, fontWeight: '700' }}>Cotizó en ambas</span>}
+                  </button>
+                )
+              })}
             </div>
+            {/* Mensaje de detección */}
+            {leyDetectada && (
+              <div style={{ padding: '8px 10px', borderRadius: '8px', fontSize: '11px', fontWeight: '600',
+                background: leyDetectada === 'ambas' ? '#fff7ed' : '#f0fdf4',
+                border: `1px solid ${leyDetectada === 'ambas' ? '#fed7aa' : '#bbf7d0'}`,
+                color: leyDetectada === 'ambas' ? '#92400e' : '#166534' }}>
+                {leyDetectada === '73' && '✓ Detectado: cotizó antes del 1 julio 1997 → Ley 73'}
+                {leyDetectada === '97' && '✓ Detectado: solo cotizó después del 1 julio 1997 → Ley 97'}
+                {leyDetectada === 'ambas' && '⚡ Cotizó en ambos períodos — puede elegir la más favorable. Compara los resultados de cada ley.'}
+              </div>
+            )}
+            {/* Pregunta manual cuando no hay PDF */}
+            {!pdfCargado && leyDetectada === null && (
+              <div style={{ padding: '10px', background: '#F4F6FB', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <p style={{ fontSize: '11px', fontWeight: '700', color: '#475569', margin: '0 0 7px' }}>¿Cotizó al IMSS antes del 1 de julio de 1997?</p>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  {[
+                    { val: 'si', label: 'Sí', ley: '73', color: AZUL },
+                    { val: 'no', label: 'No', ley: '97', color: '#8b5cf6' },
+                    { val: 'nose', label: 'No sé', ley: null, color: '#64748b' },
+                  ].map(op => (
+                    <button key={op.val} onClick={() => {
+                      if (op.ley) { setLeyDetectada(op.ley as '73' | '97'); setLey(op.ley as '73' | '97') }
+                      else setLeyDetectada('ambas')
+                    }} style={{ flex: 1, padding: '6px 4px', borderRadius: '7px', border: `1.5px solid ${op.color}20`, background: 'white', color: op.color, fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
+                      {op.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {/* Reset detección */}
+            {leyDetectada !== null && !pdfCargado && (
+              <button onClick={() => setLeyDetectada(null)}
+                style={{ fontSize: '10px', color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', padding: '0', textDecoration: 'underline' }}>
+                Cambiar respuesta
+              </button>
+            )}
           </div>
 
           {/* Perfil del cliente */}
