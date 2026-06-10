@@ -210,6 +210,11 @@ export default function ClientesPage() {
       fecha_pago: new Date(formPago.fecha_pago).toISOString(),
       comprobante_url,
     }).select().single()
+    if (error) {
+      alert('Error al registrar pago: ' + error.message + ' (code: ' + error.code + ')')
+      setSavingPago(false)
+      return
+    }
     if (!error && data) {
       const newPago = data as Pago
       setPagos(prev => [newPago, ...prev])
