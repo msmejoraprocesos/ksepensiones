@@ -42,8 +42,14 @@ const DEFAULTS: Perfil = {
 // Validaciones
 function validarRFC(rfc: string): string | null {
   if (!rfc) return null
-  const regex = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/
-  if (!regex.test(rfc.toUpperCase())) return 'Formato inválido. Ej: LOPJ800101XX3'
+  // Persona física: 4 letras + 6 dígitos fecha + 3 homoclave = 13 chars
+  // Persona moral: 3 letras + 6 dígitos fecha + 3 homoclave = 12 chars
+  const regexFisica = /^[A-ZÑ&]{4}\d{6}[A-Z0-9]{3}$/
+  const regexMoral = /^[A-ZÑ&]{3}\d{6}[A-Z0-9]{3}$/
+  const upper = rfc.toUpperCase()
+  if (!regexFisica.test(upper) && !regexMoral.test(upper)) {
+    return 'RFC inválido — debe tener 12 chars (moral) o 13 (física). Ej: SEMM870129'
+  }
   return null
 }
 
@@ -180,8 +186,8 @@ export default function ConfiguracionPage() {
   )
 
   return (
-    <div style={{ height: 'calc(100vh - 56px)', overflow: 'auto', background: '#F4F6FB', padding: '24px' }}>
-      <div style={{ maxWidth: '780px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div style={{ height: 'calc(100vh - 56px)', overflow: 'auto', background: '#F4F6FB', padding: 'clamp(12px, 3vw, 24px)' }}>
+      <div style={{ maxWidth: '860px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
         {/* Banner primera vez */}
         {isFirstTime && (
@@ -252,7 +258,7 @@ export default function ConfiguracionPage() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
             <div>
               <label style={labelSt}>Nombre del asesor <span style={{ color: '#ef4444' }}>*</span></label>
               <input value={perfil.nombre} onChange={e => set('nombre', e.target.value)} placeholder="Ej. Juan Pérez González" style={inputSt(!!errors.nombre)} />
@@ -266,7 +272,7 @@ export default function ConfiguracionPage() {
               <label style={labelSt}>RFC {tooltip('Registro Federal de Contribuyentes. Formato: 4 letras + 6 dígitos fecha + 3 caracteres homoclave. Ej: LOPJ800101XX3')}</label>
               <input value={perfil.rfc} onChange={e => set('rfc', formatRFC(e.target.value))} placeholder="LOPJ800101XX3" maxLength={13} style={inputSt(!!errors.rfc)} />
               {errorMsg('rfc')}
-              {!errors.rfc && perfil.rfc.length >= 12 && <p style={{ fontSize: '10px', color: VERDE, margin: '3px 0 0' }}>✓ Formato válido</p>}
+              {!errors.rfc && (perfil.rfc.length === 12 || perfil.rfc.length === 13) && !validarRFC(perfil.rfc) && <p style={{ fontSize: '10px', color: VERDE, margin: '3px 0 0' }}>✓ RFC válido ({perfil.rfc.length === 12 ? 'persona moral' : 'persona física'})</p>}
             </div>
             <div>
               <label style={labelSt}>Teléfono de contacto {tooltip('10 dígitos sin espacios ni guiones. Ej: 4421234567')}</label>
@@ -296,7 +302,7 @@ export default function ConfiguracionPage() {
         <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
           {sectionTitle('📊', 'Variables del sistema 2026', 'Valores oficiales que usa la calculadora para todos los diagnósticos')}
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px', marginBottom: '20px' }}>
             {[
               {
                 key: 'uma_diaria', label: 'UMA Diaria', unit: '$/día',
@@ -361,7 +367,7 @@ export default function ConfiguracionPage() {
                 <p style={{ fontSize: '11px', color: '#b45309', margin: '2px 0 0' }}>Cuota mensual como % del salario cotizable. Aumenta cada año según IMSS. Edita solo si hay actualización oficial.</p>
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '10px' }}>
               {[2026, 2027, 2028, 2029, 2030].map(year => (
                 <div key={year}>
                   <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#92400e', marginBottom: '4px', textTransform: 'uppercase' }}>{year}</label>
@@ -385,8 +391,11 @@ export default function ConfiguracionPage() {
             <div style={{ background: AZUL, padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 {perfil.logo_url && (
-                  <img src={perfil.logo_url} alt="Logo" style={{ height: '32px', objectFit: 'contain', background: 'white', padding: '3px', borderRadius: '5px' }}
-                    onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                  <div style={{ background: 'white', borderRadius: '5px', padding: '3px', height: '32px', display: 'flex', alignItems: 'center' }}>
+                    <img src={perfil.logo_url} alt="Logo"
+                      style={{ height: '28px', maxWidth: '80px', objectFit: 'contain' }}
+                      onError={e => { (e.target as HTMLImageElement).parentElement!.style.display = 'none' }} />
+                  </div>
                 )}
                 <div>
                   <div style={{ color: 'white', fontWeight: '700', fontSize: '13px' }}>{perfil.razon_social || perfil.nombre || 'Nombre del asesor'}</div>
