@@ -186,45 +186,39 @@ function CalculadoraInner() {
       reader.onload = async (e) => {
         const base64 = (e.target?.result as string).split(',')[1]
         const mediaType = file.type === 'application/pdf' ? 'application/pdf' : 'image/jpeg'
-        const res = await fetch('https://api.anthropic.com/v1/messages', {
+
+        const res = await fetch('/api/extract-nss', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
-            max_tokens: 1000,
-            messages: [{
-              role: 'user',
-              content: [
-                {
-                  type: 'document',
-                  source: { type: 'base64', media_type: mediaType, data: base64 }
-                },
-                {
-                  type: 'text',
-                  text: 'Extrae del documento los siguientes datos de semanas cotizadas al IMSS. Responde SOLO con JSON sin markdown, con estos campos: { "semanas": number, "salario_diario": number, "nombre": string, "nss": string, "fecha_nac": "YYYY-MM-DD" }. Si no encuentras algún campo ponlo en null. Las semanas son el total acumulado. El salario diario es el último salario base de cotización en pesos. La fecha de nacimiento en formato YYYY-MM-DD.'
-                }
-              ]
-            }]
-          })
+          body: JSON.stringify({ base64, mediaType })
         })
-        const data = await res.json()
-        const text = data.content?.[0]?.text ?? ''
-        try {
-          const clean = text.replace(/```json|```/g, '').trim()
-          const parsed = JSON.parse(clean)
-          if (parsed.semanas) setSemanas(parsed.semanas)
-          if (parsed.salario_diario && sys.SALARIO_MIN > 0) {
-            setSalarioDiario(Math.round((parsed.salario_diario / sys.SALARIO_MIN) * 10) / 10)
-          }
-          if (parsed.fecha_nac) setFechaNac(parsed.fecha_nac)
-          setPdfMsg(`✅ Datos extraídos: ${parsed.semanas ? parsed.semanas + ' semanas' : ''}${parsed.nombre ? ' · ' + parsed.nombre : ''}`)
-        } catch {
-          setPdfMsg('⚠️ No se pudieron extraer los datos. Verifica que el archivo sea legible.')
+
+        const json = await res.json()
+
+        if (!json.ok) {
+          setPdfMsg('⚠️ Error al analizar el documento: ' + (json.error ?? 'intenta de nuevo'))
+          setUploadingPDF(false)
+          return
         }
+
+        const parsed = json.data
+        if (parsed.semanas) setSemanas(parsed.semanas)
+        if (parsed.salario_diario && sys.SALARIO_MIN > 0) {
+          setSalarioDiario(Math.round((parsed.salario_diario / sys.SALARIO_MIN) * 10) / 10)
+        }
+        if (parsed.fecha_nac) setFechaNac(parsed.fecha_nac)
+        // Auto-detect ley based on birth year vs 1997
+        if (parsed.fecha_nac) {
+          const anioNac = new Date(parsed.fecha_nac).getFullYear()
+          // If born before 1979 they likely cotized before 1997
+          if (anioNac < 1979) setLey('73')
+          else setLey('97')
+        }
+        setPdfMsg(`✅ ${parsed.semanas ?? '?'} semanas · ${parsed.nombre ?? ''} · NSS: ${parsed.nss ?? ''}`)
         setUploadingPDF(false)
       }
       reader.readAsDataURL(file)
-    } catch {
+    } catch (err) {
       setPdfMsg('⚠️ Error al procesar el archivo.')
       setUploadingPDF(false)
     }
@@ -370,45 +364,39 @@ function CalculadoraInner() {
       reader.onload = async (e) => {
         const base64 = (e.target?.result as string).split(',')[1]
         const mediaType = file.type === 'application/pdf' ? 'application/pdf' : 'image/jpeg'
-        const res = await fetch('https://api.anthropic.com/v1/messages', {
+
+        const res = await fetch('/api/extract-nss', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
-            max_tokens: 1000,
-            messages: [{
-              role: 'user',
-              content: [
-                {
-                  type: 'document',
-                  source: { type: 'base64', media_type: mediaType, data: base64 }
-                },
-                {
-                  type: 'text',
-                  text: 'Extrae del documento los siguientes datos de semanas cotizadas al IMSS. Responde SOLO con JSON sin markdown, con estos campos: { "semanas": number, "salario_diario": number, "nombre": string, "nss": string, "fecha_nac": "YYYY-MM-DD" }. Si no encuentras algún campo ponlo en null. Las semanas son el total acumulado. El salario diario es el último salario base de cotización en pesos. La fecha de nacimiento en formato YYYY-MM-DD.'
-                }
-              ]
-            }]
-          })
+          body: JSON.stringify({ base64, mediaType })
         })
-        const data = await res.json()
-        const text = data.content?.[0]?.text ?? ''
-        try {
-          const clean = text.replace(/```json|```/g, '').trim()
-          const parsed = JSON.parse(clean)
-          if (parsed.semanas) setSemanas(parsed.semanas)
-          if (parsed.salario_diario && sys.SALARIO_MIN > 0) {
-            setSalarioDiario(Math.round((parsed.salario_diario / sys.SALARIO_MIN) * 10) / 10)
-          }
-          if (parsed.fecha_nac) setFechaNac(parsed.fecha_nac)
-          setPdfMsg(`✅ Datos extraídos: ${parsed.semanas ? parsed.semanas + ' semanas' : ''}${parsed.nombre ? ' · ' + parsed.nombre : ''}`)
-        } catch {
-          setPdfMsg('⚠️ No se pudieron extraer los datos. Verifica que el archivo sea legible.')
+
+        const json = await res.json()
+
+        if (!json.ok) {
+          setPdfMsg('⚠️ Error al analizar el documento: ' + (json.error ?? 'intenta de nuevo'))
+          setUploadingPDF(false)
+          return
         }
+
+        const parsed = json.data
+        if (parsed.semanas) setSemanas(parsed.semanas)
+        if (parsed.salario_diario && sys.SALARIO_MIN > 0) {
+          setSalarioDiario(Math.round((parsed.salario_diario / sys.SALARIO_MIN) * 10) / 10)
+        }
+        if (parsed.fecha_nac) setFechaNac(parsed.fecha_nac)
+        // Auto-detect ley based on birth year vs 1997
+        if (parsed.fecha_nac) {
+          const anioNac = new Date(parsed.fecha_nac).getFullYear()
+          // If born before 1979 they likely cotized before 1997
+          if (anioNac < 1979) setLey('73')
+          else setLey('97')
+        }
+        setPdfMsg(`✅ ${parsed.semanas ?? '?'} semanas · ${parsed.nombre ?? ''} · NSS: ${parsed.nss ?? ''}`)
         setUploadingPDF(false)
       }
       reader.readAsDataURL(file)
-    } catch {
+    } catch (err) {
       setPdfMsg('⚠️ Error al procesar el archivo.')
       setUploadingPDF(false)
     }
