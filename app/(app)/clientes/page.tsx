@@ -797,29 +797,42 @@ function ClientesInner() {
                     </div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                      {pagos.map((pago, i) => (
-                        <div key={pago.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', background: '#F8FAFC', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
-                          <span style={{ fontSize: '11px', fontWeight: '700', background: '#EEF2F8', color: AZUL, padding: '2px 8px', borderRadius: '6px', flexShrink: 0 }}>#{i+1}</span>
-                          <div style={{ flex: 1 }}>
-                            <div style={{ fontSize: '13px', fontWeight: '700', color: VERDE }}>{fmtMXN(pago.monto)}</div>
-                            <div style={{ fontSize: '11px', color: '#94a3b8' }}>{pago.concepto} · {fmt(pago.fecha_pago)}</div>
-                            {pago.notas && <div style={{ fontSize: '11px', color: '#64748b', fontStyle: 'italic' }}>{pago.notas}</div>}
+                      {/* Pagos ordenados del primero al último */}
+                      {[...pagos].reverse().map((pago, i) => (
+                        <div key={pago.id} style={{ background: '#F8FAFC', borderRadius: '10px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+                          {/* Header del pago */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderBottom: '1px solid #f1f5f9' }}>
+                            <span style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8' }}>Pago {i + 1}</span>
+                            <div style={{ flex: 1 }} />
+                            <span style={{ fontSize: '16px', fontWeight: '800', color: VERDE }}>{fmtMXN(pago.monto)}</span>
                           </div>
-                          {pago.comprobante_url ? (
-                            <a href={pago.comprobante_url} target="_blank" rel="noopener noreferrer"
-                              style={{ fontSize: '11px', color: AZUL, textDecoration: 'none', background: '#EEF2F8', padding: '4px 10px', borderRadius: '6px', fontWeight: '600', flexShrink: 0 }}>
-                              📎 Ver
-                            </a>
-                          ) : (
-                            <label style={{ fontSize: '11px', color: '#94a3b8', cursor: uploadingComp === pago.id ? 'not-allowed' : 'pointer', background: '#F4F6FB', padding: '4px 10px', borderRadius: '6px', border: '1px dashed #e2e8f0', flexShrink: 0 }}>
-                              {uploadingComp === pago.id ? '⏳' : '📎 Adjuntar'}
-                              <input type="file" accept="image/*,.pdf" onChange={e => { const f = e.target.files?.[0]; if (f) uploadComprobantePago(pago.id, f) }} style={{ display: 'none' }} disabled={uploadingComp === pago.id} />
-                            </label>
-                          )}
-                          <button onClick={() => eliminarPago(pago.id, pago.monto)}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: '14px', padding: '4px', flexShrink: 0 }}>🗑️</button>
+                          {/* Detalle */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px' }}>
+                            <span style={{ fontSize: '11px', color: '#64748b', flex: 1 }}>
+                              {fmt(pago.fecha_pago)}
+                              {pago.notas && <span style={{ color: '#94a3b8' }}> · {pago.notas}</span>}
+                            </span>
+                            {pago.comprobante_url ? (
+                              <a href={pago.comprobante_url} target="_blank" rel="noopener noreferrer"
+                                style={{ fontSize: '11px', color: AZUL, textDecoration: 'none', background: '#EEF2F8', padding: '3px 10px', borderRadius: '6px', fontWeight: '600' }}>
+                                📎 Ver comprobante
+                              </a>
+                            ) : (
+                              <label style={{ fontSize: '11px', color: '#94a3b8', cursor: 'pointer', background: '#F4F6FB', padding: '3px 10px', borderRadius: '6px', border: '1px dashed #e2e8f0' }}>
+                                {uploadingComp === pago.id ? '⏳ Subiendo...' : '📎 Adjuntar'}
+                                <input type="file" accept="image/*,.pdf" onChange={e => { const f = e.target.files?.[0]; if (f) uploadComprobantePago(pago.id, f) }} style={{ display: 'none' }} disabled={uploadingComp === pago.id} />
+                              </label>
+                            )}
+                            <button onClick={() => eliminarPago(pago.id, pago.monto)}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: '14px', padding: '2px' }}>🗑️</button>
+                          </div>
                         </div>
                       ))}
+                      {/* Total acumulado */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#F4F6FB', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                        <span style={{ fontSize: '12px', fontWeight: '700', color: '#64748b' }}>Total pagado ({pagos.length} pago{pagos.length !== 1 ? 's' : ''})</span>
+                        <span style={{ fontSize: '15px', fontWeight: '800', color: VERDE }}>{fmtMXN(pagos.reduce((s,p) => s + p.monto, 0))}</span>
+                      </div>
                     </div>
                   )}
                 </div>
