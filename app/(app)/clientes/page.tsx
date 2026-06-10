@@ -117,8 +117,9 @@ interface Actividad {
 
 type Vista = 'lista' | 'pipeline'
 
-export default function ClientesPage() {
+function ClientesInner() {
   const supabase = createClient()
+  const searchParams = useSearchParams()
   const [vista, setVista] = useState<Vista>('lista')
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [loading, setLoading] = useState(true)
@@ -133,11 +134,16 @@ export default function ClientesPage() {
   const [servicios, setServicios] = useState<Servicio[]>([])
   const [servicioActivo, setServicioActivo] = useState<string | null>(null)
   const [showNuevoServicio, setShowNuevoServicio] = useState(false)
+  const [showNuevaActividad, setShowNuevaActividad] = useState(false)
+  const [formActividad, setFormActividad] = useState({ tipo: 'llamada', titulo: '', fecha_programada: new Date().toISOString().split('T')[0], hora: '09:00', notas: '' })
+  const [savingActividad, setSavingActividad] = useState(false)
   const [formServicio, setFormServicio] = useState({ tipo: 'Diagnóstico', monto_acordado: '', descripcion: '' })
   const [modalTab, setModalTab] = useState<'info' | 'diagnosticos' | 'actividades' | 'pagos'>('info')
 
   // Nuevo cliente
   const [showNuevo, setShowNuevo] = useState(false)
+  const [editando, setEditando] = useState(false)
+  const [formEdit, setFormEdit] = useState({ nombre: '', telefono: '', email: '', notas: '' })
   const [form, setForm] = useState({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '' })
   const [formErrors, setFormErrors] = useState<{telefono?: string; email?: string}>({})
   const [saving, setSaving] = useState(false)
@@ -159,6 +165,7 @@ export default function ClientesPage() {
       userIdRef.current = session.user.id
       loadClientes(session.user.id)
     })
+    if (searchParams.get('nuevo') === 'true') setShowNuevo(true)
   }, [])
 
   async function loadClientes(uid: string) {
@@ -221,6 +228,48 @@ export default function ClientesPage() {
     setShowNuevo(false)
     setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '' })
     setFormErrors({})
+  }
+
+  function abrirEditar(cliente: Cliente) {
+    setFormEdit({ nombre: cliente.nombre, telefono: cliente.telefono ?? '', email: cliente.email ?? '', notas: cliente.notas ?? '' })
+    setEditando(true)
+  }
+
+  async function guardarEdicion() {
+    if (!selected || !formEdit.nombre.trim()) return
+    await actualizarCliente(selected.id, {
+      nombre: formEdit.nombre,
+      telefono: formEdit.telefono || null,
+      email: formEdit.email || null,
+      notas: formEdit.notas || null,
+    })
+    setEditando(false)
+  }
+
+  async function guardarActividad() {
+    if (!selected || !formActividad.titulo.trim()) return
+    setSavingActividad(true)
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { setSavingActividad(false); return }
+    const fechaHora = new Date(`${formActividad.fecha_programada}T${formActividad.hora}:00`)
+    const { data, error } = await supabase.from('actividades').insert({
+      cliente_id: selected.id,
+      asesor_id: session.user.id,
+      tipo: formActividad.tipo,
+      titulo: formActividad.titulo,
+      fecha_programada: fechaHora.toISOString(),
+      notas: formActividad.notas || null,
+      estatus: 'pendiente',
+    }).select().single()
+    if (!error && data) setActividades(prev => [data as Actividad, ...prev])
+    setSavingActividad(false)
+    setShowNuevaActividad(false)
+    setFormActividad({ tipo: 'llamada', titulo: '', fecha_programada: new Date().toISOString().split('T')[0], hora: '09:00', notas: '' })
+  }
+
+  async function completarActividad(id: string) {
+    await supabase.from('actividades').update({ estatus: 'completado' }).eq('id', id)
+    setActividades(prev => prev.map(a => a.id === id ? { ...a, estatus: 'completado' } : a))
   }
 
   async function guardarServicio() {
@@ -632,42 +681,60 @@ export default function ClientesPage() {
               {/* ── TAB INFO ── */}
               {modalTab === 'info' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  {[
-                    { label: 'Teléfono', value: selected.telefono ?? '—' },
-                    { label: 'Email', value: selected.email ?? '—' },
-                    { label: 'Notas', value: selected.notas ?? '—' },
-                  ].map((f, i) => (
-                    <div key={i}>
-                      <div style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '3px' }}>{f.label}</div>
-                      <div style={{ fontSize: '13px', color: '#1e293b' }}>{f.value}</div>
-                    </div>
-                  ))}
-                  <div style={{ background: '#F4F6FB', borderRadius: '10px', padding: '14px' }}>
-                    <div style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px' }}>Comercial</div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                      <div>
-                        <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Servicio</label>
+                  {!editando ? (
+                    <>
+                      {[
+                        { label: 'Nombre', value: selected.nombre },
+                        { label: 'Teléfono', value: selected.telefono ?? '—' },
+                        { label: 'Email', value: selected.email ?? '—' },
+                        { label: 'Notas', value: selected.notas ?? '—' },
+                      ].map((f, i) => (
+                        <div key={i}>
+                          <div style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '3px' }}>{f.label}</div>
+                          <div style={{ fontSize: '13px', color: '#1e293b' }}>{f.value}</div>
+                        </div>
+                      ))}
+                      <div style={{ background: '#F4F6FB', borderRadius: '10px', padding: '12px' }}>
+                        <div style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Etiqueta de servicio</div>
                         <select defaultValue={selected.servicio_contratado ?? ''} onChange={e => actualizarCliente(selected.id, { servicio_contratado: e.target.value || null })} style={{ ...inputSt, fontSize: '12px', padding: '7px 10px' }}>
                           <option value="">— Sin definir —</option>
                           {SERVICIOS.map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
                       </div>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button onClick={() => abrirEditar(selected)}
+                          style={{ flex: 1, padding: '9px', background: '#F4F6FB', color: AZUL, border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                          ✏️ Editar datos
+                        </button>
+                        <button onClick={() => eliminarCliente(selected.id)}
+                          style={{ padding: '9px 14px', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                          🗑️ Eliminar
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <p style={{ fontSize: '13px', fontWeight: '700', color: AZUL, margin: 0 }}>Editar datos del cliente</p>
+                      {[
+                        { label: 'Nombre', key: 'nombre', type: 'text', placeholder: 'Nombre completo' },
+                        { label: 'Teléfono', key: 'telefono', type: 'tel', placeholder: '55 1234 5678' },
+                        { label: 'Email', key: 'email', type: 'email', placeholder: 'correo@ejemplo.com' },
+                      ].map((f, i) => (
+                        <div key={i}>
+                          <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>{f.label}</label>
+                          <input type={f.type} value={(formEdit as any)[f.key]} onChange={e => setFormEdit(p => ({ ...p, [f.key]: e.target.value }))} placeholder={f.placeholder} style={inputSt} />
+                        </div>
+                      ))}
                       <div>
-                        <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Monto acordado</label>
-                        <input type="number" defaultValue={selected.monto_acordado ?? ''} onBlur={e => actualizarCliente(selected.id, { monto_acordado: parseFloat(e.target.value) || null })} placeholder="0" style={{ ...inputSt, fontSize: '12px', padding: '7px 10px' }} />
+                        <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Notas</label>
+                        <textarea value={formEdit.notas} onChange={e => setFormEdit(p => ({ ...p, notas: e.target.value }))} rows={2} style={{ ...inputSt, resize: 'none' }} />
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button onClick={() => setEditando(false)} style={{ flex: 1, padding: '9px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
+                        <button onClick={guardarEdicion} style={{ flex: 2, padding: '9px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>Guardar cambios</button>
                       </div>
                     </div>
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <a href={`/calculadora?cliente=${selected.id}`}
-                      style={{ flex: 1, padding: '9px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', textAlign: 'center', textDecoration: 'none' }}>
-                      Nueva calculadora
-                    </a>
-                    <button onClick={() => eliminarCliente(selected.id)}
-                      style={{ padding: '9px 14px', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
-                      Eliminar
-                    </button>
-                  </div>
+                  )}
                 </div>
               )}
 
@@ -711,7 +778,8 @@ export default function ClientesPage() {
                       </div>
                     ) : (
                       <button onClick={() => {
-                        const concepto = detectarConcepto(pagos.length, 0, saldo, selected.monto_acordado)
+                        const srvPagosLocal = pagos.filter(p => p.servicio_id === srv.id)
+                        const concepto = detectarConcepto(srvPagosLocal.length, 0, srvSaldo, srv.monto_acordado)
                         setFormPago(p => ({ ...p, concepto }))
                         setShowPago(true)
                       }}
@@ -757,8 +825,14 @@ export default function ClientesPage() {
               {/* ── TAB DIAGNÓSTICOS ── */}
               {modalTab === 'diagnosticos' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <a href={`/calculadora?cliente=${selected.id}`}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px', background: AZUL, color: 'white', borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: '700' }}>
+                    🧮 Nuevo diagnóstico para {selected.nombre.split(' ')[0]}
+                  </a>
                   {diagnosticos.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontSize: '13px' }}>Sin diagnósticos aún</div>
+                    <div style={{ textAlign: 'center', padding: '32px', color: '#94a3b8', fontSize: '13px', background: '#F8FAFC', borderRadius: '10px', border: '1px dashed #e2e8f0' }}>
+                      Sin diagnósticos aún — corre la calculadora para generar el primero
+                    </div>
                   ) : diagnosticos.map(d => (
                     <div key={d.id} style={{ background: '#F8FAFC', borderRadius: '10px', padding: '14px', border: '1px solid #e2e8f0' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
@@ -768,8 +842,8 @@ export default function ClientesPage() {
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', fontSize: '12px' }}>
                         <div><span style={{ color: '#94a3b8' }}>Semanas: </span><strong>{d.semanas}</strong></div>
                         <div><span style={{ color: '#94a3b8' }}>Retiro: </span><strong>{d.edad_retiro} años</strong></div>
-                        <div><span style={{ color: '#94a3b8' }}>Sin acción: </span><strong style={{ color: AZUL }}>${Math.round(d.resultado_e1 ?? 0).toLocaleString()}</strong></div>
-                        <div><span style={{ color: '#94a3b8' }}>Óptimo: </span><strong style={{ color: VERDE }}>${Math.round(d.resultado_e4 ?? 0).toLocaleString()}</strong></div>
+                        <div><span style={{ color: '#94a3b8' }}>E1 sin acción: </span><strong style={{ color: AZUL }}>${Math.round(d.resultado_e1 ?? 0).toLocaleString()}</strong></div>
+                        <div><span style={{ color: '#94a3b8' }}>E4 óptimo: </span><strong style={{ color: VERDE }}>${Math.round(d.resultado_e4 ?? 0).toLocaleString()}</strong></div>
                       </div>
                       {d.notas && <div style={{ marginTop: '8px', fontSize: '11px', color: '#64748b', fontStyle: 'italic' }}>{d.notas}</div>}
                     </div>
@@ -780,16 +854,76 @@ export default function ClientesPage() {
               {/* ── TAB ACTIVIDADES ── */}
               {modalTab === 'actividades' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <button onClick={() => setShowNuevaActividad(p => !p)}
+                    style={{ padding: '9px', background: NARANJA, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+                    + Registrar actividad
+                  </button>
+
+                  {showNuevaActividad && (
+                    <div style={{ background: '#F4F6FB', borderRadius: '10px', padding: '14px', border: '1px solid #e2e8f0' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Tipo</label>
+                          <select value={formActividad.tipo} onChange={e => setFormActividad(p => ({ ...p, tipo: e.target.value }))} style={inputSt}>
+                            <option value="llamada">📞 Llamada</option>
+                            <option value="whatsapp">💬 WhatsApp</option>
+                            <option value="cita">📅 Cita</option>
+                            <option value="email">✉️ Email</option>
+                            <option value="nota">📝 Nota</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Fecha</label>
+                          <input type="date" value={formActividad.fecha_programada} onChange={e => setFormActividad(p => ({ ...p, fecha_programada: e.target.value }))} style={inputSt} />
+                        </div>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Hora</label>
+                          <input type="time" value={formActividad.hora} onChange={e => setFormActividad(p => ({ ...p, hora: e.target.value }))} style={inputSt} />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Título *</label>
+                          <input value={formActividad.titulo} onChange={e => setFormActividad(p => ({ ...p, titulo: e.target.value }))} placeholder="Ej. Llamada de seguimiento" style={inputSt} />
+                        </div>
+                      </div>
+                      <div style={{ marginBottom: '10px' }}>
+                        <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Notas</label>
+                        <input value={formActividad.notas} onChange={e => setFormActividad(p => ({ ...p, notas: e.target.value }))} placeholder="Detalles de la actividad..." style={inputSt} />
+                      </div>
+                      <div style={{ display: 'flex', gap: '7px' }}>
+                        <button onClick={() => setShowNuevaActividad(false)} style={{ flex: 1, padding: '8px', background: 'white', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '7px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
+                        <button onClick={guardarActividad} disabled={savingActividad || !formActividad.titulo.trim()}
+                          style={{ flex: 2, padding: '8px', background: savingActividad || !formActividad.titulo.trim() ? '#94a3b8' : NARANJA, color: 'white', border: 'none', borderRadius: '7px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>
+                          {savingActividad ? 'Guardando...' : 'Guardar actividad'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   {actividades.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontSize: '13px' }}>Sin actividades</div>
+                    <div style={{ textAlign: 'center', padding: '28px', color: '#94a3b8', fontSize: '13px', background: '#F8FAFC', borderRadius: '10px', border: '1px dashed #e2e8f0' }}>
+                      Sin actividades registradas
+                    </div>
                   ) : actividades.map(a => (
-                    <div key={a.id} style={{ display: 'flex', gap: '10px', padding: '10px 12px', background: '#F8FAFC', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                    <div key={a.id} style={{ display: 'flex', gap: '10px', padding: '10px 12px', background: a.estatus === 'completado' ? '#f0fdf4' : '#F8FAFC', borderRadius: '8px', border: `1px solid ${a.estatus === 'completado' ? '#bbf7d0' : '#e2e8f0'}` }}>
                       <div style={{ fontSize: '16px' }}>{TIPO_ICONS[a.tipo] ?? '📌'}</div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: '13px', fontWeight: '600', color: '#1e293b' }}>{a.titulo}</div>
                         <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>{a.fecha_programada ? fmt(a.fecha_programada) : 'Sin fecha'}</div>
+                        {a.notas && <div style={{ fontSize: '11px', color: '#64748b', marginTop: '3px', fontStyle: 'italic' }}>{a.notas}</div>}
                       </div>
-                      <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '10px', fontWeight: '600', background: a.estatus === 'completado' ? '#f0fdf4' : '#FEF4EC', color: a.estatus === 'completado' ? VERDE : NARANJA }}>{a.estatus}</span>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                        <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '10px', fontWeight: '600', background: a.estatus === 'completado' ? '#f0fdf4' : '#FEF4EC', color: a.estatus === 'completado' ? VERDE : NARANJA }}>
+                          {a.estatus}
+                        </span>
+                        {a.estatus !== 'completado' && (
+                          <button onClick={() => completarActividad(a.id)}
+                            style={{ fontSize: '10px', padding: '2px 7px', borderRadius: '6px', background: '#f0fdf4', color: VERDE, border: '1px solid #bbf7d0', cursor: 'pointer', fontWeight: '600' }}>
+                            ✓ Completar
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -953,5 +1087,14 @@ export default function ClientesPage() {
         </div>
       )}
     </div>
+  )
+}
+
+
+export default function ClientesPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Cargando...</div>}>
+      <ClientesInner />
+    </Suspense>
   )
 }
