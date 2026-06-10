@@ -4,14 +4,13 @@ import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 
+const NARANJA = '#F47920'
 const AZUL = '#1B3A6B'
 const VERDE = '#2E8B57'
-const NARANJA = '#F47920'
 
 export default function LoginPage() {
   const router = useRouter()
   const supabase = createClient()
-
   const [mode, setMode] = useState<'login' | 'recover'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -22,8 +21,7 @@ export default function LoginPage() {
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
-    setLoading(true)
-    setError(null)
+    setLoading(true); setError(null)
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) setError('Correo o contraseña incorrectos')
     else { router.push('/dashboard'); router.refresh() }
@@ -32,8 +30,7 @@ export default function LoginPage() {
 
   async function handleRecover(e: React.FormEvent) {
     e.preventDefault()
-    setLoading(true)
-    setError(null)
+    setLoading(true); setError(null)
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     })
@@ -45,93 +42,128 @@ export default function LoginPage() {
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
 
-      {/* ── Panel izquierdo — Hero ── */}
+      {/* ── Panel izquierdo — Hero con imagen ── */}
       <div style={{
-        width: '55%',
-        background: `linear-gradient(145deg, #0a1628 0%, #1B3A6B 45%, #0f2d5a 100%)`,
-        display: 'flex',
-        flexDirection: 'column',
-        padding: '40px 56px',
+        width: '58%',
         position: 'relative',
         overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        padding: '40px 52px',
       }}>
-        {/* Grid overlay */}
+        {/* Imagen de fondo */}
         <div style={{
-          position: 'absolute', inset: 0, opacity: 0.05,
-          backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)',
-          backgroundSize: '48px 48px',
+          position: 'absolute', inset: 0,
+          backgroundImage: 'url(/fondo-kse.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center top',
         }} />
-        {/* Decorative blobs */}
-        <div style={{ position: 'absolute', bottom: '-120px', right: '-120px', width: '500px', height: '500px', borderRadius: '50%', background: 'rgba(46,139,87,0.15)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', top: '-80px', left: '30%', width: '350px', height: '350px', borderRadius: '50%', background: 'rgba(244,121,32,0.07)', pointerEvents: 'none' }} />
+        {/* Overlay gradiente naranja-oscuro */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(135deg, rgba(244,121,32,0.82) 0%, rgba(27,58,107,0.75) 60%, rgba(0,0,0,0.65) 100%)',
+        }} />
 
         {/* Logo */}
-        <div style={{ position: 'relative', zIndex: 1, marginBottom: '56px' }}>
+        <div style={{ position: 'relative', zIndex: 1 }}>
           <div style={{
-            background: 'white', borderRadius: '14px',
-            padding: '12px 20px',
-            display: 'inline-flex', alignItems: 'center', gap: '14px',
+            background: 'rgba(255,255,255,0.95)',
+            borderRadius: '14px',
+            padding: '10px 18px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '12px',
             boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+            backdropFilter: 'blur(10px)',
           }}>
-            <img src="/logo-kse.png" alt="KSE" style={{ height: '44px', objectFit: 'contain' }} />
+            <img src="/logo-kse.png" alt="KSE" style={{ height: '40px', objectFit: 'contain' }} />
             <div>
-              <div style={{ fontSize: '15px', fontWeight: '800', color: AZUL, lineHeight: 1.2 }}>KSE Pensiones</div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>CRM de Diagnóstico Pensional</div>
+              <div style={{ fontSize: '14px', fontWeight: '800', color: AZUL, lineHeight: 1.2 }}>KSE Pensiones</div>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '1px' }}>CRM de Diagnóstico Pensional</div>
             </div>
           </div>
         </div>
 
-        {/* Headline */}
-        <div style={{ position: 'relative', zIndex: 1, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        {/* Headline central */}
+        <div style={{ position: 'relative', zIndex: 1 }}>
           <h1 style={{
-            fontSize: '56px', fontWeight: '900', color: 'white',
-            lineHeight: 1.1, margin: '0 0 24px', letterSpacing: '-1.5px',
+            fontSize: '58px',
+            fontWeight: '900',
+            color: 'white',
+            lineHeight: 1.1,
+            margin: '0 0 20px',
+            letterSpacing: '-1.5px',
+            textShadow: '0 2px 20px rgba(0,0,0,0.3)',
           }}>
             Para que te<br />
-            <span style={{ color: NARANJA }}>pensiones</span><br />
+            <span style={{
+              color: 'white',
+              WebkitTextStroke: '2px rgba(255,255,255,0.4)',
+              textShadow: '0 0 40px rgba(244,121,32,0.8), 0 2px 20px rgba(0,0,0,0.3)',
+            }}>pensiones</span><br />
             sin presiones.
           </h1>
 
-          <p style={{ color: 'rgba(255,255,255,0.60)', fontSize: '16px', lineHeight: 1.7, margin: '0 0 40px', maxWidth: '380px' }}>
-            La plataforma especializada en diagnóstico pensional para asesores que quieren cerrar más propuestas con datos confiables.
+          <p style={{
+            color: 'rgba(255,255,255,0.85)',
+            fontSize: '16px',
+            lineHeight: 1.7,
+            margin: '0 0 36px',
+            maxWidth: '380px',
+            textShadow: '0 1px 8px rgba(0,0,0,0.3)',
+          }}>
+            La plataforma especializada en diagnóstico pensional para asesores que cierran más propuestas con datos confiables.
           </p>
 
           {/* Features */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '48px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '40px' }}>
             {[
-              { icon: '⊞', title: 'Calculadora Ley 73 y 97', desc: 'Fórmulas oficiales 2026 · Mod 10 · Mod 40 · Portabilidad ISSSTE' },
-              { icon: '◎', title: 'CRM de clientes', desc: 'Expediente completo con historial de diagnósticos y seguimiento' },
-              { icon: '📄', title: 'PDF profesional', desc: 'Propuesta con tu logo lista para presentar al cliente' },
+              { icon: '⊞', title: 'Calculadora Ley 73 y 97', desc: 'Fórmulas oficiales 2026 · Mod 10 · Mod 40 · ISSSTE' },
+              { icon: '◎', title: 'CRM de clientes', desc: 'Pipeline, pagos y seguimiento completo' },
+              { icon: '📄', title: 'Propuesta en PDF', desc: 'Con tu logo, lista para presentar al cliente' },
             ].map((f, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{
+                  width: '38px', height: '38px', borderRadius: '10px',
+                  background: 'rgba(255,255,255,0.15)',
+                  border: '1px solid rgba(255,255,255,0.25)',
+                  backdropFilter: 'blur(4px)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '17px', flexShrink: 0,
+                }}>
                   {f.icon}
                 </div>
                 <div>
-                  <div style={{ fontSize: '14px', fontWeight: '700', color: 'white', marginBottom: '1px' }}>{f.title}</div>
-                  <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)' }}>{f.desc}</div>
+                  <div style={{ fontSize: '13px', fontWeight: '700', color: 'white', textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>{f.title}</div>
+                  <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)' }}>{f.desc}</div>
                 </div>
               </div>
             ))}
           </div>
 
           {/* Stats */}
-          <div style={{ display: 'flex', gap: '0', borderTop: '1px solid rgba(255,255,255,0.10)', paddingTop: '28px' }}>
+          <div style={{ display: 'flex', gap: '0', borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: '24px' }}>
             {[
               { value: 'Ley 73', label: 'y Ley 97' },
               { value: '4', label: 'escenarios' },
               { value: '2026', label: 'actualizado' },
             ].map((s, i) => (
-              <div key={i} style={{ flex: 1, paddingRight: i < 2 ? '24px' : '0', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.10)' : 'none', paddingLeft: i > 0 ? '24px' : '0' }}>
-                <div style={{ fontSize: '24px', fontWeight: '900', color: NARANJA, marginBottom: '2px' }}>{s.value}</div>
-                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)' }}>{s.label}</div>
+              <div key={i} style={{
+                flex: 1,
+                paddingRight: i < 2 ? '20px' : '0',
+                borderRight: i < 2 ? '1px solid rgba(255,255,255,0.2)' : 'none',
+                paddingLeft: i > 0 ? '20px' : '0'
+              }}>
+                <div style={{ fontSize: '22px', fontWeight: '900', color: 'white', textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>{s.value}</div>
+                <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)' }}>{s.label}</div>
               </div>
             ))}
           </div>
         </div>
 
         {/* Footer */}
-        <div style={{ position: 'relative', zIndex: 1, color: 'rgba(255,255,255,0.25)', fontSize: '11px', marginTop: '32px' }}>
+        <div style={{ position: 'relative', zIndex: 1, color: 'rgba(255,255,255,0.4)', fontSize: '11px' }}>
           © 2026 KSE Pensiones · Diagnóstico Pensional para Asesores en México
         </div>
       </div>
@@ -139,13 +171,12 @@ export default function LoginPage() {
       {/* ── Panel derecho — Formulario ── */}
       <div style={{
         flex: 1,
-        background: '#F0F4F8',
+        background: '#F4F6FB',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         padding: '40px',
       }}>
-        {/* Card del formulario */}
         <div style={{
           background: 'white',
           borderRadius: '20px',
@@ -157,16 +188,21 @@ export default function LoginPage() {
         }}>
           {mode === 'login' ? (
             <>
-              <h2 style={{ fontSize: '26px', fontWeight: '800', color: AZUL, margin: '0 0 6px', letterSpacing: '-0.5px', textAlign: 'center' }}>
-                Bienvenido de nuevo
-              </h2>
-              <p style={{ color: '#94a3b8', fontSize: '14px', margin: '0 0 28px', textAlign: 'center' }}>
-                Ingresa tus credenciales para continuar
-              </p>
+              <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: `linear-gradient(135deg, ${NARANJA}, #ff8c3a)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', margin: '0 auto 14px', boxShadow: `0 4px 16px ${NARANJA}50` }}>
+                  🏖️
+                </div>
+                <h2 style={{ fontSize: '24px', fontWeight: '800', color: AZUL, margin: '0 0 6px', letterSpacing: '-0.5px' }}>
+                  Bienvenido de nuevo
+                </h2>
+                <p style={{ color: '#94a3b8', fontSize: '13px', margin: 0 }}>
+                  Ingresa tus credenciales para continuar
+                </p>
+              </div>
 
               {error && (
                 <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', padding: '10px 14px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '14px' }}>⚠️</span>
+                  <span>⚠️</span>
                   <span style={{ color: '#dc2626', fontSize: '13px', fontWeight: '500' }}>{error}</span>
                 </div>
               )}
@@ -176,11 +212,10 @@ export default function LoginPage() {
                   <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '7px', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
                     Correo electrónico
                   </label>
-                  <input
-                    type="email" value={email} onChange={e => setEmail(e.target.value)} required
+                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
                     placeholder="tu@correo.com"
-                    style={{ display: 'block', width: '100%', padding: '13px 16px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', background: '#FAFBFC', fontFamily: 'inherit', transition: 'border-color 0.15s, box-shadow 0.15s' }}
-                    onFocus={e => { e.target.style.borderColor = AZUL; e.target.style.boxShadow = `0 0 0 3px rgba(27,58,107,0.08)` }}
+                    style={{ display: 'block', width: '100%', padding: '13px 16px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', background: '#FAFBFC', fontFamily: 'inherit' }}
+                    onFocus={e => { e.target.style.borderColor = NARANJA; e.target.style.boxShadow = `0 0 0 3px ${NARANJA}20` }}
                     onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none' }}
                   />
                 </div>
@@ -190,15 +225,14 @@ export default function LoginPage() {
                     Contraseña
                   </label>
                   <div style={{ position: 'relative' }}>
-                    <input
-                      type={showPass ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} required
+                    <input type={showPass ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} required
                       placeholder="••••••••"
                       style={{ display: 'block', width: '100%', padding: '13px 48px 13px 16px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', background: '#FAFBFC', fontFamily: 'inherit' }}
-                      onFocus={e => { e.target.style.borderColor = AZUL; e.target.style.boxShadow = `0 0 0 3px rgba(27,58,107,0.08)` }}
+                      onFocus={e => { e.target.style.borderColor = NARANJA; e.target.style.boxShadow = `0 0 0 3px ${NARANJA}20` }}
                       onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none' }}
                     />
                     <button type="button" onClick={() => setShowPass(s => !s)}
-                      style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: '16px', padding: '4px', lineHeight: 1 }}>
+                      style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: '16px', padding: '4px' }}>
                       {showPass ? '🙈' : '👁️'}
                     </button>
                   </div>
@@ -212,12 +246,12 @@ export default function LoginPage() {
                 </div>
 
                 <button type="submit" disabled={loading}
-                  style={{ display: 'block', width: '100%', padding: '14px', borderRadius: '10px', border: 'none', background: loading ? '#94a3b8' : AZUL, color: 'white', fontSize: '15px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer', letterSpacing: '0.3px', boxShadow: loading ? 'none' : '0 4px 16px rgba(27,58,107,0.30)', transition: 'all 0.15s' }}>
-                  {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+                  style={{ display: 'block', width: '100%', padding: '14px', borderRadius: '10px', border: 'none', background: loading ? '#94a3b8' : `linear-gradient(135deg, ${NARANJA}, #ff8c3a)`, color: 'white', fontSize: '15px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer', boxShadow: loading ? 'none' : `0 4px 16px ${NARANJA}50`, letterSpacing: '0.3px' }}>
+                  {loading ? 'Iniciando sesión...' : 'Iniciar sesión →'}
                 </button>
               </form>
 
-              <div style={{ marginTop: '20px', textAlign: 'center', color: '#94a3b8', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              <div style={{ marginTop: '20px', textAlign: 'center', color: '#94a3b8', fontSize: '12px' }}>
                 🔒 Conexión segura · Datos cifrados con SSL
               </div>
             </>
@@ -225,23 +259,21 @@ export default function LoginPage() {
             <>
               <button onClick={() => { setMode('login'); setError(null); setMessage(null) }}
                 style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', fontSize: '13px', fontWeight: '600', padding: '0 0 20px', marginLeft: '-2px' }}>
-                ← Volver al inicio
+                ← Volver
               </button>
-              <h2 style={{ fontSize: '24px', fontWeight: '800', color: AZUL, margin: '0 0 6px', textAlign: 'center' }}>Recuperar contraseña</h2>
-              <p style={{ color: '#94a3b8', fontSize: '14px', margin: '0 0 28px', textAlign: 'center' }}>Te enviaremos un enlace para restablecer tu contraseña.</p>
-
+              <h2 style={{ fontSize: '22px', fontWeight: '800', color: AZUL, margin: '0 0 6px', textAlign: 'center' }}>Recuperar contraseña</h2>
+              <p style={{ color: '#94a3b8', fontSize: '13px', margin: '0 0 24px', textAlign: 'center' }}>Te enviaremos un enlace para restablecer tu contraseña.</p>
               {error && <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', padding: '10px 14px', color: '#dc2626', fontSize: '13px', marginBottom: '16px' }}>⚠️ {error}</div>}
               {message && <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '10px 14px', color: '#16a34a', fontSize: '13px', marginBottom: '16px' }}>✓ {message}</div>}
-
               <form onSubmit={handleRecover}>
                 <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '7px', textTransform: 'uppercase', letterSpacing: '0.6px' }}>Correo electrónico</label>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '7px', textTransform: 'uppercase', letterSpacing: '0.6px' }}>Correo</label>
                   <input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="tu@correo.com"
                     style={{ display: 'block', width: '100%', padding: '13px 16px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', background: '#FAFBFC', fontFamily: 'inherit' }} />
                 </div>
                 <button type="submit" disabled={loading}
-                  style={{ display: 'block', width: '100%', padding: '14px', borderRadius: '10px', border: 'none', background: loading ? '#94a3b8' : VERDE, color: 'white', fontSize: '15px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer', boxShadow: '0 4px 16px rgba(46,139,87,0.30)' }}>
-                  {loading ? 'Enviando...' : 'Enviar enlace de recuperación'}
+                  style={{ display: 'block', width: '100%', padding: '14px', borderRadius: '10px', border: 'none', background: loading ? '#94a3b8' : `linear-gradient(135deg, ${NARANJA}, #ff8c3a)`, color: 'white', fontSize: '15px', fontWeight: '700', cursor: loading ? 'not-allowed' : 'pointer', boxShadow: `0 4px 16px ${NARANJA}50` }}>
+                  {loading ? 'Enviando...' : 'Enviar enlace →'}
                 </button>
               </form>
             </>
