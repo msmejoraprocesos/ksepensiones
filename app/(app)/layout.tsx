@@ -52,9 +52,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: '#F4F6FB' }}>
-      <div style={{ width: sidebarWidth, minWidth: sidebarWidth, background: AZUL, display: 'flex', flexDirection: 'column', transition: 'width 0.2s ease', overflow: 'hidden' }}>
-        <div style={{ height: '56px', display: 'flex', alignItems: 'center', padding: collapsed ? '0 16px' : '0 20px', borderBottom: '1px solid rgba(255,255,255,0.10)', gap: '10px', flexShrink: 0 }}>
-          <div style={{ width: '32px', height: '32px', minWidth: '32px', borderRadius: '8px', overflow: 'hidden', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2px' }}><img src='/logo-kse.png' alt='KSE' style={{ width: '100%', height: '100%', objectFit: 'contain' }} /></div>
+      <div style={{ width: sidebarWidth, minWidth: sidebarWidth, background: NARANJA, display: 'flex', flexDirection: 'column', transition: 'width 0.2s ease', overflow: 'hidden' }}>
+        <div style={{ height: '56px', display: 'flex', alignItems: 'center', padding: collapsed ? '0 16px' : '0 20px', borderBottom: '1px solid rgba(0,0,0,0.12)', gap: '10px', flexShrink: 0 }}>
+          <div style={{ width: '32px', height: '32px', minWidth: '32px', borderRadius: '8px', overflow: 'hidden', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3px' }}><img src='/logo-kse.png' alt='KSE' style={{ width: '100%', height: '100%', objectFit: 'contain' }} /></div>
           {!collapsed && <div>
             <div style={{ color: 'white', fontSize: '14px', fontWeight: '700', lineHeight: 1.2, whiteSpace: 'nowrap' }}>KSE Pensiones</div>
             <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '10px', whiteSpace: 'nowrap' }}>Asesor CRM</div>
@@ -73,7 +73,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             )
           })}
         </nav>
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.10)', padding: '12px 8px' }}>
+        <div style={{ borderTop: '1px solid rgba(0,0,0,0.12)', padding: '12px 8px' }}>
           <button onClick={() => setCollapsed(c => !c)} style={{ display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'flex-start', gap: '8px', width: '100%', padding: '8px 12px', background: 'rgba(255,255,255,0.08)', border: 'none', borderRadius: '8px', cursor: 'pointer', marginBottom: '8px' }}>
             <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>{collapsed ? '›' : '‹'}</span>
             {!collapsed && <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '12px' }}>Colapsar</span>}
