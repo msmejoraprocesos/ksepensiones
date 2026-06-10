@@ -450,10 +450,7 @@ function ClientesInner() {
     const e3 = d.resultado_e3 ? '$' + Math.round(d.resultado_e3).toLocaleString() : '—'
     const e4 = d.resultado_e4 ? '$' + Math.round(d.resultado_e4).toLocaleString() : '—'
     const fecha = new Date(d.created_at).toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' })
-    const seccion = (titulo: string, texto: string) => texto
-      ? '<h2>' + titulo + '</h2><p>' + texto.replace(/
-/g, '<br>') + '</p>'
-      : ''
+    const seccion = (titulo: string, texto: string) => texto ? '<h2>' + titulo + '</h2><p>' + texto.split('\n').join('<br>') + '</p>' : ''
     const html = [
       '<html><head><title>Diagnóstico ' + letra + ' — ' + nombre + '</title>',
       '<meta charset="utf-8">',
