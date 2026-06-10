@@ -313,15 +313,15 @@ function CalculadoraInner() {
   const semanasConPortabilidad = semanas + (tieneISSSTe ? aniosISSSTe * 52 : 0)
   const escAct = escenarios.find(e => e.tag === escSelected) ?? escenarios[0]
 
-  const inputSt: React.CSSProperties = { width: '100%', border: '1.5px solid #e2e8f0', borderRadius: '8px', padding: '8px 12px', fontSize: '13px', color: '#1e293b', outline: 'none', boxSizing: 'border-box', background: 'white', fontFamily: 'inherit' }
-  const labelSt: React.CSSProperties = { display: 'block', fontSize: '10px', color: AZUL, fontWeight: '700', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }
+  const inputSt: React.CSSProperties = { width: '100%', border: '1.5px solid #475569', borderRadius: '8px', padding: '8px 12px', fontSize: '13px', color: '#f1f5f9', outline: 'none', boxSizing: 'border-box', background: '#334155', fontFamily: 'inherit' }
+  const labelSt: React.CSSProperties = { display: 'block', fontSize: '10px', color: '#94a3b8', fontWeight: '700', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }
   const stepBadge = (n: number, color: string) => (
     <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: color, color: 'white', fontSize: '11px', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{n}</div>
   )
   const sectionTitle = (n: number, title: string, color: string) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
       {stepBadge(n, color)}
-      <span style={{ fontSize: '11px', fontWeight: '700', color: AZUL, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{title}</span>
+      <span style={{ fontSize: '11px', fontWeight: '700', color: '#e2e8f0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{title}</span>
     </div>
   )
 
@@ -331,7 +331,7 @@ function CalculadoraInner() {
       <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '10px 20px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ color: AZUL, fontSize: '17px', fontWeight: '800', margin: 0 }}>🧮 Calculadora de Pensiones IMSS</h1>
-          <p style={{ color: '#94a3b8', fontSize: '10px', margin: '2px 0 0' }}>Ley 73 · Ley 97 · Modalidad 10 · Modalidad 40 · Portabilidad ISSSTE · Variables 2026</p>
+          <p style={{ color: '#64748b', fontSize: '10px', margin: '2px 0 0' }}>Ley 73 · Ley 97 · Modalidad 10 · Modalidad 40 · Portabilidad ISSSTE · Variables 2026</p>
         </div>
         <div style={{ fontSize: '10px', color: '#94a3b8', textAlign: 'right' }}>
           UMA ${sys.UMA_DIARIA} · SM ${sys.SALARIO_MIN} · PMG L73 {fmtMXN(sys.PMG_L73)}
@@ -341,7 +341,7 @@ function CalculadoraInner() {
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
 
         {/* ── PANEL IZQUIERDO — INPUTS ── */}
-        <div style={{ width: '300px', flexShrink: 0, borderRight: '1px solid #e2e8f0', background: 'white', overflowY: 'auto', padding: '14px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div style={{ width: '300px', flexShrink: 0, borderRight: '1px solid #e2e8f0', background: '#1e293b', overflowY: 'auto', padding: '14px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
           {/* Régimen */}
           <div>
@@ -363,7 +363,7 @@ function CalculadoraInner() {
               <div>
                 <label style={labelSt}>Fecha de nacimiento</label>
                 <input type="date" value={fechaNac} onChange={e => setFechaNac(e.target.value)} style={inputSt} />
-                {fechaNac && <p style={{ fontSize: '10px', color: '#94a3b8', margin: '3px 0 0' }}>Edad: <strong>{edad} años</strong> · Años para retiro: <strong>{aniosRetiro}</strong></p>}
+                {fechaNac && <p style={{ fontSize: '10px', color: '#64748b', margin: '3px 0 0' }}>Edad: <strong>{edad} años</strong> · Años para retiro: <strong>{aniosRetiro}</strong></p>}
               </div>
               <div>
                 <label style={labelSt}>Edad de retiro deseada</label>
@@ -385,7 +385,7 @@ function CalculadoraInner() {
               <div>
                 <label style={labelSt}>Inflación estimada (%)</label>
                 <input type="number" value={inflacion} step={0.5} onChange={e => setInflacion(parseFloat(e.target.value))} style={inputSt} />
-                <p style={{ fontSize: '10px', color: '#94a3b8', margin: '3px 0 0' }}>Ajusta pensión a pesos de hoy</p>
+                <p style={{ fontSize: '10px', color: '#64748b', margin: '3px 0 0' }}>Ajusta pensión a pesos de hoy</p>
               </div>
             </div>
           </div>
@@ -393,7 +393,7 @@ function CalculadoraInner() {
           {/* Portabilidad ISSSTE */}
           <div style={{ background: '#f0fdf4', borderRadius: '10px', padding: '12px', border: '1px solid #bbf7d0' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <span style={{ fontSize: '11px', fontWeight: '700', color: '#166534', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Portabilidad ISSSTE</span>
+              <span style={{ fontSize: '11px', fontWeight: '700', color: '#86efac', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Portabilidad ISSSTE</span>
               <button onClick={() => setTieneISSSTe(p => !p)}
                 style={{ width: '36px', height: '20px', borderRadius: '10px', border: 'none', background: tieneISSSTe ? VERDE : '#cbd5e1', cursor: 'pointer', position: 'relative', transition: 'background 0.2s' }}>
                 <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'white', position: 'absolute', top: '2px', transition: 'left 0.2s', left: tieneISSSTe ? '18px' : '2px', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
@@ -402,7 +402,7 @@ function CalculadoraInner() {
             {tieneISSSTe && (
               <div>
                 <label style={{ ...labelSt, color: '#166534' }}>Años cotizados en ISSSTE</label>
-                <input type="number" value={aniosISSSTe || ''} onChange={e => setAniosISSSTe(parseInt(e.target.value) || 0)} placeholder="Ej. 5" style={{ ...inputSt, background: '#f0fdf4', border: '1px solid #86efac' }} />
+                <input type="number" value={aniosISSSTe || ''} onChange={e => setAniosISSSTe(parseInt(e.target.value) || 0)} placeholder="Ej. 5" style={{ ...inputSt, background: '#1e4534', border: '1px solid #4ade80' }} />
                 <p style={{ fontSize: '10px', color: '#166534', margin: '3px 0 0' }}>= {aniosISSSTe * 52} semanas adicionales · Total: {semanasConPortabilidad} semanas</p>
               </div>
             )}
@@ -426,7 +426,7 @@ function CalculadoraInner() {
                   <label style={labelSt}>Salario diario (veces SM)</label>
                   <input type="number" value={salarioDiario || ''} step={0.5} onChange={e => setSalarioDiario(parseFloat(e.target.value) || 0)} placeholder="Ej. 3.5" style={inputSt} />
                   {salarioDiario > 0 && (
-                    <p style={{ fontSize: '10px', color: '#94a3b8', margin: '3px 0 0' }}>
+                    <p style={{ fontSize: '10px', color: '#64748b', margin: '3px 0 0' }}>
                       SDI: {fmtMXN(calcSDI(salarioDiario, sys))}/día · {fmtMXN(calcSDI(salarioDiario, sys) * 30.4)}/mes
                     </p>
                   )}
@@ -469,7 +469,7 @@ function CalculadoraInner() {
                 {/* Mod 10 */}
                 <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '10px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: '700', color: '#1e40af' }}>MODALIDAD 10</span>
+                    <span style={{ fontSize: '11px', fontWeight: '700', color: '#93c5fd' }}>MODALIDAD 10</span>
                     <button onClick={() => setMod10Activo(p => !p)}
                       style={{ width: '36px', height: '20px', borderRadius: '10px', border: 'none', background: mod10Activo ? '#3b82f6' : '#cbd5e1', cursor: 'pointer', position: 'relative', transition: 'background 0.2s' }}>
                       <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'white', position: 'absolute', top: '2px', transition: 'left 0.2s', left: mod10Activo ? '18px' : '2px', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
@@ -480,7 +480,7 @@ function CalculadoraInner() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                       <div>
                         <label style={{ ...labelSt, color: '#1e40af' }}>Años a cotizar en Mod 10</label>
-                        <input type="number" value={mod10Anios} onChange={e => setMod10Anios(parseInt(e.target.value) || 0)} style={{ ...inputSt, background: 'white' }} />
+                        <input type="number" value={mod10Anios} onChange={e => setMod10Anios(parseInt(e.target.value) || 0)} style={{ ...inputSt }} />
                         <p style={{ fontSize: '10px', color: '#1e40af', margin: '3px 0 0' }}>+{mod10Anios * 52} semanas → Total: {semanasConPortabilidad + mod10Anios * 52} semanas</p>
                       </div>
                     </div>
@@ -488,9 +488,9 @@ function CalculadoraInner() {
                 </div>
 
                 {/* Mod 40 */}
-                <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '10px', padding: '10px' }}>
+                <div style={{ background: '#3d1f0d', border: '1px solid #f97316', borderRadius: '10px', padding: '10px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: '700', color: '#9a3412' }}>MODALIDAD 40</span>
+                    <span style={{ fontSize: '11px', fontWeight: '700', color: '#fdba74' }}>MODALIDAD 40</span>
                     <button onClick={() => setMod40Activo(p => !p)}
                       style={{ width: '36px', height: '20px', borderRadius: '10px', border: 'none', background: mod40Activo ? NARANJA : '#cbd5e1', cursor: 'pointer', position: 'relative', transition: 'background 0.2s' }}>
                       <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'white', position: 'absolute', top: '2px', transition: 'left 0.2s', left: mod40Activo ? '18px' : '2px', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
@@ -501,18 +501,18 @@ function CalculadoraInner() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                       <div>
                         <label style={{ ...labelSt, color: '#9a3412' }}>Salario cotizable (UMAs)</label>
-                        <input type="number" value={mod40UmasSalario} step={0.5} max={25} onChange={e => setMod40UmasSalario(parseFloat(e.target.value))} style={{ ...inputSt, background: 'white' }} />
+                        <input type="number" value={mod40UmasSalario} step={0.5} max={25} onChange={e => setMod40UmasSalario(parseFloat(e.target.value))} style={{ ...inputSt }} />
                         <p style={{ fontSize: '10px', color: '#9a3412', margin: '3px 0 0' }}>
                           SDI: {fmtMXN(mod40UmasSalario * sys.UMA_DIARIA * 1.0452)}/día
                         </p>
                       </div>
                       <div>
                         <label style={{ ...labelSt, color: '#9a3412' }}>Años de cotización</label>
-                        <input type="number" value={mod40Anios} onChange={e => setMod40Anios(parseInt(e.target.value) || 0)} style={{ ...inputSt, background: 'white' }} />
+                        <input type="number" value={mod40Anios} onChange={e => setMod40Anios(parseInt(e.target.value) || 0)} style={{ ...inputSt }} />
                       </div>
                       <div>
                         <label style={{ ...labelSt, color: '#9a3412' }}>Año de inicio</label>
-                        <select value={mod40AnioInicio} onChange={e => setMod40AnioInicio(parseInt(e.target.value))} style={{ ...inputSt, background: 'white' }}>
+                        <select value={mod40AnioInicio} onChange={e => setMod40AnioInicio(parseInt(e.target.value))} style={{ ...inputSt }}>
                           {Object.keys(MOD40_PCT).map(y => <option key={y} value={y}>{y} — {MOD40_PCT[parseInt(y)]}%</option>)}
                         </select>
                         <p style={{ fontSize: '10px', color: '#9a3412', margin: '3px 0 0', fontWeight: '700' }}>
