@@ -1,4 +1,4 @@
-'use client'
+'use client' // v6-etapas
 
 import { useEffect, useState, useRef, Suspense } from 'react'
 import { createClient } from '@/utils/supabase/client'
