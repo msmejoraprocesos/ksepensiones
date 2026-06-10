@@ -131,8 +131,8 @@ export default function MiDiaPage() {
     const totalCobrado = Object.values(totalesPagados).reduce((s, v) => s + v, 0)
     const totalAcordado = clientesList.reduce((s, c) => s + (c.monto_acordado ?? 0), 0)
     const totalPorCobrar = clientesList.reduce((s, c) => s + Math.max(0, (c.monto_acordado ?? 0) - (totalesPagados[c.id] ?? 0)), 0)
-    const cierres1 = clientesList.filter(c => ['cierre1','seguimiento','cierre2','tramite','pensionado'].includes(c.etapa_kanban)).length
-    const cierres2 = clientesList.filter(c => ['cierre2','tramite','pensionado'].includes(c.etapa_kanban)).length
+    const cierres1 = clientesList.filter(c => ['seguimiento','tramite','pensionado'].includes(c.etapa_kanban)).length
+    const cierres2 = clientesList.filter(c => ['tramite','pensionado'].includes(c.etapa_kanban)).length
 
     setKpis({
       clientes: clientesList.length,
