@@ -747,147 +747,85 @@ function ClientesInner() {
               {/* ── TAB PAGOS ── */}
               {modalTab === 'pagos' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {/* Resumen total */}
+
+                  {/* Resumen acordado / pagado / saldo */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-                    {[
-                      { label: 'Total acordado', value: fmtMXN(servicios.reduce((s,srv) => s + srv.monto_acordado, 0) || selected.monto_acordado || 0), color: AZUL },
-                      { label: 'Total pagado', value: fmtMXN(pagos.reduce((s,p) => s + p.monto, 0)), color: VERDE },
-                      { label: 'Saldo', value: fmtMXN(Math.max(0, (servicios.reduce((s,srv) => s + srv.monto_acordado, 0) || selected.monto_acordado || 0) - pagos.reduce((s,p) => s + p.monto, 0))), color: '#ef4444' },
-                    ].map((k, i) => (
-                      <div key={i} style={{ background: '#F4F6FB', borderRadius: '8px', padding: '10px 12px', border: '1px solid #e2e8f0' }}>
-                        <div style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '3px' }}>{k.label}</div>
-                        <div style={{ fontSize: '14px', fontWeight: '800', color: k.color }}>{k.value}</div>
-                      </div>
-                    ))}
+                    {(() => {
+                      const totalPagado = pagos.reduce((s,p) => s + p.monto, 0)
+                      const saldo = Math.max(0, (selected.monto_acordado ?? 0) - totalPagado)
+                      const estatus = calcEstatus(selected.monto_acordado, totalPagado)
+                      const sem = SEMAFORO[estatus]
+                      return [
+                        { label: 'Acordado', value: fmtMXN(selected.monto_acordado), color: AZUL, bg: '#F4F6FB', border: '#e2e8f0' },
+                        { label: 'Pagado', value: fmtMXN(totalPagado), color: VERDE, bg: '#f0fdf4', border: '#bbf7d0' },
+                        { label: 'Saldo', value: fmtMXN(saldo), color: sem.color, bg: sem.bg, border: sem.border, extra: `${sem.icon} ${estatus}` },
+                      ].map((k, i) => (
+                        <div key={i} style={{ background: k.bg, borderRadius: '8px', padding: '10px 12px', border: `1px solid ${k.border}` }}>
+                          <div style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '3px' }}>{k.label}</div>
+                          <div style={{ fontSize: '16px', fontWeight: '800', color: k.color }}>{k.value}</div>
+                          {k.extra && <div style={{ fontSize: '10px', fontWeight: '700', color: k.color, marginTop: '2px' }}>{k.extra}</div>}
+                        </div>
+                      ))
+                    })()}
                   </div>
 
-                  {/* Servicios con sus pagos */}
-                  {servicios.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '24px', color: '#94a3b8', fontSize: '13px', background: '#F8FAFC', borderRadius: '10px', border: '1px dashed #e2e8f0' }}>
-                      <div style={{ fontSize: '28px', marginBottom: '8px' }}>💼</div>
-                      Agrega un servicio contratado para comenzar a registrar pagos
-                    </div>
-                  ) : servicios.map((srv, srvIdx) => {
-                    const srvSaldo = Math.max(0, srv.monto_acordado - (srv.total_pagado ?? 0))
-                    const srvEstatus = calcEstatus(srv.monto_acordado, srv.total_pagado ?? 0)
-                    const srvSem = SEMAFORO[srvEstatus]
-                    const srvPagos = pagos.filter(p => p.servicio_id === srv.id)
-                    const isActivo = servicioActivo === srv.id
-                    return (
-                      <div key={srv.id} style={{ border: `2px solid ${isActivo ? AZUL : '#e2e8f0'}`, borderRadius: '12px', overflow: 'hidden' }}>
-                        <div onClick={() => setServicioActivo(isActivo ? null : srv.id)}
-                          style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', background: isActivo ? '#EEF2F8' : '#F8FAFC', cursor: 'pointer' }}>
-                          <div style={{ width: '28px', height: '28px', background: AZUL, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '11px', fontWeight: '700', flexShrink: 0 }}>
-                            {srvIdx + 1}
-                          </div>
-                          <div style={{ flex: 1 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <span style={{ fontSize: '13px', fontWeight: '700', color: AZUL }}>{srv.tipo}</span>
-                              <span style={{ fontSize: '10px', padding: '1px 7px', borderRadius: '8px', background: srvSem.bg, border: `1px solid ${srvSem.border}`, color: srvSem.color, fontWeight: '700' }}>{srvSem.icon} {srvEstatus}</span>
-                              {srv.estatus === 'liquidado' && <span style={{ fontSize: '10px', background: '#f0fdf4', color: VERDE, padding: '1px 7px', borderRadius: '8px', fontWeight: '700', border: '1px solid #bbf7d0' }}>✅ Cerrado</span>}
-                            </div>
-                            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
-                              {fmtMXN(srv.total_pagado ?? 0)} de {fmtMXN(srv.monto_acordado)} · {srvPagos.length} pago{srvPagos.length !== 1 ? 's' : ''}
-                              {srv.descripcion && <span> · {srv.descripcion}</span>}
-                            </div>
-                          </div>
-                          <span style={{ fontSize: '12px', color: '#94a3b8' }}>{isActivo ? '▲' : '▼'}</span>
-                        </div>
-
-                        {isActivo && (
-                          <div style={{ padding: '12px 14px', borderTop: '1px solid #e2e8f0' }}>
-                            {/* Barra progreso */}
-                            <div style={{ marginBottom: '10px' }}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#94a3b8', marginBottom: '3px' }}>
-                                <span>Progreso de cobro</span>
-                                <span style={{ fontWeight: '700', color: VERDE }}>{srv.monto_acordado > 0 ? Math.round(((srv.total_pagado??0)/srv.monto_acordado)*100) : 0}%</span>
-                              </div>
-                              <div style={{ height: '6px', background: '#f1f5f9', borderRadius: '3px', overflow: 'hidden' }}>
-                                <div style={{ height: '100%', background: VERDE, borderRadius: '3px', width: `${srv.monto_acordado > 0 ? Math.min(100,((srv.total_pagado??0)/srv.monto_acordado)*100) : 0}%`, transition: 'width 0.4s' }} />
-                              </div>
-                            </div>
-
-                            {/* Pagos del servicio */}
-                            {srvPagos.length > 0 && (
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginBottom: '10px' }}>
-                                {srvPagos.map((pago, pi) => (
-                                  <div key={pago.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 10px', background: '#F8FAFC', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                                    <span style={{ fontSize: '10px', fontWeight: '700', background: '#EEF2F8', color: AZUL, padding: '1px 6px', borderRadius: '6px' }}>#{pi+1}</span>
-                                    <span style={{ fontSize: '12px', fontWeight: '700', color: VERDE }}>{fmtMXN(pago.monto)}</span>
-                                    <span style={{ fontSize: '11px', color: '#94a3b8', flex: 1 }}>{pago.concepto} · {fmt(pago.fecha_pago)}</span>
-                                    {pago.comprobante_url ? (
-                                      <a href={pago.comprobante_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '10px', color: AZUL, textDecoration: 'none', background: '#EEF2F8', padding: '2px 7px', borderRadius: '5px' }}>📎 Ver</a>
-                                    ) : (
-                                      <label style={{ fontSize: '10px', color: '#94a3b8', cursor: 'pointer', background: '#F4F6FB', padding: '2px 7px', borderRadius: '5px', border: '1px dashed #e2e8f0' }}>
-                                        📎
-                                        <input type="file" accept="image/*,.pdf" onChange={e => { const f = e.target.files?.[0]; if (f) uploadComprobantePago(pago.id, f) }} style={{ display: 'none' }} />
-                                      </label>
-                                    )}
-                                    <button onClick={() => eliminarPago(pago.id, pago.monto)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: '13px', padding: '2px' }}>🗑️</button>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-
-                            {/* Botón registrar pago */}
-                            {srv.estatus !== 'liquidado' && srvSaldo > 0 ? (
-                              <button onClick={() => {
-                                const concepto = detectarConcepto(srvPagos.length, 0, srvSaldo, srv.monto_acordado)
-                                setFormPago(p => ({ ...p, concepto }))
-                                setShowPago(true)
-                              }} style={{ width: '100%', padding: '9px', background: VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', marginBottom: '6px' }}>
-                                + {srvPagos.length === 0 ? 'Anticipo' : srvPagos.length === 1 ? 'Segunda exhibición' : srvPagos.length === 2 ? 'Tercera exhibición' : 'Liquidación'} — {fmtMXN(srvSaldo)} restante
-                              </button>
-                            ) : srv.estatus !== 'liquidado' ? (
-                              <button onClick={() => cerrarServicio(srv.id)} style={{ width: '100%', padding: '9px', background: '#f0fdf4', color: VERDE, border: '1px solid #bbf7d0', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', marginBottom: '6px' }}>
-                                ✅ Marcar como cerrado
-                              </button>
-                            ) : (
-                              <div style={{ width: '100%', padding: '9px', background: '#f0fdf4', color: VERDE, border: '1px solid #bbf7d0', borderRadius: '8px', fontSize: '13px', fontWeight: '700', textAlign: 'center', marginBottom: '6px' }}>
-                                ✅ Servicio liquidado
-                              </div>
-                            )}
-                          </div>
-                        )}
+                  {/* Botón registrar pago */}
+                  {(() => {
+                    const totalPagado = pagos.reduce((s,p) => s + p.monto, 0)
+                    const saldo = Math.max(0, (selected.monto_acordado ?? 0) - totalPagado)
+                    const liquidado = selected.monto_acordado != null && saldo <= 0
+                    if (liquidado) return (
+                      <div style={{ padding: '11px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', textAlign: 'center', fontSize: '13px', fontWeight: '700', color: VERDE }}>
+                        🟢 Cuenta liquidada — pago completo
                       </div>
                     )
-                  })}
+                    const concepto = detectarConcepto(pagos.length, 0, saldo, selected.monto_acordado)
+                    return (
+                      <button onClick={() => {
+                        setFormPago(p => ({ ...p, concepto }))
+                        setShowPago(true)
+                      }} style={{ width: '100%', padding: '11px', background: VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+                        + Registrar {concepto.toLowerCase()} {saldo > 0 ? `— ${fmtMXN(saldo)} pendiente` : ''}
+                      </button>
+                    )
+                  })()}
 
-                  {/* Agregar nuevo servicio */}
-                  {!showNuevoServicio ? (
-                    <button onClick={() => setShowNuevoServicio(true)}
-                      style={{ width: '100%', padding: '11px', background: servicios.length === 0 ? AZUL : 'white', color: servicios.length === 0 ? 'white' : AZUL, border: `1.5px ${servicios.length === 0 ? 'solid' : 'dashed'} #1B3A6B`, borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
-                      {servicios.length === 0 ? '+ Agregar primer servicio contratado' : '+ Agregar otro servicio'}
-                    </button>
+                  {/* Historial de pagos */}
+                  {pagos.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '28px', color: '#94a3b8', fontSize: '13px', background: '#F8FAFC', borderRadius: '10px', border: '1px dashed #e2e8f0' }}>
+                      Sin pagos registrados
+                    </div>
                   ) : (
-                    <div style={{ background: '#F4F6FB', borderRadius: '10px', padding: '14px', border: '1px solid #e2e8f0' }}>
-                      <p style={{ fontSize: '12px', fontWeight: '700', color: AZUL, margin: '0 0 10px' }}>Nuevo servicio</p>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Tipo</label>
-                          <select value={formServicio.tipo} onChange={e => setFormServicio(p => ({ ...p, tipo: e.target.value }))} style={inputSt}>
-                            {SERVICIOS.map(s => <option key={s} value={s}>{s}</option>)}
-                          </select>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                      {pagos.map((pago, i) => (
+                        <div key={pago.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', background: '#F8FAFC', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                          <span style={{ fontSize: '11px', fontWeight: '700', background: '#EEF2F8', color: AZUL, padding: '2px 8px', borderRadius: '6px', flexShrink: 0 }}>#{i+1}</span>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: '13px', fontWeight: '700', color: VERDE }}>{fmtMXN(pago.monto)}</div>
+                            <div style={{ fontSize: '11px', color: '#94a3b8' }}>{pago.concepto} · {fmt(pago.fecha_pago)}</div>
+                            {pago.notas && <div style={{ fontSize: '11px', color: '#64748b', fontStyle: 'italic' }}>{pago.notas}</div>}
+                          </div>
+                          {pago.comprobante_url ? (
+                            <a href={pago.comprobante_url} target="_blank" rel="noopener noreferrer"
+                              style={{ fontSize: '11px', color: AZUL, textDecoration: 'none', background: '#EEF2F8', padding: '4px 10px', borderRadius: '6px', fontWeight: '600', flexShrink: 0 }}>
+                              📎 Ver
+                            </a>
+                          ) : (
+                            <label style={{ fontSize: '11px', color: '#94a3b8', cursor: uploadingComp === pago.id ? 'not-allowed' : 'pointer', background: '#F4F6FB', padding: '4px 10px', borderRadius: '6px', border: '1px dashed #e2e8f0', flexShrink: 0 }}>
+                              {uploadingComp === pago.id ? '⏳' : '📎 Adjuntar'}
+                              <input type="file" accept="image/*,.pdf" onChange={e => { const f = e.target.files?.[0]; if (f) uploadComprobantePago(pago.id, f) }} style={{ display: 'none' }} disabled={uploadingComp === pago.id} />
+                            </label>
+                          )}
+                          <button onClick={() => eliminarPago(pago.id, pago.monto)}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: '14px', padding: '4px', flexShrink: 0 }}>🗑️</button>
                         </div>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Monto acordado</label>
-                          <input type="number" value={formServicio.monto_acordado} onChange={e => setFormServicio(p => ({ ...p, monto_acordado: e.target.value }))} placeholder="$0" style={inputSt} />
-                        </div>
-                      </div>
-                      <div style={{ marginBottom: '10px' }}>
-                        <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Descripción (opcional)</label>
-                        <input value={formServicio.descripcion} onChange={e => setFormServicio(p => ({ ...p, descripcion: e.target.value }))} placeholder="Notas del servicio..." style={inputSt} />
-                      </div>
-                      <div style={{ display: 'flex', gap: '7px' }}>
-                        <button onClick={() => setShowNuevoServicio(false)} style={{ flex: 1, padding: '8px', background: 'white', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '7px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
-                        <button onClick={guardarServicio} disabled={!formServicio.monto_acordado} style={{ flex: 2, padding: '8px', background: !formServicio.monto_acordado ? '#94a3b8' : AZUL, color: 'white', border: 'none', borderRadius: '7px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>Guardar servicio</button>
-                      </div>
+                      ))}
                     </div>
                   )}
                 </div>
               )}
 
-              {/* ── TAB DIAGNÓSTICOS ── */}
+                            {/* ── TAB DIAGNÓSTICOS ── */}
               {modalTab === 'diagnosticos' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <a href={`/calculadora?cliente=${selected.id}`}
