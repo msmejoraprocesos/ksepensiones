@@ -104,8 +104,9 @@ interface Pago {
 }
 
 interface Diagnostico {
-  id: string; ley: string; semanas: number; edad_retiro: number
-  resultado_e1: number | null; resultado_e4: number | null; created_at: string; notas: string | null
+  id: string; ley: string; semanas: number; edad_retiro: number; ingreso_deseado: number | null
+  resultado_e1: number | null; resultado_e2: number | null; resultado_e3: number | null; resultado_e4: number | null
+  created_at: string; notas: string | null; analisis_narrativo: any | null; salario_diario: number | null
 }
 
 interface Actividad {
@@ -849,21 +850,103 @@ function ClientesInner() {
                     <div style={{ textAlign: 'center', padding: '32px', color: '#94a3b8', fontSize: '13px', background: '#F8FAFC', borderRadius: '10px', border: '1px dashed #e2e8f0' }}>
                       Sin diagnósticos aún — corre la calculadora para generar el primero
                     </div>
-                  ) : diagnosticos.map(d => (
-                    <div key={d.id} style={{ background: '#F8FAFC', borderRadius: '10px', padding: '14px', border: '1px solid #e2e8f0' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                        <span style={{ background: d.ley === '73' ? '#EEF2F8' : '#EEF7F1', color: d.ley === '73' ? AZUL : VERDE, fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px' }}>Ley {d.ley}</span>
-                        <span style={{ fontSize: '11px', color: '#94a3b8' }}>{fmt(d.created_at)}</span>
+                  ) : diagnosticos.map((d, idx) => {
+                    const analisis = d.analisis_narrativo
+                    return (
+                    <div key={d.id} style={{ background: '#F8FAFC', borderRadius: '10px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+                      {/* Header diagnóstico */}
+                      <div style={{ padding: '12px 14px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ width: '28px', height: '28px', background: AZUL, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '11px', fontWeight: '700', flexShrink: 0 }}>
+                          {String.fromCharCode(65 + idx)}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ background: d.ley === '73' ? '#EEF2F8' : '#EEF7F1', color: d.ley === '73' ? AZUL : VERDE, fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px' }}>Ley {d.ley}</span>
+                            <span style={{ fontSize: '11px', color: '#94a3b8' }}>{fmt(d.created_at)}</span>
+                            {analisis && <span style={{ fontSize: '10px', background: '#f0fdf4', color: VERDE, padding: '1px 6px', borderRadius: '6px', fontWeight: '600' }}>📝 Con análisis</span>}
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#64748b', marginTop: '3px' }}>
+                            {d.semanas} semanas · Retiro {d.edad_retiro} años
+                            {d.ingreso_deseado ? ` · Meta ${fmtMXN(d.ingreso_deseado)}/mes` : ''}
+                          </div>
+                        </div>
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', fontSize: '12px' }}>
-                        <div><span style={{ color: '#94a3b8' }}>Semanas: </span><strong>{d.semanas}</strong></div>
-                        <div><span style={{ color: '#94a3b8' }}>Retiro: </span><strong>{d.edad_retiro} años</strong></div>
-                        <div><span style={{ color: '#94a3b8' }}>E1 sin acción: </span><strong style={{ color: AZUL }}>${Math.round(d.resultado_e1 ?? 0).toLocaleString()}</strong></div>
-                        <div><span style={{ color: '#94a3b8' }}>E4 óptimo: </span><strong style={{ color: VERDE }}>${Math.round(d.resultado_e4 ?? 0).toLocaleString()}</strong></div>
+
+                      {/* Resultados */}
+                      <div style={{ padding: '10px 14px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', marginBottom: '10px' }}>
+                          {[
+                            { label: 'E1 Sin acción', value: d.resultado_e1, color: '#ef4444' },
+                            { label: 'E2 Mod 10', value: d.resultado_e2, color: '#3b82f6' },
+                            { label: 'E3 Mod 40', value: d.resultado_e3, color: NARANJA },
+                            { label: 'E4 Óptimo', value: d.resultado_e4, color: VERDE },
+                          ].map((e, i) => (
+                            <div key={i} style={{ background: 'white', borderRadius: '6px', padding: '6px 8px', border: `1px solid ${i === 3 ? '#bbf7d0' : '#e2e8f0'}` }}>
+                              <div style={{ fontSize: '9px', color: '#94a3b8', marginBottom: '2px' }}>{e.label}</div>
+                              <div style={{ fontSize: '12px', fontWeight: '700', color: e.color }}>{e.value ? fmtMXN(e.value) : '—'}</div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Acciones */}
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          <a href={`/calculadora?cliente=${selected.id}&diag=${d.id}`}
+                            style={{ flex: 1, padding: '7px', background: '#EEF2F8', color: AZUL, border: 'none', borderRadius: '7px', fontSize: '11px', fontWeight: '600', cursor: 'pointer', textAlign: 'center', textDecoration: 'none' }}>
+                            🔄 Cargar en calculadora
+                          </a>
+                          {analisis && (
+                            <button onClick={() => {
+                              const win = window.open('', '_blank')
+                              if (!win) return
+                              win.document.write(`
+                                <html><head><title>Diagnóstico ${String.fromCharCode(65+idx)} — ${selected.nombre}</title>
+                                <style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:20px;color:#1e293b}
+                                h1{color:#1B3A6B;border-bottom:3px solid #F05B21;padding-bottom:10px}
+                                h2{color:#1B3A6B;margin-top:24px;font-size:14px;text-transform:uppercase;letter-spacing:1px}
+                                p{line-height:1.7;color:#374151}
+                                .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:700;background:#EEF2F8;color:#1B3A6B}
+                                .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
+                                .kpi{background:#F4F6FB;border-radius:8px;padding:10px;text-align:center}
+                                .kpi-label{font-size:11px;color:#94a3b8}
+                                .kpi-val{font-size:18px;font-weight:700;color:#1B3A6B}
+                                .footer{margin-top:40px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;display:flex;justify-content:space-between}
+                                @media print{button{display:none}}</style></head>
+                                <body>
+                                <h1>Diagnóstico Pensional — ${selected.nombre}</h1>
+                                <p><span class="badge">Ley ${d.ley}</span> &nbsp; ${d.semanas} semanas &nbsp; Retiro a los ${d.edad_retiro} años &nbsp; ${fmt(d.created_at)}</p>
+                                <div class="grid">
+                                  <div class="kpi"><div class="kpi-label">Sin acción</div><div class="kpi-val" style="color:#ef4444">${d.resultado_e1 ? '$'+Math.round(d.resultado_e1).toLocaleString() : '—'}</div></div>
+                                  <div class="kpi"><div class="kpi-label">Mod 10</div><div class="kpi-val" style="color:#3b82f6">${d.resultado_e2 ? '$'+Math.round(d.resultado_e2).toLocaleString() : '—'}</div></div>
+                                  <div class="kpi"><div class="kpi-label">Mod 40</div><div class="kpi-val" style="color:#F05B21">${d.resultado_e3 ? '$'+Math.round(d.resultado_e3).toLocaleString() : '—'}</div></div>
+                                  <div class="kpi"><div class="kpi-label">Óptimo</div><div class="kpi-val" style="color:#2E8B57">${d.resultado_e4 ? '$'+Math.round(d.resultado_e4).toLocaleString() : '—'}</div></div>
+                                </div>
+                                ${analisis.contexto ? `<h2>Contexto</h2><p>${analisis.contexto.replace(/
+/g,'<br>')}</p>` : ''}
+                                ${analisis.diagnostico_actual ? `<h2>Diagnóstico actual</h2><p>${analisis.diagnostico_actual.replace(/
+/g,'<br>')}</p>` : ''}
+                                ${analisis.opciones_disponibles ? `<h2>Opciones disponibles</h2><p>${analisis.opciones_disponibles.replace(/
+/g,'<br>')}</p>` : ''}
+                                ${analisis.recomendacion ? `<h2>Recomendación</h2><p>${analisis.recomendacion.replace(/
+/g,'<br>')}</p>` : ''}
+                                ${analisis.proximos_pasos ? `<h2>Próximos pasos</h2><p>${analisis.proximos_pasos.replace(/
+/g,'<br>')}</p>` : ''}
+                                <div class="footer">
+                                  <span>KSE Pensiones · Diagnóstico ${String.fromCharCode(65+idx)}</span>
+                                  <span>${fmt(d.created_at)}</span>
+                                </div>
+                                <br><button onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+                                </body></html>
+                              `)
+                              win.document.close()
+                            }} style={{ flex: 1, padding: '7px', background: '#f0fdf4', color: VERDE, border: '1px solid #bbf7d0', borderRadius: '7px', fontSize: '11px', fontWeight: '600', cursor: 'pointer' }}>
+                              📄 Ver análisis completo
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      {d.notas && <div style={{ marginTop: '8px', fontSize: '11px', color: '#64748b', fontStyle: 'italic' }}>{d.notas}</div>}
                     </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
 
