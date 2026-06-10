@@ -130,13 +130,28 @@ export default function ConfiguracionPage() {
   async function guardar() {
     if (!validate()) return
     setSaving(true)
-    const { error } = await supabase.from('perfiles_usuario').upsert({ id: userId, ...perfil })
+
+    // Always get fresh session to ensure we have the user ID
+    const { data: { session } } = await supabase.auth.getSession()
+    const uid = session?.user?.id || userId
+    if (!uid) {
+      setErrors(e => ({ ...e, nombre: 'Sesión expirada. Recarga la página.' }))
+      setSaving(false)
+      return
+    }
+
+    const { error } = await supabase
+      .from('perfiles_usuario')
+      .upsert({ id: uid, ...perfil }, { onConflict: 'id' })
+
     setSaving(false)
+
     if (error) {
-      console.error('Save error:', error)
       setErrors(e => ({ ...e, nombre: 'Error al guardar: ' + error.message }))
       return
     }
+
+    setUserId(uid)
     setSaved(true)
     setIsFirstTime(false)
     setTimeout(() => setSaved(false), 3000)
