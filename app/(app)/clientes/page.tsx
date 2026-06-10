@@ -13,11 +13,9 @@ const COLUMNAS = [
   { id: 'prospecto',   label: 'Prospecto',         color: '#64748b', bg: '#f1f5f9', orden: 0 },
   { id: 'diagnostico', label: 'Diagnóstico',        color: '#3b82f6', bg: '#eff6ff', orden: 1 },
   { id: 'propuesta',   label: 'Propuesta enviada',  color: '#8b5cf6', bg: '#f5f3ff', orden: 2 },
-  { id: 'cierre1',     label: '⭐ Cierre 1',        color: NARANJA,   bg: '#fff7ed', orden: 3, esCierre: true },
-  { id: 'seguimiento', label: 'Seguimiento',        color: '#0891b2', bg: '#ecfeff', orden: 4 },
-  { id: 'cierre2',     label: '⭐ Cierre 2',        color: '#dc2626', bg: '#fef2f2', orden: 5, esCierre: true },
-  { id: 'tramite',     label: 'Trámite IMSS',       color: VERDE,     bg: '#f0fdf4', orden: 6 },
-  { id: 'pensionado',  label: 'Pensionado ✅',      color: AZUL,      bg: '#eef2f8', orden: 7, esFinal: true },
+  { id: 'seguimiento', label: 'Seguimiento',        color: '#0891b2', bg: '#ecfeff', orden: 3 },
+  { id: 'tramite',     label: 'Trámite IMSS',       color: VERDE,     bg: '#f0fdf4', orden: 4 },
+  { id: 'pensionado',  label: 'Pensionado ✅',      color: AZUL,      bg: '#eef2f8', orden: 5, esFinal: true },
 ]
 
 const SERVICIOS = ['Diagnóstico', 'Trámite', 'Combo']
@@ -40,14 +38,12 @@ function puedeMoverse(desde: string, hacia: string): boolean {
   const colDesde = COLUMNAS.find(c => c.id === desde)
   const colHacia = COLUMNAS.find(c => c.id === hacia)
   if (!colDesde || !colHacia) return false
-  // Pensionado es estado final
+  // Pensionado es estado final — no se puede mover
   if (desde === 'pensionado') return false
-  // No puede regresar antes de Cierre 1
-  if (colDesde.orden >= 3 && colHacia.orden < 3) return false
-  // No puede regresar antes de Cierre 2
-  if (colDesde.orden >= 5 && colHacia.orden < 5) return false
-  // Trámite solo puede ir a Pensionado
+  // Trámite IMSS solo puede avanzar a Pensionado
   if (desde === 'tramite' && hacia !== 'pensionado') return false
+  // No puede regresar antes de Trámite IMSS una vez iniciado
+  if (colDesde.orden >= 4 && colHacia.orden < 4) return false
   return true
 }
 
