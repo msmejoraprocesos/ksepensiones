@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/utils/supabase/client'
+import { useRouter } from 'next/navigation'
 
 const AZUL = '#1B3A6B'
 const VERDE = '#2E8B57'
@@ -19,33 +20,67 @@ interface Perfil {
   uma_diaria: number
   salario_minimo: number
   pmg_mensual: number
+  pmg_l97: number
   rendimiento_afore_default: number
   inflacion_uma: number
+  mod40_2026: number
+  mod40_2027: number
+  mod40_2028: number
+  mod40_2029: number
+  mod40_2030: number
 }
 
 const DEFAULTS: Perfil = {
-  nombre: '',
-  razon_social: '',
-  rfc: '',
-  telefono: '',
-  email_contacto: '',
-  direccion: '',
-  logo_url: null,
-  vigencia_propuesta: 30,
-  uma_diaria: 117.31,
-  salario_minimo: 315.04,
-  pmg_mensual: 10636.54,
-  rendimiento_afore_default: 6,
-  inflacion_uma: 4.5,
+  nombre: '', razon_social: '', rfc: '', telefono: '', email_contacto: '',
+  direccion: '', logo_url: null, vigencia_propuesta: 30,
+  uma_diaria: 117.31, salario_minimo: 315.04, pmg_mensual: 10636.54,
+  pmg_l97: 4345.72, rendimiento_afore_default: 6, inflacion_uma: 4.5,
+  mod40_2026: 14.438, mod40_2027: 15.528, mod40_2028: 16.619,
+  mod40_2029: 17.709, mod40_2030: 18.800,
+}
+
+// Validaciones
+function validarRFC(rfc: string): string | null {
+  if (!rfc) return null
+  const regex = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/
+  if (!regex.test(rfc.toUpperCase())) return 'Formato inválido. Ej: LOPJ800101XX3'
+  return null
+}
+
+function validarTelefono(tel: string): string | null {
+  if (!tel) return null
+  const digits = tel.replace(/\D/g, '')
+  if (digits.length !== 10) return `Requiere 10 dígitos (tienes ${digits.length})`
+  return null
+}
+
+function validarEmail(email: string): string | null {
+  if (!email) return null
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Formato inválido. Ej: correo@dominio.com'
+  return null
+}
+
+function formatTelefono(val: string): string {
+  const d = val.replace(/\D/g, '').slice(0, 10)
+  if (d.length <= 2) return d
+  if (d.length <= 6) return `${d.slice(0,2)} ${d.slice(2)}`
+  return `${d.slice(0,2)} ${d.slice(2,6)} ${d.slice(6)}`
+}
+
+function formatRFC(val: string): string {
+  return val.toUpperCase().replace(/[^A-ZÑ&0-9]/g, '').slice(0, 13)
 }
 
 export default function ConfiguracionPage() {
   const supabase = createClient()
+  const router = useRouter()
   const [perfil, setPerfil] = useState<Perfil>(DEFAULTS)
   const [userId, setUserId] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [uploadingLogo, setUploadingLogo] = useState(false)
+  const [isFirstTime, setIsFirstTime] = useState(false)
+  const [errors, setErrors] = useState<Partial<Record<keyof Perfil, string>>>({})
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -54,17 +89,37 @@ export default function ConfiguracionPage() {
       setUserId(session.user.id)
       supabase.from('perfiles_usuario').select('*').eq('id', session.user.id).single()
         .then(({ data }) => {
-          if (data) setPerfil({ ...DEFAULTS, ...data })
+          if (data) {
+            setPerfil({ ...DEFAULTS, ...data })
+            // First time if no nombre or razon_social
+            if (!data.nombre && !data.razon_social) setIsFirstTime(true)
+          } else {
+            setIsFirstTime(true)
+          }
         })
     })
   }, [])
 
+  function validate(): boolean {
+    const newErrors: Partial<Record<keyof Perfil, string>> = {}
+    if (!perfil.nombre.trim()) newErrors.nombre = 'El nombre es requerido'
+    const rfcErr = validarRFC(perfil.rfc)
+    if (rfcErr) newErrors.rfc = rfcErr
+    const telErr = validarTelefono(perfil.telefono)
+    if (telErr) newErrors.telefono = telErr
+    const emailErr = validarEmail(perfil.email_contacto)
+    if (emailErr) newErrors.email_contacto = emailErr
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   async function guardar() {
-    if (!userId) return
+    if (!validate()) return
     setSaving(true)
     await supabase.from('perfiles_usuario').upsert({ id: userId, ...perfil })
     setSaving(false)
     setSaved(true)
+    setIsFirstTime(false)
     setTimeout(() => setSaved(false), 3000)
   }
 
@@ -75,42 +130,73 @@ export default function ConfiguracionPage() {
     const { error } = await supabase.storage.from('logos').upload(path, file, { upsert: true })
     if (!error) {
       const { data } = supabase.storage.from('logos').getPublicUrl(path)
-      setPerfil(p => ({ ...p, logo_url: data.publicUrl }))
+      setPerfil(p => ({ ...p, logo_url: data.publicUrl + '?t=' + Date.now() }))
     }
     setUploadingLogo(false)
   }
 
-  const set = (k: keyof Perfil, v: any) => setPerfil(p => ({ ...p, [k]: v }))
-
-  const inputSt: React.CSSProperties = {
-    display: 'block', width: '100%', padding: '10px 14px',
-    border: '1.5px solid #e2e8f0', borderRadius: '8px',
-    fontSize: '14px', boxSizing: 'border-box', outline: 'none',
-    fontFamily: 'inherit', background: 'white', color: '#1e293b',
+  const set = (k: keyof Perfil, v: any) => {
+    setPerfil(p => ({ ...p, [k]: v }))
+    if (errors[k]) setErrors(e => ({ ...e, [k]: undefined }))
   }
+
+  const inputSt = (hasError?: boolean): React.CSSProperties => ({
+    display: 'block', width: '100%', padding: '10px 14px',
+    border: `1.5px solid ${hasError ? '#ef4444' : '#e2e8f0'}`,
+    borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box' as const,
+    outline: 'none', fontFamily: 'inherit', background: 'white', color: '#1e293b',
+  })
 
   const labelSt: React.CSSProperties = {
     display: 'block', fontSize: '11px', fontWeight: '700',
     color: '#475569', marginBottom: '5px',
-    textTransform: 'uppercase', letterSpacing: '0.5px',
+    textTransform: 'uppercase' as const, letterSpacing: '0.5px',
   }
 
-  const sectionTitle = (icon: string, title: string) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', paddingBottom: '10px', borderBottom: '1px solid #f1f5f9' }}>
-      <span style={{ fontSize: '18px' }}>{icon}</span>
-      <h2 style={{ fontSize: '15px', fontWeight: '700', color: AZUL, margin: 0 }}>{title}</h2>
+  const errorMsg = (key: keyof Perfil) => errors[key] ? (
+    <p style={{ fontSize: '10px', color: '#ef4444', margin: '3px 0 0' }}>⚠️ {errors[key]}</p>
+  ) : null
+
+  const tooltip = (text: string) => (
+    <span title={text} style={{ marginLeft: '4px', fontSize: '11px', color: '#94a3b8', cursor: 'help' }}>ⓘ</span>
+  )
+
+  const sectionTitle = (icon: string, title: string, subtitle?: string) => (
+    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '18px', paddingBottom: '12px', borderBottom: '1px solid #f1f5f9' }}>
+      <span style={{ fontSize: '20px' }}>{icon}</span>
+      <div>
+        <h2 style={{ fontSize: '15px', fontWeight: '700', color: AZUL, margin: 0 }}>{title}</h2>
+        {subtitle && <p style={{ fontSize: '12px', color: '#94a3b8', margin: '3px 0 0' }}>{subtitle}</p>}
+      </div>
     </div>
   )
 
   return (
     <div style={{ height: 'calc(100vh - 56px)', overflow: 'auto', background: '#F4F6FB', padding: '24px' }}>
-      <div style={{ maxWidth: '760px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <div style={{ maxWidth: '780px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+        {/* Banner primera vez */}
+        {isFirstTime && (
+          <div style={{ background: 'linear-gradient(135deg, #1B3A6B, #2c5282)', borderRadius: '14px', padding: '20px 24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <span style={{ fontSize: '32px' }}>👋</span>
+            <div style={{ flex: 1 }}>
+              <p style={{ color: 'white', fontSize: '15px', fontWeight: '700', margin: '0 0 4px' }}>¡Bienvenido a KSE Pensiones!</p>
+              <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '13px', margin: 0 }}>
+                Antes de comenzar, configura tu perfil de asesor. Esta información aparecerá en todas tus propuestas PDF.
+              </p>
+            </div>
+            <button onClick={() => setIsFirstTime(false)}
+              style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', borderRadius: '8px', padding: '6px 12px', cursor: 'pointer', fontSize: '12px' }}>
+              Después
+            </button>
+          </div>
+        )}
 
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
             <h1 style={{ fontSize: '22px', fontWeight: '800', color: AZUL, margin: 0 }}>Configuración</h1>
-            <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0' }}>Perfil del asesor y variables del sistema</p>
+            <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0' }}>Perfil del asesor · Variables del sistema</p>
           </div>
           <button onClick={guardar} disabled={saving}
             style={{ padding: '10px 24px', background: saved ? VERDE : NARANJA, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', boxShadow: `0 4px 12px ${saved ? VERDE : NARANJA}50` }}>
@@ -118,103 +204,166 @@ export default function ConfiguracionPage() {
           </button>
         </div>
 
-        {/* ── SECCIÓN 1: Identidad del asesor ── */}
-        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
-          {sectionTitle('👤', 'Identidad del asesor')}
+        {/* ── SECCIÓN 1: Identidad ── */}
+        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
+          {sectionTitle('👤', 'Identidad del asesor', 'Esta información aparece en el encabezado de tus propuestas PDF')}
 
-          {/* Logo upload */}
+          {/* Logo */}
           <div style={{ marginBottom: '20px' }}>
             <label style={labelSt}>Logo del asesor</label>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ width: '80px', height: '80px', border: '2px dashed #e2e8f0', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC', overflow: 'hidden', flexShrink: 0 }}>
+              <div style={{ width: '90px', height: '70px', border: `2px ${perfil.logo_url ? 'solid #bbf7d0' : 'dashed #e2e8f0'}`, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: perfil.logo_url ? '#f0fdf4' : '#F8FAFC', overflow: 'hidden', flexShrink: 0 }}>
                 {perfil.logo_url ? (
-                  <img src={perfil.logo_url} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  <img src={perfil.logo_url} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px' }}
+                    onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
                 ) : (
-                  <span style={{ fontSize: '28px' }}>🏢</span>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '24px' }}>🏢</div>
+                    <div style={{ fontSize: '9px', color: '#94a3b8', marginTop: '2px' }}>Sin logo</div>
+                  </div>
                 )}
               </div>
               <div style={{ flex: 1 }}>
-                <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 8px' }}>
-                  Aparecerá en el encabezado del PDF de propuesta. Recomendado: PNG con fondo transparente, mínimo 200x80px.
+                <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 8px', lineHeight: 1.5 }}>
+                  Aparece en el PDF de propuesta junto a tu nombre. PNG con fondo transparente recomendado, mínimo 200×80px.
                 </p>
-                <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: '#EEF2F8', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: uploadingLogo ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600', color: AZUL }}>
-                  {uploadingLogo ? '⏳ Subiendo...' : '📁 Seleccionar logo'}
-                  <input ref={fileRef} type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) uploadLogo(f) }} style={{ display: 'none' }} disabled={uploadingLogo} />
-                </label>
-                {perfil.logo_url && (
-                  <button onClick={() => setPerfil(p => ({ ...p, logo_url: null }))}
-                    style={{ marginLeft: '8px', fontSize: '12px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}>
-                    Quitar logo
-                  </button>
-                )}
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: uploadingLogo ? '#f1f5f9' : '#EEF2F8', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: uploadingLogo ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600', color: AZUL }}>
+                    {uploadingLogo ? '⏳ Subiendo...' : '📁 Subir logo'}
+                    <input ref={fileRef} type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) uploadLogo(f) }} style={{ display: 'none' }} disabled={uploadingLogo} />
+                  </label>
+                  {perfil.logo_url && (
+                    <button onClick={() => setPerfil(p => ({ ...p, logo_url: null }))}
+                      style={{ fontSize: '12px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}>
+                      Quitar
+                    </button>
+                  )}
+                  {perfil.logo_url && <span style={{ fontSize: '11px', color: VERDE, fontWeight: '600' }}>✓ Logo cargado</span>}
+                </div>
               </div>
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
             <div>
-              <label style={labelSt}>Nombre del asesor *</label>
-              <input value={perfil.nombre} onChange={e => set('nombre', e.target.value)} placeholder="Ej. Juan Pérez González" style={inputSt} />
+              <label style={labelSt}>Nombre del asesor <span style={{ color: '#ef4444' }}>*</span></label>
+              <input value={perfil.nombre} onChange={e => set('nombre', e.target.value)} placeholder="Ej. Juan Pérez González" style={inputSt(!!errors.nombre)} />
+              {errorMsg('nombre')}
             </div>
             <div>
               <label style={labelSt}>Razón social / Empresa</label>
-              <input value={perfil.razon_social} onChange={e => set('razon_social', e.target.value)} placeholder="Ej. Asesoría Pensional López S.C." style={inputSt} />
+              <input value={perfil.razon_social} onChange={e => set('razon_social', e.target.value)} placeholder="Ej. Asesoría Pensional López S.C." style={inputSt()} />
             </div>
             <div>
-              <label style={labelSt}>RFC</label>
-              <input value={perfil.rfc} onChange={e => set('rfc', e.target.value.toUpperCase())} placeholder="Ej. LOPJ800101XX3" maxLength={13} style={inputSt} />
+              <label style={labelSt}>RFC {tooltip('Registro Federal de Contribuyentes. Formato: 4 letras + 6 dígitos fecha + 3 caracteres homoclave. Ej: LOPJ800101XX3')}</label>
+              <input value={perfil.rfc} onChange={e => set('rfc', formatRFC(e.target.value))} placeholder="LOPJ800101XX3" maxLength={13} style={inputSt(!!errors.rfc)} />
+              {errorMsg('rfc')}
+              {!errors.rfc && perfil.rfc.length >= 12 && <p style={{ fontSize: '10px', color: VERDE, margin: '3px 0 0' }}>✓ Formato válido</p>}
             </div>
             <div>
-              <label style={labelSt}>Teléfono de contacto</label>
-              <input value={perfil.telefono} onChange={e => set('telefono', e.target.value)} placeholder="Ej. 442 123 4567" style={inputSt} />
+              <label style={labelSt}>Teléfono de contacto {tooltip('10 dígitos sin espacios ni guiones. Ej: 4421234567')}</label>
+              <input value={perfil.telefono} onChange={e => { const f = formatTelefono(e.target.value); set('telefono', f) }} placeholder="44 2123 4567" maxLength={12} style={inputSt(!!errors.telefono)} />
+              {errorMsg('telefono')}
+              {!errors.telefono && perfil.telefono.replace(/\D/g,'').length === 10 && <p style={{ fontSize: '10px', color: VERDE, margin: '3px 0 0' }}>✓ Teléfono válido</p>}
             </div>
             <div>
               <label style={labelSt}>Email de contacto</label>
-              <input type="email" value={perfil.email_contacto} onChange={e => set('email_contacto', e.target.value)} placeholder="contacto@tuempresa.com" style={inputSt} />
+              <input type="email" value={perfil.email_contacto} onChange={e => set('email_contacto', e.target.value)} onBlur={e => { const err = validarEmail(e.target.value); if (err) setErrors(p => ({ ...p, email_contacto: err })) }} placeholder="contacto@tuempresa.com" style={inputSt(!!errors.email_contacto)} />
+              {errorMsg('email_contacto')}
+              {!errors.email_contacto && perfil.email_contacto && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(perfil.email_contacto) && <p style={{ fontSize: '10px', color: VERDE, margin: '3px 0 0' }}>✓ Email válido</p>}
             </div>
             <div>
-              <label style={labelSt}>Vigencia de propuesta (días)</label>
-              <input type="number" value={perfil.vigencia_propuesta} onChange={e => set('vigencia_propuesta', parseInt(e.target.value) || 30)} min={1} max={365} style={inputSt} />
-              <p style={{ fontSize: '10px', color: '#94a3b8', margin: '4px 0 0' }}>Aparece en el PDF: "Válida por {perfil.vigencia_propuesta} días"</p>
+              <label style={labelSt}>Vigencia de propuesta (días) {tooltip('Días que es válida la propuesta PDF desde su fecha de emisión')}</label>
+              <input type="number" value={perfil.vigencia_propuesta} onChange={e => set('vigencia_propuesta', parseInt(e.target.value) || 30)} min={1} max={365} style={inputSt()} />
+              <p style={{ fontSize: '10px', color: '#94a3b8', margin: '3px 0 0' }}>El PDF dirá: "Válida por {perfil.vigencia_propuesta} días a partir de la fecha de emisión"</p>
             </div>
             <div style={{ gridColumn: '1 / -1' }}>
               <label style={labelSt}>Dirección / Ciudad</label>
-              <input value={perfil.direccion} onChange={e => set('direccion', e.target.value)} placeholder="Ej. Querétaro, Qro." style={inputSt} />
+              <input value={perfil.direccion} onChange={e => set('direccion', e.target.value)} placeholder="Ej. Querétaro, Qro." style={inputSt()} />
             </div>
           </div>
         </div>
 
         {/* ── SECCIÓN 2: Variables del sistema ── */}
-        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
-          {sectionTitle('📊', 'Variables del sistema 2026')}
-          <p style={{ fontSize: '13px', color: '#64748b', margin: '-8px 0 16px' }}>
-            Valores oficiales actualizados para los cálculos de la calculadora.
-          </p>
+        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
+          {sectionTitle('📊', 'Variables del sistema 2026', 'Valores oficiales que usa la calculadora para todos los diagnósticos')}
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '20px' }}>
             {[
-              { key: 'uma_diaria', label: 'UMA Diaria ($)', placeholder: '117.31', desc: 'INEGI · actualización feb 2026' },
-              { key: 'salario_minimo', label: 'Salario Mínimo ($/día)', placeholder: '315.04', desc: 'CONASAMI · vigente 2026' },
-              { key: 'pmg_mensual', label: 'PMG Ley 73 ($/mes)', placeholder: '10636.54', desc: 'Pensión mínima garantizada' },
-              { key: 'rendimiento_afore_default', label: 'Rendimiento AFORE (%)', placeholder: '6', desc: 'Default conservador' },
-              { key: 'inflacion_uma', label: 'Inflación estimada (%)', placeholder: '4.5', desc: 'Para ajuste a pesos de hoy' },
+              {
+                key: 'uma_diaria', label: 'UMA Diaria', unit: '$/día',
+                placeholder: '117.31',
+                help: 'Unidad de Medida y Actualización. Publicada por INEGI cada febrero. Se usa para calcular el costo de Modalidad 40.',
+                badge: 'INEGI 2026', badgeColor: '#3b82f6'
+              },
+              {
+                key: 'salario_minimo', label: 'Salario Mínimo General', unit: '$/día',
+                placeholder: '315.04',
+                help: 'Salario mínimo diario vigente publicado por CONASAMI. Se usa como base para calcular el SDI en veces salario mínimo.',
+                badge: 'CONASAMI 2026', badgeColor: '#8b5cf6'
+              },
+              {
+                key: 'pmg_mensual', label: 'PMG Ley 73', unit: '$/mes',
+                placeholder: '10636.54',
+                help: 'Pensión Mínima Garantizada para trabajadores bajo Ley 73. Es el piso mínimo que el IMSS garantiza independientemente del cálculo.',
+                badge: 'Ley 73', badgeColor: AZUL
+              },
+              {
+                key: 'pmg_l97', label: 'Pensión Garantizada Ley 97', unit: '$/mes',
+                placeholder: '4345.72',
+                help: 'Pensión mínima garantizada para trabajadores bajo Ley 97 (AFORE). El gobierno la paga si el saldo AFORE no alcanza para una renta suficiente.',
+                badge: 'Ley 97', badgeColor: '#0891b2'
+              },
+              {
+                key: 'rendimiento_afore_default', label: 'Rendimiento AFORE', unit: '% anual',
+                placeholder: '6',
+                help: 'Rendimiento anual promedio estimado para proyectar el crecimiento del saldo AFORE. Se usa como valor default conservador en Ley 97.',
+                badge: 'Default conservador', badgeColor: VERDE
+              },
+              {
+                key: 'inflacion_uma', label: 'Inflación estimada', unit: '% anual',
+                placeholder: '4.5',
+                help: 'Tasa de inflación anual para convertir pensiones futuras a pesos de hoy (poder adquisitivo actual). Permite comparar de forma justa.',
+                badge: 'Para pesos de hoy', badgeColor: NARANJA
+              },
             ].map(f => (
-              <div key={f.key}>
-                <label style={labelSt}>{f.label}</label>
-                <input type="number" step="0.01" value={(perfil as any)[f.key]} onChange={e => set(f.key as keyof Perfil, parseFloat(e.target.value) || 0)} placeholder={f.placeholder} style={inputSt} />
-                <p style={{ fontSize: '10px', color: '#94a3b8', margin: '4px 0 0' }}>{f.desc}</p>
+              <div key={f.key} style={{ background: '#F8FAFC', borderRadius: '10px', padding: '14px', border: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <label style={{ ...labelSt, marginBottom: 0, flex: 1 }}>{f.label}</label>
+                  <span style={{ fontSize: '9px', fontWeight: '700', padding: '2px 6px', borderRadius: '6px', background: f.badgeColor + '15', color: f.badgeColor, whiteSpace: 'nowrap', marginLeft: '4px' }}>{f.badge}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                  <input type="number" step="0.01" value={(perfil as any)[f.key]}
+                    onChange={e => set(f.key as keyof Perfil, parseFloat(e.target.value) || 0)}
+                    placeholder={f.placeholder}
+                    style={{ flex: 1, padding: '8px 10px', border: '1.5px solid #2c92d5', borderRadius: '7px', fontSize: '14px', fontWeight: '700', color: '#1e293b', background: '#e8f4fd', outline: 'none', fontFamily: 'inherit' }} />
+                  <span style={{ fontSize: '11px', color: '#64748b', whiteSpace: 'nowrap', fontWeight: '600' }}>{f.unit}</span>
+                </div>
+                <p style={{ fontSize: '10px', color: '#64748b', margin: 0, lineHeight: 1.5 }}>{f.help}</p>
               </div>
             ))}
           </div>
 
-          {/* Porcentajes Mod 40 — solo lectura */}
-          <div style={{ background: '#F4F6FB', borderRadius: '10px', padding: '14px' }}>
-            <p style={{ fontSize: '11px', fontWeight: '700', color: AZUL, margin: '0 0 10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Porcentajes Modalidad 40 (oficiales)</p>
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-              {[['2026','14.438%'],['2027','15.528%'],['2028','16.619%'],['2029','17.709%'],['2030','18.800%']].map(([year, pct]) => (
-                <div key={year} style={{ background: 'white', borderRadius: '8px', padding: '8px 14px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
-                  <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '600' }}>{year}</div>
-                  <div style={{ fontSize: '14px', fontWeight: '800', color: AZUL }}>{pct}</div>
+          {/* Porcentajes Mod 40 — ahora editables */}
+          <div style={{ background: '#fff7ed', borderRadius: '10px', padding: '16px', border: '1px solid #fed7aa' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+              <span style={{ fontSize: '16px' }}>📋</span>
+              <div>
+                <p style={{ fontSize: '13px', fontWeight: '700', color: '#92400e', margin: 0 }}>Porcentajes Modalidad 40</p>
+                <p style={{ fontSize: '11px', color: '#b45309', margin: '2px 0 0' }}>Cuota mensual como % del salario cotizable. Aumenta cada año según IMSS. Edita solo si hay actualización oficial.</p>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
+              {[2026, 2027, 2028, 2029, 2030].map(year => (
+                <div key={year}>
+                  <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#92400e', marginBottom: '4px', textTransform: 'uppercase' }}>{year}</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                    <input type="number" step="0.001"
+                      value={(perfil as any)[`mod40_${year}`]}
+                      onChange={e => set(`mod40_${year}` as keyof Perfil, parseFloat(e.target.value) || 0)}
+                      style={{ width: '100%', padding: '8px 8px', border: '1.5px solid #fed7aa', borderRadius: '7px', fontSize: '13px', fontWeight: '700', color: '#92400e', background: 'white', outline: 'none', fontFamily: 'inherit' }} />
+                    <span style={{ fontSize: '11px', color: '#b45309', fontWeight: '600' }}>%</span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -222,49 +371,42 @@ export default function ConfiguracionPage() {
         </div>
 
         {/* ── SECCIÓN 3: Preview PDF ── */}
-        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
-          {sectionTitle('📄', 'Vista previa del encabezado PDF')}
+        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
+          {sectionTitle('📄', 'Vista previa del PDF', 'Así se verá el encabezado de tus propuestas')}
           <div style={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
-            {/* Simulación encabezado PDF */}
-            <div style={{ background: AZUL, padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ background: AZUL, padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                {perfil.logo_url ? (
-                  <img src={perfil.logo_url} alt="Logo" style={{ height: '36px', objectFit: 'contain', background: 'white', padding: '4px', borderRadius: '6px' }} />
-                ) : (
-                  <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '6px', padding: '6px 12px', color: 'rgba(255,255,255,0.6)', fontSize: '12px' }}>Tu logo aquí</div>
+                {perfil.logo_url && (
+                  <img src={perfil.logo_url} alt="Logo" style={{ height: '32px', objectFit: 'contain', background: 'white', padding: '3px', borderRadius: '5px' }}
+                    onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
                 )}
                 <div>
-                  <div style={{ color: 'white', fontWeight: '700', fontSize: '14px' }}>{perfil.razon_social || perfil.nombre || 'Nombre del asesor'}</div>
-                  <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '11px' }}>
+                  <div style={{ color: 'white', fontWeight: '700', fontSize: '13px' }}>{perfil.razon_social || perfil.nombre || 'Nombre del asesor'}</div>
+                  <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '10px' }}>
                     {[perfil.rfc, perfil.telefono, perfil.email_contacto].filter(Boolean).join(' · ') || 'RFC · Teléfono · Email'}
                   </div>
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ color: 'white', fontSize: '13px', fontWeight: '700' }}>Diagnóstico Pensional</div>
-                <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '11px' }}>{new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
-                <div style={{ color: NARANJA, fontSize: '10px', fontWeight: '600', marginTop: '2px' }}>Válida por {perfil.vigencia_propuesta} días</div>
+                <div style={{ color: 'white', fontSize: '12px', fontWeight: '700' }}>Diagnóstico Pensional</div>
+                <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '10px' }}>{new Date().toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' })}</div>
+                <div style={{ color: NARANJA, fontSize: '9px', fontWeight: '600', marginTop: '2px' }}>Válida por {perfil.vigencia_propuesta} días</div>
               </div>
             </div>
-            {/* Simulación pie de página */}
-            <div style={{ background: '#F4F6FB', padding: '8px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #e2e8f0' }}>
+            <div style={{ background: '#F4F6FB', padding: '7px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #e2e8f0' }}>
               <div style={{ fontSize: '10px', color: '#94a3b8' }}>Folio: KSE-2026-000001 · Documento confidencial</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <span style={{ fontSize: '10px', color: '#94a3b8' }}>Página 1 de 2 · Powered by</span>
-                <img src="/logo-kse.png" alt="KSE" style={{ height: '14px', objectFit: 'contain', opacity: 0.5 }} />
-                <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '600' }}>KSE Pensiones</span>
+                <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '700' }}>KSE Pensiones</span>
               </div>
             </div>
           </div>
-          <p style={{ fontSize: '11px', color: '#94a3b8', margin: '10px 0 0', textAlign: 'center' }}>
-            Vista previa del encabezado y pie de página que aparecerán en el PDF exportado
-          </p>
         </div>
 
-        {/* Botón guardar abajo también */}
+        {/* Botón guardar abajo */}
         <div style={{ textAlign: 'center', paddingBottom: '20px' }}>
           <button onClick={guardar} disabled={saving}
-            style={{ padding: '12px 40px', background: saved ? VERDE : NARANJA, color: 'white', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', boxShadow: `0 4px 16px ${saved ? VERDE : NARANJA}50` }}>
+            style={{ padding: '12px 48px', background: saved ? VERDE : NARANJA, color: 'white', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', boxShadow: `0 4px 16px ${saved ? VERDE : NARANJA}50` }}>
             {saved ? '✓ Cambios guardados' : saving ? 'Guardando...' : '💾 Guardar configuración'}
           </button>
         </div>
