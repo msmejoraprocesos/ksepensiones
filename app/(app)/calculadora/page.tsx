@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, Suspense } from 'react'
+import { useState, useEffect, useCallback, Suspense, useRef } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useSearchParams } from 'next/navigation'
 
@@ -663,7 +663,7 @@ function CalculadoraInner() {
     })
     setSaving(false)
     setSaved(true)
-    loadHistorial(userIdRef.current || userId)
+    loadHistorial(userId)
   }
 
   async function extraerDatosPDF(file: File) {
