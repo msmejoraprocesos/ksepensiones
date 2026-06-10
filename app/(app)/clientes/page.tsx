@@ -201,10 +201,19 @@ export default function ClientesPage() {
       }
     }
 
+    // Validar que no exceda el saldo pendiente
+    const montoNuevo = parseFloat(formPago.monto)
+    const saldoPendiente = Math.max(0, (selected.monto_acordado ?? 0) - (selected.total_pagado ?? 0))
+    if (selected.monto_acordado && montoNuevo > saldoPendiente) {
+      alert(`El pago de ${fmtMXN(montoNuevo)} excede el saldo pendiente de ${fmtMXN(saldoPendiente)}`)
+      setSavingPago(false)
+      return
+    }
+
     const { data, error } = await supabase.from('pagos').insert({
       cliente_id: selected.id,
       asesor_id: session.user.id,
-      monto: parseFloat(formPago.monto),
+      monto: montoNuevo,
       concepto: formPago.concepto,
       notas: formPago.notas || null,
       fecha_pago: new Date(formPago.fecha_pago).toISOString(),
@@ -694,11 +703,39 @@ export default function ClientesPage() {
           onClick={e => { if (e.target === e.currentTarget) { setShowPago(false); setCompFile(null) } }}>
           <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '400px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
             <h3 style={{ color: AZUL, fontSize: '17px', fontWeight: '700', margin: '0 0 6px' }}>Registrar pago</h3>
-            <p style={{ color: '#94a3b8', fontSize: '12px', margin: '0 0 20px' }}>{selected.nombre} · Acordado: {fmtMXN(selected.monto_acordado)} · Pagado: {fmtMXN(selected.total_pagado ?? 0)}</p>
+            {(() => {
+          const saldo = Math.max(0, (selected.monto_acordado ?? 0) - (selected.total_pagado ?? 0))
+          return (
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+              <div style={{ flex: 1, background: '#F4F6FB', borderRadius: '8px', padding: '8px 12px' }}>
+                <div style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase' }}>Acordado</div>
+                <div style={{ fontSize: '13px', fontWeight: '700', color: AZUL }}>{fmtMXN(selected.monto_acordado)}</div>
+              </div>
+              <div style={{ flex: 1, background: '#f0fdf4', borderRadius: '8px', padding: '8px 12px' }}>
+                <div style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase' }}>Pagado</div>
+                <div style={{ fontSize: '13px', fontWeight: '700', color: VERDE }}>{fmtMXN(selected.total_pagado ?? 0)}</div>
+              </div>
+              <div style={{ flex: 1, background: saldo > 0 ? '#fff5f5' : '#f0fdf4', borderRadius: '8px', padding: '8px 12px', border: `1px solid ${saldo > 0 ? '#fecaca' : '#bbf7d0'}` }}>
+                <div style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase' }}>Saldo máximo</div>
+                <div style={{ fontSize: '13px', fontWeight: '800', color: saldo > 0 ? '#ef4444' : VERDE }}>{fmtMXN(saldo)}</div>
+              </div>
+            </div>
+          )
+        })()}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Monto *</label>
-                <input type="number" value={formPago.monto} onChange={e => setFormPago(p => ({ ...p, monto: e.target.value }))} placeholder="0" style={inputSt} autoFocus />
+                <input type="number" value={formPago.monto}
+                  onChange={e => setFormPago(p => ({ ...p, monto: e.target.value }))}
+                  placeholder="0"
+                  max={Math.max(0, (selected.monto_acordado ?? 0) - (selected.total_pagado ?? 0))}
+                  style={{ ...inputSt, borderColor: formPago.monto && selected.monto_acordado && parseFloat(formPago.monto) > Math.max(0, selected.monto_acordado - (selected.total_pagado ?? 0)) ? '#ef4444' : '#e2e8f0' }}
+                  autoFocus />
+                {formPago.monto && selected.monto_acordado && parseFloat(formPago.monto) > Math.max(0, selected.monto_acordado - (selected.total_pagado ?? 0)) && (
+                  <p style={{ fontSize: '10px', color: '#ef4444', margin: '3px 0 0' }}>
+                    ⚠️ Excede el saldo pendiente de {fmtMXN(Math.max(0, selected.monto_acordado - (selected.total_pagado ?? 0)))}
+                  </p>
+                )}
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
@@ -735,7 +772,7 @@ export default function ClientesPage() {
             <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
               <button onClick={() => setShowPago(false)} style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
               <button onClick={guardarPago} disabled={savingPago || !formPago.monto}
-                style={{ flex: 2, padding: '10px', background: savingPago || !formPago.monto ? '#94a3b8' : VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: savingPago ? 'not-allowed' : 'pointer' }}>
+                style={{ flex: 2, padding: '10px', background: (savingPago || !formPago.monto || (selected.monto_acordado != null && parseFloat(formPago.monto||'0') > Math.max(0, selected.monto_acordado - (selected.total_pagado ?? 0)))) ? '#94a3b8' : VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: savingPago ? 'not-allowed' : 'pointer' }}>
                 {savingPago ? 'Guardando...' : '💰 Registrar pago'}
               </button>
             </div>
