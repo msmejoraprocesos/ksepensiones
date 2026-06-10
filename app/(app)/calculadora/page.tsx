@@ -716,13 +716,41 @@ function CalculadoraInner() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)', background: '#F4F6FB', overflow: 'auto' }}>
       {/* Header */}
-      <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '10px 20px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <h1 style={{ color: AZUL, fontSize: '17px', fontWeight: '800', margin: 0 }}>🧮 Calculadora de Pensiones IMSS</h1>
-          <p style={{ color: '#64748b', fontSize: '10px', margin: '2px 0 0' }}>Ley 73 · Ley 97 · Modalidad 10 · Modalidad 40 · Portabilidad ISSSTE · Variables 2026</p>
+      <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '10px 20px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ flexShrink: 0 }}>
+          <h1 style={{ color: AZUL, fontSize: '17px', fontWeight: '800', margin: 0 }}>🧮 Calculadora de Pensiones</h1>
+          <p style={{ color: '#94a3b8', fontSize: '10px', margin: '2px 0 0' }}>UMA ${sys.UMA_DIARIA} · SM ${sys.SALARIO_MIN} · PMG L73 {fmtMXN(sys.PMG_L73)}</p>
         </div>
-        <div style={{ fontSize: '10px', color: '#94a3b8', textAlign: 'right' }}>
-          UMA ${sys.UMA_DIARIA} · SM ${sys.SALARIO_MIN} · PMG L73 {fmtMXN(sys.PMG_L73)}
+
+        <div style={{ width: '1px', height: '36px', background: '#e2e8f0', flexShrink: 0 }} />
+
+        {/* Selector de cliente — prominente en el header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+          <span style={{ fontSize: '12px', fontWeight: '600', color: '#64748b', whiteSpace: 'nowrap' }}>Para:</span>
+          <select value={clienteId} onChange={e => { setClienteId(e.target.value); setSaved(false) }}
+            style={{ flex: 1, maxWidth: '260px', padding: '8px 12px', border: `1.5px solid ${clienteId ? AZUL : '#e2e8f0'}`, borderRadius: '8px', fontSize: '13px', fontWeight: clienteId ? '700' : '400', color: clienteId ? AZUL : '#94a3b8', outline: 'none', background: clienteId ? '#EEF2F8' : 'white', cursor: 'pointer' }}>
+            <option value="">— Seleccionar cliente —</option>
+            {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+          </select>
+          {clienteId && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: VERDE, fontWeight: '600' }}>
+              ✓ {clientes.find(c => c.id === clienteId)?.nombre?.split(' ')[0]}
+            </div>
+          )}
+        </div>
+
+        <div style={{ width: '1px', height: '36px', background: '#e2e8f0', flexShrink: 0 }} />
+
+        {/* Botones de acción — en el header */}
+        <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+          <button onClick={guardar} disabled={saving || !clienteId || saved}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: saved ? VERDE : (!clienteId ? '#f1f5f9' : AZUL), color: saved ? 'white' : (!clienteId ? '#94a3b8' : 'white'), border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: (!clienteId || saved) ? 'not-allowed' : 'pointer', transition: 'all 0.15s' }}>
+            {saved ? '✓ Guardado' : saving ? '...' : '💾 Guardar'}
+          </button>
+          <button onClick={generarPDF} disabled={escenarios.length === 0}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: escenarios.length === 0 ? '#f1f5f9' : NARANJA, color: escenarios.length === 0 ? '#94a3b8' : 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: escenarios.length === 0 ? 'not-allowed' : 'pointer', boxShadow: escenarios.length > 0 ? `0 4px 12px ${NARANJA}50` : 'none' }}>
+            📄 Exportar PDF
+          </button>
         </div>
       </div>
 
