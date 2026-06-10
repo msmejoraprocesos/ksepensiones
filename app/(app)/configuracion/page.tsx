@@ -125,12 +125,20 @@ export default function ConfiguracionPage() {
 
   async function uploadLogo(file: File) {
     setUploadingLogo(true)
+    // Show instant local preview while uploading
+    const localUrl = URL.createObjectURL(file)
+    setPerfil(p => ({ ...p, logo_url: localUrl }))
+
     const ext = file.name.split('.').pop()
     const path = `logos/${userId}.${ext}`
     const { error } = await supabase.storage.from('logos').upload(path, file, { upsert: true })
     if (!error) {
       const { data } = supabase.storage.from('logos').getPublicUrl(path)
-      setPerfil(p => ({ ...p, logo_url: data.publicUrl + '?t=' + Date.now() }))
+      const finalUrl = data.publicUrl + '?t=' + Date.now()
+      setPerfil(p => ({ ...p, logo_url: finalUrl }))
+    } else {
+      console.error('Logo upload error:', error)
+      // Keep local preview even if upload failed
     }
     setUploadingLogo(false)
   }
