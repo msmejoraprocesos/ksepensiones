@@ -108,13 +108,21 @@ export default function ConfiguracionPage() {
 
   function validate(): boolean {
     const newErrors: Partial<Record<keyof Perfil, string>> = {}
+    // Solo nombre es obligatorio
     if (!perfil.nombre.trim()) newErrors.nombre = 'El nombre es requerido'
-    const rfcErr = validarRFC(perfil.rfc)
-    if (rfcErr) newErrors.rfc = rfcErr
-    const telErr = validarTelefono(perfil.telefono)
-    if (telErr) newErrors.telefono = telErr
-    const emailErr = validarEmail(perfil.email_contacto)
-    if (emailErr) newErrors.email_contacto = emailErr
+    // Solo validar RFC/tel/email si tienen valor (no son obligatorios)
+    if (perfil.rfc) {
+      const rfcErr = validarRFC(perfil.rfc)
+      if (rfcErr) newErrors.rfc = rfcErr
+    }
+    if (perfil.telefono) {
+      const telErr = validarTelefono(perfil.telefono)
+      if (telErr) newErrors.telefono = telErr
+    }
+    if (perfil.email_contacto) {
+      const emailErr = validarEmail(perfil.email_contacto)
+      if (emailErr) newErrors.email_contacto = emailErr
+    }
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -122,8 +130,13 @@ export default function ConfiguracionPage() {
   async function guardar() {
     if (!validate()) return
     setSaving(true)
-    await supabase.from('perfiles_usuario').upsert({ id: userId, ...perfil })
+    const { error } = await supabase.from('perfiles_usuario').upsert({ id: userId, ...perfil })
     setSaving(false)
+    if (error) {
+      console.error('Save error:', error)
+      setErrors(e => ({ ...e, nombre: 'Error al guardar: ' + error.message }))
+      return
+    }
     setSaved(true)
     setIsFirstTime(false)
     setTimeout(() => setSaved(false), 3000)
