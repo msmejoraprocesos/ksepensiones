@@ -154,6 +154,10 @@ function CalculadoraInner() {
   const [pdfCargado, setPdfCargado] = useState(false)
   const [showConfirmReplace, setShowConfirmReplace] = useState(false)
   const [leyDetectada, setLeyDetectada] = useState<'73' | '97' | 'ambas' | null>(null)
+  const [analisis, setAnalisis] = useState<{contexto: string; diagnostico_actual: string; opciones_disponibles: string; recomendacion: string; proximos_pasos: string} | null>(null)
+  const [generandoAnalisis, setGenerandoAnalisis] = useState(false)
+  const [historial, setHistorial] = useState<any[]>([])
+  const [showHistorial, setShowHistorial] = useState(false)
   const [appAlert, setAppAlert] = useState<string | null>(null)
 
   useEffect(() => {
@@ -259,6 +263,43 @@ function CalculadoraInner() {
       setPdfMsg('⚠️ Error al procesar el archivo.')
       setUploadingPDF(false)
     }
+  }
+
+  async function loadHistorial(uid: string) {
+    const { data } = await supabase
+      .from('diagnosticos')
+      .select('*, clientes(nombre)')
+      .eq('asesor_id', uid)
+      .order('created_at', { ascending: false })
+      .limit(50)
+    setHistorial(data ?? [])
+  }
+
+  async function generarAnalisis() {
+    if (escenarios.length === 0) return
+    setGenerandoAnalisis(true)
+    const clienteObj = clientes.find(c => c.id === clienteId)
+    const edad = edadDesde(fechaNac) || 40
+    const res = await fetch('/api/analisis-pensional', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre: clienteObj?.nombre ?? '',
+        ley, semanas, salarioDiario,
+        salarioMensual: salarioDiario * sys.SALARIO_MIN * 30.4,
+        edadActual: edad, edadRetiro, aniosRetiro: Math.max(0, edadRetiro - edad),
+        ingresoDes, inflacion, sys,
+        e1: escenarios[0], e2: escenarios[1], e3: escenarios[2], e4: escenarios[3],
+        escRecomendado: escenarios.find(e => e.recomendado)?.nombre ?? '',
+        mod10Activo, mod10Anios,
+        mod40Activo, mod40UMAs: mod40UmasSalario, mod40Anios,
+        mod40Costo: mod40Activo ? costoMod40(mod40UmasSalario, sys, mod40AnioInicio) : 0,
+        tieneISSSTe, aniosISSSTe, aforeSaldo, rendimiento
+      })
+    })
+    const json = await res.json()
+    if (json.ok) setAnalisis(json.analisis)
+    setGenerandoAnalisis(false)
   }
 
   async function generarPDF() {
@@ -553,14 +594,15 @@ function CalculadoraInner() {
       semanas, salario_diario: salarioDiario, edad_retiro: edadRetiro,
       ingreso_deseado: ingresoDes, afore_saldo: aforeSaldo,
       ppr_mensual: 0, rendimiento,
-      resultado_e1: escenarios[0]?.pension,
-      resultado_e2: escenarios[1]?.pension,
-      resultado_e3: escenarios[2]?.pension,
-      resultado_e4: escenarios[3]?.pension,
-      notas: notas || null,
+      resultado_e1: escenarios[0]?.pension_real,
+      resultado_e2: escenarios[1]?.pension_real,
+      resultado_e3: escenarios[2]?.pension_real,
+      resultado_e4: escenarios[3]?.pension_real,
+      notas: analisis ? JSON.stringify(analisis) : (notas || null),
     })
     setSaving(false)
     setSaved(true)
+    loadHistorial(userIdRef.current)
   }
 
   async function extraerDatosPDF(file: File) {
@@ -631,6 +673,43 @@ function CalculadoraInner() {
       setPdfMsg('⚠️ Error al procesar el archivo.')
       setUploadingPDF(false)
     }
+  }
+
+  async function loadHistorial(uid: string) {
+    const { data } = await supabase
+      .from('diagnosticos')
+      .select('*, clientes(nombre)')
+      .eq('asesor_id', uid)
+      .order('created_at', { ascending: false })
+      .limit(50)
+    setHistorial(data ?? [])
+  }
+
+  async function generarAnalisis() {
+    if (escenarios.length === 0) return
+    setGenerandoAnalisis(true)
+    const clienteObj = clientes.find(c => c.id === clienteId)
+    const edad = edadDesde(fechaNac) || 40
+    const res = await fetch('/api/analisis-pensional', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre: clienteObj?.nombre ?? '',
+        ley, semanas, salarioDiario,
+        salarioMensual: salarioDiario * sys.SALARIO_MIN * 30.4,
+        edadActual: edad, edadRetiro, aniosRetiro: Math.max(0, edadRetiro - edad),
+        ingresoDes, inflacion, sys,
+        e1: escenarios[0], e2: escenarios[1], e3: escenarios[2], e4: escenarios[3],
+        escRecomendado: escenarios.find(e => e.recomendado)?.nombre ?? '',
+        mod10Activo, mod10Anios,
+        mod40Activo, mod40UMAs: mod40UmasSalario, mod40Anios,
+        mod40Costo: mod40Activo ? costoMod40(mod40UmasSalario, sys, mod40AnioInicio) : 0,
+        tieneISSSTe, aniosISSSTe, aforeSaldo, rendimiento
+      })
+    })
+    const json = await res.json()
+    if (json.ok) setAnalisis(json.analisis)
+    setGenerandoAnalisis(false)
   }
 
   async function generarPDF() {
@@ -1210,6 +1289,135 @@ function CalculadoraInner() {
               </table>
             </div>
           )}
+
+          {/* ── ANÁLISIS NARRATIVO ── */}
+          {escenarios.length > 0 && (
+            <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+              <div style={{ padding: '12px 16px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <p style={{ fontSize: '13px', fontWeight: '700', color: AZUL, margin: 0 }}>📝 Análisis del diagnóstico</p>
+                  <p style={{ fontSize: '10px', color: '#94a3b8', margin: '2px 0 0' }}>Generado por IA · editable antes de exportar al PDF</p>
+                </div>
+                {!analisis && (
+                  <button onClick={generarAnalisis} disabled={generandoAnalisis}
+                    style={{ padding: '7px 14px', background: generandoAnalisis ? '#f1f5f9' : AZUL, color: generandoAnalisis ? '#94a3b8' : 'white', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: generandoAnalisis ? 'not-allowed' : 'pointer' }}>
+                    {generandoAnalisis ? '⏳ Generando...' : '✨ Generar análisis'}
+                  </button>
+                )}
+                {analisis && (
+                  <button onClick={() => { setAnalisis(null); generarAnalisis() }} disabled={generandoAnalisis}
+                    style={{ padding: '7px 14px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
+                    🔄 Regenerar
+                  </button>
+                )}
+              </div>
+
+              {generandoAnalisis && (
+                <div style={{ padding: '32px', textAlign: 'center', color: '#94a3b8' }}>
+                  <div style={{ fontSize: '28px', marginBottom: '8px' }}>🤔</div>
+                  <p style={{ fontSize: '13px', margin: 0 }}>Analizando el caso pensional...</p>
+                  <p style={{ fontSize: '11px', margin: '4px 0 0', color: '#cbd5e1' }}>Esto tarda unos segundos</p>
+                </div>
+              )}
+
+              {analisis && !generandoAnalisis && (
+                <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  {[
+                    { key: 'contexto', label: '👤 Contexto del asegurado', color: AZUL },
+                    { key: 'diagnostico_actual', label: '🔍 Diagnóstico actual', color: '#dc2626' },
+                    { key: 'opciones_disponibles', label: '⚡ Opciones disponibles', color: NARANJA },
+                    { key: 'recomendacion', label: '✅ Recomendación', color: VERDE },
+                    { key: 'proximos_pasos', label: '📋 Próximos pasos', color: '#8b5cf6' },
+                  ].map(sec => (
+                    <div key={sec.key}>
+                      <p style={{ fontSize: '11px', fontWeight: '700', color: sec.color, margin: '0 0 5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{sec.label}</p>
+                      <textarea
+                        value={(analisis as any)[sec.key]}
+                        onChange={e => setAnalisis(prev => prev ? { ...prev, [sec.key]: e.target.value } : prev)}
+                        rows={sec.key === 'proximos_pasos' ? 4 : 5}
+                        style={{ display: 'block', width: '100%', padding: '10px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', lineHeight: '1.6', resize: 'vertical', outline: 'none', fontFamily: 'inherit', color: '#374151', background: '#FAFBFC', boxSizing: 'border-box' }}
+                        onFocus={e => e.target.style.borderColor = sec.color}
+                        onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {!analisis && !generandoAnalisis && (
+                <div style={{ padding: '32px', textAlign: 'center', color: '#94a3b8' }}>
+                  <div style={{ fontSize: '32px', marginBottom: '8px' }}>📄</div>
+                  <p style={{ fontSize: '13px', margin: '0 0 4px', fontWeight: '600', color: '#64748b' }}>Sin análisis generado</p>
+                  <p style={{ fontSize: '11px', margin: 0 }}>Haz clic en "Generar análisis" para crear el texto de la propuesta</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── HISTORIAL DE DIAGNÓSTICOS ── */}
+          <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+            <div style={{ padding: '12px 16px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}
+              onClick={() => setShowHistorial(p => !p)}>
+              <p style={{ fontSize: '13px', fontWeight: '700', color: AZUL, margin: 0 }}>
+                🗂️ Historial de diagnósticos ({historial.length})
+              </p>
+              <span style={{ fontSize: '12px', color: '#94a3b8' }}>{showHistorial ? '▲' : '▼'}</span>
+            </div>
+            {showHistorial && (
+              historial.length === 0 ? (
+                <div style={{ padding: '24px', textAlign: 'center', color: '#94a3b8', fontSize: '13px' }}>Sin diagnósticos guardados aún</div>
+              ) : (
+                <div style={{ overflow: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                    <thead>
+                      <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #e2e8f0' }}>
+                        {['Fecha', 'Cliente', 'Ley', 'Semanas', 'E1 (hoy)', 'E4 (hoy)', ''].map((h, i) => (
+                          <th key={i} style={{ padding: '8px 12px', textAlign: 'left', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {historial.map((d, i) => (
+                        <tr key={d.id} style={{ borderBottom: i < historial.length-1 ? '1px solid #f1f5f9' : 'none' }}>
+                          <td style={{ padding: '8px 12px', color: '#64748b', whiteSpace: 'nowrap' }}>
+                            {new Date(d.created_at).toLocaleDateString('es-MX', { day:'numeric', month:'short', year:'2-digit' })}
+                          </td>
+                          <td style={{ padding: '8px 12px', fontWeight: '600', color: AZUL, whiteSpace: 'nowrap' }}>
+                            {(d.clientes as any)?.nombre ?? '—'}
+                          </td>
+                          <td style={{ padding: '8px 12px' }}>
+                            <span style={{ background: d.ley === '73' ? '#EEF2F8' : '#f0fdf4', color: d.ley === '73' ? AZUL : VERDE, padding: '1px 6px', borderRadius: '6px', fontSize: '11px', fontWeight: '700' }}>
+                              L{d.ley}
+                            </span>
+                          </td>
+                          <td style={{ padding: '8px 12px', color: '#374151' }}>{d.semanas}</td>
+                          <td style={{ padding: '8px 12px', color: '#64748b' }}>
+                            {d.resultado_e1 ? `$${Math.round(d.resultado_e1).toLocaleString()}` : '—'}
+                          </td>
+                          <td style={{ padding: '8px 12px', fontWeight: '700', color: VERDE }}>
+                            {d.resultado_e4 ? `$${Math.round(d.resultado_e4).toLocaleString()}` : '—'}
+                          </td>
+                          <td style={{ padding: '8px 12px' }}>
+                            <button onClick={() => {
+                              setLey(d.ley)
+                              setSemanas(d.semanas)
+                              setSalarioDiario(d.salario_diario)
+                              setEdadRetiro(d.edad_retiro)
+                              setIngresoDes(d.ingreso_deseado)
+                              setClienteId(d.cliente_id)
+                              setNotas(d.notas ?? '')
+                            }} style={{ fontSize: '11px', color: NARANJA, background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '6px', padding: '2px 8px', cursor: 'pointer', fontWeight: '600' }}>
+                              Cargar
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )
+            )}
+          </div>
 
           {/* Disclaimer */}
           <div style={{ background: '#fffbeb', borderRadius: '10px', padding: '10px 14px', border: '1px solid #fde68a' }}>
