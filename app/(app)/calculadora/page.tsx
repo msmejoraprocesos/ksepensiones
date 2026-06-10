@@ -105,6 +105,9 @@ const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency'
 function CalculadoraInner() {
   const supabase = createClient()
   const searchParams = useSearchParams()
+  const [vistaCalc, setVistaCalc] = useState<'listado' | 'calculadora'>(
+    searchParams.get('nuevo') === 'true' || !!searchParams.get('cliente') || !!searchParams.get('diag') ? 'calculadora' : 'listado'
+  )
 
   const [sys, setSys] = useState<SysVars>(SYS_DEFAULT)
   const [clientes, setClientes] = useState<Cliente[]>([])
@@ -665,7 +668,7 @@ function CalculadoraInner() {
     })
     setSaving(false)
     setSaved(true)
-    loadHistorial(userId)
+    await loadHistorial(userId)
   }
 
   async function extraerDatosPDF(file: File) {
@@ -893,10 +896,138 @@ function CalculadoraInner() {
     </div>
   )
 
-  return (
+  // ── VISTA LISTADO ──────────────────────────────────────────────
+  if (vistaCalc === 'listado') {
+    const totalDiags = historial.length
+    const conAnalisis = historial.filter((d: any) => d.analisis_narrativo).length
+    const ley73 = historial.filter((d: any) => d.ley === '73').length
+    const ley97 = historial.filter((d: any) => d.ley === '97').length
+    const esteMes = historial.filter((d: any) => new Date(d.created_at) > new Date(Date.now() - 30*86400000)).length
+
+    return (
+      <div style={{ height: 'calc(100vh - 56px)', overflow: 'auto', background: '#F4F6FB', padding: '20px 24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+          <div>
+            <h1 style={{ fontSize: '22px', fontWeight: '800', color: AZUL, margin: 0 }}>🧮 Diagnósticos Pensionales</h1>
+            <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0' }}>Historial completo · Variables 2026</p>
+          </div>
+          <button onClick={() => setVistaCalc('calculadora')}
+            style={{ padding: '10px 20px', background: NARANJA, color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 14px rgba(240,91,33,0.4)' }}>
+            + Nuevo diagnóstico
+          </button>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px', marginBottom: '20px' }}>
+          {[
+            { label: 'Total diagnósticos', value: totalDiags, color: AZUL },
+            { label: 'Este mes', value: esteMes, color: '#8b5cf6' },
+            { label: 'Con análisis IA', value: conAnalisis, color: VERDE },
+            { label: 'Ley 73', value: ley73, color: AZUL },
+            { label: 'Ley 97', value: ley97, color: '#0891b2' },
+          ].map((k, i) => (
+            <div key={i} style={{ background: 'white', borderRadius: '12px', padding: '14px 16px', border: '1px solid #e2e8f0' }}>
+              <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>{k.label}</div>
+              <div style={{ fontSize: '28px', fontWeight: '800', color: k.color }}>{k.value}</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+          <div style={{ padding: '14px 18px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <p style={{ fontSize: '14px', fontWeight: '700', color: AZUL, margin: 0 }}>Todos los diagnósticos</p>
+            <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>{totalDiags} registros</p>
+          </div>
+          {historial.length === 0 ? (
+            <div style={{ padding: '60px', textAlign: 'center' }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🧮</div>
+              <p style={{ fontSize: '15px', fontWeight: '600', color: '#64748b', margin: '0 0 8px' }}>Sin diagnósticos aún</p>
+              <p style={{ fontSize: '13px', color: '#94a3b8', margin: '0 0 20px' }}>Crea tu primer diagnóstico pensional</p>
+              <button onClick={() => setVistaCalc('calculadora')}
+                style={{ padding: '10px 24px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                + Nuevo diagnóstico
+              </button>
+            </div>
+          ) : (
+            <div style={{ overflow: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #e2e8f0' }}>
+                    {['#','Fecha','Cliente','Ley','Semanas','Retiro','Meta','E1 (hoy)','E4 Óptimo','Cobertura','Análisis',''].map((h, i) => (
+                      <th key={i} style={{ padding: '9px 12px', textAlign: 'left', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {historial.map((d: any, i: number) => {
+                    const pct = d.ingreso_deseado && d.resultado_e4 ? Math.round((d.resultado_e4/d.ingreso_deseado)*100) : null
+                    return (
+                      <tr key={d.id} style={{ borderBottom: i < historial.length-1 ? '1px solid #f1f5f9' : 'none' }}>
+                        <td style={{ padding: '10px 12px', fontSize: '11px', color: '#94a3b8', fontWeight: '600' }}>#{historial.length - i}</td>
+                        <td style={{ padding: '10px 12px', fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap' }}>
+                          {new Date(d.created_at).toLocaleDateString('es-MX', { day:'numeric', month:'short', year:'2-digit' })}
+                        </td>
+                        <td style={{ padding: '10px 12px', fontWeight: '600', color: AZUL, whiteSpace: 'nowrap' }}>
+                          {d.clientes?.nombre ?? '—'}
+                        </td>
+                        <td style={{ padding: '10px 12px' }}>
+                          <span style={{ background: d.ley === '73' ? '#EEF2F8' : '#ecfeff', color: d.ley === '73' ? AZUL : '#0891b2', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: '700' }}>L{d.ley}</span>
+                        </td>
+                        <td style={{ padding: '10px 12px', fontSize: '12px', color: '#374151' }}>{d.semanas}</td>
+                        <td style={{ padding: '10px 12px', fontSize: '12px', color: '#374151' }}>{d.edad_retiro} años</td>
+                        <td style={{ padding: '10px 12px', fontSize: '12px', color: '#374151' }}>{d.ingreso_deseado ? fmtMXN(d.ingreso_deseado) : '—'}</td>
+                        <td style={{ padding: '10px 12px', fontSize: '12px', fontWeight: '600', color: '#ef4444' }}>{d.resultado_e1 ? fmtMXN(d.resultado_e1) : '—'}</td>
+                        <td style={{ padding: '10px 12px', fontSize: '12px', fontWeight: '700', color: VERDE }}>{d.resultado_e4 ? fmtMXN(d.resultado_e4) : '—'}</td>
+                        <td style={{ padding: '10px 12px' }}>
+                          {pct !== null ? (
+                            <div>
+                              <div style={{ height: '5px', background: '#f1f5f9', borderRadius: '3px', width: '70px', overflow: 'hidden', marginBottom: '2px' }}>
+                                <div style={{ height: '100%', background: pct >= 80 ? VERDE : pct >= 50 ? NARANJA : '#ef4444', width: `${Math.min(100,pct)}%`, borderRadius: '3px' }} />
+                              </div>
+                              <span style={{ fontSize: '10px', color: pct >= 80 ? VERDE : pct >= 50 ? NARANJA : '#ef4444', fontWeight: '700' }}>{pct}%</span>
+                            </div>
+                          ) : '—'}
+                        </td>
+                        <td style={{ padding: '10px 12px' }}>
+                          {d.analisis_narrativo
+                            ? <span style={{ fontSize: '11px', background: '#f0fdf4', color: VERDE, padding: '2px 8px', borderRadius: '6px', fontWeight: '600' }}>✓ Sí</span>
+                            : <span style={{ fontSize: '11px', color: '#cbd5e1' }}>—</span>
+                          }
+                        </td>
+                        <td style={{ padding: '10px 12px' }}>
+                          <button onClick={() => {
+                            setLey(d.ley)
+                            setSemanas(d.semanas)
+                            setSalarioDiario(d.salario_diario ?? 0)
+                            setEdadRetiro(d.edad_retiro)
+                            setIngresoDes(d.ingreso_deseado ?? 0)
+                            setClienteId(d.cliente_id)
+                            setNotas(d.notas ?? '')
+                            if (d.analisis_narrativo) setAnalisis(d.analisis_narrativo)
+                            setVistaCalc('calculadora')
+                          }} style={{ fontSize: '11px', color: NARANJA, background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '6px', padding: '4px 10px', cursor: 'pointer', fontWeight: '600', whiteSpace: 'nowrap' }}>
+                            Abrir →
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+    return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)', background: '#F4F6FB', overflow: 'auto' }}>
       {/* Header */}
       <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '10px 20px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <button onClick={() => setVistaCalc('listado')}
+          style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F4F6FB', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '6px 12px', cursor: 'pointer', color: '#64748b', fontSize: '12px', fontWeight: '600', flexShrink: 0 }}>
+          ← Historial
+        </button>
         <div style={{ flexShrink: 0 }}>
           <h1 style={{ color: AZUL, fontSize: '17px', fontWeight: '800', margin: 0 }}>🧮 Calculadora de Pensiones</h1>
           <p style={{ color: '#94a3b8', fontSize: '10px', margin: '2px 0 0' }}>UMA ${sys.UMA_DIARIA} · SM ${sys.SALARIO_MIN} · PMG L73 {fmtMXN(sys.PMG_L73)}</p>
