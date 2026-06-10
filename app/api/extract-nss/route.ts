@@ -27,13 +27,18 @@ export async function POST(req: NextRequest) {
   "curp": "CURP del asegurado",
   "semanas": número total de semanas cotizadas (entero),
   "salario_diario": último salario base de cotización en pesos (número),
-  "fecha_nac": "YYYY-MM-DD extraída del CURP (posición 4-9: AAMMDD)"
+  "fecha_nac": "YYYY-MM-DD extraída del CURP (posición 4-9: AAMMDD)",
+  "cotizo_antes_97": true o false (revisa el historial laboral: si hay alguna fecha de alta ANTES del 1 de julio de 1997, es true),
+  "cotizo_despues_97": true o false (si hay alguna fecha de alta DESPUÉS del 1 de julio de 1997, es true),
+  "primer_empleo": "YYYY-MM-DD fecha del primer registro de alta en el historial laboral"
 }
 
 Reglas importantes:
 - Las semanas son el TOTAL que aparece en el resumen principal del documento
 - El salario_diario es el último salario base de cotización registrado en pesos
 - La fecha_nac se extrae del CURP: caracteres 4-9 en formato AAMMDD, conviértela a YYYY-MM-DD
+- cotizo_antes_97: busca en el historial laboral si hay algún REINGRESO o ALTA con fecha anterior al 01/07/1997
+- cotizo_despues_97: busca si hay algún REINGRESO o ALTA con fecha posterior al 01/07/1997
 - Si no encuentras algún dato, usa null`
           }
         ]
