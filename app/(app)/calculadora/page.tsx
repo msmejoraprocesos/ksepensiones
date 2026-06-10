@@ -152,6 +152,7 @@ function CalculadoraInner() {
   const [uploadingPDF, setUploadingPDF] = useState(false)
   const [pdfMsg, setPdfMsg] = useState<string | null>(null)
   const [pdfCargado, setPdfCargado] = useState(false)
+  const [showConfirmReplace, setShowConfirmReplace] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -206,7 +207,7 @@ function CalculadoraInner() {
         const json = await res.json()
 
         if (!json.ok) {
-          setPdfMsg('❌ Error técnico al procesar el archivo. Intenta de nuevo.')
+          setPdfMsg('❌ Archivo no válido — verifica que el formato sea PDF o imagen y vuelve a intentarlo.')
           setUploadingPDF(false)
           return
         }
@@ -215,7 +216,7 @@ function CalculadoraInner() {
 
         // Validate it's actually an IMSS document
         if (!parsed.semanas || !parsed.nss) {
-          setPdfMsg('❌ El documento no parece ser una Constancia de Semanas Cotizadas del IMSS. Verifica que sea el archivo correcto descargado de imss.gob.mx')
+          setPdfMsg('❌ Documento no reconocido — carga la Constancia de Semanas Cotizadas descargada de imss.gob.mx')
           setUploadingPDF(false)
           return
         }
@@ -561,7 +562,7 @@ function CalculadoraInner() {
         const json = await res.json()
 
         if (!json.ok) {
-          setPdfMsg('❌ Error técnico al procesar el archivo. Intenta de nuevo.')
+          setPdfMsg('❌ Archivo no válido — verifica que el formato sea PDF o imagen y vuelve a intentarlo.')
           setUploadingPDF(false)
           return
         }
@@ -570,7 +571,7 @@ function CalculadoraInner() {
 
         // Validate it's actually an IMSS document
         if (!parsed.semanas || !parsed.nss) {
-          setPdfMsg('❌ El documento no parece ser una Constancia de Semanas Cotizadas del IMSS. Verifica que sea el archivo correcto descargado de imss.gob.mx')
+          setPdfMsg('❌ Documento no reconocido — carga la Constancia de Semanas Cotizadas descargada de imss.gob.mx')
           setUploadingPDF(false)
           return
         }
@@ -845,15 +846,8 @@ function CalculadoraInner() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', marginBottom: '6px' }}>
                       <span style={{ fontSize: '14px' }}>✅</span>
                       <span style={{ flex: 1, fontSize: '11px', color: VERDE, fontWeight: '600' }}>Constancia cargada</span>
-                      <button onClick={() => {
-                        if (window.confirm('¿Seguro que quieres reemplazar la constancia cargada? Se borrarán los datos extraídos.')) {
-                          setPdfCargado(false)
-                          setPdfMsg(null)
-                          setSemanas(0)
-                          setSalarioDiario(0)
-                          setFechaNac('')
-                        }
-                      }} style={{ fontSize: '10px', color: '#ef4444', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '5px', padding: '2px 8px', cursor: 'pointer', fontWeight: '600' }}>
+                      <button onClick={() => setShowConfirmReplace(true)}
+                        style={{ fontSize: '10px', color: '#ef4444', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '5px', padding: '2px 8px', cursor: 'pointer', fontWeight: '600' }}>
                         🔄 Reemplazar
                       </button>
                     </div>
@@ -1154,6 +1148,35 @@ function CalculadoraInner() {
           </div>
         </div>
       </div>
+    {/* Modal confirmar reemplazar constancia */}
+      {showConfirmReplace && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          onClick={e => { if (e.target === e.currentTarget) setShowConfirmReplace(false) }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '380px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', textAlign: 'center' }}>
+            <div style={{ fontSize: '36px', marginBottom: '12px' }}>🔄</div>
+            <h3 style={{ color: '#1e293b', fontSize: '16px', fontWeight: '700', margin: '0 0 8px' }}>¿Reemplazar constancia?</h3>
+            <p style={{ color: '#64748b', fontSize: '13px', margin: '0 0 20px', lineHeight: 1.6 }}>
+              Se borrarán los datos extraídos (semanas, salario y fecha de nacimiento) y podrás cargar una nueva constancia.
+            </p>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button onClick={() => setShowConfirmReplace(false)}
+                style={{ flex: 1, padding: '10px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                Cancelar
+              </button>
+              <button onClick={() => {
+                setPdfCargado(false)
+                setPdfMsg(null)
+                setSemanas(0)
+                setSalarioDiario(0)
+                setFechaNac('')
+                setShowConfirmReplace(false)
+              }} style={{ flex: 1, padding: '10px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>
+                Sí, reemplazar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
