@@ -188,17 +188,12 @@ export default function LoginPage() {
         }}>
           {mode === 'login' ? (
             <>
-              <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: `linear-gradient(135deg, ${NARANJA}, #ff8c3a)`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', margin: '0 auto 14px', boxShadow: `0 4px 16px ${NARANJA}50` }}>
-                  🏖️
-                </div>
-                <h2 style={{ fontSize: '24px', fontWeight: '800', color: AZUL, margin: '0 0 6px', letterSpacing: '-0.5px' }}>
-                  Bienvenido de nuevo
-                </h2>
-                <p style={{ color: '#94a3b8', fontSize: '13px', margin: 0 }}>
-                  Ingresa tus credenciales para continuar
-                </p>
-              </div>
+              <h2 style={{ fontSize: '26px', fontWeight: '800', color: AZUL, margin: '0 0 6px', letterSpacing: '-0.5px', textAlign: 'center' }}>
+                Bienvenido de nuevo
+              </h2>
+              <p style={{ color: '#94a3b8', fontSize: '14px', margin: '0 0 28px', textAlign: 'center' }}>
+                Ingresa tus credenciales para continuar
+              </p>
 
               {error && (
                 <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', padding: '10px 14px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
