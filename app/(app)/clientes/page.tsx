@@ -769,26 +769,7 @@ function ClientesInner() {
                     })}
                   </div>
 
-                  {/* Botón nuevo pago */}
-                  {(() => {
-                    const saldo = Math.max(0, (selected.monto_acordado ?? 0) - (selected.total_pagado ?? 0))
-                    const liquidado = selected.monto_acordado != null && saldo <= 0
-                    return liquidado ? (
-                      <div style={{ width: '100%', padding: '10px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', textAlign: 'center', fontSize: '13px', fontWeight: '700', color: VERDE }}>
-                        🟢 Pago completado — cuenta liquidada
-                      </div>
-                    ) : (
-                      <button onClick={() => {
-                        const srvPagosLocal = pagos.filter(p => p.servicio_id === srv.id)
-                        const concepto = detectarConcepto(srvPagosLocal.length, 0, srvSaldo, srv.monto_acordado)
-                        setFormPago(p => ({ ...p, concepto }))
-                        setShowPago(true)
-                      }}
-                        style={{ width: '100%', padding: '10px', background: VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
-                        + Registrar {pagos.length === 0 ? 'anticipo' : pagos.length === 1 ? 'segunda exhibición' : pagos.length === 2 ? 'tercera exhibición' : 'liquidación'}
-                      </button>
-                    )
-                  })()}
+
 
                   {/* Lista de pagos */}
                   {pagos.length === 0 ? (
