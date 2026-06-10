@@ -80,9 +80,25 @@ interface Cliente {
   total_pagado?: number
 }
 
+interface Servicio {
+  id: string
+  cliente_id: string
+  tipo: string
+  monto_acordado: number
+  descripcion: string | null
+  estatus: string
+  fecha_inicio: string
+  fecha_cierre: string | null
+  created_at: string
+  // computed
+  total_pagado?: number
+  pagos?: Pago[]
+}
+
 interface Pago {
   id: string
   cliente_id: string
+  servicio_id: string | null
   monto: number
   concepto: string
   comprobante_url: string | null
@@ -114,6 +130,10 @@ export default function ClientesPage() {
   const [diagnosticos, setDiagnosticos] = useState<Diagnostico[]>([])
   const [actividades, setActividades] = useState<Actividad[]>([])
   const [pagos, setPagos] = useState<Pago[]>([])
+  const [servicios, setServicios] = useState<Servicio[]>([])
+  const [servicioActivo, setServicioActivo] = useState<string | null>(null)
+  const [showNuevoServicio, setShowNuevoServicio] = useState(false)
+  const [formServicio, setFormServicio] = useState({ tipo: 'Diagnóstico', monto_acordado: '', descripcion: '' })
   const [modalTab, setModalTab] = useState<'info' | 'diagnosticos' | 'actividades' | 'pagos'>('info')
 
   // Nuevo cliente
@@ -157,14 +177,25 @@ export default function ClientesPage() {
   async function openExpediente(cliente: Cliente) {
     setSelected(cliente)
     setModalTab('info')
-    const [{ data: diags }, { data: acts }, { data: pags }] = await Promise.all([
+    const [{ data: diags }, { data: acts }, { data: pags }, { data: srvs }] = await Promise.all([
       supabase.from('diagnosticos').select('*').eq('cliente_id', cliente.id).order('created_at', { ascending: false }),
       supabase.from('actividades').select('*').eq('cliente_id', cliente.id).order('fecha_programada', { ascending: false }),
       supabase.from('pagos').select('*').eq('cliente_id', cliente.id).order('fecha_pago', { ascending: false }),
+      supabase.from('servicios_contratados').select('*').eq('cliente_id', cliente.id).order('created_at', { ascending: true }),
     ])
     setDiagnosticos((diags as Diagnostico[]) ?? [])
     setActividades((acts as Actividad[]) ?? [])
-    setPagos((pags as Pago[]) ?? [])
+    const pagosArr = (pags as Pago[]) ?? []
+    setPagos(pagosArr)
+    // Enrich servicios with pagos
+    const srvsArr = (srvs as Servicio[]) ?? []
+    const enriched = srvsArr.map(s => {
+      const sPagos = pagosArr.filter(p => p.servicio_id === s.id)
+      const total = sPagos.reduce((sum, p) => sum + p.monto, 0)
+      return { ...s, total_pagado: total, pagos: sPagos }
+    })
+    setServicios(enriched)
+    if (enriched.length > 0) setServicioActivo(enriched[enriched.length - 1].id)
   }
 
   async function guardarNuevo() {
@@ -190,6 +221,35 @@ export default function ClientesPage() {
     setShowNuevo(false)
     setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '' })
     setFormErrors({})
+  }
+
+  async function guardarServicio() {
+    if (!selected || !formServicio.monto_acordado) return
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+    const { data, error } = await supabase.from('servicios_contratados').insert({
+      cliente_id: selected.id,
+      asesor_id: session.user.id,
+      tipo: formServicio.tipo,
+      monto_acordado: parseFloat(formServicio.monto_acordado),
+      descripcion: formServicio.descripcion || null,
+    }).select().single()
+    if (error) { alert('Error: ' + error.message); return }
+    if (data) {
+      const newSrv = { ...data as Servicio, total_pagado: 0, pagos: [] }
+      setServicios(prev => [...prev, newSrv])
+      setServicioActivo(newSrv.id)
+      // Update monto_acordado on cliente as sum of all servicios
+      const nuevoTotal = servicios.reduce((s, srv) => s + srv.monto_acordado, 0) + newSrv.monto_acordado
+      await actualizarCliente(selected.id, { monto_acordado: nuevoTotal })
+    }
+    setShowNuevoServicio(false)
+    setFormServicio({ tipo: 'Diagnóstico', monto_acordado: '', descripcion: '' })
+  }
+
+  async function cerrarServicio(servicioId: string) {
+    await supabase.from('servicios_contratados').update({ estatus: 'liquidado', fecha_cierre: new Date().toISOString() }).eq('id', servicioId)
+    setServicios(prev => prev.map(s => s.id === servicioId ? { ...s, estatus: 'liquidado', fecha_cierre: new Date().toISOString() } : s))
   }
 
   async function guardarPago() {
@@ -228,6 +288,7 @@ export default function ClientesPage() {
       notas: formPago.notas || null,
       fecha_pago: new Date(formPago.fecha_pago).toISOString(),
       comprobante_url,
+      servicio_id: servicioActivo,
     }).select().single()
     if (error) {
       alert('Error al registrar pago: ' + error.message + ' (code: ' + error.code + ')')
@@ -241,6 +302,15 @@ export default function ClientesPage() {
       const updatedCliente = { ...selected, total_pagado: nuevoTotal }
       setSelected(updatedCliente)
       setClientes(prev => prev.map(c => c.id === selected.id ? updatedCliente : c))
+      // Update servicio total
+      if (servicioActivo) {
+        setServicios(prev => prev.map(s => {
+          if (s.id !== servicioActivo) return s
+          const newPagos = [...(s.pagos ?? []), newPago]
+          const newTotal = newPagos.reduce((sum, p) => sum + p.monto, 0)
+          return { ...s, pagos: newPagos, total_pagado: newTotal }
+        }))
+      }
     }
     // Reload all clientes to get fresh total_pagado
     const uid = userIdRef.current
