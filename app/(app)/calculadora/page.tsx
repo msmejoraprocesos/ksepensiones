@@ -224,6 +224,106 @@ function CalculadoraInner() {
     }
   }
 
+  async function generarPDF() {
+    if (escenarios.length === 0) return
+    const clienteObj = clientes.find(c => c.id === clienteId)
+    const { jsPDF } = await import('jspdf')
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+    const W = 210, margin = 16
+    const AZUL_RGB: [number,number,number] = [27, 58, 107]
+    const NARANJA_RGB: [number,number,number] = [240, 91, 33]
+    const VERDE_RGB: [number,number,number] = [46, 139, 87]
+
+    // Header
+    doc.setFillColor(...AZUL_RGB)
+    doc.rect(0, 0, W, 34, 'F')
+    doc.setTextColor(255,255,255)
+    doc.setFontSize(16); doc.setFont('helvetica','bold')
+    doc.text('KSE Pensiones', margin, 14)
+    doc.setFontSize(9); doc.setFont('helvetica','normal')
+    doc.text('Diagnóstico Pensional', margin, 21)
+    doc.setFontSize(9)
+    doc.text(new Date().toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' }), W - margin, 14, { align: 'right' })
+    if (clienteObj?.nombre) doc.text(clienteObj.nombre, W - margin, 21, { align: 'right' })
+
+    let y = 42
+
+    // Parámetros
+    doc.setTextColor(...AZUL_RGB)
+    doc.setFontSize(11); doc.setFont('helvetica','bold')
+    doc.text('Parámetros del diagnóstico', margin, y); y += 7
+
+    const params = [
+      ['Régimen', `Ley ${ley}`],
+      ['Semanas cotizadas', `${semanas}`],
+      ['Salario', `${salarioDiario}x SM`],
+      ['Retiro', `${edadRetiro} años`],
+      ['Ingreso deseado', fmtMXN(ingresoDes)],
+      ['Inflación', `${inflacion}%`],
+    ]
+    const cW = (W - margin*2) / 3
+    params.forEach(([label, val], i) => {
+      const col = i % 3; const row = Math.floor(i / 3)
+      const x = margin + col * cW; const ry = y + row * 12
+      doc.setFillColor(248,250,252); doc.rect(x, ry, cW, 11, 'F')
+      doc.setTextColor(148,163,184); doc.setFontSize(7); doc.setFont('helvetica','bold')
+      doc.text(label.toUpperCase(), x+3, ry+5)
+      doc.setTextColor(...AZUL_RGB); doc.setFontSize(8); doc.setFont('helvetica','bold')
+      doc.text(val, x+3, ry+9)
+    })
+    y += Math.ceil(params.length/3)*12 + 8
+
+    // Escenarios
+    doc.setTextColor(...AZUL_RGB)
+    doc.setFontSize(11); doc.setFont('helvetica','bold')
+    doc.text('Comparativo de escenarios', margin, y); y += 7
+
+    const eW = (W - margin*2) / 4
+    escenarios.forEach((esc, i) => {
+      const x = margin + i * eW
+      const isRec = esc.recomendado
+      if (isRec) { doc.setFillColor(...VERDE_RGB) } else { doc.setFillColor(248,250,252) }
+      doc.roundedRect(x+1, y, eW-2, 48, 2, 2, 'F')
+      doc.setTextColor(isRec ? 255 : 100, isRec ? 255 : 116, isRec ? 255 : 139)
+      doc.setFontSize(7); doc.setFont('helvetica','bold')
+      doc.text(esc.nombre.replace('— ',''), x+4, y+7, { maxWidth: eW-8 })
+      doc.setTextColor(isRec ? 255 : 27, isRec ? 255 : 58, isRec ? 255 : 107)
+      doc.setFontSize(13); doc.setFont('helvetica','bold')
+      doc.text(fmtMXN(esc.pension), x+4, y+18)
+      doc.setFontSize(8)
+      doc.text(fmtMXN(esc.pension_real)+' hoy', x+4, y+25)
+      const pct = ingresoDes > 0 ? Math.min(1, esc.pension_real/ingresoDes) : 0
+      doc.setFillColor(isRec ? 255 : 226, isRec ? 255 : 232, isRec ? 255 : 240)
+      doc.rect(x+4, y+29, eW-8, 3, 'F')
+      if (isRec) { doc.setFillColor(255,255,255) } else { doc.setFillColor(...VERDE_RGB) }
+      doc.rect(x+4, y+29, (eW-8)*pct, 3, 'F')
+      doc.setTextColor(isRec ? 255 : 100, isRec ? 255 : 116, isRec ? 255 : 139)
+      doc.setFontSize(7)
+      doc.text(`${Math.round(pct*100)}% del objetivo`, x+4, y+36)
+      if (esc.inversion_mensual > 0) doc.text(`Inversión: ${fmtMXN(esc.inversion_mensual)}/mes`, x+4, y+42)
+      if (isRec) { doc.setFontSize(7); doc.setTextColor(255,255,255); doc.text('⭐ ÓPTIMO', x+4, y+47) }
+    })
+    y += 58
+
+    // Disclaimer
+    doc.setFillColor(254,244,236)
+    doc.roundedRect(margin, y, W-margin*2, 18, 2, 2, 'F')
+    doc.setTextColor(...NARANJA_RGB); doc.setFontSize(7); doc.setFont('helvetica','bold')
+    doc.text('⚠️ AVISO LEGAL', margin+4, y+6)
+    doc.setTextColor(146,64,14); doc.setFontSize(6); doc.setFont('helvetica','normal')
+    const disclaimer = 'Cálculos orientativos basados en variables oficiales 2026. No constituyen garantía de prestaciones ni asesoría jurídica. Verifica en imss.gob.mx'
+    doc.text(doc.splitTextToSize(disclaimer, W-margin*2-8), margin+4, y+11)
+
+    // Footer
+    doc.setFillColor(...AZUL_RGB); doc.rect(0, 287, W, 10, 'F')
+    doc.setTextColor(255,255,255); doc.setFontSize(7)
+    doc.text('KSE Pensiones · CRM de Diagnóstico Pensional', margin, 293)
+    doc.text(`Variables 2026: UMA $${sys.UMA_DIARIA} · SM $${sys.SALARIO_MIN} · PMG L73 ${fmtMXN(sys.PMG_L73)}`, W-margin, 293, { align: 'right' })
+
+    const fname = `diagnostico-${(clienteObj?.nombre || 'cliente').replace(/\s+/g,'-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.pdf`
+    doc.save(fname)
+  }
+
   const edad = edadDesde(fechaNac) || 40
     const aniosRetiro = Math.max(0, edadRetiro - edad)
 
@@ -402,6 +502,106 @@ function CalculadoraInner() {
     }
   }
 
+  async function generarPDF() {
+    if (escenarios.length === 0) return
+    const clienteObj = clientes.find(c => c.id === clienteId)
+    const { jsPDF } = await import('jspdf')
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+    const W = 210, margin = 16
+    const AZUL_RGB: [number,number,number] = [27, 58, 107]
+    const NARANJA_RGB: [number,number,number] = [240, 91, 33]
+    const VERDE_RGB: [number,number,number] = [46, 139, 87]
+
+    // Header
+    doc.setFillColor(...AZUL_RGB)
+    doc.rect(0, 0, W, 34, 'F')
+    doc.setTextColor(255,255,255)
+    doc.setFontSize(16); doc.setFont('helvetica','bold')
+    doc.text('KSE Pensiones', margin, 14)
+    doc.setFontSize(9); doc.setFont('helvetica','normal')
+    doc.text('Diagnóstico Pensional', margin, 21)
+    doc.setFontSize(9)
+    doc.text(new Date().toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' }), W - margin, 14, { align: 'right' })
+    if (clienteObj?.nombre) doc.text(clienteObj.nombre, W - margin, 21, { align: 'right' })
+
+    let y = 42
+
+    // Parámetros
+    doc.setTextColor(...AZUL_RGB)
+    doc.setFontSize(11); doc.setFont('helvetica','bold')
+    doc.text('Parámetros del diagnóstico', margin, y); y += 7
+
+    const params = [
+      ['Régimen', `Ley ${ley}`],
+      ['Semanas cotizadas', `${semanas}`],
+      ['Salario', `${salarioDiario}x SM`],
+      ['Retiro', `${edadRetiro} años`],
+      ['Ingreso deseado', fmtMXN(ingresoDes)],
+      ['Inflación', `${inflacion}%`],
+    ]
+    const cW = (W - margin*2) / 3
+    params.forEach(([label, val], i) => {
+      const col = i % 3; const row = Math.floor(i / 3)
+      const x = margin + col * cW; const ry = y + row * 12
+      doc.setFillColor(248,250,252); doc.rect(x, ry, cW, 11, 'F')
+      doc.setTextColor(148,163,184); doc.setFontSize(7); doc.setFont('helvetica','bold')
+      doc.text(label.toUpperCase(), x+3, ry+5)
+      doc.setTextColor(...AZUL_RGB); doc.setFontSize(8); doc.setFont('helvetica','bold')
+      doc.text(val, x+3, ry+9)
+    })
+    y += Math.ceil(params.length/3)*12 + 8
+
+    // Escenarios
+    doc.setTextColor(...AZUL_RGB)
+    doc.setFontSize(11); doc.setFont('helvetica','bold')
+    doc.text('Comparativo de escenarios', margin, y); y += 7
+
+    const eW = (W - margin*2) / 4
+    escenarios.forEach((esc, i) => {
+      const x = margin + i * eW
+      const isRec = esc.recomendado
+      if (isRec) { doc.setFillColor(...VERDE_RGB) } else { doc.setFillColor(248,250,252) }
+      doc.roundedRect(x+1, y, eW-2, 48, 2, 2, 'F')
+      doc.setTextColor(isRec ? 255 : 100, isRec ? 255 : 116, isRec ? 255 : 139)
+      doc.setFontSize(7); doc.setFont('helvetica','bold')
+      doc.text(esc.nombre.replace('— ',''), x+4, y+7, { maxWidth: eW-8 })
+      doc.setTextColor(isRec ? 255 : 27, isRec ? 255 : 58, isRec ? 255 : 107)
+      doc.setFontSize(13); doc.setFont('helvetica','bold')
+      doc.text(fmtMXN(esc.pension), x+4, y+18)
+      doc.setFontSize(8)
+      doc.text(fmtMXN(esc.pension_real)+' hoy', x+4, y+25)
+      const pct = ingresoDes > 0 ? Math.min(1, esc.pension_real/ingresoDes) : 0
+      doc.setFillColor(isRec ? 255 : 226, isRec ? 255 : 232, isRec ? 255 : 240)
+      doc.rect(x+4, y+29, eW-8, 3, 'F')
+      if (isRec) { doc.setFillColor(255,255,255) } else { doc.setFillColor(...VERDE_RGB) }
+      doc.rect(x+4, y+29, (eW-8)*pct, 3, 'F')
+      doc.setTextColor(isRec ? 255 : 100, isRec ? 255 : 116, isRec ? 255 : 139)
+      doc.setFontSize(7)
+      doc.text(`${Math.round(pct*100)}% del objetivo`, x+4, y+36)
+      if (esc.inversion_mensual > 0) doc.text(`Inversión: ${fmtMXN(esc.inversion_mensual)}/mes`, x+4, y+42)
+      if (isRec) { doc.setFontSize(7); doc.setTextColor(255,255,255); doc.text('⭐ ÓPTIMO', x+4, y+47) }
+    })
+    y += 58
+
+    // Disclaimer
+    doc.setFillColor(254,244,236)
+    doc.roundedRect(margin, y, W-margin*2, 18, 2, 2, 'F')
+    doc.setTextColor(...NARANJA_RGB); doc.setFontSize(7); doc.setFont('helvetica','bold')
+    doc.text('⚠️ AVISO LEGAL', margin+4, y+6)
+    doc.setTextColor(146,64,14); doc.setFontSize(6); doc.setFont('helvetica','normal')
+    const disclaimer = 'Cálculos orientativos basados en variables oficiales 2026. No constituyen garantía de prestaciones ni asesoría jurídica. Verifica en imss.gob.mx'
+    doc.text(doc.splitTextToSize(disclaimer, W-margin*2-8), margin+4, y+11)
+
+    // Footer
+    doc.setFillColor(...AZUL_RGB); doc.rect(0, 287, W, 10, 'F')
+    doc.setTextColor(255,255,255); doc.setFontSize(7)
+    doc.text('KSE Pensiones · CRM de Diagnóstico Pensional', margin, 293)
+    doc.text(`Variables 2026: UMA $${sys.UMA_DIARIA} · SM $${sys.SALARIO_MIN} · PMG L73 ${fmtMXN(sys.PMG_L73)}`, W-margin, 293, { align: 'right' })
+
+    const fname = `diagnostico-${(clienteObj?.nombre || 'cliente').replace(/\s+/g,'-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.pdf`
+    doc.save(fname)
+  }
+
   const edad = edadDesde(fechaNac)
   const aniosRetiro = Math.max(0, edadRetiro - (edad || 40))
   const semanasConPortabilidad = semanas + (tieneISSSTe ? aniosISSSTe * 52 : 0)
@@ -420,7 +620,7 @@ function CalculadoraInner() {
   )
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)', background: '#F4F6FB', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)', background: '#F4F6FB', overflow: 'auto' }}>
       {/* Header */}
       <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '10px 20px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
@@ -759,7 +959,11 @@ function CalculadoraInner() {
                   {!clienteId && <p style={{ fontSize: '10px', color: NARANJA, margin: '0 0 6px' }}>⚠️ Selecciona un cliente</p>}
                   <button onClick={guardar} disabled={saving || !clienteId || saved}
                     style={{ width: '100%', padding: '9px', background: saved ? VERDE : (!clienteId ? '#94a3b8' : AZUL), color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: (!clienteId || saved) ? 'not-allowed' : 'pointer' }}>
-                    {saved ? '✓ Guardado' : saving ? 'Guardando...' : '💾 Guardar diagnóstico'}
+                    {saved ? '✓ Guardado en expediente' : saving ? 'Guardando...' : '💾 Guardar en expediente'}
+                  </button>
+                  <button onClick={generarPDF} disabled={escenarios.length === 0}
+                    style={{ width: '100%', padding: '9px', background: escenarios.length === 0 ? '#94a3b8' : '#F05B21', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: escenarios.length === 0 ? 'not-allowed' : 'pointer', marginTop: '6px' }}>
+                    📄 Exportar PDF
                   </button>
                 </div>
               </div>
@@ -768,7 +972,7 @@ function CalculadoraInner() {
 
           {/* Tabla comparativa */}
           {escenarios.length > 0 && (
-            <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+            <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'auto' }}>
               <div style={{ padding: '12px 16px', borderBottom: '1px solid #e2e8f0', background: AZUL }}>
                 <p style={{ fontSize: '12px', fontWeight: '700', color: 'white', margin: 0 }}>Comparativo de los 4 escenarios · Pesos de hoy (ajustados por inflación {inflacion}%)</p>
               </div>
