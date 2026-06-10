@@ -559,7 +559,7 @@ function ClientesInner() {
       {/* ── VISTA PIPELINE ── */}
       {vista === 'pipeline' && (
         <div style={{ flex: 1, overflow: 'auto', padding: '12px 16px' }}>
-          <div style={{ display: 'flex', gap: '10px', height: '100%', minWidth: 'max-content' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '10px', height: '100%' }}>
             {COLUMNAS.map(col => {
               const cards = clientesPorColumna(col.id)
               const isDragOver = dragOver === col.id
@@ -763,8 +763,9 @@ function ClientesInner() {
 
                   {/* Servicios con sus pagos */}
                   {servicios.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '20px', color: '#94a3b8', fontSize: '13px', background: '#F8FAFC', borderRadius: '10px', border: '1px dashed #e2e8f0' }}>
-                      Sin servicios contratados — agrega uno abajo
+                    <div style={{ textAlign: 'center', padding: '24px', color: '#94a3b8', fontSize: '13px', background: '#F8FAFC', borderRadius: '10px', border: '1px dashed #e2e8f0' }}>
+                      <div style={{ fontSize: '28px', marginBottom: '8px' }}>💼</div>
+                      Agrega un servicio contratado para comenzar a registrar pagos
                     </div>
                   ) : servicios.map((srv, srvIdx) => {
                     const srvSaldo = Math.max(0, srv.monto_acordado - (srv.total_pagado ?? 0))
@@ -855,8 +856,8 @@ function ClientesInner() {
                   {/* Agregar nuevo servicio */}
                   {!showNuevoServicio ? (
                     <button onClick={() => setShowNuevoServicio(true)}
-                      style={{ width: '100%', padding: '9px', background: 'white', color: AZUL, border: '1.5px dashed #1B3A6B', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>
-                      + Agregar servicio contratado
+                      style={{ width: '100%', padding: '11px', background: servicios.length === 0 ? AZUL : 'white', color: servicios.length === 0 ? 'white' : AZUL, border: `1.5px ${servicios.length === 0 ? 'solid' : 'dashed'} #1B3A6B`, borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+                      {servicios.length === 0 ? '+ Agregar primer servicio contratado' : '+ Agregar otro servicio'}
                     </button>
                   ) : (
                     <div style={{ background: '#F4F6FB', borderRadius: '10px', padding: '14px', border: '1px solid #e2e8f0' }}>
