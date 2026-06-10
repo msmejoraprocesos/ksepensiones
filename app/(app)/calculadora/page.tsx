@@ -302,7 +302,8 @@ function CalculadoraInner() {
     setGenerandoAnalisis(false)
   }
 
-  async function generarPDF() {
+  async function generarPDF(analisisData?: typeof analisis) {
+    const analisisToUse = analisisData ?? analisis
     if (escenarios.length === 0) return
     const clienteObj = clientes.find(c => c.id === clienteId)
     const { jsPDF } = await import('jspdf')
@@ -465,7 +466,7 @@ function CalculadoraInner() {
     doc.text('Powered by KSE Pensiones', W-margin, 290, { align: 'right' })
 
     // If analisis exists, add page 2
-    if (analisis) {
+    if (analisisToUse) {
       doc.addPage()
       // Page 2 header
       doc.setFillColor(...AZUL_R)
@@ -478,11 +479,11 @@ function CalculadoraInner() {
 
       let y2 = 28
       const sections = [
-        { label: 'CONTEXTO DEL ASEGURADO', text: analisis.contexto, color: AZUL_R },
-        { label: 'DIAGNÓSTICO ACTUAL', text: analisis.diagnostico_actual, color: [220,38,38] as [number,number,number] },
-        { label: 'OPCIONES DISPONIBLES', text: analisis.opciones_disponibles, color: [240,91,33] as [number,number,number] },
-        { label: 'RECOMENDACIÓN', text: analisis.recomendacion, color: VER_R },
-        { label: 'PRÓXIMOS PASOS', text: analisis.proximos_pasos, color: [139,92,246] as [number,number,number] },
+        { label: 'CONTEXTO DEL ASEGURADO', text: analisisToUse.contexto, color: AZUL_R },
+        { label: 'DIAGNÓSTICO ACTUAL', text: analisisToUse.diagnostico_actual, color: [220,38,38] as [number,number,number] },
+        { label: 'OPCIONES DISPONIBLES', text: analisisToUse.opciones_disponibles, color: [240,91,33] as [number,number,number] },
+        { label: 'RECOMENDACIÓN', text: analisisToUse.recomendacion, color: VER_R },
+        { label: 'PRÓXIMOS PASOS', text: analisisToUse.proximos_pasos, color: [139,92,246] as [number,number,number] },
       ]
 
       for (const sec of sections) {
@@ -659,7 +660,8 @@ function CalculadoraInner() {
       resultado_e2: escenarios[1]?.pension_real,
       resultado_e3: escenarios[2]?.pension_real,
       resultado_e4: escenarios[3]?.pension_real,
-      notas: analisis ? JSON.stringify(analisis) : (notas || null),
+      notas: notas || null,
+      analisis_narrativo: analisis ? analisis : null,
     })
     setSaving(false)
     setSaved(true)
@@ -773,7 +775,8 @@ function CalculadoraInner() {
     setGenerandoAnalisis(false)
   }
 
-  async function generarPDF() {
+  async function generarPDF(analisisData?: typeof analisis) {
+    const analisisToUse = analisisData ?? analisis
     if (escenarios.length === 0) return
     const clienteObj = clientes.find(c => c.id === clienteId)
     const { jsPDF } = await import('jspdf')
@@ -924,7 +927,7 @@ function CalculadoraInner() {
             style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: saved ? VERDE : (!clienteId ? '#f1f5f9' : AZUL), color: saved ? 'white' : (!clienteId ? '#94a3b8' : 'white'), border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: (!clienteId || saved) ? 'not-allowed' : 'pointer', transition: 'all 0.15s' }}>
             {saved ? '✓ Guardado' : saving ? '...' : '💾 Guardar'}
           </button>
-          <button onClick={generarPDF} disabled={escenarios.length === 0}
+          <button onClick={() => generarPDF(analisis)} disabled={escenarios.length === 0}
             style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: escenarios.length === 0 ? '#f1f5f9' : NARANJA, color: escenarios.length === 0 ? '#94a3b8' : 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: escenarios.length === 0 ? 'not-allowed' : 'pointer', boxShadow: escenarios.length > 0 ? `0 4px 12px ${NARANJA}50` : 'none' }}>
             📄 Exportar PDF
           </button>
