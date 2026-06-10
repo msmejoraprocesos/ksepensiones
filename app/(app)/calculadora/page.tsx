@@ -151,6 +151,7 @@ function CalculadoraInner() {
   const [saved, setSaved] = useState(false)
   const [uploadingPDF, setUploadingPDF] = useState(false)
   const [pdfMsg, setPdfMsg] = useState<string | null>(null)
+  const [pdfCargado, setPdfCargado] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -205,25 +206,32 @@ function CalculadoraInner() {
         const json = await res.json()
 
         if (!json.ok) {
-          setPdfMsg('⚠️ Error al analizar el documento: ' + (json.error ?? 'intenta de nuevo'))
+          setPdfMsg('❌ Error técnico al procesar el archivo. Intenta de nuevo.')
           setUploadingPDF(false)
           return
         }
 
         const parsed = json.data
+
+        // Validate it's actually an IMSS document
+        if (!parsed.semanas || !parsed.nss) {
+          setPdfMsg('❌ El documento no parece ser una Constancia de Semanas Cotizadas del IMSS. Verifica que sea el archivo correcto descargado de imss.gob.mx')
+          setUploadingPDF(false)
+          return
+        }
+
         if (parsed.semanas) setSemanas(parsed.semanas)
         if (parsed.salario_diario && sys.SALARIO_MIN > 0) {
           setSalarioDiario(Math.round((parsed.salario_diario / sys.SALARIO_MIN) * 10) / 10)
         }
         if (parsed.fecha_nac) setFechaNac(parsed.fecha_nac)
-        // Auto-detect ley based on birth year vs 1997
         if (parsed.fecha_nac) {
           const anioNac = new Date(parsed.fecha_nac).getFullYear()
-          // If born before 1979 they likely cotized before 1997
           if (anioNac < 1979) setLey('73')
           else setLey('97')
         }
-        setPdfMsg(`✅ ${parsed.semanas ?? '?'} semanas · ${parsed.nombre ?? ''} · NSS: ${parsed.nss ?? ''}`)
+        setPdfCargado(true)
+        setPdfMsg(`✅ Constancia válida · ${parsed.semanas} semanas · ${parsed.nombre ?? ''} · NSS: ${parsed.nss}`)
         setUploadingPDF(false)
       }
       reader.readAsDataURL(file)
@@ -515,6 +523,10 @@ function CalculadoraInner() {
 
   async function guardar() {
     if (!clienteId || escenarios.length === 0) return
+    // Validate required fields
+    if (!semanas || semanas === 0) { alert('⚠️ Ingresa las semanas cotizadas antes de guardar.'); return }
+    if (!salarioDiario || salarioDiario === 0) { alert('⚠️ Ingresa el salario diario antes de guardar.'); return }
+    if (!ingresoDes || ingresoDes === 0) { alert('⚠️ Ingresa el ingreso deseado al retiro antes de guardar.'); return }
     setSaving(true)
     await supabase.from('diagnosticos').insert({
       asesor_id: userId, cliente_id: clienteId, ley,
@@ -549,25 +561,32 @@ function CalculadoraInner() {
         const json = await res.json()
 
         if (!json.ok) {
-          setPdfMsg('⚠️ Error al analizar el documento: ' + (json.error ?? 'intenta de nuevo'))
+          setPdfMsg('❌ Error técnico al procesar el archivo. Intenta de nuevo.')
           setUploadingPDF(false)
           return
         }
 
         const parsed = json.data
+
+        // Validate it's actually an IMSS document
+        if (!parsed.semanas || !parsed.nss) {
+          setPdfMsg('❌ El documento no parece ser una Constancia de Semanas Cotizadas del IMSS. Verifica que sea el archivo correcto descargado de imss.gob.mx')
+          setUploadingPDF(false)
+          return
+        }
+
         if (parsed.semanas) setSemanas(parsed.semanas)
         if (parsed.salario_diario && sys.SALARIO_MIN > 0) {
           setSalarioDiario(Math.round((parsed.salario_diario / sys.SALARIO_MIN) * 10) / 10)
         }
         if (parsed.fecha_nac) setFechaNac(parsed.fecha_nac)
-        // Auto-detect ley based on birth year vs 1997
         if (parsed.fecha_nac) {
           const anioNac = new Date(parsed.fecha_nac).getFullYear()
-          // If born before 1979 they likely cotized before 1997
           if (anioNac < 1979) setLey('73')
           else setLey('97')
         }
-        setPdfMsg(`✅ ${parsed.semanas ?? '?'} semanas · ${parsed.nombre ?? ''} · NSS: ${parsed.nss ?? ''}`)
+        setPdfCargado(true)
+        setPdfMsg(`✅ Constancia válida · ${parsed.semanas} semanas · ${parsed.nombre ?? ''} · NSS: ${parsed.nss}`)
         setUploadingPDF(false)
       }
       reader.readAsDataURL(file)
@@ -682,7 +701,7 @@ function CalculadoraInner() {
   const semanasConPortabilidad = semanas + (tieneISSSTe ? aniosISSSTe * 52 : 0)
   const escAct = escenarios.find(e => e.tag === escSelected) ?? escenarios[0]
 
-  const inputSt: React.CSSProperties = { width: '100%', border: '1.5px solid #475569', borderRadius: '8px', padding: '8px 12px', fontSize: '13px', color: '#f1f5f9', outline: 'none', boxSizing: 'border-box', background: '#334155', fontFamily: 'inherit' }
+  const inputSt: React.CSSProperties = { width: '100%', border: '1.5px solid #2c92d5', borderRadius: '8px', padding: '8px 12px', fontSize: '13px', color: '#1e293b', outline: 'none', boxSizing: 'border-box', background: '#e8f4fd', fontFamily: 'inherit', borderColor: '#2c92d5' }
   const labelSt: React.CSSProperties = { display: 'block', fontSize: '10px', color: '#475569', fontWeight: '700', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }
   const stepBadge = (n: number, color: string) => (
     <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: color, color: 'white', fontSize: '11px', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{n}</div>
@@ -783,18 +802,36 @@ function CalculadoraInner() {
               {sectionTitle(3, 'Situación IMSS · Ley 73', '#7c3aed')}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div>
-                  <label style={labelSt}>Semanas cotizadas en IMSS</label>
+                  <label style={labelSt}>Semanas cotizadas en IMSS <span style={{ color: '#ef4444' }}>*</span></label>
                   {/* Botón cargar PDF NSS */}
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '8px 12px', background: uploadingPDF ? '#f1f5f9' : '#EEF2F8', border: `1.5px dashed ${uploadingPDF ? '#cbd5e1' : AZUL}`, borderRadius: '8px', cursor: uploadingPDF ? 'not-allowed' : 'pointer', marginBottom: '6px', transition: 'all 0.15s' }}>
-                    <span style={{ fontSize: '16px' }}>{uploadingPDF ? '⏳' : '📄'}</span>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '11px', fontWeight: '700', color: AZUL }}>{uploadingPDF ? 'Analizando documento...' : 'Cargar NSS / Reporte IMSS'}</div>
-                      <div style={{ fontSize: '10px', color: '#94a3b8' }}>PDF o imagen — extrae semanas y salario automáticamente</div>
+                  {!pdfCargado ? (
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '8px 12px', background: uploadingPDF ? '#f1f5f9' : '#EEF2F8', border: `1.5px dashed ${uploadingPDF ? '#cbd5e1' : AZUL}`, borderRadius: '8px', cursor: uploadingPDF ? 'not-allowed' : 'pointer', marginBottom: '6px' }}>
+                      <span style={{ fontSize: '16px' }}>{uploadingPDF ? '⏳' : '📄'}</span>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '11px', fontWeight: '700', color: AZUL }}>{uploadingPDF ? 'Analizando documento...' : 'Cargar Constancia IMSS'}</div>
+                        <div style={{ fontSize: '10px', color: '#94a3b8' }}>PDF oficial de imss.gob.mx — extrae datos automáticamente</div>
+                      </div>
+                      <input type="file" accept=".pdf,image/*" onChange={e => { const f = e.target.files?.[0]; if (f) extraerDatosPDF(f) }} style={{ display: 'none' }} disabled={uploadingPDF} />
+                    </label>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', marginBottom: '6px' }}>
+                      <span style={{ fontSize: '14px' }}>✅</span>
+                      <span style={{ flex: 1, fontSize: '11px', color: VERDE, fontWeight: '600' }}>Constancia cargada</span>
+                      <button onClick={() => {
+                        if (window.confirm('¿Seguro que quieres reemplazar la constancia cargada? Se borrarán los datos extraídos.')) {
+                          setPdfCargado(false)
+                          setPdfMsg(null)
+                          setSemanas(0)
+                          setSalarioDiario(0)
+                          setFechaNac('')
+                        }
+                      }} style={{ fontSize: '10px', color: '#ef4444', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '5px', padding: '2px 8px', cursor: 'pointer', fontWeight: '600' }}>
+                        🔄 Reemplazar
+                      </button>
                     </div>
-                    <input type="file" accept=".pdf,image/*" onChange={e => { const f = e.target.files?.[0]; if (f) extraerDatosPDF(f) }} style={{ display: 'none' }} disabled={uploadingPDF} />
-                  </label>
+                  )}
                   {pdfMsg && (
-                    <p style={{ fontSize: '11px', color: pdfMsg.startsWith('✅') ? VERDE : NARANJA, margin: '0 0 6px', padding: '6px 10px', background: pdfMsg.startsWith('✅') ? '#f0fdf4' : '#fff7ed', borderRadius: '6px' }}>
+                    <p style={{ fontSize: '11px', color: pdfMsg.startsWith('✅') ? VERDE : '#dc2626', margin: '0 0 6px', padding: '7px 10px', background: pdfMsg.startsWith('✅') ? '#f0fdf4' : '#fef2f2', borderRadius: '6px', border: `1px solid ${pdfMsg.startsWith('✅') ? '#bbf7d0' : '#fecaca'}` }}>
                       {pdfMsg}
                     </p>
                   )}
@@ -806,7 +843,7 @@ function CalculadoraInner() {
                   )}
                 </div>
                 <div>
-                  <label style={labelSt}>Salario diario (veces SM)</label>
+                  <label style={labelSt}>Salario diario (veces SM) <span style={{ color: '#ef4444' }}>*</span></label>
                   <input type="number" value={salarioDiario || ''} step={0.5} onChange={e => setSalarioDiario(parseFloat(e.target.value) || 0)} placeholder="Ej. 3.5" style={inputSt} />
                   {salarioDiario > 0 && (
                     <p style={{ fontSize: '10px', color: '#64748b', margin: '3px 0 0' }}>
