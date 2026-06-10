@@ -138,6 +138,8 @@ function ClientesInner() {
   const [showNuevaActividad, setShowNuevaActividad] = useState(false)
   const [formActividad, setFormActividad] = useState({ tipo: 'llamada', titulo: '', fecha_programada: new Date().toISOString().split('T')[0], hora: '09:00', notas: '' })
   const [savingActividad, setSavingActividad] = useState(false)
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false)
+  const [deletingCliente, setDeletingCliente] = useState(false)
   const [formServicio, setFormServicio] = useState({ tipo: 'Diagnóstico', monto_acordado: '', descripcion: '' })
   const [modalTab, setModalTab] = useState<'info' | 'diagnosticos' | 'actividades' | 'pagos'>('info')
 
@@ -410,10 +412,17 @@ function ClientesInner() {
     if (selected?.id === id) setSelected(prev => prev ? { ...prev, ...campos } : prev)
   }
 
-  async function eliminarCliente(id: string) {
-    if (!confirm('¿Eliminar este cliente y todos sus datos?')) return
-    await supabase.from('clientes').delete().eq('id', id)
-    setClientes(prev => prev.filter(c => c.id !== id))
+  async function eliminarCliente() {
+    if (!selected) return
+    setDeletingCliente(true)
+    await supabase.from('pagos').delete().eq('cliente_id', selected.id)
+    await supabase.from('servicios_contratados').delete().eq('cliente_id', selected.id)
+    await supabase.from('diagnosticos').delete().eq('cliente_id', selected.id)
+    await supabase.from('actividades').delete().eq('cliente_id', selected.id)
+    await supabase.from('clientes').delete().eq('id', selected.id)
+    setClientes(prev => prev.filter(c => c.id !== selected.id))
+    setDeletingCliente(false)
+    setShowConfirmDelete(false)
     setSelected(null)
   }
 
@@ -707,7 +716,7 @@ function ClientesInner() {
                           style={{ flex: 1, padding: '9px', background: '#F4F6FB', color: AZUL, border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
                           ✏️ Editar datos
                         </button>
-                        <button onClick={() => eliminarCliente(selected.id)}
+                        <button onClick={() => setShowConfirmDelete(true)}
                           style={{ padding: '9px 14px', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
                           🗑️ Eliminar
                         </button>
@@ -987,6 +996,51 @@ function ClientesInner() {
                   ))}
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL CONFIRMAR ELIMINAR ── */}
+      {showConfirmDelete && selected && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '400px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <div style={{ fontSize: '40px', marginBottom: '12px' }}>⚠️</div>
+              <h3 style={{ color: '#1e293b', fontSize: '17px', fontWeight: '700', margin: '0 0 8px' }}>¿Eliminar a {selected.nombre}?</h3>
+              <p style={{ color: '#64748b', fontSize: '13px', margin: 0, lineHeight: 1.6 }}>
+                Esta acción eliminará permanentemente el cliente y todos sus datos:
+              </p>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '20px', background: '#fef2f2', borderRadius: '10px', padding: '12px 14px', border: '1px solid #fecaca' }}>
+              {[
+                { icon: '💰', label: 'Pagos registrados', value: pagos.length },
+                { icon: '📋', label: 'Servicios contratados', value: servicios.length },
+                { icon: '🧮', label: 'Diagnósticos', value: diagnosticos.length },
+                { icon: '📅', label: 'Actividades', value: actividades.length },
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '12px' }}>
+                  <span style={{ color: '#64748b' }}>{item.icon} {item.label}</span>
+                  <span style={{ fontWeight: '700', color: item.value > 0 ? '#dc2626' : '#94a3b8' }}>
+                    {item.value > 0 ? `${item.value} registros` : 'Sin datos'}
+                  </span>
+                </div>
+              ))}
+            </div>
+            {(pagos.length > 0 || servicios.length > 0) && (
+              <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px', padding: '10px 12px', marginBottom: '16px', fontSize: '12px', color: '#92400e' }}>
+                ⚠️ Este cliente tiene pagos o servicios registrados. Esta acción no se puede deshacer.
+              </div>
+            )}
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button onClick={() => setShowConfirmDelete(false)}
+                style={{ flex: 1, padding: '11px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                Cancelar
+              </button>
+              <button onClick={eliminarCliente} disabled={deletingCliente}
+                style={{ flex: 1, padding: '11px', background: deletingCliente ? '#94a3b8' : '#dc2626', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: deletingCliente ? 'not-allowed' : 'pointer' }}>
+                {deletingCliente ? 'Eliminando...' : 'Sí, eliminar todo'}
+              </button>
             </div>
           </div>
         </div>
