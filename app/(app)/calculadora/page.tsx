@@ -1082,24 +1082,13 @@ function CalculadoraInner() {
                   ))}
                 </div>
 
-                {/* Guardar */}
+                {/* Notas */}
                 <div style={{ background: 'white', borderRadius: '12px', padding: '14px', border: '1px solid #e2e8f0' }}>
-                  <p style={{ fontSize: '11px', fontWeight: '700', color: AZUL, margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Guardar diagnóstico</p>
-                  <select value={clienteId} onChange={e => setClienteId(e.target.value)} style={{ ...inputSt, marginBottom: '8px' }}>
-                    <option value="">— Seleccionar cliente —</option>
-                    {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
-                  </select>
-                  <textarea value={notas} onChange={e => setNotas(e.target.value)} rows={2} placeholder="Notas del diagnóstico..."
-                    style={{ ...inputSt, resize: 'none', marginBottom: '8px', fontSize: '12px' }} />
-                  {!clienteId && <p style={{ fontSize: '10px', color: NARANJA, margin: '0 0 6px' }}>⚠️ Selecciona un cliente</p>}
-                  <button onClick={guardar} disabled={saving || !clienteId || saved}
-                    style={{ width: '100%', padding: '9px', background: saved ? VERDE : (!clienteId ? '#94a3b8' : AZUL), color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: (!clienteId || saved) ? 'not-allowed' : 'pointer' }}>
-                    {saved ? '✓ Guardado en expediente' : saving ? 'Guardando...' : '💾 Guardar en expediente'}
-                  </button>
-                  <button onClick={generarPDF} disabled={escenarios.length === 0}
-                    style={{ width: '100%', padding: '9px', background: escenarios.length === 0 ? '#94a3b8' : '#F05B21', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: escenarios.length === 0 ? 'not-allowed' : 'pointer', marginTop: '6px' }}>
-                    📄 Exportar PDF
-                  </button>
+                  <p style={{ fontSize: '11px', fontWeight: '700', color: AZUL, margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Notas del diagnóstico</p>
+                  <textarea value={notas} onChange={e => setNotas(e.target.value)} rows={4}
+                    placeholder="Observaciones, acuerdos, próximos pasos..."
+                    style={{ ...inputSt, resize: 'none', fontSize: '12px' }} />
+                  {!clienteId && <p style={{ fontSize: '10px', color: NARANJA, margin: '6px 0 0' }}>⚠️ Selecciona un cliente en el encabezado para guardar</p>}
                 </div>
               </div>
             </div>
