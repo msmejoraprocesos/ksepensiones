@@ -68,13 +68,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       }}>
 
         {/* Logo */}
-        <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', marginRight: '16px', flexShrink: 0 }}>
-          <div style={{ width: '32px', height: '32px', background: 'white', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3px', overflow: 'hidden' }}>
-            <img src="/logo-kse.png" alt="KSE" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-          </div>
+        <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '6px', textDecoration: 'none', marginRight: '16px', flexShrink: 0 }}>
           <div>
-            <div style={{ color: 'white', fontSize: '13px', fontWeight: '800', lineHeight: 1.2, letterSpacing: '-0.3px' }}>KSE Pensiones</div>
-            <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '9px', lineHeight: 1 }}>Asesor CRM</div>
+            <div style={{ color: 'white', fontSize: '17px', fontWeight: '900', lineHeight: 1.1, letterSpacing: '-0.5px', textShadow: '0 1px 4px rgba(0,0,0,0.2)' }}>KSE Pensiones</div>
+            <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '9px', lineHeight: 1, fontWeight: '500', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Asesor CRM</div>
           </div>
         </Link>
 
@@ -91,14 +88,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   display: 'flex', alignItems: 'center', gap: '6px',
                   padding: '7px 14px',
                   borderRadius: '8px',
-                  background: isActive ? 'rgba(0,0,0,0.20)' : 'transparent',
-                  color: isActive ? 'white' : 'rgba(255,255,255,0.75)',
+                  background: isActive ? 'rgba(0,0,0,0.22)' : 'transparent',
+                  color: 'white',
                   fontSize: '13px',
-                  fontWeight: isActive ? '700' : '500',
+                  fontWeight: isActive ? '800' : '600',
                   cursor: 'pointer',
                   transition: 'all 0.15s',
+                  opacity: isActive ? 1 : 0.85,
                   borderBottom: isActive ? '2px solid white' : '2px solid transparent',
                   whiteSpace: 'nowrap',
+                  textShadow: '0 1px 3px rgba(0,0,0,0.15)',
                 }}>
                   <span style={{ fontSize: '14px' }}>{item.icon}</span>
                   <span>{item.label}</span>
