@@ -153,6 +153,7 @@ function CalculadoraInner() {
   const [pdfMsg, setPdfMsg] = useState<string | null>(null)
   const [pdfCargado, setPdfCargado] = useState(false)
   const [showConfirmReplace, setShowConfirmReplace] = useState(false)
+  const [appAlert, setAppAlert] = useState<string | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -525,9 +526,9 @@ function CalculadoraInner() {
   async function guardar() {
     if (!clienteId || escenarios.length === 0) return
     // Validate required fields
-    if (!semanas || semanas === 0) { alert('⚠️ Ingresa las semanas cotizadas antes de guardar.'); return }
-    if (!salarioDiario || salarioDiario === 0) { alert('⚠️ Ingresa el salario diario antes de guardar.'); return }
-    if (!ingresoDes || ingresoDes === 0) { alert('⚠️ Ingresa el ingreso deseado al retiro antes de guardar.'); return }
+    if (!semanas || semanas === 0) { setAppAlert('Ingresa las semanas cotizadas antes de guardar el diagnóstico.'); setSaving(false); return }
+    if (!salarioDiario || salarioDiario === 0) { setAppAlert('Ingresa el salario diario (veces SM) antes de guardar el diagnóstico.'); setSaving(false); return }
+    if (!ingresoDes || ingresoDes === 0) { setAppAlert('Ingresa el ingreso deseado al retiro antes de guardar el diagnóstico.'); setSaving(false); return }
     setSaving(true)
     await supabase.from('diagnosticos').insert({
       asesor_id: userId, cliente_id: clienteId, ley,
@@ -1148,6 +1149,23 @@ function CalculadoraInner() {
           </div>
         </div>
       </div>
+    {/* Modal alerta validación */}
+      {appAlert && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          onClick={() => setAppAlert(null)}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '360px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', textAlign: 'center' }}
+            onClick={e => e.stopPropagation()}>
+            <div style={{ fontSize: '36px', marginBottom: '12px' }}>⚠️</div>
+            <h3 style={{ color: '#1e293b', fontSize: '16px', fontWeight: '700', margin: '0 0 10px' }}>Campo requerido</h3>
+            <p style={{ color: '#64748b', fontSize: '14px', margin: '0 0 20px', lineHeight: 1.6 }}>{appAlert}</p>
+            <button onClick={() => setAppAlert(null)}
+              style={{ width: '100%', padding: '11px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
+
     {/* Modal confirmar reemplazar constancia */}
       {showConfirmReplace && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
