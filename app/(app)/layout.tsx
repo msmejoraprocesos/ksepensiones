@@ -6,7 +6,7 @@ import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
 
 const AZUL = '#1B3A6B'
-const NARANJA = '#F47920'
+const NARANJA = '#C96A1E'
 
 type NavItem = { href: string; label: string; icon: string }
 
