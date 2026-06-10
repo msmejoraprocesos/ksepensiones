@@ -1,15 +1,21 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/utils/supabase/client'
 
-const AZUL = '#1F3A5F'
+const AZUL = '#1B3A6B'
 const VERDE = '#2E8B57'
-const NARANJA = '#F47920'
+const NARANJA = '#F05B21'
 
 interface Perfil {
-  nombre: string | null
+  nombre: string
+  razon_social: string
+  rfc: string
+  telefono: string
+  email_contacto: string
+  direccion: string
   logo_url: string | null
+  vigencia_propuesta: number
   uma_diaria: number
   salario_minimo: number
   pmg_mensual: number
@@ -17,213 +23,252 @@ interface Perfil {
   inflacion_uma: number
 }
 
+const DEFAULTS: Perfil = {
+  nombre: '',
+  razon_social: '',
+  rfc: '',
+  telefono: '',
+  email_contacto: '',
+  direccion: '',
+  logo_url: null,
+  vigencia_propuesta: 30,
+  uma_diaria: 117.31,
+  salario_minimo: 315.04,
+  pmg_mensual: 10636.54,
+  rendimiento_afore_default: 6,
+  inflacion_uma: 4.5,
+}
+
 export default function ConfiguracionPage() {
   const supabase = createClient()
-  const [perfil, setPerfil] = useState<Perfil | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [perfil, setPerfil] = useState<Perfil>(DEFAULTS)
+  const [userId, setUserId] = useState('')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
-  const [userId, setUserId] = useState('')
   const [uploadingLogo, setUploadingLogo] = useState(false)
-  const [email, setEmail] = useState('')
-
-  const [form, setForm] = useState({
-    nombre: '',
-    uma_diaria: 117.31,
-    salario_minimo: 315.04,
-    pmg_mensual: 10636.54,
-    rendimiento_afore_default: 6,
-    inflacion_uma: 4.5,
-  })
+  const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) return
       setUserId(session.user.id)
-      setEmail(session.user.email ?? '')
-      supabase.from('perfiles_usuario').select('*').eq('id', session.user.id).single().then(({ data }) => {
-        if (data) {
-          setPerfil(data as Perfil)
-          setForm({
-            nombre: data.nombre ?? '',
-            uma_diaria: data.uma_diaria ?? 113.45,
-            salario_minimo: data.salario_minimo ?? 263.12,
-            pmg_mensual: data.pmg_mensual ?? 5953,
-            rendimiento_afore_default: data.rendimiento_afore_default ?? 6,
-            inflacion_uma: data.inflacion_uma ?? 4.5,
-          })
-        }
-        setLoading(false)
-      })
+      supabase.from('perfiles_usuario').select('*').eq('id', session.user.id).single()
+        .then(({ data }) => {
+          if (data) setPerfil({ ...DEFAULTS, ...data })
+        })
     })
   }, [])
 
-  async function savePerfil() {
+  async function guardar() {
+    if (!userId) return
     setSaving(true)
-    setSaved(false)
-    const { error } = await supabase.from('perfiles_usuario').upsert({
-      id: userId,
-      nombre: form.nombre || null,
-      uma_diaria: form.uma_diaria,
-      salario_minimo: form.salario_minimo,
-      pmg_mensual: form.pmg_mensual,
-      rendimiento_afore_default: form.rendimiento_afore_default,
-      inflacion_uma: form.inflacion_uma,
-    })
+    await supabase.from('perfiles_usuario').upsert({ id: userId, ...perfil })
     setSaving(false)
-    if (!error) setSaved(true)
+    setSaved(true)
     setTimeout(() => setSaved(false), 3000)
   }
 
-  async function uploadLogo(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
+  async function uploadLogo(file: File) {
     setUploadingLogo(true)
     const ext = file.name.split('.').pop()
     const path = `logos/${userId}.${ext}`
     const { error } = await supabase.storage.from('logos').upload(path, file, { upsert: true })
     if (!error) {
       const { data } = supabase.storage.from('logos').getPublicUrl(path)
-      await supabase.from('perfiles_usuario').update({ logo_url: data.publicUrl }).eq('id', userId)
-      setPerfil(p => p ? { ...p, logo_url: data.publicUrl } : p)
+      setPerfil(p => ({ ...p, logo_url: data.publicUrl }))
     }
     setUploadingLogo(false)
   }
 
-  const inputStyle: React.CSSProperties = { display: 'block', width: '100%', padding: '10px 14px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', fontFamily: 'inherit' }
-  const labelStyle: React.CSSProperties = { display: 'block', fontSize: '12px', fontWeight: '600', color: '#374151', marginBottom: '6px' }
+  const set = (k: keyof Perfil, v: any) => setPerfil(p => ({ ...p, [k]: v }))
 
-  if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 56px)', color: '#94a3b8' }}>Cargando...</div>
+  const inputSt: React.CSSProperties = {
+    display: 'block', width: '100%', padding: '10px 14px',
+    border: '1.5px solid #e2e8f0', borderRadius: '8px',
+    fontSize: '14px', boxSizing: 'border-box', outline: 'none',
+    fontFamily: 'inherit', background: 'white', color: '#1e293b',
+  }
+
+  const labelSt: React.CSSProperties = {
+    display: 'block', fontSize: '11px', fontWeight: '700',
+    color: '#475569', marginBottom: '5px',
+    textTransform: 'uppercase', letterSpacing: '0.5px',
+  }
+
+  const sectionTitle = (icon: string, title: string) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', paddingBottom: '10px', borderBottom: '1px solid #f1f5f9' }}>
+      <span style={{ fontSize: '18px' }}>{icon}</span>
+      <h2 style={{ fontSize: '15px', fontWeight: '700', color: AZUL, margin: 0 }}>{title}</h2>
+    </div>
   )
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)', background: '#F4F6FB', overflow: 'hidden' }}>
-      {/* Header */}
-      <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '14px 24px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <h1 style={{ color: AZUL, fontSize: '20px', fontWeight: '700', margin: 0 }}>Configuración</h1>
-          <p style={{ color: '#94a3b8', fontSize: '12px', margin: '2px 0 0' }}>Perfil del asesor y variables del sistema</p>
+    <div style={{ height: 'calc(100vh - 56px)', overflow: 'auto', background: '#F4F6FB', padding: '24px' }}>
+      <div style={{ maxWidth: '760px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <h1 style={{ fontSize: '22px', fontWeight: '800', color: AZUL, margin: 0 }}>Configuración</h1>
+            <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0' }}>Perfil del asesor y variables del sistema</p>
+          </div>
+          <button onClick={guardar} disabled={saving}
+            style={{ padding: '10px 24px', background: saved ? VERDE : NARANJA, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', boxShadow: `0 4px 12px ${saved ? VERDE : NARANJA}50` }}>
+            {saved ? '✓ Guardado' : saving ? 'Guardando...' : '💾 Guardar cambios'}
+          </button>
         </div>
-        <button onClick={savePerfil} disabled={saving}
-          style={{ background: saved ? VERDE : (saving ? '#94a3b8' : AZUL), color: 'white', border: 'none', borderRadius: '8px', padding: '8px 20px', fontSize: '14px', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer' }}>
-          {saved ? '✓ Guardado' : saving ? 'Guardando...' : 'Guardar cambios'}
-        </button>
-      </div>
 
-      <div style={{ flex: 1, overflow: 'auto', padding: '20px 24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', alignContent: 'start' }}>
+        {/* ── SECCIÓN 1: Identidad del asesor ── */}
+        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+          {sectionTitle('👤', 'Identidad del asesor')}
 
-        {/* Perfil del asesor */}
-        <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-          <h2 style={{ color: AZUL, fontSize: '12px', fontWeight: '700', margin: '0 0 16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Perfil del asesor</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            {/* Logo */}
+          {/* Logo upload */}
+          <div style={{ marginBottom: '20px' }}>
+            <label style={labelSt}>Logo del asesor</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ width: '80px', height: '80px', border: '2px dashed #e2e8f0', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F8FAFC', overflow: 'hidden', flexShrink: 0 }}>
+                {perfil.logo_url ? (
+                  <img src={perfil.logo_url} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                ) : (
+                  <span style={{ fontSize: '28px' }}>🏢</span>
+                )}
+              </div>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 8px' }}>
+                  Aparecerá en el encabezado del PDF de propuesta. Recomendado: PNG con fondo transparente, mínimo 200x80px.
+                </p>
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: '#EEF2F8', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: uploadingLogo ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600', color: AZUL }}>
+                  {uploadingLogo ? '⏳ Subiendo...' : '📁 Seleccionar logo'}
+                  <input ref={fileRef} type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) uploadLogo(f) }} style={{ display: 'none' }} disabled={uploadingLogo} />
+                </label>
+                {perfil.logo_url && (
+                  <button onClick={() => setPerfil(p => ({ ...p, logo_url: null }))}
+                    style={{ marginLeft: '8px', fontSize: '12px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}>
+                    Quitar logo
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
             <div>
-              <label style={labelStyle}>Logo (para PDF de diagnóstico)</label>
+              <label style={labelSt}>Nombre del asesor *</label>
+              <input value={perfil.nombre} onChange={e => set('nombre', e.target.value)} placeholder="Ej. Juan Pérez González" style={inputSt} />
+            </div>
+            <div>
+              <label style={labelSt}>Razón social / Empresa</label>
+              <input value={perfil.razon_social} onChange={e => set('razon_social', e.target.value)} placeholder="Ej. Asesoría Pensional López S.C." style={inputSt} />
+            </div>
+            <div>
+              <label style={labelSt}>RFC</label>
+              <input value={perfil.rfc} onChange={e => set('rfc', e.target.value.toUpperCase())} placeholder="Ej. LOPJ800101XX3" maxLength={13} style={inputSt} />
+            </div>
+            <div>
+              <label style={labelSt}>Teléfono de contacto</label>
+              <input value={perfil.telefono} onChange={e => set('telefono', e.target.value)} placeholder="Ej. 442 123 4567" style={inputSt} />
+            </div>
+            <div>
+              <label style={labelSt}>Email de contacto</label>
+              <input type="email" value={perfil.email_contacto} onChange={e => set('email_contacto', e.target.value)} placeholder="contacto@tuempresa.com" style={inputSt} />
+            </div>
+            <div>
+              <label style={labelSt}>Vigencia de propuesta (días)</label>
+              <input type="number" value={perfil.vigencia_propuesta} onChange={e => set('vigencia_propuesta', parseInt(e.target.value) || 30)} min={1} max={365} style={inputSt} />
+              <p style={{ fontSize: '10px', color: '#94a3b8', margin: '4px 0 0' }}>Aparece en el PDF: "Válida por {perfil.vigencia_propuesta} días"</p>
+            </div>
+            <div style={{ gridColumn: '1 / -1' }}>
+              <label style={labelSt}>Dirección / Ciudad</label>
+              <input value={perfil.direccion} onChange={e => set('direccion', e.target.value)} placeholder="Ej. Querétaro, Qro." style={inputSt} />
+            </div>
+          </div>
+        </div>
+
+        {/* ── SECCIÓN 2: Variables del sistema ── */}
+        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+          {sectionTitle('📊', 'Variables del sistema 2026')}
+          <p style={{ fontSize: '13px', color: '#64748b', margin: '-8px 0 16px' }}>
+            Valores oficiales actualizados para los cálculos de la calculadora.
+          </p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '16px' }}>
+            {[
+              { key: 'uma_diaria', label: 'UMA Diaria ($)', placeholder: '117.31', desc: 'INEGI · actualización feb 2026' },
+              { key: 'salario_minimo', label: 'Salario Mínimo ($/día)', placeholder: '315.04', desc: 'CONASAMI · vigente 2026' },
+              { key: 'pmg_mensual', label: 'PMG Ley 73 ($/mes)', placeholder: '10636.54', desc: 'Pensión mínima garantizada' },
+              { key: 'rendimiento_afore_default', label: 'Rendimiento AFORE (%)', placeholder: '6', desc: 'Default conservador' },
+              { key: 'inflacion_uma', label: 'Inflación estimada (%)', placeholder: '4.5', desc: 'Para ajuste a pesos de hoy' },
+            ].map(f => (
+              <div key={f.key}>
+                <label style={labelSt}>{f.label}</label>
+                <input type="number" step="0.01" value={(perfil as any)[f.key]} onChange={e => set(f.key as keyof Perfil, parseFloat(e.target.value) || 0)} placeholder={f.placeholder} style={inputSt} />
+                <p style={{ fontSize: '10px', color: '#94a3b8', margin: '4px 0 0' }}>{f.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Porcentajes Mod 40 — solo lectura */}
+          <div style={{ background: '#F4F6FB', borderRadius: '10px', padding: '14px' }}>
+            <p style={{ fontSize: '11px', fontWeight: '700', color: AZUL, margin: '0 0 10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Porcentajes Modalidad 40 (oficiales)</p>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              {[['2026','14.438%'],['2027','15.528%'],['2028','16.619%'],['2029','17.709%'],['2030','18.800%']].map(([year, pct]) => (
+                <div key={year} style={{ background: 'white', borderRadius: '8px', padding: '8px 14px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+                  <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '600' }}>{year}</div>
+                  <div style={{ fontSize: '14px', fontWeight: '800', color: AZUL }}>{pct}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── SECCIÓN 3: Preview PDF ── */}
+        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
+          {sectionTitle('📄', 'Vista previa del encabezado PDF')}
+          <div style={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
+            {/* Simulación encabezado PDF */}
+            <div style={{ background: AZUL, padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ width: '60px', height: '60px', borderRadius: '10px', border: '2px dashed #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', background: '#F8FAFC', flexShrink: 0 }}>
-                  {perfil?.logo_url ? (
-                    <img src={perfil.logo_url} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                  ) : (
-                    <span style={{ fontSize: '24px' }}>🖼️</span>
-                  )}
-                </div>
+                {perfil.logo_url ? (
+                  <img src={perfil.logo_url} alt="Logo" style={{ height: '36px', objectFit: 'contain', background: 'white', padding: '4px', borderRadius: '6px' }} />
+                ) : (
+                  <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: '6px', padding: '6px 12px', color: 'rgba(255,255,255,0.6)', fontSize: '12px' }}>Tu logo aquí</div>
+                )}
                 <div>
-                  <label style={{ display: 'inline-block', padding: '7px 14px', background: uploadingLogo ? '#94a3b8' : '#F1F5F9', color: '#374151', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: uploadingLogo ? 'not-allowed' : 'pointer', border: '1px solid #e2e8f0' }}>
-                    {uploadingLogo ? 'Subiendo...' : 'Subir logo'}
-                    <input type="file" accept="image/*" onChange={uploadLogo} style={{ display: 'none' }} disabled={uploadingLogo} />
-                  </label>
-                  <p style={{ fontSize: '11px', color: '#94a3b8', margin: '4px 0 0' }}>PNG, JPG, SVG · máx 2MB</p>
+                  <div style={{ color: 'white', fontWeight: '700', fontSize: '14px' }}>{perfil.razon_social || perfil.nombre || 'Nombre del asesor'}</div>
+                  <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '11px' }}>
+                    {[perfil.rfc, perfil.telefono, perfil.email_contacto].filter(Boolean).join(' · ') || 'RFC · Teléfono · Email'}
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div>
-              <label style={labelStyle}>Nombre del asesor</label>
-              <input value={form.nombre} onChange={e => setForm(p => ({ ...p, nombre: e.target.value }))} placeholder="Tu nombre completo" style={inputStyle} />
-            </div>
-
-            <div>
-              <label style={labelStyle}>Correo electrónico</label>
-              <input value={email} disabled style={{ ...inputStyle, background: '#F8FAFC', color: '#94a3b8' }} />
-              <p style={{ fontSize: '11px', color: '#94a3b8', margin: '4px 0 0' }}>El correo no se puede cambiar desde aquí</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Variables del sistema */}
-        <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-          <h2 style={{ color: AZUL, fontSize: '12px', fontWeight: '700', margin: '0 0 16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Variables del sistema 2026</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {[
-              { key: 'uma_diaria', label: 'UMA diaria ($)', desc: 'Unidad de Medida y Actualización diaria', step: 0.01 },
-              { key: 'salario_minimo', label: 'Salario mínimo diario ($)', desc: 'Salario mínimo general vigente', step: 0.01 },
-              { key: 'pmg_mensual', label: 'PMG mensual ($)', desc: 'Pensión Mínima Garantizada mensual', step: 1 },
-              { key: 'rendimiento_afore_default', label: 'Rendimiento AFORE default (%)', desc: 'Tasa de rendimiento conservadora por defecto', step: 0.5 },
-              { key: 'inflacion_uma', label: 'Inflación UMA anual (%)', desc: 'Incremento anual estimado de la UMA', step: 0.1 },
-            ].map(field => (
-              <div key={field.key}>
-                <label style={labelStyle}>{field.label}</label>
-                <input
-                  type="number"
-                  step={field.step}
-                  value={form[field.key as keyof typeof form]}
-                  onChange={e => setForm(p => ({ ...p, [field.key]: parseFloat(e.target.value) }))}
-                  style={inputStyle}
-                />
-                <p style={{ fontSize: '11px', color: '#94a3b8', margin: '3px 0 0' }}>{field.desc}</p>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ color: 'white', fontSize: '13px', fontWeight: '700' }}>Diagnóstico Pensional</div>
+                <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '11px' }}>{new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+                <div style={{ color: NARANJA, fontSize: '10px', fontWeight: '600', marginTop: '2px' }}>Válida por {perfil.vigencia_propuesta} días</div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Porcentajes Mod 40 */}
-        <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-          <h2 style={{ color: AZUL, fontSize: '12px', fontWeight: '700', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Porcentajes Modalidad 40</h2>
-          <p style={{ fontSize: '11px', color: '#94a3b8', margin: '0 0 16px' }}>Cuotas obrero-patronales por año de inicio</p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-            {[
-              { anio: 2026, pct: 14.438 },
-              { anio: 2027, pct: 15.528 },
-              { anio: 2028, pct: 16.619 },
-              { anio: 2029, pct: 17.709 },
-              { anio: 2030, pct: 18.800 },
-            ].map(item => (
-              <div key={item.anio} style={{ background: '#F8FAFC', borderRadius: '8px', padding: '10px 12px', border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '2px' }}>{item.anio}</div>
-                <div style={{ fontSize: '16px', fontWeight: '700', color: NARANJA }}>{item.pct}%</div>
+            </div>
+            {/* Simulación pie de página */}
+            <div style={{ background: '#F4F6FB', padding: '8px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #e2e8f0' }}>
+              <div style={{ fontSize: '10px', color: '#94a3b8' }}>Folio: KSE-2026-000001 · Documento confidencial</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ fontSize: '10px', color: '#94a3b8' }}>Página 1 de 2 · Powered by</span>
+                <img src="/logo-kse.png" alt="KSE" style={{ height: '14px', objectFit: 'contain', opacity: 0.5 }} />
+                <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '600' }}>KSE Pensiones</span>
               </div>
-            ))}
+            </div>
           </div>
-          <p style={{ fontSize: '11px', color: '#94a3b8', margin: '12px 0 0' }}>
-            Los porcentajes de Mod 40 son fijos por ley y no se pueden modificar.
+          <p style={{ fontSize: '11px', color: '#94a3b8', margin: '10px 0 0', textAlign: 'center' }}>
+            Vista previa del encabezado y pie de página que aparecerán en el PDF exportado
           </p>
         </div>
 
-        {/* Info del sistema */}
-        <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-          <h2 style={{ color: AZUL, fontSize: '12px', fontWeight: '700', margin: '0 0 16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Acerca de KSE Pensiones</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {[
-              { label: 'Sistema', value: 'KSE Pensiones CRM' },
-              { label: 'Versión', value: '1.0.0' },
-              { label: 'Stack', value: 'Next.js 14 + Supabase + Vercel' },
-              { label: 'Fórmulas', value: 'Ley 73, Ley 97, Mod 10, Mod 40' },
-              { label: 'Actualización variables', value: 'Enero 2026' },
-            ].map(item => (
-              <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f1f5f9' }}>
-                <span style={{ fontSize: '13px', color: '#64748b' }}>{item.label}</span>
-                <span style={{ fontSize: '13px', fontWeight: '600', color: AZUL }}>{item.value}</span>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ marginTop: '16px', background: '#FEF4EC', borderRadius: '8px', padding: '12px', border: '1px solid #fed7aa' }}>
-            <p style={{ fontSize: '11px', color: '#92400e', margin: 0, lineHeight: '1.6' }}>
-              ⚠️ Los cálculos son orientativos. Verifica siempre las variables con las fuentes oficiales (IMSS, CONASAMI, INEGI) antes de presentar diagnósticos a clientes.
-            </p>
-          </div>
+        {/* Botón guardar abajo también */}
+        <div style={{ textAlign: 'center', paddingBottom: '20px' }}>
+          <button onClick={guardar} disabled={saving}
+            style={{ padding: '12px 40px', background: saved ? VERDE : NARANJA, color: 'white', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', boxShadow: `0 4px 16px ${saved ? VERDE : NARANJA}50` }}>
+            {saved ? '✓ Cambios guardados' : saving ? 'Guardando...' : '💾 Guardar configuración'}
+          </button>
         </div>
+
       </div>
     </div>
   )
