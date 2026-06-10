@@ -112,6 +112,7 @@ function CalculadoraInner() {
   const [asesorNombre, setAsesorNombre] = useState('')
   const [asesorEmail, setAsesorEmail] = useState('')
   const [asesorLogoUrl, setAsesorLogoUrl] = useState<string | null>(null)
+  const [asesorPerfil, setAsesorPerfil] = useState<{razon_social?: string; rfc?: string; telefono?: string; email_contacto?: string; direccion?: string; vigencia_propuesta?: number}>({})
 
   // Inputs
   const [ley, setLey] = useState<'73' | '97'>('73')
@@ -170,6 +171,14 @@ function CalculadoraInner() {
           })
           setAsesorNombre(sv.nombre ?? '')
           setAsesorLogoUrl(sv.logo_url ?? null)
+          setAsesorPerfil({
+            razon_social: sv.razon_social ?? '',
+            rfc: sv.rfc ?? '',
+            telefono: sv.telefono ?? '',
+            email_contacto: sv.email_contacto ?? '',
+            direccion: sv.direccion ?? '',
+            vigencia_propuesta: sv.vigencia_propuesta ?? 30,
+          })
           setRendimiento(sv.rendimiento_afore_default ?? 6)
         }
         if (cli) setClientes(cli as Cliente[])
@@ -230,95 +239,161 @@ function CalculadoraInner() {
     const { jsPDF } = await import('jspdf')
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
     const W = 210, margin = 16
-    const AZUL_RGB: [number,number,number] = [27, 58, 107]
-    const NARANJA_RGB: [number,number,number] = [240, 91, 33]
-    const VERDE_RGB: [number,number,number] = [46, 139, 87]
+    const AZUL_R: [number,number,number] = [27,58,107]
+    const NAR_R: [number,number,number] = [240,91,33]
+    const VER_R: [number,number,number] = [46,139,87]
+    const GRI_R: [number,number,number] = [100,116,139]
 
-    // Header
-    doc.setFillColor(...AZUL_RGB)
-    doc.rect(0, 0, W, 34, 'F')
+    // Folio único
+    const folio = `KSE-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`
+    const fechaEmision = new Date().toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' })
+    const fechaVigencia = new Date(Date.now() + (asesorPerfil.vigencia_propuesta ?? 30) * 86400000)
+      .toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' })
+
+    // ── ENCABEZADO ──
+    doc.setFillColor(...AZUL_R)
+    doc.rect(0, 0, W, 38, 'F')
+
+    // Logo asesor
+    if (asesorLogoUrl) {
+      try {
+        const res = await fetch(asesorLogoUrl)
+        const blob = await res.blob()
+        const b64 = await new Promise<string>(resolve => {
+          const reader = new FileReader()
+          reader.onloadend = () => resolve((reader.result as string).split(',')[1])
+          reader.readAsDataURL(blob)
+        })
+        const ext = asesorLogoUrl.includes('.png') ? 'PNG' : 'JPEG'
+        doc.addImage(b64, ext, margin, 6, 36, 24)
+      } catch {}
+    }
+
+    // Datos asesor
+    const ax = asesorLogoUrl ? margin + 40 : margin
     doc.setTextColor(255,255,255)
-    doc.setFontSize(16); doc.setFont('helvetica','bold')
-    doc.text('KSE Pensiones', margin, 14)
-    doc.setFontSize(9); doc.setFont('helvetica','normal')
-    doc.text('Diagnóstico Pensional', margin, 21)
-    doc.setFontSize(9)
-    doc.text(new Date().toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' }), W - margin, 14, { align: 'right' })
-    if (clienteObj?.nombre) doc.text(clienteObj.nombre, W - margin, 21, { align: 'right' })
+    doc.setFontSize(12); doc.setFont('helvetica','bold')
+    doc.text(asesorPerfil.razon_social || asesorNombre || 'Asesor KSE', ax, 14)
+    doc.setFontSize(8); doc.setFont('helvetica','normal')
+    const contactInfo = [asesorPerfil.rfc, asesorPerfil.telefono, asesorPerfil.email_contacto].filter(Boolean).join(' · ')
+    if (contactInfo) doc.text(contactInfo, ax, 21)
+    if (asesorPerfil.direccion) doc.text(asesorPerfil.direccion, ax, 27)
 
-    let y = 42
+    // Título derecha
+    doc.setTextColor(255,255,255)
+    doc.setFontSize(13); doc.setFont('helvetica','bold')
+    doc.text('Diagnóstico Pensional', W - margin, 13, { align: 'right' })
+    doc.setFontSize(8); doc.setFont('helvetica','normal')
+    doc.text(fechaEmision, W - margin, 20, { align: 'right' })
+    doc.setTextColor(240,91,33)
+    doc.text(`Válida hasta: ${fechaVigencia}`, W - margin, 27, { align: 'right' })
 
-    // Parámetros
-    doc.setTextColor(...AZUL_RGB)
+    let y = 46
+
+    // ── DATOS DEL CLIENTE ──
+    doc.setTextColor(...AZUL_R)
     doc.setFontSize(11); doc.setFont('helvetica','bold')
-    doc.text('Parámetros del diagnóstico', margin, y); y += 7
+    doc.text('Datos del cliente', margin, y); y += 6
 
-    const params = [
-      ['Régimen', `Ley ${ley}`],
-      ['Semanas cotizadas', `${semanas}`],
-      ['Salario', `${salarioDiario}x SM`],
-      ['Retiro', `${edadRetiro} años`],
-      ['Ingreso deseado', fmtMXN(ingresoDes)],
-      ['Inflación', `${inflacion}%`],
-    ]
-    const cW = (W - margin*2) / 3
-    params.forEach(([label, val], i) => {
-      const col = i % 3; const row = Math.floor(i / 3)
-      const x = margin + col * cW; const ry = y + row * 12
-      doc.setFillColor(248,250,252); doc.rect(x, ry, cW, 11, 'F')
-      doc.setTextColor(148,163,184); doc.setFontSize(7); doc.setFont('helvetica','bold')
-      doc.text(label.toUpperCase(), x+3, ry+5)
-      doc.setTextColor(...AZUL_RGB); doc.setFontSize(8); doc.setFont('helvetica','bold')
-      doc.text(val, x+3, ry+9)
-    })
-    y += Math.ceil(params.length/3)*12 + 8
+    doc.setFillColor(248,250,252)
+    doc.roundedRect(margin, y, W-margin*2, 20, 2, 2, 'F')
+    doc.setDrawColor(226,232,240)
+    doc.roundedRect(margin, y, W-margin*2, 20, 2, 2, 'S')
 
-    // Escenarios
-    doc.setTextColor(...AZUL_RGB)
-    doc.setFontSize(11); doc.setFont('helvetica','bold')
-    doc.text('Comparativo de escenarios', margin, y); y += 7
+    doc.setTextColor(...AZUL_R); doc.setFontSize(13); doc.setFont('helvetica','bold')
+    doc.text(clienteObj?.nombre || 'Cliente', margin+4, y+8)
+    doc.setTextColor(...GRI_R); doc.setFontSize(8); doc.setFont('helvetica','normal')
+    doc.text(`Régimen: Ley ${ley} · Semanas cotizadas: ${semanas} · Retiro a los ${edadRetiro} años · Ingreso deseado: ${fmtMXN(ingresoDes)}/mes`, margin+4, y+15)
+    y += 26
 
-    const eW = (W - margin*2) / 4
+    // ── SITUACIÓN ACTUAL ──
+    const e1 = escenarios[0]
+    if (e1) {
+      const pct1 = ingresoDes > 0 ? Math.round((e1.pension_real / ingresoDes) * 100) : 0
+      doc.setTextColor(...AZUL_R); doc.setFontSize(11); doc.setFont('helvetica','bold')
+      doc.text('Situación actual sin acción', margin, y); y += 6
+
+      doc.setFillColor(254,242,242)
+      doc.roundedRect(margin, y, W-margin*2, 24, 2, 2, 'F')
+      doc.setTextColor(220,38,38); doc.setFontSize(10); doc.setFont('helvetica','bold')
+      doc.text(`Sin acción, recibirá ${fmtMXN(e1.pension_real)}/mes (${pct1}% de su objetivo)`, margin+4, y+8)
+      doc.setFontSize(8); doc.setFont('helvetica','normal')
+      doc.text(`Pensión nominal: ${fmtMXN(e1.pension)}/mes · Brecha: ${fmtMXN(e1.brecha_real)}/mes en pesos de hoy`, margin+4, y+15)
+      // Barra
+      doc.setFillColor(254,202,202); doc.rect(margin+4, y+18, W-margin*2-8, 3, 'F')
+      doc.setFillColor(220,38,38); doc.rect(margin+4, y+18, (W-margin*2-8) * Math.min(1, pct1/100), 3, 'F')
+      y += 30
+    }
+
+    // ── 4 ESCENARIOS ──
+    doc.setTextColor(...AZUL_R); doc.setFontSize(11); doc.setFont('helvetica','bold')
+    doc.text('Comparativo de escenarios', margin, y); y += 6
+
+    const eW = (W-margin*2)/4
     escenarios.forEach((esc, i) => {
       const x = margin + i * eW
       const isRec = esc.recomendado
-      if (isRec) { doc.setFillColor(...VERDE_RGB) } else { doc.setFillColor(248,250,252) }
-      doc.roundedRect(x+1, y, eW-2, 48, 2, 2, 'F')
+      const pct = ingresoDes > 0 ? Math.min(1, esc.pension_real/ingresoDes) : 0
+      if (isRec) { doc.setFillColor(...VER_R) } else { doc.setFillColor(248,250,252) }
+      doc.roundedRect(x+1, y, eW-2, 52, 2, 2, 'F')
+      if (isRec) {
+        doc.setFillColor(240,91,33); doc.roundedRect(x+eW-20, y-3, 18, 6, 2, 2, 'F')
+        doc.setTextColor(255,255,255); doc.setFontSize(5); doc.setFont('helvetica','bold')
+        doc.text('ÓPTIMO', x+eW-19, y+0.5)
+      }
       doc.setTextColor(isRec ? 255 : 100, isRec ? 255 : 116, isRec ? 255 : 139)
       doc.setFontSize(7); doc.setFont('helvetica','bold')
-      doc.text(esc.nombre.replace('— ',''), x+4, y+7, { maxWidth: eW-8 })
+      doc.text(esc.nombre.split('—')[0].trim(), x+3, y+7)
       doc.setTextColor(isRec ? 255 : 27, isRec ? 255 : 58, isRec ? 255 : 107)
-      doc.setFontSize(13); doc.setFont('helvetica','bold')
-      doc.text(fmtMXN(esc.pension), x+4, y+18)
-      doc.setFontSize(8)
-      doc.text(fmtMXN(esc.pension_real)+' hoy', x+4, y+25)
-      const pct = ingresoDes > 0 ? Math.min(1, esc.pension_real/ingresoDes) : 0
+      doc.setFontSize(12); doc.setFont('helvetica','bold')
+      doc.text(fmtMXN(esc.pension), x+3, y+17)
+      doc.setFontSize(7); doc.setFont('helvetica','normal')
+      doc.text('pesos futuros/mes', x+3, y+22)
+      doc.setFontSize(9); doc.setFont('helvetica','bold')
+      doc.text(fmtMXN(esc.pension_real), x+3, y+29)
+      doc.setFontSize(7)
+      doc.text('pesos de hoy', x+3, y+34)
       doc.setFillColor(isRec ? 255 : 226, isRec ? 255 : 232, isRec ? 255 : 240)
-      doc.rect(x+4, y+29, eW-8, 3, 'F')
-      if (isRec) { doc.setFillColor(255,255,255) } else { doc.setFillColor(...VERDE_RGB) }
-      doc.rect(x+4, y+29, (eW-8)*pct, 3, 'F')
+      doc.rect(x+3, y+37, eW-6, 3, 'F')
+      if (isRec) { doc.setFillColor(255,255,255) } else { doc.setFillColor(...VER_R) }
+      doc.rect(x+3, y+37, (eW-6)*pct, 3, 'F')
       doc.setTextColor(isRec ? 255 : 100, isRec ? 255 : 116, isRec ? 255 : 139)
       doc.setFontSize(7)
-      doc.text(`${Math.round(pct*100)}% del objetivo`, x+4, y+36)
-      if (esc.inversion_mensual > 0) doc.text(`Inversión: ${fmtMXN(esc.inversion_mensual)}/mes`, x+4, y+42)
-      if (isRec) { doc.setFontSize(7); doc.setTextColor(255,255,255); doc.text('⭐ ÓPTIMO', x+4, y+47) }
+      doc.text(`${Math.round(pct*100)}% del objetivo`, x+3, y+44)
+      if (esc.inversion_mensual > 0) {
+        doc.setFontSize(6.5)
+        doc.text(`Costo: ${fmtMXN(esc.inversion_mensual)}/mes`, x+3, y+49)
+      }
     })
     y += 58
 
-    // Disclaimer
-    doc.setFillColor(254,244,236)
+    // ── VARIABLES ──
+    doc.setFillColor(248,250,252)
+    doc.roundedRect(margin, y, W-margin*2, 14, 2, 2, 'F')
+    doc.setTextColor(...GRI_R); doc.setFontSize(7); doc.setFont('helvetica','bold')
+    doc.text('VARIABLES 2026:', margin+4, y+6)
+    doc.setTextColor(...AZUL_R); doc.setFontSize(7); doc.setFont('helvetica','normal')
+    doc.text(`UMA $${sys.UMA_DIARIA}/día · SM $${sys.SALARIO_MIN}/día · PMG L73 ${fmtMXN(sys.PMG_L73)}/mes · PMG L97 ${fmtMXN(sys.PMG_L97)}/mes · Inflación ${inflacion}%`, margin+4, y+11)
+    y += 18
+
+    // ── DISCLAIMER ──
+    doc.setFillColor(255,251,235)
     doc.roundedRect(margin, y, W-margin*2, 18, 2, 2, 'F')
-    doc.setTextColor(...NARANJA_RGB); doc.setFontSize(7); doc.setFont('helvetica','bold')
+    doc.setTextColor(...NAR_R); doc.setFontSize(7); doc.setFont('helvetica','bold')
     doc.text('⚠️ AVISO LEGAL', margin+4, y+6)
     doc.setTextColor(146,64,14); doc.setFontSize(6); doc.setFont('helvetica','normal')
-    const disclaimer = 'Cálculos orientativos basados en variables oficiales 2026. No constituyen garantía de prestaciones ni asesoría jurídica. Verifica en imss.gob.mx'
-    doc.text(doc.splitTextToSize(disclaimer, W-margin*2-8), margin+4, y+11)
+    const disc = 'Los cálculos presentados son estimaciones orientativas basadas en variables oficiales vigentes y no constituyen garantía de prestaciones ni asesoría jurídica. Los resultados reales dependen del historial laboral, resoluciones del IMSS y cambios legislativos. Verifique sus semanas en imss.gob.mx.'
+    doc.text(doc.splitTextToSize(disc, W-margin*2-8), margin+4, y+11)
 
-    // Footer
-    doc.setFillColor(...AZUL_RGB); doc.rect(0, 287, W, 10, 'F')
-    doc.setTextColor(255,255,255); doc.setFontSize(7)
-    doc.text('KSE Pensiones · CRM de Diagnóstico Pensional', margin, 293)
-    doc.text(`Variables 2026: UMA $${sys.UMA_DIARIA} · SM $${sys.SALARIO_MIN} · PMG L73 ${fmtMXN(sys.PMG_L73)}`, W-margin, 293, { align: 'right' })
+    // ── PIE DE PÁGINA ──
+    doc.setFillColor(...AZUL_R)
+    doc.rect(0, 284, W, 13, 'F')
+    doc.setTextColor(255,255,255); doc.setFontSize(7); doc.setFont('helvetica','normal')
+    doc.text(`Folio: ${folio} · Documento confidencial`, margin, 290)
+    doc.text('Página 1 de 1', W/2, 290, { align: 'center' })
+    // Powered by KSE - right side, discrete
+    doc.setTextColor(255,255,255); doc.setFontSize(6)
+    doc.text('Powered by KSE Pensiones', W-margin, 290, { align: 'right' })
 
     const fname = `diagnostico-${(clienteObj?.nombre || 'cliente').replace(/\s+/g,'-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.pdf`
     doc.save(fname)
