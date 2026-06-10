@@ -441,6 +441,60 @@ function ClientesInner() {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) ? null : 'Formato inválido'
   }
 
+  function verAnalisis(d: any, idx: number, analisis: any, nombre: string) {
+    const win = window.open('', '_blank')
+    if (!win) return
+    const letra = String.fromCharCode(65 + idx)
+    const e1 = d.resultado_e1 ? '$' + Math.round(d.resultado_e1).toLocaleString() : '—'
+    const e2 = d.resultado_e2 ? '$' + Math.round(d.resultado_e2).toLocaleString() : '—'
+    const e3 = d.resultado_e3 ? '$' + Math.round(d.resultado_e3).toLocaleString() : '—'
+    const e4 = d.resultado_e4 ? '$' + Math.round(d.resultado_e4).toLocaleString() : '—'
+    const fecha = new Date(d.created_at).toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' })
+    const seccion = (titulo: string, texto: string) => texto
+      ? '<h2>' + titulo + '</h2><p>' + texto.replace(/
+/g, '<br>') + '</p>'
+      : ''
+    const html = [
+      '<html><head><title>Diagnóstico ' + letra + ' — ' + nombre + '</title>',
+      '<meta charset="utf-8">',
+      '<style>',
+      'body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:20px;color:#1e293b}',
+      'h1{color:#1B3A6B;border-bottom:3px solid #F05B21;padding-bottom:10px;font-size:22px}',
+      'h2{color:#1B3A6B;margin-top:24px;font-size:13px;text-transform:uppercase;letter-spacing:1px}',
+      'p{line-height:1.7;color:#374151;font-size:14px}',
+      '.badge{display:inline-block;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:700;background:#EEF2F8;color:#1B3A6B}',
+      '.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}',
+      '.kpi{background:#F4F6FB;border-radius:8px;padding:12px;text-align:center;border:1px solid #e2e8f0}',
+      '.kpi-label{font-size:11px;color:#94a3b8;margin-bottom:4px}',
+      '.kpi-val{font-size:20px;font-weight:700}',
+      '.footer{margin-top:40px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;display:flex;justify-content:space-between}',
+      '.print-btn{background:#F05B21;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:14px;cursor:pointer;margin-top:20px}',
+      '@media print{.print-btn{display:none}}',
+      '</style></head><body>',
+      '<h1>Diagnóstico Pensional ' + letra + ' — ' + nombre + '</h1>',
+      '<p><span class="badge">Ley ' + d.ley + '</span>&nbsp;&nbsp;',
+      d.semanas + ' semanas cotizadas&nbsp;&nbsp;Retiro a los ' + d.edad_retiro + ' años&nbsp;&nbsp;' + fecha + '</p>',
+      '<div class="grid">',
+      '<div class="kpi"><div class="kpi-label">Sin acción</div><div class="kpi-val" style="color:#ef4444">' + e1 + '</div></div>',
+      '<div class="kpi"><div class="kpi-label">Modalidad 10</div><div class="kpi-val" style="color:#3b82f6">' + e2 + '</div></div>',
+      '<div class="kpi"><div class="kpi-label">Modalidad 40</div><div class="kpi-val" style="color:#F05B21">' + e3 + '</div></div>',
+      '<div class="kpi"><div class="kpi-label">Escenario óptimo</div><div class="kpi-val" style="color:#2E8B57">' + e4 + '</div></div>',
+      '</div>',
+      analisis ? [
+        seccion('Contexto del asegurado', analisis.contexto),
+        seccion('Diagnóstico actual', analisis.diagnostico_actual),
+        seccion('Opciones disponibles', analisis.opciones_disponibles),
+        seccion('Recomendación', analisis.recomendacion),
+        seccion('Próximos pasos', analisis.proximos_pasos),
+      ].join('') : '<p style="color:#94a3b8">Sin análisis narrativo generado.</p>',
+      '<div class="footer"><span>KSE Pensiones · Diagnóstico ' + letra + '</span><span>Generado el ' + fecha + '</span></div>',
+      '<button class="print-btn" onclick="window.print()">🖨️ Imprimir / Guardar como PDF</button>',
+      '</body></html>'
+    ].join('')
+    win.document.write(html)
+    win.document.close()
+  }
+
   const clientesPorColumna = (colId: string) => clientes.filter(c => (c.etapa_kanban || 'prospecto') === colId)
   const totalCobrado = clientes.reduce((s, c) => s + (c.total_pagado ?? 0), 0)
   const totalPorCobrar = clientes.reduce((s, c) => s + Math.max(0, (c.monto_acordado ?? 0) - (c.total_pagado ?? 0)), 0)
@@ -895,50 +949,8 @@ function ClientesInner() {
                             🔄 Cargar en calculadora
                           </a>
                           {analisis && (
-                            <button onClick={() => {
-                              const win = window.open('', '_blank')
-                              if (!win) return
-                              win.document.write(`
-                                <html><head><title>Diagnóstico ${String.fromCharCode(65+idx)} — ${selected.nombre}</title>
-                                <style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:20px;color:#1e293b}
-                                h1{color:#1B3A6B;border-bottom:3px solid #F05B21;padding-bottom:10px}
-                                h2{color:#1B3A6B;margin-top:24px;font-size:14px;text-transform:uppercase;letter-spacing:1px}
-                                p{line-height:1.7;color:#374151}
-                                .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:700;background:#EEF2F8;color:#1B3A6B}
-                                .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
-                                .kpi{background:#F4F6FB;border-radius:8px;padding:10px;text-align:center}
-                                .kpi-label{font-size:11px;color:#94a3b8}
-                                .kpi-val{font-size:18px;font-weight:700;color:#1B3A6B}
-                                .footer{margin-top:40px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;display:flex;justify-content:space-between}
-                                @media print{button{display:none}}</style></head>
-                                <body>
-                                <h1>Diagnóstico Pensional — ${selected.nombre}</h1>
-                                <p><span class="badge">Ley ${d.ley}</span> &nbsp; ${d.semanas} semanas &nbsp; Retiro a los ${d.edad_retiro} años &nbsp; ${fmt(d.created_at)}</p>
-                                <div class="grid">
-                                  <div class="kpi"><div class="kpi-label">Sin acción</div><div class="kpi-val" style="color:#ef4444">${d.resultado_e1 ? '$'+Math.round(d.resultado_e1).toLocaleString() : '—'}</div></div>
-                                  <div class="kpi"><div class="kpi-label">Mod 10</div><div class="kpi-val" style="color:#3b82f6">${d.resultado_e2 ? '$'+Math.round(d.resultado_e2).toLocaleString() : '—'}</div></div>
-                                  <div class="kpi"><div class="kpi-label">Mod 40</div><div class="kpi-val" style="color:#F05B21">${d.resultado_e3 ? '$'+Math.round(d.resultado_e3).toLocaleString() : '—'}</div></div>
-                                  <div class="kpi"><div class="kpi-label">Óptimo</div><div class="kpi-val" style="color:#2E8B57">${d.resultado_e4 ? '$'+Math.round(d.resultado_e4).toLocaleString() : '—'}</div></div>
-                                </div>
-                                ${analisis.contexto ? `<h2>Contexto</h2><p>${analisis.contexto.replace(/
-/g,'<br>')}</p>` : ''}
-                                ${analisis.diagnostico_actual ? `<h2>Diagnóstico actual</h2><p>${analisis.diagnostico_actual.replace(/
-/g,'<br>')}</p>` : ''}
-                                ${analisis.opciones_disponibles ? `<h2>Opciones disponibles</h2><p>${analisis.opciones_disponibles.replace(/
-/g,'<br>')}</p>` : ''}
-                                ${analisis.recomendacion ? `<h2>Recomendación</h2><p>${analisis.recomendacion.replace(/
-/g,'<br>')}</p>` : ''}
-                                ${analisis.proximos_pasos ? `<h2>Próximos pasos</h2><p>${analisis.proximos_pasos.replace(/
-/g,'<br>')}</p>` : ''}
-                                <div class="footer">
-                                  <span>KSE Pensiones · Diagnóstico ${String.fromCharCode(65+idx)}</span>
-                                  <span>${fmt(d.created_at)}</span>
-                                </div>
-                                <br><button onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
-                                </body></html>
-                              `)
-                              win.document.close()
-                            }} style={{ flex: 1, padding: '7px', background: '#f0fdf4', color: VERDE, border: '1px solid #bbf7d0', borderRadius: '7px', fontSize: '11px', fontWeight: '600', cursor: 'pointer' }}>
+                            <button onClick={() => verAnalisis(d, idx, analisis, selected.nombre)}
+                              style={{ flex: 1, padding: '7px', background: '#f0fdf4', color: VERDE, border: '1px solid #bbf7d0', borderRadius: '7px', fontSize: '11px', fontWeight: '600', cursor: 'pointer' }}>
                               📄 Ver análisis completo
                             </button>
                           )}
