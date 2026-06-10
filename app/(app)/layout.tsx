@@ -32,8 +32,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       if (!session) { router.push('/login'); return }
       setChecking(false)
       setUserEmail(session.user.email ?? '')
-      supabase.from('perfiles_usuario').select('nombre').eq('id', session.user.id).single()
-        .then(({ data }) => setUserName(data?.nombre || session.user.email || ''))
+      supabase.from('perfiles_usuario').select('nombre, razon_social').eq('id', session.user.id).single()
+        .then(({ data }) => {
+          setUserName(data?.nombre || session.user.email || '')
+          // First time: redirect to configuracion if no nombre set
+          if (!data?.nombre && !data?.razon_social && !window.location.pathname.includes('configuracion')) {
+            router.push('/configuracion')
+          }
+        })
     })
   }, [])
 
