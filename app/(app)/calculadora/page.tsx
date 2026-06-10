@@ -498,7 +498,7 @@ function CalculadoraInner() {
       }
 
       // QR IMSS at bottom of last page
-      const qrUrl = \`https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=\${encodeURIComponent('https://serviciosdigitales.imss.gob.mx/semanascotizadas-web/usuarios/IngresoAsegurado')}\`
+      const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=' + encodeURIComponent('https://serviciosdigitales.imss.gob.mx/semanascotizadas-web/usuarios/IngresoAsegurado')
       try {
         const qrRes = await fetch(qrUrl)
         const qrBlob = await qrRes.blob()
@@ -521,7 +521,7 @@ function CalculadoraInner() {
       // Footer page 2
       doc.setFillColor(...AZUL_R); doc.rect(0, 284, W, 13, 'F')
       doc.setTextColor(255,255,255); doc.setFontSize(7)
-      doc.text(\`Folio: \${folio}\`, margin, 290)
+      doc.text('Folio: ' + folio, margin, 290)
       doc.text('Powered by KSE Pensiones', W-margin, 290, { align: 'right' })
     }
 
