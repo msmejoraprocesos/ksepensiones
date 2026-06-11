@@ -212,7 +212,8 @@ export default function ConfiguracionPage() {
     display: 'block', width: '100%', padding: '10px 14px',
     border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px',
     boxSizing: 'border-box' as const, fontFamily: 'inherit',
-    background: '#F8FAFC', color: '#64748b', cursor: 'not-allowed',
+    background: '#F8FAFC', color: '#374151', cursor: 'default',
+    opacity: 1,
   }
 
   const inputSt = (hasError?: boolean): React.CSSProperties => ({
@@ -410,7 +411,7 @@ export default function ConfiguracionPage() {
                   <input type="number" step="0.01" value={(perfil as any)[f.key]}
                     onChange={e => set(f.key as keyof Perfil, parseFloat(e.target.value) || 0)}
                     placeholder={f.placeholder}
-                    style={editing ? { flex: 1, padding: '8px 10px', border: '1.5px solid #2c92d5', borderRadius: '7px', fontSize: '14px', fontWeight: '700', color: '#1e293b', background: '#e8f4fd', outline: 'none', fontFamily: 'inherit' } : { flex: 1, padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '7px', fontSize: '14px', fontWeight: '700', color: '#64748b', background: '#F8FAFC', fontFamily: 'inherit', cursor: 'not-allowed' }} disabled={!editing} />
+                    style={editing ? { flex: 1, padding: '8px 10px', border: '1.5px solid #2c92d5', borderRadius: '7px', fontSize: '14px', fontWeight: '700', color: '#1e293b', background: '#e8f4fd', outline: 'none', fontFamily: 'inherit' } : { flex: 1, padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '7px', fontSize: '14px', fontWeight: '700', color: '#374151', background: '#F8FAFC', fontFamily: 'inherit', cursor: 'default' }} disabled={!editing} />
                   <span style={{ fontSize: '11px', color: '#64748b', whiteSpace: 'nowrap', fontWeight: '600' }}>{f.unit}</span>
                 </div>
                 <p style={{ fontSize: '10px', color: '#64748b', margin: 0, lineHeight: 1.5 }}>{f.help}</p>
@@ -435,7 +436,7 @@ export default function ConfiguracionPage() {
                     <input type="number" step="0.001"
                       value={(perfil as any)[`mod40_${year}`]}
                       onChange={e => set(`mod40_${year}` as keyof Perfil, parseFloat(e.target.value) || 0)}
-                      style={editing ? { width: '100%', padding: '8px 8px', border: '1.5px solid #fed7aa', borderRadius: '7px', fontSize: '13px', fontWeight: '700', color: '#92400e', background: 'white', outline: 'none', fontFamily: 'inherit' } : { width: '100%', padding: '8px 8px', border: '1px solid #e2e8f0', borderRadius: '7px', fontSize: '13px', fontWeight: '700', color: '#64748b', background: '#F8FAFC', fontFamily: 'inherit', cursor: 'not-allowed' }} disabled={!editing} />
+                      style={editing ? { width: '100%', padding: '8px 8px', border: '1.5px solid #fed7aa', borderRadius: '7px', fontSize: '13px', fontWeight: '700', color: '#92400e', background: 'white', outline: 'none', fontFamily: 'inherit' } : { width: '100%', padding: '8px 8px', border: '1px solid #e2e8f0', borderRadius: '7px', fontSize: '13px', fontWeight: '700', color: '#374151', background: '#F8FAFC', fontFamily: 'inherit', cursor: 'default' }} disabled={!editing} />
                     <span style={{ fontSize: '11px', color: '#b45309', fontWeight: '600' }}>%</span>
                   </div>
                 </div>
