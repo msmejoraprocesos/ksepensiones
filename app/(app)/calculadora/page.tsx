@@ -10,11 +10,12 @@ const NARANJA = '#F47920'
 
 // ── Variables del sistema 2026 ────────────────────────────────────
 interface SysVars {
-  UMA_DIARIA: number        // $117.31 INEGI 2026
-  SALARIO_MIN: number       // $315.04 CONASAMI 2026
-  PMG_L73: number           // $10,636.54 Ley 73 2026
-  PMG_L97: number           // $4,345.72 Ley 97 (pensión garantizada)
+  UMA_DIARIA: number
+  SALARIO_MIN: number
+  PMG_L73: number
+  PMG_L97: number
   RENDIMIENTO_DEFAULT: number
+  mod40_pct?: number
 }
 
 const SYS_DEFAULT: SysVars = {
