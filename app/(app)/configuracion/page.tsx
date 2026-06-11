@@ -88,6 +88,8 @@ export default function ConfiguracionPage() {
   const [isFirstTime, setIsFirstTime] = useState(false)
   const [errors, setErrors] = useState<Partial<Record<keyof Perfil, string>>>({})
   const fileRef = useRef<HTMLInputElement>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [lastSaved, setLastSaved] = useState<Date | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -130,31 +132,38 @@ export default function ConfiguracionPage() {
   async function guardar() {
     if (!validate()) return
     setSaving(true)
+    setSaveError(null)
 
-    // Always get fresh session to ensure we have the user ID
     const { data: { session } } = await supabase.auth.getSession()
     const uid = session?.user?.id || userId
     if (!uid) {
-      setErrors(e => ({ ...e, nombre: 'Sesión expirada. Recarga la página.' }))
+      setSaveError('Sesión expirada. Recarga la página.')
       setSaving(false)
       return
     }
 
+    // Clean logo_url: don't save blob:// URLs (local preview only)
+    const perfilToSave = {
+      ...perfil,
+      logo_url: perfil.logo_url?.startsWith('blob:') ? null : perfil.logo_url
+    }
+
     const { error } = await supabase
       .from('perfiles_usuario')
-      .upsert({ id: uid, ...perfil }, { onConflict: 'id' })
+      .upsert({ id: uid, ...perfilToSave }, { onConflict: 'id' })
 
     setSaving(false)
 
     if (error) {
-      setErrors(e => ({ ...e, nombre: 'Error al guardar: ' + error.message }))
+      setSaveError('Error al guardar: ' + error.message)
       return
     }
 
     setUserId(uid)
     setSaved(true)
+    setLastSaved(new Date())
     setIsFirstTime(false)
-    setTimeout(() => setSaved(false), 3000)
+    setTimeout(() => setSaved(false), 4000)
   }
 
   async function uploadLogo(file: File) {
@@ -449,12 +458,22 @@ export default function ConfiguracionPage() {
         </div>
 
         {/* Barra sticky inferior */}
-        <div style={{ position: 'sticky', bottom: 0, background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 -4px 16px rgba(0,0,0,0.06)', marginBottom: '8px' }}>
-          <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>
-            {saved ? '✓ Todos los cambios fueron guardados correctamente' : 'Los cambios no se guardan automáticamente'}
-          </p>
+        <div style={{ position: 'sticky', bottom: 0, background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 -4px 16px rgba(0,0,0,0.06)', marginBottom: '8px' }}>
+          <div>
+            {saveError ? (
+              <p style={{ fontSize: '12px', color: '#ef4444', margin: 0, fontWeight: '600' }}>⚠️ {saveError}</p>
+            ) : saved ? (
+              <p style={{ fontSize: '12px', color: VERDE, margin: 0, fontWeight: '600' }}>✓ Configuración guardada correctamente</p>
+            ) : lastSaved ? (
+              <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>
+                Último guardado: {lastSaved.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+              </p>
+            ) : (
+              <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>Los cambios no se guardan automáticamente</p>
+            )}
+          </div>
           <button onClick={guardar} disabled={saving}
-            style={{ padding: '10px 32px', background: saved ? VERDE : NARANJA, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', boxShadow: `0 4px 12px ${saved ? VERDE : NARANJA}50` }}>
+            style={{ padding: '10px 32px', background: saved ? VERDE : saving ? '#94a3b8' : NARANJA, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', transition: 'background 0.2s' }}>
             {saved ? '✓ Guardado' : saving ? 'Guardando...' : '💾 Guardar configuración'}
           </button>
         </div>
