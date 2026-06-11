@@ -76,36 +76,34 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         {/* Logo */}
         <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '6px', textDecoration: 'none', marginRight: '16px', flexShrink: 0 }}>
           <div>
-            <div style={{ color: 'white', fontSize: '17px', fontWeight: '900', lineHeight: 1.1, letterSpacing: '-0.5px', textShadow: '0 1px 4px rgba(0,0,0,0.2)' }}>KSE Pensiones</div>
-            <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '9px', lineHeight: 1, fontWeight: '500', letterSpacing: '0.5px', textTransform: 'uppercase' }}>Asesor CRM</div>
+            <div style={{ color: 'white', fontSize: '16px', fontWeight: '800', lineHeight: 1.15, letterSpacing: '-0.3px' }}>KSE Pensiones</div>
+            <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '9px', lineHeight: 1, fontWeight: '400', letterSpacing: '1px', textTransform: 'uppercase', marginTop: '1px' }}>Asesor CRM</div>
           </div>
         </Link>
 
         {/* Divider */}
-        <div style={{ width: '1px', height: '28px', background: 'rgba(255,255,255,0.25)', marginRight: '12px', flexShrink: 0 }} />
+        <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.3)', marginRight: '8px', flexShrink: 0 }} />
 
         {/* Nav items */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2px', flex: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flex: 1 }}>
           {NAV_ITEMS.map(item => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
             return (
               <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
                 <div style={{
-                  display: 'flex', alignItems: 'center', gap: '6px',
-                  padding: '7px 14px',
+                  display: 'flex', alignItems: 'center', gap: '7px',
+                  padding: '7px 16px',
                   borderRadius: '8px',
-                  background: isActive ? 'rgba(0,0,0,0.22)' : 'transparent',
-                  color: 'white',
+                  background: isActive ? 'rgba(255,255,255,0.22)' : 'transparent',
+                  color: isActive ? 'white' : 'rgba(255,255,255,0.80)',
                   fontSize: '13px',
-                  fontWeight: isActive ? '800' : '600',
+                  fontWeight: isActive ? '700' : '500',
                   cursor: 'pointer',
-                  transition: 'all 0.15s',
-                  opacity: isActive ? 1 : 0.85,
-                  borderBottom: isActive ? '2px solid white' : '2px solid transparent',
                   whiteSpace: 'nowrap',
-                  textShadow: '0 1px 3px rgba(0,0,0,0.15)',
+                  outline: isActive ? '1.5px solid rgba(255,255,255,0.5)' : '1.5px solid transparent',
+                  outlineOffset: '-1px',
                 }}>
-                  <span style={{ fontSize: '14px' }}>{item.icon}</span>
+                  <span style={{ fontSize: '13px', opacity: isActive ? 1 : 0.75 }}>{item.icon}</span>
                   <span>{item.label}</span>
                 </div>
               </Link>
@@ -116,7 +114,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         {/* Right — usuario */}
         <div style={{ position: 'relative', flexShrink: 0 }}>
           <button onClick={() => setShowUserMenu(p => !p)}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(0,0,0,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '8px', padding: '6px 12px', cursor: 'pointer', color: 'white' }}>
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '8px', padding: '6px 12px', cursor: 'pointer', color: 'white' }}>
             <div style={{ width: '26px', height: '26px', background: 'rgba(255,255,255,0.25)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '700', color: 'white', flexShrink: 0 }}>
               {firstName.charAt(0).toUpperCase()}
             </div>
