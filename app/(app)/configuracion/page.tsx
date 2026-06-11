@@ -174,6 +174,7 @@ export default function ConfiguracionPage() {
       console.error('Logo upload error:', error)
       // Keep local preview even if upload failed
     }
+    if (fileRef.current) fileRef.current.value = ''
     setUploadingLogo(false)
   }
 
@@ -240,10 +241,7 @@ export default function ConfiguracionPage() {
             <h1 style={{ fontSize: '22px', fontWeight: '800', color: AZUL, margin: 0 }}>Configuración</h1>
             <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0' }}>Perfil del asesor · Variables del sistema</p>
           </div>
-          <button onClick={guardar} disabled={saving}
-            style={{ padding: '10px 24px', background: saved ? VERDE : NARANJA, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', boxShadow: `0 4px 12px ${saved ? VERDE : NARANJA}50` }}>
-            {saved ? '✓ Guardado' : saving ? 'Guardando...' : '💾 Guardar cambios'}
-          </button>
+
         </div>
 
         {/* ── SECCIÓN 1: Identidad ── */}
@@ -275,8 +273,10 @@ export default function ConfiguracionPage() {
                     <input ref={fileRef} type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) uploadLogo(f) }} style={{ display: 'none' }} disabled={uploadingLogo} />
                   </label>
                   {perfil.logo_url && (
-                    <button onClick={() => setPerfil(p => ({ ...p, logo_url: null }))}
-                      style={{ fontSize: '12px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}>
+                    <button onClick={() => {
+                      setPerfil(p => ({ ...p, logo_url: null }))
+                      if (fileRef.current) fileRef.current.value = ''
+                    }} style={{ fontSize: '12px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}>
                       Quitar
                     </button>
                   )}
@@ -448,11 +448,14 @@ export default function ConfiguracionPage() {
           </div>
         </div>
 
-        {/* Botón guardar abajo */}
-        <div style={{ textAlign: 'center', paddingBottom: '20px' }}>
+        {/* Barra sticky inferior */}
+        <div style={{ position: 'sticky', bottom: 0, background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 -4px 16px rgba(0,0,0,0.06)', marginBottom: '8px' }}>
+          <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>
+            {saved ? '✓ Todos los cambios fueron guardados correctamente' : 'Los cambios no se guardan automáticamente'}
+          </p>
           <button onClick={guardar} disabled={saving}
-            style={{ padding: '12px 48px', background: saved ? VERDE : NARANJA, color: 'white', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', boxShadow: `0 4px 16px ${saved ? VERDE : NARANJA}50` }}>
-            {saved ? '✓ Cambios guardados' : saving ? 'Guardando...' : '💾 Guardar configuración'}
+            style={{ padding: '10px 32px', background: saved ? VERDE : NARANJA, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', boxShadow: `0 4px 12px ${saved ? VERDE : NARANJA}50` }}>
+            {saved ? '✓ Guardado' : saving ? 'Guardando...' : '💾 Guardar configuración'}
           </button>
         </div>
 
