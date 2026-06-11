@@ -90,6 +90,8 @@ export default function ConfiguracionPage() {
   const fileRef = useRef<HTMLInputElement>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const [editing, setEditing] = useState(false)
+  const [perfilOriginal, setPerfilOriginal] = useState<Perfil>(DEFAULTS)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -98,11 +100,13 @@ export default function ConfiguracionPage() {
       supabase.from('perfiles_usuario').select('*').eq('id', session.user.id).single()
         .then(({ data }) => {
           if (data) {
-            setPerfil({ ...DEFAULTS, ...data })
-            // First time if no nombre or razon_social
-            if (!data.nombre && !data.razon_social) setIsFirstTime(true)
+            const loaded = { ...DEFAULTS, ...data }
+            setPerfil(loaded)
+            setPerfilOriginal(loaded)
+            if (!data.nombre && !data.razon_social) { setIsFirstTime(true); setEditing(true) }
           } else {
             setIsFirstTime(true)
+            setEditing(true)
           }
         })
     })
@@ -163,7 +167,10 @@ export default function ConfiguracionPage() {
     setSaved(true)
     setLastSaved(new Date())
     setIsFirstTime(false)
-    setTimeout(() => setSaved(false), 4000)
+    setEditing(false)
+    const saved_perfil = { ...perfil, logo_url: perfil.logo_url?.startsWith('blob:') ? null : perfil.logo_url }
+    setPerfilOriginal(saved_perfil)
+    setTimeout(() => setSaved(false), 3000)
   }
 
   async function uploadLogo(file: File) {
@@ -190,6 +197,13 @@ export default function ConfiguracionPage() {
   const set = (k: keyof Perfil, v: any) => {
     setPerfil(p => ({ ...p, [k]: v }))
     if (errors[k]) setErrors(e => ({ ...e, [k]: undefined }))
+  }
+
+  const disabledSt: React.CSSProperties = {
+    display: 'block', width: '100%', padding: '10px 14px',
+    border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px',
+    boxSizing: 'border-box' as const, fontFamily: 'inherit',
+    background: '#F8FAFC', color: '#64748b', cursor: 'not-allowed',
   }
 
   const inputSt = (hasError?: boolean): React.CSSProperties => ({
@@ -277,9 +291,9 @@ export default function ConfiguracionPage() {
                   Aparece en el PDF de propuesta junto a tu nombre. PNG con fondo transparente recomendado, mínimo 200×80px.
                 </p>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: uploadingLogo ? '#f1f5f9' : '#EEF2F8', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: uploadingLogo ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600', color: AZUL }}>
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: (!editing || uploadingLogo) ? '#f1f5f9' : '#EEF2F8', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: (!editing || uploadingLogo) ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600', color: editing ? AZUL : '#94a3b8' }}>
                     {uploadingLogo ? '⏳ Subiendo...' : '📁 Subir logo'}
-                    <input ref={fileRef} type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) uploadLogo(f) }} style={{ display: 'none' }} disabled={uploadingLogo} />
+                    <input ref={fileRef} type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) uploadLogo(f) }} style={{ display: 'none' }} disabled={uploadingLogo || !editing} />
                   </label>
                   {perfil.logo_url && (
                     <button onClick={() => {
@@ -298,39 +312,39 @@ export default function ConfiguracionPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
             <div>
               <label style={labelSt}>Nombre del asesor <span style={{ color: '#ef4444' }}>*</span></label>
-              <input value={perfil.nombre} onChange={e => set('nombre', e.target.value)} placeholder="Ej. Juan Pérez González" style={inputSt(!!errors.nombre)} />
+              <input value={perfil.nombre} onChange={e => set('nombre', e.target.value)} placeholder="Ej. Juan Pérez González" style={editing ? inputSt(!!errors.nombre) : disabledSt} disabled={!editing} />
               {errorMsg('nombre')}
             </div>
             <div>
               <label style={labelSt}>Razón social / Empresa</label>
-              <input value={perfil.razon_social} onChange={e => set('razon_social', e.target.value)} placeholder="Ej. Asesoría Pensional López S.C." style={inputSt()} />
+              <input value={perfil.razon_social} onChange={e => set('razon_social', e.target.value)} placeholder="Ej. Asesoría Pensional López S.C." style={editing ? inputSt() : disabledSt} disabled={!editing} />
             </div>
             <div>
               <label style={labelSt}>RFC {tooltip('Registro Federal de Contribuyentes. Formato: 4 letras + 6 dígitos fecha + 3 caracteres homoclave. Ej: LOPJ800101XX3')}</label>
-              <input value={perfil.rfc} onChange={e => set('rfc', formatRFC(e.target.value))} placeholder="LOPJ800101XX3" maxLength={13} style={inputSt(!!errors.rfc)} />
+              <input value={perfil.rfc} onChange={e => set('rfc', formatRFC(e.target.value))} placeholder="LOPJ800101XX3" maxLength={13} style={editing ? inputSt(!!errors.rfc) : disabledSt} disabled={!editing} />
               {errorMsg('rfc')}
               {!errors.rfc && (perfil.rfc.length === 12 || perfil.rfc.length === 13) && !validarRFC(perfil.rfc) && <p style={{ fontSize: '10px', color: VERDE, margin: '3px 0 0' }}>✓ RFC válido ({perfil.rfc.length === 12 ? 'persona moral' : 'persona física'})</p>}
             </div>
             <div>
               <label style={labelSt}>Teléfono de contacto {tooltip('10 dígitos sin espacios ni guiones. Ej: 4421234567')}</label>
-              <input value={perfil.telefono} onChange={e => { const f = formatTelefono(e.target.value); set('telefono', f) }} placeholder="44 2123 4567" maxLength={12} style={inputSt(!!errors.telefono)} />
+              <input value={perfil.telefono} onChange={e => { const f = formatTelefono(e.target.value); set('telefono', f) }} placeholder="44 2123 4567" maxLength={12} style={editing ? inputSt(!!errors.telefono) : disabledSt} disabled={!editing} />
               {errorMsg('telefono')}
               {!errors.telefono && perfil.telefono.replace(/\D/g,'').length === 10 && <p style={{ fontSize: '10px', color: VERDE, margin: '3px 0 0' }}>✓ Teléfono válido</p>}
             </div>
             <div>
               <label style={labelSt}>Email de contacto</label>
-              <input type="email" value={perfil.email_contacto} onChange={e => set('email_contacto', e.target.value)} onBlur={e => { const err = validarEmail(e.target.value); if (err) setErrors(p => ({ ...p, email_contacto: err })) }} placeholder="contacto@tuempresa.com" style={inputSt(!!errors.email_contacto)} />
+              <input type="email" value={perfil.email_contacto} onChange={e => set('email_contacto', e.target.value)} onBlur={e => { const err = validarEmail(e.target.value); if (err) setErrors(p => ({ ...p, email_contacto: err })) }} placeholder="contacto@tuempresa.com" style={editing ? inputSt(!!errors.email_contacto) : disabledSt} disabled={!editing} />
               {errorMsg('email_contacto')}
               {!errors.email_contacto && perfil.email_contacto && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(perfil.email_contacto) && <p style={{ fontSize: '10px', color: VERDE, margin: '3px 0 0' }}>✓ Email válido</p>}
             </div>
             <div>
               <label style={labelSt}>Vigencia de propuesta (días) {tooltip('Días que es válida la propuesta PDF desde su fecha de emisión')}</label>
-              <input type="number" value={perfil.vigencia_propuesta} onChange={e => set('vigencia_propuesta', parseInt(e.target.value) || 30)} min={1} max={365} style={inputSt()} />
+              <input type="number" value={perfil.vigencia_propuesta} onChange={e => set('vigencia_propuesta', parseInt(e.target.value) || 30)} min={1} max={365} style={editing ? inputSt() : disabledSt} disabled={!editing} />
               <p style={{ fontSize: '10px', color: '#94a3b8', margin: '3px 0 0' }}>El PDF dirá: "Válida por {perfil.vigencia_propuesta} días a partir de la fecha de emisión"</p>
             </div>
             <div style={{ gridColumn: '1 / -1' }}>
               <label style={labelSt}>Dirección / Ciudad</label>
-              <input value={perfil.direccion} onChange={e => set('direccion', e.target.value)} placeholder="Ej. Querétaro, Qro." style={inputSt()} />
+              <input value={perfil.direccion} onChange={e => set('direccion', e.target.value)} placeholder="Ej. Querétaro, Qro." style={editing ? inputSt() : disabledSt} disabled={!editing} />
             </div>
           </div>
         </div>
@@ -387,7 +401,7 @@ export default function ConfiguracionPage() {
                   <input type="number" step="0.01" value={(perfil as any)[f.key]}
                     onChange={e => set(f.key as keyof Perfil, parseFloat(e.target.value) || 0)}
                     placeholder={f.placeholder}
-                    style={{ flex: 1, padding: '8px 10px', border: '1.5px solid #2c92d5', borderRadius: '7px', fontSize: '14px', fontWeight: '700', color: '#1e293b', background: '#e8f4fd', outline: 'none', fontFamily: 'inherit' }} />
+                    style={editing ? { flex: 1, padding: '8px 10px', border: '1.5px solid #2c92d5', borderRadius: '7px', fontSize: '14px', fontWeight: '700', color: '#1e293b', background: '#e8f4fd', outline: 'none', fontFamily: 'inherit' } : { flex: 1, padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '7px', fontSize: '14px', fontWeight: '700', color: '#64748b', background: '#F8FAFC', fontFamily: 'inherit', cursor: 'not-allowed' }} disabled={!editing} />
                   <span style={{ fontSize: '11px', color: '#64748b', whiteSpace: 'nowrap', fontWeight: '600' }}>{f.unit}</span>
                 </div>
                 <p style={{ fontSize: '10px', color: '#64748b', margin: 0, lineHeight: 1.5 }}>{f.help}</p>
@@ -412,7 +426,7 @@ export default function ConfiguracionPage() {
                     <input type="number" step="0.001"
                       value={(perfil as any)[`mod40_${year}`]}
                       onChange={e => set(`mod40_${year}` as keyof Perfil, parseFloat(e.target.value) || 0)}
-                      style={{ width: '100%', padding: '8px 8px', border: '1.5px solid #fed7aa', borderRadius: '7px', fontSize: '13px', fontWeight: '700', color: '#92400e', background: 'white', outline: 'none', fontFamily: 'inherit' }} />
+                      style={editing ? { width: '100%', padding: '8px 8px', border: '1.5px solid #fed7aa', borderRadius: '7px', fontSize: '13px', fontWeight: '700', color: '#92400e', background: 'white', outline: 'none', fontFamily: 'inherit' } : { width: '100%', padding: '8px 8px', border: '1px solid #e2e8f0', borderRadius: '7px', fontSize: '13px', fontWeight: '700', color: '#64748b', background: '#F8FAFC', fontFamily: 'inherit', cursor: 'not-allowed' }} disabled={!editing} />
                     <span style={{ fontSize: '11px', color: '#b45309', fontWeight: '600' }}>%</span>
                   </div>
                 </div>
@@ -460,22 +474,39 @@ export default function ConfiguracionPage() {
         {/* Barra sticky inferior */}
         <div style={{ position: 'sticky', bottom: 0, background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 -4px 16px rgba(0,0,0,0.06)', marginBottom: '8px' }}>
           <div>
-            {saveError ? (
-              <p style={{ fontSize: '12px', color: '#ef4444', margin: 0, fontWeight: '600' }}>⚠️ {saveError}</p>
-            ) : saved ? (
-              <p style={{ fontSize: '12px', color: VERDE, margin: 0, fontWeight: '600' }}>✓ Configuración guardada correctamente</p>
-            ) : lastSaved ? (
+            {saveError && <p style={{ fontSize: '12px', color: '#ef4444', margin: 0, fontWeight: '600' }}>⚠️ {saveError}</p>}
+            {!saveError && saved && <p style={{ fontSize: '12px', color: VERDE, margin: 0, fontWeight: '600' }}>✓ Configuración guardada correctamente</p>}
+            {!saveError && !saved && !editing && lastSaved && (
               <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>
-                Último guardado: {lastSaved.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                ✓ Guardado el {lastSaved.toLocaleDateString('es-MX', { day:'numeric', month:'short' })} a las {lastSaved.toLocaleTimeString('es-MX', { hour:'2-digit', minute:'2-digit' })}
               </p>
-            ) : (
-              <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>Los cambios no se guardan automáticamente</p>
+            )}
+            {!saveError && !saved && editing && (
+              <p style={{ fontSize: '12px', color: NARANJA, margin: 0, fontWeight: '500' }}>✏️ Editando — los cambios no se han guardado</p>
+            )}
+            {!saveError && !saved && !editing && !lastSaved && (
+              <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>Haz clic en Editar para modificar tu configuración</p>
             )}
           </div>
-          <button onClick={guardar} disabled={saving}
-            style={{ padding: '10px 32px', background: saved ? VERDE : saving ? '#94a3b8' : NARANJA, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', transition: 'background 0.2s' }}>
-            {saved ? '✓ Guardado' : saving ? 'Guardando...' : '💾 Guardar configuración'}
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            {!editing ? (
+              <button onClick={() => { setEditing(true); setSaveError(null) }}
+                style={{ padding: '10px 24px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>
+                ✏️ Editar configuración
+              </button>
+            ) : (
+              <>
+                <button onClick={() => { setPerfil(perfilOriginal); setEditing(false); setErrors({}); setSaveError(null) }}
+                  style={{ padding: '10px 20px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                  ✕ Cancelar
+                </button>
+                <button onClick={guardar} disabled={saving}
+                  style={{ padding: '10px 28px', background: saving ? '#94a3b8' : VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer' }}>
+                  {saving ? 'Guardando...' : '💾 Guardar cambios'}
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
       </div>
