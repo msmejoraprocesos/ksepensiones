@@ -146,11 +146,13 @@ export default function ConfiguracionPage() {
       return
     }
 
-    // Clean logo_url: don't save blob:// URLs (local preview only)
-    const perfilToSave = {
-      ...perfil,
-      logo_url: perfil.logo_url?.startsWith('blob:') ? null : perfil.logo_url
+    // Clean logo_url: if still blob (upload failed or pending), get from DB
+    let logoUrl = perfil.logo_url
+    if (logoUrl?.startsWith('blob:')) {
+      const { data: existing } = await supabase.from('perfiles_usuario').select('logo_url').eq('id', uid).single()
+      logoUrl = existing?.logo_url ?? null
     }
+    const perfilToSave = { ...perfil, logo_url: logoUrl }
 
     const { error } = await supabase
       .from('perfiles_usuario')
@@ -185,7 +187,14 @@ export default function ConfiguracionPage() {
     if (!error) {
       const { data } = supabase.storage.from('logos').getPublicUrl(path)
       const finalUrl = data.publicUrl + '?t=' + Date.now()
+      // Update state with final URL
       setPerfil(p => ({ ...p, logo_url: finalUrl }))
+      // Also save logo_url to DB immediately so it persists
+      const { data: { session } } = await supabase.auth.getSession()
+      const uid = session?.user?.id || userId
+      if (uid) {
+        await supabase.from('perfiles_usuario').upsert({ id: uid, logo_url: finalUrl }, { onConflict: 'id' })
+      }
     } else {
       console.error('Logo upload error:', error)
       // Keep local preview even if upload failed
