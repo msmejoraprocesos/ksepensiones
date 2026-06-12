@@ -123,6 +123,9 @@ function ClientesInner() {
   const supabase = createClient()
   const searchParams = useSearchParams()
   const [vista, setVista] = useState<Vista>('lista')
+  const [filtroNombre, setFiltroNombre] = useState('')
+  const [filtroEtapa, setFiltroEtapa] = useState('')
+  const [filtroServicio, setFiltroServicio] = useState('')
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -498,6 +501,13 @@ function ClientesInner() {
     win.document.write(html)
     win.document.close()
   }
+
+  const clientesFiltrados = clientes.filter(c => {
+    if (filtroNombre && !c.nombre.toLowerCase().includes(filtroNombre.toLowerCase())) return false
+    if (filtroEtapa && c.etapa_kanban !== filtroEtapa) return false
+    if (filtroServicio && c.servicio_contratado !== filtroServicio) return false
+    return true
+  })
 
   const clientesPorColumna = (colId: string) => clientes.filter(c => (c.etapa_kanban || 'prospecto') === colId)
   const totalCobrado = clientes.reduce((s, c) => s + (c.total_pagado ?? 0), 0)
