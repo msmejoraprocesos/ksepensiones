@@ -246,7 +246,25 @@ function MiDiaInner() {
 
       <div style={{ flex: 1, overflow: 'auto', padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
-        {/* Alertas */}
+        {/* Acciones rápidas */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
+          {[
+            { icon: '⊞', label: 'Nuevo diagnóstico', color: AZUL, bg: '#EEF2F8', href: '/calculadora' },
+            { icon: '👥', label: 'Ver clientes', color: VERDE, bg: '#f0fdf4', href: '/clientes' },
+            { icon: '📞', label: 'Registrar contacto', color: NARANJA, bg: '#fff7ed', href: '/seguimiento' },
+            { icon: '📅', label: 'Ver agenda', color: '#8b5cf6', bg: '#f5f3ff', href: '/seguimiento' },
+          ].map((a, i) => (
+            <a key={i} href={a.href} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', textDecoration: 'none', cursor: 'pointer', transition: 'all 0.15s' }}>
+              <div style={{ width: '36px', height: '36px', background: a.bg, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>{a.icon}</div>
+              <span style={{ fontSize: '12px', fontWeight: '600', color: a.color }}>{a.label}</span>
+            </a>
+          ))}
+        </div>
+
+        {/* Alertas + Agenda */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+
+          {/* Alertas */}
           <div style={cardSt}>
             <p style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 12px' }}>Requiere tu atención</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
@@ -372,22 +390,19 @@ function MiDiaInner() {
         </div>
 
         {/* KPIs resumen */}
-        <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '16px' }}>
-          <p style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 12px' }}>Resumen general</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
-            {[
-              { label: 'Clientes activos', value: kpis.clientes, color: AZUL },
-              { label: 'Diagnósticos (mes)', value: kpis.diagnosticos, color: '#8b5cf6' },
-              { label: 'Cierres tipo 1', value: kpis.cierres1, color: NARANJA },
-              { label: 'Cierres tipo 2', value: kpis.cierres2, color: '#dc2626' },
-              { label: 'Pensionados', value: kpis.clientes > 0 ? 0 : 0, color: VERDE },
-            ].map((k, i) => (
-              <div key={i} style={{ background: '#F4F6FB', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px 14px' }}>
-                <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>{k.label}</div>
-                <div style={{ fontSize: '24px', fontWeight: '800', color: k.color }}>{k.value}</div>
-              </div>
-            ))}
-          </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
+          {[
+            { label: 'Clientes activos', value: kpis.clientes, color: AZUL },
+            { label: 'Diagnósticos (mes)', value: kpis.diagnosticos, color: '#8b5cf6' },
+            { label: 'Cierres tipo 1', value: kpis.cierres1, color: NARANJA },
+            { label: 'Cierres tipo 2', value: kpis.cierres2, color: '#dc2626' },
+            { label: 'Pensionados', value: kpis.clientes > 0 ? (kpis.clientes - kpis.cierres1 > 0 ? 0 : 0) : 0, color: VERDE },
+          ].map((k, i) => (
+            <div key={i} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px 14px' }}>
+              <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>{k.label}</div>
+              <div style={{ fontSize: '24px', fontWeight: '800', color: k.color }}>{k.value}</div>
+            </div>
+          ))}
         </div>
 
       </div>
@@ -396,5 +411,5 @@ function MiDiaInner() {
 }
 
 export default function MiDiaPage() {
-  return <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 56px)', color: '#94a3b8' }}>Cargando...</div>}><MiDiaInner /></Suspense>
+  return <Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'calc(100vh - 56px)',color:'#94a3b8'}}>Cargando...</div>}><MiDiaInner /></Suspense>
 }
