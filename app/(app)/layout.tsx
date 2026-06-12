@@ -24,6 +24,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient()
   const [userName, setUserName] = useState('')
   const [userEmail, setUserEmail] = useState('')
+  const [asesorLogo, setAsesorLogo] = useState<string | null>(null)
   const [checking, setChecking] = useState(true)
   const [showUserMenu, setShowUserMenu] = useState(false)
 
@@ -32,9 +33,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       if (!session) { router.push('/login'); return }
       setChecking(false)
       setUserEmail(session.user.email ?? '')
-      supabase.from('perfiles_usuario').select('nombre, razon_social').eq('id', session.user.id).single()
+      supabase.from('perfiles_usuario').select('nombre, razon_social, logo_url').eq('id', session.user.id).single()
         .then(({ data }) => {
-          setUserName(data?.nombre || session.user.email || '')
+          setUserName(data?.razon_social || data?.nombre || session.user.email || '')
+          setAsesorLogo(data?.logo_url || null)
           // First time: redirect to configuracion if no nombre set
           if (!data?.nombre && !data?.razon_social && !window.location.pathname.includes('configuracion')) {
             router.push('/configuracion')
@@ -114,15 +116,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         {/* Right — usuario */}
         <div style={{ position: 'relative', flexShrink: 0 }}>
           <button onClick={() => setShowUserMenu(p => !p)}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '8px', padding: '6px 12px', cursor: 'pointer', color: 'white' }}>
-            <div style={{ width: '26px', height: '26px', background: 'rgba(255,255,255,0.25)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '700', color: 'white', flexShrink: 0 }}>
-              {firstName.charAt(0).toUpperCase()}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '8px', padding: '5px 10px', cursor: 'pointer', color: 'white' }}>
+            <div style={{ width: '28px', height: '28px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {asesorLogo
+                ? <img src={asesorLogo} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={e => { (e.target as HTMLImageElement).style.display='none' }} />
+                : <span style={{ fontSize: '11px', fontWeight: '700', color: 'white' }}>{firstName.charAt(0).toUpperCase()}</span>
+              }
             </div>
             <div style={{ textAlign: 'left' }}>
-              <div style={{ fontSize: '12px', fontWeight: '700', color: 'white', lineHeight: 1.2 }}>{firstName}</div>
+              <div style={{ fontSize: '11px', fontWeight: '700', color: 'white', lineHeight: 1.2, maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{userName}</div>
               <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.6)', lineHeight: 1 }}>Asesor</div>
             </div>
-            <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.7)', marginLeft: '2px' }}>▾</span>
+            <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.7)' }}>▾</span>
           </button>
 
           {/* Dropdown menu */}
