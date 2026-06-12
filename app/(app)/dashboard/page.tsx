@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
+import { Suspense } from 'react'
 
 const AZUL = '#1B3A6B'
 const VERDE = '#2E8B57'
@@ -77,7 +78,7 @@ const fmtDias = (d: string | null) => {
 const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado']
 const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']
 
-export default function MiDiaPage() {
+function MiDiaInner() {
   const supabase = createClient()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
@@ -390,4 +391,8 @@ export default function MiDiaPage() {
       </div>
     </div>
   )
+}
+
+export default function MiDiaPage() {
+  return <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 56px)', color: '#94a3b8' }}>Cargando...</div>}><MiDiaInner /></Suspense>
 }
