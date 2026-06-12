@@ -78,10 +78,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       }}>
         {/* Logo */}
         <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', flexShrink: 0 }}>
-          <div style={{ width: '28px', height: '28px', background: NARANJA, borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ color: 'white', fontSize: '12px', fontWeight: '800' }}>K</span>
-          </div>
-          {!collapsed && <span style={{ fontSize: '13px', fontWeight: '700', color: AZUL, letterSpacing: '-0.3px' }}>KSE Pensiones</span>}
+          <img src="/logo-kse.png" alt="KSE" style={{ height: '28px', objectFit: 'contain' }} />
+          {!collapsed && <span style={{ fontSize: '12px', fontWeight: '600', color: '#64748b', letterSpacing: '0.5px' }}>Pensiones</span>}
         </Link>
 
         <div style={{ flex: 1 }} />
@@ -105,7 +103,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <div style={{ position: 'fixed', inset: 0, zIndex: 39 }} onClick={() => setShowUserMenu(false)} />
               <div style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, background: 'white', borderRadius: '10px', boxShadow: '0 4px 24px rgba(0,0,0,0.12)', border: '1px solid #e2e8f0', minWidth: '200px', overflow: 'hidden', zIndex: 50 }}>
                 <div style={{ padding: '12px 14px', borderBottom: '1px solid #f1f5f9', background: '#F8FAFC' }}>
-                  {asesorLogo && <img src={asesorLogo} alt="logo" style={{ height: '20px', objectFit: 'contain', marginBottom: '6px', display: 'block' }} />}
+                  <img src="/logo-kse.png" alt="KSE" style={{ height: '18px', objectFit: 'contain', marginBottom: '6px', display: 'block', opacity: 0.7 }} />
                   <div style={{ fontSize: '13px', fontWeight: '700', color: AZUL }}>{userName}</div>
                   <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>{userEmail}</div>
                 </div>
