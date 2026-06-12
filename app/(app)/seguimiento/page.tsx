@@ -16,6 +16,7 @@ interface Actividad {
   estatus: string
   cliente_id: string | null
   clientes?: { nombre: string } | null
+  comentario: string | null
 }
 
 interface Cliente { id: string; nombre: string }
@@ -55,6 +56,8 @@ export default function SeguimientoPage() {
   const [guardando, setGuardando] = useState(false)
   const [mensaje, setMensaje] = useState('')
   const [detalle, setDetalle] = useState<Actividad | null>(null)
+  const [comentarioDetalle, setComentarioDetalle] = useState('')
+  const [savingComentario, setSavingComentario] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -92,6 +95,7 @@ export default function SeguimientoPage() {
       notas: form.notas || null,
       cliente_id: form.cliente_id || null,
       estatus: 'pendiente',
+      comentario: null,
     }).select('*, clientes(nombre)').single()
     if (data) {
       setActividades(prev => [...prev, data as Actividad])
@@ -111,7 +115,7 @@ export default function SeguimientoPage() {
   }
 
   async function eliminar(id: string) {
-    if (!confirm('¿Eliminar esta actividad?')) return
+    // Direct delete - no confirm needed as user clicked delete button
     await supabase.from('actividades').delete().eq('id', id)
     setActividades(prev => prev.filter(a => a.id !== id))
     setDetalle(null)
@@ -185,7 +189,7 @@ export default function SeguimientoPage() {
                           return (
                             <div key={a.id} onClick={e => { e.stopPropagation(); setDetalle(a) }}
                               style={{ fontSize: '10px', padding: '2px 5px', borderRadius: '4px', background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer', textDecoration: a.estatus === 'completado' ? 'line-through' : 'none' }}>
-                              {TIPO_ICONS[a.tipo]} {a.titulo}
+                              {TIPO_ICONS[a.tipo]} {a.titulo}{a.fecha_programada ? ' ' + new Date(a.fecha_programada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : ''}
                             </div>
                           )
                         })}
@@ -410,14 +414,52 @@ export default function SeguimientoPage() {
                       {detalle.estatus === 'completado' ? '✓ Completado' : '⏳ Pendiente'}
                     </div>
                   </div>
+                  {/* Comentario / Minuta */}
+                  <div style={{ marginBottom: '12px' }}>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      📝 Comentarios / Minuta
+                    </label>
+                    <textarea
+                      value={comentarioDetalle}
+                      onChange={e => setComentarioDetalle(e.target.value)}
+                      rows={3}
+                      placeholder="Agrega notas, acuerdos o resultados de esta actividad..."
+                      style={{ display: 'block', width: '100%', padding: '8px 10px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', resize: 'none', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' as const }}
+                    />
+                    {comentarioDetalle !== (detalle.comentario ?? '') && (
+                      <button onClick={async () => {
+                        setSavingComentario(true)
+                        await supabase.from('actividades').update({ comentario: comentarioDetalle }).eq('id', detalle.id)
+                        setActividades(prev => prev.map(a => a.id === detalle.id ? { ...a, comentario: comentarioDetalle } : a))
+                        setDetalle(d => d ? { ...d, comentario: comentarioDetalle } : d)
+                        setSavingComentario(false)
+                      }} disabled={savingComentario}
+                        style={{ marginTop: '5px', padding: '5px 14px', background: AZUL, color: 'white', border: 'none', borderRadius: '6px', fontSize: '11px', fontWeight: '600', cursor: 'pointer' }}>
+                        {savingComentario ? 'Guardando...' : '💾 Guardar comentario'}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Estatus badge */}
+                  <div style={{ padding: '7px 12px', background: detalle.estatus === 'completado' ? '#f0fdf4' : '#F4F6FB', borderRadius: '8px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '16px' }}>{detalle.estatus === 'completado' ? '✅' : '⏳'}</span>
+                    <span style={{ fontSize: '13px', fontWeight: '600', color: detalle.estatus === 'completado' ? VERDE : '#64748b' }}>
+                      {detalle.estatus === 'completado' ? 'Completado' : 'Pendiente'}
+                    </span>
+                  </div>
+
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button onClick={() => completar(detalle)}
-                      style={{ flex: 2, padding: '9px', background: detalle.estatus === 'pendiente' ? VERDE : '#F1F5F9', color: detalle.estatus === 'pendiente' ? 'white' : '#64748b', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
-                      {detalle.estatus === 'pendiente' ? '✓ Marcar completado' : 'Reabrir'}
+                      style={{ flex: 1, padding: '9px', background: detalle.estatus === 'pendiente' ? VERDE : '#F1F5F9', color: detalle.estatus === 'pendiente' ? 'white' : '#64748b', border: detalle.estatus !== 'pendiente' ? '1px solid #e2e8f0' : 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                      {detalle.estatus === 'pendiente' ? '✅ Completar' : '🔄 Reabrir'}
+                    </button>
+                    <button onClick={() => { setDetalle(null) }}
+                      style={{ flex: 1, padding: '9px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                      ✕ Cerrar
                     </button>
                     <button onClick={() => eliminar(detalle.id)}
                       style={{ flex: 1, padding: '9px', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
-                      Eliminar
+                      🗑️ Eliminar
                     </button>
                   </div>
                 </>
