@@ -33,7 +33,7 @@ interface Perfil {
 
 const DEFAULTS: Perfil = {
   nombre: '', razon_social: '', rfc: '', telefono: '', email_contacto: '',
-  direccion: '', logo_url: null, vigencia_propuesta: 30,
+  direccion: '', logo_url: null, banner_url: null, vigencia_propuesta: 30,
   uma_diaria: 117.31, salario_minimo: 315.04, pmg_mensual: 10636.54,
   pmg_l97: 4345.72, rendimiento_afore_default: 6, inflacion_uma: 4.5,
   mod40_2026: 14.438, mod40_2027: 15.528, mod40_2028: 16.619,
