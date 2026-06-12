@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 
@@ -18,6 +18,13 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
+  const [bannerUrl, setBannerUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    // Load custom banner from any asesor profile
+    createClient().from('perfiles_usuario').select('banner_url').not('banner_url', 'is', null).limit(1).single()
+      .then(({ data }) => { if (data?.banner_url) setBannerUrl(data.banner_url) })
+  }, [])
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -55,7 +62,7 @@ export default function LoginPage() {
         {/* Imagen de fondo */}
         <div style={{
           position: 'absolute', inset: 0,
-          backgroundImage: 'url(/fondo-kse.png)',
+          backgroundImage: `url(${bannerUrl || '/fondo-kse.png'})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center top',
         }} />
