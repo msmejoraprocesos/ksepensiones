@@ -16,6 +16,8 @@ const COLUMNAS = [
   { id: 'seguimiento', label: 'Seguimiento',        color: '#0891b2', bg: '#ecfeff', orden: 3 },
   { id: 'tramite',     label: 'Trámite IMSS',       color: VERDE,     bg: '#f0fdf4', orden: 4 },
   { id: 'pensionado',  label: 'Pensionado ✅',      color: AZUL,      bg: '#eef2f8', orden: 5, esFinal: true },
+  { id: 'cancelado',   label: 'Cancelado ✗',         color: '#64748b', bg: '#f8fafc', orden: 6, esFinal: true },
+  { id: 'perdido',     label: 'Perdido ✗',           color: '#ef4444', bg: '#fef2f2', orden: 7, esFinal: true },
 ]
 
 const SERVICIOS = ['Diagnóstico', 'Trámite', 'Combo']
@@ -42,6 +44,8 @@ function puedeMoverse(desde: string, hacia: string): boolean {
   if (desde === 'pensionado') return false
   // Trámite IMSS solo puede avanzar a Pensionado
   if (desde === 'tramite' && hacia !== 'pensionado') return false
+  // Cancelado/perdido siempre permitido desde cualquier etapa no final
+  if (hacia === 'cancelado' || hacia === 'perdido') return true
   // No puede regresar antes de Trámite IMSS una vez iniciado
   if (colDesde.orden >= 4 && colHacia.orden < 4) return false
   return true
@@ -137,6 +141,9 @@ function ClientesInner() {
   const [savingActividad, setSavingActividad] = useState(false)
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [deletingCliente, setDeletingCliente] = useState(false)
+  const [showConfirmClose, setShowConfirmClose] = useState(false)
+  const [showConfirmEtapa, setShowConfirmEtapa] = useState<{clienteId: string; etapaActual: string; etapaNueva: string} | null>(null)
+  const [pendingClose, setPendingClose] = useState(false)
   const [formServicio, setFormServicio] = useState({ tipo: 'Diagnóstico', monto_acordado: '', descripcion: '' })
   const [modalTab, setModalTab] = useState<'info' | 'diagnosticos' | 'actividades' | 'pagos'>('info')
 
@@ -340,7 +347,7 @@ function ClientesInner() {
       servicio_id: servicioActivo,
     }).select().single()
     if (error) {
-      alert('Error al registrar pago: ' + error.message + ' (code: ' + error.code + ')')
+      console.error('Error al registrar pago:', error.message)
       setSavingPago(false)
       return
     }
@@ -1041,6 +1048,65 @@ function ClientesInner() {
         </div>
       )}
 
+      {/* ── MODAL CONFIRMAR CERRAR ── */}
+      {showConfirmClose && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '360px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', textAlign: 'center' }}>
+            <div style={{ fontSize: '36px', marginBottom: '12px' }}>⚠️</div>
+            <h3 style={{ color: '#1e293b', fontSize: '16px', fontWeight: '700', margin: '0 0 8px' }}>¿Cerrar el expediente?</h3>
+            <p style={{ color: '#64748b', fontSize: '13px', margin: '0 0 20px', lineHeight: 1.6 }}>
+              Tienes cambios sin guardar. ¿Seguro que quieres cerrar?
+            </p>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button onClick={() => setShowConfirmClose(false)}
+                style={{ flex: 1, padding: '11px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                Seguir editando
+              </button>
+              <button onClick={() => { setShowConfirmClose(false); setSelected(null) }}
+                style={{ flex: 1, padding: '11px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL CONFIRMAR ETAPA ── */}
+      {showConfirmEtapa && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '380px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', textAlign: 'center' }}>
+            <div style={{ fontSize: '36px', marginBottom: '12px' }}>🔄</div>
+            <h3 style={{ color: '#1e293b', fontSize: '16px', fontWeight: '700', margin: '0 0 8px' }}>¿Cambiar etapa?</h3>
+            <p style={{ color: '#64748b', fontSize: '13px', margin: '0 0 8px', lineHeight: 1.6 }}>
+              Moverás al cliente de
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', margin: '0 0 20px' }}>
+              <span style={{ padding: '4px 12px', borderRadius: '8px', background: '#EEF2F8', color: AZUL, fontSize: '13px', fontWeight: '700' }}>
+                {COLUMNAS.find(c => c.id === showConfirmEtapa.etapaActual)?.label ?? showConfirmEtapa.etapaActual}
+              </span>
+              <span style={{ fontSize: '18px', color: '#94a3b8' }}>→</span>
+              <span style={{ padding: '4px 12px', borderRadius: '8px', background: '#f0fdf4', color: VERDE, fontSize: '13px', fontWeight: '700' }}>
+                {COLUMNAS.find(c => c.id === showConfirmEtapa.etapaNueva)?.label ?? showConfirmEtapa.etapaNueva}
+              </span>
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button onClick={() => setShowConfirmEtapa(null)}
+                style={{ flex: 1, padding: '11px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                Cancelar
+              </button>
+              <button onClick={async () => {
+                if (showConfirmEtapa) {
+                  await moverCliente(showConfirmEtapa.clienteId, showConfirmEtapa.etapaActual, showConfirmEtapa.etapaNueva)
+                  setShowConfirmEtapa(null)
+                }
+              }} style={{ flex: 1, padding: '11px', background: VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>
+                Sí, mover
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── MODAL CONFIRMAR ELIMINAR ── */}
       {showConfirmDelete && selected && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -1089,7 +1155,7 @@ function ClientesInner() {
       {/* ── MODAL NUEVO PAGO ── */}
       {showPago && selected && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          onClick={e => { if (e.target === e.currentTarget) { setShowPago(false); setCompFile(null) } }}>
+          onClick={e => e.stopPropagation()}>
           <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '400px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
               <h3 style={{ color: AZUL, fontSize: '17px', fontWeight: '700', margin: 0 }}>Registrar pago</h3>
@@ -1139,9 +1205,9 @@ function ClientesInner() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Concepto</label>
-                  <select value={formPago.concepto} onChange={e => setFormPago(p => ({ ...p, concepto: e.target.value }))} style={inputSt}>
-                    {CONCEPTOS.map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
+                  <div style={{ padding: '10px 12px', background: '#EEF2F8', borderRadius: '8px', border: '1px solid #bfdbfe', fontSize: '13px', fontWeight: '700', color: AZUL }}>
+                    {formPago.concepto || 'Automático'}
+                  </div>
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Fecha</label>
