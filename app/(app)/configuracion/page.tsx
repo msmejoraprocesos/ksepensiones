@@ -1,4 +1,4 @@
-'use client'
+'use client' // v-banner
 
 import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/utils/supabase/client'
