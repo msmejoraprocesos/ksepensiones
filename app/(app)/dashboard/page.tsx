@@ -1,95 +1,41 @@
 'use client'
 
 import { useEffect, useState, Suspense } from 'react'
-import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
 
 const AZUL = '#1B3A6B'
 const VERDE = '#2E8B57'
-const NARANJA = '#F47920'
+const NARANJA = '#F05B21'
 
-interface Alerta {
-  id: string
-  tipo: 'urgente' | 'atencion' | 'info' | 'positivo'
-  texto: string
-  accion: string
-  href: string
-}
-
-interface AgendaItem {
-  id: string
-  titulo: string
-  tipo: string
-  hora: string
-  cliente: string
-  notas: string | null
-}
-
-interface PipelineItem {
-  id: string
-  nombre: string
-  etapa_desde: string
-  etapa_kanban: string
-  servicio_contratado: string | null
-}
-
-interface CobroPendiente {
-  id: string
-  nombre: string
-  monto_acordado: number
-  total_pagado: number
-  saldo: number
-}
-
-interface KPIs {
-  clientes: number
-  diagnosticos: number
-  cobrado: number
-  porCobrar: number
-  acordado: number
-  cierres1: number
-  cierres2: number
-}
-
-const TIPO_ICONS: Record<string, string> = { llamada: '📞', whatsapp: '💬', cita: '📅', email: '✉️', nota: '📝' }
-
-const ETAPAS: Record<string, { label: string; color: string; bg: string }> = {
-  prospecto:   { label: 'Prospecto',       color: '#64748b', bg: '#f1f5f9' },
-  diagnostico: { label: 'Diagnóstico',     color: '#3b82f6', bg: '#eff6ff' },
-  propuesta:   { label: 'Propuesta',       color: '#8b5cf6', bg: '#f5f3ff' },
-  cierre1:     { label: '⭐ Cierre 1',     color: NARANJA,   bg: '#fff7ed' },
-  seguimiento: { label: 'Seguimiento',     color: '#0891b2', bg: '#ecfeff' },
-  cierre2:     { label: '⭐ Cierre 2',     color: '#dc2626', bg: '#fef2f2' },
-  tramite:     { label: 'Trámite IMSS',    color: VERDE,     bg: '#f0fdf4' },
-  pensionado:  { label: 'Pensionado ✅',   color: AZUL,      bg: '#eef2f8' },
-}
-
-const fmtMXN = (n: number) => `$${Math.round(n).toLocaleString('es-MX')}`
-const fmtHora = (d: string | null) => d ? new Date(d).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : ''
-const fmtDias = (d: string | null) => {
-  if (!d) return ''
-  const diff = Math.floor((Date.now() - new Date(d).getTime()) / 86400000)
-  if (diff === 0) return 'hoy'
-  if (diff === 1) return 'ayer'
-  return `hace ${diff} días`
-}
-
-const DIAS = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado']
-const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']
+const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n || 0)
+const fmtPct = (n: number) => `${Math.round(n || 0)}%`
 
 function MiDiaInner() {
   const supabase = createClient()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [nombreAsesor, setNombreAsesor] = useState('Asesor')
-  const [alertas, setAlertas] = useState<Alerta[]>([])
-  const [agenda, setAgenda] = useState<AgendaItem[]>([])
-  const [pipeline, setPipeline] = useState<PipelineItem[]>([])
-  const [cobros, setCobros] = useState<CobroPendiente[]>([])
-  const [kpis, setKpis] = useState<KPIs>({ clientes: 0, diagnosticos: 0, cobrado: 0, porCobrar: 0, acordado: 0, cierres1: 0, cierres2: 0 })
+  const [filtroPeriodo, setFiltroPeriodo] = useState<'mes' | 'trimestre' | 'año'>('mes')
+
+  // Data states
+  const [clientes, setClientes] = useState<any[]>([])
+  const [pagos, setPagos] = useState<any[]>([])
+  const [diagnosticos, setDiagnosticos] = useState<any[]>([])
+  const [actividades, setActividades] = useState<any[]>([])
 
   const hoy = new Date()
-  const fechaStr = `${DIAS[hoy.getDay()]} ${hoy.getDate()} de ${MESES[hoy.getMonth()]} de ${hoy.getFullYear()}`
+  const fechaStr = hoy.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+
+  // Date ranges
+  const getRange = () => {
+    const now = new Date()
+    const start = new Date()
+    if (filtroPeriodo === 'mes') start.setDate(1)
+    else if (filtroPeriodo === 'trimestre') start.setMonth(now.getMonth() - 3)
+    else start.setFullYear(now.getFullYear(), 0, 1)
+    return { start, end: now }
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -100,295 +46,260 @@ function MiDiaInner() {
 
   async function loadData(uid: string) {
     setLoading(true)
+    const { data: perfil } = await supabase.from('perfiles_usuario').select('nombre, razon_social').eq('id', uid).single()
+    setNombreAsesor(perfil?.razon_social || perfil?.nombre || 'Asesor')
 
-    const startHoy = new Date(); startHoy.setHours(0,0,0,0)
-    const endHoy = new Date(); endHoy.setHours(23,59,59,999)
-    const hace7dias = new Date(Date.now() - 7 * 86400000).toISOString()
-    const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString()
-
-    const [
-      { data: perfil },
-      { data: clientes },
-      { data: actividadesHoy },
-      { data: diagnosticosMes },
-      { data: pagosData },
-    ] = await Promise.all([
-      supabase.from('perfiles_usuario').select('nombre').eq('id', uid).single(),
+    const [{ data: cl }, { data: pg }, { data: dg }, { data: act }] = await Promise.all([
       supabase.from('clientes').select('*').eq('asesor_id', uid),
-      supabase.from('actividades').select('*, clientes(nombre)').eq('asesor_id', uid).eq('estatus', 'pendiente').gte('fecha_programada', startHoy.toISOString()).lte('fecha_programada', endHoy.toISOString()).order('fecha_programada'),
-      supabase.from('diagnosticos').select('id').eq('asesor_id', uid).gte('created_at', inicioMes),
-      supabase.from('pagos').select('cliente_id, monto').eq('asesor_id', uid),
+      supabase.from('pagos').select('*, clientes(nombre, servicio_contratado)').eq('asesor_id', uid),
+      supabase.from('diagnosticos').select('*').eq('asesor_id', uid),
+      supabase.from('actividades').select('*, clientes(nombre)').eq('asesor_id', uid),
     ])
-
-    if (perfil?.nombre) setNombreAsesor(perfil.nombre.split(' ')[0])
-
-    // Calcular totales de pago por cliente
-    const totalesPagados: Record<string, number> = {}
-    pagosData?.forEach((p: any) => { totalesPagados[p.cliente_id] = (totalesPagados[p.cliente_id] ?? 0) + p.monto })
-
-    // KPIs
-    const clientesList = (clientes ?? []) as any[]
-    const totalCobrado = Object.values(totalesPagados).reduce((s, v) => s + v, 0)
-    const totalAcordado = clientesList.reduce((s, c) => s + (c.monto_acordado ?? 0), 0)
-    const totalPorCobrar = clientesList.reduce((s, c) => s + Math.max(0, (c.monto_acordado ?? 0) - (totalesPagados[c.id] ?? 0)), 0)
-    const cierres1 = clientesList.filter(c => ['seguimiento','tramite','pensionado'].includes(c.etapa_kanban)).length
-    const cierres2 = clientesList.filter(c => ['tramite','pensionado'].includes(c.etapa_kanban)).length
-
-    setKpis({
-      clientes: clientesList.length,
-      diagnosticos: diagnosticosMes?.length ?? 0,
-      cobrado: totalCobrado,
-      porCobrar: totalPorCobrar,
-      acordado: totalAcordado,
-      cierres1, cierres2,
-    })
-
-    // Cobros pendientes (saldo > 0)
-    const cobrosP = clientesList
-      .filter(c => (c.monto_acordado ?? 0) > 0 && (totalesPagados[c.id] ?? 0) < (c.monto_acordado ?? 0))
-      .map(c => ({ id: c.id, nombre: c.nombre, monto_acordado: c.monto_acordado, total_pagado: totalesPagados[c.id] ?? 0, saldo: c.monto_acordado - (totalesPagados[c.id] ?? 0) }))
-      .sort((a, b) => b.saldo - a.saldo)
-    setCobros(cobrosP)
-
-    // Alertas inteligentes
-    const nuevasAlertas: Alerta[] = []
-
-    // Sin contacto en +7 días
-    const sinContacto = clientesList.filter(c => {
-      const ult = c.ultimo_contacto ?? c.created_at
-      return new Date(ult) < new Date(hace7dias) && !['pensionado'].includes(c.etapa_kanban)
-    })
-    if (sinContacto.length > 0) {
-      nuevasAlertas.push({ id: 'sc', tipo: 'urgente', texto: `${sinContacto.length} cliente${sinContacto.length > 1 ? 's' : ''} sin contacto en más de 7 días`, accion: 'Ver clientes →', href: '/clientes' })
-    }
-
-    // Propuestas sin mover
-    const enPropuesta = clientesList.filter(c => c.etapa_kanban === 'propuesta')
-    if (enPropuesta.length > 0) {
-      nuevasAlertas.push({ id: 'prop', tipo: 'atencion', texto: `${enPropuesta.length} propuesta${enPropuesta.length > 1 ? 's' : ''} enviada${enPropuesta.length > 1 ? 's' : ''} esperando respuesta`, accion: 'Ver pipeline →', href: '/clientes' })
-    }
-
-    // Pagos pendientes
-    if (cobrosP.length > 0) {
-      nuevasAlertas.push({ id: 'pago', tipo: 'atencion', texto: `${fmtMXN(totalPorCobrar)} pendientes de cobro en ${cobrosP.length} cliente${cobrosP.length > 1 ? 's' : ''}`, accion: 'Ver cartera →', href: '/clientes' })
-    }
-
-    // Cierres en seguimiento
-    const enSeguimiento = clientesList.filter(c => c.etapa_kanban === 'seguimiento')
-    if (enSeguimiento.length > 0) {
-      nuevasAlertas.push({ id: 'seg', tipo: 'info', texto: `${enSeguimiento.length} cliente${enSeguimiento.length > 1 ? 's' : ''} en seguimiento — pendiente de confirmar Cierre 2`, accion: 'Revisar →', href: '/clientes' })
-    }
-
-    // Positivo si hay pensionados
-    const pensionados = clientesList.filter(c => c.etapa_kanban === 'pensionado')
-    if (pensionados.length > 0) {
-      nuevasAlertas.push({ id: 'pen', tipo: 'positivo', texto: `${pensionados.length} cliente${pensionados.length > 1 ? 's' : ''} pensionado${pensionados.length > 1 ? 's' : ''} este mes`, accion: 'Ver →', href: '/clientes' })
-    }
-
-    if (nuevasAlertas.length === 0) {
-      nuevasAlertas.push({ id: 'ok', tipo: 'positivo', texto: '¡Todo al día! No hay alertas pendientes', accion: '', href: '' })
-    }
-
-    setAlertas(nuevasAlertas)
-
-    // Agenda hoy
-    const agendaItems = (actividadesHoy ?? []).map((a: any) => ({
-      id: a.id, titulo: a.titulo, tipo: a.tipo,
-      hora: fmtHora(a.fecha_programada),
-      cliente: a.clientes?.nombre ?? 'Sin cliente',
-      notas: a.notas,
-    }))
-    setAgenda(agendaItems)
-
-    // Pipeline — clientes en etapas activas ordenados por reciente
-    const pipelineItems = clientesList
-      .filter(c => !['pensionado'].includes(c.etapa_kanban || 'prospecto'))
-      .sort((a, b) => new Date(b.ultimo_contacto ?? b.created_at).getTime() - new Date(a.ultimo_contacto ?? a.created_at).getTime())
-      .slice(0, 5)
-      .map((c: any) => ({ id: c.id, nombre: c.nombre, etapa_desde: '', etapa_kanban: c.etapa_kanban || 'prospecto', servicio_contratado: c.servicio_contratado }))
-    setPipeline(pipelineItems)
-
+    setClientes(cl ?? [])
+    setPagos(pg ?? [])
+    setDiagnosticos(dg ?? [])
+    setActividades(act ?? [])
     setLoading(false)
   }
 
-  const ALERTA_CONFIG = {
-    urgente:  { dot: '#ef4444', bg: '#fff5f5', border: '#fecaca' },
-    atencion: { dot: '#f59e0b', bg: '#fffbeb', border: '#fde68a' },
-    info:     { dot: '#3b82f6', bg: '#eff6ff', border: '#bfdbfe' },
-    positivo: { dot: '#22c55e', bg: '#f0fdf4', border: '#bbf7d0' },
-  }
-
-  const cardSt: React.CSSProperties = { background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px' }
+  // Computed metrics
+  const { start } = getRange()
+  const pagosPeriodo = pagos.filter(p => new Date(p.fecha_pago) >= start)
+  const ingresosTotal = pagosPeriodo.reduce((s, p) => s + p.monto, 0)
+  const ingresosAsesoria = pagosPeriodo.filter(p => p.clientes?.servicio_contratado === 'Diagnóstico').reduce((s, p) => s + p.monto, 0)
+  const ingresosGestoria = pagosPeriodo.filter(p => p.clientes?.servicio_contratado === 'Trámite').reduce((s, p) => s + p.monto, 0)
+  const ingresosCombo = pagosPeriodo.filter(p => p.clientes?.servicio_contratado === 'Combo').reduce((s, p) => s + p.monto, 0)
+  const clientesActivos = clientes.filter(c => !['pensionado','cancelado','perdido'].includes(c.etapa_kanban || ''))
+  const prospectos = clientes.filter(c => c.etapa_kanban === 'prospecto')
+  const enTramite = clientes.filter(c => c.etapa_kanban === 'tramite')
+  const pensionados = clientes.filter(c => c.etapa_kanban === 'pensionado')
+  const tasaConversion = prospectos.length > 0 ? (pensionados.length / (prospectos.length + pensionados.length)) * 100 : 0
+  const diagMes = diagnosticos.filter(d => new Date(d.created_at) >= start)
+  const ticketPromedio = clientesActivos.length > 0 ? ingresosTotal / Math.max(clientesActivos.length, 1) : 0
+  const porCobrar = clientes.reduce((s, c) => s + Math.max(0, (c.monto_acordado || 0) - (c.total_pagado || 0)), 0)
+  
+  // Agenda hoy
+  const hoyStart = new Date(); hoyStart.setHours(0,0,0,0)
+  const hoyEnd = new Date(); hoyEnd.setHours(23,59,59,999)
+  const agendaHoy = actividades
+    .filter(a => a.fecha_programada && new Date(a.fecha_programada) >= hoyStart && new Date(a.fecha_programada) <= hoyEnd)
+    .sort((a, b) => new Date(a.fecha_programada).getTime() - new Date(b.fecha_programada).getTime())
 
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 56px)', color: '#94a3b8', fontSize: '14px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 48px)', color: '#94a3b8', fontSize: '14px' }}>
       Cargando tu día...
     </div>
   )
 
-  const pctCobrado = kpis.acordado > 0 ? Math.min(100, Math.round((kpis.cobrado / kpis.acordado) * 100)) : 0
+  const card = (content: React.ReactNode, style?: React.CSSProperties) => (
+    <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', ...style }}>
+      {content}
+    </div>
+  )
+
+  const sectionTitle = (title: string, subtitle?: string) => (
+    <div style={{ marginBottom: '12px' }}>
+      <p style={{ fontSize: '12px', fontWeight: '700', color: '#374151', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{title}</p>
+      {subtitle && <p style={{ fontSize: '11px', color: '#94a3b8', margin: '2px 0 0' }}>{subtitle}</p>}
+    </div>
+  )
+
+  const kpiBox = (label: string, value: string, sub?: string, color = '#374151') => (
+    <div style={{ background: '#FAFAFA', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '10px 12px' }}>
+      <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '4px' }}>{label}</div>
+      <div style={{ fontSize: '18px', fontWeight: '700', color }}>{value}</div>
+      {sub && <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '2px' }}>{sub}</div>}
+    </div>
+  )
+
+  const barWidth = (val: number, max: number) => max > 0 ? Math.min(100, Math.round((val / max) * 100)) : 0
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)', background: '#F4F6FB', overflow: 'hidden' }}>
+    <div style={{ height: 'calc(100vh - 48px)', overflow: 'auto', background: '#FAFAFA' }}>
       {/* Header */}
-      <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '12px 24px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ color: AZUL, fontSize: '18px', fontWeight: '800', margin: 0 }}>
-            Buenos días, <span style={{ color: NARANJA }}>{nombreAsesor}</span> — aquí está tu día
+          <h1 style={{ fontSize: '16px', fontWeight: '700', color: '#1e293b', margin: 0 }}>
+            Buenos días, <span style={{ color: NARANJA }}>{nombreAsesor}</span>
           </h1>
-          <p style={{ color: '#94a3b8', fontSize: '12px', margin: '2px 0 0', textTransform: 'capitalize' }}>{fechaStr}</p>
+          <p style={{ fontSize: '12px', color: '#94a3b8', margin: '2px 0 0', textTransform: 'capitalize' }}>{fechaStr}</p>
         </div>
-        <button onClick={() => router.push('/clientes?nuevo=true')}
-          style={{ background: AZUL, color: 'white', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
-          + Nuevo cliente
-        </button>
+        <div style={{ display: 'flex', gap: '6px' }}>
+          {(['mes','trimestre','año'] as const).map(p => (
+            <button key={p} onClick={() => setFiltroPeriodo(p)}
+              style={{ padding: '5px 12px', borderRadius: '6px', border: `1px solid ${filtroPeriodo === p ? NARANJA : '#e2e8f0'}`, background: filtroPeriodo === p ? '#fff5f2' : 'white', color: filtroPeriodo === p ? NARANJA : '#64748b', fontSize: '12px', fontWeight: filtroPeriodo === p ? '600' : '400', cursor: 'pointer' }}>
+              {p === 'mes' ? 'Este mes' : p === 'trimestre' ? 'Trimestre' : 'Este año'}
+            </button>
+          ))}
+          <button onClick={() => router.push('/clientes?nuevo=true')}
+            style={{ padding: '5px 14px', borderRadius: '6px', border: 'none', background: NARANJA, color: 'white', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
+            + Nuevo cliente
+          </button>
+        </div>
       </div>
 
-      <div style={{ flex: 1, overflow: 'auto', padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
-
-        {/* Alertas + Agenda */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-
-          {/* Alertas */}
-          <div style={cardSt}>
-            <p style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 12px' }}>Requiere tu atención</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-              {alertas.map(a => {
-                const cfg = ALERTA_CONFIG[a.tipo]
-                return (
-                  <div key={a.id} onClick={() => a.href && router.push(a.href)}
-                    style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', background: cfg.bg, border: `1px solid ${cfg.border}`, borderRadius: '8px', cursor: a.href ? 'pointer' : 'default' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: cfg.dot, flexShrink: 0 }} />
-                    <span style={{ flex: 1, fontSize: '12px', color: '#374151' }}>{a.texto}</span>
-                    {a.accion && <span style={{ fontSize: '11px', color: AZUL, fontWeight: '600', whiteSpace: 'nowrap' }}>{a.accion}</span>}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* Agenda hoy */}
-          <div style={cardSt}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <p style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>Agenda de hoy</p>
-              <a href="/seguimiento" style={{ fontSize: '11px', color: NARANJA, fontWeight: '600', textDecoration: 'none' }}>Ver todo →</a>
-            </div>
-            {agenda.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '24px', color: '#94a3b8', fontSize: '13px' }}>
-                <div style={{ fontSize: '28px', marginBottom: '8px' }}>✅</div>
-                Sin actividades programadas hoy
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                {agenda.map(item => (
-                  <div key={item.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '8px 0', borderBottom: '1px solid #f1f5f9' }}>
-                    <span style={{ fontSize: '12px', color: '#94a3b8', minWidth: '44px', paddingTop: '1px' }}>{item.hora}</span>
-                    <span style={{ fontSize: '16px' }}>{TIPO_ICONS[item.tipo] ?? '📌'}</span>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '13px', fontWeight: '600', color: '#1e293b' }}>{item.titulo}</div>
-                      <div style={{ fontSize: '11px', color: '#94a3b8' }}>{item.cliente}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            <a href="/seguimiento" style={{ display: 'block', marginTop: '10px', padding: '8px', textAlign: 'center', border: '1.5px dashed #e2e8f0', borderRadius: '8px', fontSize: '12px', color: '#94a3b8', textDecoration: 'none', fontWeight: '600' }}>
-              + Agregar actividad
-            </a>
-          </div>
+        {/* KPIs top */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '10px' }}>
+          {[
+            { label: 'Clientes activos', value: clientesActivos.length.toString(), color: AZUL },
+            { label: 'Diagnósticos', value: diagMes.length.toString(), sub: 'Este período', color: '#8b5cf6' },
+            { label: 'En trámite', value: enTramite.length.toString(), color: NARANJA },
+            { label: 'Pensionados', value: pensionados.length.toString(), color: VERDE },
+            { label: 'Ingresos', value: fmtMXN(ingresosTotal), color: VERDE },
+            { label: 'Por cobrar', value: fmtMXN(porCobrar), color: '#f59e0b' },
+          ].map((k, i) => kpiBox(k.label, k.value, k.sub, k.color))}
         </div>
 
-        {/* Cartera + Pipeline */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '14px' }}>
 
-          {/* Cartera */}
-          <div style={cardSt}>
-            <p style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 12px' }}>Cartera del mes</p>
-            {/* Barra progreso */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+          {/* Bloque Financiero */}
+          {card(<>
+            {sectionTitle('💰 Ingresos por línea de negocio')}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+              {kpiBox('Total bruto', fmtMXN(ingresosTotal), filtroPeriodo)}
+              {kpiBox('Ticket promedio', fmtMXN(ticketPromedio), 'por cliente')}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {[
-                { label: 'Acordado', value: fmtMXN(kpis.acordado), color: AZUL },
-                { label: 'Cobrado', value: fmtMXN(kpis.cobrado), color: VERDE },
-                { label: 'Por cobrar', value: fmtMXN(kpis.porCobrar), color: '#ef4444' },
-              ].map((k, i) => (
-                <div key={i} style={{ background: '#F4F6FB', borderRadius: '8px', padding: '8px 10px' }}>
-                  <div style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '3px' }}>{k.label}</div>
-                  <div style={{ fontSize: '14px', fontWeight: '800', color: k.color }}>{k.value}</div>
+                { label: 'Asesorías / Diagnóstico', value: ingresosAsesoria, color: AZUL },
+                { label: 'Honorarios Gestoría', value: ingresosGestoria, color: VERDE },
+                { label: 'Combo', value: ingresosCombo, color: '#8b5cf6' },
+              ].map((item, i) => (
+                <div key={i}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '3px' }}>
+                    <span style={{ color: '#64748b' }}>{item.label}</span>
+                    <span style={{ fontWeight: '600', color: '#374151' }}>{fmtMXN(item.value)}</span>
+                  </div>
+                  <div style={{ height: '5px', background: '#f1f5f9', borderRadius: '3px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${barWidth(item.value, ingresosTotal)}%`, background: item.color, borderRadius: '3px', transition: 'width 0.4s' }} />
+                  </div>
                 </div>
               ))}
             </div>
-            <div style={{ marginBottom: '12px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '4px' }}>
-                <span style={{ color: '#64748b', fontWeight: '600' }}>Progreso de cobro</span>
-                <span style={{ color: VERDE, fontWeight: '700' }}>{pctCobrado}%</span>
-              </div>
-              <div style={{ height: '8px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', background: `linear-gradient(90deg, ${VERDE}, #34d399)`, width: `${pctCobrado}%`, borderRadius: '4px', transition: 'width 0.5s' }} />
-              </div>
-            </div>
-            {/* Lista cobros pendientes */}
-            {cobros.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '12px', color: '#94a3b8', fontSize: '12px' }}>✅ Todo cobrado</div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                <p style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase', margin: '0 0 4px' }}>Pendientes de cobro</p>
-                {cobros.slice(0, 4).map(c => (
-                  <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 8px', background: '#fff5f5', borderRadius: '6px', border: '1px solid #fecaca' }}>
-                    <div style={{ width: '24px', height: '24px', background: AZUL, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '9px', fontWeight: '700', flexShrink: 0 }}>
-                      {c.nombre.charAt(0).toUpperCase()}
-                    </div>
-                    <span style={{ flex: 1, fontSize: '12px', fontWeight: '600', color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.nombre}</span>
-                    <span style={{ fontSize: '12px', fontWeight: '800', color: '#ef4444' }}>{fmtMXN(c.saldo)}</span>
-                  </div>
-                ))}
-                {cobros.length > 4 && <p style={{ fontSize: '11px', color: '#94a3b8', textAlign: 'center', margin: '4px 0 0' }}>+{cobros.length - 4} más</p>}
-              </div>
-            )}
-          </div>
+          </>)}
 
-          {/* Pipeline activo */}
-          <div style={cardSt}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <p style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>Pipeline activo</p>
-              <a href="/clientes" style={{ fontSize: '11px', color: NARANJA, fontWeight: '600', textDecoration: 'none' }}>Ver todos →</a>
+          {/* Bloque Comercial */}
+          {card(<>
+            {sectionTitle('📊 Efectividad comercial')}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+              {kpiBox('Tasa de conversión', fmtPct(tasaConversion), 'prospectos → clientes')}
+              {kpiBox('Prospectos activos', prospectos.length.toString(), 'sin convertir')}
             </div>
-            {pipeline.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '24px', color: '#94a3b8', fontSize: '13px' }}>Sin clientes en pipeline</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {[
+                { label: 'Prospecto', value: clientes.filter(c => c.etapa_kanban === 'prospecto').length, color: '#64748b' },
+                { label: 'Diagnóstico', value: clientes.filter(c => c.etapa_kanban === 'diagnostico').length, color: '#3b82f6' },
+                { label: 'Propuesta', value: clientes.filter(c => c.etapa_kanban === 'propuesta').length, color: '#8b5cf6' },
+                { label: 'Seguimiento', value: clientes.filter(c => c.etapa_kanban === 'seguimiento').length, color: '#0891b2' },
+                { label: 'Trámite IMSS', value: enTramite.length, color: NARANJA },
+                { label: 'Pensionado', value: pensionados.length, color: VERDE },
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color, flexShrink: 0 }} />
+                  <span style={{ fontSize: '11px', color: '#64748b', flex: 1 }}>{item.label}</span>
+                  <span style={{ fontSize: '11px', fontWeight: '700', color: '#374151' }}>{item.value}</span>
+                  <div style={{ width: '60px', height: '4px', background: '#f1f5f9', borderRadius: '2px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${barWidth(item.value, clientes.length)}%`, background: item.color, borderRadius: '2px' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>)}
+
+          {/* Agenda hoy */}
+          {card(<>
+            {sectionTitle('📅 Agenda de hoy', agendaHoy.length === 0 ? 'Sin actividades' : `${agendaHoy.length} actividad${agendaHoy.length !== 1 ? 'es' : ''}`)}
+            {agendaHoy.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '24px 0', color: '#94a3b8', fontSize: '12px' }}>
+                <div style={{ fontSize: '24px', marginBottom: '6px' }}>✅</div>
+                Día libre de actividades
+              </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                {pipeline.map(c => {
-                  const etapa = ETAPAS[c.etapa_kanban] ?? ETAPAS.prospecto
-                  return (
-                    <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 10px', background: '#F8FAFC', borderRadius: '8px', border: '1px solid #e2e8f0', cursor: 'pointer' }}
-                      onClick={() => router.push('/clientes?nuevo=true')}>
-                      <div style={{ width: '28px', height: '28px', background: AZUL, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '10px', fontWeight: '700', flexShrink: 0 }}>
-                        {c.nombre.charAt(0).toUpperCase()}
+                {agendaHoy.map(a => (
+                  <div key={a.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '8px 10px', background: '#FAFAFA', borderRadius: '6px', border: '1px solid #f1f5f9' }}>
+                    <div style={{ width: '2px', height: '100%', minHeight: '32px', background: a.estatus === 'completado' ? VERDE : NARANJA, borderRadius: '1px', flexShrink: 0 }} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '12px', fontWeight: '600', color: '#374151' }}>{a.titulo}</div>
+                      <div style={{ fontSize: '11px', color: '#94a3b8' }}>
+                        {new Date(a.fecha_programada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                        {a.clientes?.nombre && ` · ${a.clientes.nombre}`}
                       </div>
-                      <span style={{ flex: 1, fontSize: '13px', fontWeight: '600', color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.nombre}</span>
-                      <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '8px', fontWeight: '600', background: etapa.bg, color: etapa.color, whiteSpace: 'nowrap' }}>{etapa.label}</span>
                     </div>
-                  )
-                })}
+                    <span style={{ fontSize: '10px', padding: '2px 6px', borderRadius: '4px', background: a.estatus === 'completado' ? '#f0fdf4' : '#fff5f2', color: a.estatus === 'completado' ? VERDE : NARANJA, fontWeight: '600' }}>
+                      {a.estatus === 'completado' ? '✓' : '⏳'}
+                    </span>
+                  </div>
+                ))}
               </div>
             )}
-          </div>
+            <a href="/seguimiento" style={{ display: 'block', textAlign: 'center', marginTop: '10px', fontSize: '12px', color: NARANJA, textDecoration: 'none', fontWeight: '600' }}>
+              Ver agenda completa →
+            </a>
+          </>)}
         </div>
 
-        {/* KPIs resumen */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
-          {[
-            { label: 'Clientes activos', value: kpis.clientes, color: AZUL },
-            { label: 'Diagnósticos (mes)', value: kpis.diagnosticos, color: '#8b5cf6' },
-            { label: 'Cierres tipo 1', value: kpis.cierres1, color: NARANJA },
-            { label: 'Cierres tipo 2', value: kpis.cierres2, color: '#dc2626' },
-            { label: 'Pensionados', value: kpis.clientes > 0 ? (kpis.clientes - kpis.cierres1 > 0 ? 0 : 0) : 0, color: VERDE },
-          ].map((k, i) => (
-            <div key={i} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px 14px' }}>
-              <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>{k.label}</div>
-              <div style={{ fontSize: '24px', fontWeight: '800', color: k.color }}>{k.value}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+
+          {/* Pipeline value */}
+          {card(<>
+            {sectionTitle('🔄 Tubería de cobro', 'Clientes con trámite activo')}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+              {kpiBox('En proceso', enTramite.length.toString(), 'trámites activos', NARANJA)}
+              {kpiBox('Por cobrar', fmtMXN(porCobrar), 'honorarios pendientes', '#f59e0b')}
+              {kpiBox('Cobrado', fmtMXN(ingresosTotal), filtroPeriodo, VERDE)}
             </div>
-          ))}
+            {enTramite.length === 0 ? (
+              <p style={{ fontSize: '12px', color: '#94a3b8', textAlign: 'center', padding: '12px 0' }}>Sin clientes en trámite activo</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {enTramite.slice(0, 5).map(c => (
+                  <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '7px 10px', background: '#FAFAFA', borderRadius: '6px', border: '1px solid #f1f5f9', cursor: 'pointer' }}
+                    onClick={() => router.push('/clientes')}>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: NARANJA, flexShrink: 0 }} />
+                    <span style={{ flex: 1, fontSize: '12px', color: '#374151', fontWeight: '500' }}>{c.nombre}</span>
+                    <span style={{ fontSize: '11px', color: '#94a3b8' }}>{fmtMXN(Math.max(0, (c.monto_acordado || 0) - (c.total_pagado || 0)))}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>)}
+
+          {/* Perfil de mercado */}
+          {card(<>
+            {sectionTitle('🎯 Perfil de tu mercado')}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+              {kpiBox('Ley 73', `${clientes.filter(c => c.ley === '73').length}`, 'clientes pre-97')}
+              {kpiBox('Ley 97', `${clientes.filter(c => c.ley === '97').length}`, 'clientes post-97')}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '3px' }}>
+                  <span style={{ color: '#64748b' }}>Régimen Ley 73</span>
+                  <span style={{ fontWeight: '600', color: AZUL }}>{fmtPct(clientes.length > 0 ? (clientes.filter(c => c.ley === '73').length / clientes.length) * 100 : 0)}</span>
+                </div>
+                <div style={{ height: '5px', background: '#f1f5f9', borderRadius: '3px', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${clientes.length > 0 ? (clientes.filter(c => c.ley === '73').length / clientes.length) * 100 : 0}%`, background: AZUL, borderRadius: '3px' }} />
+                </div>
+              </div>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '3px' }}>
+                  <span style={{ color: '#64748b' }}>Régimen Ley 97</span>
+                  <span style={{ fontWeight: '600', color: '#0891b2' }}>{fmtPct(clientes.length > 0 ? (clientes.filter(c => c.ley === '97').length / clientes.length) * 100 : 0)}</span>
+                </div>
+                <div style={{ height: '5px', background: '#f1f5f9', borderRadius: '3px', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${clientes.length > 0 ? (clientes.filter(c => c.ley === '97').length / clientes.length) * 100 : 0}%`, background: '#0891b2', borderRadius: '3px' }} />
+                </div>
+              </div>
+              <div style={{ marginTop: '4px', padding: '8px 10px', background: '#f0fdf4', borderRadius: '6px', border: '1px solid #bbf7d0' }}>
+                <div style={{ fontSize: '11px', color: '#166534', fontWeight: '600' }}>
+                  {diagMes.length} diagnósticos este período · {clientes.length} clientes totales
+                </div>
+              </div>
+            </div>
+          </>)}
         </div>
 
       </div>
@@ -397,5 +308,5 @@ function MiDiaInner() {
 }
 
 export default function MiDiaPage() {
-  return <Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'calc(100vh - 56px)',color:'#94a3b8'}}>Cargando...</div>}><MiDiaInner /></Suspense>
+  return <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 48px)', color: '#94a3b8' }}>Cargando...</div>}><MiDiaInner /></Suspense>
 }
