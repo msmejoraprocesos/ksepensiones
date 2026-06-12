@@ -363,6 +363,44 @@ export default function ConfiguracionPage() {
         <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
           {sectionTitle('📊', 'Variables del sistema 2026', 'Valores oficiales que usa la calculadora para todos los diagnósticos')}
 
+          {/* Alertas de vigencia */}
+          {(() => {
+            const today = new Date()
+            const alerts = [
+              { key: 'uma_diaria', label: 'UMA Diaria', mes: 1, dia: 1, url: 'https://www.inegi.org.mx/temas/uma/', fuente: 'INEGI', desc: 'Se actualiza en febrero de cada año' },
+              { key: 'salario_minimo', label: 'Salario Mínimo', mes: 0, dia: 1, url: 'https://www.gob.mx/conasami', fuente: 'CONASAMI', desc: 'Se actualiza en enero de cada año' },
+              { key: 'pmg_mensual', label: 'PMG Ley 73', mes: 1, dia: 1, url: 'https://www.imss.gob.mx', fuente: 'IMSS', desc: 'Se actualiza en febrero con la UMA' },
+            ]
+            const nearAlerts = alerts.filter(a => {
+              const updateDate = new Date(today.getFullYear(), a.mes, a.dia)
+              if (updateDate < today) { updateDate.setFullYear(today.getFullYear() + 1) }
+              const daysLeft = Math.ceil((updateDate.getTime() - today.getTime()) / 86400000)
+              return daysLeft <= 60
+            })
+            if (nearAlerts.length === 0) return null
+            return (
+              <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '10px', padding: '12px 16px', marginBottom: '4px' }}>
+                <p style={{ fontSize: '12px', fontWeight: '700', color: '#92400e', margin: '0 0 8px' }}>⚠️ Próximas actualizaciones de variables</p>
+                {nearAlerts.map(a => {
+                  const updateDate = new Date(today.getFullYear(), a.mes, a.dia)
+                  if (updateDate < today) updateDate.setFullYear(today.getFullYear() + 1)
+                  const daysLeft = Math.ceil((updateDate.getTime() - today.getTime()) / 86400000)
+                  return (
+                    <div key={a.key} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px', fontSize: '12px' }}>
+                      <span style={{ color: '#92400e', fontWeight: '600' }}>📅 {a.label}</span>
+                      <span style={{ color: '#b45309' }}>{a.desc}</span>
+                      <span style={{ color: daysLeft <= 14 ? '#ef4444' : '#f59e0b', fontWeight: '700' }}>Faltan {daysLeft} días</span>
+                      <a href={a.url} target="_blank" rel="noopener noreferrer"
+                        style={{ color: AZUL, fontSize: '11px', textDecoration: 'none', background: '#EEF2F8', padding: '2px 8px', borderRadius: '6px' }}>
+                        Ver en {a.fuente} ↗
+                      </a>
+                    </div>
+                  )
+                })}
+              </div>
+            )
+          })()}
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px', marginBottom: '20px' }}>
             {[
               {
