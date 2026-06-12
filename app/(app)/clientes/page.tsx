@@ -232,7 +232,7 @@ function ClientesInner() {
       servicio_contratado: form.servicio_contratado || null,
       monto_acordado: form.monto_acordado ? parseFloat(form.monto_acordado) : null,
     })
-    if (error) { alert('Error: ' + error.message); setSaving(false); return }
+    if (error) { console.error('Error: ' + error.message); setSaving(false); return }
     await loadClientes(uid)
     setSaving(false)
     setShowNuevo(false)
@@ -293,7 +293,7 @@ function ClientesInner() {
       monto_acordado: parseFloat(formServicio.monto_acordado),
       descripcion: formServicio.descripcion || null,
     }).select().single()
-    if (error) { alert('Error: ' + error.message); return }
+    if (error) { console.error('Error: ' + error.message); return }
     if (data) {
       const newSrv = { ...data as Servicio, total_pagado: 0, pagos: [] }
       setServicios(prev => [...prev, newSrv])
@@ -771,10 +771,16 @@ function ClientesInner() {
                       ))}
                       <div style={{ background: '#F4F6FB', borderRadius: '10px', padding: '12px' }}>
                         <div style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Etiqueta de servicio</div>
-                        <select defaultValue={selected.servicio_contratado ?? ''} onChange={e => actualizarCliente(selected.id, { servicio_contratado: e.target.value || null })} style={{ ...inputSt, fontSize: '12px', padding: '7px 10px' }}>
-                          <option value="">— Sin definir —</option>
-                          {SERVICIOS.map(s => <option key={s} value={s}>{s}</option>)}
-                        </select>
+                        {editando ? (
+                          <select defaultValue={selected.servicio_contratado ?? ''} onChange={e => actualizarCliente(selected.id, { servicio_contratado: e.target.value || null })} style={{ ...inputSt, fontSize: '12px', padding: '7px 10px' }}>
+                            <option value="">— Sin definir —</option>
+                            {SERVICIOS.map(s => <option key={s} value={s}>{s}</option>)}
+                          </select>
+                        ) : (
+                          <div style={{ fontSize: '13px', color: '#374151', padding: '7px 0' }}>
+                            {selected.servicio_contratado || <span style={{ color: '#94a3b8' }}>Sin definir</span>}
+                          </div>
+                        )}
                       </div>
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <button onClick={() => abrirEditar(selected)}
