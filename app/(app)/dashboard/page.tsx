@@ -1,9 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
-import { Suspense } from 'react'
 
 const AZUL = '#1B3A6B'
 const VERDE = '#2E8B57'
@@ -373,19 +372,22 @@ function MiDiaInner() {
         </div>
 
         {/* KPIs resumen */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
-          {[
-            { label: 'Clientes activos', value: kpis.clientes, color: AZUL },
-            { label: 'Diagnósticos (mes)', value: kpis.diagnosticos, color: '#8b5cf6' },
-            { label: 'Cierres tipo 1', value: kpis.cierres1, color: NARANJA },
-            { label: 'Cierres tipo 2', value: kpis.cierres2, color: '#dc2626' },
-            { label: 'Pensionados', value: kpis.clientes > 0 ? (kpis.clientes - kpis.cierres1 > 0 ? 0 : 0) : 0, color: VERDE },
-          ].map((k, i) => (
-            <div key={i} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px 14px' }}>
-              <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>{k.label}</div>
-              <div style={{ fontSize: '24px', fontWeight: '800', color: k.color }}>{k.value}</div>
-            </div>
-          ))}
+        <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', padding: '16px' }}>
+          <p style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 12px' }}>Resumen general</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
+            {[
+              { label: 'Clientes activos', value: kpis.clientes, color: AZUL },
+              { label: 'Diagnósticos (mes)', value: kpis.diagnosticos, color: '#8b5cf6' },
+              { label: 'Cierres tipo 1', value: kpis.cierres1, color: NARANJA },
+              { label: 'Cierres tipo 2', value: kpis.cierres2, color: '#dc2626' },
+              { label: 'Pensionados', value: kpis.clientes > 0 ? 0 : 0, color: VERDE },
+            ].map((k, i) => (
+              <div key={i} style={{ background: '#F4F6FB', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px 14px' }}>
+                <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>{k.label}</div>
+                <div style={{ fontSize: '24px', fontWeight: '800', color: k.color }}>{k.value}</div>
+              </div>
+            ))}
+          </div>
         </div>
 
       </div>
