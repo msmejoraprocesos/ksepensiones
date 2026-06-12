@@ -246,25 +246,7 @@ export default function MiDiaPage() {
 
       <div style={{ flex: 1, overflow: 'auto', padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
-        {/* Acciones rápidas */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
-          {[
-            { icon: '⊞', label: 'Nuevo diagnóstico', color: AZUL, bg: '#EEF2F8', href: '/calculadora' },
-            { icon: '👥', label: 'Ver clientes', color: VERDE, bg: '#f0fdf4', href: '/clientes' },
-            { icon: '📞', label: 'Registrar contacto', color: NARANJA, bg: '#fff7ed', href: '/seguimiento' },
-            { icon: '📅', label: 'Ver agenda', color: '#8b5cf6', bg: '#f5f3ff', href: '/seguimiento' },
-          ].map((a, i) => (
-            <a key={i} href={a.href} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', textDecoration: 'none', cursor: 'pointer', transition: 'all 0.15s' }}>
-              <div style={{ width: '36px', height: '36px', background: a.bg, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>{a.icon}</div>
-              <span style={{ fontSize: '12px', fontWeight: '600', color: a.color }}>{a.label}</span>
-            </a>
-          ))}
-        </div>
-
-        {/* Alertas + Agenda */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-
-          {/* Alertas */}
+        {/* Alertas */}
           <div style={cardSt}>
             <p style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 12px' }}>Requiere tu atención</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
