@@ -16,6 +16,7 @@ interface Perfil {
   email_contacto: string
   direccion: string
   logo_url: string | null
+  banner_url: string | null
   vigencia_propuesta: number
   uma_diaria: number
   salario_minimo: number
