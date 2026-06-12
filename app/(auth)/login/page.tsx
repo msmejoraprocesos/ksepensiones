@@ -96,13 +96,13 @@ export default function LoginPage() {
             letterSpacing: '-1.5px',
             textShadow: '0 2px 20px rgba(0,0,0,0.3)',
           }}>
-            Para que te<br />
+            Diagnóstico<br />
             <span style={{
               color: 'white',
               WebkitTextStroke: '2px rgba(255,255,255,0.4)',
               textShadow: '0 0 40px rgba(244,121,32,0.8), 0 2px 20px rgba(0,0,0,0.3)',
-            }}>pensiones</span><br />
-            sin presiones.
+            }}>Gestoría</span><br />
+            Financiamiento
           </h1>
 
           <p style={{
@@ -113,15 +113,15 @@ export default function LoginPage() {
             maxWidth: '380px',
             textShadow: '0 1px 8px rgba(0,0,0,0.3)',
           }}>
-            La plataforma especializada en diagnóstico pensional para asesores que cierran más propuestas con datos confiables.
+            La plataforma completa para asesores de pensiones en México. Diagnostica, gestiona el trámite IMSS y financia la Modalidad 40 de tus clientes.
           </p>
 
           {/* Features */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '40px' }}>
             {[
-              { icon: '⊞', title: 'Calculadora Ley 73 y 97', desc: 'Fórmulas oficiales 2026 · Mod 10 · Mod 40 · ISSSTE' },
-              { icon: '◎', title: 'CRM de clientes', desc: 'Pipeline, pagos y seguimiento completo' },
-              { icon: '📄', title: 'Propuesta en PDF', desc: 'Con tu logo, lista para presentar al cliente' },
+              { icon: '⊞', title: 'Diagnóstico Pensional', desc: 'Calculadora Ley 73/97 · Mod 10 · Mod 40 · Variables 2026' },
+              { icon: '◎', title: 'Gestoría de Trámite IMSS', desc: 'Expediente · Seguimiento · Resolución de pensión' },
+              { icon: '💰', title: 'Financiamiento Mod 40', desc: 'Corridas por financiera · Viabilidad · PDF de solicitud' },
             ].map((f, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{
