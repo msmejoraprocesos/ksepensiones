@@ -433,6 +433,64 @@ function ClientesInner() {
     setSelected(null)
   }
 
+  async function loadPagosProgramados(clienteId: string) {
+    const { data } = await supabase
+      .from('pagos_programados')
+      .select('*')
+      .eq('cliente_id', clienteId)
+      .order('numero_pago')
+    setPagosProgramados(data ?? [])
+  }
+
+  async function generarPagosProgramados(clienteId: string, asesorId: string, montoTotal: number, numPagos: number, periodo: string, fechaPrimer: string) {
+    if (!numPagos || !fechaPrimer || !montoTotal) return
+    const montoPorPago = Math.round(montoTotal / numPagos * 100) / 100
+    const pagosArr: any[] = []
+    const fecha = new Date(fechaPrimer + 'T12:00:00')
+    for (let i = 1; i <= numPagos; i++) {
+      pagosArr.push({
+        cliente_id: clienteId,
+        asesor_id: asesorId,
+        numero_pago: i,
+        fecha_programada: fecha.toISOString().split('T')[0],
+        monto_programado: i === numPagos ? Math.round((montoTotal - montoPorPago * (numPagos - 1)) * 100) / 100 : montoPorPago,
+        pagado: false,
+      })
+      if (periodo === 'semanal') fecha.setDate(fecha.getDate() + 7)
+      else if (periodo === 'quincenal') fecha.setDate(fecha.getDate() + 15)
+      else fecha.setMonth(fecha.getMonth() + 1)
+    }
+    await supabase.from('pagos_programados').delete().eq('cliente_id', clienteId)
+    await supabase.from('pagos_programados').insert(pagosArr)
+    loadPagosProgramados(clienteId)
+  }
+
+  async function marcarPagoProgramado(pago: PagoProgramado, pagado: boolean) {
+    await supabase.from('pagos_programados').update({
+      pagado,
+      fecha_pago_real: pagado ? new Date().toISOString().split('T')[0] : null
+    }).eq('id', pago.id)
+    const updatedPagos = pagosProgramados.map(p => p.id === pago.id ? { ...p, pagado, fecha_pago_real: pagado ? new Date().toISOString().split('T')[0] : null } : p)
+    setPagosProgramados(updatedPagos)
+    const total = updatedPagos.filter(p => p.pagado).reduce((s, p) => s + p.monto_programado, 0)
+    await supabase.from('clientes').update({ total_pagado: total }).eq('id', pago.cliente_id)
+    setClientes(prev => prev.map(c => c.id === pago.cliente_id ? { ...c, total_pagado: total } : c))
+    if (selected?.id === pago.cliente_id) setSelected(p => p ? { ...p, total_pagado: total } : p)
+  }
+
+  async function uploadCompProgPago(pagoId: string, file: File) {
+    setUploadingProgComp(pagoId)
+    const ext = file.name.split('.').pop()
+    const path = `comprobantes/prog-${pagoId}.${ext}`
+    const { error } = await supabase.storage.from('comprobantes').upload(path, file, { upsert: true })
+    if (!error) {
+      const { data } = supabase.storage.from('comprobantes').getPublicUrl(path)
+      await supabase.from('pagos_programados').update({ comprobante_url: data.publicUrl }).eq('id', pagoId)
+      setPagosProgramados(prev => prev.map(p => p.id === pagoId ? { ...p, comprobante_url: data.publicUrl } : p))
+    }
+    setUploadingProgComp(null)
+  }
+
   // Validaciones
   function formatTelefono(val: string): string {
     const digits = val.replace(/\D/g, '').slice(0, 10)
@@ -822,93 +880,158 @@ function ClientesInner() {
               {/* ── TAB PAGOS ── */}
               {modalTab === 'pagos' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {pagosProgramados.length > 0 ? (
+                    <>
+                      {/* Resumen */}
+                      {(() => {
+                        const totalPagado = pagosProgramados.filter(p => p.pagado).reduce((s, p) => s + p.monto_programado, 0)
+                        const totalAcordado = pagosProgramados.reduce((s, p) => s + p.monto_programado, 0)
+                        const saldo = Math.max(0, totalAcordado - totalPagado)
+                        const numPagados = pagosProgramados.filter(p => p.pagado).length
+                        const pct = pagosProgramados.length > 0 ? Math.round((numPagados / pagosProgramados.length) * 100) : 0
+                        return (
+                          <>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                              {[
+                                { label: 'Total acordado', value: fmtMXN(totalAcordado), color: AZUL, bg: '#EEF2F8' },
+                                { label: 'Pagado', value: fmtMXN(totalPagado), color: VERDE, bg: '#f0fdf4' },
+                                { label: 'Saldo', value: fmtMXN(saldo), color: saldo > 0 ? '#ef4444' : VERDE, bg: saldo > 0 ? '#fef2f2' : '#f0fdf4' },
+                              ].map((k, i) => (
+                                <div key={i} style={{ background: k.bg, borderRadius: '8px', padding: '10px 12px', border: '1px solid #e2e8f0' }}>
+                                  <div style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '3px' }}>{k.label}</div>
+                                  <div style={{ fontSize: '15px', fontWeight: '800', color: k.color }}>{k.value}</div>
+                                </div>
+                              ))}
+                            </div>
+                            <div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#94a3b8', marginBottom: '4px' }}>
+                                <span>{numPagados} de {pagosProgramados.length} pagos completados</span>
+                                <span style={{ fontWeight: '700', color: VERDE }}>{pct}%</span>
+                              </div>
+                              <div style={{ height: '6px', background: '#f1f5f9', borderRadius: '3px', overflow: 'hidden' }}>
+                                <div style={{ height: '100%', width: `${pct}%`, background: VERDE, borderRadius: '3px', transition: 'width 0.4s' }} />
+                              </div>
+                            </div>
+                          </>
+                        )
+                      })()}
 
-                  {/* Resumen acordado / pagado / saldo */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-                    {(() => {
-                      const totalPagado = pagos.reduce((s,p) => s + p.monto, 0)
-                      const saldo = Math.max(0, (selected.monto_acordado ?? 0) - totalPagado)
-                      const estatus = calcEstatus(selected.monto_acordado, totalPagado)
-                      const sem = SEMAFORO[estatus]
-                      return [
-                        { label: 'Acordado', value: fmtMXN(selected.monto_acordado), color: AZUL, bg: '#F4F6FB', border: '#e2e8f0' },
-                        { label: 'Pagado', value: fmtMXN(totalPagado), color: VERDE, bg: '#f0fdf4', border: '#bbf7d0' },
-                        { label: 'Saldo', value: fmtMXN(saldo), color: sem.color, bg: sem.bg, border: sem.border, extra: `${sem.icon} ${estatus}` },
-                      ].map((k, i) => (
-                        <div key={i} style={{ background: k.bg, borderRadius: '8px', padding: '10px 12px', border: `1px solid ${k.border}` }}>
-                          <div style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '3px' }}>{k.label}</div>
-                          <div style={{ fontSize: '16px', fontWeight: '800', color: k.color }}>{k.value}</div>
-                          {k.extra && <div style={{ fontSize: '10px', fontWeight: '700', color: k.color, marginTop: '2px' }}>{k.extra}</div>}
-                        </div>
-                      ))
-                    })()}
-                  </div>
-
-                  {/* Botón registrar pago */}
-                  {(() => {
-                    const totalPagado = pagos.reduce((s,p) => s + p.monto, 0)
-                    const saldo = Math.max(0, (selected.monto_acordado ?? 0) - totalPagado)
-                    const liquidado = selected.monto_acordado != null && saldo <= 0
-                    if (liquidado) return (
-                      <div style={{ padding: '11px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', textAlign: 'center', fontSize: '13px', fontWeight: '700', color: VERDE }}>
-                        🟢 Cuenta liquidada — pago completo
+                      {/* Lista pagos programados */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        {pagosProgramados.map(pago => (
+                          <div key={pago.id} style={{ background: pago.pagado ? '#f0fdf4' : '#F8FAFC', borderRadius: '10px', border: `1px solid ${pago.pagado ? '#bbf7d0' : '#e2e8f0'}` }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px' }}>
+                              <button onClick={() => marcarPagoProgramado(pago, !pago.pagado)}
+                                style={{ width: '22px', height: '22px', borderRadius: '6px', border: `2px solid ${pago.pagado ? VERDE : '#cbd5e1'}`, background: pago.pagado ? VERDE : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, transition: 'all 0.15s' }}>
+                                {pago.pagado && <span style={{ color: 'white', fontSize: '11px', fontWeight: '700' }}>✓</span>}
+                              </button>
+                              <div style={{ flex: 1 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <span style={{ fontSize: '12px', fontWeight: '700', color: '#374151' }}>Pago {pago.numero_pago}</span>
+                                  <span style={{ fontSize: '14px', fontWeight: '800', color: pago.pagado ? VERDE : AZUL }}>{fmtMXN(pago.monto_programado)}</span>
+                                </div>
+                                <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '1px' }}>
+                                  Prog: {fmt(pago.fecha_programada)}
+                                  {pago.pagado && pago.fecha_pago_real && <span style={{ color: VERDE }}> · Pagado: {fmt(pago.fecha_pago_real)}</span>}
+                                </div>
+                              </div>
+                              {pago.pagado && (
+                                pago.comprobante_url ? (
+                                  <a href={pago.comprobante_url} target="_blank" rel="noopener noreferrer"
+                                    style={{ fontSize: '10px', color: AZUL, textDecoration: 'none', background: '#EEF2F8', padding: '3px 8px', borderRadius: '6px', fontWeight: '600' }}>
+                                    📎 Ver
+                                  </a>
+                                ) : (
+                                  <label style={{ fontSize: '10px', color: '#94a3b8', cursor: 'pointer', background: '#F4F6FB', padding: '3px 8px', borderRadius: '6px', border: '1px dashed #e2e8f0' }}>
+                                    {uploadingProgComp === pago.id ? '⏳' : '📎'}
+                                    <input type="file" accept="image/*,.pdf" onChange={e => { const f = e.target.files?.[0]; if (f) uploadCompProgPago(pago.id, f) }} style={{ display: 'none' }} disabled={uploadingProgComp === pago.id} />
+                                  </label>
+                                )
+                              )}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    )
-                    const concepto = detectarConcepto(pagos.length, 0, saldo, selected.monto_acordado)
-                    return (
-                      <button onClick={() => {
-                        setFormPago(p => ({ ...p, concepto }))
-                        setShowPago(true)
-                      }} style={{ width: '100%', padding: '11px', background: VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
-                        + Registrar {concepto.toLowerCase()} {saldo > 0 ? `— ${fmtMXN(saldo)} pendiente` : ''}
-                      </button>
-                    )
-                  })()}
-
-                  {/* Historial de pagos */}
-                  {pagos.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '28px', color: '#94a3b8', fontSize: '13px', background: '#F8FAFC', borderRadius: '10px', border: '1px dashed #e2e8f0' }}>
-                      Sin pagos registrados
-                    </div>
+                    </>
                   ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                      {/* Pagos ordenados del primero al último */}
-                      {[...pagos].reverse().map((pago, i) => (
-                        <div key={pago.id} style={{ background: '#F8FAFC', borderRadius: '10px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-                          {/* Header del pago */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderBottom: '1px solid #f1f5f9' }}>
-                            <span style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8' }}>Pago {i + 1}</span>
-                            <div style={{ flex: 1 }} />
-                            <span style={{ fontSize: '16px', fontWeight: '800', color: VERDE }}>{fmtMXN(pago.monto)}</span>
+                    <>
+                      {/* Esquema clásico de pagos */}
+                      {(() => {
+                        const totalPagado = pagos.reduce((s, p) => s + p.monto, 0)
+                        const saldo = Math.max(0, (selected.monto_acordado ?? 0) - totalPagado)
+                        const estatus = calcEstatus(selected.monto_acordado, totalPagado)
+                        const sem = SEMAFORO[estatus]
+                        return (
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                            {[
+                              { label: 'Acordado', value: fmtMXN(selected.monto_acordado), color: AZUL, bg: '#F4F6FB', border: '#e2e8f0' },
+                              { label: 'Pagado', value: fmtMXN(totalPagado), color: VERDE, bg: '#f0fdf4', border: '#bbf7d0' },
+                              { label: 'Saldo', value: fmtMXN(saldo), color: sem.color, bg: sem.bg, border: sem.border, extra: `${sem.icon} ${estatus}` },
+                            ].map((k, i) => (
+                              <div key={i} style={{ background: k.bg, borderRadius: '8px', padding: '10px 12px', border: `1px solid ${k.border}` }}>
+                                <div style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '3px' }}>{k.label}</div>
+                                <div style={{ fontSize: '16px', fontWeight: '800', color: k.color }}>{k.value}</div>
+                                {k.extra && <div style={{ fontSize: '10px', fontWeight: '700', color: k.color, marginTop: '2px' }}>{k.extra}</div>}
+                              </div>
+                            ))}
                           </div>
-                          {/* Detalle */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px' }}>
-                            <span style={{ fontSize: '11px', color: '#64748b', flex: 1 }}>
-                              {fmt(pago.fecha_pago)}
-                              {pago.notas && <span style={{ color: '#94a3b8' }}> · {pago.notas}</span>}
-                            </span>
-                            {pago.comprobante_url ? (
-                              <a href={pago.comprobante_url} target="_blank" rel="noopener noreferrer"
-                                style={{ fontSize: '11px', color: AZUL, textDecoration: 'none', background: '#EEF2F8', padding: '3px 10px', borderRadius: '6px', fontWeight: '600' }}>
-                                📎 Ver comprobante
-                              </a>
-                            ) : (
-                              <label style={{ fontSize: '11px', color: '#94a3b8', cursor: 'pointer', background: '#F4F6FB', padding: '3px 10px', borderRadius: '6px', border: '1px dashed #e2e8f0' }}>
-                                {uploadingComp === pago.id ? '⏳ Subiendo...' : '📎 Adjuntar'}
-                                <input type="file" accept="image/*,.pdf" onChange={e => { const f = e.target.files?.[0]; if (f) uploadComprobantePago(pago.id, f) }} style={{ display: 'none' }} disabled={uploadingComp === pago.id} />
-                              </label>
-                            )}
-                            <button onClick={() => eliminarPago(pago.id, pago.monto)}
-                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: '14px', padding: '2px' }}>🗑️</button>
+                        )
+                      })()}
+
+                      {(() => {
+                        const totalPagado = pagos.reduce((s,p) => s + p.monto, 0)
+                        const saldo = Math.max(0, (selected.monto_acordado ?? 0) - totalPagado)
+                        const liquidado = selected.monto_acordado != null && saldo <= 0
+                        const concepto = detectarConcepto(pagos.length, 0, saldo, selected.monto_acordado)
+                        if (liquidado) return (
+                          <div style={{ padding: '11px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', textAlign: 'center', fontSize: '13px', fontWeight: '700', color: VERDE }}>
+                            🟢 Cuenta liquidada — pago completo
+                          </div>
+                        )
+                        return (
+                          <button onClick={() => { setFormPago(p => ({ ...p, concepto })); setShowPago(true) }}
+                            style={{ width: '100%', padding: '11px', background: VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+                            + Registrar {concepto.toLowerCase()} {saldo > 0 ? `— ${fmtMXN(saldo)} pendiente` : ''}
+                          </button>
+                        )
+                      })()}
+
+                      {pagos.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '28px', color: '#94a3b8', fontSize: '13px', background: '#F8FAFC', borderRadius: '10px', border: '1px dashed #e2e8f0' }}>Sin pagos registrados</div>
+                      ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                          {[...pagos].reverse().map((pago, i) => (
+                            <div key={pago.id} style={{ background: '#F8FAFC', borderRadius: '10px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderBottom: '1px solid #f1f5f9' }}>
+                                <span style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8' }}>Pago {i + 1}</span>
+                                <div style={{ flex: 1 }} />
+                                <span style={{ fontSize: '16px', fontWeight: '800', color: VERDE }}>{fmtMXN(pago.monto)}</span>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px' }}>
+                                <span style={{ fontSize: '11px', color: '#64748b', flex: 1 }}>{fmt(pago.fecha_pago)}</span>
+                                {pago.comprobante_url ? (
+                                  <a href={pago.comprobante_url} target="_blank" rel="noopener noreferrer"
+                                    style={{ fontSize: '11px', color: AZUL, textDecoration: 'none', background: '#EEF2F8', padding: '3px 10px', borderRadius: '6px', fontWeight: '600' }}>
+                                    📎 Ver comprobante
+                                  </a>
+                                ) : (
+                                  <label style={{ fontSize: '11px', color: '#94a3b8', cursor: 'pointer', background: '#F4F6FB', padding: '3px 10px', borderRadius: '6px', border: '1px dashed #e2e8f0' }}>
+                                    {uploadingComp === pago.id ? '⏳ Subiendo...' : '📎 Adjuntar'}
+                                    <input type="file" accept="image/*,.pdf" onChange={e => { const f = e.target.files?.[0]; if (f) uploadComprobantePago(pago.id, f) }} style={{ display: 'none' }} disabled={uploadingComp === pago.id} />
+                                  </label>
+                                )}
+                                <button onClick={() => eliminarPago(pago.id, pago.monto)}
+                                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: '14px', padding: '4px', flexShrink: 0 }}>🗑️</button>
+                              </div>
+                            </div>
+                          ))}
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#F4F6FB', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                            <span style={{ fontSize: '12px', fontWeight: '700', color: '#64748b' }}>Total pagado ({pagos.length} pago{pagos.length !== 1 ? 's' : ''})</span>
+                            <span style={{ fontSize: '15px', fontWeight: '800', color: VERDE }}>{fmtMXN(pagos.reduce((s,p) => s + p.monto, 0))}</span>
                           </div>
                         </div>
-                      ))}
-                      {/* Total acumulado */}
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#F4F6FB', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                        <span style={{ fontSize: '12px', fontWeight: '700', color: '#64748b' }}>Total pagado ({pagos.length} pago{pagos.length !== 1 ? 's' : ''})</span>
-                        <span style={{ fontSize: '15px', fontWeight: '800', color: VERDE }}>{fmtMXN(pagos.reduce((s,p) => s + p.monto, 0))}</span>
-                      </div>
-                    </div>
+                      )}
+                    </>
                   )}
                 </div>
               )}
