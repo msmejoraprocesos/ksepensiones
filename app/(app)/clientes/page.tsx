@@ -188,6 +188,11 @@ function ClientesInner() {
   const [dragging, setDragging] = useState<string | null>(null)
   const [dragOver, setDragOver] = useState<string | null>(null)
 
+  async function loadMateriales(uid: string) {
+    const { data } = await supabase.from('materiales_apoyo').select('*').eq('asesor_id', uid).eq('activo', true).order('orden')
+    setMateriales(data ?? [])
+  }
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) return
