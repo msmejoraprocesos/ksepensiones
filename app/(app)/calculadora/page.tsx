@@ -371,7 +371,6 @@ function CalculadoraInner() {
   const tabSt = (i: number): React.CSSProperties => ({
     padding: '8px 14px', fontSize: '12px', fontWeight: tab === i ? '600' : '400',
     color: tab === i ? NARANJA : '#64748b', cursor: 'pointer',
-    borderBottom: `2px solid ${tab === i ? NARANJA : 'transparent'}`,
     whiteSpace: 'nowrap', background: 'none', border: 'none',
     borderBottom: `2px solid ${tab === i ? NARANJA : 'transparent'}`,
     marginBottom: '-1px',
