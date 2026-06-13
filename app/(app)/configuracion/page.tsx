@@ -249,8 +249,28 @@ export default function ConfiguracionPage() {
   )
 
   return (
-    <div style={{ height: 'calc(100vh - 56px)', overflow: 'auto', background: '#F4F6FB', padding: 'clamp(12px, 3vw, 24px)' }}>
-      <div style={{ maxWidth: '860px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div style={{ height: 'calc(100vh - 48px)', overflow: 'auto', background: '#FAFAFA', padding: '0' }}>
+      <div style={{ display: 'flex', height: '100%' }}>
+
+        {/* Sidebar de secciones */}
+        <div style={{ width: '200px', flexShrink: 0, borderRight: '1px solid #e2e8f0', background: 'white', padding: '16px 0' }}>
+          {[
+            { id: 'identidad', icon: '👤', label: 'Identidad' },
+            { id: 'variables', icon: '📊', label: 'Variables 2026' },
+            { id: 'preview', icon: '📄', label: 'Vista previa PDF' },
+          ].map(sec => (
+            <a key={sec.id} href={`#${sec.id}`}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', textDecoration: 'none', color: '#64748b', fontSize: '13px', borderLeft: '3px solid transparent' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#F4F6FB' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
+              <span>{sec.icon}</span>
+              <span>{sec.label}</span>
+            </a>
+          ))}
+        </div>
+
+        {/* Main content */}
+        <div style={{ flex: 1, overflow: 'auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
         {/* Banner primera vez */}
         {isFirstTime && (
@@ -364,7 +384,7 @@ export default function ConfiguracionPage() {
         <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
           {sectionTitle('📊', 'Variables del sistema 2026', 'Valores oficiales que usa la calculadora para todos los diagnósticos')}
 
-          {/* Alertas de vigencia */}
+          {/* Alertas de vigencia - solo si la variable no fue actualizada recientemente */}
           {(() => {
             const today = new Date()
             const alerts = [
@@ -558,6 +578,7 @@ export default function ConfiguracionPage() {
           </div>
         </div>
 
+        </div>
       </div>
     </div>
   )
