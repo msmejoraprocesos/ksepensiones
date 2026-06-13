@@ -262,42 +262,27 @@ export default function SeguimientoPage() {
                   />
                 ))}
                 {/* Actividades posicionadas */}
-                {(() => {
-                  const acts = actsDelDia(dia).filter(a => a.fecha_programada)
-                  // Calculate concurrent columns
-                  const withCols = acts.map((a, i) => {
-                    const aStart = new Date(a.fecha_programada!).getTime()
-                    const aEnd = aStart + 60 * 60 * 1000 // assume 1hr duration
-                    const concurrent = acts.filter((b, j) => {
-                      if (j === i) return false
-                      const bStart = new Date(b.fecha_programada!).getTime()
-                      const bEnd = bStart + 60 * 60 * 1000
-                      return aStart < bEnd && aEnd > bStart
-                    })
-                    const col = concurrent.reduce((maxCol, b) => {
-                      const bIdx = acts.indexOf(b)
-                      return bIdx < i ? maxCol + 1 : maxCol
-                    }, 0)
-                    const totalCols = concurrent.length + 1
-                    return { a, col, totalCols }
-                  })
-                  return (<>{withCols.map(({ a, col, totalCols }) => {
+                {actsDelDia(dia).map((a, ai) => {
                   if (!a.fecha_programada) return null
                   const d = new Date(a.fecha_programada)
                   const top = (d.getHours() + d.getMinutes() / 60) * HORA_H
                   const cfg = TIPO_CONFIG[a.tipo] ?? TIPO_CONFIG.nota
-                  const colWidth = `calc((100% - 4px) / ${totalCols})`
-                  const colLeft = `calc(2px + (100% - 4px) / ${totalCols} * ${col})`
+                  // Count concurrent activities at same hour
+                  const sameHour = actsDelDia(dia).filter(b => b.fecha_programada && Math.abs(new Date(b.fecha_programada).getHours() - d.getHours()) < 1)
+                  const totalCols = sameHour.length
+                  const col = sameHour.indexOf(a)
+                  const widthPct = Math.floor(96 / totalCols)
+                  const leftPct = col * widthPct + 2
                   return (
                     <div key={a.id} onClick={e => { e.stopPropagation(); setDetalle(a) }}
-                      style={{ position: 'absolute', top, left: colLeft, width: colWidth, minHeight: '24px', borderRadius: '6px', padding: '3px 6px', background: cfg.bg, border: `1px solid ${cfg.border}`, cursor: 'pointer', zIndex: 10 + col, opacity: a.estatus === 'completado' ? 0.6 : 1, boxSizing: 'border-box' }}>
+                      style={{ position: 'absolute', top, left: `${leftPct}%`, width: `${widthPct}%`, minHeight: '24px', borderRadius: '6px', padding: '3px 6px', background: cfg.bg, border: `1px solid ${cfg.border}`, cursor: 'pointer', zIndex: 10 + col, opacity: a.estatus === 'completado' ? 0.6 : 1, boxSizing: 'border-box' }}>
                       <div style={{ fontSize: '10px', fontWeight: '700', color: cfg.color, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: a.estatus === 'completado' ? 'line-through' : 'none' }}>
                         {TIPO_ICONS[a.tipo]} {d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })} {a.titulo}
                       </div>
                       {a.clientes?.nombre && <div style={{ fontSize: '9px', color: cfg.color, opacity: 0.8 }}>{a.clientes.nombre}</div>}
                     </div>
                   )
-                })})</>})}
+                })}
                 {/* Línea hora actual */}
                 {isSameDay(dia, hoy) && (
                   <div style={{ position: 'absolute', left: 0, right: 0, top: (hoy.getHours() + hoy.getMinutes() / 60) * HORA_H, height: '2px', background: '#ef4444', zIndex: 20, pointerEvents: 'none' }}>
