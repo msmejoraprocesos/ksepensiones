@@ -93,6 +93,10 @@ export default function ConfiguracionPage() {
   const [isFirstTime, setIsFirstTime] = useState(false)
   const [errors, setErrors] = useState<Partial<Record<keyof Perfil, string>>>({})
   const fileRef = useRef<HTMLInputElement>(null)
+  const [materiales, setMateriales] = useState<{id:string;nombre:string;descripcion:string|null;tipo:string;url:string|null;activo:boolean;orden:number}[]>([])
+  const [showNuevoMaterial, setShowNuevoMaterial] = useState(false)
+  const [formMaterial, setFormMaterial] = useState({ nombre: '', descripcion: '', tipo: 'general', url: '' })
+  const [savingMaterial, setSavingMaterial] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [editing, setEditing] = useState(false)
@@ -136,6 +140,41 @@ export default function ConfiguracionPage() {
     }
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
+  }
+
+  async function loadMateriales(uid: string) {
+    const { data } = await supabase.from('materiales_apoyo').select('*').eq('asesor_id', uid).order('orden')
+    setMateriales(data ?? [])
+  }
+
+  async function guardarMaterial() {
+    if (!formMaterial.nombre.trim()) return
+    setSavingMaterial(true)
+    const { data: { session } } = await supabase.auth.getSession()
+    const uid = session?.user?.id || userId
+    if (!uid) { setSavingMaterial(false); return }
+    const { data } = await supabase.from('materiales_apoyo').insert({
+      asesor_id: uid,
+      nombre: formMaterial.nombre,
+      descripcion: formMaterial.descripcion || null,
+      tipo: formMaterial.tipo,
+      url: formMaterial.url || null,
+      orden: materiales.length,
+    }).select().single()
+    if (data) setMateriales(prev => [...prev, data])
+    setFormMaterial({ nombre: '', descripcion: '', tipo: 'general', url: '' })
+    setShowNuevoMaterial(false)
+    setSavingMaterial(false)
+  }
+
+  async function toggleMaterial(id: string, activo: boolean) {
+    await supabase.from('materiales_apoyo').update({ activo }).eq('id', id)
+    setMateriales(prev => prev.map(m => m.id === id ? { ...m, activo } : m))
+  }
+
+  async function eliminarMaterial(id: string) {
+    await supabase.from('materiales_apoyo').delete().eq('id', id)
+    setMateriales(prev => prev.filter(m => m.id !== id))
   }
 
   async function guardar() {
@@ -262,6 +301,7 @@ export default function ConfiguracionPage() {
             { id: 'identidad', icon: '👤', label: 'Identidad' },
             { id: 'variables', icon: '📊', label: 'Variables 2026' },
             { id: 'preview', icon: '📄', label: 'Vista previa PDF' },
+            { id: 'materiales', icon: '📚', label: 'Materiales apoyo' },
           ].map(sec => (
             <a key={sec.id} href={`#${sec.id}`}
               style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', textDecoration: 'none', color: '#64748b', fontSize: '13px', borderLeft: '3px solid transparent' }}
@@ -549,6 +589,109 @@ export default function ConfiguracionPage() {
             </div>
           </div>
         </div>
+
+        {/* ── MATERIALES DE APOYO ── */}
+          <div id="materiales" style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <div>
+                <p style={{ fontSize: '14px', fontWeight: '700', color: '#1e293b', margin: '0 0 2px' }}>📚 Catálogo de materiales de apoyo</p>
+                <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>Documentos y links que puedes enviar por WhatsApp al dar de alta un cliente</p>
+              </div>
+              {editing && (
+                <button onClick={() => setShowNuevoMaterial(true)}
+                  style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
+                  + Agregar material
+                </button>
+              )}
+            </div>
+
+            {materiales.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '24px', background: '#F4F6FB', borderRadius: '10px', color: '#94a3b8', fontSize: '13px' }}>
+                <div style={{ fontSize: '32px', marginBottom: '8px' }}>📄</div>
+                No hay materiales configurados.<br />
+                Agrega guías, videos o links que ayuden a tus clientes a entender el proceso.
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {materiales.map((m, i) => (
+                  <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: m.activo ? 'white' : '#F8FAFC', border: `1px solid ${m.activo ? '#e2e8f0' : '#f1f5f9'}`, borderRadius: '8px', opacity: m.activo ? 1 : 0.6 }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#EEF2F8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>
+                      {m.tipo === 'video' ? '🎥' : m.tipo === 'guia' ? '📋' : m.tipo === 'calculadora' ? '🧮' : '📄'}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: '13px', fontWeight: '600', color: '#374151', margin: '0 0 2px' }}>{m.nombre}</p>
+                      {m.descripcion && <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0 }}>{m.descripcion}</p>}
+                      {m.url && <p style={{ fontSize: '11px', color: AZUL, margin: '2px 0 0' }}>{m.url}</p>}
+                    </div>
+                    <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '12px', background: m.tipo === 'video' ? '#fef3c7' : m.tipo === 'guia' ? '#f0fdf4' : '#EEF2F8', color: m.tipo === 'video' ? '#92400e' : m.tipo === 'guia' ? '#166534' : AZUL, fontWeight: '600' }}>
+                      {m.tipo}
+                    </span>
+                    {editing && (
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <button onClick={() => toggleMaterial(m.id, !m.activo)}
+                          style={{ padding: '4px 10px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '11px', cursor: 'pointer', background: 'white', color: '#64748b' }}>
+                          {m.activo ? 'Desactivar' : 'Activar'}
+                        </button>
+                        <button onClick={() => eliminarMaterial(m.id)}
+                          style={{ padding: '4px 10px', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '11px', cursor: 'pointer', background: '#fef2f2', color: '#ef4444' }}>
+                          🗑️
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Modal nuevo material */}
+          {showNuevoMaterial && (
+            <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '440px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+                <p style={{ fontSize: '15px', fontWeight: '700', color: '#1e293b', marginBottom: '16px' }}>Agregar material de apoyo</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px', textTransform: 'uppercase' }}>Nombre</label>
+                    <input value={formMaterial.nombre} onChange={e => setFormMaterial(p => ({ ...p, nombre: e.target.value }))}
+                      placeholder="Ej: Guía de pensión Ley 73"
+                      style={{ display: 'block', width: '100%', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px', textTransform: 'uppercase' }}>Tipo</label>
+                    <select value={formMaterial.tipo} onChange={e => setFormMaterial(p => ({ ...p, tipo: e.target.value }))}
+                      style={{ display: 'block', width: '100%', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', background: 'white' }}>
+                      <option value="general">📄 General</option>
+                      <option value="guia">📋 Guía / Manual</option>
+                      <option value="video">🎥 Video</option>
+                      <option value="calculadora">🧮 Calculadora</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px', textTransform: 'uppercase' }}>URL o link</label>
+                    <input value={formMaterial.url} onChange={e => setFormMaterial(p => ({ ...p, url: e.target.value }))}
+                      placeholder="https://..."
+                      style={{ display: 'block', width: '100%', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px', textTransform: 'uppercase' }}>Descripción (opcional)</label>
+                    <input value={formMaterial.descripcion} onChange={e => setFormMaterial(p => ({ ...p, descripcion: e.target.value }))}
+                      placeholder="Breve descripción del material"
+                      style={{ display: 'block', width: '100%', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button onClick={() => setShowNuevoMaterial(false)}
+                    style={{ flex: 1, padding: '10px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
+                    Cancelar
+                  </button>
+                  <button onClick={guardarMaterial} disabled={!formMaterial.nombre.trim() || savingMaterial}
+                    style={{ flex: 1, padding: '10px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', opacity: !formMaterial.nombre.trim() ? 0.5 : 1 }}>
+                    {savingMaterial ? 'Guardando...' : 'Guardar material'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
         {/* Barra sticky inferior */}
         <div style={{ position: 'sticky', bottom: 0, background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 -4px 16px rgba(0,0,0,0.06)', marginBottom: '8px' }}>
