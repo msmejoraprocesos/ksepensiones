@@ -247,7 +247,7 @@ function ClientesInner() {
     if (!session) { setSaving(false); return }
     const uid = session.user.id
     userIdRef.current = uid
-    const { error } = await supabase.from('clientes').insert({
+    const { data: newCliente, error } = await supabase.from('clientes').insert({
       asesor_id: uid,
       nombre: form.nombre,
       telefono: form.telefono || null,
@@ -256,13 +256,13 @@ function ClientesInner() {
       etapa_kanban: form.etapa_kanban,
       servicio_contratado: form.servicio_contratado || null,
       monto_acordado: form.monto_acordado ? parseFloat(form.monto_acordado) : null,
-    })
+    }).select().single()
     if (error) { console.error('Error: ' + error.message); setSaving(false); return }
     await loadClientes(uid)
     setSaving(false)
     // Show WhatsApp material modal
-    if (data) {
-      setNuevoClienteData({ id: data.id, nombre: data.nombre, telefono: data.telefono })
+    if (newCliente) {
+      setNuevoClienteData({ id: newCliente.id, nombre: newCliente.nombre, telefono: newCliente.telefono })
       setShowWappModal(true)
     }
     setShowNuevo(false)
