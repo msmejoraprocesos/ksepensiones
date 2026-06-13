@@ -5,41 +5,48 @@ const client = new Anthropic()
 
 export async function POST(req: NextRequest) {
   try {
-    const { base64, mediaType } = await req.json()
+    const { pdf } = await req.json()
+    if (!pdf) return NextResponse.json({ error: 'No PDF provided' }, { status: 400 })
 
     const response = await client.messages.create({
       model: 'claude-opus-4-5',
-      max_tokens: 1024,
+      max_tokens: 2000,
       messages: [{
         role: 'user',
         content: [
           {
             type: 'document',
-            source: { type: 'base64', media_type: mediaType, data: base64 }
-          } as any,
+            source: { type: 'base64', media_type: 'application/pdf', data: pdf }
+          },
           {
             type: 'text',
-            text: `Eres un experto en documentos del IMSS México. Analiza esta Constancia de Semanas Cotizadas y extrae los siguientes datos. Responde ÚNICAMENTE con un objeto JSON válido, sin markdown, sin explicaciones:
+            text: `Eres un experto en seguridad social mexicana. Analiza esta constancia de semanas cotizadas del IMSS y extrae TODA la información disponible.
+
+Responde ÚNICAMENTE con un objeto JSON válido, sin backticks ni texto adicional:
 
 {
-  "nombre": "nombre completo del asegurado",
+  "nombre": "nombre completo del trabajador",
   "nss": "número de seguridad social",
-  "curp": "CURP del asegurado",
-  "semanas": número total de semanas cotizadas (entero),
-  "salario_diario": último salario base de cotización en pesos (número),
-  "fecha_nac": "YYYY-MM-DD extraída del CURP (posición 4-9: AAMMDD)",
-  "cotizo_antes_97": true o false (revisa el historial laboral: si hay alguna fecha de alta ANTES del 1 de julio de 1997, es true),
-  "cotizo_despues_97": true o false (si hay alguna fecha de alta DESPUÉS del 1 de julio de 1997, es true),
-  "primer_empleo": "YYYY-MM-DD fecha del primer registro de alta en el historial laboral"
+  "fecha_nac": "YYYY-MM-DD",
+  "semanas": número total de semanas cotizadas,
+  "cotizo_antes_97": true o false (si cotizó antes del 01/07/1997 es Ley 73),
+  "cotizo_despues_97": true o false,
+  "primer_empleo": "YYYY-MM-DD o null",
+  "ultima_cotizacion": "YYYY-MM-DD o null",
+  "periodos": [
+    {
+      "fecha_inicio": "YYYY-MM-DD",
+      "fecha_fin": "YYYY-MM-DD",
+      "sdi": número (salario diario integrado en pesos),
+      "semanas": número de semanas en este período,
+      "patron": "nombre del patrón o empresa si aparece"
+    }
+  ]
 }
 
-Reglas importantes:
-- Las semanas son el TOTAL que aparece en el resumen principal del documento
-- El salario_diario es el último salario base de cotización registrado en pesos
-- La fecha_nac se extrae del CURP: caracteres 4-9 en formato AAMMDD, conviértela a YYYY-MM-DD
-- cotizo_antes_97: busca en el historial laboral si hay algún REINGRESO o ALTA con fecha anterior al 01/07/1997
-- cotizo_despues_97: busca si hay algún REINGRESO o ALTA con fecha posterior al 01/07/1997
-- Si no encuentras algún dato, usa null`
+Los períodos deben estar ordenados cronológicamente del más antiguo al más reciente.
+Si no encuentras algún campo, usa null para strings y 0 para números.
+Es crítico extraer correctamente los períodos con sus fechas y salarios para calcular el promedio de las últimas 250 semanas cotizadas.`
           }
         ]
       }]
@@ -49,9 +56,9 @@ Reglas importantes:
     const clean = text.replace(/```json|```/g, '').trim()
     const data = JSON.parse(clean)
 
-    return NextResponse.json({ ok: true, data })
-  } catch (error: any) {
-    console.error('Extract NSS error:', error)
-    return NextResponse.json({ ok: false, error: error.message }, { status: 500 })
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error('extract-nss error:', error)
+    return NextResponse.json({ error: 'Error processing PDF' }, { status: 500 })
   }
 }
