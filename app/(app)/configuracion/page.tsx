@@ -29,6 +29,9 @@ interface Perfil {
   mod40_2028: number
   mod40_2029: number
   mod40_2030: number
+  uma_actualizada_en: string | null
+  sm_actualizado_en: string | null
+  pmg_actualizado_en: string | null
 }
 
 const DEFAULTS: Perfil = {
@@ -38,6 +41,7 @@ const DEFAULTS: Perfil = {
   pmg_l97: 4345.72, rendimiento_afore_default: 6, inflacion_uma: 4.5,
   mod40_2026: 14.438, mod40_2027: 15.528, mod40_2028: 16.619,
   mod40_2029: 17.709, mod40_2030: 18.800,
+  uma_actualizada_en: null, sm_actualizado_en: null, pmg_actualizado_en: null,
 }
 
 // Validaciones
@@ -384,15 +388,21 @@ export default function ConfiguracionPage() {
         <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
           {sectionTitle('📊', 'Variables del sistema 2026', 'Valores oficiales que usa la calculadora para todos los diagnósticos')}
 
-          {/* Alertas de vigencia - solo si la variable no fue actualizada recientemente */}
+          {/* Alertas de vigencia - se ocultan si la variable fue actualizada recientemente */}
           {(() => {
             const today = new Date()
             const alerts = [
-              { key: 'uma_diaria', label: 'UMA Diaria', mes: 1, dia: 1, url: 'https://www.inegi.org.mx/temas/uma/', fuente: 'INEGI', desc: 'Se actualiza en febrero de cada año' },
-              { key: 'salario_minimo', label: 'Salario Mínimo', mes: 0, dia: 1, url: 'https://www.gob.mx/conasami', fuente: 'CONASAMI', desc: 'Se actualiza en enero de cada año' },
-              { key: 'pmg_mensual', label: 'PMG Ley 73', mes: 1, dia: 1, url: 'https://www.imss.gob.mx', fuente: 'IMSS', desc: 'Se actualiza en febrero con la UMA' },
+              { key: 'uma_diaria', label: 'UMA Diaria', mes: 1, dia: 1, url: 'https://www.inegi.org.mx/temas/uma/', fuente: 'INEGI', desc: 'Se actualiza en febrero de cada año', updatedKey: 'uma_actualizada_en' },
+              { key: 'salario_minimo', label: 'Salario Mínimo', mes: 0, dia: 1, url: 'https://www.gob.mx/conasami', fuente: 'CONASAMI', desc: 'Se actualiza en enero de cada año', updatedKey: 'sm_actualizado_en' },
+              { key: 'pmg_mensual', label: 'PMG Ley 73', mes: 1, dia: 1, url: 'https://www.imss.gob.mx', fuente: 'IMSS', desc: 'Se actualiza en febrero con la UMA', updatedKey: 'pmg_actualizado_en' },
             ]
             const nearAlerts = alerts.filter(a => {
+              // Hide if updated within last 30 days
+              const updatedAt = (perfil as any)[a.updatedKey]
+              if (updatedAt) {
+                const daysSinceUpdate = Math.floor((today.getTime() - new Date(updatedAt).getTime()) / 86400000)
+                if (daysSinceUpdate < 30) return false
+              }
               const updateDate = new Date(today.getFullYear(), a.mes, a.dia)
               if (updateDate < today) { updateDate.setFullYear(today.getFullYear() + 1) }
               const daysLeft = Math.ceil((updateDate.getTime() - today.getTime()) / 86400000)
