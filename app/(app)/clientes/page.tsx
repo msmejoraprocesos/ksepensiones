@@ -163,6 +163,8 @@ function ClientesInner() {
   const [formPago, setFormPago] = useState({ monto: '', concepto: 'Anticipo', notas: '', fecha_pago: new Date().toISOString().split('T')[0] })
   const [savingPago, setSavingPago] = useState(false)
   const [uploadingComp, setUploadingComp] = useState<string | null>(null)
+  const [pagosProgramados, setPagosProgramados] = useState<PagoProgramado[]>([])
+  const [uploadingProgComp, setUploadingProgComp] = useState<string | null>(null)
   const [compFile, setCompFile] = useState<File | null>(null)
 
   // Drag & drop
