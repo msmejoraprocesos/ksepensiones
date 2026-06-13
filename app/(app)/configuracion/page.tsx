@@ -105,6 +105,8 @@ export default function ConfiguracionPage() {
   const [savingMaterial, setSavingMaterial] = useState(false)
   const [showMaterialDetalle, setShowMaterialDetalle] = useState<any>(null)
   const [uploadingAdjunto, setUploadingAdjunto] = useState(false)
+  const [logoError, setLogoError] = useState<string | null>(null)
+  const [materialError, setMaterialError] = useState<string | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [editing, setEditing] = useState(false)
@@ -158,18 +160,29 @@ export default function ConfiguracionPage() {
   async function guardarMaterial() {
     if (!formMaterial.nombre.trim()) return
     setSavingMaterial(true)
+    setMaterialError(null)
     const { data: { session } } = await supabase.auth.getSession()
     const uid = session?.user?.id || userId
-    if (!uid) { setSavingMaterial(false); return }
-    const { data } = await supabase.from('materiales_apoyo').insert({
+    if (!uid) {
+      setMaterialError('No se pudo identificar tu sesión. Recarga la página e intenta de nuevo.')
+      setSavingMaterial(false)
+      return
+    }
+    const { data, error } = await supabase.from('materiales_apoyo').insert({
       asesor_id: uid,
       nombre: formMaterial.nombre,
       descripcion: formMaterial.descripcion || null,
       tipo: formMaterial.tipo,
       url: formMaterial.url || null,
       archivo_url: formMaterial.archivo_url || null,
+      activo: true,
       orden: materiales.length,
     }).select().single()
+    if (error) {
+      setMaterialError('Error al guardar: ' + error.message)
+      setSavingMaterial(false)
+      return
+    }
     if (data) setMateriales(prev => [...prev, data])
     setFormMaterial({ nombre: '', descripcion: '', tipo: 'general', url: '' })
     setShowNuevoMaterial(false)
@@ -182,7 +195,8 @@ export default function ConfiguracionPage() {
   }
 
   async function eliminarMaterial(id: string) {
-    await supabase.from('materiales_apoyo').delete().eq('id', id)
+    const { error } = await supabase.from('materiales_apoyo').delete().eq('id', id)
+    if (error) { setMaterialError('Error al eliminar: ' + error.message); return }
     setMateriales(prev => prev.filter(m => m.id !== id))
   }
 
@@ -230,12 +244,22 @@ export default function ConfiguracionPage() {
 
   async function uploadLogo(file: File) {
     setUploadingLogo(true)
+    // Get fresh session FIRST to ensure correct user id for the storage path
+    const { data: { session } } = await supabase.auth.getSession()
+    const uid = session?.user?.id || userId
+    if (!uid) {
+      setLogoError('No se pudo identificar tu sesión. Recarga la página e intenta de nuevo.')
+      setUploadingLogo(false)
+      return
+    }
+    setLogoError(null)
+
     // Show instant local preview while uploading
     const localUrl = URL.createObjectURL(file)
     setPerfil(p => ({ ...p, logo_url: localUrl }))
 
     const ext = file.name.split('.').pop()
-    const path = `logos/${userId}.${ext}`
+    const path = `logos/${uid}.${ext}`
     const { error } = await supabase.storage.from('logos').upload(path, file, { upsert: true })
     if (!error) {
       const { data } = supabase.storage.from('logos').getPublicUrl(path)
@@ -243,14 +267,10 @@ export default function ConfiguracionPage() {
       // Update state with final URL
       setPerfil(p => ({ ...p, logo_url: finalUrl }))
       // Also save logo_url to DB immediately so it persists
-      const { data: { session } } = await supabase.auth.getSession()
-      const uid = session?.user?.id || userId
-      if (uid) {
-        await supabase.from('perfiles_usuario').upsert({ id: uid, logo_url: finalUrl }, { onConflict: 'id' })
-      }
+      const { error: dbError } = await supabase.from('perfiles_usuario').upsert({ id: uid, logo_url: finalUrl }, { onConflict: 'id' })
+      if (dbError) console.error('Error saving logo_url to DB:', dbError.message)
     } else {
-      console.error('Logo upload error:', error)
-      // Keep local preview even if upload failed
+      setLogoError('Error al subir el logo: ' + error.message)
     }
     if (fileRef.current) fileRef.current.value = ''
     setUploadingLogo(false)
@@ -334,35 +354,17 @@ export default function ConfiguracionPage() {
         <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
           {sectionTitle('👤', 'Identidad del asesor', 'Esta información aparece en el encabezado de tus propuestas PDF')}
 
-          {/* Logo: vista previa + upload */}
-          <div style={{ marginBottom: '20px', display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
-            {/* Vista previa del logo activo */}
-            <div style={{ flexShrink: 0 }}>
-              <label style={labelSt}>Logo activo</label>
-              <div style={{ width: '120px', height: '90px', border: `2px ${perfil.logo_url ? 'solid #bbf7d0' : 'dashed #e2e8f0'}`, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: perfil.logo_url ? '#f0fdf4' : '#F8FAFC', overflow: 'hidden' }}>
-                {perfil.logo_url ? (
-                  <img src={perfil.logo_url} alt="Logo activo" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '6px' }}
-                    onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
-                ) : (
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '26px' }}>🏢</div>
-                    <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>Sin logo</div>
-                  </div>
-                )}
-              </div>
-              {perfil.logo_url && <p style={{ fontSize: '10px', color: VERDE, fontWeight: '600', marginTop: '4px', textAlign: 'center' }}>✓ Logo guardado</p>}
-            </div>
-
-            {/* Subir logo - solo en modo edición */}
+          {/* Logo: subir (izq) + mini preview (der) */}
+          <div style={{ marginBottom: '20px', display: 'flex', gap: '20px', alignItems: 'center' }}>
             <div style={{ flex: 1 }}>
-              <label style={labelSt}>{editing ? 'Cambiar logo' : 'Logo del asesor'}</label>
+              <label style={labelSt}>Logo del asesor</label>
               <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 8px', lineHeight: 1.5 }}>
                 Aparece en el PDF de propuesta junto a tu nombre. PNG con fondo transparente recomendado, mínimo 200×80px.
               </p>
               {editing ? (
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: uploadingLogo ? '#f1f5f9' : '#EEF2F8', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: uploadingLogo ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600', color: AZUL }}>
-                    {uploadingLogo ? '⏳ Subiendo...' : '📁 Subir nuevo logo'}
+                    {uploadingLogo ? '⏳ Subiendo...' : '📁 Subir logo'}
                     <input ref={fileRef} type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) uploadLogo(f) }} style={{ display: 'none' }} disabled={uploadingLogo} />
                   </label>
                   {perfil.logo_url && (
@@ -380,6 +382,23 @@ export default function ConfiguracionPage() {
                   Activa el modo Editar para cambiar el logo
                 </p>
               )}
+              {logoError && <p style={{ fontSize: '11px', color: '#ef4444', marginTop: '6px' }}>⚠️ {logoError}</p>}
+            </div>
+
+            {/* Mini preview a la derecha */}
+            <div style={{ flexShrink: 0 }}>
+              <div style={{ width: '120px', height: '90px', border: `2px ${perfil.logo_url ? 'solid #bbf7d0' : 'dashed #e2e8f0'}`, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: perfil.logo_url ? '#f0fdf4' : '#F8FAFC', overflow: 'hidden' }}>
+                {perfil.logo_url ? (
+                  <img src={perfil.logo_url} alt="Logo activo" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '6px' }}
+                    onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                ) : (
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '26px' }}>🏢</div>
+                    <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>Sin logo</div>
+                  </div>
+                )}
+              </div>
+              {perfil.logo_url && <p style={{ fontSize: '10px', color: VERDE, fontWeight: '600', marginTop: '4px', textAlign: 'center' }}>✓ Guardado</p>}
             </div>
           </div>
 
@@ -636,6 +655,11 @@ export default function ConfiguracionPage() {
               )}
             </div>
 
+            {materialError && !showNuevoMaterial && (
+              <div style={{ padding: '8px 12px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', fontSize: '12px', color: '#ef4444', marginBottom: '12px' }}>
+                ⚠️ {materialError}
+              </div>
+            )}
             {materiales.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '24px', background: '#F4F6FB', borderRadius: '10px', color: '#94a3b8', fontSize: '13px' }}>
                 <div style={{ fontSize: '32px', marginBottom: '8px' }}>📄</div>
@@ -665,9 +689,10 @@ export default function ConfiguracionPage() {
                         <td style={{ padding: '10px 12px', color: '#64748b', maxWidth: '240px' }}>{m.descripcion || '—'}</td>
                         <td style={{ padding: '10px 12px' }}>
                           {(m as any).archivo_url ? (
-                            <a href={(m as any).archivo_url} target="_blank" rel="noopener noreferrer"
-                              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: AZUL, textDecoration: 'none', background: '#EEF2F8', padding: '3px 8px', borderRadius: '6px', fontWeight: '600' }}>
-                              📎 Ver archivo
+                            <a href={(m as any).archivo_url} target="_blank" rel="noopener noreferrer" download
+                              title={(m as any).archivo_url}
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: AZUL, textDecoration: 'none', background: '#EEF2F8', padding: '3px 8px', borderRadius: '6px', fontWeight: '600', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              📎 Descargar / Ver
                             </a>
                           ) : m.url ? (
                             <a href={m.url} target="_blank" rel="noopener noreferrer"
@@ -708,6 +733,11 @@ export default function ConfiguracionPage() {
             <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '460px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
                 <p style={{ fontSize: '15px', fontWeight: '700', color: '#1e293b', marginBottom: '16px' }}>Agregar material de apoyo</p>
+                {materialError && (
+                  <div style={{ padding: '8px 12px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', fontSize: '12px', color: '#ef4444', marginBottom: '12px' }}>
+                    ⚠️ {materialError}
+                  </div>
+                )}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px', textTransform: 'uppercase' }}>Nombre</label>
@@ -747,14 +777,22 @@ export default function ConfiguracionPage() {
                           const f = e.target.files?.[0]
                           if (!f) return
                           setUploadingAdjunto(true)
+                          setMaterialError(null)
                           const { data: { session } } = await supabase.auth.getSession()
                           const uid = session?.user?.id || userId
+                          if (!uid) {
+                            setMaterialError('No se pudo identificar tu sesión. Recarga la página e intenta de nuevo.')
+                            setUploadingAdjunto(false)
+                            return
+                          }
                           const ext = f.name.split('.').pop()
                           const path = `materiales/${uid}-${Date.now()}.${ext}`
                           const { error } = await supabase.storage.from('logos').upload(path, f, { upsert: true })
                           if (!error) {
                             const { data } = supabase.storage.from('logos').getPublicUrl(path)
-                            setFormMaterial(p => ({ ...p, archivo_url: data.publicUrl } as any))
+                            setFormMaterial(p => ({ ...p, archivo_url: data.publicUrl, _archivo_nombre: f.name } as any))
+                          } else {
+                            setMaterialError('Error al subir archivo: ' + error.message)
                           }
                           setUploadingAdjunto(false)
                         }} />
