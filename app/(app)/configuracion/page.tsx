@@ -32,6 +32,10 @@ interface Perfil {
   uma_actualizada_en: string | null
   sm_actualizado_en: string | null
   pmg_actualizado_en: string | null
+  encabezado_color: string
+  encabezado_titulo: string
+  encabezado_logo_size: number
+  encabezado_font_size: number
 }
 
 const DEFAULTS: Perfil = {
@@ -42,6 +46,8 @@ const DEFAULTS: Perfil = {
   mod40_2026: 14.438, mod40_2027: 15.528, mod40_2028: 16.619,
   mod40_2029: 17.709, mod40_2030: 18.800,
   uma_actualizada_en: null, sm_actualizado_en: null, pmg_actualizado_en: null,
+  encabezado_color: '#1B3A6B', encabezado_titulo: 'Diagnóstico Pensional',
+  encabezado_logo_size: 28, encabezado_font_size: 13,
 }
 
 // Validaciones
@@ -95,8 +101,10 @@ export default function ConfiguracionPage() {
   const fileRef = useRef<HTMLInputElement>(null)
   const [materiales, setMateriales] = useState<{id:string;nombre:string;descripcion:string|null;tipo:string;url:string|null;activo:boolean;orden:number}[]>([])
   const [showNuevoMaterial, setShowNuevoMaterial] = useState(false)
-  const [formMaterial, setFormMaterial] = useState({ nombre: '', descripcion: '', tipo: 'general', url: '' })
+  const [formMaterial, setFormMaterial] = useState<{nombre:string;descripcion:string;tipo:string;url:string;archivo_url?:string}>({ nombre: '', descripcion: '', tipo: 'general', url: '' })
   const [savingMaterial, setSavingMaterial] = useState(false)
+  const [showMaterialDetalle, setShowMaterialDetalle] = useState<any>(null)
+  const [uploadingAdjunto, setUploadingAdjunto] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [editing, setEditing] = useState(false)
@@ -159,6 +167,7 @@ export default function ConfiguracionPage() {
       descripcion: formMaterial.descripcion || null,
       tipo: formMaterial.tipo,
       url: formMaterial.url || null,
+      archivo_url: formMaterial.archivo_url || null,
       orden: materiales.length,
     }).select().single()
     if (data) setMateriales(prev => [...prev, data])
@@ -293,28 +302,7 @@ export default function ConfiguracionPage() {
 
   return (
     <div style={{ height: 'calc(100vh - 48px)', overflow: 'auto', background: '#FAFAFA', padding: '0' }}>
-      <div style={{ display: 'flex', height: '100%' }}>
-
-        {/* Sidebar de secciones */}
-        <div style={{ width: '200px', flexShrink: 0, borderRight: '1px solid #e2e8f0', background: 'white', padding: '16px 0' }}>
-          {[
-            { id: 'identidad', icon: '👤', label: 'Identidad' },
-            { id: 'variables', icon: '📊', label: 'Variables 2026' },
-            { id: 'preview', icon: '📄', label: 'Vista previa PDF' },
-            { id: 'materiales', icon: '📚', label: 'Materiales apoyo' },
-          ].map(sec => (
-            <a key={sec.id} href={`#${sec.id}`}
-              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', textDecoration: 'none', color: '#64748b', fontSize: '13px', borderLeft: '3px solid transparent' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#F4F6FB' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}>
-              <span>{sec.icon}</span>
-              <span>{sec.label}</span>
-            </a>
-          ))}
-        </div>
-
-        {/* Main content */}
-        <div style={{ flex: 1, overflow: 'auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
         {/* Banner primera vez */}
         {isFirstTime && (
@@ -346,41 +334,52 @@ export default function ConfiguracionPage() {
         <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
           {sectionTitle('👤', 'Identidad del asesor', 'Esta información aparece en el encabezado de tus propuestas PDF')}
 
-          {/* Logo */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={labelSt}>Logo del asesor</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ width: '90px', height: '70px', border: `2px ${perfil.logo_url ? 'solid #bbf7d0' : 'dashed #e2e8f0'}`, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: perfil.logo_url ? '#f0fdf4' : '#F8FAFC', overflow: 'hidden', flexShrink: 0 }}>
+          {/* Logo: vista previa + upload */}
+          <div style={{ marginBottom: '20px', display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
+            {/* Vista previa del logo activo */}
+            <div style={{ flexShrink: 0 }}>
+              <label style={labelSt}>Logo activo</label>
+              <div style={{ width: '120px', height: '90px', border: `2px ${perfil.logo_url ? 'solid #bbf7d0' : 'dashed #e2e8f0'}`, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: perfil.logo_url ? '#f0fdf4' : '#F8FAFC', overflow: 'hidden' }}>
                 {perfil.logo_url ? (
-                  <img src={perfil.logo_url} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '4px' }}
+                  <img src={perfil.logo_url} alt="Logo activo" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '6px' }}
                     onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
                 ) : (
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '24px' }}>🏢</div>
-                    <div style={{ fontSize: '9px', color: '#94a3b8', marginTop: '2px' }}>Sin logo</div>
+                    <div style={{ fontSize: '26px' }}>🏢</div>
+                    <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>Sin logo</div>
                   </div>
                 )}
               </div>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 8px', lineHeight: 1.5 }}>
-                  Aparece en el PDF de propuesta junto a tu nombre. PNG con fondo transparente recomendado, mínimo 200×80px.
-                </p>
+              {perfil.logo_url && <p style={{ fontSize: '10px', color: VERDE, fontWeight: '600', marginTop: '4px', textAlign: 'center' }}>✓ Logo guardado</p>}
+            </div>
+
+            {/* Subir logo - solo en modo edición */}
+            <div style={{ flex: 1 }}>
+              <label style={labelSt}>{editing ? 'Cambiar logo' : 'Logo del asesor'}</label>
+              <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 8px', lineHeight: 1.5 }}>
+                Aparece en el PDF de propuesta junto a tu nombre. PNG con fondo transparente recomendado, mínimo 200×80px.
+              </p>
+              {editing ? (
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: (!editing || uploadingLogo) ? '#f1f5f9' : '#EEF2F8', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: (!editing || uploadingLogo) ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600', color: editing ? AZUL : '#94a3b8' }}>
-                    {uploadingLogo ? '⏳ Subiendo...' : '📁 Subir logo'}
-                    <input ref={fileRef} type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) uploadLogo(f) }} style={{ display: 'none' }} disabled={uploadingLogo || !editing} />
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: uploadingLogo ? '#f1f5f9' : '#EEF2F8', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: uploadingLogo ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600', color: AZUL }}>
+                    {uploadingLogo ? '⏳ Subiendo...' : '📁 Subir nuevo logo'}
+                    <input ref={fileRef} type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) uploadLogo(f) }} style={{ display: 'none' }} disabled={uploadingLogo} />
                   </label>
                   {perfil.logo_url && (
-                    <button onClick={() => {
+                    <button onClick={async () => {
                       setPerfil(p => ({ ...p, logo_url: null }))
+                      await supabase.from('perfiles_usuario').update({ logo_url: null }).eq('id', userId)
                       if (fileRef.current) fileRef.current.value = ''
                     }} style={{ fontSize: '12px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}>
-                      Quitar
+                      Quitar logo
                     </button>
                   )}
-                  {perfil.logo_url && <span style={{ fontSize: '11px', color: VERDE, fontWeight: '600' }}>✓ Logo cargado</span>}
                 </div>
-              </div>
+              ) : (
+                <p style={{ fontSize: '12px', color: '#94a3b8', fontStyle: 'italic' }}>
+                  Activa el modo Editar para cambiar el logo
+                </p>
+              )}
             </div>
           </div>
 
@@ -412,11 +411,6 @@ export default function ConfiguracionPage() {
               {errorMsg('email_contacto')}
               {!errors.email_contacto && perfil.email_contacto && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(perfil.email_contacto) && <p style={{ fontSize: '10px', color: VERDE, margin: '3px 0 0' }}>✓ Email válido</p>}
             </div>
-            <div>
-              <label style={labelSt}>Vigencia de propuesta (días) {tooltip('Días que es válida la propuesta PDF desde su fecha de emisión')}</label>
-              <input type="number" value={perfil.vigencia_propuesta} onChange={e => set('vigencia_propuesta', parseInt(e.target.value) || 30)} min={1} max={365} style={editing ? inputSt() : disabledSt} disabled={!editing} />
-              <p style={{ fontSize: '10px', color: '#94a3b8', margin: '3px 0 0' }}>El PDF dirá: "Válida por {perfil.vigencia_propuesta} días a partir de la fecha de emisión"</p>
-            </div>
             <div style={{ gridColumn: '1 / -1' }}>
               <label style={labelSt}>Dirección / Ciudad</label>
               <input value={perfil.direccion} onChange={e => set('direccion', e.target.value)} placeholder="Ej. Querétaro, Qro." style={editing ? inputSt() : disabledSt} disabled={!editing} />
@@ -424,8 +418,6 @@ export default function ConfiguracionPage() {
           </div>
         </div>
 
-        {/* ── SECCIÓN 2: Variables del sistema ── */}
-        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
           {sectionTitle('📊', 'Variables del sistema 2026', 'Valores oficiales que usa la calculadora para todos los diagnósticos')}
 
           {/* Alertas de vigencia - se ocultan si la variable fue actualizada recientemente */}
@@ -555,31 +547,62 @@ export default function ConfiguracionPage() {
         </div>
 
         {/* ── SECCIÓN 3: Preview PDF ── */}
-        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
-          {sectionTitle('📄', 'Vista previa del PDF', 'Así se verá el encabezado de tus propuestas')}
+        <div id="encabezado" style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
+          {sectionTitle('🎨', 'Encabezado de propuestas PDF', 'Personaliza cómo se ve el encabezado en tus documentos')}
+
+          {/* Configuración del encabezado */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', marginBottom: '16px' }}>
+            <div>
+              <label style={labelSt}>Título del documento</label>
+              <input value={perfil.encabezado_titulo} onChange={e => set('encabezado_titulo', e.target.value)} placeholder="Diagnóstico Pensional" style={editing ? inputSt() : disabledSt} disabled={!editing} />
+            </div>
+            <div>
+              <label style={labelSt}>Color del encabezado</label>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <input type="color" value={perfil.encabezado_color} onChange={e => set('encabezado_color', e.target.value)}
+                  style={{ width: '40px', height: '36px', border: '1px solid #e2e8f0', borderRadius: '6px', cursor: editing ? 'pointer' : 'default', padding: '2px' }} disabled={!editing} />
+                <input value={perfil.encabezado_color} onChange={e => set('encabezado_color', e.target.value)} placeholder="#1B3A6B" style={editing ? inputSt() : disabledSt} disabled={!editing} />
+              </div>
+            </div>
+            <div>
+              <label style={labelSt}>Tamaño del logo (px)</label>
+              <input type="range" min="20" max="48" value={perfil.encabezado_logo_size} onChange={e => set('encabezado_logo_size', parseInt(e.target.value))}
+                style={{ width: '100%' }} disabled={!editing} />
+              <p style={{ fontSize: '11px', color: '#94a3b8', margin: '2px 0 0', textAlign: 'right' }}>{perfil.encabezado_logo_size}px</p>
+            </div>
+            <div>
+              <label style={labelSt}>Tamaño de fuente (px)</label>
+              <input type="range" min="10" max="18" value={perfil.encabezado_font_size} onChange={e => set('encabezado_font_size', parseInt(e.target.value))}
+                style={{ width: '100%' }} disabled={!editing} />
+              <p style={{ fontSize: '11px', color: '#94a3b8', margin: '2px 0 0', textAlign: 'right' }}>{perfil.encabezado_font_size}px</p>
+            </div>
+          </div>
+
+          {/* Vista previa */}
+          <p style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Vista previa</p>
           <div style={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
-            <div style={{ background: AZUL, padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ background: perfil.encabezado_color, padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 {perfil.logo_url && (
-                  <div style={{ background: 'white', borderRadius: '5px', padding: '3px', height: '32px', display: 'flex', alignItems: 'center' }}>
+                  <div style={{ background: 'white', borderRadius: '5px', padding: '3px', height: `${perfil.encabezado_logo_size + 4}px`, display: 'flex', alignItems: 'center' }}>
                     <img src={perfil.logo_url} alt="Logo"
-                      style={{ height: '28px', maxWidth: '80px', objectFit: 'contain' }}
+                      style={{ height: `${perfil.encabezado_logo_size}px`, maxWidth: '80px', objectFit: 'contain' }}
                       onError={e => { (e.target as HTMLImageElement).parentElement!.style.display = 'none' }} />
                   </div>
                 )}
                 <div>
-                  <div style={{ color: 'white', fontWeight: '700', fontSize: '13px' }}>{perfil.razon_social || perfil.nombre || 'Nombre del asesor'}</div>
-                  <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '10px' }}>
+                  <div style={{ color: 'white', fontWeight: '700', fontSize: `${perfil.encabezado_font_size}px` }}>{perfil.razon_social || perfil.nombre || 'Nombre del asesor'}</div>
+                  <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: `${Math.max(8, perfil.encabezado_font_size - 3)}px` }}>
                     {[perfil.rfc, perfil.telefono, perfil.email_contacto].filter(Boolean).join(' · ') || 'RFC · Teléfono · Email'}
                   </div>
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ color: 'white', fontSize: '12px', fontWeight: '700' }}>Diagnóstico Pensional</div>
-                <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '10px' }}>{new Date().toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' })}</div>
-                <div style={{ color: NARANJA, fontSize: '9px', fontWeight: '600', marginTop: '2px' }}>Válida por {perfil.vigencia_propuesta} días</div>
+                <div style={{ color: 'white', fontSize: `${Math.max(10, perfil.encabezado_font_size - 1)}px`, fontWeight: '700' }}>{perfil.encabezado_titulo || 'Diagnóstico Pensional'}</div>
+                <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: `${Math.max(8, perfil.encabezado_font_size - 3)}px` }}>{new Date().toLocaleDateString('es-MX', { day:'numeric', month:'long', year:'numeric' })}</div>
               </div>
             </div>
+            {/* Pie - NO editable */}
             <div style={{ background: '#F4F6FB', padding: '7px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #e2e8f0' }}>
               <div style={{ fontSize: '10px', color: '#94a3b8' }}>Folio: KSE-2026-000001 · Documento confidencial</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -587,6 +610,14 @@ export default function ConfiguracionPage() {
                 <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '700' }}>KSE Pensiones</span>
               </div>
             </div>
+          </div>
+          <p style={{ fontSize: '10px', color: '#94a3b8', margin: '8px 0 0' }}>
+            ℹ️ El folio, la paginación y "Powered by KSE Pensiones" no son editables.
+          </p>
+
+          {/* Leyenda de vigencia en el PDF */}
+          <div style={{ marginTop: '14px', padding: '10px 14px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px', fontSize: '11px', color: '#92400e' }}>
+            📌 Cada PDF generado incluirá automáticamente la leyenda: <em>"La información presentada está sujeta a cambios en la normativa y variables del IMSS. Tiene un margen de certeza de 30 días a partir de su fecha de emisión."</em>
           </div>
         </div>
 
@@ -612,34 +643,62 @@ export default function ConfiguracionPage() {
                 Agrega guías, videos o links que ayuden a tus clientes a entender el proceso.
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {materiales.map((m, i) => (
-                  <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: m.activo ? 'white' : '#F8FAFC', border: `1px solid ${m.activo ? '#e2e8f0' : '#f1f5f9'}`, borderRadius: '8px', opacity: m.activo ? 1 : 0.6 }}>
-                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#EEF2F8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>
-                      {m.tipo === 'video' ? '🎥' : m.tipo === 'guia' ? '📋' : m.tipo === 'calculadora' ? '🧮' : '📄'}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <p style={{ fontSize: '13px', fontWeight: '600', color: '#374151', margin: '0 0 2px' }}>{m.nombre}</p>
-                      {m.descripcion && <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0 }}>{m.descripcion}</p>}
-                      {m.url && <p style={{ fontSize: '11px', color: AZUL, margin: '2px 0 0' }}>{m.url}</p>}
-                    </div>
-                    <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '12px', background: m.tipo === 'video' ? '#fef3c7' : m.tipo === 'guia' ? '#f0fdf4' : '#EEF2F8', color: m.tipo === 'video' ? '#92400e' : m.tipo === 'guia' ? '#166534' : AZUL, fontWeight: '600' }}>
-                      {m.tipo}
-                    </span>
-                    {editing && (
-                      <div style={{ display: 'flex', gap: '6px' }}>
-                        <button onClick={() => toggleMaterial(m.id, !m.activo)}
-                          style={{ padding: '4px 10px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '11px', cursor: 'pointer', background: 'white', color: '#64748b' }}>
-                          {m.activo ? 'Desactivar' : 'Activar'}
-                        </button>
-                        <button onClick={() => eliminarMaterial(m.id)}
-                          style={{ padding: '4px 10px', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '11px', cursor: 'pointer', background: '#fef2f2', color: '#ef4444' }}>
-                          🗑️
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ))}
+              <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '10px' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                  <thead>
+                    <tr style={{ background: '#F4F6FB' }}>
+                      {['ID', 'Nombre', 'Descripción', 'Adjunto', 'Fecha', ''].map((h, i) => (
+                        <th key={i} style={{ padding: '8px 12px', textAlign: i === 0 ? 'center' : 'left', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.4px', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {materiales.map((m, i) => (
+                      <tr key={m.id} style={{ background: m.activo ? (i % 2 === 0 ? 'white' : '#F8FAFC') : '#F8FAFC', opacity: m.activo ? 1 : 0.55, borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '10px 12px', textAlign: 'center', color: '#94a3b8', fontWeight: '600', fontFamily: 'monospace', fontSize: '11px' }}>{(m as any).folio || i + 1}</td>
+                        <td style={{ padding: '10px 12px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '15px' }}>{m.tipo === 'video' ? '🎥' : m.tipo === 'guia' ? '📋' : m.tipo === 'calculadora' ? '🧮' : '📄'}</span>
+                            <span style={{ fontWeight: '600', color: '#374151' }}>{m.nombre}</span>
+                          </div>
+                        </td>
+                        <td style={{ padding: '10px 12px', color: '#64748b', maxWidth: '240px' }}>{m.descripcion || '—'}</td>
+                        <td style={{ padding: '10px 12px' }}>
+                          {(m as any).archivo_url ? (
+                            <a href={(m as any).archivo_url} target="_blank" rel="noopener noreferrer"
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: AZUL, textDecoration: 'none', background: '#EEF2F8', padding: '3px 8px', borderRadius: '6px', fontWeight: '600' }}>
+                              📎 Ver archivo
+                            </a>
+                          ) : m.url ? (
+                            <a href={m.url} target="_blank" rel="noopener noreferrer"
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: AZUL, textDecoration: 'none', background: '#EEF2F8', padding: '3px 8px', borderRadius: '6px', fontWeight: '600' }}>
+                              🔗 Ver link
+                            </a>
+                          ) : (
+                            <span style={{ fontSize: '11px', color: '#cbd5e1' }}>Sin adjunto</span>
+                          )}
+                        </td>
+                        <td style={{ padding: '10px 12px', color: '#94a3b8', fontSize: '11px', whiteSpace: 'nowrap' }}>
+                          {m.created_at ? new Date(m.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                        </td>
+                        <td style={{ padding: '10px 12px', textAlign: 'right' }}>
+                          {editing && (
+                            <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                              <button onClick={() => toggleMaterial(m.id, !m.activo)}
+                                style={{ padding: '4px 8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '10px', cursor: 'pointer', background: 'white', color: '#64748b', whiteSpace: 'nowrap' }}>
+                                {m.activo ? 'Desactivar' : 'Activar'}
+                              </button>
+                              <button onClick={() => eliminarMaterial(m.id)}
+                                style={{ padding: '4px 8px', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '10px', cursor: 'pointer', background: '#fef2f2', color: '#ef4444' }}>
+                                🗑️
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
@@ -647,7 +706,7 @@ export default function ConfiguracionPage() {
           {/* Modal nuevo material */}
           {showNuevoMaterial && (
             <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '440px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+              <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '460px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
                 <p style={{ fontSize: '15px', fontWeight: '700', color: '#1e293b', marginBottom: '16px' }}>Agregar material de apoyo</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
                   <div>
@@ -667,20 +726,43 @@ export default function ConfiguracionPage() {
                     </select>
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px', textTransform: 'uppercase' }}>URL o link</label>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px', textTransform: 'uppercase' }}>Descripción general</label>
+                    <textarea value={formMaterial.descripcion} onChange={e => setFormMaterial(p => ({ ...p, descripcion: e.target.value }))}
+                      placeholder="Breve descripción del material"
+                      rows={2}
+                      style={{ display: 'block', width: '100%', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', resize: 'vertical' as const }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px', textTransform: 'uppercase' }}>Link (opcional)</label>
                     <input value={formMaterial.url} onChange={e => setFormMaterial(p => ({ ...p, url: e.target.value }))}
                       placeholder="https://..."
                       style={{ display: 'block', width: '100%', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px', textTransform: 'uppercase' }}>Descripción (opcional)</label>
-                    <input value={formMaterial.descripcion} onChange={e => setFormMaterial(p => ({ ...p, descripcion: e.target.value }))}
-                      placeholder="Breve descripción del material"
-                      style={{ display: 'block', width: '100%', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px', textTransform: 'uppercase' }}>Adjuntar archivo (opcional)</label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', border: '1.5px dashed #e2e8f0', borderRadius: '8px', cursor: uploadingAdjunto ? 'not-allowed' : 'pointer', fontSize: '12px', color: AZUL, background: '#F8FAFC' }}>
+                      {uploadingAdjunto ? '⏳ Subiendo...' : (formMaterial as any).archivo_url ? '✓ Archivo adjunto — clic para cambiar' : '📎 Seleccionar archivo (PDF, imagen, etc.)'}
+                      <input type="file" accept=".pdf,image/*,.doc,.docx" style={{ display: 'none' }} disabled={uploadingAdjunto}
+                        onChange={async e => {
+                          const f = e.target.files?.[0]
+                          if (!f) return
+                          setUploadingAdjunto(true)
+                          const { data: { session } } = await supabase.auth.getSession()
+                          const uid = session?.user?.id || userId
+                          const ext = f.name.split('.').pop()
+                          const path = `materiales/${uid}-${Date.now()}.${ext}`
+                          const { error } = await supabase.storage.from('logos').upload(path, f, { upsert: true })
+                          if (!error) {
+                            const { data } = supabase.storage.from('logos').getPublicUrl(path)
+                            setFormMaterial(p => ({ ...p, archivo_url: data.publicUrl } as any))
+                          }
+                          setUploadingAdjunto(false)
+                        }} />
+                    </label>
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <button onClick={() => setShowNuevoMaterial(false)}
+                  <button onClick={() => { setShowNuevoMaterial(false); setFormMaterial({ nombre: '', descripcion: '', tipo: 'general', url: '' }) }}
                     style={{ flex: 1, padding: '10px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
                     Cancelar
                   </button>
@@ -729,9 +811,7 @@ export default function ConfiguracionPage() {
               </>
             )}
           </div>
-        </div>
 
-        </div>
       </div>
     </div>
   )
