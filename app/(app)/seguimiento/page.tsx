@@ -88,7 +88,13 @@ export default function SeguimientoPage() {
   async function guardar() {
     if (!form.titulo.trim()) return
     setGuardando(true)
-    const fechaCompleta = fechaSel ? `${fechaSel}T${horaSel}:00` : null
+    let fechaCompleta: string | null = null
+    if (fechaSel && horaSel) {
+      const [yr, mo, dy] = fechaSel.split('-').map(Number)
+      const [hh, mm] = horaSel.split(':').map(Number)
+      const local = new Date(yr, mo-1, dy, hh, mm, 0)
+      fechaCompleta = local.toISOString()
+    }
     const { data } = await supabase.from('actividades').insert({
       asesor_id: userId, titulo: form.titulo, tipo: form.tipo,
       fecha_programada: fechaCompleta,
@@ -256,21 +262,42 @@ export default function SeguimientoPage() {
                   />
                 ))}
                 {/* Actividades posicionadas */}
-                {actsDelDia(dia).map(a => {
+                {(() => {
+                  const acts = actsDelDia(dia).filter(a => a.fecha_programada)
+                  // Calculate concurrent columns
+                  const withCols = acts.map((a, i) => {
+                    const aStart = new Date(a.fecha_programada!).getTime()
+                    const aEnd = aStart + 60 * 60 * 1000 // assume 1hr duration
+                    const concurrent = acts.filter((b, j) => {
+                      if (j === i) return false
+                      const bStart = new Date(b.fecha_programada!).getTime()
+                      const bEnd = bStart + 60 * 60 * 1000
+                      return aStart < bEnd && aEnd > bStart
+                    })
+                    const col = concurrent.reduce((maxCol, b) => {
+                      const bIdx = acts.indexOf(b)
+                      return bIdx < i ? maxCol + 1 : maxCol
+                    }, 0)
+                    const totalCols = concurrent.length + 1
+                    return { a, col, totalCols }
+                  })
+                  return withCols.map(({ a, col, totalCols }) => {
                   if (!a.fecha_programada) return null
                   const d = new Date(a.fecha_programada)
                   const top = (d.getHours() + d.getMinutes() / 60) * HORA_H
                   const cfg = TIPO_CONFIG[a.tipo] ?? TIPO_CONFIG.nota
+                  const colWidth = `calc((100% - 4px) / ${totalCols})`
+                  const colLeft = `calc(2px + (100% - 4px) / ${totalCols} * ${col})`
                   return (
                     <div key={a.id} onClick={e => { e.stopPropagation(); setDetalle(a) }}
-                      style={{ position: 'absolute', top, left: '2px', right: '2px', minHeight: '24px', borderRadius: '6px', padding: '3px 6px', background: cfg.bg, border: `1px solid ${cfg.border}`, cursor: 'pointer', zIndex: 10, opacity: a.estatus === 'completado' ? 0.5 : 1 }}>
+                      style={{ position: 'absolute', top, left: colLeft, width: colWidth, minHeight: '24px', borderRadius: '6px', padding: '3px 6px', background: cfg.bg, border: `1px solid ${cfg.border}`, cursor: 'pointer', zIndex: 10 + col, opacity: a.estatus === 'completado' ? 0.6 : 1, boxSizing: 'border-box' }}>
                       <div style={{ fontSize: '10px', fontWeight: '700', color: cfg.color, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: a.estatus === 'completado' ? 'line-through' : 'none' }}>
                         {TIPO_ICONS[a.tipo]} {d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })} {a.titulo}
                       </div>
                       {a.clientes?.nombre && <div style={{ fontSize: '9px', color: cfg.color, opacity: 0.8 }}>{a.clientes.nombre}</div>}
                     </div>
                   )
-                })}
+                })})}
                 {/* Línea hora actual */}
                 {isSameDay(dia, hoy) && (
                   <div style={{ position: 'absolute', left: 0, right: 0, top: (hoy.getHours() + hoy.getMinutes() / 60) * HORA_H, height: '2px', background: '#ef4444', zIndex: 20, pointerEvents: 'none' }}>
