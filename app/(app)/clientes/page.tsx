@@ -68,6 +68,18 @@ const SEMAFORO: Record<string, { bg: string; border: string; color: string; icon
 // ── Interfaces ───────────────────────────────────────────────────
 
 
+interface PagoProgramado {
+  id: string
+  cliente_id: string
+  numero_pago: number
+  fecha_programada: string
+  monto_programado: number
+  pagado: boolean
+  fecha_pago_real: string | null
+  comprobante_url: string | null
+  notas: string | null
+}
+
 interface Cliente {
   id: string
   nombre: string
@@ -1528,6 +1540,18 @@ const SEMAFORO: Record<string, { bg: string; border: string; color: string; icon
 
 // ── Interfaces ───────────────────────────────────────────────────
 
+
+interface PagoProgramado {
+  id: string
+  cliente_id: string
+  numero_pago: number
+  fecha_programada: string
+  monto_programado: number
+  pagado: boolean
+  fecha_pago_real: string | null
+  comprobante_url: string | null
+  notas: string | null
+}
 
 interface Cliente {
   id: string
