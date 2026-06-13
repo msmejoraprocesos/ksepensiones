@@ -179,6 +179,9 @@ function ClientesInner() {
   const [uploadingComp, setUploadingComp] = useState<string | null>(null)
   const [pagosProgramados, setPagosProgramados] = useState<PagoProgramado[]>([])
   const [uploadingProgComp, setUploadingProgComp] = useState<string | null>(null)
+  const [showWappModal, setShowWappModal] = useState(false)
+  const [nuevoClienteData, setNuevoClienteData] = useState<{id: string; nombre: string; telefono: string | null} | null>(null)
+  const [materiales, setMateriales] = useState<{id:string;nombre:string;descripcion:string|null;tipo:string;url:string|null}[]>([])
   const [compFile, setCompFile] = useState<File | null>(null)
 
   // Drag & drop
@@ -190,6 +193,7 @@ function ClientesInner() {
       if (!session) return
       userIdRef.current = session.user.id
       loadClientes(session.user.id)
+      loadMateriales(session.user.id)
     })
     if (searchParams.get('nuevo') === 'true') setShowNuevo(true)
   }, [])
@@ -251,6 +255,11 @@ function ClientesInner() {
     if (error) { console.error('Error: ' + error.message); setSaving(false); return }
     await loadClientes(uid)
     setSaving(false)
+    // Show WhatsApp material modal
+    if (data) {
+      setNuevoClienteData({ id: data.id, nombre: data.nombre, telefono: data.telefono })
+      setShowWappModal(true)
+    }
     setShowNuevo(false)
     setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '' })
     setFormErrors({})
@@ -1199,6 +1208,66 @@ function ClientesInner() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL WHATSAPP MATERIAL DE APOYO ── */}
+      {showWappModal && nuevoClienteData && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'white', borderRadius: '16px', padding: '28px', width: '480px', boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0 }}>
+                💬
+              </div>
+              <div>
+                <p style={{ fontSize: '15px', fontWeight: '700', color: '#1e293b', margin: '0 0 2px' }}>Enviar material de apoyo</p>
+                <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>
+                  Cliente: <strong>{nuevoClienteData.nombre}</strong>
+                  {nuevoClienteData.telefono && ` · ${nuevoClienteData.telefono}`}
+                </p>
+              </div>
+            </div>
+
+            {materiales.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '20px', background: '#F4F6FB', borderRadius: '10px', color: '#94a3b8', fontSize: '13px', marginBottom: '16px' }}>
+                <div style={{ fontSize: '28px', marginBottom: '8px' }}>📚</div>
+                No hay materiales configurados.<br />
+                Agrega materiales en <strong>Configuración → Materiales de apoyo</strong>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+                <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Selecciona el material a enviar:</p>
+                {materiales.map(m => {
+                  const tel = nuevoClienteData.telefono?.replace(/\D/g, '') || ''
+                  const emoji = m.tipo === 'video' ? '🎥' : m.tipo === 'guia' ? '📋' : m.tipo === 'calculadora' ? '🧮' : '📄'
+                  const msg = encodeURIComponent(
+                    `Hola ${nuevoClienteData.nombre}, te comparto material de apoyo sobre tu proceso de pensión:\n\n${emoji} *${m.nombre}*${m.descripcion ? `\n${m.descripcion}` : ''}${m.url ? `\n\n🔗 ${m.url}` : ''}\n\nCualquier duda estoy a tus órdenes.`
+                  )
+                  const wappUrl = tel ? `https://wa.me/52${tel}?text=${msg}` : `https://wa.me/?text=${msg}`
+                  return (
+                    <a key={m.id} href={wappUrl} target="_blank" rel="noopener noreferrer"
+                      style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', border: '1px solid #e2e8f0', borderRadius: '10px', textDecoration: 'none', background: 'white', transition: 'border-color .15s' }}
+                      onMouseEnter={e => (e.currentTarget.style.borderColor = '#22c55e')}
+                      onMouseLeave={e => (e.currentTarget.style.borderColor = '#e2e8f0')}>
+                      <span style={{ fontSize: '20px' }}>{emoji}</span>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ fontSize: '13px', fontWeight: '600', color: '#374151', margin: '0 0 1px' }}>{m.nombre}</p>
+                        {m.descripcion && <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0 }}>{m.descripcion}</p>}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 12px', background: '#22c55e', color: 'white', borderRadius: '8px', fontSize: '12px', fontWeight: '600', flexShrink: 0 }}>
+                        <span>WhatsApp</span>
+                      </div>
+                    </a>
+                  )
+                })}
+              </div>
+            )}
+
+            <button onClick={() => { setShowWappModal(false); setNuevoClienteData(null) }}
+              style={{ width: '100%', padding: '11px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
+              Cerrar
+            </button>
           </div>
         </div>
       )}
