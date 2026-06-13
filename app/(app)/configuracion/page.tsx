@@ -99,7 +99,7 @@ export default function ConfiguracionPage() {
   const [isFirstTime, setIsFirstTime] = useState(false)
   const [errors, setErrors] = useState<Partial<Record<keyof Perfil, string>>>({})
   const fileRef = useRef<HTMLInputElement>(null)
-  const [materiales, setMateriales] = useState<{id:string;nombre:string;descripcion:string|null;tipo:string;url:string|null;activo:boolean;orden:number}[]>([])
+  const [materiales, setMateriales] = useState<{id:string;nombre:string;descripcion:string|null;tipo:string;url:string|null;activo:boolean;orden:number;archivo_url?:string|null;created_at?:string;folio?:string}[]>([])
   const [showNuevoMaterial, setShowNuevoMaterial] = useState(false)
   const [formMaterial, setFormMaterial] = useState<{nombre:string;descripcion:string;tipo:string;url:string;archivo_url?:string}>({ nombre: '', descripcion: '', tipo: 'general', url: '' })
   const [savingMaterial, setSavingMaterial] = useState(false)
