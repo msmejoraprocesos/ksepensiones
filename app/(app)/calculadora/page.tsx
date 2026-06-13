@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, Suspense } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
+import { generarPDFProyecto } from '@/app/utils/pdf-generator'
 
 const AZUL = '#1B3A6B'
 const VERDE = '#2E8B57'
@@ -178,6 +179,8 @@ function CalculadoraInner() {
   const [generandoAnalisis, setGenerandoAnalisis] = useState(false)
   const [guardando, setGuardando] = useState(false)
   const [mensaje, setMensaje] = useState('')
+  const [asesorPerfil, setAsesorPerfil] = useState<{razon_social?: string; nombre?: string; logo_url?: string} | null>(null)
+  const [showWappModal, setShowWappModal] = useState(false)
 
   // ── Load inicial
   useEffect(() => {
@@ -187,6 +190,7 @@ function CalculadoraInner() {
       loadClientes(session.user.id)
       loadFinancieras()
       loadSysVars(session.user.id)
+      loadAsesorPerfil(session.user.id)
     })
   }, [])
 
@@ -198,6 +202,11 @@ function CalculadoraInner() {
   async function loadFinancieras() {
     const { data } = await supabase.from('financieras').select('*').eq('activa', true).order('orden')
     if (data?.length) { setFinancieras(data); setFinSelId(data[0].id) }
+  }
+
+  async function loadAsesorPerfil(uid: string) {
+    const { data } = await supabase.from('perfiles_usuario').select('nombre, razon_social, logo_url').eq('id', uid).single()
+    if (data) setAsesorPerfil(data)
   }
 
   async function loadSysVars(uid: string) {
@@ -320,6 +329,27 @@ function CalculadoraInner() {
   const finSel = financieras.find(f => f.id === finSelId)
   const corridaFin = finSel && escSel ? calcCorrida(escSel.inversion_total, finSel.tasa_anual, finPlazo) : null
   const conservacion = calcConservacion(datos.semanas_totales, fechaUltimaCot ? Math.floor((Date.now() - new Date(fechaUltimaCot).getTime()) / (30 * 86400000)) : 0)
+
+  // ── Generar PDF completo
+  async function exportarPDF() {
+    if (!escSel) return
+    const doc = generarPDFProyecto({
+      datos,
+      periodos,
+      sdiPromedio,
+      escenarios,
+      escSelIdx,
+      corridaFin: corridaFin ?? undefined,
+      finSel: finSel ?? undefined,
+      finPlazo,
+      analisis,
+      logoUrl: asesorPerfil?.logo_url ?? undefined,
+      razonSocial: asesorPerfil?.razon_social ?? undefined,
+      asesorNombre: asesorPerfil?.nombre ?? undefined,
+    })
+    const nombre = datos.nombre?.replace(/\s+/g, '_') || 'cliente'
+    doc.save(`Proyecto_Pension_${nombre}_${new Date().toISOString().slice(0,10)}.pdf`)
+  }
 
   // ── Generar análisis IA
   async function generarAnalisisIA() {
@@ -997,7 +1027,8 @@ function CalculadoraInner() {
                     style={{ ...btnSecondary, fontSize: '12px', color: '#8b5cf6', borderColor: '#c4b5fd' }}>
                     {generandoAnalisis ? '⏳ Generando...' : '✨ Análisis IA'}
                   </button>
-                  <button style={{ ...btnPrimary, fontSize: '12px' }}>
+                  <button onClick={exportarPDF} disabled={escenarios.length === 0}
+                    style={{ ...btnPrimary, fontSize: '12px', opacity: escenarios.length === 0 ? 0.5 : 1 }}>
                     📄 Exportar PDF
                   </button>
                 </div>
