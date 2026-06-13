@@ -25,6 +25,7 @@ function MiDiaInner() {
   const [diagnosticos, setDiagnosticos] = useState<any[]>([])
   const [actividades, setActividades] = useState<any[]>([])
   const [financieras, setFinancieras] = useState<any[]>([])
+  const [solicitudes, setSolicitudes] = useState<any[]>([])
 
   const hoy = new Date()
   const fechaStr = hoy.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
@@ -41,18 +42,20 @@ function MiDiaInner() {
     const { data: perfil } = await supabase.from('perfiles_usuario').select('nombre, razon_social').eq('id', uid).single()
     setNombreAsesor(perfil?.razon_social || perfil?.nombre || 'Asesor')
 
-    const [{ data: cl }, { data: pg }, { data: dg }, { data: act }, { data: fin }] = await Promise.all([
+    const [{ data: cl }, { data: pg }, { data: dg }, { data: act }, { data: fin }, { data: solf }] = await Promise.all([
       supabase.from('clientes').select('*').eq('asesor_id', uid),
       supabase.from('pagos').select('*, clientes(nombre, servicio_contratado, etapa_kanban)').eq('asesor_id', uid),
       supabase.from('diagnosticos').select('*').eq('asesor_id', uid),
       supabase.from('actividades').select('*, clientes(nombre)').eq('asesor_id', uid),
       supabase.from('financieras').select('*').eq('activa', true),
+      supabase.from('solicitudes_financiamiento').select('*, financieras(nombre)').eq('asesor_id', uid),
     ])
     setClientes(cl ?? [])
     setPagos(pg ?? [])
     setDiagnosticos(dg ?? [])
     setActividades(act ?? [])
     setFinancieras(fin ?? [])
+    setSolicitudes(solf ?? [])
     setLoading(false)
   }
 
@@ -78,6 +81,8 @@ function MiDiaInner() {
   const ingresosAsesoria = pagosPeriodo.filter(p => p.clientes?.servicio_contratado === 'Diagnóstico').reduce((s, p) => s + p.monto, 0)
   const ingresosGestoria = pagosPeriodo.filter(p => p.clientes?.servicio_contratado === 'Trámite').reduce((s, p) => s + p.monto, 0)
   const ingresosCombo = pagosPeriodo.filter(p => p.clientes?.servicio_contratado === 'Combo').reduce((s, p) => s + p.monto, 0)
+  const comisionesFinancieras = solicitudes.filter(s => s.aprobada && new Date(s.created_at) >= start).reduce((sum, s) => sum + (s.comision_cobrada || 0), 0)
+  const ingresosConComisiones = ingresosTotal + comisionesFinancieras
   const clientesUnicos = new Set(pagosPeriodo.map(p => p.cliente_id)).size
   const ticketPromedio = clientesUnicos > 0 ? ingresosTotal / clientesUnicos : 0
   const porCobrar = clientes.reduce((s, c) => s + Math.max(0, (c.monto_acordado || 0) - (c.total_pagado || 0)), 0)
@@ -222,7 +227,7 @@ function MiDiaInner() {
           {card(<>
             {sTitle('💰 Ingresos reales', filtroPeriodo)}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '10px' }}>
-              {kpi('Total bruto', fmtMXN(ingresosTotal))}
+              {kpi('Total bruto', fmtMXN(ingresosConComisiones), 'incl. comisiones')}
               {kpi('Ticket promedio', fmtMXN(ticketPromedio), 'por cliente')}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
@@ -230,6 +235,7 @@ function MiDiaInner() {
                 { label: 'Asesorías / Diagnóstico', value: ingresosAsesoria, color: AZUL },
                 { label: 'Honorarios Gestoría', value: ingresosGestoria, color: VERDE },
                 { label: 'Combo', value: ingresosCombo, color: '#8b5cf6' },
+                { label: 'Comisiones Financieras', value: comisionesFinancieras, color: '#f59e0b' },
               ].map((item, i) => (
                 <div key={i}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
@@ -356,20 +362,44 @@ function MiDiaInner() {
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {financieras.map((fin, i) => (
-                  <div key={fin.id} style={{ padding: '8px 10px', background: '#FAFAFA', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
-                      <span style={{ fontSize: '12px', fontWeight: '600', color: '#374151' }}>{fin.nombre}</span>
-                      <span style={{ fontSize: '11px', color: AZUL, fontWeight: '700' }}>{fin.tasa_anual}% anual</span>
+                {financieras.map((fin, i) => {
+                  const solFin = solicitudes.filter(s => s.financiera_id === fin.id)
+                  const aprobadas = solFin.filter(s => s.aprobada === true).length
+                  const rechazadas = solFin.filter(s => s.aprobada === false).length
+                  const pendientes = solFin.filter(s => s.aprobada === null).length
+                  const efectividad = solFin.length > 0 ? Math.round((aprobadas / solFin.length) * 100) : 0
+                  const comisionTotal = solFin.reduce((s, sol) => s + (sol.comision_cobrada || 0), 0)
+                  return (
+                    <div key={fin.id} style={{ padding: '8px 10px', background: '#FAFAFA', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                        <span style={{ fontSize: '12px', fontWeight: '700', color: '#374151' }}>{fin.nombre}</span>
+                        <span style={{ fontSize: '11px', color: AZUL, fontWeight: '700' }}>{fin.tasa_anual}%</span>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '4px', marginBottom: '4px' }}>
+                        <div style={{ textAlign: 'center', fontSize: '10px' }}>
+                          <div style={{ fontWeight: '700', color: VERDE }}>{aprobadas}</div>
+                          <div style={{ color: '#94a3b8' }}>Aprobadas</div>
+                        </div>
+                        <div style={{ textAlign: 'center', fontSize: '10px' }}>
+                          <div style={{ fontWeight: '700', color: '#ef4444' }}>{rechazadas}</div>
+                          <div style={{ color: '#94a3b8' }}>Rechazadas</div>
+                        </div>
+                        <div style={{ textAlign: 'center', fontSize: '10px' }}>
+                          <div style={{ fontWeight: '700', color: '#f59e0b' }}>{efectividad}%</div>
+                          <div style={{ color: '#94a3b8' }}>Efectividad</div>
+                        </div>
+                      </div>
+                      {comisionTotal > 0 && (
+                        <div style={{ fontSize: '10px', color: VERDE, fontWeight: '600' }}>
+                          💰 {fmtMXN(comisionTotal)} en comisiones
+                        </div>
+                      )}
+                      <div style={{ fontSize: '9px', color: '#94a3b8', marginTop: '2px' }}>
+                        {solFin.length} solicitudes · {pendientes} pendientes
+                      </div>
                     </div>
-                    <div style={{ fontSize: '10px', color: '#94a3b8' }}>
-                      Plazo {fin.plazo_min}–{fin.plazo_max} meses · Comisión {fin.comision_apertura}%
-                    </div>
-                    {fin.contacto_email && (
-                      <div style={{ fontSize: '10px', color: NARANJA, marginTop: '2px' }}>{fin.contacto_email}</div>
-                    )}
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </>)}
