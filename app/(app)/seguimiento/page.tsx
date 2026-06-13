@@ -281,7 +281,7 @@ export default function SeguimientoPage() {
                     const totalCols = concurrent.length + 1
                     return { a, col, totalCols }
                   })
-                  return withCols.map(({ a, col, totalCols }) => {
+                  return (<>{withCols.map(({ a, col, totalCols }) => {
                   if (!a.fecha_programada) return null
                   const d = new Date(a.fecha_programada)
                   const top = (d.getHours() + d.getMinutes() / 60) * HORA_H
@@ -297,7 +297,7 @@ export default function SeguimientoPage() {
                       {a.clientes?.nombre && <div style={{ fontSize: '9px', color: cfg.color, opacity: 0.8 }}>{a.clientes.nombre}</div>}
                     </div>
                   )
-                })})}
+                })})</>})}
                 {/* Línea hora actual */}
                 {isSameDay(dia, hoy) && (
                   <div style={{ position: 'absolute', left: 0, right: 0, top: (hoy.getHours() + hoy.getMinutes() / 60) * HORA_H, height: '2px', background: '#ef4444', zIndex: 20, pointerEvents: 'none' }}>
