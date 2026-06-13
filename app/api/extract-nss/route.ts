@@ -15,9 +15,9 @@ export async function POST(req: NextRequest) {
         role: 'user',
         content: [
           {
-            type: 'document',
+            type: 'document' as any,
             source: { type: 'base64', media_type: 'application/pdf', data: pdf }
-          },
+          } as any,
           {
             type: 'text',
             text: `Eres un experto en seguridad social mexicana. Analiza esta constancia de semanas cotizadas del IMSS y extrae TODA la información disponible.
@@ -29,7 +29,7 @@ Responde ÚNICAMENTE con un objeto JSON válido, sin backticks ni texto adiciona
   "nss": "número de seguridad social",
   "fecha_nac": "YYYY-MM-DD",
   "semanas": número total de semanas cotizadas,
-  "cotizo_antes_97": true o false (si cotizó antes del 01/07/1997 es Ley 73),
+  "cotizo_antes_97": true o false,
   "cotizo_despues_97": true o false,
   "primer_empleo": "YYYY-MM-DD o null",
   "ultima_cotizacion": "YYYY-MM-DD o null",
@@ -37,15 +37,14 @@ Responde ÚNICAMENTE con un objeto JSON válido, sin backticks ni texto adiciona
     {
       "fecha_inicio": "YYYY-MM-DD",
       "fecha_fin": "YYYY-MM-DD",
-      "sdi": número (salario diario integrado en pesos),
+      "sdi": número en pesos,
       "semanas": número de semanas en este período,
-      "patron": "nombre del patrón o empresa si aparece"
+      "patron": "nombre del patrón si aparece"
     }
   ]
 }
 
 Los períodos deben estar ordenados cronológicamente del más antiguo al más reciente.
-Si no encuentras algún campo, usa null para strings y 0 para números.
 Es crítico extraer correctamente los períodos con sus fechas y salarios para calcular el promedio de las últimas 250 semanas cotizadas.`
           }
         ]
@@ -55,7 +54,6 @@ Es crítico extraer correctamente los períodos con sus fechas y salarios para c
     const text = response.content[0].type === 'text' ? response.content[0].text : ''
     const clean = text.replace(/```json|```/g, '').trim()
     const data = JSON.parse(clean)
-
     return NextResponse.json(data)
   } catch (error) {
     console.error('extract-nss error:', error)
