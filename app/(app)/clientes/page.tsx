@@ -697,7 +697,7 @@ function ClientesInner() {
           </div>
         )}
         <div style={{ flex: 1 }} />
-        <button onClick={() => setShowNuevo(true)}
+        <button onClick={() => { setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '' }); setFormErrors({}); setShowNuevo(true) }}
           style={{ background: AZUL, color: 'white', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
           + Nuevo cliente
         </button>
@@ -1571,7 +1571,7 @@ function ClientesInner() {
       {/* ── MODAL NUEVO CLIENTE ── */}
       {showNuevo && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          onClick={e => { if (e.target === e.currentTarget) setShowNuevo(false) }}>
+          onClick={e => { if (e.target === e.currentTarget) { setShowNuevo(false); setFormErrors({}); setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '' }) } }}>
           <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '440px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
             <h2 style={{ color: AZUL, fontSize: '18px', fontWeight: '700', margin: '0 0 20px' }}>Nuevo cliente</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1620,7 +1620,7 @@ function ClientesInner() {
             </div>
             <p style={{ fontSize: '11px', color: '#94a3b8', margin: '12px 0 0' }}>💡 Los pagos se registran desde el expediente del cliente</p>
             <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-              <button onClick={() => { setShowNuevo(false); setFormErrors({}) }} style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
+              <button onClick={() => { setShowNuevo(false); setFormErrors({}); setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '' }) }} style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
               <button onClick={guardarNuevo} disabled={saving || !form.nombre.trim() || form.telefono.replace(/\D/g,'').length !== 10 || !form.monto_acordado || parseFloat(form.monto_acordado) <= 0 || !!formErrors.telefono || !!formErrors.email}
                 style={{ flex: 2, padding: '10px', background: saving || !form.nombre.trim() || form.telefono.replace(/\D/g,'').length !== 10 || !form.monto_acordado || parseFloat(form.monto_acordado) <= 0 || !!formErrors.telefono || !!formErrors.email ? '#94a3b8' : AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer' }}>
                 {saving ? 'Guardando...' : 'Guardar cliente'}
