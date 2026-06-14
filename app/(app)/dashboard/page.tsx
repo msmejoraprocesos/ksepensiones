@@ -323,10 +323,11 @@ function MiDiaInner() {
                 </div>
                 {(() => {
                   const etapas = [
-                    { label: 'Prospecto', val: clientes.filter(c => c.etapa_kanban === 'prospecto').length, color: '#94a3b8', text: '#374151' },
+                    { label: 'Prospecto', val: clientes.filter(c => c.etapa_kanban === 'prospecto').length, color: NARANJA, text: 'white' },
                     { label: 'Diagnóstico', val: clientes.filter(c => c.etapa_kanban === 'diagnostico').length, color: AZUL, text: 'white' },
-                    { label: 'Propuesta', val: clientes.filter(c => c.etapa_kanban === 'propuesta').length, color: '#8b5cf6', text: 'white' },
-                    { label: 'Trámite', val: enTramite.length, color: NARANJA, text: 'white' },
+                    { label: 'Seguimiento', val: clientes.filter(c => c.etapa_kanban === 'seguimiento').length, color: '#0891b2', text: 'white' },
+                    { label: 'Propuesta', val: clientes.filter(c => c.etapa_kanban === 'propuesta').length, color: '#7F77DD', text: 'white' },
+                    { label: 'Trámite', val: enTramite.length, color: '#f59e0b', text: 'white' },
                     { label: 'Pensionado', val: pensionados.length, color: VERDE, text: 'white' },
                   ]
                   const maxVal = Math.max(...etapas.map(e => e.val), 1)
