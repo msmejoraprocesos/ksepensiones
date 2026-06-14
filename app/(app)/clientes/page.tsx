@@ -140,6 +140,7 @@ function ClientesInner() {
   const [filtroNombre, setFiltroNombre] = useState('')
   const [filtroEtapa, setFiltroEtapa] = useState('')
   const [filtroServicio, setFiltroServicio] = useState('')
+  const [filtroPago, setFiltroPago] = useState('')
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -605,6 +606,7 @@ function ClientesInner() {
     if (!matchSearch) return false
     if (filtroEtapa && c.etapa_kanban !== filtroEtapa) return false
     if (filtroServicio && c.servicio_contratado !== filtroServicio) return false
+    if (filtroPago && calcEstatus(c.monto_acordado, c.total_pagado ?? 0) !== filtroPago) return false
     return true
   })
 
@@ -644,8 +646,15 @@ function ClientesInner() {
               <option value="">Todos los servicios</option>
               {SERVICIOS.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
-            {(filtroEtapa || filtroServicio || search) && (
-              <button onClick={() => { setFiltroEtapa(''); setFiltroServicio(''); setSearch('') }}
+            <select value={filtroPago} onChange={e => setFiltroPago(e.target.value)}
+              style={{ padding: '7px 10px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', outline: 'none', background: 'white', color: filtroPago ? '#374151' : '#94a3b8' }}>
+              <option value="">Todos los pagos</option>
+              <option value="Pendiente">🔴 Pendiente</option>
+              <option value="Parcial">🟡 Parcial</option>
+              <option value="Liquidado">🟢 Liquidado</option>
+            </select>
+            {(filtroEtapa || filtroServicio || filtroPago || search) && (
+              <button onClick={() => { setFiltroEtapa(''); setFiltroServicio(''); setFiltroPago(''); setSearch('') }}
                 style={{ padding: '7px 10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', background: '#F4F6FB', color: '#64748b', cursor: 'pointer', fontFamily: 'inherit' }}>
                 ✕ Limpiar
               </button>
