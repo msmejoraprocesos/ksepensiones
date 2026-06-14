@@ -236,11 +236,11 @@ function MiDiaInner() {
                   { label: 'Comisiones Financieras', value: comisionesFinancieras, color: NARANJA },
                 ]
                 const total = items.reduce((s, it) => s + it.value, 0)
-                const R = 42, CIRC = 2 * Math.PI * R
+                const R = 44, CIRC = 2 * Math.PI * R
                 let acc = 0
                 return (
                   <div style={{ position: 'relative', flexShrink: 0 }}>
-                    <svg width="100" height="100" viewBox="0 0 100 100">
+                    <svg width="120" height="120" viewBox="0 0 100 100">
                       <circle cx="50" cy="50" r={R} fill="none" stroke="#f1f5f9" strokeWidth="14" />
                       {items.map((it, i) => {
                         const pct = total > 0 ? it.value / total : 0
@@ -487,11 +487,11 @@ function MiDiaInner() {
                 const l73 = clientes.filter(c => c.ley === '73').length
                 const l97 = clientes.filter(c => c.ley === '97').length
                 const total = l73 + l97
-                const R = 32, CIRC = 2 * Math.PI * R
+                const R = 34, CIRC = 2 * Math.PI * R
                 const pct73 = total > 0 ? l73 / total : 0
                 return (
                   <div style={{ position: 'relative', flexShrink: 0 }}>
-                    <svg width="76" height="76" viewBox="0 0 76 76">
+                    <svg width="92" height="92" viewBox="0 0 76 76">
                       <circle cx="38" cy="38" r={R} fill="none" stroke={AZUL} strokeWidth="11"
                         strokeDasharray={`${pct73 * CIRC} ${CIRC}`} transform="rotate(-90 38 38)" />
                       <circle cx="38" cy="38" r={R} fill="none" stroke={VERDE} strokeWidth="11"
