@@ -22,6 +22,13 @@ const COLUMNAS = [
 
 const SERVICIOS = ['Diagnóstico', 'Trámite', 'Combo']
 
+const SERVICIO_COLORS: Record<string, string> = {
+  'Diagnóstico': '#378ADD',
+  'Gestoría': '#639922',
+  'Trámite': '#639922',
+  'Combo': '#7F77DD',
+}
+
 // Detecta automáticamente el concepto según número de pago y saldo
 function detectarConcepto(numPagos: number, monto: number, saldoPendiente: number, montoAcordado: number | null): string {
   if (numPagos === 0) return 'Anticipo'
@@ -710,7 +717,7 @@ function ClientesInner() {
                     const saldo = Math.max(0, (c.monto_acordado ?? 0) - (c.total_pagado ?? 0))
                     return (
                       <tr key={c.id} style={{ borderBottom: i < filtered.length - 1 ? '1px solid #f1f5f9' : 'none', cursor: 'pointer' }} onClick={() => openExpediente(c)}>
-                        <td style={{ padding: '10px 12px' }}>
+                        <td style={{ padding: '10px 12px', borderLeft: `4px solid ${SERVICIO_COLORS[c.servicio_contratado || ''] || 'transparent'}` }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <div style={{ width: '30px', height: '30px', background: AZUL, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '11px', fontWeight: '700', flexShrink: 0 }}>
                               {c.nombre.charAt(0).toUpperCase()}
@@ -782,7 +789,7 @@ function ClientesInner() {
                           onDragStart={e => { if (!col.esFinal) { setDragging(cliente.id); e.dataTransfer.effectAllowed = 'move' } }}
                           onDragEnd={() => { setDragging(null); setDragOver(null) }}
                           onClick={() => openExpediente(cliente)}
-                          style={{ background: 'white', borderRadius: '10px', padding: '11px', border: `1px solid ${dragging === cliente.id ? col.color : '#e2e8f0'}`, cursor: col.esFinal ? 'pointer' : 'grab', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', opacity: dragging === cliente.id ? 0.5 : 1 }}>
+                          style={{ background: 'white', borderRadius: '10px', padding: '11px', border: `1px solid ${dragging === cliente.id ? col.color : '#e2e8f0'}`, borderLeft: `4px solid ${SERVICIO_COLORS[cliente.servicio_contratado || ''] || '#e2e8f0'}`, cursor: col.esFinal ? 'pointer' : 'grab', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', opacity: dragging === cliente.id ? 0.5 : 1 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                             <div style={{ width: '26px', height: '26px', borderRadius: '50%', background: AZUL, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '10px', fontWeight: '700', flexShrink: 0 }}>
                               {cliente.nombre.charAt(0).toUpperCase()}
