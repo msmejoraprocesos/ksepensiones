@@ -116,6 +116,7 @@ export default function ConfiguracionPage() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) return
       setUserId(session.user.id)
+      loadMateriales(session.user.id)
       supabase.from('perfiles_usuario').select('*').eq('id', session.user.id).single()
         .then(({ data }) => {
           if (data) {
@@ -430,10 +431,6 @@ export default function ConfiguracionPage() {
               {errorMsg('email_contacto')}
               {!errors.email_contacto && perfil.email_contacto && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(perfil.email_contacto) && <p style={{ fontSize: '10px', color: VERDE, margin: '3px 0 0' }}>✓ Email válido</p>}
             </div>
-            <div style={{ gridColumn: '1 / -1' }}>
-              <label style={labelSt}>Dirección / Ciudad</label>
-              <input value={perfil.direccion} onChange={e => set('direccion', e.target.value)} placeholder="Ej. Querétaro, Qro." style={editing ? inputSt() : disabledSt} disabled={!editing} />
-            </div>
           </div>
         </div>
 
@@ -689,11 +686,27 @@ export default function ConfiguracionPage() {
                         <td style={{ padding: '10px 12px', color: '#64748b', maxWidth: '240px' }}>{m.descripcion || '—'}</td>
                         <td style={{ padding: '10px 12px' }}>
                           {(m as any).archivo_url ? (
-                            <a href={(m as any).archivo_url} target="_blank" rel="noopener noreferrer" download
+                            <button onClick={async () => {
+                              try {
+                                const res = await fetch((m as any).archivo_url)
+                                const blob = await res.blob()
+                                const url = URL.createObjectURL(blob)
+                                const a = document.createElement('a')
+                                a.href = url
+                                const urlParts = (m as any).archivo_url.split('/')
+                                a.download = urlParts[urlParts.length - 1].split('?')[0] || m.nombre
+                                document.body.appendChild(a)
+                                a.click()
+                                document.body.removeChild(a)
+                                URL.revokeObjectURL(url)
+                              } catch {
+                                window.open((m as any).archivo_url, '_blank')
+                              }
+                            }}
                               title={(m as any).archivo_url}
-                              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: AZUL, textDecoration: 'none', background: '#EEF2F8', padding: '3px 8px', borderRadius: '6px', fontWeight: '600', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              📎 Descargar / Ver
-                            </a>
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: AZUL, background: '#EEF2F8', padding: '3px 8px', borderRadius: '6px', fontWeight: '600', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+                              📎 Descargar
+                            </button>
                           ) : m.url ? (
                             <a href={m.url} target="_blank" rel="noopener noreferrer"
                               style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: AZUL, textDecoration: 'none', background: '#EEF2F8', padding: '3px 8px', borderRadius: '6px', fontWeight: '600' }}>
