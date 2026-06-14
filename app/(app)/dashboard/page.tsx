@@ -167,11 +167,11 @@ function MiDiaInner() {
     </div>
   )
 
-  const kpi = (label: string, value: string, sub?: string, color = '#374151') => (
-    <div style={{ background: '#FAFAFA', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '9px 11px' }}>
-      <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '3px' }}>{label}</div>
-      <div style={{ fontSize: '17px', fontWeight: '700', color }}>{value}</div>
-      {sub && <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '1px' }}>{sub}</div>}
+  const kpi = (label: string, value: string, sub?: string, color = '#374151', filled = false) => (
+    <div style={{ background: filled ? color : '#FAFAFA', border: `1.5px solid ${filled ? color : '#e2e8f0'}`, borderRadius: '6px', padding: '9px 11px' }}>
+      <div style={{ fontSize: '10px', color: filled ? 'rgba(255,255,255,0.8)' : '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '3px' }}>{label}</div>
+      <div style={{ fontSize: '17px', fontWeight: '700', color: filled ? 'white' : color }}>{value}</div>
+      {sub && <div style={{ fontSize: '10px', color: filled ? 'rgba(255,255,255,0.75)' : '#94a3b8', marginTop: '1px' }}>{sub}</div>}
     </div>
   )
 
@@ -223,14 +223,14 @@ function MiDiaInner() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '8px' }}>
           {[
             { label: 'Clientes activos', value: clientesActivos.length.toString(), color: AZUL },
-            { label: 'Prospectos', value: clientes.filter(c => c.etapa_kanban === 'prospecto').length.toString(), sub: 'por contactar', color: NARANJA },
-            { label: 'Diagnósticos', value: diagMes.length.toString(), sub: filtroPeriodo, color: '#8b5cf6' },
+            { label: 'Prospectos', value: clientes.filter(c => c.etapa_kanban === 'prospecto').length.toString(), sub: 'por contactar', color: AZUL, filled: true },
+            { label: 'Propuesta enviada', value: clientes.filter(c => c.etapa_kanban === 'propuesta').length.toString(), sub: 'en espera', color: '#0891b2' },
             { label: 'En trámite', value: enTramite.length.toString(), color: '#f59e0b' },
-            { label: 'Pensionados', value: pensionados.length.toString(), color: VERDE },
+            { label: 'Pensionados', value: pensionados.length.toString(), color: VERDE, filled: true },
             { label: 'Ingresos', value: fmtMXN(ingresosTotal), color: VERDE },
             { label: 'Por cobrar', value: fmtMXN(porCobrar), color: '#f59e0b' },
             { label: 'Ticket prom.', value: fmtMXN(ticketPromedio), color: AZUL },
-          ].map((k, i) => kpi(k.label, k.value, k.sub, k.color))}
+          ].map((k, i) => kpi(k.label, k.value, k.sub, k.color, (k as any).filled))}
         </div>
 
         {/* Row 2: Financiero + Comercial + Agenda */}
