@@ -13,8 +13,8 @@ type NavItem = { href: string; label: string; icon: string }
 const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard',     label: 'Mi día',        icon: '◈' },
   { href: '/clientes',      label: 'Clientes',       icon: '◎' },
-  { href: '/calculadora',   label: 'Calculadora',    icon: '⊞' },
   { href: '/seguimiento',   label: 'Seguimiento',    icon: '◷' },
+  { href: '/calculadora',   label: 'Calculadora',    icon: '⊞' },
   { href: '/configuracion', label: 'Configuración',  icon: '⚙' },
 ]
 
