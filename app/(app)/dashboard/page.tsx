@@ -316,17 +316,33 @@ function MiDiaInner() {
                     { label: 'Pensionado', val: pensionados.length, color: VERDE, text: 'white' },
                   ]
                   const maxVal = Math.max(...etapas.map(e => e.val), 1)
-                  return etapas.map((e, i) => {
-                    const widthPct = 35 + (e.val / maxVal) * 65
-                    return (
-                      <div key={i} style={{ display: 'flex', justifyContent: 'center', marginBottom: '4px' }}>
-                        <div style={{ width: `${widthPct}%`, minWidth: '60px', background: e.color, borderRadius: '6px', padding: '5px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: '11px', fontWeight: '600', color: e.text }}>{e.label}</span>
-                          <span style={{ fontSize: '12px', fontWeight: '800', color: e.text }}>{e.val}</span>
+                  const cancelados = clientes.filter(c => c.etapa_kanban === 'cancelado').length
+                  const perdidos = clientes.filter(c => c.etapa_kanban === 'perdido').length
+                  return (
+                    <>
+                      {etapas.map((e, i) => {
+                        const widthPct = 35 + (e.val / maxVal) * 65
+                        return (
+                          <div key={i} style={{ display: 'flex', justifyContent: 'center', marginBottom: '2px' }}>
+                            <div style={{ width: `${widthPct}%`, minWidth: '60px', background: e.color, borderRadius: '6px', padding: '4px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <span style={{ fontSize: '11px', fontWeight: '600', color: e.text }}>{e.label}</span>
+                              <span style={{ fontSize: '12px', fontWeight: '800', color: e.text }}>{e.val}</span>
+                            </div>
+                          </div>
+                        )
+                      })}
+                      <div style={{ display: 'flex', gap: '6px', marginTop: '6px' }}>
+                        <div style={{ flex: 1, background: '#fef2f2', borderRadius: '6px', padding: '4px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '11px', fontWeight: '600', color: '#ef4444' }}>Cancelado</span>
+                          <span style={{ fontSize: '12px', fontWeight: '800', color: '#ef4444' }}>{cancelados}</span>
+                        </div>
+                        <div style={{ flex: 1, background: '#f1f5f9', borderRadius: '6px', padding: '4px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '11px', fontWeight: '600', color: '#64748b' }}>Perdido</span>
+                          <span style={{ fontSize: '12px', fontWeight: '800', color: '#64748b' }}>{perdidos}</span>
                         </div>
                       </div>
-                    )
-                  })
+                    </>
+                  )
                 })()}
               </div>
             </div>
