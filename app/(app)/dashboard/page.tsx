@@ -118,6 +118,18 @@ function MiDiaInner() {
   const pensionPromedio = diagConResultado.length > 0
     ? diagConResultado.reduce((s, d) => s + d.resultado_e4, 0) / diagConResultado.length : 0
 
+  // Régimen Ley 73/97 — derivado del diagnóstico más reciente por cliente
+  const ultimoDiagPorCliente = new Map<string, any>()
+  for (const d of diagnosticos) {
+    const prev = ultimoDiagPorCliente.get(d.cliente_id)
+    if (!prev || new Date(d.created_at) > new Date(prev.created_at)) {
+      ultimoDiagPorCliente.set(d.cliente_id, d)
+    }
+  }
+  const diagsUnicos = Array.from(ultimoDiagPorCliente.values())
+  const totalL73 = diagsUnicos.filter(d => d.ley === '73').length
+  const totalL97 = diagsUnicos.filter(d => d.ley === '97').length
+
   // Distribución por rangos
   const rangos = [
     { label: '< $5,000', min: 0, max: 5000, color: '#ef4444' },
@@ -473,8 +485,8 @@ function MiDiaInner() {
             {/* Pastel Ley 73/97 grande + leyenda */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '14px' }}>
               {(() => {
-                const l73 = clientes.filter(c => c.ley === '73').length
-                const l97 = clientes.filter(c => c.ley === '97').length
+                const l73 = totalL73
+                const l97 = totalL97
                 const total = l73 + l97
                 const R = 42, CIRC = 2 * Math.PI * R
                 const pct73 = total > 0 ? l73 / total : 0
@@ -499,14 +511,14 @@ function MiDiaInner() {
                     <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: AZUL, flexShrink: 0 }} />
                     <span style={{ fontSize: '11px', color: '#64748b' }}>Ley 73 (pre-1997)</span>
                   </div>
-                  <span style={{ fontSize: '15px', fontWeight: '800', color: '#374151' }}>{clientes.filter(c => c.ley === '73').length}</span>
+                  <span style={{ fontSize: '15px', fontWeight: '800', color: '#374151' }}>{totalL73}</span>
                 </div>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
                     <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: VERDE, flexShrink: 0 }} />
                     <span style={{ fontSize: '11px', color: '#64748b' }}>Ley 97 (post-1997)</span>
                   </div>
-                  <span style={{ fontSize: '15px', fontWeight: '800', color: '#374151' }}>{clientes.filter(c => c.ley === '97').length}</span>
+                  <span style={{ fontSize: '15px', fontWeight: '800', color: '#374151' }}>{totalL97}</span>
                 </div>
               </div>
             </div>
