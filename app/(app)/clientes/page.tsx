@@ -186,7 +186,7 @@ function ClientesInner() {
   const [editando, setEditando] = useState(false)
   const [formEdit, setFormEdit] = useState({ nombre: '', telefono: '', email: '', notas: '' })
   const [form, setForm] = useState({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '' })
-  const [formErrors, setFormErrors] = useState<{telefono?: string; email?: string}>({})
+  const [formErrors, setFormErrors] = useState<{telefono?: string; email?: string; monto_acordado?: string}>({})
   const [saving, setSaving] = useState(false)
 
   // Nuevo pago
@@ -262,6 +262,7 @@ function ClientesInner() {
     const newErrors: typeof formErrors = {}
     if (!form.nombre.trim()) return
     if (telDigits.length !== 10) newErrors.telefono = 'El teléfono es obligatorio (10 dígitos)'
+    if (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0) newErrors.monto_acordado = 'El monto acordado es obligatorio'
     if (form.email && validateEmail(form.email)) newErrors.email = validateEmail(form.email) ?? undefined
     if (Object.keys(newErrors).length > 0) { setFormErrors(newErrors); return }
     setSaving(true)
@@ -1608,8 +1609,9 @@ function ClientesInner() {
                 </div>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Monto acordado ($)</label>
-                <input type="number" value={form.monto_acordado} onChange={e => setForm(p => ({ ...p, monto_acordado: e.target.value }))} placeholder="Se puede definir después" style={inputSt} />
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Monto acordado ($) *</label>
+                <input type="number" value={form.monto_acordado} onChange={e => { setForm(p => ({ ...p, monto_acordado: e.target.value })); setFormErrors(prev => ({ ...prev, monto_acordado: undefined })) }} placeholder="Ej. 3500" style={{ ...inputSt, borderColor: formErrors.monto_acordado ? '#ef4444' : '#e2e8f0' }} />
+                {formErrors.monto_acordado && <p style={{ fontSize: '10px', color: '#ef4444', margin: '3px 0 0' }}>⚠️ {formErrors.monto_acordado}</p>}
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Notas</label>
@@ -1619,8 +1621,8 @@ function ClientesInner() {
             <p style={{ fontSize: '11px', color: '#94a3b8', margin: '12px 0 0' }}>💡 Los pagos se registran desde el expediente del cliente</p>
             <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
               <button onClick={() => { setShowNuevo(false); setFormErrors({}) }} style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
-              <button onClick={guardarNuevo} disabled={saving || !form.nombre.trim() || form.telefono.replace(/\D/g,'').length !== 10 || !!formErrors.telefono || !!formErrors.email}
-                style={{ flex: 2, padding: '10px', background: saving || !form.nombre.trim() || form.telefono.replace(/\D/g,'').length !== 10 || !!formErrors.telefono || !!formErrors.email ? '#94a3b8' : AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer' }}>
+              <button onClick={guardarNuevo} disabled={saving || !form.nombre.trim() || form.telefono.replace(/\D/g,'').length !== 10 || !form.monto_acordado || parseFloat(form.monto_acordado) <= 0 || !!formErrors.telefono || !!formErrors.email}
+                style={{ flex: 2, padding: '10px', background: saving || !form.nombre.trim() || form.telefono.replace(/\D/g,'').length !== 10 || !form.monto_acordado || parseFloat(form.monto_acordado) <= 0 || !!formErrors.telefono || !!formErrors.email ? '#94a3b8' : AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer' }}>
                 {saving ? 'Guardando...' : 'Guardar cliente'}
               </button>
             </div>
