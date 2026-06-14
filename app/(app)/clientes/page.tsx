@@ -16,8 +16,8 @@ const COLUMNAS = [
   { id: 'seguimiento', label: 'Seguimiento',        color: '#0891b2', bg: '#ecfeff', orden: 3 },
   { id: 'tramite',     label: 'Trámite IMSS',       color: VERDE,     bg: '#f0fdf4', orden: 4 },
   { id: 'pensionado',  label: 'Pensionado ✅',      color: AZUL,      bg: '#eef2f8', orden: 5, esFinal: true },
-  { id: 'cancelado',   label: 'Cancelado ✗',         color: '#64748b', bg: '#f8fafc', orden: 6, esFinal: true },
-  { id: 'perdido',     label: 'Perdido ✗',           color: '#ef4444', bg: '#fef2f2', orden: 7, esFinal: true },
+  { id: 'cancelado',   label: 'Cancelado',         color: '#64748b', bg: '#f8fafc', orden: 6, esFinal: true },
+  { id: 'perdido',     label: 'Perdido',           color: '#ef4444', bg: '#fef2f2', orden: 7, esFinal: true },
 ]
 
 const SERVICIOS = ['Diagnóstico', 'Trámite', 'Combo']
@@ -600,7 +600,13 @@ function ClientesInner() {
   const clientesPorColumna = (colId: string) => clientes.filter(c => (c.etapa_kanban || 'prospecto') === colId)
   const totalCobrado = clientes.reduce((s, c) => s + (c.total_pagado ?? 0), 0)
   const totalPorCobrar = clientes.reduce((s, c) => s + Math.max(0, (c.monto_acordado ?? 0) - (c.total_pagado ?? 0)), 0)
-  const filtered = clientes.filter(c => c.nombre.toLowerCase().includes(search.toLowerCase()) || (c.email ?? '').toLowerCase().includes(search.toLowerCase()) || (c.telefono ?? '').includes(search))
+  const filtered = clientes.filter(c => {
+    const matchSearch = c.nombre.toLowerCase().includes(search.toLowerCase()) || (c.email ?? '').toLowerCase().includes(search.toLowerCase()) || (c.telefono ?? '').includes(search)
+    if (!matchSearch) return false
+    if (filtroEtapa && c.etapa_kanban !== filtroEtapa) return false
+    if (filtroServicio && c.servicio_contratado !== filtroServicio) return false
+    return true
+  })
 
   const fmt = (d: string | null) => d ? new Date(d).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'
   const fmtMXN = (n: number | null) => n != null ? `$${n.toLocaleString('es-MX')}` : '—'
@@ -625,8 +631,26 @@ function ClientesInner() {
           ))}
         </div>
         {vista === 'lista' && (
-          <input placeholder="Buscar..." value={search} onChange={e => setSearch(e.target.value)}
-            style={{ padding: '7px 14px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', width: '240px', outline: 'none' }} />
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <input placeholder="Buscar..." value={search} onChange={e => setSearch(e.target.value)}
+              style={{ padding: '7px 14px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', width: '200px', outline: 'none' }} />
+            <select value={filtroEtapa} onChange={e => setFiltroEtapa(e.target.value)}
+              style={{ padding: '7px 10px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', outline: 'none', background: 'white', color: filtroEtapa ? '#374151' : '#94a3b8' }}>
+              <option value="">Todas las etapas</option>
+              {COLUMNAS.map(col => <option key={col.id} value={col.id}>{col.label}</option>)}
+            </select>
+            <select value={filtroServicio} onChange={e => setFiltroServicio(e.target.value)}
+              style={{ padding: '7px 10px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', outline: 'none', background: 'white', color: filtroServicio ? '#374151' : '#94a3b8' }}>
+              <option value="">Todos los servicios</option>
+              {SERVICIOS.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+            {(filtroEtapa || filtroServicio || search) && (
+              <button onClick={() => { setFiltroEtapa(''); setFiltroServicio(''); setSearch('') }}
+                style={{ padding: '7px 10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', background: '#F4F6FB', color: '#64748b', cursor: 'pointer', fontFamily: 'inherit' }}>
+                ✕ Limpiar
+              </button>
+            )}
+          </div>
         )}
         {vista === 'pipeline' && (
           <div style={{ display: 'flex', gap: '10px' }}>
@@ -716,7 +740,7 @@ function ClientesInner() {
       {/* ── VISTA PIPELINE ── */}
       {vista === 'pipeline' && (
         <div style={{ flex: 1, overflow: 'auto', padding: '12px 16px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '10px', height: '100%' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, minmax(0, 1fr))', gap: '8px', height: '100%' }}>
             {COLUMNAS.map(col => {
               const cards = clientesPorColumna(col.id)
               const isDragOver = dragOver === col.id
@@ -731,7 +755,7 @@ function ClientesInner() {
                       if (cliente) moverCliente(dragging, cliente.etapa_kanban ?? 'prospecto', col.id)
                     }
                   }}
-                  style={{ width: '200px', flexShrink: 0, display: 'flex', flexDirection: 'column', background: isDragOver && canDrop ? `${col.color}12` : '#F4F6FB', borderRadius: '12px', border: `2px solid ${isDragOver && canDrop ? col.color : 'transparent'}`, transition: 'all 0.15s', opacity: isDragOver && !canDrop ? 0.5 : 1 }}>
+                  style={{ minWidth: 0, display: 'flex', flexDirection: 'column', background: isDragOver && canDrop ? `${col.color}12` : '#F4F6FB', borderRadius: '12px', border: `2px solid ${isDragOver && canDrop ? col.color : 'transparent'}`, transition: 'all 0.15s', opacity: isDragOver && !canDrop ? 0.5 : 1 }}>
                   <div style={{ padding: '10px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: col.color }} />
