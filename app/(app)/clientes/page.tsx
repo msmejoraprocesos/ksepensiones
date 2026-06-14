@@ -258,7 +258,12 @@ function ClientesInner() {
   }
 
   async function guardarNuevo() {
+    const telDigits = form.telefono.replace(/\D/g, '')
+    const newErrors: typeof formErrors = {}
     if (!form.nombre.trim()) return
+    if (telDigits.length !== 10) newErrors.telefono = 'El teléfono es obligatorio (10 dígitos)'
+    if (form.email && validateEmail(form.email)) newErrors.email = validateEmail(form.email) ?? undefined
+    if (Object.keys(newErrors).length > 0) { setFormErrors(newErrors); return }
     setSaving(true)
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) { setSaving(false); return }
@@ -871,18 +876,31 @@ function ClientesInner() {
             </div>
 
             {/* Etapa pipeline */}
-            <div style={{ padding: '10px 22px', borderBottom: '1px solid #f1f5f9', display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-              {COLUMNAS.map(col => {
-                const puede = puedeMoverse(selected.etapa_kanban ?? 'prospecto', col.id)
-                const esActual = (selected.etapa_kanban || 'prospecto') === col.id
-                return (
-                  <button key={col.id}
-                    onClick={() => puede && moverCliente(selected.id, selected.etapa_kanban ?? 'prospecto', col.id)}
-                    style={{ padding: '3px 8px', borderRadius: '6px', border: `1.5px solid ${esActual ? col.color : '#e2e8f0'}`, background: esActual ? col.bg : 'white', color: esActual ? col.color : puede ? '#64748b' : '#cbd5e1', fontSize: '10px', fontWeight: '600', cursor: puede ? 'pointer' : 'not-allowed', opacity: !puede && !esActual ? 0.4 : 1 }}>
-                    {col.label}
-                  </button>
-                )
-              })}
+            <div style={{ padding: '10px 22px', borderBottom: '1px solid #f1f5f9' }}>
+              <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#94a3b8', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Etapa del pipeline</label>
+              {editando ? (
+                <select
+                  value={selected.etapa_kanban || 'prospecto'}
+                  onChange={e => {
+                    const nuevaEtapa = e.target.value
+                    const etapaActual = selected.etapa_kanban || 'prospecto'
+                    if (nuevaEtapa === etapaActual) return
+                    const check = puedeMoverse(etapaActual, nuevaEtapa, selected)
+                    if (check.ok) {
+                      setShowConfirmEtapa({ clienteId: selected.id, nombre: selected.nombre, etapaActual, etapaNueva: nuevaEtapa })
+                    } else if (check.razon) {
+                      setBloqueoMsg(check.razon)
+                    }
+                  }}
+                  style={{ ...inputSt, fontSize: '12px', fontWeight: '600' }}>
+                  {COLUMNAS.map(col => <option key={col.id} value={col.id}>{col.label}</option>)}
+                </select>
+              ) : (
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: `1.5px solid ${(COLUMNAS.find(c => c.id === (selected.etapa_kanban || 'prospecto'))?.color) || '#e2e8f0'}`, background: (COLUMNAS.find(c => c.id === (selected.etapa_kanban || 'prospecto'))?.bg) || 'white', color: (COLUMNAS.find(c => c.id === (selected.etapa_kanban || 'prospecto'))?.color) || '#64748b', fontSize: '12px', fontWeight: '700' }}>
+                  {COLUMNAS.find(c => c.id === (selected.etapa_kanban || 'prospecto'))?.label}
+                </div>
+              )}
+              {!editando && <p style={{ fontSize: '10px', color: '#94a3b8', margin: '4px 0 0' }}>Activa el modo edición para cambiar la etapa</p>}
             </div>
 
             {/* Tabs */}
@@ -1303,8 +1321,9 @@ function ClientesInner() {
                 {materiales.map(m => {
                   const tel = nuevoClienteData.telefono?.replace(/\D/g, '') || ''
                   const emoji = m.tipo === 'video' ? '🎥' : m.tipo === 'guia' ? '📋' : m.tipo === 'calculadora' ? '🧮' : '📄'
+                  const enlace = (m as any).archivo_url || m.url
                   const msg = encodeURIComponent(
-                    `Hola ${nuevoClienteData.nombre}, te comparto material de apoyo sobre tu proceso de pensión:\n\n${emoji} *${m.nombre}*${m.descripcion ? `\n${m.descripcion}` : ''}${m.url ? `\n\n🔗 ${m.url}` : ''}\n\nCualquier duda estoy a tus órdenes.`
+                    `Hola ${nuevoClienteData.nombre}, te comparto material de apoyo sobre tu proceso de pensión:\n\n${emoji} *${m.nombre}*${m.descripcion ? `\n${m.descripcion}` : ''}${enlace ? `\n\n🔗 ${enlace}` : ''}\n\nCualquier duda estoy a tus órdenes.`
                   )
                   const wappUrl = tel ? `https://wa.me/52${tel}?text=${msg}` : `https://wa.me/?text=${msg}`
                   return (
@@ -1561,7 +1580,7 @@ function ClientesInner() {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Teléfono</label>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Teléfono *</label>
                   <input value={form.telefono} onChange={e => { const f = formatTelefono(e.target.value); setForm(p => ({ ...p, telefono: f })); setFormErrors(p => ({ ...p, telefono: validateTelefono(f) ?? undefined })) }} placeholder="55 1234 5678" maxLength={12} style={{ ...inputSt, borderColor: formErrors.telefono ? '#ef4444' : '#e2e8f0' }} />
                   {formErrors.telefono && <p style={{ fontSize: '10px', color: '#ef4444', margin: '3px 0 0' }}>⚠️ {formErrors.telefono}</p>}
                   {!formErrors.telefono && form.telefono && form.telefono.replace(/\D/g,'').length === 10 && <p style={{ fontSize: '10px', color: '#16a34a', margin: '3px 0 0' }}>✓ Válido</p>}
@@ -1600,8 +1619,8 @@ function ClientesInner() {
             <p style={{ fontSize: '11px', color: '#94a3b8', margin: '12px 0 0' }}>💡 Los pagos se registran desde el expediente del cliente</p>
             <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
               <button onClick={() => { setShowNuevo(false); setFormErrors({}) }} style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
-              <button onClick={guardarNuevo} disabled={saving || !form.nombre.trim() || !!formErrors.telefono || !!formErrors.email}
-                style={{ flex: 2, padding: '10px', background: saving || !form.nombre.trim() || !!formErrors.telefono || !!formErrors.email ? '#94a3b8' : AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer' }}>
+              <button onClick={guardarNuevo} disabled={saving || !form.nombre.trim() || form.telefono.replace(/\D/g,'').length !== 10 || !!formErrors.telefono || !!formErrors.email}
+                style={{ flex: 2, padding: '10px', background: saving || !form.nombre.trim() || form.telefono.replace(/\D/g,'').length !== 10 || !!formErrors.telefono || !!formErrors.email ? '#94a3b8' : AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer' }}>
                 {saving ? 'Guardando...' : 'Guardar cliente'}
               </button>
             </div>
