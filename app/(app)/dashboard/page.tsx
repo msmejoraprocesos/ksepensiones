@@ -220,11 +220,12 @@ function MiDiaInner() {
       <div style={{ padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
         {/* KPIs row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '8px' }}>
           {[
+            { label: 'Prospectos', value: clientes.filter(c => c.etapa_kanban === 'prospecto').length.toString(), sub: 'por contactar', color: NARANJA },
             { label: 'Clientes activos', value: clientesActivos.length.toString(), color: AZUL },
             { label: 'Diagnósticos', value: diagMes.length.toString(), sub: filtroPeriodo, color: '#8b5cf6' },
-            { label: 'En trámite', value: enTramite.length.toString(), color: NARANJA },
+            { label: 'En trámite', value: enTramite.length.toString(), color: '#f59e0b' },
             { label: 'Pensionados', value: pensionados.length.toString(), color: VERDE },
             { label: 'Ingresos', value: fmtMXN(ingresosTotal), color: VERDE },
             { label: 'Por cobrar', value: fmtMXN(porCobrar), color: '#f59e0b' },
