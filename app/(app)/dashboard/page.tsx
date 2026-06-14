@@ -226,8 +226,8 @@ function MiDiaInner() {
           {/* Bloque Financiero — dona */}
           {card(<>
             {sTitle('💰 Ingresos reales', filtroPeriodo)}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '10px' }}>
-              {/* Donut */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
+              {/* Donut grande */}
               {(() => {
                 const items = [
                   { label: 'Asesorías / Diagnóstico', value: ingresosAsesoria, color: AZUL },
@@ -236,41 +236,43 @@ function MiDiaInner() {
                   { label: 'Comisiones Financieras', value: comisionesFinancieras, color: NARANJA },
                 ]
                 const total = items.reduce((s, it) => s + it.value, 0)
-                const R = 44, CIRC = 2 * Math.PI * R
+                const R = 42, CIRC = 2 * Math.PI * R
                 let acc = 0
                 return (
                   <div style={{ position: 'relative', flexShrink: 0 }}>
-                    <svg width="120" height="120" viewBox="0 0 100 100">
-                      <circle cx="50" cy="50" r={R} fill="none" stroke="#f1f5f9" strokeWidth="14" />
+                    <svg width="148" height="148" viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r={R} fill="none" stroke="#f1f5f9" strokeWidth="15" />
                       {items.map((it, i) => {
                         const pct = total > 0 ? it.value / total : 0
                         const dash = pct * CIRC
                         const offset = -acc * CIRC
                         acc += pct
                         if (pct === 0) return null
-                        return <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="14"
+                        return <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="15"
                           strokeDasharray={`${dash} ${CIRC}`} strokeDashoffset={offset} transform="rotate(-90 50 50)" />
                       })}
                     </svg>
                     <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-                      <div style={{ fontSize: '12px', fontWeight: '800', color: '#1e293b' }}>{fmtMXN(total)}</div>
-                      <div style={{ fontSize: '8px', color: '#94a3b8' }}>total</div>
+                      <div style={{ fontSize: '15px', fontWeight: '800', color: '#1e293b' }}>{fmtMXN(total)}</div>
+                      <div style={{ fontSize: '9px', color: '#94a3b8' }}>total bruto</div>
                     </div>
                   </div>
                 )
               })()}
-              {/* Leyenda */}
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              {/* Leyenda en 2x2 */}
+              <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 14px' }}>
                 {[
                   { label: 'Asesorías / Diagnóstico', value: ingresosAsesoria, color: AZUL },
                   { label: 'Honorarios Gestoría', value: ingresosGestoria, color: VERDE },
                   { label: 'Combo', value: ingresosCombo, color: '#8b5cf6' },
                   { label: 'Comisiones Financieras', value: comisionesFinancieras, color: NARANJA },
                 ].map((item, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: item.color, flexShrink: 0 }} />
-                    <span style={{ fontSize: '10px', color: '#64748b', flex: 1 }}>{item.label}</span>
-                    <span style={{ fontSize: '11px', fontWeight: '700', color: '#374151' }}>{fmtMXN(item.value)}</span>
+                  <div key={i}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                      <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: item.color, flexShrink: 0 }} />
+                      <span style={{ fontSize: '10px', color: '#64748b' }}>{item.label}</span>
+                    </div>
+                    <span style={{ fontSize: '13px', fontWeight: '800', color: '#374151' }}>{fmtMXN(item.value)}</span>
                   </div>
                 ))}
               </div>
@@ -463,58 +465,67 @@ function MiDiaInner() {
           {/* Bloque Mercado */}
           {card(<>
             {sTitle('🎯 Inteligencia de mercado')}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '12px' }}>
               {kpi('Pensión prom.', pensionPromedio > 0 ? fmtMXN(pensionPromedio) : '—', 'E4 óptimo', VERDE)}
               {kpi('Diagnósticos', diagConResultado.length.toString(), 'con resultado', '#8b5cf6')}
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', marginBottom: '8px' }}>
-              <p style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Distribución por rangos de pensión</p>
-              {rangos.map((r, i) => {
-                const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
-                return (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '10px', color: '#64748b', width: '70px', flexShrink: 0 }}>{r.label}</span>
-                    <div style={{ flex: 1, height: '6px', background: '#f1f5f9', borderRadius: '3px', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${diagConResultado.length > 0 ? (count/diagConResultado.length)*100 : 0}%`, background: r.color, borderRadius: '3px' }} />
-                    </div>
-                    <span style={{ fontSize: '11px', fontWeight: '700', color: '#374151', minWidth: '20px', textAlign: 'right' }}>{count}</span>
-                  </div>
-                )
-              })}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+
+            {/* Pastel Ley 73/97 grande + leyenda */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '14px' }}>
               {(() => {
                 const l73 = clientes.filter(c => c.ley === '73').length
                 const l97 = clientes.filter(c => c.ley === '97').length
                 const total = l73 + l97
-                const R = 34, CIRC = 2 * Math.PI * R
+                const R = 42, CIRC = 2 * Math.PI * R
                 const pct73 = total > 0 ? l73 / total : 0
                 return (
                   <div style={{ position: 'relative', flexShrink: 0 }}>
-                    <svg width="92" height="92" viewBox="0 0 76 76">
-                      <circle cx="38" cy="38" r={R} fill="none" stroke={AZUL} strokeWidth="11"
-                        strokeDasharray={`${pct73 * CIRC} ${CIRC}`} transform="rotate(-90 38 38)" />
-                      <circle cx="38" cy="38" r={R} fill="none" stroke={VERDE} strokeWidth="11"
-                        strokeDasharray={`${(1-pct73) * CIRC} ${CIRC}`} strokeDashoffset={-pct73 * CIRC} transform="rotate(-90 38 38)" />
+                    <svg width="116" height="116" viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r={R} fill="none" stroke={AZUL} strokeWidth="15"
+                        strokeDasharray={`${pct73 * CIRC} ${CIRC}`} transform="rotate(-90 50 50)" />
+                      <circle cx="50" cy="50" r={R} fill="none" stroke={VERDE} strokeWidth="15"
+                        strokeDasharray={`${(1-pct73) * CIRC} ${CIRC}`} strokeDashoffset={-pct73 * CIRC} transform="rotate(-90 50 50)" />
                     </svg>
                     <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-                      <div style={{ fontSize: '13px', fontWeight: '800', color: '#1e293b' }}>{total}</div>
+                      <div style={{ fontSize: '15px', fontWeight: '800', color: '#1e293b' }}>{total}</div>
+                      <div style={{ fontSize: '9px', color: '#94a3b8' }}>clientes</div>
                     </div>
                   </div>
                 )
               })()}
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: AZUL, flexShrink: 0 }} />
-                  <span style={{ fontSize: '11px', color: '#64748b', flex: 1 }}>Ley 73 (pre-1997)</span>
-                  <span style={{ fontSize: '12px', fontWeight: '700', color: '#374151' }}>{clientes.filter(c => c.ley === '73').length}</span>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: AZUL, flexShrink: 0 }} />
+                    <span style={{ fontSize: '11px', color: '#64748b' }}>Ley 73 (pre-1997)</span>
+                  </div>
+                  <span style={{ fontSize: '15px', fontWeight: '800', color: '#374151' }}>{clientes.filter(c => c.ley === '73').length}</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: VERDE, flexShrink: 0 }} />
-                  <span style={{ fontSize: '11px', color: '#64748b', flex: 1 }}>Ley 97 (post-1997)</span>
-                  <span style={{ fontSize: '12px', fontWeight: '700', color: '#374151' }}>{clientes.filter(c => c.ley === '97').length}</span>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: VERDE, flexShrink: 0 }} />
+                    <span style={{ fontSize: '11px', color: '#64748b' }}>Ley 97 (post-1997)</span>
+                  </div>
+                  <span style={{ fontSize: '15px', fontWeight: '800', color: '#374151' }}>{clientes.filter(c => c.ley === '97').length}</span>
                 </div>
               </div>
+            </div>
+
+            {/* Rangos de pensión */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <p style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Distribución por rangos de pensión</p>
+              {rangos.map((r, i) => {
+                const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
+                return (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '11px', color: '#64748b', width: '78px', flexShrink: 0 }}>{r.label}</span>
+                    <div style={{ flex: 1, height: '8px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${diagConResultado.length > 0 ? (count/diagConResultado.length)*100 : 0}%`, background: r.color, borderRadius: '4px' }} />
+                    </div>
+                    <span style={{ fontSize: '12px', fontWeight: '700', color: '#374151', minWidth: '20px', textAlign: 'right' }}>{count}</span>
+                  </div>
+                )
+              })}
             </div>
           </>)}
         </div>
