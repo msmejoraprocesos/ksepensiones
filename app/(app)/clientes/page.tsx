@@ -42,20 +42,28 @@ const TIPO_ICONS: Record<string, string> = { llamada: '📞', whatsapp: '💬', 
 const CONCEPTOS = ['Anticipo', 'Segunda exhibición', 'Tercera exhibición', 'Liquidación', 'Otro']
 
 // ── Reglas de movimiento ─────────────────────────────────────────
-function puedeMoverse(desde: string, hacia: string): boolean {
-  if (desde === hacia) return false
+function puedeMoverse(desde: string, hacia: string, cliente?: Cliente): { ok: boolean; razon?: string } {
+  if (desde === hacia) return { ok: false }
   const colDesde = COLUMNAS.find(c => c.id === desde)
   const colHacia = COLUMNAS.find(c => c.id === hacia)
-  if (!colDesde || !colHacia) return false
+  if (!colDesde || !colHacia) return { ok: false }
   // Pensionado es estado final — no se puede mover
-  if (desde === 'pensionado') return false
+  if (desde === 'pensionado') return { ok: false, razon: 'Pensionado es un estado final y no puede modificarse.' }
   // Trámite IMSS solo puede avanzar a Pensionado
-  if (desde === 'tramite' && hacia !== 'pensionado') return false
+  if (desde === 'tramite' && hacia !== 'pensionado' && hacia !== 'cancelado' && hacia !== 'perdido') {
+    return { ok: false, razon: 'Un cliente en Trámite IMSS solo puede avanzar a Pensionado (o marcarse Cancelado/Perdido).' }
+  }
   // Cancelado/perdido siempre permitido desde cualquier etapa no final
-  if (hacia === 'cancelado' || hacia === 'perdido') return true
+  if (hacia === 'cancelado' || hacia === 'perdido') return { ok: true }
   // No puede regresar antes de Trámite IMSS una vez iniciado
-  if (colDesde.orden >= 4 && colHacia.orden < 4) return false
-  return true
+  if (colDesde.orden >= 4 && colHacia.orden < 4) {
+    return { ok: false, razon: 'No se puede regresar a una etapa anterior a Trámite IMSS.' }
+  }
+  // Regla de negocio: no se puede avanzar a Trámite o Pensionado sin monto acordado
+  if ((hacia === 'tramite' || hacia === 'pensionado') && cliente && !cliente.monto_acordado) {
+    return { ok: false, razon: 'Este cliente no tiene un monto acordado. Defínelo en el expediente antes de avanzar a Trámite IMSS.' }
+  }
+  return { ok: true }
 }
 
 // ── Semáforo de pago ─────────────────────────────────────────────
@@ -167,7 +175,8 @@ function ClientesInner() {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [deletingCliente, setDeletingCliente] = useState(false)
   const [showConfirmClose, setShowConfirmClose] = useState(false)
-  const [showConfirmEtapa, setShowConfirmEtapa] = useState<{clienteId: string; etapaActual: string; etapaNueva: string} | null>(null)
+  const [bloqueoMsg, setBloqueoMsg] = useState<string | null>(null)
+  const [showConfirmEtapa, setShowConfirmEtapa] = useState<{clienteId: string; nombre: string; etapaActual: string; etapaNueva: string} | null>(null)
   const [pendingClose, setPendingClose] = useState(false)
   const [formServicio, setFormServicio] = useState({ tipo: 'Diagnóstico', monto_acordado: '', descripcion: '' })
   const [modalTab, setModalTab] = useState<'info' | 'diagnosticos' | 'actividades' | 'pagos'>('info')
@@ -444,7 +453,6 @@ function ClientesInner() {
   }
 
   async function moverCliente(clienteId: string, etapaActual: string, nuevaEtapa: string) {
-    if (!puedeMoverse(etapaActual, nuevaEtapa)) return
     await supabase.from('clientes').update({ etapa_kanban: nuevaEtapa, ultimo_contacto: new Date().toISOString() }).eq('id', clienteId)
     setClientes(prev => prev.map(c => c.id === clienteId ? { ...c, etapa_kanban: nuevaEtapa } : c))
     if (selected?.id === clienteId) setSelected(prev => prev ? { ...prev, etapa_kanban: nuevaEtapa } : prev)
@@ -760,16 +768,25 @@ function ClientesInner() {
             {COLUMNAS.map(col => {
               const cards = clientesPorColumna(col.id)
               const isDragOver = dragOver === col.id
-              const canDrop = dragging ? puedeMoverse(clientes.find(c => c.id === dragging)?.etapa_kanban ?? 'prospecto', col.id) : true
+              const canDrop = dragging ? puedeMoverse(clientes.find(c => c.id === dragging)?.etapa_kanban ?? 'prospecto', col.id, clientes.find(c => c.id === dragging)).ok : true
               return (
                 <div key={col.id}
                   onDragOver={e => { e.preventDefault(); if (canDrop) setDragOver(col.id) }}
                   onDrop={e => {
                     e.preventDefault()
-                    if (dragging && canDrop) {
+                    if (dragging) {
                       const cliente = clientes.find(c => c.id === dragging)
-                      if (cliente) moverCliente(dragging, cliente.etapa_kanban ?? 'prospecto', col.id)
+                      if (cliente) {
+                        const etapaActual = cliente.etapa_kanban ?? 'prospecto'
+                        const check = puedeMoverse(etapaActual, col.id, cliente)
+                        if (check.ok) {
+                          setShowConfirmEtapa({ clienteId: cliente.id, nombre: cliente.nombre, etapaActual, etapaNueva: col.id })
+                        } else if (check.razon) {
+                          setBloqueoMsg(check.razon)
+                        }
+                      }
                     }
+                    setDragging(null); setDragOver(null)
                   }}
                   style={{ minWidth: 0, display: 'flex', flexDirection: 'column', background: isDragOver && canDrop ? `${col.color}12` : '#F4F6FB', borderRadius: '12px', border: `2px solid ${isDragOver && canDrop ? col.color : 'transparent'}`, transition: 'all 0.15s', opacity: isDragOver && !canDrop ? 0.5 : 1 }}>
                   <div style={{ padding: '10px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
@@ -1340,14 +1357,31 @@ function ClientesInner() {
         </div>
       )}
 
-      {/* ── MODAL CONFIRMAR ETAPA ── */}
+            {/* ── MODAL BLOQUEO REGLA DE NEGOCIO ── */}
+      {bloqueoMsg && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '380px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', textAlign: 'center' }}>
+            <div style={{ fontSize: '36px', marginBottom: '12px' }}>🚫</div>
+            <h3 style={{ color: '#1e293b', fontSize: '16px', fontWeight: '700', margin: '0 0 8px' }}>No se puede mover</h3>
+            <p style={{ color: '#64748b', fontSize: '13px', margin: '0 0 20px', lineHeight: 1.6 }}>
+              {bloqueoMsg}
+            </p>
+            <button onClick={() => setBloqueoMsg(null)}
+              style={{ width: '100%', padding: '11px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
+
+{/* ── MODAL CONFIRMAR ETAPA ── */}
       {showConfirmEtapa && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '380px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', textAlign: 'center' }}>
             <div style={{ fontSize: '36px', marginBottom: '12px' }}>🔄</div>
             <h3 style={{ color: '#1e293b', fontSize: '16px', fontWeight: '700', margin: '0 0 8px' }}>¿Cambiar etapa?</h3>
             <p style={{ color: '#64748b', fontSize: '13px', margin: '0 0 8px', lineHeight: 1.6 }}>
-              Moverás al cliente de
+              Moverás a <strong style={{ color: '#374151' }}>{showConfirmEtapa.nombre}</strong> de
             </p>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', margin: '0 0 20px' }}>
               <span style={{ padding: '4px 12px', borderRadius: '8px', background: '#EEF2F8', color: AZUL, fontSize: '13px', fontWeight: '700' }}>
