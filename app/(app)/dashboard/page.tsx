@@ -223,28 +223,61 @@ function MiDiaInner() {
         {/* Row 2: Financiero + Comercial + Agenda */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
 
-          {/* Bloque Financiero */}
+          {/* Bloque Financiero — dona */}
           {card(<>
             {sTitle('💰 Ingresos reales', filtroPeriodo)}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '10px' }}>
+              {/* Donut */}
+              {(() => {
+                const items = [
+                  { label: 'Asesorías / Diagnóstico', value: ingresosAsesoria, color: AZUL },
+                  { label: 'Honorarios Gestoría', value: ingresosGestoria, color: VERDE },
+                  { label: 'Combo', value: ingresosCombo, color: '#8b5cf6' },
+                  { label: 'Comisiones Financieras', value: comisionesFinancieras, color: NARANJA },
+                ]
+                const total = items.reduce((s, it) => s + it.value, 0)
+                const R = 42, CIRC = 2 * Math.PI * R
+                let acc = 0
+                return (
+                  <div style={{ position: 'relative', flexShrink: 0 }}>
+                    <svg width="100" height="100" viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r={R} fill="none" stroke="#f1f5f9" strokeWidth="14" />
+                      {items.map((it, i) => {
+                        const pct = total > 0 ? it.value / total : 0
+                        const dash = pct * CIRC
+                        const offset = -acc * CIRC
+                        acc += pct
+                        if (pct === 0) return null
+                        return <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="14"
+                          strokeDasharray={`${dash} ${CIRC}`} strokeDashoffset={offset} transform="rotate(-90 50 50)" />
+                      })}
+                    </svg>
+                    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
+                      <div style={{ fontSize: '12px', fontWeight: '800', color: '#1e293b' }}>{fmtMXN(total)}</div>
+                      <div style={{ fontSize: '8px', color: '#94a3b8' }}>total</div>
+                    </div>
+                  </div>
+                )
+              })()}
+              {/* Leyenda */}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                {[
+                  { label: 'Asesorías / Diagnóstico', value: ingresosAsesoria, color: AZUL },
+                  { label: 'Honorarios Gestoría', value: ingresosGestoria, color: VERDE },
+                  { label: 'Combo', value: ingresosCombo, color: '#8b5cf6' },
+                  { label: 'Comisiones Financieras', value: comisionesFinancieras, color: NARANJA },
+                ].map((item, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: item.color, flexShrink: 0 }} />
+                    <span style={{ fontSize: '10px', color: '#64748b', flex: 1 }}>{item.label}</span>
+                    <span style={{ fontSize: '11px', fontWeight: '700', color: '#374151' }}>{fmtMXN(item.value)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
               {kpi('Total bruto', fmtMXN(ingresosConComisiones), 'incl. comisiones')}
               {kpi('Ticket promedio', fmtMXN(ticketPromedio), 'por cliente')}
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-              {[
-                { label: 'Asesorías / Diagnóstico', value: ingresosAsesoria, color: AZUL },
-                { label: 'Honorarios Gestoría', value: ingresosGestoria, color: VERDE },
-                { label: 'Combo', value: ingresosCombo, color: '#8b5cf6' },
-                { label: 'Comisiones Financieras', value: comisionesFinancieras, color: '#f59e0b' },
-              ].map((item, i) => (
-                <div key={i}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
-                    <span style={{ color: '#64748b' }}>{item.label}</span>
-                    <span style={{ fontWeight: '600', color: '#374151' }}>{fmtMXN(item.value)}</span>
-                  </div>
-                  {bar(item.value, ingresosTotal, item.color)}
-                </div>
-              ))}
             </div>
           </>)}
 
@@ -272,22 +305,29 @@ function MiDiaInner() {
               </div>
               <div style={{ marginTop: '4px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '6px' }}>
-                  <span style={{ color: '#64748b' }}>Pipeline por etapa</span>
+                  <span style={{ color: '#64748b' }}>Pipeline por etapa (embudo)</span>
                 </div>
-                {[
-                  { label: 'Prospecto', val: clientes.filter(c => c.etapa_kanban === 'prospecto').length, color: '#64748b' },
-                  { label: 'Diagnóstico', val: clientes.filter(c => c.etapa_kanban === 'diagnostico').length, color: '#3b82f6' },
-                  { label: 'Propuesta', val: clientes.filter(c => c.etapa_kanban === 'propuesta').length, color: '#8b5cf6' },
-                  { label: 'Trámite', val: enTramite.length, color: NARANJA },
-                  { label: 'Pensionado', val: pensionados.length, color: VERDE },
-                ].map((e, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '3px' }}>
-                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: e.color, flexShrink: 0 }} />
-                    <span style={{ fontSize: '11px', color: '#64748b', flex: 1 }}>{e.label}</span>
-                    <span style={{ fontSize: '11px', fontWeight: '700', color: '#374151', minWidth: '20px', textAlign: 'right' }}>{e.val}</span>
-                    {bar(e.val, clientes.length, e.color)}
-                  </div>
-                ))}
+                {(() => {
+                  const etapas = [
+                    { label: 'Prospecto', val: clientes.filter(c => c.etapa_kanban === 'prospecto').length, color: '#94a3b8', text: '#374151' },
+                    { label: 'Diagnóstico', val: clientes.filter(c => c.etapa_kanban === 'diagnostico').length, color: AZUL, text: 'white' },
+                    { label: 'Propuesta', val: clientes.filter(c => c.etapa_kanban === 'propuesta').length, color: '#8b5cf6', text: 'white' },
+                    { label: 'Trámite', val: enTramite.length, color: NARANJA, text: 'white' },
+                    { label: 'Pensionado', val: pensionados.length, color: VERDE, text: 'white' },
+                  ]
+                  const maxVal = Math.max(...etapas.map(e => e.val), 1)
+                  return etapas.map((e, i) => {
+                    const widthPct = 35 + (e.val / maxVal) * 65
+                    return (
+                      <div key={i} style={{ display: 'flex', justifyContent: 'center', marginBottom: '4px' }}>
+                        <div style={{ width: `${widthPct}%`, minWidth: '60px', background: e.color, borderRadius: '6px', padding: '5px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '11px', fontWeight: '600', color: e.text }}>{e.label}</span>
+                          <span style={{ fontSize: '12px', fontWeight: '800', color: e.text }}>{e.val}</span>
+                        </div>
+                      </div>
+                    )
+                  })
+                })()}
               </div>
             </div>
           </>)}
@@ -426,19 +466,49 @@ function MiDiaInner() {
                 )
               })}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px' }}>
-              {kpi('Ley 73', `${clientes.filter(c => c.ley === '73').length}`, 'pre-1997', AZUL)}
-              {kpi('Ley 97', `${clientes.filter(c => c.ley === '97').length}`, 'post-1997', '#0891b2')}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              {(() => {
+                const l73 = clientes.filter(c => c.ley === '73').length
+                const l97 = clientes.filter(c => c.ley === '97').length
+                const total = l73 + l97
+                const R = 32, CIRC = 2 * Math.PI * R
+                const pct73 = total > 0 ? l73 / total : 0
+                return (
+                  <div style={{ position: 'relative', flexShrink: 0 }}>
+                    <svg width="76" height="76" viewBox="0 0 76 76">
+                      <circle cx="38" cy="38" r={R} fill="none" stroke={AZUL} strokeWidth="11"
+                        strokeDasharray={`${pct73 * CIRC} ${CIRC}`} transform="rotate(-90 38 38)" />
+                      <circle cx="38" cy="38" r={R} fill="none" stroke={VERDE} strokeWidth="11"
+                        strokeDasharray={`${(1-pct73) * CIRC} ${CIRC}`} strokeDashoffset={-pct73 * CIRC} transform="rotate(-90 38 38)" />
+                    </svg>
+                    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
+                      <div style={{ fontSize: '13px', fontWeight: '800', color: '#1e293b' }}>{total}</div>
+                    </div>
+                  </div>
+                )
+              })()}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: AZUL, flexShrink: 0 }} />
+                  <span style={{ fontSize: '11px', color: '#64748b', flex: 1 }}>Ley 73 (pre-1997)</span>
+                  <span style={{ fontSize: '12px', fontWeight: '700', color: '#374151' }}>{clientes.filter(c => c.ley === '73').length}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: VERDE, flexShrink: 0 }} />
+                  <span style={{ fontSize: '11px', color: '#64748b', flex: 1 }}>Ley 97 (post-1997)</span>
+                  <span style={{ fontSize: '12px', fontWeight: '700', color: '#374151' }}>{clientes.filter(c => c.ley === '97').length}</span>
+                </div>
+              </div>
             </div>
           </>)}
         </div>
 
-        {/* Row 4: Tubería + Pipeline rápido */}
+        {/* Row 4: Pagos pendientes + Resumen */}
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
 
           {/* Tubería de dinero */}
           {card(<>
-            {sTitle('🔄 Tubería de cobro', `${fmtMXN(porCobrar)} en camino`)}
+            {sTitle('💳 Pagos pendientes', `${fmtMXN(porCobrar)} en camino`)}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', marginBottom: '10px' }}>
               {kpi('Trámites activos', enTramite.length.toString(), 'clientes', NARANJA)}
               {kpi('Por cobrar', fmtMXN(porCobrar), 'honorarios pend.', '#f59e0b')}
