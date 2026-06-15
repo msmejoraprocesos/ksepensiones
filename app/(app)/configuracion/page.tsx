@@ -100,8 +100,7 @@ export default function ConfiguracionPage() {
   const [errors, setErrors] = useState<Partial<Record<keyof Perfil, string>>>({})
   const fileRef = useRef<HTMLInputElement>(null)
   const [materiales, setMateriales] = useState<{id:string;nombre:string;descripcion:string|null;tipo:string;url:string|null;activo:boolean;orden:number;archivo_url?:string|null;created_at?:string;folio?:string}[]>([])
-  const [showNuevoMaterial, setShowNuevoMaterial] = useState(false)
-  const [formMaterial, setFormMaterial] = useState<{nombre:string;descripcion:string;tipo:string;url:string;archivo_url?:string}>({ nombre: '', descripcion: '', tipo: 'general', url: '' })
+  const [nuevaFila, setNuevaFila] = useState<{nombre:string;descripcion:string;tipo:string;url:string;archivo_url?:string} | null>(null)
   const [savingMaterial, setSavingMaterial] = useState(false)
   const [showMaterialDetalle, setShowMaterialDetalle] = useState<any>(null)
   const [uploadingAdjunto, setUploadingAdjunto] = useState(false)
@@ -159,7 +158,8 @@ export default function ConfiguracionPage() {
   }
 
   async function guardarMaterial() {
-    if (!formMaterial.nombre.trim() || !formMaterial.tipo || !(formMaterial as any).archivo_url) {
+    if (!nuevaFila) return
+    if (!nuevaFila.nombre.trim() || !nuevaFila.tipo || !nuevaFila.archivo_url) {
       setMaterialError('Completa nombre, tipo y adjunta un archivo antes de guardar.')
       return
     }
@@ -174,11 +174,11 @@ export default function ConfiguracionPage() {
     }
     const { data, error } = await supabase.from('materiales_apoyo').insert({
       asesor_id: uid,
-      nombre: formMaterial.nombre,
-      descripcion: formMaterial.descripcion || null,
-      tipo: formMaterial.tipo,
-      url: formMaterial.url || null,
-      archivo_url: formMaterial.archivo_url || null,
+      nombre: nuevaFila.nombre,
+      descripcion: nuevaFila.descripcion || null,
+      tipo: nuevaFila.tipo,
+      url: nuevaFila.url || null,
+      archivo_url: nuevaFila.archivo_url || null,
       activo: true,
       orden: materiales.length,
     }).select().single()
@@ -188,9 +188,22 @@ export default function ConfiguracionPage() {
       return
     }
     if (data) setMateriales(prev => [...prev, data])
-    setFormMaterial({ nombre: '', descripcion: '', tipo: 'general', url: '' })
-    setShowNuevoMaterial(false)
+    setNuevaFila(null)
     setSavingMaterial(false)
+  }
+
+  async function cancelarNuevaFila() {
+    if (nuevaFila?.archivo_url) {
+      // Eliminar el archivo huérfano subido a Storage
+      try {
+        const urlParts = nuevaFila.archivo_url.split('/').pop()?.split('?')[0]
+        const { data: { session } } = await supabase.auth.getSession()
+        const uid = session?.user?.id || userId
+        if (urlParts) await supabase.storage.from('logos').remove([`materiales/${urlParts}`])
+      } catch { /* noop */ }
+    }
+    setNuevaFila(null)
+    setMaterialError(null)
   }
 
   async function toggleMaterial(id: string, activo: boolean) {
@@ -643,20 +656,20 @@ export default function ConfiguracionPage() {
                 <p style={{ fontSize: '14px', fontWeight: '700', color: '#1e293b', margin: '0 0 2px' }}>📚 Catálogo de materiales de apoyo</p>
                 <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>Documentos y links que puedes enviar por WhatsApp al dar de alta un cliente</p>
               </div>
-              {editing && (
-                <button onClick={() => setShowNuevoMaterial(true)}
+              {editing && !nuevaFila && (
+                <button onClick={() => setNuevaFila({ nombre: '', descripcion: '', tipo: 'general', url: '' })}
                   style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
                   + Agregar material
                 </button>
               )}
             </div>
 
-            {materialError && !showNuevoMaterial && (
+            {materialError && (
               <div style={{ padding: '8px 12px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', fontSize: '12px', color: '#ef4444', marginBottom: '12px' }}>
                 ⚠️ {materialError}
               </div>
             )}
-            {materiales.length === 0 ? (
+            {materiales.length === 0 && !nuevaFila ? (
               <div style={{ textAlign: 'center', padding: '24px', background: '#F4F6FB', borderRadius: '10px', color: '#94a3b8', fontSize: '13px' }}>
                 <div style={{ fontSize: '32px', marginBottom: '8px' }}>📄</div>
                 No hay materiales configurados.<br />
@@ -673,6 +686,78 @@ export default function ConfiguracionPage() {
                     </tr>
                   </thead>
                   <tbody>
+                    {nuevaFila && (
+                      <tr style={{ background: '#FFF7ED', borderBottom: '1px solid #fed7aa' }}>
+                        <td style={{ padding: '8px 12px', textAlign: 'center', color: '#94a3b8', fontWeight: '600', fontFamily: 'monospace', fontSize: '11px' }}>—</td>
+                        <td style={{ padding: '8px 12px' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <select value={nuevaFila.tipo} onChange={e => setNuevaFila(p => p && ({ ...p, tipo: e.target.value }))}
+                              style={{ padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '11px', fontFamily: 'inherit', background: 'white' }}>
+                              <option value="general">📄 General</option>
+                              <option value="guia">📋 Guía / Manual</option>
+                              <option value="video">🎥 Video</option>
+                              <option value="calculadora">🧮 Calculadora</option>
+                            </select>
+                            <input value={nuevaFila.nombre} onChange={e => setNuevaFila(p => p && ({ ...p, nombre: e.target.value }))}
+                              placeholder="Nombre del material *"
+                              style={{ padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '12px', fontFamily: 'inherit', fontWeight: '600' }} />
+                          </div>
+                        </td>
+                        <td style={{ padding: '8px 12px' }}>
+                          <input value={nuevaFila.descripcion} onChange={e => setNuevaFila(p => p && ({ ...p, descripcion: e.target.value }))}
+                            placeholder="Descripción (opcional)"
+                            style={{ width: '100%', padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '12px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
+                        </td>
+                        <td style={{ padding: '8px 12px' }}>
+                          {nuevaFila.archivo_url ? (
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: VERDE, background: '#f0fdf4', padding: '3px 8px', borderRadius: '6px', fontWeight: '600' }}>
+                              ✓ Adjunto
+                            </span>
+                          ) : (
+                            <label style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: uploadingAdjunto ? '#94a3b8' : AZUL, background: '#EEF2F8', padding: '3px 8px', borderRadius: '6px', fontWeight: '600', cursor: uploadingAdjunto ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}>
+                              {uploadingAdjunto ? '⏳...' : '📎 Adjuntar *'}
+                              <input type="file" accept=".pdf,image/*,.doc,.docx" style={{ display: 'none' }} disabled={uploadingAdjunto}
+                                onChange={async e => {
+                                  const f = e.target.files?.[0]
+                                  if (!f) return
+                                  setUploadingAdjunto(true)
+                                  setMaterialError(null)
+                                  const { data: { session } } = await supabase.auth.getSession()
+                                  const uid = session?.user?.id || userId
+                                  if (!uid) {
+                                    setMaterialError('No se pudo identificar tu sesión. Recarga la página e intenta de nuevo.')
+                                    setUploadingAdjunto(false)
+                                    return
+                                  }
+                                  const ext = f.name.split('.').pop()
+                                  const path = `materiales/${uid}-${Date.now()}.${ext}`
+                                  const { error } = await supabase.storage.from('logos').upload(path, f, { upsert: true })
+                                  if (!error) {
+                                    const { data } = supabase.storage.from('logos').getPublicUrl(path)
+                                    setNuevaFila(p => p && ({ ...p, archivo_url: data.publicUrl }))
+                                  } else {
+                                    setMaterialError('Error al subir archivo: ' + error.message)
+                                  }
+                                  setUploadingAdjunto(false)
+                                }} />
+                            </label>
+                          )}
+                        </td>
+                        <td style={{ padding: '8px 12px', color: '#94a3b8', fontSize: '11px', whiteSpace: 'nowrap' }}>Hoy</td>
+                        <td style={{ padding: '8px 12px', textAlign: 'right' }}>
+                          <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                            <button onClick={cancelarNuevaFila}
+                              style={{ padding: '4px 10px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '10px', cursor: 'pointer', background: 'white', color: '#64748b' }}>
+                              Cancelar
+                            </button>
+                            <button onClick={guardarMaterial} disabled={savingMaterial}
+                              style={{ padding: '4px 10px', border: 'none', borderRadius: '6px', fontSize: '10px', fontWeight: '700', cursor: 'pointer', background: AZUL, color: 'white' }}>
+                              {savingMaterial ? '...' : 'Guardar'}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
                     {materiales.map((m, i) => (
                       <tr key={m.id} style={{ background: m.activo ? (i % 2 === 0 ? 'white' : '#F8FAFC') : '#F8FAFC', opacity: m.activo ? 1 : 0.55, borderBottom: '1px solid #f1f5f9' }}>
                         <td style={{ padding: '10px 12px', textAlign: 'center', color: '#94a3b8', fontWeight: '600', fontFamily: 'monospace', fontSize: '11px' }}>{(m as any).folio || i + 1}</td>
@@ -739,91 +824,6 @@ export default function ConfiguracionPage() {
               </div>
             )}
           </div>
-
-          {/* Modal nuevo material */}
-          {showNuevoMaterial && (
-            <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '460px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
-                <p style={{ fontSize: '15px', fontWeight: '700', color: '#1e293b', marginBottom: '16px' }}>Agregar material de apoyo</p>
-                {materialError && (
-                  <div style={{ padding: '8px 12px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', fontSize: '12px', color: '#ef4444', marginBottom: '12px' }}>
-                    ⚠️ {materialError}
-                  </div>
-                )}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px', textTransform: 'uppercase' }}>Nombre *</label>
-                    <input value={formMaterial.nombre} onChange={e => setFormMaterial(p => ({ ...p, nombre: e.target.value }))}
-                      placeholder="Ej: Guía de pensión Ley 73"
-                      style={{ display: 'block', width: '100%', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px', textTransform: 'uppercase' }}>Tipo *</label>
-                    <select value={formMaterial.tipo} onChange={e => setFormMaterial(p => ({ ...p, tipo: e.target.value }))}
-                      style={{ display: 'block', width: '100%', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', background: 'white' }}>
-                      <option value="general">📄 General</option>
-                      <option value="guia">📋 Guía / Manual</option>
-                      <option value="video">🎥 Video</option>
-                      <option value="calculadora">🧮 Calculadora</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px', textTransform: 'uppercase' }}>Descripción general</label>
-                    <textarea value={formMaterial.descripcion} onChange={e => setFormMaterial(p => ({ ...p, descripcion: e.target.value }))}
-                      placeholder="Breve descripción del material"
-                      rows={2}
-                      style={{ display: 'block', width: '100%', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', resize: 'vertical' as const }} />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px', textTransform: 'uppercase' }}>Link (opcional)</label>
-                    <input value={formMaterial.url} onChange={e => setFormMaterial(p => ({ ...p, url: e.target.value }))}
-                      placeholder="https://..."
-                      style={{ display: 'block', width: '100%', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px', textTransform: 'uppercase' }}>Adjuntar archivo *</label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', border: '1.5px dashed #e2e8f0', borderRadius: '8px', cursor: uploadingAdjunto ? 'not-allowed' : 'pointer', fontSize: '12px', color: AZUL, background: '#F8FAFC' }}>
-                      {uploadingAdjunto ? '⏳ Subiendo...' : (formMaterial as any).archivo_url ? '✓ Archivo adjunto — clic para cambiar' : '📎 Seleccionar archivo (PDF, imagen, etc.)'}
-                      <input type="file" accept=".pdf,image/*,.doc,.docx" style={{ display: 'none' }} disabled={uploadingAdjunto}
-                        onChange={async e => {
-                          const f = e.target.files?.[0]
-                          if (!f) return
-                          setUploadingAdjunto(true)
-                          setMaterialError(null)
-                          const { data: { session } } = await supabase.auth.getSession()
-                          const uid = session?.user?.id || userId
-                          if (!uid) {
-                            setMaterialError('No se pudo identificar tu sesión. Recarga la página e intenta de nuevo.')
-                            setUploadingAdjunto(false)
-                            return
-                          }
-                          const ext = f.name.split('.').pop()
-                          const path = `materiales/${uid}-${Date.now()}.${ext}`
-                          const { error } = await supabase.storage.from('logos').upload(path, f, { upsert: true })
-                          if (!error) {
-                            const { data } = supabase.storage.from('logos').getPublicUrl(path)
-                            setFormMaterial(p => ({ ...p, archivo_url: data.publicUrl, _archivo_nombre: f.name } as any))
-                          } else {
-                            setMaterialError('Error al subir archivo: ' + error.message)
-                          }
-                          setUploadingAdjunto(false)
-                        }} />
-                    </label>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button onClick={() => { setShowNuevoMaterial(false); setFormMaterial({ nombre: '', descripcion: '', tipo: 'general', url: '' }) }}
-                    style={{ flex: 1, padding: '10px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
-                    Cancelar
-                  </button>
-                  <button onClick={guardarMaterial} disabled={!formMaterial.nombre.trim() || !formMaterial.tipo || !(formMaterial as any).archivo_url || savingMaterial}
-                    style={{ flex: 1, padding: '10px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', opacity: (!formMaterial.nombre.trim() || !formMaterial.tipo || !(formMaterial as any).archivo_url) ? 0.5 : 1 }}>
-                    {savingMaterial ? 'Guardando...' : 'Guardar material'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
 
         {/* Barra sticky inferior */}
         <div style={{ position: 'sticky', bottom: 0, background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 -4px 16px rgba(0,0,0,0.06)', marginBottom: '8px' }}>
