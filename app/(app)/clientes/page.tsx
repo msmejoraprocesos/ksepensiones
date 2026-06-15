@@ -315,6 +315,10 @@ function ClientesInner() {
   async function openExpediente(cliente: Cliente) {
     setSelected(cliente)
     setModalTab('info')
+    setPagos([])
+    setDiagnosticos([])
+    setActividades([])
+    setServicios([])
     const [{ data: diags }, { data: acts }, { data: pags }, { data: srvs }] = await Promise.all([
       supabase.from('diagnosticos').select('*').eq('cliente_id', cliente.id).order('created_at', { ascending: false }),
       supabase.from('actividades').select('*').eq('cliente_id', cliente.id).order('fecha_programada', { ascending: false }),
