@@ -100,7 +100,7 @@ export default function ConfiguracionPage() {
   const [errors, setErrors] = useState<Partial<Record<keyof Perfil, string>>>({})
   const fileRef = useRef<HTMLInputElement>(null)
   const [materiales, setMateriales] = useState<{id:string;nombre:string;descripcion:string|null;tipo:string;url:string|null;activo:boolean;orden:number;archivo_url?:string|null;created_at?:string;folio?:string}[]>([])
-  const [nuevaFila, setNuevaFila] = useState<{nombre:string;descripcion:string;tipo:string;url:string;archivo_url?:string} | null>(null)
+  const [materialesNuevos, setMaterialesNuevos] = useState<{tempId:string;nombre:string;descripcion:string;tipo:string;url:string;archivo_url?:string}[]>([])
   const [savingMaterial, setSavingMaterial] = useState(false)
   const [showMaterialDetalle, setShowMaterialDetalle] = useState<any>(null)
   const [uploadingAdjunto, setUploadingAdjunto] = useState(false)
@@ -157,52 +157,20 @@ export default function ConfiguracionPage() {
     setMateriales(data ?? [])
   }
 
-  async function guardarMaterial() {
-    if (!nuevaFila) return
-    if (!nuevaFila.nombre.trim() || !nuevaFila.tipo || !nuevaFila.archivo_url) {
-      setMaterialError('Completa nombre, tipo y adjunta un archivo antes de guardar.')
-      return
-    }
-    setSavingMaterial(true)
-    setMaterialError(null)
-    const { data: { session } } = await supabase.auth.getSession()
-    const uid = session?.user?.id || userId
-    if (!uid) {
-      setMaterialError('No se pudo identificar tu sesión. Recarga la página e intenta de nuevo.')
-      setSavingMaterial(false)
-      return
-    }
-    const { data, error } = await supabase.from('materiales_apoyo').insert({
-      asesor_id: uid,
-      nombre: nuevaFila.nombre,
-      descripcion: nuevaFila.descripcion || null,
-      tipo: nuevaFila.tipo,
-      url: nuevaFila.url || null,
-      archivo_url: nuevaFila.archivo_url || null,
-      activo: true,
-      orden: materiales.length,
-    }).select().single()
-    if (error) {
-      setMaterialError('Error al guardar: ' + error.message)
-      setSavingMaterial(false)
-      return
-    }
-    if (data) setMateriales(prev => [...prev, data])
-    setNuevaFila(null)
-    setSavingMaterial(false)
+  function agregarFilaMaterial() {
+    setMaterialesNuevos(prev => [...prev, { tempId: `tmp-${Date.now()}-${Math.random().toString(36).slice(2,7)}`, nombre: '', descripcion: '', tipo: 'general', url: '' }])
   }
 
-  async function cancelarNuevaFila() {
-    if (nuevaFila?.archivo_url) {
+  async function quitarFilaMaterial(tempId: string) {
+    const fila = materialesNuevos.find(f => f.tempId === tempId)
+    if (fila?.archivo_url) {
       // Eliminar el archivo huérfano subido a Storage
       try {
-        const urlParts = nuevaFila.archivo_url.split('/').pop()?.split('?')[0]
-        const { data: { session } } = await supabase.auth.getSession()
-        const uid = session?.user?.id || userId
+        const urlParts = fila.archivo_url.split('/').pop()?.split('?')[0]
         if (urlParts) await supabase.storage.from('logos').remove([`materiales/${urlParts}`])
       } catch { /* noop */ }
     }
-    setNuevaFila(null)
+    setMaterialesNuevos(prev => prev.filter(f => f.tempId !== tempId))
     setMaterialError(null)
   }
 
@@ -219,8 +187,17 @@ export default function ConfiguracionPage() {
 
   async function guardar() {
     if (!validate()) return
+
+    // Validar materiales pendientes antes de continuar
+    const incompletos = materialesNuevos.filter(f => !f.nombre.trim() || !f.tipo || !f.archivo_url)
+    if (incompletos.length > 0) {
+      setMaterialError(`Completa nombre, tipo y adjunto en ${incompletos.length > 1 ? 'los materiales pendientes' : 'el material pendiente'} antes de guardar.`)
+      return
+    }
+
     setSaving(true)
     setSaveError(null)
+    setMaterialError(null)
 
     const { data: { session } } = await supabase.auth.getSession()
     const uid = session?.user?.id || userId
@@ -242,13 +219,35 @@ export default function ConfiguracionPage() {
       .from('perfiles_usuario')
       .upsert({ id: uid, ...perfilToSave }, { onConflict: 'id' })
 
-    setSaving(false)
-
     if (error) {
+      setSaving(false)
       setSaveError('Error al guardar: ' + error.message)
       return
     }
 
+    // Insertar materiales nuevos pendientes
+    if (materialesNuevos.length > 0) {
+      const inserts = materialesNuevos.map((f, i) => ({
+        asesor_id: uid,
+        nombre: f.nombre,
+        descripcion: f.descripcion || null,
+        tipo: f.tipo,
+        url: f.url || null,
+        archivo_url: f.archivo_url || null,
+        activo: true,
+        orden: materiales.length + i,
+      }))
+      const { data: insertedData, error: matError } = await supabase.from('materiales_apoyo').insert(inserts).select()
+      if (matError) {
+        setSaving(false)
+        setMaterialError('Error al guardar materiales: ' + matError.message)
+        return
+      }
+      if (insertedData) setMateriales(prev => [...prev, ...insertedData])
+      setMaterialesNuevos([])
+    }
+
+    setSaving(false)
     setUserId(uid)
     setSaved(true)
     setLastSaved(new Date())
@@ -656,8 +655,8 @@ export default function ConfiguracionPage() {
                 <p style={{ fontSize: '14px', fontWeight: '700', color: '#1e293b', margin: '0 0 2px' }}>📚 Catálogo de materiales de apoyo</p>
                 <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>Documentos y links que puedes enviar por WhatsApp al dar de alta un cliente</p>
               </div>
-              {editing && !nuevaFila && (
-                <button onClick={() => setNuevaFila({ nombre: '', descripcion: '', tipo: 'general', url: '' })}
+              {editing && (
+                <button onClick={agregarFilaMaterial}
                   style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
                   + Agregar material
                 </button>
@@ -669,7 +668,12 @@ export default function ConfiguracionPage() {
                 ⚠️ {materialError}
               </div>
             )}
-            {materiales.length === 0 && !nuevaFila ? (
+            {materialesNuevos.length > 0 && (
+              <div style={{ padding: '8px 12px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px', fontSize: '12px', color: '#92400e', marginBottom: '12px' }}>
+                📌 Tienes {materialesNuevos.length} material{materialesNuevos.length > 1 ? 'es' : ''} sin guardar. Completa los campos requeridos (*) y presiona <strong>Guardar cambios</strong> para confirmarlos.
+              </div>
+            )}
+            {materiales.length === 0 && materialesNuevos.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '24px', background: '#F4F6FB', borderRadius: '10px', color: '#94a3b8', fontSize: '13px' }}>
                 <div style={{ fontSize: '32px', marginBottom: '8px' }}>📄</div>
                 No hay materiales configurados.<br />
@@ -686,30 +690,30 @@ export default function ConfiguracionPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {nuevaFila && (
-                      <tr style={{ background: '#FFF7ED', borderBottom: '1px solid #fed7aa' }}>
+                    {materialesNuevos.map((fila, idx) => (
+                      <tr key={fila.tempId} style={{ background: '#FFF7ED', borderBottom: '1px solid #fed7aa' }}>
                         <td style={{ padding: '8px 12px', textAlign: 'center', color: '#94a3b8', fontWeight: '600', fontFamily: 'monospace', fontSize: '11px' }}>—</td>
                         <td style={{ padding: '8px 12px' }}>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <select value={nuevaFila.tipo} onChange={e => setNuevaFila(p => p && ({ ...p, tipo: e.target.value }))}
+                            <select value={fila.tipo} onChange={e => setMaterialesNuevos(prev => prev.map(f => f.tempId === fila.tempId ? { ...f, tipo: e.target.value } : f))}
                               style={{ padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '11px', fontFamily: 'inherit', background: 'white' }}>
                               <option value="general">📄 General</option>
                               <option value="guia">📋 Guía / Manual</option>
                               <option value="video">🎥 Video</option>
                               <option value="calculadora">🧮 Calculadora</option>
                             </select>
-                            <input value={nuevaFila.nombre} onChange={e => setNuevaFila(p => p && ({ ...p, nombre: e.target.value }))}
+                            <input value={fila.nombre} onChange={e => setMaterialesNuevos(prev => prev.map(f => f.tempId === fila.tempId ? { ...f, nombre: e.target.value } : f))}
                               placeholder="Nombre del material *"
                               style={{ padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '12px', fontFamily: 'inherit', fontWeight: '600' }} />
                           </div>
                         </td>
                         <td style={{ padding: '8px 12px' }}>
-                          <input value={nuevaFila.descripcion} onChange={e => setNuevaFila(p => p && ({ ...p, descripcion: e.target.value }))}
+                          <input value={fila.descripcion} onChange={e => setMaterialesNuevos(prev => prev.map(f => f.tempId === fila.tempId ? { ...f, descripcion: e.target.value } : f))}
                             placeholder="Descripción (opcional)"
                             style={{ width: '100%', padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '12px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
                         </td>
                         <td style={{ padding: '8px 12px' }}>
-                          {nuevaFila.archivo_url ? (
+                          {fila.archivo_url ? (
                             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: VERDE, background: '#f0fdf4', padding: '3px 8px', borderRadius: '6px', fontWeight: '600' }}>
                               ✓ Adjunto
                             </span>
@@ -730,11 +734,11 @@ export default function ConfiguracionPage() {
                                     return
                                   }
                                   const ext = f.name.split('.').pop()
-                                  const path = `materiales/${uid}-${Date.now()}.${ext}`
+                                  const path = `materiales/${uid}-${Date.now()}-${idx}.${ext}`
                                   const { error } = await supabase.storage.from('logos').upload(path, f, { upsert: true })
                                   if (!error) {
                                     const { data } = supabase.storage.from('logos').getPublicUrl(path)
-                                    setNuevaFila(p => p && ({ ...p, archivo_url: data.publicUrl }))
+                                    setMaterialesNuevos(prev => prev.map(item => item.tempId === fila.tempId ? { ...item, archivo_url: data.publicUrl } : item))
                                   } else {
                                     setMaterialError('Error al subir archivo: ' + error.message)
                                   }
@@ -743,21 +747,15 @@ export default function ConfiguracionPage() {
                             </label>
                           )}
                         </td>
-                        <td style={{ padding: '8px 12px', color: '#94a3b8', fontSize: '11px', whiteSpace: 'nowrap' }}>Hoy</td>
+                        <td style={{ padding: '8px 12px', color: '#94a3b8', fontSize: '11px', whiteSpace: 'nowrap' }}>Sin guardar</td>
                         <td style={{ padding: '8px 12px', textAlign: 'right' }}>
-                          <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
-                            <button onClick={cancelarNuevaFila}
-                              style={{ padding: '4px 10px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '10px', cursor: 'pointer', background: 'white', color: '#64748b' }}>
-                              Cancelar
-                            </button>
-                            <button onClick={guardarMaterial} disabled={savingMaterial}
-                              style={{ padding: '4px 10px', border: 'none', borderRadius: '6px', fontSize: '10px', fontWeight: '700', cursor: 'pointer', background: AZUL, color: 'white' }}>
-                              {savingMaterial ? '...' : 'Guardar'}
-                            </button>
-                          </div>
+                          <button onClick={() => quitarFilaMaterial(fila.tempId)}
+                            style={{ padding: '4px 10px', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '10px', cursor: 'pointer', background: '#fef2f2', color: '#ef4444' }}>
+                            Quitar
+                          </button>
                         </td>
                       </tr>
-                    )}
+                    ))}
                     {materiales.map((m, i) => (
                       <tr key={m.id} style={{ background: m.activo ? (i % 2 === 0 ? 'white' : '#F8FAFC') : '#F8FAFC', opacity: m.activo ? 1 : 0.55, borderBottom: '1px solid #f1f5f9' }}>
                         <td style={{ padding: '10px 12px', textAlign: 'center', color: '#94a3b8', fontWeight: '600', fontFamily: 'monospace', fontSize: '11px' }}>{(m as any).folio || i + 1}</td>
@@ -850,7 +848,19 @@ export default function ConfiguracionPage() {
               </button>
             ) : (
               <>
-                <button onClick={() => { setPerfil(perfilOriginal); setEditing(false); setErrors({}); setSaveError(null) }}
+                <button onClick={async () => {
+                  setPerfil(perfilOriginal); setEditing(false); setErrors({}); setSaveError(null); setMaterialError(null)
+                  // Limpiar archivos huérfanos de materiales no guardados
+                  for (const fila of materialesNuevos) {
+                    if (fila.archivo_url) {
+                      try {
+                        const urlParts = fila.archivo_url.split('/').pop()?.split('?')[0]
+                        if (urlParts) await supabase.storage.from('logos').remove([`materiales/${urlParts}`])
+                      } catch { /* noop */ }
+                    }
+                  }
+                  setMaterialesNuevos([])
+                }}
                   style={{ padding: '10px 20px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
                   ✕ Cancelar
                 </button>
