@@ -1120,6 +1120,106 @@ function ClientesInner() {
                           </div>
                         )}
                       </div>
+
+                      {/* ── ESQUEMA DE PAGO ── */}
+                      {selected.tipo_servicio && (
+                        <div style={{ background: '#F4F6FB', borderRadius: '10px', padding: '12px' }}>
+                          <div style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Esquema de pago</div>
+                          {selected.tipo_servicio === 'asesoria' ? (
+                            editando ? (
+                              <div>
+                                <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Monto acordado ($)</label>
+                                <input type="number" defaultValue={selected.monto_acordado ?? ''}
+                                  onBlur={e => actualizarCliente(selected.id, { monto_acordado: e.target.value ? parseFloat(e.target.value) : null, esquema_pago: 'monto_acordado' })}
+                                  placeholder="Ej. 3500" style={inputSt} />
+                              </div>
+                            ) : (
+                              <div style={{ fontSize: '13px', color: '#374151' }}>{fmtMXN(selected.monto_acordado)}</div>
+                            )
+                          ) : editando ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                              <div>
+                                <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Esquema</label>
+                                <select defaultValue={selected.esquema_pago ?? ''}
+                                  onChange={e => actualizarCliente(selected.id, {
+                                    esquema_pago: e.target.value || null,
+                                    monto_acordado: null, monto_pension_mensual: null, numero_meses_cobro: null, porcentaje_recuperacion: null,
+                                  })}
+                                  style={{ ...inputSt, fontSize: '12px', padding: '7px 10px' }}>
+                                  <option value="">— Selecciona —</option>
+                                  {ESQUEMAS_PAGO.map(e => <option key={e.id} value={e.id}>{e.label}</option>)}
+                                </select>
+                              </div>
+
+                              {selected.esquema_pago === 'monto_acordado' && (
+                                <div>
+                                  <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Monto acordado ($)</label>
+                                  <input type="number" defaultValue={selected.monto_acordado ?? ''}
+                                    onBlur={e => actualizarCliente(selected.id, { monto_acordado: e.target.value ? parseFloat(e.target.value) : null })}
+                                    placeholder="Ej. 18000" style={inputSt} />
+                                </div>
+                              )}
+
+                              {selected.esquema_pago === 'meses_pension' && (
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                                  <div>
+                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Pensión mensual ($)</label>
+                                    <input type="number" defaultValue={selected.monto_pension_mensual ?? ''}
+                                      onBlur={e => actualizarCliente(selected.id, { monto_pension_mensual: e.target.value ? parseFloat(e.target.value) : null })}
+                                      placeholder="Ej. 8000" style={inputSt} />
+                                  </div>
+                                  <div>
+                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Meses a cobrar</label>
+                                    <input type="number" defaultValue={selected.numero_meses_cobro ?? ''}
+                                      onBlur={e => actualizarCliente(selected.id, { numero_meses_cobro: e.target.value ? parseInt(e.target.value) : null })}
+                                      placeholder="Ej. 2" style={inputSt} />
+                                  </div>
+                                </div>
+                              )}
+
+                              {selected.esquema_pago === 'tarifa_etapa' && (
+                                <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0 }}>
+                                  📌 La tarifa por etapa se definió al registrar al cliente. Para ajustarla, consulta los cobros esperados o contacta soporte.
+                                </p>
+                              )}
+
+                              {selected.esquema_pago === 'porcentaje_recuperado' && (
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                                  <div>
+                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>% a cobrar</label>
+                                    <input type="number" defaultValue={selected.porcentaje_recuperacion ?? ''}
+                                      onBlur={e => actualizarCliente(selected.id, { porcentaje_recuperacion: e.target.value ? parseFloat(e.target.value) : null })}
+                                      placeholder="Ej. 10" style={inputSt} />
+                                  </div>
+                                  <div>
+                                    <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Monto recuperado ($)</label>
+                                    <input type="number" defaultValue={selected.monto_recuperado ?? ''}
+                                      onBlur={e => actualizarCliente(selected.id, { monto_recuperado: e.target.value ? parseFloat(e.target.value) : null })}
+                                      placeholder="Se define al cierre" style={inputSt} />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div style={{ fontSize: '13px', color: '#374151' }}>
+                              {!selected.esquema_pago && <span style={{ color: '#94a3b8' }}>Sin definir</span>}
+                              {selected.esquema_pago === 'monto_acordado' && fmtMXN(selected.monto_acordado)}
+                              {selected.esquema_pago === 'meses_pension' && (
+                                selected.monto_pension_mensual && selected.numero_meses_cobro
+                                  ? `${fmtMXN(selected.monto_pension_mensual)} × ${selected.numero_meses_cobro} meses = ${fmtMXN(selected.monto_pension_mensual * selected.numero_meses_cobro)}`
+                                  : <span style={{ color: '#94a3b8' }}>Pendiente de definir monto de pensión</span>
+                              )}
+                              {selected.esquema_pago === 'tarifa_etapa' && 'Tarifa por etapa (ver cobros esperados)'}
+                              {selected.esquema_pago === 'porcentaje_recuperado' && (
+                                selected.porcentaje_recuperacion
+                                  ? `${selected.porcentaje_recuperacion}% ${selected.monto_recuperado ? `de ${fmtMXN(selected.monto_recuperado)} = ${fmtMXN(selected.monto_recuperado * selected.porcentaje_recuperacion / 100)}` : '(pendiente monto recuperado)'}`
+                                  : <span style={{ color: '#94a3b8' }}>Sin definir</span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <button onClick={() => abrirEditar(selected)}
                           style={{ flex: 1, padding: '9px', background: '#F4F6FB', color: AZUL, border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
