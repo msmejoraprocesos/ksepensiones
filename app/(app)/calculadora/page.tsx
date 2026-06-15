@@ -431,6 +431,21 @@ function CalculadoraInner() {
   const autoNumInputSt: React.CSSProperties = { ...numInputSt, background: '#EFF6FF', borderColor: '#bfdbfe' }
   const manualInputSt: React.CSSProperties = { ...inputSt, background: '#F8FAFC', borderColor: '#e2e8f0' }
   const manualNumInputSt: React.CSSProperties = { ...numInputSt, background: '#F8FAFC', borderColor: '#e2e8f0' }
+  const sysInputSt: React.CSSProperties = { ...inputSt, background: '#F5F3FF', borderColor: '#ddd6fe' }
+  const sysNumInputSt: React.CSSProperties = { ...numInputSt, background: '#F5F3FF', borderColor: '#ddd6fe' }
+
+  const legendoDot = (bg: string, border: string) => (
+    <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '2px', background: bg, border: `1px solid ${border}`, marginRight: '4px', verticalAlign: 'middle' }}></span>
+  )
+
+  const guiaCampos = (compact = false) => (
+    <div style={{ padding: compact ? '8px 12px' : '12px 16px', background: '#FAFAFA', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: compact ? '10px' : '11px', color: '#64748b', display: 'flex', flexWrap: 'wrap' as const, gap: compact ? '10px' : '16px', alignItems: 'center' }}>
+      {!compact && <strong style={{ color: '#374151' }}>Guía de campos:</strong>}
+      <span>{legendoDot('#EFF6FF', '#bfdbfe')} <strong>Azul</strong> — se llena al cargar la constancia IMSS</span>
+      <span>{legendoDot('#F5F3FF', '#ddd6fe')} <strong>Morado</strong> — viene de Configuración del sistema</span>
+      <span>{legendoDot('#F8FAFC', '#e2e8f0')} <strong>Gris</strong> — captúralo tú o pídelo al cliente</span>
+    </div>
+  )
 
   const labelSt: React.CSSProperties = {
     display: 'block', fontSize: '10px', fontWeight: '700',
@@ -532,6 +547,7 @@ function CalculadoraInner() {
         {/* ══ TAB 1: DATOS GENERALES ══════════════════════════════ */}
         {tab === 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            {guiaCampos()}
             {datos.semanas_totales === 0 && (
               <div style={{ padding: '12px 16px', background: '#EEF2F8', border: '1px solid #bfdbfe', borderRadius: '10px', fontSize: '12px', color: AZUL }}>
                 📄 Carga la constancia de semanas cotizadas del IMSS en PDF y los datos se completarán automáticamente.
@@ -540,10 +556,6 @@ function CalculadoraInner() {
 
             <div style={cardSt}>
               {sectionTitle('Identificación del trabajador')}
-              <p style={{ fontSize: '10px', color: '#94a3b8', margin: '-4px 0 8px' }}>
-                <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '2px', background: '#EFF6FF', border: '1px solid #bfdbfe', marginRight: '4px', verticalAlign: 'middle' }}></span>
-                Se llena al cargar la constancia del IMSS
-              </p>
               <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '10px', marginBottom: '10px' }}>
                 <div><label style={labelSt}>Nombre completo</label>
                   <input style={autoInputSt} value={datos.nombre} onChange={e => setDatos(p => ({ ...p, nombre: e.target.value }))} placeholder="Nombre del trabajador" /></div>
@@ -574,10 +586,6 @@ function CalculadoraInner() {
 
             <div style={cardSt}>
               {sectionTitle('Situación laboral y familiar')}
-              <p style={{ fontSize: '10px', color: '#94a3b8', margin: '-4px 0 8px' }}>
-                <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '2px', background: '#F8FAFC', border: '1px solid #e2e8f0', marginRight: '4px', verticalAlign: 'middle' }}></span>
-                Información que solo el cliente puede proporcionar
-              </p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '10px' }}>
                 <div>
                   <label style={labelSt}>¿Sigue cotizando al IMSS?{datos.fecha_calculo && <span style={{ color: AZUL, fontWeight: '600', textTransform: 'none' }}> · sugerido</span>}</label>
@@ -710,10 +718,7 @@ function CalculadoraInner() {
               <strong>Art. 182 Ley del Seguro Social 1973:</strong> Cuando un trabajador deja de cotizar, sus derechos pensionarios se conservan por un período proporcional. Es crítico saber si el cliente puede iniciar el trámite ahora o si ya perdió sus derechos.
             </div>
 
-            <p style={{ fontSize: '10px', color: '#94a3b8', margin: '-4px 0 0' }}>
-              <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '2px', background: '#EFF6FF', border: '1px solid #bfdbfe', marginRight: '4px', verticalAlign: 'middle' }}></span>
-              Se llena al cargar la constancia del IMSS
-            </p>
+            {guiaCampos(true)}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
               <div style={cardSt}>
                 <label style={labelSt}>Fecha de última cotización</label>
@@ -785,22 +790,23 @@ function CalculadoraInner() {
               <strong>Modalidad 40 (Art. 218 LSS 1973):</strong> Permite al trabajador cotizar voluntariamente sobre un salario superior al actual, incrementando la base de cálculo de su pensión. Es la estrategia de optimización pensional más poderosa disponible en México.
             </div>
 
+            {guiaCampos(true)}
             <div style={cardSt}>
               {sectionTitle('Configuración de la Modalidad 40')}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '14px' }}>
                 <div>
                   <label style={labelSt}>Salario base Mod 40 (veces UMA)</label>
-                  <input type="number" step="0.5" style={numInputSt} value={mod40Umas} onChange={e => setMod40Umas(parseFloat(e.target.value) || 1)} />
+                  <input type="number" step="0.5" style={manualNumInputSt} value={mod40Umas} onChange={e => setMod40Umas(parseFloat(e.target.value) || 1)} />
                   <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>SDI: {fmtMXN2(mod40Umas * sys.UMA_DIARIA)}/día</p>
                 </div>
                 <div>
                   <label style={labelSt}>Período de cotización (meses)</label>
-                  <input type="number" style={numInputSt} value={mod40Meses} onChange={e => setMod40Meses(parseInt(e.target.value) || 1)} />
+                  <input type="number" style={manualNumInputSt} value={mod40Meses} onChange={e => setMod40Meses(parseInt(e.target.value) || 1)} />
                   <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>{(mod40Meses * 4.33).toFixed(0)} semanas adicionales</p>
                 </div>
                 <div>
                   <label style={labelSt}>Tasa Mod 40 {new Date().getFullYear()} (%)</label>
-                  <input type="number" step="0.001" style={numInputSt} value={sys.mod40_pct ?? 14.438} readOnly />
+                  <input type="number" step="0.001" style={sysNumInputSt} value={sys.mod40_pct ?? 14.438} readOnly />
                   <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>Configurable en Configuración</p>
                 </div>
               </div>
