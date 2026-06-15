@@ -692,11 +692,8 @@ function CalculadoraInner() {
               {periodos.length === 0 && (
                 <div style={{ textAlign: 'center', padding: '24px', background: '#F4F6FB', borderRadius: '8px', color: '#94a3b8', fontSize: '12px' }}>
                   <div style={{ fontSize: '28px', marginBottom: '8px' }}>📄</div>
-                  Carga la constancia IMSS en PDF para calcular automáticamente el promedio de las 250 semanas.<br />
+                  Carga la constancia IMSS en PDF (botón en la parte superior) para calcular automáticamente el promedio de las 250 semanas.<br />
                   También puedes ingresar los períodos manualmente.
-                  <div style={{ marginTop: '12px' }}>
-                    <button onClick={() => fileRef.current?.click()} style={btnPrimary}>Cargar constancia IMSS</button>
-                  </div>
                 </div>
               )}
             </div>
