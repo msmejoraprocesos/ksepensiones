@@ -973,7 +973,7 @@ function ClientesInner() {
 
       {/* ── VISTA PIPELINE ── */}
       {vista === 'pipeline' && (
-        <div style={{ flex: 1, overflow: 'auto', padding: '12px 16px' }}>
+        <div style={{ flex: 1, overflow: 'hidden', padding: '12px 16px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, minmax(0, 1fr))', gap: '8px', height: '100%' }}>
             {COLUMNAS.map(col => {
               const cards = clientesPorColumna(col.id)
@@ -998,7 +998,7 @@ function ClientesInner() {
                     }
                     setDragging(null); setDragOver(null)
                   }}
-                  style={{ minWidth: 0, display: 'flex', flexDirection: 'column', background: isDragOver && canDrop ? `${col.color}12` : '#F4F6FB', borderRadius: '12px', border: `2px solid ${isDragOver && canDrop ? col.color : 'transparent'}`, transition: 'all 0.15s', opacity: isDragOver && !canDrop ? 0.5 : 1 }}>
+                  style={{ minWidth: 0, height: '100%', maxHeight: 'calc(100vh - 220px)', overflow: 'hidden', display: 'flex', flexDirection: 'column', background: isDragOver && canDrop ? `${col.color}12` : '#F4F6FB', borderRadius: '12px', border: `2px solid ${isDragOver && canDrop ? col.color : 'transparent'}`, transition: 'all 0.15s', opacity: isDragOver && !canDrop ? 0.5 : 1 }}>
                   <div style={{ padding: '10px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: col.color }} />
