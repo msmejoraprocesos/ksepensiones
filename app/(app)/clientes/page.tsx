@@ -10,24 +10,34 @@ const NARANJA = '#F47920'
 
 // ── Etapas del pipeline ──────────────────────────────────────────
 const COLUMNAS = [
-  { id: 'prospecto',   label: 'Prospecto',         color: '#64748b', bg: '#f1f5f9', orden: 0 },
-  { id: 'diagnostico', label: 'Diagnóstico',        color: '#3b82f6', bg: '#eff6ff', orden: 1 },
-  { id: 'propuesta',   label: 'Propuesta enviada',  color: '#8b5cf6', bg: '#f5f3ff', orden: 2 },
-  { id: 'seguimiento', label: 'Seguimiento',        color: '#0891b2', bg: '#ecfeff', orden: 3 },
-  { id: 'tramite',     label: 'Trámite IMSS',       color: VERDE,     bg: '#f0fdf4', orden: 4 },
-  { id: 'pensionado',  label: 'Pensionado ✅',      color: AZUL,      bg: '#eef2f8', orden: 5, esFinal: true },
-  { id: 'cancelado',   label: 'Cancelado',         color: '#64748b', bg: '#f8fafc', orden: 6, esFinal: true },
-  { id: 'perdido',     label: 'Perdido',           color: '#ef4444', bg: '#fef2f2', orden: 7, esFinal: true },
+  { id: 'prospecto',    label: 'Prospecto',          color: '#64748b', bg: '#f1f5f9', orden: 0 },
+  { id: 'diagnostico',  label: 'Diagnóstico',        color: '#3b82f6', bg: '#eff6ff', orden: 1 },
+  { id: 'recopilacion', label: 'Recopilación',       color: '#eab308', bg: '#fefce8', orden: 2 },
+  { id: 'tramite',      label: 'Trámite',            color: '#f97316', bg: '#fff7ed', orden: 3 },
+  { id: 'cierre',       label: 'Cierre (Exitoso) ✅', color: VERDE,     bg: '#f0fdf4', orden: 4, esFinal: true },
+  { id: 'cancelado',    label: 'Cancelado',          color: '#94a3b8', bg: '#f8fafc', orden: 5, esFinal: true },
 ]
 
-const SERVICIOS = ['Diagnóstico', 'Trámite', 'Combo']
+const TIPOS_SERVICIO = [
+  { id: 'asesoria',        label: 'Asesoría',         color: '#378ADD' },
+  { id: 'gestion',         label: 'Trámite de Pensión', color: '#639922' },
+  { id: 'financiamiento',  label: 'Financiamiento',   color: '#eab308' },
+  { id: 'gestoria_global', label: 'Gestoría Global',  color: '#7F77DD' },
+]
 
 const SERVICIO_COLORS: Record<string, string> = {
-  'Diagnóstico': '#378ADD',
-  'Gestoría': '#639922',
-  'Trámite': '#639922',
-  'Combo': '#7F77DD',
+  asesoria: '#378ADD',
+  gestion: '#639922',
+  financiamiento: '#eab308',
+  gestoria_global: '#7F77DD',
 }
+
+const ESQUEMAS_PAGO = [
+  { id: 'monto_acordado',       label: 'Monto acordado' },
+  { id: 'meses_pension',        label: 'Meses de pensión' },
+  { id: 'tarifa_etapa',         label: 'Tarifa por etapa' },
+  { id: 'porcentaje_recuperado', label: '% de recursos recuperados' },
+]
 
 // Detecta automáticamente el concepto según número de pago y saldo
 function detectarConcepto(numPagos: number, monto: number, saldoPendiente: number, montoAcordado: number | null): string {
@@ -42,26 +52,67 @@ const TIPO_ICONS: Record<string, string> = { llamada: '📞', whatsapp: '💬', 
 const CONCEPTOS = ['Anticipo', 'Segunda exhibición', 'Tercera exhibición', 'Liquidación', 'Otro']
 
 // ── Reglas de movimiento ─────────────────────────────────────────
+// Indica si un cliente con este esquema de pago ya tiene definido cómo va a cobrar
+function tieneEsquemaDefinido(cliente: Cliente): boolean {
+  switch (cliente.esquema_pago) {
+    case 'monto_acordado':
+      return !!cliente.monto_acordado
+    case 'meses_pension':
+      return !!cliente.monto_pension_mensual && !!cliente.numero_meses_cobro
+    case 'tarifa_etapa':
+      return true // se valida por etapa vía cobros_esperados, no bloquea aquí
+    case 'porcentaje_recuperado':
+      return !!cliente.porcentaje_recuperacion
+    default:
+      return !!cliente.monto_acordado
+  }
+}
+
 function puedeMoverse(desde: string, hacia: string, cliente?: Cliente): { ok: boolean; razon?: string } {
   if (desde === hacia) return { ok: false }
   const colDesde = COLUMNAS.find(c => c.id === desde)
   const colHacia = COLUMNAS.find(c => c.id === hacia)
   if (!colDesde || !colHacia) return { ok: false }
-  // Pensionado es estado final — no se puede mover
-  if (desde === 'pensionado') return { ok: false, razon: 'Pensionado es un estado final y no puede modificarse.' }
-  // Trámite IMSS solo puede avanzar a Pensionado
-  if (desde === 'tramite' && hacia !== 'pensionado' && hacia !== 'cancelado' && hacia !== 'perdido') {
-    return { ok: false, razon: 'Un cliente en Trámite IMSS solo puede avanzar a Pensionado (o marcarse Cancelado/Perdido).' }
+
+  // Cierre y Cancelado son estados finales
+  if (desde === 'cierre') return { ok: false, razon: 'Cierre es un estado final y no puede modificarse.' }
+  if (desde === 'cancelado') return { ok: false, razon: 'Cancelado es un estado final y no puede modificarse.' }
+
+  // Cancelado siempre permitido desde cualquier etapa no final (requiere nota, validado en UI)
+  if (hacia === 'cancelado') return { ok: true }
+
+  const esAsesoria = cliente?.tipo_servicio === 'asesoria'
+
+  // ── Reglas para Asesoría: Prospecto → Diagnóstico → Cierre (salta Recopilación y Trámite) ──
+  if (esAsesoria) {
+    if (desde === 'prospecto' && hacia !== 'diagnostico') {
+      return { ok: false, razon: 'Un cliente de Asesoría avanza de Prospecto a Diagnóstico.' }
+    }
+    if (desde === 'diagnostico' && hacia !== 'cierre') {
+      return { ok: false, razon: 'Un cliente de Asesoría en Diagnóstico avanza directo a Cierre (no pasa por Recopilación ni Trámite).' }
+    }
+    if (hacia === 'recopilacion' || hacia === 'tramite') {
+      return { ok: false, razon: 'Los clientes de Asesoría no pasan por Recopilación ni Trámite.' }
+    }
+    // Validar esquema de pago antes de Cierre
+    if (hacia === 'cierre' && cliente && !tieneEsquemaDefinido(cliente)) {
+      return { ok: false, razon: 'Define el monto acordado de este cliente antes de avanzar a Cierre.' }
+    }
+    return { ok: true }
   }
-  // Cancelado/perdido siempre permitido desde cualquier etapa no final
-  if (hacia === 'cancelado' || hacia === 'perdido') return { ok: true }
-  // No puede regresar antes de Trámite IMSS una vez iniciado
-  if (colDesde.orden >= 4 && colHacia.orden < 4) {
-    return { ok: false, razon: 'No se puede regresar a una etapa anterior a Trámite IMSS.' }
+
+  // ── Reglas para Gestión / Financiamiento / Gestoría Global: flujo completo, columna por columna ──
+  // No retroceder
+  if (colHacia.orden < colDesde.orden) {
+    return { ok: false, razon: 'No se puede regresar a una etapa anterior.' }
   }
-  // Regla de negocio: no se puede avanzar a Trámite o Pensionado sin monto acordado
-  if ((hacia === 'tramite' || hacia === 'pensionado') && cliente && !cliente.monto_acordado) {
-    return { ok: false, razon: 'Este cliente no tiene un monto acordado. Defínelo en el expediente antes de avanzar a Trámite IMSS.' }
+  // Solo se permite avanzar a la siguiente columna inmediata (no saltar)
+  if (colHacia.orden > colDesde.orden + 1) {
+    return { ok: false, razon: 'No se pueden saltar etapas. Avanza una columna a la vez.' }
+  }
+  // Validar esquema de pago antes de entrar a Recopilación o Cierre
+  if ((hacia === 'recopilacion' || hacia === 'cierre') && cliente && !tieneEsquemaDefinido(cliente)) {
+    return { ok: false, razon: 'Define cómo se cobrará este cliente (esquema de pago) antes de continuar.' }
   }
   return { ok: true }
 }
@@ -102,8 +153,14 @@ interface Cliente {
   email: string | null
   notas: string | null
   etapa_kanban: string | null
-  servicio_contratado: string | null
+  tipo_servicio: string | null
+  esquema_pago: string | null
   monto_acordado: number | null
+  monto_pension_mensual: number | null
+  numero_meses_cobro: number | null
+  porcentaje_recuperacion: number | null
+  monto_recuperado: number | null
+  nota_cancelacion: string | null
   comprobante_url: string | null
   ultimo_contacto: string | null
   created_at: string
@@ -176,6 +233,8 @@ function ClientesInner() {
   const [deletingCliente, setDeletingCliente] = useState(false)
   const [showConfirmClose, setShowConfirmClose] = useState(false)
   const [bloqueoMsg, setBloqueoMsg] = useState<string | null>(null)
+  const [notaCancelacion, setNotaCancelacion] = useState('')
+  const [showGuia, setShowGuia] = useState(false)
   const [showConfirmEtapa, setShowConfirmEtapa] = useState<{clienteId: string; nombre: string; etapaActual: string; etapaNueva: string} | null>(null)
   const [pendingClose, setPendingClose] = useState(false)
   const [formServicio, setFormServicio] = useState({ tipo: 'Diagnóstico', monto_acordado: '', descripcion: '' })
@@ -185,8 +244,8 @@ function ClientesInner() {
   const [showNuevo, setShowNuevo] = useState(false)
   const [editando, setEditando] = useState(false)
   const [formEdit, setFormEdit] = useState({ nombre: '', telefono: '', email: '', notas: '' })
-  const [form, setForm] = useState({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '' })
-  const [formErrors, setFormErrors] = useState<{telefono?: string; email?: string; monto_acordado?: string}>({})
+  const [form, setForm] = useState({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', tipo_servicio: '', esquema_pago: '', monto_acordado: '', monto_pension_mensual: '', numero_meses_cobro: '', porcentaje_recuperacion: '', tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } } })
+  const [formErrors, setFormErrors] = useState<{telefono?: string; email?: string; monto_acordado?: string; esquema_pago?: string}>({})
   const [saving, setSaving] = useState(false)
 
   // Nuevo pago
@@ -262,25 +321,69 @@ function ClientesInner() {
     const newErrors: typeof formErrors = {}
     if (!form.nombre.trim()) return
     if (telDigits.length !== 10) newErrors.telefono = 'El teléfono es obligatorio (10 dígitos)'
-    if (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0) newErrors.monto_acordado = 'El monto acordado es obligatorio'
     if (form.email && validateEmail(form.email)) newErrors.email = validateEmail(form.email) ?? undefined
+
+    const esAsesoria = form.tipo_servicio === 'asesoria'
+    if (esAsesoria) {
+      if (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0) newErrors.monto_acordado = 'El monto acordado es obligatorio'
+    } else if (form.tipo_servicio) {
+      // Gestión / Financiamiento / Gestoría Global requieren esquema de pago
+      if (!form.esquema_pago) {
+        newErrors.esquema_pago = 'Selecciona un esquema de pago'
+      } else if (form.esquema_pago === 'monto_acordado' && (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0)) {
+        newErrors.monto_acordado = 'El monto acordado es obligatorio'
+      }
+      // meses_pension, tarifa_etapa, porcentaje_recuperado pueden quedar incompletos al inicio (con recordatorio posterior)
+    }
+
     if (Object.keys(newErrors).length > 0) { setFormErrors(newErrors); return }
     setSaving(true)
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) { setSaving(false); return }
     const uid = session.user.id
     userIdRef.current = uid
-    const { data: newCliente, error } = await supabase.from('clientes').insert({
+
+    const insertData: any = {
       asesor_id: uid,
       nombre: form.nombre,
       telefono: form.telefono || null,
       email: form.email || null,
       notas: form.notas || null,
       etapa_kanban: form.etapa_kanban,
-      servicio_contratado: form.servicio_contratado || null,
-      monto_acordado: form.monto_acordado ? parseFloat(form.monto_acordado) : null,
-    }).select().single()
+      tipo_servicio: form.tipo_servicio || null,
+    }
+
+    if (esAsesoria) {
+      insertData.esquema_pago = 'monto_acordado'
+      insertData.monto_acordado = form.monto_acordado ? parseFloat(form.monto_acordado) : null
+    } else if (form.tipo_servicio) {
+      insertData.esquema_pago = form.esquema_pago || null
+      if (form.esquema_pago === 'monto_acordado') {
+        insertData.monto_acordado = form.monto_acordado ? parseFloat(form.monto_acordado) : null
+      } else if (form.esquema_pago === 'meses_pension') {
+        insertData.monto_pension_mensual = form.monto_pension_mensual ? parseFloat(form.monto_pension_mensual) : null
+        insertData.numero_meses_cobro = form.numero_meses_cobro ? parseInt(form.numero_meses_cobro) : null
+      } else if (form.esquema_pago === 'porcentaje_recuperado') {
+        insertData.porcentaje_recuperacion = form.porcentaje_recuperacion ? parseFloat(form.porcentaje_recuperacion) : null
+      }
+    }
+
+    const { data: newCliente, error } = await supabase.from('clientes').insert(insertData).select().single()
     if (error) { console.error('Error: ' + error.message); setSaving(false); return }
+
+    // Esquema 3: insertar cobros_esperados por etapa marcada
+    if (!esAsesoria && form.esquema_pago === 'tarifa_etapa' && newCliente) {
+      const filas = Object.entries(form.tarifas_etapa as any)
+        .filter(([_, v]: any) => v.cobrar && v.monto)
+        .map(([etapa, v]: any) => ({
+          cliente_id: newCliente.id,
+          asesor_id: uid,
+          etapa,
+          monto_esperado: parseFloat(v.monto),
+        }))
+      if (filas.length > 0) await supabase.from('cobros_esperados').insert(filas)
+    }
+
     await loadClientes(uid)
     setSaving(false)
     // Show WhatsApp material modal
@@ -289,7 +392,7 @@ function ClientesInner() {
       setShowWappModal(true)
     }
     setShowNuevo(false)
-    setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '' })
+    setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', tipo_servicio: '', esquema_pago: '', monto_acordado: '', monto_pension_mensual: '', numero_meses_cobro: '', porcentaje_recuperacion: '', tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } } })
     setFormErrors({})
   }
 
@@ -458,10 +561,12 @@ function ClientesInner() {
     setUploadingComp(null)
   }
 
-  async function moverCliente(clienteId: string, etapaActual: string, nuevaEtapa: string) {
-    await supabase.from('clientes').update({ etapa_kanban: nuevaEtapa, ultimo_contacto: new Date().toISOString() }).eq('id', clienteId)
-    setClientes(prev => prev.map(c => c.id === clienteId ? { ...c, etapa_kanban: nuevaEtapa } : c))
-    if (selected?.id === clienteId) setSelected(prev => prev ? { ...prev, etapa_kanban: nuevaEtapa } : prev)
+  async function moverCliente(clienteId: string, etapaActual: string, nuevaEtapa: string, notaCancel?: string) {
+    const updates: any = { etapa_kanban: nuevaEtapa, ultimo_contacto: new Date().toISOString() }
+    if (nuevaEtapa === 'cancelado' && notaCancel) updates.nota_cancelacion = notaCancel
+    await supabase.from('clientes').update(updates).eq('id', clienteId)
+    setClientes(prev => prev.map(c => c.id === clienteId ? { ...c, ...updates } : c))
+    if (selected?.id === clienteId) setSelected(prev => prev ? { ...prev, ...updates } : prev)
     setDragging(null); setDragOver(null)
   }
 
@@ -615,7 +720,7 @@ function ClientesInner() {
   const clientesFiltrados = clientes.filter(c => {
     if (filtroNombre && !c.nombre.toLowerCase().includes(filtroNombre.toLowerCase())) return false
     if (filtroEtapa && c.etapa_kanban !== filtroEtapa) return false
-    if (filtroServicio && c.servicio_contratado !== filtroServicio) return false
+    if (filtroServicio && c.tipo_servicio !== filtroServicio) return false
     return true
   })
 
@@ -626,7 +731,7 @@ function ClientesInner() {
     const matchSearch = c.nombre.toLowerCase().includes(search.toLowerCase()) || (c.email ?? '').toLowerCase().includes(search.toLowerCase()) || (c.telefono ?? '').includes(search)
     if (!matchSearch) return false
     if (filtroEtapa && c.etapa_kanban !== filtroEtapa) return false
-    if (filtroServicio && c.servicio_contratado !== filtroServicio) return false
+    if (filtroServicio && c.tipo_servicio !== filtroServicio) return false
     if (filtroPago && calcEstatus(c.monto_acordado, c.total_pagado ?? 0) !== filtroPago) return false
     return true
   })
@@ -665,7 +770,7 @@ function ClientesInner() {
             <select value={filtroServicio} onChange={e => setFiltroServicio(e.target.value)}
               style={{ padding: '7px 10px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', outline: 'none', background: 'white', color: filtroServicio ? '#374151' : '#94a3b8' }}>
               <option value="">Todos los servicios</option>
-              {SERVICIOS.map(s => <option key={s} value={s}>{s}</option>)}
+              {TIPOS_SERVICIO.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
             </select>
             <select value={filtroPago} onChange={e => setFiltroPago(e.target.value)}
               style={{ padding: '7px 10px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', outline: 'none', background: 'white', color: filtroPago ? '#374151' : '#94a3b8' }}>
@@ -697,9 +802,13 @@ function ClientesInner() {
           </div>
         )}
         <div style={{ flex: 1 }} />
-        <button onClick={() => { setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '' }); setFormErrors({}); setShowNuevo(true) }}
+        <button onClick={() => { setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', tipo_servicio: '', esquema_pago: '', monto_acordado: '', monto_pension_mensual: '', numero_meses_cobro: '', porcentaje_recuperacion: '', tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } } }); setFormErrors({}); setShowNuevo(true) }}
           style={{ background: AZUL, color: 'white', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
           + Nuevo cliente
+        </button>
+        <button onClick={() => setShowGuia(true)}
+          style={{ background: '#F4F6FB', color: AZUL, border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px 14px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+          📖 Guía
         </button>
       </div>
 
@@ -731,7 +840,7 @@ function ClientesInner() {
                     const saldo = Math.max(0, (c.monto_acordado ?? 0) - (c.total_pagado ?? 0))
                     return (
                       <tr key={c.id} style={{ borderBottom: i < filtered.length - 1 ? '1px solid #f1f5f9' : 'none', cursor: 'pointer' }} onClick={() => openExpediente(c)}>
-                        <td style={{ padding: '10px 12px', borderLeft: `4px solid ${SERVICIO_COLORS[c.servicio_contratado || ''] || 'transparent'}` }}>
+                        <td style={{ padding: '10px 12px', borderLeft: `4px solid ${SERVICIO_COLORS[c.tipo_servicio || ''] || 'transparent'}` }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <div style={{ width: '30px', height: '30px', background: AZUL, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '11px', fontWeight: '700', flexShrink: 0 }}>
                               {c.nombre.charAt(0).toUpperCase()}
@@ -745,7 +854,7 @@ function ClientesInner() {
                         <td style={{ padding: '10px 12px' }}>
                           <span style={{ fontSize: '10px', padding: '2px 7px', borderRadius: '8px', fontWeight: '600', background: col?.bg, color: col?.color }}>{col?.label}</span>
                         </td>
-                        <td style={{ padding: '10px 12px', fontSize: '12px', color: '#64748b' }}>{c.servicio_contratado ?? '—'}</td>
+                        <td style={{ padding: '10px 12px', fontSize: '12px', color: '#64748b' }}>{TIPOS_SERVICIO.find(t => t.id === c.tipo_servicio)?.label ?? '—'}</td>
                         <td style={{ padding: '10px 12px', fontSize: '12px', fontWeight: '600', color: AZUL }}>{fmtMXN(c.monto_acordado)}</td>
                         <td style={{ padding: '10px 12px', fontSize: '12px', fontWeight: '600', color: VERDE }}>{fmtMXN(c.total_pagado ?? 0)}</td>
                         <td style={{ padding: '10px 12px', fontSize: '12px', fontWeight: '600', color: saldo > 0 ? '#ef4444' : VERDE }}>{saldo > 0 ? fmtMXN(saldo) : '✅'}</td>
@@ -770,7 +879,7 @@ function ClientesInner() {
       {/* ── VISTA PIPELINE ── */}
       {vista === 'pipeline' && (
         <div style={{ flex: 1, overflow: 'auto', padding: '12px 16px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, minmax(0, 1fr))', gap: '8px', height: '100%' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, minmax(0, 1fr))', gap: '8px', height: '100%' }}>
             {COLUMNAS.map(col => {
               const cards = clientesPorColumna(col.id)
               const isDragOver = dragOver === col.id
@@ -812,15 +921,15 @@ function ClientesInner() {
                           onDragStart={e => { if (!col.esFinal) { setDragging(cliente.id); e.dataTransfer.effectAllowed = 'move' } }}
                           onDragEnd={() => { setDragging(null); setDragOver(null) }}
                           onClick={() => openExpediente(cliente)}
-                          style={{ background: 'white', borderRadius: '10px', padding: '11px', border: `1px solid ${dragging === cliente.id ? col.color : '#e2e8f0'}`, borderLeft: `4px solid ${SERVICIO_COLORS[cliente.servicio_contratado || ''] || '#e2e8f0'}`, cursor: col.esFinal ? 'pointer' : 'grab', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', opacity: dragging === cliente.id ? 0.5 : 1 }}>
+                          style={{ background: 'white', borderRadius: '10px', padding: '11px', border: `1px solid ${dragging === cliente.id ? col.color : '#e2e8f0'}`, borderLeft: `4px solid ${SERVICIO_COLORS[cliente.tipo_servicio || ''] || '#e2e8f0'}`, cursor: col.esFinal ? 'pointer' : 'grab', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', opacity: dragging === cliente.id ? 0.5 : 1 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                             <div style={{ width: '26px', height: '26px', borderRadius: '50%', background: AZUL, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '10px', fontWeight: '700', flexShrink: 0 }}>
                               {cliente.nombre.charAt(0).toUpperCase()}
                             </div>
                             <span style={{ fontSize: '12px', fontWeight: '700', color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cliente.nombre}</span>
                           </div>
-                          {cliente.servicio_contratado && (
-                            <span style={{ fontSize: '10px', padding: '1px 6px', borderRadius: '8px', background: col.bg, color: col.color, fontWeight: '700', display: 'inline-block', marginBottom: '4px' }}>{cliente.servicio_contratado}</span>
+                          {cliente.tipo_servicio && (
+                            <span style={{ fontSize: '10px', padding: '1px 6px', borderRadius: '8px', background: col.bg, color: col.color, fontWeight: '700', display: 'inline-block', marginBottom: '4px' }}>{TIPOS_SERVICIO.find(t => t.id === cliente.tipo_servicio)?.label ?? cliente.tipo_servicio}</span>
                           )}
                           {cliente.monto_acordado && (
                             <div style={{ fontSize: '11px', color: AZUL, fontWeight: '700', marginBottom: '3px' }}>💰 {fmtMXN(cliente.monto_acordado)}</div>
@@ -936,13 +1045,13 @@ function ClientesInner() {
                       <div style={{ background: '#F4F6FB', borderRadius: '10px', padding: '12px' }}>
                         <div style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Etiqueta de servicio</div>
                         {editando ? (
-                          <select defaultValue={selected.servicio_contratado ?? ''} onChange={e => actualizarCliente(selected.id, { servicio_contratado: e.target.value || null })} style={{ ...inputSt, fontSize: '12px', padding: '7px 10px' }}>
+                          <select defaultValue={selected.tipo_servicio ?? ''} onChange={e => actualizarCliente(selected.id, { tipo_servicio: e.target.value || null })} style={{ ...inputSt, fontSize: '12px', padding: '7px 10px' }}>
                             <option value="">— Sin definir —</option>
-                            {SERVICIOS.map(s => <option key={s} value={s}>{s}</option>)}
+                            {TIPOS_SERVICIO.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
                           </select>
                         ) : (
                           <div style={{ fontSize: '13px', color: '#374151', padding: '7px 0' }}>
-                            {selected.servicio_contratado || <span style={{ color: '#94a3b8' }}>Sin definir</span>}
+                            {TIPOS_SERVICIO.find(t => t.id === selected.tipo_servicio)?.label || <span style={{ color: '#94a3b8' }}>Sin definir</span>}
                           </div>
                         )}
                       </div>
@@ -1377,7 +1486,78 @@ function ClientesInner() {
         </div>
       )}
 
-            {/* ── MODAL BLOQUEO REGLA DE NEGOCIO ── */}
+    {/* ── MODAL GUÍA DE FUNCIONAMIENTO ── */}
+      {showGuia && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+          onClick={e => { if (e.target === e.currentTarget) setShowGuia(false) }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', maxWidth: '920px', width: '100%', maxHeight: '90vh', overflow: 'auto', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', position: 'relative' }}>
+            <button onClick={() => setShowGuia(false)}
+              style={{ position: 'absolute', top: '14px', right: '14px', width: '32px', height: '32px', borderRadius: '50%', border: 'none', background: '#F4F6FB', color: '#64748b', fontSize: '16px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              ✕
+            </button>
+            <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#1e293b', textAlign: 'center', margin: '0 0 20px' }}>
+              GUÍA DE FUNCIONAMIENTO — TABLERO UNIFICADO DE PENSIONES
+            </h2>
+
+            {/* Grid de 6 columnas */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px', marginBottom: '20px' }}>
+              {[
+                { label: 'PROSPECTO', color: '#378ADD', desc: 'TODOS LOS SERVICIOS ACTIVO.', sub: 'Registro y toma de datos.' },
+                { label: 'DIAGNÓSTICO', color: '#639922', desc: 'TODOS LOS SERVICIOS ACTIVO.', sub: 'Análisis de viabilidad.' },
+                { label: 'RECOPILACIÓN', color: '#eab308', desc: 'Gestión y Financiamiento', sub: 'Asesoría se salta esta columna.' },
+                { label: 'TRÁMITE', color: '#f97316', desc: 'Gestión y Financiamiento', sub: 'Asesoría se salta esta columna.' },
+                { label: 'CIERRE (EXITOSO)', color: VERDE, desc: 'TODOS LOS SERVICIOS ACTIVO.', sub: 'Cierre y facturación.' },
+                { label: 'CANCELADO', color: '#94a3b8', desc: 'TODOS LOS SERVICIOS ACTIVO.', sub: 'Expedientes detenidos.' },
+              ].map((col, i) => (
+                <div key={i} style={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ background: col.color, color: 'white', padding: '10px 6px', textAlign: 'center', fontSize: '11px', fontWeight: '800' }}>
+                    {col.label}
+                  </div>
+                  <div style={{ padding: '8px 6px', flex: 1 }}>
+                    <p style={{ fontSize: '10px', fontWeight: '700', color: '#374151', margin: '0 0 4px', lineHeight: 1.3 }}>{col.desc}</p>
+                    <p style={{ fontSize: '10px', color: '#64748b', margin: 0, lineHeight: 1.3 }}>{col.sub}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Flechas de flujo por tipo */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ width: '90px', fontSize: '11px', fontWeight: '700', color: '#378ADD', flexShrink: 0 }}>🟦 Asesoría</span>
+                <div style={{ flex: 1, height: '8px', borderRadius: '4px', background: 'linear-gradient(to right, #378ADD 0%, #378ADD 33%, transparent 33%, transparent 66%, ' + VERDE + ' 66%, ' + VERDE + ' 100%)' }} />
+                <span style={{ fontSize: '10px', color: '#94a3b8', flexShrink: 0 }}>Prospecto → Diagnóstico → Cierre</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ width: '90px', fontSize: '11px', fontWeight: '700', color: '#639922', flexShrink: 0 }}>🟩 Gestión</span>
+                <div style={{ flex: 1, height: '8px', borderRadius: '4px', background: `linear-gradient(to right, #639922 0%, ${VERDE} 100%)` }} />
+                <span style={{ fontSize: '10px', color: '#94a3b8', flexShrink: 0 }}>Flujo completo (1→5)</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ width: '90px', fontSize: '11px', fontWeight: '700', color: '#eab308', flexShrink: 0 }}>🟨 Financiamiento</span>
+                <div style={{ flex: 1, height: '8px', borderRadius: '4px', background: `linear-gradient(to right, #eab308 0%, ${VERDE} 100%)` }} />
+                <span style={{ fontSize: '10px', color: '#94a3b8', flexShrink: 0 }}>Flujo completo (1→5)</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ width: '90px', fontSize: '11px', fontWeight: '700', color: '#7F77DD', flexShrink: 0 }}>🟪 Gestoría Global</span>
+                <div style={{ flex: 1, height: '8px', borderRadius: '4px', background: `linear-gradient(to right, #7F77DD 0%, ${VERDE} 100%)` }} />
+                <span style={{ fontSize: '10px', color: '#94a3b8', flexShrink: 0 }}>Flujo completo (1→5)</span>
+              </div>
+            </div>
+
+            {/* Notas clave */}
+            <div style={{ background: '#F4F6FB', borderRadius: '10px', padding: '14px 16px', fontSize: '12px', color: '#374151', lineHeight: 1.7 }}>
+              <p style={{ margin: '0 0 6px', fontWeight: '700' }}>📌 Reglas clave:</p>
+              <p style={{ margin: '0 0 4px' }}>• <strong>Asesoría</strong> avanza de Diagnóstico directo a Cierre — no pasa por Recopilación ni Trámite.</p>
+              <p style={{ margin: '0 0 4px' }}>• <strong>Gestión, Financiamiento y Gestoría Global</strong> recorren las 5 etapas en orden, sin saltos.</p>
+              <p style={{ margin: '0 0 4px' }}>• Cualquier servicio puede pasar a <strong>Cancelado</strong> desde cualquier etapa no final, indicando el motivo.</p>
+              <p style={{ margin: 0 }}>• Antes de Recopilación/Cierre se requiere definir cómo se cobrará al cliente (esquema de pago).</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL BLOQUEO REGLA DE NEGOCIO ── */}
       {bloqueoMsg && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '380px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', textAlign: 'center' }}>
@@ -1398,8 +1578,8 @@ function ClientesInner() {
       {showConfirmEtapa && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '380px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', textAlign: 'center' }}>
-            <div style={{ fontSize: '36px', marginBottom: '12px' }}>🔄</div>
-            <h3 style={{ color: '#1e293b', fontSize: '16px', fontWeight: '700', margin: '0 0 8px' }}>¿Cambiar etapa?</h3>
+            <div style={{ fontSize: '36px', marginBottom: '12px' }}>{showConfirmEtapa.etapaNueva === 'cancelado' ? '🚫' : '🔄'}</div>
+            <h3 style={{ color: '#1e293b', fontSize: '16px', fontWeight: '700', margin: '0 0 8px' }}>{showConfirmEtapa.etapaNueva === 'cancelado' ? '¿Cancelar cliente?' : '¿Cambiar etapa?'}</h3>
             <p style={{ color: '#64748b', fontSize: '13px', margin: '0 0 8px', lineHeight: 1.6 }}>
               Moverás a <strong style={{ color: '#374151' }}>{showConfirmEtapa.nombre}</strong> de
             </p>
@@ -1408,18 +1588,30 @@ function ClientesInner() {
                 {COLUMNAS.find(c => c.id === showConfirmEtapa.etapaActual)?.label ?? showConfirmEtapa.etapaActual}
               </span>
               <span style={{ fontSize: '18px', color: '#94a3b8' }}>→</span>
-              <span style={{ padding: '4px 12px', borderRadius: '8px', background: '#f0fdf4', color: VERDE, fontSize: '13px', fontWeight: '700' }}>
+              <span style={{ padding: '4px 12px', borderRadius: '8px', background: showConfirmEtapa.etapaNueva === 'cancelado' ? '#fef2f2' : '#f0fdf4', color: showConfirmEtapa.etapaNueva === 'cancelado' ? '#ef4444' : VERDE, fontSize: '13px', fontWeight: '700' }}>
                 {COLUMNAS.find(c => c.id === showConfirmEtapa.etapaNueva)?.label ?? showConfirmEtapa.etapaNueva}
               </span>
             </div>
+            {showConfirmEtapa.etapaNueva === 'cancelado' && (
+              <div style={{ marginBottom: '16px', textAlign: 'left' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Motivo de cancelación *</label>
+                <textarea value={notaCancelacion} onChange={e => setNotaCancelacion(e.target.value)}
+                  placeholder="Ej. No califica por semanas, Cliente no interesado..."
+                  rows={3}
+                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontFamily: 'inherit', resize: 'vertical' as const, boxSizing: 'border-box' as const }} />
+                {!notaCancelacion.trim() && <p style={{ fontSize: '11px', color: '#ef4444', margin: '4px 0 0' }}>El motivo es obligatorio para cancelar.</p>}
+              </div>
+            )}
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={() => setShowConfirmEtapa(null)}
+              <button onClick={() => { setShowConfirmEtapa(null); setNotaCancelacion('') }}
                 style={{ flex: 1, padding: '11px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
                 Cancelar
               </button>
-              <button onClick={async () => {
+              <button disabled={showConfirmEtapa.etapaNueva === 'cancelado' && !notaCancelacion.trim()}
+                onClick={async () => {
                 if (showConfirmEtapa) {
-                  await moverCliente(showConfirmEtapa.clienteId, showConfirmEtapa.etapaActual, showConfirmEtapa.etapaNueva)
+                  await moverCliente(showConfirmEtapa.clienteId, showConfirmEtapa.etapaActual, showConfirmEtapa.etapaNueva, showConfirmEtapa.etapaNueva === 'cancelado' ? notaCancelacion : undefined)
+                  setNotaCancelacion('')
                   setShowConfirmEtapa(null)
                 }
               }} style={{ flex: 1, padding: '11px', background: VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>
@@ -1571,7 +1763,7 @@ function ClientesInner() {
       {/* ── MODAL NUEVO CLIENTE ── */}
       {showNuevo && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          onClick={e => { if (e.target === e.currentTarget) { setShowNuevo(false); setFormErrors({}); setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '' }) } }}>
+          onClick={e => { if (e.target === e.currentTarget) { setShowNuevo(false); setFormErrors({}); setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', tipo_servicio: '', esquema_pago: '', monto_acordado: '', monto_pension_mensual: '', numero_meses_cobro: '', porcentaje_recuperacion: '', tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } } }) } }}>
           <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '440px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
             <h2 style={{ color: AZUL, fontSize: '18px', fontWeight: '700', margin: '0 0 20px' }}>Nuevo cliente</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1602,17 +1794,95 @@ function ClientesInner() {
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Servicio</label>
-                  <select value={form.servicio_contratado} onChange={e => setForm(p => ({ ...p, servicio_contratado: e.target.value }))} style={inputSt}>
+                  <select value={form.tipo_servicio} onChange={e => setForm(p => ({ ...p, tipo_servicio: e.target.value }))} style={inputSt}>
                     <option value="">— Sin definir —</option>
-                    {SERVICIOS.map(s => <option key={s} value={s}>{s}</option>)}
+                    {TIPOS_SERVICIO.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
                   </select>
                 </div>
               </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Monto acordado ($) *</label>
-                <input type="number" value={form.monto_acordado} onChange={e => { setForm(p => ({ ...p, monto_acordado: e.target.value })); setFormErrors(prev => ({ ...prev, monto_acordado: undefined })) }} placeholder="Ej. 3500" style={{ ...inputSt, borderColor: formErrors.monto_acordado ? '#ef4444' : '#e2e8f0' }} />
-                {formErrors.monto_acordado && <p style={{ fontSize: '10px', color: '#ef4444', margin: '3px 0 0' }}>⚠️ {formErrors.monto_acordado}</p>}
-              </div>
+              {form.tipo_servicio === 'asesoria' ? (
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Monto acordado ($) *</label>
+                  <input type="number" value={form.monto_acordado} onChange={e => { setForm(p => ({ ...p, monto_acordado: e.target.value })); setFormErrors(prev => ({ ...prev, monto_acordado: undefined })) }} placeholder="Ej. 3500" style={{ ...inputSt, borderColor: formErrors.monto_acordado ? '#ef4444' : '#e2e8f0' }} />
+                  {formErrors.monto_acordado && <p style={{ fontSize: '10px', color: '#ef4444', margin: '3px 0 0' }}>⚠️ {formErrors.monto_acordado}</p>}
+                </div>
+              ) : (
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Esquema de pago{form.tipo_servicio ? ' *' : ''}</label>
+                  <select value={form.esquema_pago} onChange={e => setForm(p => ({ ...p, esquema_pago: e.target.value }))}
+                    style={{ ...inputSt, borderColor: formErrors.esquema_pago ? '#ef4444' : '#e2e8f0' }}>
+                    <option value="">— Selecciona —</option>
+                    {ESQUEMAS_PAGO.map(e => <option key={e.id} value={e.id}>{e.label}</option>)}
+                  </select>
+                  {formErrors.esquema_pago && <p style={{ fontSize: '10px', color: '#ef4444', margin: '3px 0 0' }}>⚠️ {formErrors.esquema_pago}</p>}
+
+                  {/* Esquema 1: Monto acordado */}
+                  {form.esquema_pago === 'monto_acordado' && (
+                    <div style={{ marginTop: '10px' }}>
+                      <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Monto acordado ($) *</label>
+                      <input type="number" value={form.monto_acordado} onChange={e => { setForm(p => ({ ...p, monto_acordado: e.target.value })); setFormErrors(prev => ({ ...prev, monto_acordado: undefined })) }} placeholder="Ej. 18000" style={{ ...inputSt, borderColor: formErrors.monto_acordado ? '#ef4444' : '#e2e8f0' }} />
+                      {formErrors.monto_acordado && <p style={{ fontSize: '10px', color: '#ef4444', margin: '3px 0 0' }}>⚠️ {formErrors.monto_acordado}</p>}
+                    </div>
+                  )}
+
+                  {/* Esquema 2: Meses de pensión */}
+                  {form.esquema_pago === 'meses_pension' && (
+                    <div style={{ marginTop: '10px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Monto de pensión mensual ($)</label>
+                        <input type="number" value={form.monto_pension_mensual} onChange={e => setForm(p => ({ ...p, monto_pension_mensual: e.target.value }))} placeholder="Se define después" style={inputSt} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Meses a cobrar</label>
+                        <input type="number" value={form.numero_meses_cobro} onChange={e => setForm(p => ({ ...p, numero_meses_cobro: e.target.value }))} placeholder="Ej. 2" style={inputSt} />
+                      </div>
+                      <p style={{ gridColumn: '1 / -1', fontSize: '10px', color: '#94a3b8', margin: 0 }}>📌 Si no defines el monto de pensión ahora, se te recordará al avanzar a Recopilación o Trámite.</p>
+                    </div>
+                  )}
+
+                  {/* Esquema 3: Tarifa por etapa */}
+                  {form.esquema_pago === 'tarifa_etapa' && (
+                    <div style={{ marginTop: '10px', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                        <thead>
+                          <tr style={{ background: '#F4F6FB' }}>
+                            <th style={{ padding: '6px 10px', textAlign: 'left', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Etapa</th>
+                            <th style={{ padding: '6px 10px', textAlign: 'center', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Cobrar</th>
+                            <th style={{ padding: '6px 10px', textAlign: 'right', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Monto ($)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {COLUMNAS.filter(c => c.id !== 'cancelado').map(col => {
+                            const fila = (form.tarifas_etapa as any)[col.id]
+                            return (
+                              <tr key={col.id} style={{ borderTop: '1px solid #f1f5f9' }}>
+                                <td style={{ padding: '6px 10px', color: '#374151' }}>{col.label}</td>
+                                <td style={{ padding: '6px 10px', textAlign: 'center' }}>
+                                  <input type="checkbox" checked={fila.cobrar} onChange={e => setForm(p => ({ ...p, tarifas_etapa: { ...(p.tarifas_etapa as any), [col.id]: { ...fila, cobrar: e.target.checked } } }))} />
+                                </td>
+                                <td style={{ padding: '6px 10px', textAlign: 'right' }}>
+                                  <input type="number" value={fila.monto} disabled={!fila.cobrar}
+                                    onChange={e => setForm(p => ({ ...p, tarifas_etapa: { ...(p.tarifas_etapa as any), [col.id]: { ...fila, monto: e.target.value } } }))}
+                                    placeholder="0" style={{ width: '90px', padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '12px', textAlign: 'right', background: fila.cobrar ? 'white' : '#f8fafc', fontFamily: 'inherit' }} />
+                                </td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {/* Esquema 4: % de recursos recuperados */}
+                  {form.esquema_pago === 'porcentaje_recuperado' && (
+                    <div style={{ marginTop: '10px' }}>
+                      <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Porcentaje a cobrar (%)</label>
+                      <input type="number" value={form.porcentaje_recuperacion} onChange={e => setForm(p => ({ ...p, porcentaje_recuperacion: e.target.value }))} placeholder="Ej. 10" style={inputSt} />
+                      <p style={{ fontSize: '10px', color: '#94a3b8', margin: '4px 0 0' }}>📌 El monto recuperado se registrará al llegar a Cierre, y se te recordará en Recopilación/Trámite.</p>
+                    </div>
+                  )}
+                </div>
+              )}
               <div>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Notas</label>
                 <textarea value={form.notas} onChange={e => setForm(p => ({ ...p, notas: e.target.value }))} rows={2} style={{ ...inputSt, resize: 'none' }} />
@@ -1620,9 +1890,9 @@ function ClientesInner() {
             </div>
             <p style={{ fontSize: '11px', color: '#94a3b8', margin: '12px 0 0' }}>💡 Los pagos se registran desde el expediente del cliente</p>
             <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-              <button onClick={() => { setShowNuevo(false); setFormErrors({}); setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', servicio_contratado: '', monto_acordado: '' }) }} style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
-              <button onClick={guardarNuevo} disabled={saving || !form.nombre.trim() || form.telefono.replace(/\D/g,'').length !== 10 || !form.monto_acordado || parseFloat(form.monto_acordado) <= 0 || !!formErrors.telefono || !!formErrors.email}
-                style={{ flex: 2, padding: '10px', background: saving || !form.nombre.trim() || form.telefono.replace(/\D/g,'').length !== 10 || !form.monto_acordado || parseFloat(form.monto_acordado) <= 0 || !!formErrors.telefono || !!formErrors.email ? '#94a3b8' : AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer' }}>
+              <button onClick={() => { setShowNuevo(false); setFormErrors({}); setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', tipo_servicio: '', esquema_pago: '', monto_acordado: '', monto_pension_mensual: '', numero_meses_cobro: '', porcentaje_recuperacion: '', tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } } }) }} style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
+              <button onClick={guardarNuevo} disabled={saving || !form.nombre.trim() || form.telefono.replace(/\D/g,'').length !== 10 || ((form.tipo_servicio === 'asesoria' && (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0)) || (form.tipo_servicio && form.tipo_servicio !== 'asesoria' && (!form.esquema_pago || (form.esquema_pago === 'monto_acordado' && (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0))))) || !!formErrors.telefono || !!formErrors.email}
+                style={{ flex: 2, padding: '10px', background: saving || !form.nombre.trim() || form.telefono.replace(/\D/g,'').length !== 10 || ((form.tipo_servicio === 'asesoria' && (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0)) || (form.tipo_servicio && form.tipo_servicio !== 'asesoria' && (!form.esquema_pago || (form.esquema_pago === 'monto_acordado' && (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0))))) || !!formErrors.telefono || !!formErrors.email ? '#94a3b8' : AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer' }}>
                 {saving ? 'Guardando...' : 'Guardar cliente'}
               </button>
             </div>
