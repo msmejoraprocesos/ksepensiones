@@ -315,6 +315,7 @@ function ClientesInner() {
   async function openExpediente(cliente: Cliente) {
     setSelected(cliente)
     setModalTab('info')
+    setEditando(false)
     setPagos([])
     setDiagnosticos([])
     setActividades([])
