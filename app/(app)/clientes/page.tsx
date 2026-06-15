@@ -1146,16 +1146,6 @@ function ClientesInner() {
                           <div style={{ fontSize: '13px', color: '#1e293b' }}>{f.value}</div>
                         </div>
                       ))}
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button onClick={() => abrirEditar(selected)}
-                          style={{ flex: 1, padding: '9px', background: '#F4F6FB', color: AZUL, border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
-                          ✏️ Editar datos
-                        </button>
-                        <button onClick={() => setShowConfirmDelete(true)}
-                          style={{ padding: '9px 14px', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
-                          📦 Archivar
-                        </button>
-                      </div>
                     </>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -1322,7 +1312,18 @@ function ClientesInner() {
                         </div>
                       )}
 
-
+                  {!editando && (
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button onClick={() => abrirEditar(selected)}
+                        style={{ flex: 1, padding: '9px', background: '#F4F6FB', color: AZUL, border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                        ✏️ Editar datos
+                      </button>
+                      <button onClick={() => setShowConfirmDelete(true)}
+                        style={{ padding: '9px 14px', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                        📦 Archivar
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
