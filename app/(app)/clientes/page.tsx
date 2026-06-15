@@ -1071,7 +1071,7 @@ function ClientesInner() {
       {/* ── MODAL EXPEDIENTE ── */}
       {selected && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}
-          onClick={e => { if (e.target === e.currentTarget) setSelected(null) }}>
+          onClick={e => { if (e.target === e.currentTarget) { if (editando) setShowConfirmClose(true); else setSelected(null) } }}>
           <div style={{ width: '540px', height: '100vh', background: 'white', display: 'flex', flexDirection: 'column', boxShadow: '-4px 0 24px rgba(0,0,0,0.12)' }}>
             {/* Header */}
             <div style={{ padding: '18px 22px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -1087,7 +1087,7 @@ function ClientesInner() {
                 style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 10px', background: '#dcfce7', color: '#15803d', border: 'none', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
                 💬 Material
               </button>
-              <button onClick={() => setSelected(null)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
+              <button onClick={() => { if (editando) setShowConfirmClose(true); else setSelected(null) }} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
             </div>
 
             {/* Etapa pipeline */}
