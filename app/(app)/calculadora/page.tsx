@@ -796,16 +796,19 @@ function CalculadoraInner() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '14px' }}>
                 <div>
                   <label style={labelSt}>Salario base Mod 40 (veces UMA)</label>
+                  <p style={{ fontSize: '10px', color: '#94a3b8', margin: '2px 0 5px', lineHeight: 1.4 }}>El salario sobre el que el cliente quiere cotizar voluntariamente. A mayor UMA, mayor pensión final pero mayor costo mensual. Rango típico: 10–25 UMAs.</p>
                   <input type="number" step="0.5" style={manualNumInputSt} value={mod40Umas} onChange={e => setMod40Umas(parseFloat(e.target.value) || 1)} />
                   <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>SDI: {fmtMXN2(mod40Umas * sys.UMA_DIARIA)}/día</p>
                 </div>
                 <div>
                   <label style={labelSt}>Período de cotización (meses)</label>
+                  <p style={{ fontSize: '10px', color: '#94a3b8', margin: '2px 0 5px', lineHeight: 1.4 }}>Cuántos meses pagará Modalidad 40 antes de tramitar la pensión. Solo cuentan los <strong>últimos 60 meses</strong> (5 años) para el promedio del SDI — periodos más largos no incrementan más la pensión pero sí el costo total.</p>
                   <input type="number" style={manualNumInputSt} value={mod40Meses} onChange={e => setMod40Meses(parseInt(e.target.value) || 1)} />
                   <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>{(mod40Meses * 4.33).toFixed(0)} semanas adicionales</p>
                 </div>
                 <div>
                   <label style={labelSt}>Tasa Mod 40 {new Date().getFullYear()} (%)</label>
+                  <p style={{ fontSize: '10px', color: '#94a3b8', margin: '2px 0 5px', lineHeight: 1.4 }}>Porcentaje que el IMSS cobra mensualmente sobre el SDI elegido. Se actualiza cada año conforme a la UMA — no se edita aquí.</p>
                   <input type="number" step="0.001" style={sysNumInputSt} value={sys.mod40_pct ?? 14.438} readOnly />
                   <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>Configurable en Configuración</p>
                 </div>
