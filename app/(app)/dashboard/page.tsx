@@ -89,9 +89,9 @@ function MiDiaInner() {
 
   // ── MÉTRICAS COMERCIALES ──
   const prospectos = clientes.filter(c => c.etapa_kanban === 'prospecto')
-  const pensionados = clientes.filter(c => c.etapa_kanban === 'pensionado')
+  const pensionados = clientes.filter(c => c.etapa_kanban === 'cierre')
   const enTramite = clientes.filter(c => c.etapa_kanban === 'tramite')
-  const clientesActivos = clientes.filter(c => !['cancelado','perdido'].includes(c.etapa_kanban || ''))
+  const clientesActivos = clientes.filter(c => c.etapa_kanban !== 'cancelado')
   const tasaConversion = (prospectos.length + pensionados.length) > 0
     ? (pensionados.length / (prospectos.length + pensionados.length)) * 100 : 0
   const tasaExitoGestiones = enTramite.length > 0
@@ -103,10 +103,10 @@ function MiDiaInner() {
   const bateoDiag = clientesDiag.length > 0
     ? (clientesDiag.filter(c => c.etapa_kanban !== 'prospecto').length / clientesDiag.length) * 100 : 0
   const bateoTramite = clientesTramite.length > 0
-    ? (clientesTramite.filter(c => ['tramite','pensionado'].includes(c.etapa_kanban || '')).length / clientesTramite.length) * 100 : 0
+    ? (clientesTramite.filter(c => ['tramite','cierre'].includes(c.etapa_kanban || '')).length / clientesTramite.length) * 100 : 0
 
   // ── CYCLE TIME ──
-  const clientesPensionados = clientes.filter(c => c.etapa_kanban === 'pensionado' && c.created_at)
+  const clientesPensionados = clientes.filter(c => c.etapa_kanban === 'cierre' && c.created_at)
   const cycleTime = clientesPensionados.length > 0
     ? clientesPensionados.reduce((s, c) => {
         const weeks = (new Date().getTime() - new Date(c.created_at).getTime()) / (7 * 86400000)
@@ -224,9 +224,9 @@ function MiDiaInner() {
           {[
             { label: 'Clientes activos', value: clientesActivos.length.toString(), color: AZUL },
             { label: 'Prospectos', value: clientes.filter(c => c.etapa_kanban === 'prospecto').length.toString(), sub: 'por contactar', color: AZUL, filled: true },
-            { label: 'Propuesta enviada', value: clientes.filter(c => c.etapa_kanban === 'propuesta').length.toString(), sub: 'en espera', color: '#0d9488', filled: true },
+            { label: 'En recopilación', value: clientes.filter(c => c.etapa_kanban === 'recopilacion').length.toString(), sub: 'armando expediente', color: '#0d9488', filled: true },
             { label: 'En trámite', value: enTramite.length.toString(), color: '#f59e0b' },
-            { label: 'Pensionados', value: pensionados.length.toString(), color: VERDE, filled: true },
+            { label: 'Cierres exitosos', value: pensionados.length.toString(), color: VERDE, filled: true },
             { label: 'Ingresos', value: fmtMXN(ingresosTotal), color: VERDE },
             { label: 'Por cobrar', value: fmtMXN(porCobrar), color: '#f59e0b' },
             { label: 'Ticket prom.', value: fmtMXN(ticketPromedio), color: AZUL },
@@ -324,16 +324,14 @@ function MiDiaInner() {
                 </div>
                 {(() => {
                   const etapas = [
-                    { label: 'Prospecto', val: clientes.filter(c => c.etapa_kanban === 'prospecto').length, color: NARANJA, text: 'white' },
-                    { label: 'Diagnóstico', val: clientes.filter(c => c.etapa_kanban === 'diagnostico').length, color: AZUL, text: 'white' },
-                    { label: 'Seguimiento', val: clientes.filter(c => c.etapa_kanban === 'seguimiento').length, color: '#0891b2', text: 'white' },
-                    { label: 'Propuesta', val: clientes.filter(c => c.etapa_kanban === 'propuesta').length, color: '#7F77DD', text: 'white' },
-                    { label: 'Trámite', val: enTramite.length, color: '#f59e0b', text: 'white' },
-                    { label: 'Pensionado', val: pensionados.length, color: VERDE, text: 'white' },
+                    { label: 'Prospecto', val: clientes.filter(c => c.etapa_kanban === 'prospecto').length, color: AZUL, text: 'white' },
+                    { label: 'Diagnóstico', val: clientes.filter(c => c.etapa_kanban === 'diagnostico').length, color: '#639922', text: 'white' },
+                    { label: 'Recopilación', val: clientes.filter(c => c.etapa_kanban === 'recopilacion').length, color: '#eab308', text: 'white' },
+                    { label: 'Trámite', val: enTramite.length, color: '#f97316', text: 'white' },
+                    { label: 'Cierre', val: pensionados.length, color: VERDE, text: 'white' },
                   ]
                   const maxVal = Math.max(...etapas.map(e => e.val), 1)
                   const cancelados = clientes.filter(c => c.etapa_kanban === 'cancelado').length
-                  const perdidos = clientes.filter(c => c.etapa_kanban === 'perdido').length
                   return (
                     <>
                       {etapas.map((e, i) => {
@@ -347,14 +345,10 @@ function MiDiaInner() {
                           </div>
                         )
                       })}
-                      <div style={{ display: 'flex', gap: '6px', marginTop: '6px' }}>
-                        <div style={{ flex: 1, background: '#fef2f2', borderRadius: '6px', padding: '4px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: '11px', fontWeight: '600', color: '#ef4444' }}>Cancelado</span>
-                          <span style={{ fontSize: '12px', fontWeight: '800', color: '#ef4444' }}>{cancelados}</span>
-                        </div>
-                        <div style={{ flex: 1, background: '#f1f5f9', borderRadius: '6px', padding: '4px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: '11px', fontWeight: '600', color: '#64748b' }}>Perdido</span>
-                          <span style={{ fontSize: '12px', fontWeight: '800', color: '#64748b' }}>{perdidos}</span>
+                      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '6px' }}>
+                        <div style={{ width: '50%', minWidth: '60px', background: '#f1f5f9', borderRadius: '6px', padding: '4px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '11px', fontWeight: '600', color: '#64748b' }}>Cancelado</span>
+                          <span style={{ fontSize: '12px', fontWeight: '800', color: '#64748b' }}>{cancelados}</span>
                         </div>
                       </div>
                     </>
@@ -410,10 +404,10 @@ function MiDiaInner() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
               <p style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Servicios activos por fase</p>
               {[
-                { label: 'En diagnóstico', val: clientes.filter(c => ['diagnostico','propuesta','seguimiento'].includes(c.etapa_kanban||'')).length, color: '#3b82f6' },
-                { label: 'En trámite IMSS', val: enTramite.length, color: NARANJA },
-                { label: 'Pensionado ✓', val: pensionados.length, color: VERDE },
-                { label: 'Cancelados/Perdidos', val: clientes.filter(c => ['cancelado','perdido'].includes(c.etapa_kanban||'')).length, color: '#ef4444' },
+                { label: 'En diagnóstico', val: clientes.filter(c => c.etapa_kanban === 'diagnostico').length, color: '#3b82f6' },
+                { label: 'En trámite', val: enTramite.length, color: NARANJA },
+                { label: 'Cierre exitoso ✓', val: pensionados.length, color: VERDE },
+                { label: 'Cancelados', val: clientes.filter(c => c.etapa_kanban === 'cancelado').length, color: '#ef4444' },
               ].map((e, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '5px 8px', background: '#FAFAFA', borderRadius: '5px', border: '1px solid #f1f5f9' }}>
                   <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: e.color, flexShrink: 0 }} />
@@ -580,9 +574,7 @@ function MiDiaInner() {
                 { label: 'Diagnósticos total', val: diagnosticos.length, color: '#8b5cf6' },
                 { label: 'Actividades hoy', val: agendaHoy.length, color: NARANJA },
                 { label: 'Completadas hoy', val: agendaHoy.filter(a => a.estatus === 'completado').length, color: VERDE },
-                { label: 'Cancelados', val: clientes.filter(c => c.etapa_kanban === 'cancelado').length, color: '#64748b' },
-                { label: 'Perdidos', val: clientes.filter(c => c.etapa_kanban === 'perdido').length, color: '#ef4444' },
-              ].map((e, i) => (
+                                              ].map((e, i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 8px', borderRadius: '5px', background: i % 2 === 0 ? '#FAFAFA' : 'white' }}>
                   <span style={{ fontSize: '11px', color: '#64748b' }}>{e.label}</span>
                   <span style={{ fontSize: '13px', fontWeight: '700', color: e.color }}>{e.val}</span>
