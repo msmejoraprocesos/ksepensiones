@@ -238,6 +238,9 @@ function ClientesInner() {
   const [notaCancelacion, setNotaCancelacion] = useState('')
   const [showGuia, setShowGuia] = useState(false)
   const [materialesSeleccionados, setMaterialesSeleccionados] = useState<string[]>([])
+  const [mostrarArchivados, setMostrarArchivados] = useState(false)
+  const [clientesArchivados, setClientesArchivados] = useState<Cliente[]>([])
+  const [loadingArchivados, setLoadingArchivados] = useState(false)
   const [showConfirmEtapa, setShowConfirmEtapa] = useState<{clienteId: string; nombre: string; etapaActual: string; etapaNueva: string} | null>(null)
   const [pendingClose, setPendingClose] = useState(false)
   const [formServicio, setFormServicio] = useState({ tipo: 'Diagnóstico', monto_acordado: '', descripcion: '' })
@@ -293,6 +296,19 @@ function ClientesInner() {
     const clientesConPago = data.map((c: any) => ({ ...c, total_pagado: totales[c.id] ?? 0 }))
     setClientes(clientesConPago as Cliente[])
     setLoading(false)
+  }
+
+  async function loadArchivados(uid: string) {
+    setLoadingArchivados(true)
+    const { data } = await supabase.from('clientes').select('*').eq('asesor_id', uid).eq('activo', false).order('ultimo_contacto', { ascending: false })
+    setClientesArchivados((data ?? []) as Cliente[])
+    setLoadingArchivados(false)
+  }
+
+  async function reactivarCliente(clienteId: string) {
+    await supabase.from('clientes').update({ activo: true }).eq('id', clienteId)
+    setClientesArchivados(prev => prev.filter(c => c.id !== clienteId))
+    if (userId) await loadClientes(userId)
   }
 
   async function openExpediente(cliente: Cliente) {
@@ -786,6 +802,12 @@ function ClientesInner() {
                 ✕ Limpiar
               </button>
             )}
+            <div style={{ flex: 1 }} />
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748b', cursor: 'pointer', userSelect: 'none' as const }}>
+              <input type="checkbox" checked={mostrarArchivados}
+                onChange={e => { setMostrarArchivados(e.target.checked); if (e.target.checked && userId) loadArchivados(userId) }} />
+              📦 Mostrar archivados {clientesArchivados.length > 0 ? `(${clientesArchivados.length})` : ''}
+            </label>
           </div>
         )}
         {vista === 'pipeline' && (
@@ -870,6 +892,43 @@ function ClientesInner() {
                       </tr>
                     )
                   })}
+                  {mostrarArchivados && clientesArchivados.length > 0 && (
+                    <>
+                      <tr>
+                        <td colSpan={9} style={{ padding: '10px 12px', background: '#F4F6FB', fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          📦 Archivados ({clientesArchivados.length})
+                        </td>
+                      </tr>
+                      {clientesArchivados.map((c, i) => (
+                        <tr key={c.id} style={{ borderBottom: i < clientesArchivados.length - 1 ? '1px solid #f1f5f9' : 'none', opacity: 0.6 }}>
+                          <td style={{ padding: '10px 12px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <div style={{ width: '30px', height: '30px', background: '#94a3b8', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '11px', fontWeight: '700', flexShrink: 0 }}>
+                                {c.nombre.charAt(0).toUpperCase()}
+                              </div>
+                              <div>
+                                <div style={{ fontSize: '13px', fontWeight: '600', color: '#64748b' }}>{c.nombre}</div>
+                                <div style={{ fontSize: '10px', color: '#94a3b8' }}>{c.email ?? c.telefono ?? '—'}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td style={{ padding: '10px 12px', fontSize: '11px', color: '#94a3b8' }}>{COLUMNAS.find(col => col.id === (c.etapa_kanban || 'prospecto'))?.label ?? '—'}</td>
+                          <td style={{ padding: '10px 12px', fontSize: '12px', color: '#94a3b8' }}>{TIPOS_SERVICIO.find(t => t.id === c.tipo_servicio)?.label ?? '—'}</td>
+                          <td style={{ padding: '10px 12px', fontSize: '12px', color: '#94a3b8' }}>{fmtMXN(c.monto_acordado)}</td>
+                          <td style={{ padding: '10px 12px', fontSize: '12px', color: '#94a3b8' }}>{fmtMXN(c.total_pagado ?? 0)}</td>
+                          <td style={{ padding: '10px 12px', fontSize: '12px', color: '#94a3b8' }}>—</td>
+                          <td style={{ padding: '10px 12px', fontSize: '11px', color: '#94a3b8' }}>—</td>
+                          <td style={{ padding: '10px 12px', fontSize: '11px', color: '#94a3b8' }}>{fmtDias(c.ultimo_contacto)}</td>
+                          <td style={{ padding: '10px 12px' }}>
+                            <button onClick={() => reactivarCliente(c.id)}
+                              style={{ padding: '4px 10px', border: '1px solid #c7d2fe', borderRadius: '6px', fontSize: '11px', fontWeight: '700', cursor: 'pointer', background: '#EEF2F8', color: AZUL }}>
+                              ↩️ Reactivar
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </>
+                  )}
                 </tbody>
               </table>
             </div>
