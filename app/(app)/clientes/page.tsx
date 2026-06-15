@@ -259,7 +259,7 @@ function ClientesInner() {
   const [uploadingProgComp, setUploadingProgComp] = useState<string | null>(null)
   const [showWappModal, setShowWappModal] = useState(false)
   const [nuevoClienteData, setNuevoClienteData] = useState<{id: string; nombre: string; telefono: string | null} | null>(null)
-  const [materiales, setMateriales] = useState<{id:string;nombre:string;descripcion:string|null;tipo:string;url:string|null}[]>([])
+  const [materiales, setMateriales] = useState<{id:string;nombre:string;descripcion:string|null;tipo:string;url:string|null;activo?:boolean;archivo_url?:string|null}[]>([])
   const [compFile, setCompFile] = useState<File | null>(null)
 
   // Drag & drop
