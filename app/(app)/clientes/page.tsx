@@ -207,6 +207,7 @@ type Vista = 'lista' | 'pipeline'
 
 function ClientesInner() {
   const supabase = createClient()
+  const router = useRouter()
   const searchParams = useSearchParams()
   const [vista, setVista] = useState<Vista>('lista')
   const [filtroNombre, setFiltroNombre] = useState('')
@@ -235,6 +236,7 @@ function ClientesInner() {
   const [bloqueoMsg, setBloqueoMsg] = useState<string | null>(null)
   const [notaCancelacion, setNotaCancelacion] = useState('')
   const [showGuia, setShowGuia] = useState(false)
+  const [materialesSeleccionados, setMaterialesSeleccionados] = useState<string[]>([])
   const [showConfirmEtapa, setShowConfirmEtapa] = useState<{clienteId: string; nombre: string; etapaActual: string; etapaNueva: string} | null>(null)
   const [pendingClose, setPendingClose] = useState(false)
   const [formServicio, setFormServicio] = useState({ tipo: 'Diagnóstico', monto_acordado: '', descripcion: '' })
@@ -276,7 +278,7 @@ function ClientesInner() {
       loadClientes(session.user.id)
       loadMateriales(session.user.id)
     })
-    if (searchParams.get('nuevo') === 'true') setShowNuevo(true)
+    if (searchParams.get('nuevo') === 'true') { setShowNuevo(true); router.replace('/clientes') }
   }, [])
 
   async function loadClientes(uid: string) {
@@ -984,6 +986,11 @@ function ClientesInner() {
                 <div style={{ fontSize: '16px', fontWeight: '700', color: '#1e293b' }}>{selected.nombre}</div>
                 <div style={{ fontSize: '11px', color: '#94a3b8' }}>Alta: {fmt(selected.created_at)}</div>
               </div>
+              <button onClick={() => { setNuevoClienteData({ id: selected.id, nombre: selected.nombre, telefono: selected.telefono }); setMaterialesSeleccionados([]); setShowWappModal(true) }}
+                title="Enviar material de apoyo"
+                style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 10px', background: '#dcfce7', color: '#15803d', border: 'none', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
+                💬 Material
+              </button>
               <button onClick={() => setSelected(null)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
             </div>
 
@@ -1430,37 +1437,52 @@ function ClientesInner() {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
                 <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>Selecciona el material a enviar:</p>
-                {materiales.map(m => {
-                  const tel = nuevoClienteData.telefono?.replace(/\D/g, '') || ''
+                {materiales.filter(m => m.activo).map(m => {
                   const emoji = m.tipo === 'video' ? '🎥' : m.tipo === 'guia' ? '📋' : m.tipo === 'calculadora' ? '🧮' : '📄'
-                  const enlace = (m as any).archivo_url || m.url
-                  const msg = encodeURIComponent(
-                    `Hola ${nuevoClienteData.nombre}, te comparto material de apoyo sobre tu proceso de pensión:\n\n${emoji} *${m.nombre}*${m.descripcion ? `\n${m.descripcion}` : ''}${enlace ? `\n\n🔗 ${enlace}` : ''}\n\nCualquier duda estoy a tus órdenes.`
-                  )
-                  const wappUrl = tel ? `https://wa.me/52${tel}?text=${msg}` : `https://wa.me/?text=${msg}`
+                  const checked = materialesSeleccionados.includes(m.id)
                   return (
-                    <a key={m.id} href={wappUrl} target="_blank" rel="noopener noreferrer"
-                      style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', border: '1px solid #e2e8f0', borderRadius: '10px', textDecoration: 'none', background: 'white', transition: 'border-color .15s' }}
-                      onMouseEnter={e => (e.currentTarget.style.borderColor = '#22c55e')}
-                      onMouseLeave={e => (e.currentTarget.style.borderColor = '#e2e8f0')}>
+                    <label key={m.id}
+                      style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', border: `1.5px solid ${checked ? '#22c55e' : '#e2e8f0'}`, borderRadius: '10px', background: checked ? '#f0fdf4' : 'white', cursor: 'pointer', transition: 'border-color .15s' }}>
+                      <input type="checkbox" checked={checked}
+                        onChange={() => setMaterialesSeleccionados(prev => checked ? prev.filter(id => id !== m.id) : [...prev, m.id])}
+                        style={{ width: '16px', height: '16px', flexShrink: 0 }} />
                       <span style={{ fontSize: '20px' }}>{emoji}</span>
                       <div style={{ flex: 1 }}>
                         <p style={{ fontSize: '13px', fontWeight: '600', color: '#374151', margin: '0 0 1px' }}>{m.nombre}</p>
                         {m.descripcion && <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0 }}>{m.descripcion}</p>}
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 12px', background: '#22c55e', color: 'white', borderRadius: '8px', fontSize: '12px', fontWeight: '600', flexShrink: 0 }}>
-                        <span>WhatsApp</span>
-                      </div>
-                    </a>
+                    </label>
                   )
                 })}
               </div>
             )}
 
-            <button onClick={() => { setShowWappModal(false); setNuevoClienteData(null) }}
-              style={{ width: '100%', padding: '11px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
-              Cerrar
-            </button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button onClick={() => { setShowWappModal(false); setNuevoClienteData(null); setMaterialesSeleccionados([]) }}
+                style={{ flex: 1, padding: '11px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
+                {materialesSeleccionados.length > 0 ? 'Cancelar' : 'Cerrar'}
+              </button>
+              {materialesSeleccionados.length > 0 && (() => {
+                const tel = nuevoClienteData.telefono?.replace(/\D/g, '') || ''
+                const seleccionados = materiales.filter(m => materialesSeleccionados.includes(m.id))
+                const lineas = seleccionados.map(m => {
+                  const emoji = m.tipo === 'video' ? '🎥' : m.tipo === 'guia' ? '📋' : m.tipo === 'calculadora' ? '🧮' : '📄'
+                  const enlace = (m as any).archivo_url || m.url
+                  return `${emoji} *${m.nombre}*${m.descripcion ? `\n${m.descripcion}` : ''}${enlace ? `\n🔗 ${enlace}` : ''}`
+                }).join('\n\n')
+                const msg = encodeURIComponent(
+                  `Hola ${nuevoClienteData.nombre}, te comparto material de apoyo sobre tu proceso de pensión:\n\n${lineas}\n\nCualquier duda estoy a tus órdenes.`
+                )
+                const wappUrl = tel ? `https://wa.me/52${tel}?text=${msg}` : `https://wa.me/?text=${msg}`
+                return (
+                  <a href={wappUrl} target="_blank" rel="noopener noreferrer"
+                    onClick={() => setTimeout(() => { setShowWappModal(false); setNuevoClienteData(null); setMaterialesSeleccionados([]) }, 300)}
+                    style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '11px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', textDecoration: 'none' }}>
+                    💬 Enviar {materialesSeleccionados.length} por WhatsApp
+                  </a>
+                )
+              })()}
+            </div>
           </div>
         </div>
       )}
