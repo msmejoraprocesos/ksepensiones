@@ -257,6 +257,7 @@ function ClientesInner() {
   // Nuevo pago
   const [showPago, setShowPago] = useState(false)
   const [formPago, setFormPago] = useState({ monto: '', concepto: 'Anticipo', notas: '', fecha_pago: new Date().toISOString().split('T')[0] })
+  const [tipoMovimiento, setTipoMovimiento] = useState<'pago' | 'devolucion'>('pago')
   const [savingPago, setSavingPago] = useState(false)
   const [uploadingComp, setUploadingComp] = useState<string | null>(null)
   const [pagosProgramados, setPagosProgramados] = useState<PagoProgramado[]>([])
@@ -507,27 +508,44 @@ function ClientesInner() {
       }
     }
 
-    // Validar que no exceda el saldo pendiente
-    const montoNuevo = parseFloat(formPago.monto)
-    const saldoPendiente = Math.max(0, (selected.monto_acordado ?? 0) - (selected.total_pagado ?? 0))
-    if (selected.monto_acordado && montoNuevo > saldoPendiente) {
-      alert(`El pago de ${fmtMXN(montoNuevo)} excede el saldo pendiente de ${fmtMXN(saldoPendiente)}`)
-      setSavingPago(false)
-      return
+    const esDevolucion = tipoMovimiento === 'devolucion'
+    const montoAbs = Math.abs(parseFloat(formPago.monto))
+    const montoNuevo = esDevolucion ? -montoAbs : montoAbs
+
+    // Validar que no exceda el saldo pendiente (solo aplica a pagos, no a devoluciones)
+    if (!esDevolucion) {
+      const saldoPendiente = Math.max(0, (selected.monto_acordado ?? 0) - (selected.total_pagado ?? 0))
+      if (selected.monto_acordado && montoNuevo > saldoPendiente) {
+        alert(`El pago de ${fmtMXN(montoNuevo)} excede el saldo pendiente de ${fmtMXN(saldoPendiente)}`)
+        setSavingPago(false)
+        return
+      }
+    } else {
+      // Validar que la devolución no exceda lo ya pagado
+      const totalPagado = selected.total_pagado ?? 0
+      if (montoAbs > totalPagado) {
+        alert(`La devolución de ${fmtMXN(montoAbs)} excede el total pagado de ${fmtMXN(totalPagado)}`)
+        setSavingPago(false)
+        return
+      }
     }
+
+    const concepto = esDevolucion
+      ? `Devolución${formPago.notas ? ` — ${formPago.notas}` : ''}`
+      : formPago.concepto
 
     const { data, error } = await supabase.from('pagos').insert({
       cliente_id: selected.id,
       asesor_id: session.user.id,
       monto: montoNuevo,
-      concepto: formPago.concepto,
+      concepto,
       notas: formPago.notas || null,
       fecha_pago: new Date(formPago.fecha_pago).toISOString(),
       comprobante_url,
       servicio_id: servicioActivo,
     }).select().single()
     if (error) {
-      console.error('Error al registrar pago:', error.message)
+      console.error('Error al registrar movimiento:', error.message)
       setSavingPago(false)
       return
     }
@@ -554,6 +572,7 @@ function ClientesInner() {
     setSavingPago(false)
     setShowPago(false)
     setCompFile(null)
+    setTipoMovimiento('pago')
     setFormPago({ monto: '', concepto: 'Anticipo', notas: '', fecha_pago: new Date().toISOString().split('T')[0] })
   }
 
@@ -1141,14 +1160,20 @@ function ClientesInner() {
                               <div>
                                 <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Esquema</label>
                                 <select defaultValue={selected.esquema_pago ?? ''}
+                                  disabled={pagos.length > 0}
                                   onChange={e => actualizarCliente(selected.id, {
                                     esquema_pago: e.target.value || null,
                                     monto_acordado: null, monto_pension_mensual: null, numero_meses_cobro: null, porcentaje_recuperacion: null,
                                   })}
-                                  style={{ ...inputSt, fontSize: '12px', padding: '7px 10px' }}>
+                                  style={{ ...inputSt, fontSize: '12px', padding: '7px 10px', background: pagos.length > 0 ? '#f1f5f9' : 'white', cursor: pagos.length > 0 ? 'not-allowed' : 'pointer', color: pagos.length > 0 ? '#94a3b8' : '#374151' }}>
                                   <option value="">— Selecciona —</option>
                                   {ESQUEMAS_PAGO.map(e => <option key={e.id} value={e.id}>{e.label}</option>)}
                                 </select>
+                                {pagos.length > 0 && (
+                                  <p style={{ fontSize: '10px', color: '#92400e', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '6px', padding: '6px 8px', margin: '6px 0 0', lineHeight: 1.5 }}>
+                                    🔒 Este cliente ya tiene pagos registrados ({pagos.length}), por lo que no se puede cambiar el esquema de pago. Si necesitas renegociar los términos: cancela este registro indicando el motivo, crea un nuevo cliente con el esquema correcto, y registra lo ya cobrado como anticipo.
+                                  </p>
+                                )}
                               </div>
 
                               {selected.esquema_pago === 'monto_acordado' && (
@@ -1363,16 +1388,25 @@ function ClientesInner() {
                         const saldo = Math.max(0, (selected.monto_acordado ?? 0) - totalPagado)
                         const liquidado = selected.monto_acordado != null && saldo <= 0
                         const concepto = detectarConcepto(pagos.length, 0, saldo, selected.monto_acordado)
-                        if (liquidado) return (
-                          <div style={{ padding: '11px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', textAlign: 'center', fontSize: '13px', fontWeight: '700', color: VERDE }}>
-                            🟢 Cuenta liquidada — pago completo
-                          </div>
-                        )
                         return (
-                          <button onClick={() => { setFormPago(p => ({ ...p, concepto })); setShowPago(true) }}
-                            style={{ width: '100%', padding: '11px', background: VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
-                            + Registrar {concepto.toLowerCase()} {saldo > 0 ? `— ${fmtMXN(saldo)} pendiente` : ''}
-                          </button>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            {liquidado ? (
+                              <div style={{ flex: 1, padding: '11px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', textAlign: 'center', fontSize: '13px', fontWeight: '700', color: VERDE }}>
+                                🟢 Cuenta liquidada — pago completo
+                              </div>
+                            ) : (
+                              <button onClick={() => { setTipoMovimiento('pago'); setFormPago(p => ({ ...p, concepto })); setShowPago(true) }}
+                                style={{ flex: 1, padding: '11px', background: VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+                                + Registrar {concepto.toLowerCase()} {saldo > 0 ? `— ${fmtMXN(saldo)} pendiente` : ''}
+                              </button>
+                            )}
+                            {(selected.total_pagado ?? 0) > 0 && (
+                              <button onClick={() => { setTipoMovimiento('devolucion'); setFormPago(p => ({ ...p, concepto: '', monto: '', notas: '' })); setShowPago(true) }}
+                                style={{ padding: '11px 14px', background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                                ↩️ Devolución
+                              </button>
+                            )}
+                          </div>
                         )
                       })()}
 
@@ -1380,12 +1414,14 @@ function ClientesInner() {
                         <div style={{ textAlign: 'center', padding: '28px', color: '#94a3b8', fontSize: '13px', background: '#F8FAFC', borderRadius: '10px', border: '1px dashed #e2e8f0' }}>Sin pagos registrados</div>
                       ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                          {[...pagos].reverse().map((pago, i) => (
-                            <div key={pago.id} style={{ background: '#F8FAFC', borderRadius: '10px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderBottom: '1px solid #f1f5f9' }}>
-                                <span style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8' }}>Pago {i + 1}</span>
+                          {[...pagos].reverse().map((pago, i) => {
+                            const esDevolucion = pago.monto < 0
+                            return (
+                            <div key={pago.id} style={{ background: esDevolucion ? '#fef2f2' : '#F8FAFC', borderRadius: '10px', border: `1px solid ${esDevolucion ? '#fecaca' : '#e2e8f0'}`, overflow: 'hidden' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderBottom: `1px solid ${esDevolucion ? '#fed7d7' : '#f1f5f9'}` }}>
+                                <span style={{ fontSize: '11px', fontWeight: '700', color: esDevolucion ? '#ef4444' : '#94a3b8' }}>{esDevolucion ? '↩️ Devolución' : `Pago ${i + 1}`}</span>
                                 <div style={{ flex: 1 }} />
-                                <span style={{ fontSize: '16px', fontWeight: '800', color: VERDE }}>{fmtMXN(pago.monto)}</span>
+                                <span style={{ fontSize: '16px', fontWeight: '800', color: esDevolucion ? '#ef4444' : VERDE }}>{esDevolucion ? '−' : ''}{fmtMXN(Math.abs(pago.monto))}</span>
                               </div>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px' }}>
                                 <span style={{ fontSize: '11px', color: '#64748b', flex: 1 }}>{fmt(pago.fecha_pago)}</span>
@@ -1404,7 +1440,7 @@ function ClientesInner() {
                                   style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: '14px', padding: '4px', flexShrink: 0 }}>🗑️</button>
                               </div>
                             </div>
-                          ))}
+                          )})}
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#F4F6FB', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                             <span style={{ fontSize: '12px', fontWeight: '700', color: '#64748b' }}>Total pagado ({pagos.length} pago{pagos.length !== 1 ? 's' : ''})</span>
                             <span style={{ fontSize: '15px', fontWeight: '800', color: VERDE }}>{fmtMXN(pagos.reduce((s,p) => s + p.monto, 0))}</span>
@@ -1851,13 +1887,42 @@ function ClientesInner() {
           onClick={e => e.stopPropagation()}>
           <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '400px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-              <h3 style={{ color: AZUL, fontSize: '17px', fontWeight: '700', margin: 0 }}>Registrar pago</h3>
-              <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 10px', borderRadius: '10px', background: '#EEF2F8', color: AZUL }}>
-                Pago #{pagos.length + 1}
-              </span>
+              <h3 style={{ color: tipoMovimiento === 'devolucion' ? '#ef4444' : AZUL, fontSize: '17px', fontWeight: '700', margin: 0 }}>
+                {tipoMovimiento === 'devolucion' ? '↩️ Registrar devolución' : 'Registrar pago'}
+              </h3>
+              {tipoMovimiento === 'pago' && (
+                <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 10px', borderRadius: '10px', background: '#EEF2F8', color: AZUL }}>
+                  Pago #{pagos.length + 1}
+                </span>
+              )}
+            </div>
+            {/* Toggle pago / devolución */}
+            <div style={{ display: 'flex', gap: '6px', marginBottom: '14px' }}>
+              <button onClick={() => { setTipoMovimiento('pago'); setFormPago(p => ({ ...p, monto: '' })) }}
+                style={{ flex: 1, padding: '7px', borderRadius: '8px', border: `1.5px solid ${tipoMovimiento === 'pago' ? VERDE : '#e2e8f0'}`, background: tipoMovimiento === 'pago' ? '#f0fdf4' : 'white', color: tipoMovimiento === 'pago' ? VERDE : '#94a3b8', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>
+                💰 Pago
+              </button>
+              <button onClick={() => { setTipoMovimiento('devolucion'); setFormPago(p => ({ ...p, monto: '', concepto: '' })) }}
+                style={{ flex: 1, padding: '7px', borderRadius: '8px', border: `1.5px solid ${tipoMovimiento === 'devolucion' ? '#ef4444' : '#e2e8f0'}`, background: tipoMovimiento === 'devolucion' ? '#fef2f2' : 'white', color: tipoMovimiento === 'devolucion' ? '#ef4444' : '#94a3b8', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>
+                ↩️ Devolución
+              </button>
             </div>
             {(() => {
           const saldo = Math.max(0, (selected.monto_acordado ?? 0) - (selected.total_pagado ?? 0))
+          if (tipoMovimiento === 'devolucion') {
+            return (
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+                <div style={{ flex: 1, background: '#f0fdf4', borderRadius: '8px', padding: '8px 12px' }}>
+                  <div style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase' }}>Total pagado</div>
+                  <div style={{ fontSize: '13px', fontWeight: '700', color: VERDE }}>{fmtMXN(selected.total_pagado ?? 0)}</div>
+                </div>
+                <div style={{ flex: 1, background: '#fef2f2', borderRadius: '8px', padding: '8px 12px', border: '1px solid #fecaca' }}>
+                  <div style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase' }}>Devolución máxima</div>
+                  <div style={{ fontSize: '13px', fontWeight: '800', color: '#ef4444' }}>{fmtMXN(selected.total_pagado ?? 0)}</div>
+                </div>
+              </div>
+            )
+          }
           return (
             <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
               <div style={{ flex: 1, background: '#F4F6FB', borderRadius: '8px', padding: '8px 12px' }}>
@@ -1881,25 +1946,39 @@ function ClientesInner() {
                 <input type="number" value={formPago.monto}
                   onChange={e => {
                       const val = e.target.value
+                      if (tipoMovimiento === 'devolucion') {
+                        setFormPago(p => ({ ...p, monto: val }))
+                        return
+                      }
                       const saldo = Math.max(0, (selected.monto_acordado ?? 0) - (selected.total_pagado ?? 0))
                       const concepto = detectarConcepto(pagos.length, parseFloat(val) || 0, saldo, selected.monto_acordado)
                       setFormPago(p => ({ ...p, monto: val, concepto }))
                     }}
                   placeholder="0"
-                  max={Math.max(0, (selected.monto_acordado ?? 0) - (selected.total_pagado ?? 0))}
-                  style={{ ...inputSt, borderColor: formPago.monto && selected.monto_acordado && parseFloat(formPago.monto) > Math.max(0, selected.monto_acordado - (selected.total_pagado ?? 0)) ? '#ef4444' : '#e2e8f0' }}
+                  max={tipoMovimiento === 'devolucion' ? (selected.total_pagado ?? 0) : Math.max(0, (selected.monto_acordado ?? 0) - (selected.total_pagado ?? 0))}
+                  style={{ ...inputSt, borderColor: tipoMovimiento === 'devolucion'
+                    ? (formPago.monto && parseFloat(formPago.monto) > (selected.total_pagado ?? 0) ? '#ef4444' : '#e2e8f0')
+                    : (formPago.monto && selected.monto_acordado && parseFloat(formPago.monto) > Math.max(0, selected.monto_acordado - (selected.total_pagado ?? 0)) ? '#ef4444' : '#e2e8f0') }}
                   autoFocus />
-                {formPago.monto && selected.monto_acordado && parseFloat(formPago.monto) > Math.max(0, selected.monto_acordado - (selected.total_pagado ?? 0)) && (
-                  <p style={{ fontSize: '10px', color: '#ef4444', margin: '3px 0 0' }}>
-                    ⚠️ Excede el saldo pendiente de {fmtMXN(Math.max(0, selected.monto_acordado - (selected.total_pagado ?? 0)))}
-                  </p>
+                {tipoMovimiento === 'devolucion' ? (
+                  formPago.monto && parseFloat(formPago.monto) > (selected.total_pagado ?? 0) && (
+                    <p style={{ fontSize: '10px', color: '#ef4444', margin: '3px 0 0' }}>
+                      ⚠️ Excede el total pagado de {fmtMXN(selected.total_pagado ?? 0)}
+                    </p>
+                  )
+                ) : (
+                  formPago.monto && selected.monto_acordado && parseFloat(formPago.monto) > Math.max(0, selected.monto_acordado - (selected.total_pagado ?? 0)) && (
+                    <p style={{ fontSize: '10px', color: '#ef4444', margin: '3px 0 0' }}>
+                      ⚠️ Excede el saldo pendiente de {fmtMXN(Math.max(0, selected.monto_acordado - (selected.total_pagado ?? 0)))}
+                    </p>
+                  )
                 )}
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Concepto</label>
-                  <div style={{ padding: '10px 12px', background: '#EEF2F8', borderRadius: '8px', border: '1px solid #bfdbfe', fontSize: '13px', fontWeight: '700', color: AZUL }}>
-                    {formPago.concepto || 'Automático'}
+                  <div style={{ padding: '10px 12px', background: tipoMovimiento === 'devolucion' ? '#fef2f2' : '#EEF2F8', borderRadius: '8px', border: `1px solid ${tipoMovimiento === 'devolucion' ? '#fecaca' : '#bfdbfe'}`, fontSize: '13px', fontWeight: '700', color: tipoMovimiento === 'devolucion' ? '#ef4444' : AZUL }}>
+                    {tipoMovimiento === 'devolucion' ? 'Devolución' : (formPago.concepto || 'Automático')}
                   </div>
                 </div>
                 <div>
@@ -1908,8 +1987,8 @@ function ClientesInner() {
                 </div>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Notas</label>
-                <input value={formPago.notas} onChange={e => setFormPago(p => ({ ...p, notas: e.target.value }))} placeholder="Ej. Transferencia BBVA" style={inputSt} />
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{tipoMovimiento === 'devolucion' ? 'Motivo de la devolución *' : 'Notas'}</label>
+                <input value={formPago.notas} onChange={e => setFormPago(p => ({ ...p, notas: e.target.value }))} placeholder={tipoMovimiento === 'devolucion' ? 'Ej. Cliente canceló el servicio' : 'Ej. Transferencia BBVA'} style={inputSt} />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Comprobante (opcional)</label>
@@ -1929,9 +2008,19 @@ function ClientesInner() {
             </div>
             <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
               <button onClick={() => setShowPago(false)} style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
-              <button onClick={guardarPago} disabled={savingPago || !formPago.monto}
-                style={{ flex: 2, padding: '10px', background: (savingPago || !formPago.monto || (selected.monto_acordado != null && parseFloat(formPago.monto||'0') > Math.max(0, selected.monto_acordado - (selected.total_pagado ?? 0)))) ? '#94a3b8' : VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: savingPago ? 'not-allowed' : 'pointer' }}>
-                {savingPago ? 'Guardando...' : '💰 Registrar pago'}
+              <button onClick={guardarPago} disabled={
+                  savingPago || !formPago.monto ||
+                  (tipoMovimiento === 'devolucion'
+                    ? (!formPago.notas.trim() || parseFloat(formPago.monto) > (selected.total_pagado ?? 0))
+                    : (selected.monto_acordado != null && parseFloat(formPago.monto||'0') > Math.max(0, selected.monto_acordado - (selected.total_pagado ?? 0))))
+                }
+                style={{ flex: 2, padding: '10px', background: (
+                    savingPago || !formPago.monto ||
+                    (tipoMovimiento === 'devolucion'
+                      ? (!formPago.notas.trim() || parseFloat(formPago.monto) > (selected.total_pagado ?? 0))
+                      : (selected.monto_acordado != null && parseFloat(formPago.monto||'0') > Math.max(0, selected.monto_acordado - (selected.total_pagado ?? 0))))
+                  ) ? '#94a3b8' : (tipoMovimiento === 'devolucion' ? '#ef4444' : VERDE), color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: savingPago ? 'not-allowed' : 'pointer' }}>
+                {savingPago ? 'Guardando...' : (tipoMovimiento === 'devolucion' ? '↩️ Registrar devolución' : '💰 Registrar pago')}
               </button>
             </div>
           </div>
