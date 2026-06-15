@@ -1841,7 +1841,7 @@ function ClientesInner() {
       {/* ── MODAL NUEVO CLIENTE ── */}
       {showNuevo && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          onClick={e => { if (e.target === e.currentTarget) { setShowNuevo(false); setFormErrors({}); setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', tipo_servicio: '', esquema_pago: '', monto_acordado: '', monto_pension_mensual: '', numero_meses_cobro: '', porcentaje_recuperacion: '', tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } } }) } }}>
+          >
           <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '440px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
             <h2 style={{ color: AZUL, fontSize: '18px', fontWeight: '700', margin: '0 0 20px' }}>Nuevo cliente</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1889,7 +1889,15 @@ function ClientesInner() {
               ) : (
                 <div>
                   <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Esquema de pago{form.tipo_servicio ? ' *' : ''}</label>
-                  <select value={form.esquema_pago} onChange={e => setForm(p => ({ ...p, esquema_pago: e.target.value }))}
+                  <select value={form.esquema_pago} onChange={e => setForm(p => ({
+                    ...p,
+                    esquema_pago: e.target.value,
+                    monto_acordado: '',
+                    monto_pension_mensual: '',
+                    numero_meses_cobro: '',
+                    porcentaje_recuperacion: '',
+                    tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } },
+                  }))}
                     style={{ ...inputSt, borderColor: formErrors.esquema_pago ? '#ef4444' : '#e2e8f0' }}>
                     <option value="">— Selecciona —</option>
                     {ESQUEMAS_PAGO.map(e => <option key={e.id} value={e.id}>{e.label}</option>)}
@@ -1938,7 +1946,7 @@ function ClientesInner() {
                               <tr key={col.id} style={{ borderTop: '1px solid #f1f5f9' }}>
                                 <td style={{ padding: '6px 10px', color: '#374151' }}>{col.label}</td>
                                 <td style={{ padding: '6px 10px', textAlign: 'center' }}>
-                                  <input type="checkbox" checked={fila.cobrar} onChange={e => setForm(p => ({ ...p, tarifas_etapa: { ...(p.tarifas_etapa as any), [col.id]: { ...fila, cobrar: e.target.checked } } }))} />
+                                  <input type="checkbox" checked={fila.cobrar} onChange={e => setForm(p => ({ ...p, tarifas_etapa: { ...(p.tarifas_etapa as any), [col.id]: { cobrar: e.target.checked, monto: e.target.checked ? fila.monto : '' } } }))} />
                                 </td>
                                 <td style={{ padding: '6px 10px', textAlign: 'right' }}>
                                   <input type="number" value={fila.monto} disabled={!fila.cobrar}
