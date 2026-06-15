@@ -159,7 +159,10 @@ export default function ConfiguracionPage() {
   }
 
   async function guardarMaterial() {
-    if (!formMaterial.nombre.trim()) return
+    if (!formMaterial.nombre.trim() || !formMaterial.tipo || !(formMaterial as any).archivo_url) {
+      setMaterialError('Completa nombre, tipo y adjunta un archivo antes de guardar.')
+      return
+    }
     setSavingMaterial(true)
     setMaterialError(null)
     const { data: { session } } = await supabase.auth.getSession()
@@ -753,13 +756,13 @@ export default function ConfiguracionPage() {
                 )}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px', textTransform: 'uppercase' }}>Nombre</label>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px', textTransform: 'uppercase' }}>Nombre *</label>
                     <input value={formMaterial.nombre} onChange={e => setFormMaterial(p => ({ ...p, nombre: e.target.value }))}
                       placeholder="Ej: Guía de pensión Ley 73"
                       style={{ display: 'block', width: '100%', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px', textTransform: 'uppercase' }}>Tipo</label>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px', textTransform: 'uppercase' }}>Tipo *</label>
                     <select value={formMaterial.tipo} onChange={e => setFormMaterial(p => ({ ...p, tipo: e.target.value }))}
                       style={{ display: 'block', width: '100%', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', background: 'white' }}>
                       <option value="general">📄 General</option>
@@ -782,7 +785,7 @@ export default function ConfiguracionPage() {
                       style={{ display: 'block', width: '100%', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px', textTransform: 'uppercase' }}>Adjuntar archivo (opcional)</label>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '4px', textTransform: 'uppercase' }}>Adjuntar archivo *</label>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', border: '1.5px dashed #e2e8f0', borderRadius: '8px', cursor: uploadingAdjunto ? 'not-allowed' : 'pointer', fontSize: '12px', color: AZUL, background: '#F8FAFC' }}>
                       {uploadingAdjunto ? '⏳ Subiendo...' : (formMaterial as any).archivo_url ? '✓ Archivo adjunto — clic para cambiar' : '📎 Seleccionar archivo (PDF, imagen, etc.)'}
                       <input type="file" accept=".pdf,image/*,.doc,.docx" style={{ display: 'none' }} disabled={uploadingAdjunto}
@@ -817,8 +820,8 @@ export default function ConfiguracionPage() {
                     style={{ flex: 1, padding: '10px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
                     Cancelar
                   </button>
-                  <button onClick={guardarMaterial} disabled={!formMaterial.nombre.trim() || savingMaterial}
-                    style={{ flex: 1, padding: '10px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', opacity: !formMaterial.nombre.trim() ? 0.5 : 1 }}>
+                  <button onClick={guardarMaterial} disabled={!formMaterial.nombre.trim() || !formMaterial.tipo || !(formMaterial as any).archivo_url || savingMaterial}
+                    style={{ flex: 1, padding: '10px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', opacity: (!formMaterial.nombre.trim() || !formMaterial.tipo || !(formMaterial as any).archivo_url) ? 0.5 : 1 }}>
                     {savingMaterial ? 'Guardando...' : 'Guardar material'}
                   </button>
                 </div>
