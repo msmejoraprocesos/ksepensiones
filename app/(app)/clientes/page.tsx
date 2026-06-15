@@ -354,8 +354,14 @@ function ClientesInner() {
         newErrors.esquema_pago = 'Selecciona un esquema de pago'
       } else if (form.esquema_pago === 'monto_acordado' && (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0)) {
         newErrors.monto_acordado = 'El monto acordado es obligatorio'
+      } else if (form.esquema_pago === 'tarifa_etapa') {
+        const tarifas = form.tarifas_etapa as any
+        const incompletas = Object.values(tarifas).filter((v: any) => v.cobrar && (!v.monto || parseFloat(v.monto) <= 0))
+        if (incompletas.length > 0) {
+          newErrors.esquema_pago = 'Define el monto para cada etapa marcada para cobrar (o desmarca la casilla).'
+        }
       }
-      // meses_pension, tarifa_etapa, porcentaje_recuperado pueden quedar incompletos al inicio (con recordatorio posterior)
+      // meses_pension, porcentaje_recuperado pueden quedar incompletos al inicio (con recordatorio posterior)
     }
 
     if (Object.keys(newErrors).length > 0) { setFormErrors(newErrors); return }
@@ -2168,8 +2174,8 @@ function ClientesInner() {
             <p style={{ fontSize: '11px', color: '#94a3b8', margin: '12px 0 0' }}>💡 Los pagos se registran desde el expediente del cliente</p>
             <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
               <button onClick={() => { setShowNuevo(false); setFormErrors({}); setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', tipo_servicio: '', esquema_pago: '', monto_acordado: '', monto_pension_mensual: '', numero_meses_cobro: '', porcentaje_recuperacion: '', tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } } }) }} style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
-              <button onClick={guardarNuevo} disabled={saving || !form.nombre.trim() || form.telefono.replace(/\D/g,'').length !== 10 || !form.tipo_servicio || ((form.tipo_servicio === 'asesoria' && (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0)) || (form.tipo_servicio && form.tipo_servicio !== 'asesoria' && (!form.esquema_pago || (form.esquema_pago === 'monto_acordado' && (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0))))) || !!formErrors.telefono || !!formErrors.email}
-                style={{ flex: 2, padding: '10px', background: saving || !form.nombre.trim() || form.telefono.replace(/\D/g,'').length !== 10 || !form.tipo_servicio || ((form.tipo_servicio === 'asesoria' && (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0)) || (form.tipo_servicio && form.tipo_servicio !== 'asesoria' && (!form.esquema_pago || (form.esquema_pago === 'monto_acordado' && (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0))))) || !!formErrors.telefono || !!formErrors.email ? '#94a3b8' : AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer' }}>
+              <button onClick={guardarNuevo} disabled={saving || !form.nombre.trim() || form.telefono.replace(/\D/g,'').length !== 10 || !form.tipo_servicio || ((form.tipo_servicio === 'asesoria' && (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0)) || (form.tipo_servicio && form.tipo_servicio !== 'asesoria' && (!form.esquema_pago || (form.esquema_pago === 'monto_acordado' && (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0)) || (form.esquema_pago === 'tarifa_etapa' && Object.values(form.tarifas_etapa as any).some((v: any) => v.cobrar && (!v.monto || parseFloat(v.monto) <= 0)))))) || !!formErrors.telefono || !!formErrors.email}
+                style={{ flex: 2, padding: '10px', background: saving || !form.nombre.trim() || form.telefono.replace(/\D/g,'').length !== 10 || !form.tipo_servicio || ((form.tipo_servicio === 'asesoria' && (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0)) || (form.tipo_servicio && form.tipo_servicio !== 'asesoria' && (!form.esquema_pago || (form.esquema_pago === 'monto_acordado' && (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0)) || (form.esquema_pago === 'tarifa_etapa' && Object.values(form.tarifas_etapa as any).some((v: any) => v.cobrar && (!v.monto || parseFloat(v.monto) <= 0)))))) || !!formErrors.telefono || !!formErrors.email ? '#94a3b8' : AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer' }}>
                 {saving ? 'Guardando...' : 'Guardar cliente'}
               </button>
             </div>
