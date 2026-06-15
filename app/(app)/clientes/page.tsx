@@ -1146,6 +1146,41 @@ function ClientesInner() {
                           <div style={{ fontSize: '13px', color: '#1e293b' }}>{f.value}</div>
                         </div>
                       ))}
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button onClick={() => abrirEditar(selected)}
+                          style={{ flex: 1, padding: '9px', background: '#F4F6FB', color: AZUL, border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                          ✏️ Editar datos
+                        </button>
+                        <button onClick={() => setShowConfirmDelete(true)}
+                          style={{ padding: '9px 14px', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                          📦 Archivar
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <p style={{ fontSize: '13px', fontWeight: '700', color: AZUL, margin: 0 }}>Editar datos del cliente</p>
+                      {[
+                        { label: 'Nombre', key: 'nombre', type: 'text', placeholder: 'Nombre completo' },
+                        { label: 'Teléfono', key: 'telefono', type: 'tel', placeholder: '55 1234 5678' },
+                        { label: 'Email', key: 'email', type: 'email', placeholder: 'correo@ejemplo.com' },
+                      ].map((f, i) => (
+                        <div key={i}>
+                          <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>{f.label}</label>
+                          <input type={f.type} value={(formEdit as any)[f.key]} onChange={e => setFormEdit(p => ({ ...p, [f.key]: e.target.value }))} placeholder={f.placeholder} style={inputSt} />
+                        </div>
+                      ))}
+                      <div>
+                        <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Notas</label>
+                        <textarea value={formEdit.notas} onChange={e => setFormEdit(p => ({ ...p, notas: e.target.value }))} rows={2} style={{ ...inputSt, resize: 'none' }} />
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button onClick={() => setEditando(false)} style={{ flex: 1, padding: '9px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
+                        <button onClick={guardarEdicion} style={{ flex: 2, padding: '9px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>Guardar cambios</button>
+                      </div>
+                    </div>
+                  )}
+
                       <div style={{ background: '#F4F6FB', borderRadius: '10px', padding: '12px' }}>
                         <div style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Etiqueta de servicio</div>
                         {editando ? (
@@ -1287,40 +1322,7 @@ function ClientesInner() {
                         </div>
                       )}
 
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button onClick={() => abrirEditar(selected)}
-                          style={{ flex: 1, padding: '9px', background: '#F4F6FB', color: AZUL, border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
-                          ✏️ Editar datos
-                        </button>
-                        <button onClick={() => setShowConfirmDelete(true)}
-                          style={{ padding: '9px 14px', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
-                          📦 Archivar
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      <p style={{ fontSize: '13px', fontWeight: '700', color: AZUL, margin: 0 }}>Editar datos del cliente</p>
-                      {[
-                        { label: 'Nombre', key: 'nombre', type: 'text', placeholder: 'Nombre completo' },
-                        { label: 'Teléfono', key: 'telefono', type: 'tel', placeholder: '55 1234 5678' },
-                        { label: 'Email', key: 'email', type: 'email', placeholder: 'correo@ejemplo.com' },
-                      ].map((f, i) => (
-                        <div key={i}>
-                          <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>{f.label}</label>
-                          <input type={f.type} value={(formEdit as any)[f.key]} onChange={e => setFormEdit(p => ({ ...p, [f.key]: e.target.value }))} placeholder={f.placeholder} style={inputSt} />
-                        </div>
-                      ))}
-                      <div>
-                        <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Notas</label>
-                        <textarea value={formEdit.notas} onChange={e => setFormEdit(p => ({ ...p, notas: e.target.value }))} rows={2} style={{ ...inputSt, resize: 'none' }} />
-                      </div>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button onClick={() => setEditando(false)} style={{ flex: 1, padding: '9px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
-                        <button onClick={guardarEdicion} style={{ flex: 2, padding: '9px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>Guardar cambios</button>
-                      </div>
-                    </div>
-                  )}
+
                 </div>
               )}
 
