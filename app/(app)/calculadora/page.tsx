@@ -258,6 +258,7 @@ function CalculadoraInner() {
           sigue_cotizando: sigueCotizandoSugerido ?? prev.sigue_cotizando,
           ley: result.cotizo_antes_97 ? '73' : '97',
         }))
+        if (result.ultima_cotizacion) setFechaUltimaCot(result.ultima_cotizacion)
         // Build periodos from PDF data
         if (result.periodos && Array.isArray(result.periodos)) {
           buildPeriodos250(result.periodos, result.semanas || 0)
@@ -709,14 +710,18 @@ function CalculadoraInner() {
               <strong>Art. 182 Ley del Seguro Social 1973:</strong> Cuando un trabajador deja de cotizar, sus derechos pensionarios se conservan por un período proporcional. Es crítico saber si el cliente puede iniciar el trámite ahora o si ya perdió sus derechos.
             </div>
 
+            <p style={{ fontSize: '10px', color: '#94a3b8', margin: '-4px 0 0' }}>
+              <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '2px', background: '#EFF6FF', border: '1px solid #bfdbfe', marginRight: '4px', verticalAlign: 'middle' }}></span>
+              Se llena al cargar la constancia del IMSS
+            </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
               <div style={cardSt}>
                 <label style={labelSt}>Fecha de última cotización</label>
-                <input type="date" style={inputSt} value={fechaUltimaCot} onChange={e => setFechaUltimaCot(e.target.value)} />
+                <input type="date" style={autoInputSt} value={fechaUltimaCot} onChange={e => setFechaUltimaCot(e.target.value)} />
               </div>
               <div style={cardSt}>
                 <label style={labelSt}>Semanas cotizadas totales</label>
-                <input type="number" style={numInputSt} value={datos.semanas_totales || ''} readOnly />
+                <input type="number" style={autoNumInputSt} value={datos.semanas_totales || ''} readOnly />
               </div>
             </div>
 
