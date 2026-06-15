@@ -1156,6 +1156,28 @@ function ClientesInner() {
                         )}
                       </div>
 
+                      {/* ── RECORDATORIO MONTO PENDIENTE ── */}
+                      {(() => {
+                        const colActual = COLUMNAS.find(c => c.id === (selected.etapa_kanban || 'prospecto'))
+                        const yaEnDiagnostico = (colActual?.orden ?? 0) >= 1
+                        if (!yaEnDiagnostico) return null
+                        if (selected.esquema_pago === 'meses_pension' && !selected.monto_pension_mensual) {
+                          return (
+                            <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px', padding: '8px 10px', fontSize: '11px', color: '#92400e', lineHeight: 1.5 }}>
+                              📌 Aún no has definido el <strong>monto de pensión mensual</strong> de este cliente. Captúralo en cuanto lo sepas (sección "Esquema de pago" abajo).
+                            </div>
+                          )
+                        }
+                        if (selected.esquema_pago === 'porcentaje_recuperado' && !selected.monto_recuperado) {
+                          return (
+                            <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px', padding: '8px 10px', fontSize: '11px', color: '#92400e', lineHeight: 1.5 }}>
+                              📌 Aún no has definido el <strong>monto recuperado</strong> de este cliente. Captúralo en cuanto lo sepas (sección "Esquema de pago" abajo).
+                            </div>
+                          )
+                        }
+                        return null
+                      })()}
+
                       {/* ── ESQUEMA DE PAGO ── */}
                       {selected.tipo_servicio && (
                         <div style={{ background: '#F4F6FB', borderRadius: '10px', padding: '12px' }}>
