@@ -881,9 +881,9 @@ function ClientesInner() {
               <div style={{ color: '#64748b', fontSize: '15px', fontWeight: '600' }}>{search ? 'Sin resultados' : 'Sin clientes aún'}</div>
             </div>
           ) : (
-            <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'auto', maxHeight: 'calc(100vh - 260px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
+                <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                   <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #e2e8f0' }}>
                     {['Cliente', 'Etapa', 'Servicio', 'Acordado', 'Pagado', 'Saldo', 'Pago', 'Contacto', ''].map((h, i) => (
                       <th key={i} style={{ padding: '9px 12px', textAlign: 'left', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</th>
