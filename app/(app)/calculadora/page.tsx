@@ -238,12 +238,24 @@ function CalculadoraInner() {
       })
       const result = await response.json()
       if (result.nombre) {
+        const edadCalc = result.fecha_nac
+          ? Math.floor((Date.now() - new Date(result.fecha_nac).getTime()) / (365.25 * 86400000))
+          : undefined
+        // Sugerir "sigue cotizando" si la última cotización fue dentro de los últimos 60 días
+        let sigueCotizandoSugerido: boolean | undefined
+        if (result.ultima_cotizacion) {
+          const diasDesdeUltima = (Date.now() - new Date(result.ultima_cotizacion).getTime()) / 86400000
+          sigueCotizandoSugerido = diasDesdeUltima <= 60
+        }
         setDatos(prev => ({
           ...prev,
           nombre: result.nombre || prev.nombre,
           semanas_totales: result.semanas || prev.semanas_totales,
           nss: result.nss || prev.nss,
           fecha_nacimiento: result.fecha_nac || prev.fecha_nacimiento,
+          edad_actual: edadCalc ?? prev.edad_actual,
+          fecha_calculo: result.ultima_cotizacion || prev.fecha_calculo,
+          sigue_cotizando: sigueCotizandoSugerido ?? prev.sigue_cotizando,
           ley: result.cotizo_antes_97 ? '73' : '97',
         }))
         // Build periodos from PDF data
@@ -414,6 +426,10 @@ function CalculadoraInner() {
   }
 
   const numInputSt: React.CSSProperties = { ...inputSt, textAlign: 'right' }
+  const autoInputSt: React.CSSProperties = { ...inputSt, background: '#EFF6FF', borderColor: '#bfdbfe' }
+  const autoNumInputSt: React.CSSProperties = { ...numInputSt, background: '#EFF6FF', borderColor: '#bfdbfe' }
+  const manualInputSt: React.CSSProperties = { ...inputSt, background: '#F8FAFC', borderColor: '#e2e8f0' }
+  const manualNumInputSt: React.CSSProperties = { ...numInputSt, background: '#F8FAFC', borderColor: '#e2e8f0' }
 
   const labelSt: React.CSSProperties = {
     display: 'block', fontSize: '10px', fontWeight: '700',
@@ -523,13 +539,17 @@ function CalculadoraInner() {
 
             <div style={cardSt}>
               {sectionTitle('Identificación del trabajador')}
+              <p style={{ fontSize: '10px', color: '#94a3b8', margin: '-4px 0 8px' }}>
+                <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '2px', background: '#EFF6FF', border: '1px solid #bfdbfe', marginRight: '4px', verticalAlign: 'middle' }}></span>
+                Se llena al cargar la constancia del IMSS
+              </p>
               <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '10px', marginBottom: '10px' }}>
                 <div><label style={labelSt}>Nombre completo</label>
-                  <input style={inputSt} value={datos.nombre} onChange={e => setDatos(p => ({ ...p, nombre: e.target.value }))} placeholder="Nombre del trabajador" /></div>
+                  <input style={autoInputSt} value={datos.nombre} onChange={e => setDatos(p => ({ ...p, nombre: e.target.value }))} placeholder="Nombre del trabajador" /></div>
                 <div><label style={labelSt}>NSS</label>
-                  <input style={inputSt} value={datos.nss} onChange={e => setDatos(p => ({ ...p, nss: e.target.value }))} placeholder="NSS" /></div>
+                  <input style={autoInputSt} value={datos.nss} onChange={e => setDatos(p => ({ ...p, nss: e.target.value }))} placeholder="NSS" /></div>
                 <div><label style={labelSt}>Régimen</label>
-                  <select style={inputSt} value={datos.ley} onChange={e => setDatos(p => ({ ...p, ley: e.target.value as '73' | '97' }))}>
+                  <select style={autoInputSt} value={datos.ley} onChange={e => setDatos(p => ({ ...p, ley: e.target.value as '73' | '97' }))}>
                     <option value="">Detectar automáticamente</option>
                     <option value="73">Ley 73 (cotizó antes de Jul 1997)</option>
                     <option value="97">Ley 97 (solo cotizó después de Jul 1997)</option>
@@ -538,38 +558,45 @@ function CalculadoraInner() {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px' }}>
                 <div><label style={labelSt}>Fecha de nacimiento</label>
-                  <input type="date" style={inputSt} value={datos.fecha_nacimiento} onChange={e => {
+                  <input type="date" style={autoInputSt} value={datos.fecha_nacimiento} onChange={e => {
                     const edad = e.target.value ? Math.floor((Date.now() - new Date(e.target.value).getTime()) / (365.25 * 86400000)) : 0
                     setDatos(p => ({ ...p, fecha_nacimiento: e.target.value, edad_actual: edad }))
                   }} /></div>
                 <div><label style={labelSt}>Edad actual</label>
-                  <input type="number" style={numInputSt} value={datos.edad_actual || ''} onChange={e => setDatos(p => ({ ...p, edad_actual: parseInt(e.target.value) || 0 }))} /></div>
+                  <input type="number" style={autoNumInputSt} value={datos.edad_actual || ''} onChange={e => setDatos(p => ({ ...p, edad_actual: parseInt(e.target.value) || 0 }))} /></div>
                 <div><label style={labelSt}>Fecha de cálculo / baja IMSS</label>
-                  <input type="date" style={inputSt} value={datos.fecha_calculo} onChange={e => setDatos(p => ({ ...p, fecha_calculo: e.target.value }))} /></div>
+                  <input type="date" style={autoInputSt} value={datos.fecha_calculo} onChange={e => setDatos(p => ({ ...p, fecha_calculo: e.target.value }))} /></div>
                 <div><label style={labelSt}>Semanas cotizadas</label>
-                  <input type="number" style={numInputSt} value={datos.semanas_totales || ''} onChange={e => setDatos(p => ({ ...p, semanas_totales: parseInt(e.target.value) || 0 }))} /></div>
+                  <input type="number" style={autoNumInputSt} value={datos.semanas_totales || ''} onChange={e => setDatos(p => ({ ...p, semanas_totales: parseInt(e.target.value) || 0 }))} /></div>
               </div>
             </div>
 
             <div style={cardSt}>
               {sectionTitle('Situación laboral y familiar')}
+              <p style={{ fontSize: '10px', color: '#94a3b8', margin: '-4px 0 8px' }}>
+                <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '2px', background: '#F8FAFC', border: '1px solid #e2e8f0', marginRight: '4px', verticalAlign: 'middle' }}></span>
+                Información que solo el cliente puede proporcionar
+              </p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '10px' }}>
-                <div><label style={labelSt}>¿Sigue cotizando al IMSS?</label>
-                  <select style={inputSt} value={datos.sigue_cotizando ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, sigue_cotizando: e.target.value === 'si' }))}>
+                <div>
+                  <label style={labelSt}>¿Sigue cotizando al IMSS?{datos.fecha_calculo && <span style={{ color: AZUL, fontWeight: '600', textTransform: 'none' }}> · sugerido</span>}</label>
+                  <select style={datos.fecha_calculo ? autoInputSt : manualInputSt} value={datos.sigue_cotizando ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, sigue_cotizando: e.target.value === 'si' }))}>
                     <option value="si">Sí</option><option value="no">No</option>
-                  </select></div>
+                  </select>
+                  {datos.fecha_calculo && <p style={{ fontSize: '9px', color: '#94a3b8', margin: '2px 0 0' }}>Basado en la última cotización registrada. Verifica con el cliente.</p>}
+                </div>
                 <div><label style={labelSt}>Semanas descontadas AFORE/ISSSTE</label>
-                  <input type="number" style={numInputSt} value={datos.semanas_descontadas || ''} onChange={e => setDatos(p => ({ ...p, semanas_descontadas: parseInt(e.target.value) || 0 }))} placeholder="0" /></div>
+                  <input type="number" style={manualNumInputSt} value={datos.semanas_descontadas || ''} onChange={e => setDatos(p => ({ ...p, semanas_descontadas: parseInt(e.target.value) || 0 }))} placeholder="0" /></div>
                 <div><label style={labelSt}>¿Tiene esposa(o)/concubina(o)?</label>
-                  <select style={inputSt} value={datos.tiene_conyuge ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, tiene_conyuge: e.target.value === 'si' }))}>
+                  <select style={manualInputSt} value={datos.tiene_conyuge ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, tiene_conyuge: e.target.value === 'si' }))}>
                     <option value="si">Sí (+15%)</option><option value="no">No</option>
                   </select></div>
                 <div><label style={labelSt}>Hijos menores de 16 / est. hasta 25</label>
-                  <input type="number" style={numInputSt} value={datos.num_hijos || ''} onChange={e => setDatos(p => ({ ...p, num_hijos: parseInt(e.target.value) || 0 }))} placeholder="0" /></div>
+                  <input type="number" style={manualNumInputSt} value={datos.num_hijos || ''} onChange={e => setDatos(p => ({ ...p, num_hijos: parseInt(e.target.value) || 0 }))} placeholder="0" /></div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
                 <div><label style={labelSt}>Padres económicamente dependientes</label>
-                  <input type="number" style={numInputSt} value={datos.num_padres || ''} onChange={e => setDatos(p => ({ ...p, num_padres: parseInt(e.target.value) || 0 }))} placeholder="0" /></div>
+                  <input type="number" style={manualNumInputSt} value={datos.num_padres || ''} onChange={e => setDatos(p => ({ ...p, num_padres: parseInt(e.target.value) || 0 }))} placeholder="0" /></div>
               </div>
             </div>
 
