@@ -308,7 +308,7 @@ function ClientesInner() {
   async function reactivarCliente(clienteId: string) {
     await supabase.from('clientes').update({ activo: true }).eq('id', clienteId)
     setClientesArchivados(prev => prev.filter(c => c.id !== clienteId))
-    if (userId) await loadClientes(userId)
+    if (userIdRef.current) await loadClientes(userIdRef.current)
   }
 
   async function openExpediente(cliente: Cliente) {
@@ -805,7 +805,7 @@ function ClientesInner() {
             <div style={{ flex: 1 }} />
             <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748b', cursor: 'pointer', userSelect: 'none' as const }}>
               <input type="checkbox" checked={mostrarArchivados}
-                onChange={e => { setMostrarArchivados(e.target.checked); if (e.target.checked && userId) loadArchivados(userId) }} />
+                onChange={e => { setMostrarArchivados(e.target.checked); if (e.target.checked && userIdRef.current) loadArchivados(userIdRef.current) }} />
               📦 Mostrar archivados {clientesArchivados.length > 0 ? `(${clientesArchivados.length})` : ''}
             </label>
           </div>
