@@ -268,11 +268,8 @@ export default function ConfiguracionPage() {
     if (!error) {
       const { data } = supabase.storage.from('logos').getPublicUrl(path)
       const finalUrl = data.publicUrl + '?t=' + Date.now()
-      // Update state with final URL
+      // Update local state only — does NOT persist to DB until "Guardar cambios"
       setPerfil(p => ({ ...p, logo_url: finalUrl }))
-      // Also save logo_url to DB immediately so it persists
-      const { error: dbError } = await supabase.from('perfiles_usuario').upsert({ id: uid, logo_url: finalUrl }, { onConflict: 'id' })
-      if (dbError) console.error('Error saving logo_url to DB:', dbError.message)
     } else {
       setLogoError('Error al subir el logo: ' + error.message)
     }
@@ -372,9 +369,8 @@ export default function ConfiguracionPage() {
                     <input ref={fileRef} type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) uploadLogo(f) }} style={{ display: 'none' }} disabled={uploadingLogo} />
                   </label>
                   {perfil.logo_url && (
-                    <button onClick={async () => {
+                    <button onClick={() => {
                       setPerfil(p => ({ ...p, logo_url: null }))
-                      await supabase.from('perfiles_usuario').update({ logo_url: null }).eq('id', userId)
                       if (fileRef.current) fileRef.current.value = ''
                     }} style={{ fontSize: '12px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}>
                       Quitar logo
