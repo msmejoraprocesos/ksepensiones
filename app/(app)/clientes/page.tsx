@@ -161,6 +161,7 @@ interface Cliente {
   porcentaje_recuperacion: number | null
   monto_recuperado: number | null
   nota_cancelacion: string | null
+  activo?: boolean
   comprobante_url: string | null
   ultimo_contacto: string | null
   created_at: string
@@ -283,7 +284,7 @@ function ClientesInner() {
 
   async function loadClientes(uid: string) {
     setLoading(true)
-    const { data } = await supabase.from('clientes').select('*').eq('asesor_id', uid).order('created_at', { ascending: false })
+    const { data } = await supabase.from('clientes').select('*').eq('asesor_id', uid).or('activo.is.null,activo.eq.true').order('created_at', { ascending: false })
     if (!data) { setLoading(false); return }
     // Load total pagado per cliente
     const { data: pagosData } = await supabase.from('pagos').select('cliente_id, monto').eq('asesor_id', uid)
@@ -580,14 +581,10 @@ function ClientesInner() {
     if (selected?.id === id) setSelected(prev => prev ? { ...prev, ...campos } : prev)
   }
 
-  async function eliminarCliente() {
+  async function archivarCliente() {
     if (!selected) return
     setDeletingCliente(true)
-    await supabase.from('pagos').delete().eq('cliente_id', selected.id)
-    await supabase.from('servicios_contratados').delete().eq('cliente_id', selected.id)
-    await supabase.from('diagnosticos').delete().eq('cliente_id', selected.id)
-    await supabase.from('actividades').delete().eq('cliente_id', selected.id)
-    await supabase.from('clientes').delete().eq('id', selected.id)
+    await supabase.from('clientes').update({ activo: false }).eq('id', selected.id)
     setClientes(prev => prev.filter(c => c.id !== selected.id))
     setDeletingCliente(false)
     setShowConfirmDelete(false)
@@ -1071,7 +1068,7 @@ function ClientesInner() {
                         </button>
                         <button onClick={() => setShowConfirmDelete(true)}
                           style={{ padding: '9px 14px', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
-                          🗑️ Eliminar
+                          📦 Archivar
                         </button>
                       </div>
                     </>
@@ -1652,9 +1649,9 @@ function ClientesInner() {
           <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '400px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
             <div style={{ textAlign: 'center', marginBottom: '20px' }}>
               <div style={{ fontSize: '40px', marginBottom: '12px' }}>⚠️</div>
-              <h3 style={{ color: '#1e293b', fontSize: '17px', fontWeight: '700', margin: '0 0 8px' }}>¿Eliminar a {selected.nombre}?</h3>
+              <h3 style={{ color: '#1e293b', fontSize: '17px', fontWeight: '700', margin: '0 0 8px' }}>¿Archivar a {selected.nombre}?</h3>
               <p style={{ color: '#64748b', fontSize: '13px', margin: 0, lineHeight: 1.6 }}>
-                Esta acción eliminará permanentemente el cliente y todos sus datos:
+                El cliente dejará de aparecer en el pipeline y listados, pero conservará todo su historial:
               </p>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '20px', background: '#fef2f2', borderRadius: '10px', padding: '12px 14px', border: '1px solid #fecaca' }}>
@@ -1672,19 +1669,17 @@ function ClientesInner() {
                 </div>
               ))}
             </div>
-            {(pagos.length > 0 || servicios.length > 0) && (
-              <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px', padding: '10px 12px', marginBottom: '16px', fontSize: '12px', color: '#92400e' }}>
-                ⚠️ Este cliente tiene pagos o servicios registrados. Esta acción no se puede deshacer.
-              </div>
-            )}
+            <div style={{ background: '#EEF2F8', border: '1px solid #c7d2fe', borderRadius: '8px', padding: '10px 12px', marginBottom: '16px', fontSize: '12px', color: '#1e3a8a' }}>
+              ℹ️ Esta acción es reversible — el cliente y su historial (pagos, diagnósticos, actividades) permanecen guardados y se puede reactivar más adelante.
+            </div>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button onClick={() => setShowConfirmDelete(false)}
                 style={{ flex: 1, padding: '11px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
                 Cancelar
               </button>
-              <button onClick={eliminarCliente} disabled={deletingCliente}
+              <button onClick={archivarCliente} disabled={deletingCliente}
                 style={{ flex: 1, padding: '11px', background: deletingCliente ? '#94a3b8' : '#dc2626', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: deletingCliente ? 'not-allowed' : 'pointer' }}>
-                {deletingCliente ? 'Eliminando...' : 'Sí, eliminar todo'}
+                {deletingCliente ? 'Archivando...' : 'Sí, archivar'}
               </button>
             </div>
           </div>
