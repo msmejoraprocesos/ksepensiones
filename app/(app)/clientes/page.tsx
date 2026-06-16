@@ -1512,52 +1512,74 @@ function ClientesInner() {
                     </div>
                   ) : diagnosticos.map((d, idx) => {
                     const analisis = d.analisis_narrativo
+                    const esAutorizado = d.estatus === 'autorizado'
+                    const esBorrador = !d.estatus || d.estatus === 'borrador'
+                    const borderColor = esAutorizado ? '#bbf7d0' : '#e2e8f0'
+                    const bgColor = esAutorizado ? '#f0fdf4' : '#F8FAFC'
                     return (
-                    <div key={d.id} style={{ background: '#F8FAFC', borderRadius: '10px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+                    <div key={d.id} style={{ background: bgColor, borderRadius: '10px', border: `1.5px solid ${borderColor}`, overflow: 'hidden' }}>
                       {/* Header diagnóstico */}
-                      <div style={{ padding: '12px 14px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <div style={{ width: '28px', height: '28px', background: AZUL, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '11px', fontWeight: '700', flexShrink: 0 }}>
+                      <div style={{ padding: '12px 14px', borderBottom: `1px solid ${borderColor}`, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ width: '28px', height: '28px', background: esAutorizado ? VERDE : '#94a3b8', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '11px', fontWeight: '700', flexShrink: 0 }}>
                           {String.fromCharCode(65 + idx)}
                         </div>
                         <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ background: d.ley === '73' ? '#EEF2F8' : '#EEF7F1', color: d.ley === '73' ? AZUL : VERDE, fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px' }}>Ley {d.ley}</span>
-                            <span style={{ fontSize: '11px', color: '#94a3b8' }}>{fmt(d.created_at)}</span>
-                            {analisis && <span style={{ fontSize: '10px', background: '#f0fdf4', color: VERDE, padding: '1px 6px', borderRadius: '6px', fontWeight: '600' }}>📝 Con análisis</span>}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                            {/* Estatus badge */}
+                            <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px', background: esAutorizado ? '#dcfce7' : '#f1f5f9', color: esAutorizado ? '#15803d' : '#64748b' }}>
+                              {esAutorizado ? '✅ Autorizado' : '📝 Borrador'}
+                            </span>
+                            <span style={{ background: d.ley === '73' ? '#EEF2F8' : '#EEF7F1', color: d.ley === '73' ? AZUL : VERDE, fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px' }}>Ley {d.ley}</span>
+                            <span style={{ fontSize: '10px', color: '#94a3b8' }}>{fmt(d.created_at)}</span>
+                            {esAutorizado && d.fecha_autorizacion && (
+                              <span style={{ fontSize: '10px', color: '#15803d' }}>· Autorizado {fmt(d.fecha_autorizacion)}</span>
+                            )}
+                            {analisis && <span style={{ fontSize: '10px', background: '#f0fdf4', color: VERDE, padding: '1px 6px', borderRadius: '6px', fontWeight: '600' }}>📝 Análisis</span>}
                           </div>
-                          <div style={{ fontSize: '11px', color: '#64748b', marginTop: '3px' }}>
-                            {d.semanas} semanas · Retiro {d.edad_retiro} años
-                            {d.ingreso_deseado ? ` · Meta ${fmtMXN(d.ingreso_deseado)}/mes` : ''}
+                          <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+                            {d.semanas} semanas
+                            {d.escenario_elegido && <span style={{ color: AZUL, fontWeight: '600' }}> · {d.escenario_elegido}</span>}
+                            {d.ingreso_objetivo ? <span> · Objetivo {fmtMXN(d.ingreso_objetivo)}/mes</span> : ''}
                           </div>
                         </div>
                       </div>
 
                       {/* Resultados */}
                       <div style={{ padding: '10px 14px' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', marginBottom: '10px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', marginBottom: '10px' }}>
                           {[
-                            { label: 'E1 Sin acción', value: d.resultado_e1, color: '#ef4444' },
-                            { label: 'E2 Mod 10', value: d.resultado_e2, color: '#3b82f6' },
-                            { label: 'E3 Mod 40', value: d.resultado_e3, color: NARANJA },
-                            { label: 'E4 Óptimo', value: d.resultado_e4, color: VERDE },
+                            { label: 'Sin modalidad', value: d.pension_sin_mod40, color: '#94a3b8' },
+                            { label: 'Escenario elegido', value: d.pension_con_mod40, color: esAutorizado ? VERDE : NARANJA },
                           ].map((e, i) => (
-                            <div key={i} style={{ background: 'white', borderRadius: '6px', padding: '6px 8px', border: `1px solid ${i === 3 ? '#bbf7d0' : '#e2e8f0'}` }}>
-                              <div style={{ fontSize: '9px', color: '#94a3b8', marginBottom: '2px' }}>{e.label}</div>
-                              <div style={{ fontSize: '12px', fontWeight: '700', color: e.color }}>{e.value ? fmtMXN(e.value) : '—'}</div>
+                            <div key={i} style={{ background: 'white', borderRadius: '6px', padding: '8px 10px', border: `1px solid ${i === 1 && esAutorizado ? '#bbf7d0' : '#e2e8f0'}` }}>
+                              <div style={{ fontSize: '9px', color: '#94a3b8', marginBottom: '2px', textTransform: 'uppercase', letterSpacing: '0.3px' }}>{e.label}</div>
+                              <div style={{ fontSize: '14px', fontWeight: '700', color: e.color }}>{e.value ? fmtMXN(e.value) : '—'}<span style={{ fontSize: '10px', fontWeight: '400' }}>/mes</span></div>
                             </div>
                           ))}
                         </div>
-
+                        {d.inversion_mod40 > 0 && (
+                          <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '8px', padding: '5px 8px', background: 'white', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                            💰 Inversión Mod 40: {fmtMXN(d.inversion_mod40)} total
+                            {d.mod40_umas && d.mod40_meses && <span> · {d.mod40_umas} UMAs · {d.mod40_meses} meses</span>}
+                          </div>
+                        )}
                         {/* Acciones */}
                         <div style={{ display: 'flex', gap: '6px' }}>
-                          <a href={`/calculadora?cliente=${selected.id}&diag=${d.id}`}
-                            style={{ flex: 1, padding: '7px', background: '#EEF2F8', color: AZUL, border: 'none', borderRadius: '7px', fontSize: '11px', fontWeight: '600', cursor: 'pointer', textAlign: 'center', textDecoration: 'none' }}>
-                            🔄 Cargar en calculadora
-                          </a>
+                          {esBorrador && (
+                            <a href={`/calculadora?cliente=${selected.id}&diag=${d.id}`}
+                              style={{ flex: 1, padding: '7px', background: '#EEF2F8', color: AZUL, border: 'none', borderRadius: '7px', fontSize: '11px', fontWeight: '600', cursor: 'pointer', textAlign: 'center', textDecoration: 'none' }}>
+                              🔄 Cargar en calculadora
+                            </a>
+                          )}
+                          {esAutorizado && (
+                            <div style={{ flex: 1, padding: '7px', background: '#dcfce7', color: '#15803d', borderRadius: '7px', fontSize: '11px', fontWeight: '600', textAlign: 'center' }}>
+                              🔒 Diagnóstico oficial — inmutable
+                            </div>
+                          )}
                           {analisis && (
                             <button onClick={() => verAnalisis(d, idx, analisis, selected.nombre)}
                               style={{ flex: 1, padding: '7px', background: '#f0fdf4', color: VERDE, border: '1px solid #bbf7d0', borderRadius: '7px', fontSize: '11px', fontWeight: '600', cursor: 'pointer' }}>
-                              📄 Ver análisis completo
+                              📄 Ver análisis
                             </button>
                           )}
                         </div>
