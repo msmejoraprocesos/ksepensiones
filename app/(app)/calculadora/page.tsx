@@ -191,6 +191,15 @@ function CalculadoraInner() {
   const [asesorPerfil, setAsesorPerfil] = useState<{razon_social?: string; nombre?: string; logo_url?: string} | null>(null)
   const [showWappModal, setShowWappModal] = useState(false)
 
+  // Flujo diagnóstico
+  const [ingresoObjetivo, setIngresoObjetivo] = useState(0)
+  const [escElegidoIdx, setEscElegidoIdx] = useState(-1)
+  const [simulacionLibre, setSimulacionLibre] = useState(false)
+  const [simUmas, setSimUmas] = useState(15)
+  const [simMeses, setSimMeses] = useState(36)
+  const [diagGuardadoId, setDiagGuardadoId] = useState<string | null>(null)
+  const [estatus, setEstatus] = useState<'borrador' | 'autorizado'>('borrador')
+
   // ── Load inicial
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -303,64 +312,102 @@ function CalculadoraInner() {
   }
 
   // Recalculate escenarios when sdiPromedio or mod40 changes
-  useEffect(() => { if (sdiPromedio > 0 || datos.semanas_totales > 0) recalcEscenarios() }, [sdiPromedio, datos, mod40Umas, mod40Meses, sys])
+  useEffect(() => { if (sdiPromedio > 0 || datos.semanas_totales > 0) recalcEscenarios() }, [sdiPromedio, datos, mod40Umas, mod40Meses, sys, simulacionLibre, simUmas, simMeses])
+
+  function calcEscenarioMod40(sem: number, sdiBase: number, umas: number, meses: number, pensionBase: number) {
+    const costoMensual = calcCostoMod40(umas, sys.mod40_pct ?? 14.438, sys)
+    const invTotal = costoMensual * meses
+    // SDI ponderado: promedia el SDI actual con el SDI de Mod40
+    // Solo las últimas 250 semanas importan (60 meses máx), así que limitamos la ponderación
+    const sdiMod40 = umas * sys.UMA_DIARIA
+    const semMod40 = Math.min(meses * 4.33, 250) // cap 250 semanas para SDI
+    const semEfectivo = Math.min(sem, 250 - semMod40)
+    const sdiNuevo = semEfectivo + semMod40 > 0
+      ? (sdiBase * semEfectivo + sdiMod40 * semMod40) / (semEfectivo + semMod40)
+      : sdiBase
+    const semTotal = sem + meses * 4.33
+    const pension = calcPensionLey73(semTotal, sdiNuevo, 65, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres)
+    const incr = pension - pensionBase
+    const roi = incr > 0 ? Math.ceil(invTotal / incr) : 0
+    return { costoMensual, invTotal, sdiNuevo, semTotal, pension, incr, roi }
+  }
 
   function recalcEscenarios() {
     const sem = datos.semanas_totales - datos.semanas_descontadas
-    const edad = datos.edad_actual || 60
-    const sdiBase = sdiPromedio || (datos.semanas_totales > 0 ? sys.SALARIO_MIN * 3 : 0)
+    if (sem <= 0 && sdiPromedio <= 0) return
+    const sdiBase = sdiPromedio > 0 ? sdiPromedio : sys.SALARIO_MIN
 
     const pensionBase = calcPensionLey73(sem, sdiBase, 65, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres)
 
-    const escs: Escenario[] = [
-      {
-        id: 'e0', label: 'Sin Modalidad 40', descripcion: 'Pensión base con semanas actuales',
-        mod40_meses: 0, mod40_umas: 0, sdi_base: sdiBase,
-        pension_mensual: pensionBase, inversion_total: 0, costo_mensual_mod40: 0,
-        incremento_vs_base: 0, roi_meses: 0, recomendado: false
-      },
-    ]
+    // E0: Sin ninguna modalidad
+    const escs: Escenario[] = [{
+      id: 'e0', label: 'Sin modalidad', descripcion: 'Pensión base con semanas y SDI actuales',
+      mod40_meses: 0, mod40_umas: 0, sdi_base: sdiBase,
+      pension_mensual: pensionBase, inversion_total: 0, costo_mensual_mod40: 0,
+      incremento_vs_base: 0, roi_meses: 0, recomendado: false
+    }]
 
-    for (const [meses, umas, label, desc] of [
-      [12, mod40Umas * 0.7, 'Mod 40 · 12 meses', 'Cotización breve'],
-      [24, mod40Umas * 0.85, 'Mod 40 · 24 meses', 'Estrategia media'],
-      [mod40Meses, mod40Umas, `Mod 40 · ${mod40Meses} meses`, 'Estrategia óptima'],
-    ] as [number, number, string, string][]) {
-      const costoMensual = calcCostoMod40(umas, sys.mod40_pct ?? 14.438, sys)
-      const invTotal = costoMensual * meses
-      // SDI con Mod 40 ponderado
-      const sdiMod40 = umas * sys.UMA_DIARIA
-      const semMod40 = meses * 4.33
-      const semTotal = sem + semMod40
-      const sdiNuevo = (sdiBase * sem + sdiMod40 * semMod40) / semTotal
-      const pension = calcPensionLey73(semTotal, sdiNuevo, 65, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres)
-      const incr = pension - pensionBase
-      const roi = incr > 0 ? Math.ceil(invTotal / incr) : 0
+    // E1: Modalidad 10 · 12 meses (~22% tasa, misma lógica de SDI ponderado)
+    const TASA_M10 = 0.22
+    const costoM10 = sdiBase * 30.4 * TASA_M10
+    const sdiM10 = mod40Umas * sys.UMA_DIARIA
+    const semM10 = Math.min(12 * 4.33, 250)
+    const semEfM10 = Math.min(sem, 250 - semM10)
+    const sdiNuevoM10 = (sdiBase * semEfM10 + sdiM10 * semM10) / (semEfM10 + semM10)
+    const pensionM10 = calcPensionLey73(sem + 12 * 4.33, sdiNuevoM10, 65, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres)
+    escs.push({
+      id: 'e_m10', label: 'Modalidad 10 · 12 meses', descripcion: 'Cobertura integral + semanas (independiente)',
+      mod40_meses: 12, mod40_umas: mod40Umas, sdi_base: sdiNuevoM10,
+      pension_mensual: pensionM10, inversion_total: costoM10 * 12, costo_mensual_mod40: costoM10,
+      incremento_vs_base: pensionM10 - pensionBase, roi_meses: 0, recomendado: false
+    })
+
+    // E2–E4: Modalidad 40 a distintos plazos
+    for (const [meses, umas, label, desc, esOpt] of [
+      [12, mod40Umas * 0.7, 'Modalidad 40 · 12 meses', 'Cotización breve — menor costo', false],
+      [24, mod40Umas * 0.85, 'Modalidad 40 · 24 meses', 'Estrategia media — balance costo/beneficio', false],
+      [mod40Meses, mod40Umas, `Modalidad 40 · ${mod40Meses} meses`, 'Estrategia óptima configurada', true],
+    ] as [number, number, string, string, boolean][]) {
+      const r = calcEscenarioMod40(sem, sdiBase, umas, meses, pensionBase)
       escs.push({
-        id: `e${meses}`, label, descripcion: desc,
-        mod40_meses: meses, mod40_umas: umas, sdi_base: sdiNuevo,
-        pension_mensual: pension, inversion_total: invTotal,
-        costo_mensual_mod40: costoMensual, incremento_vs_base: incr,
-        roi_meses: roi, recomendado: meses === mod40Meses
+        id: `e_m40_${meses}`, label, descripcion: desc,
+        mod40_meses: meses, mod40_umas: umas, sdi_base: r.sdiNuevo,
+        pension_mensual: r.pension, inversion_total: r.invTotal, costo_mensual_mod40: r.costoMensual,
+        incremento_vs_base: r.incr, roi_meses: r.roi, recomendado: esOpt
       })
     }
+
+    // E5: Simulación libre (si está activa)
+    if (simulacionLibre) {
+      const r = calcEscenarioMod40(sem, sdiBase, simUmas, simMeses, pensionBase)
+      escs.push({
+        id: 'e_sim', label: `Mi simulación · ${simMeses} meses · ${simUmas} UMAs`, descripcion: '🔧 Parámetros personalizados',
+        mod40_meses: simMeses, mod40_umas: simUmas, sdi_base: r.sdiNuevo,
+        pension_mensual: r.pension, inversion_total: r.invTotal, costo_mensual_mod40: r.costoMensual,
+        incremento_vs_base: r.incr, roi_meses: r.roi, recomendado: false
+      })
+    }
+
     setEscenarios(escs)
+    // Auto-select optimal if not already selected
+    if (escElegidoIdx < 0) setEscElegidoIdx(escs.findIndex(e => e.recomendado))
   }
 
-  const escSel = escenarios[escSelIdx] ?? escenarios[0]
+  const escSel = escenarios[escElegidoIdx >= 0 ? escElegidoIdx : escSelIdx] ?? escenarios[0]
   const finSel = financieras.find(f => f.id === finSelId)
   const corridaFin = finSel && escSel ? calcCorrida(escSel.inversion_total, finSel.tasa_anual, finPlazo) : null
   const conservacion = calcConservacion(datos.semanas_totales, fechaUltimaCot ? Math.floor((Date.now() - new Date(fechaUltimaCot).getTime()) / (30 * 86400000)) : 0)
 
   // ── Generar PDF completo
   async function exportarPDF() {
-    if (!escSel) return
+    if (!escSel || !diagGuardadoId) return
+    const esBorrador = estatus === 'borrador'
     const doc = generarPDFProyecto({
       datos,
       periodos,
       sdiPromedio,
       escenarios,
-      escSelIdx,
+      escSelIdx: escElegidoIdx >= 0 ? escElegidoIdx : escSelIdx,
       corridaFin: corridaFin ?? undefined,
       finSel: finSel ?? undefined,
       finPlazo,
@@ -368,9 +415,11 @@ function CalculadoraInner() {
       logoUrl: asesorPerfil?.logo_url ?? undefined,
       razonSocial: asesorPerfil?.razon_social ?? undefined,
       asesorNombre: asesorPerfil?.nombre ?? undefined,
+      esBorrador,
     })
     const nombre = datos.nombre?.replace(/\s+/g, '_') || 'cliente'
-    doc.save(`Proyecto_Pension_${nombre}_${new Date().toISOString().slice(0,10)}.pdf`)
+    const sufijo = esBorrador ? '_BORRADOR' : '_OFICIAL'
+    doc.save(`Proyecto_Pension_${nombre}_${new Date().toISOString().slice(0,10)}${sufijo}.pdf`)
   }
 
   // ── Generar análisis IA
@@ -401,21 +450,49 @@ function CalculadoraInner() {
   }
 
   // ── Guardar diagnóstico
-  async function guardarDiagnostico() {
-    if (!clienteId || !userId) return
+  async function guardarDiagnostico(nuevoEstatus: 'borrador' | 'autorizado') {
+    if (!clienteId || !userId || analisis.length === 0) return
     setGuardando(true)
-    await supabase.from('diagnosticos').insert({
+    const escElegido = escenarios[escElegidoIdx] ?? escenarios.find(e => e.recomendado) ?? escenarios[0]
+    const payload = {
       cliente_id: clienteId, asesor_id: userId,
-      ley: datos.ley, semanas: datos.semanas_totales,
-      salario: sdiPromedio, edad_retiro: 65,
+      ley: datos.ley,
+      semanas: datos.semanas_totales,
+      salario: sdiPromedio,
+      edad_retiro: 65,
       pension_sin_mod40: escenarios[0]?.pension_mensual,
-      pension_con_mod40: escSel?.pension_mensual,
-      inversion_mod40: escSel?.inversion_total,
+      pension_con_mod40: escElegido?.pension_mensual,
+      inversion_mod40: escElegido?.inversion_total,
       analisis_narrativo: JSON.stringify(analisis),
       notas: JSON.stringify({ datos, periodos, escenarios }),
-    })
-    setMensaje('✓ Diagnóstico guardado en el expediente del cliente')
-    setTimeout(() => setMensaje(''), 4000)
+      estatus: nuevoEstatus,
+      escenario_elegido: escElegido?.id ?? null,
+      ingreso_objetivo: ingresoObjetivo || null,
+      mod40_umas: mod40Umas,
+      mod40_meses: mod40Meses,
+      fecha_autorizacion: nuevoEstatus === 'autorizado' ? new Date().toISOString() : null,
+      params_json: {
+        datos, periodos, sdiPromedio,
+        escenarios, escElegidoIdx,
+        ingresoObjetivo, simulacionLibre, simUmas, simMeses,
+        mod40Umas, mod40Meses,
+      },
+    }
+    if (diagGuardadoId && nuevoEstatus === 'autorizado') {
+      // Authorize existing record
+      await supabase.from('diagnosticos').update({ estatus: 'autorizado', fecha_autorizacion: new Date().toISOString() }).eq('id', diagGuardadoId)
+      setEstatus('autorizado')
+      setMensaje('✅ Diagnóstico autorizado — el PDF oficial ya está disponible')
+    } else {
+      // Create new record (always insert — immutable history)
+      const { data } = await supabase.from('diagnosticos').insert(payload).select('id').single()
+      if (data) {
+        setDiagGuardadoId(data.id)
+        setEstatus(nuevoEstatus)
+        setMensaje(nuevoEstatus === 'borrador' ? '💾 Borrador guardado en el expediente del cliente' : '✅ Diagnóstico autorizado')
+      }
+    }
+    setTimeout(() => setMensaje(''), 5000)
     setGuardando(false)
   }
 
@@ -502,25 +579,36 @@ function CalculadoraInner() {
     </div>
   )
 
+  const clienteSeleccionado = clientes.find(c => c.id === clienteId)
   const navBar = (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', borderBottom: '1px solid #e2e8f0', background: 'white', flexShrink: 0 }}>
-      <div>
-        <p style={{ fontSize: '14px', fontWeight: '700', color: '#1e293b', margin: 0 }}>Calculadora de pensión</p>
-        <p style={{ fontSize: '11px', color: '#94a3b8', margin: '1px 0 0' }}>
-          {tab + 1} de {TABS.length} — {TABS[tab]}
-        </p>
-      </div>
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-        <select value={clienteId} onChange={e => setClienteId(e.target.value)}
-          style={{ ...inputSt, width: '200px', fontSize: '12px', padding: '6px 10px' }}>
-          <option value="">— Seleccionar cliente —</option>
-          {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
-        </select>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: extracting ? 'not-allowed' : 'pointer', fontSize: '12px', fontWeight: '600', color: AZUL, background: '#EEF2F8', whiteSpace: 'nowrap' }}>
-          {extracting ? '⏳ Extrayendo...' : '📄 Cargar constancia IMSS'}
-          <input ref={fileRef} type="file" accept=".pdf" style={{ display: 'none' }} disabled={extracting}
-            onChange={e => { const f = e.target.files?.[0]; if (f) extraerPDF(f) }} />
-        </label>
+    <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e2e8f0', background: 'white', flexShrink: 0 }}>
+      {!clienteId && (
+        <div style={{ padding: '10px 20px', background: '#FFF7ED', borderBottom: '1px solid #fed7aa', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ fontSize: '13px', color: '#92400e', fontWeight: '600' }}>⚠️ Selecciona un cliente para iniciar el diagnóstico</span>
+          <span style={{ fontSize: '12px', color: '#92400e' }}>No se puede guardar ni generar PDF sin un cliente vinculado.</span>
+        </div>
+      )}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px' }}>
+        <div>
+          <p style={{ fontSize: '14px', fontWeight: '700', color: '#1e293b', margin: 0 }}>Calculadora de pensión</p>
+          <p style={{ fontSize: '11px', color: '#94a3b8', margin: '1px 0 0' }}>
+            {tab + 1} de {TABS.length} — {TABS[tab]}
+            {clienteSeleccionado && <span style={{ color: AZUL, fontWeight: '600' }}> · {clienteSeleccionado.nombre}</span>}
+            {diagGuardadoId && <span style={{ color: estatus === 'autorizado' ? VERDE : '#f59e0b', fontWeight: '600' }}> · {estatus === 'autorizado' ? '✅ Autorizado' : '📝 Borrador'}</span>}
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <select value={clienteId} onChange={e => { setClienteId(e.target.value); setDiagGuardadoId(null); setEstatus('borrador'); setAnalisis([]) }}
+            style={{ ...inputSt, width: '200px', fontSize: '12px', padding: '6px 10px', borderColor: !clienteId ? '#f97316' : '#e2e8f0' }}>
+            <option value="">— Seleccionar cliente —</option>
+            {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+          </select>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: extracting ? 'not-allowed' : 'pointer', fontSize: '12px', fontWeight: '600', color: AZUL, background: '#EEF2F8', whiteSpace: 'nowrap' }}>
+            {extracting ? '⏳ Extrayendo...' : '📄 Cargar constancia IMSS'}
+            <input ref={fileRef} type="file" accept=".pdf" style={{ display: 'none' }} disabled={extracting}
+              onChange={e => { const f = e.target.files?.[0]; if (f) extraerPDF(f) }} />
+          </label>
+        </div>
       </div>
     </div>
   )
@@ -1059,67 +1147,108 @@ function CalculadoraInner() {
               </div>
             ) : (
               <>
-                {/* Selector de escenarios */}
-                <div style={{ display: 'grid', gridTemplateColumns: `repeat(${escenarios.length}, 1fr)`, gap: '10px' }}>
-                  {escenarios.map((esc, i) => (
-                    <div key={esc.id} onClick={() => setEscSelIdx(i)}
-                      style={{ border: `${escSelIdx === i ? '2px' : '1px'} solid ${escSelIdx === i ? NARANJA : '#e2e8f0'}`, borderRadius: '10px', padding: '12px', cursor: 'pointer', background: escSelIdx === i ? '#fff5f2' : 'white', transition: 'all .15s', position: 'relative' }}>
-                      {esc.recomendado && <div style={{ position: 'absolute', top: '-1px', right: '-1px', background: NARANJA, color: 'white', fontSize: '9px', fontWeight: '700', padding: '2px 7px', borderRadius: '0 8px 0 6px' }}>⭐ ÓPTIMO</div>}
-                      <div style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '3px' }}>Escenario {i + 1}</div>
-                      <div style={{ fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '2px' }}>{esc.label}</div>
-                      <div style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '8px' }}>{esc.descripcion}</div>
-                      <div style={{ fontSize: '20px', fontWeight: '700', color: i === 0 ? '#94a3b8' : escSelIdx === i ? NARANJA : AZUL }}>{fmtMXN(esc.pension_mensual)}/mes</div>
-                      {esc.inversion_total > 0 && <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '2px' }}>Inv: {fmtMXN(esc.inversion_total)}</div>}
+                {/* ── Pensión objetivo + simulación libre ── */}
+                <div style={cardSt}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', alignItems: 'end' }}>
+                    <div>
+                      {sectionTitle('Pensión objetivo del cliente')}
+                      <label style={labelSt}>¿Cuánto quiere recibir al mes? ($)</label>
+                      <input type="number" value={ingresoObjetivo || ''} onChange={e => setIngresoObjetivo(parseFloat(e.target.value) || 0)}
+                        placeholder="Ej. 12000" style={numInputSt} />
+                      {ingresoObjetivo > 0 && <p style={{ fontSize: '11px', color: '#94a3b8', margin: '4px 0 0' }}>Objetivo: {fmtMXN(ingresoObjetivo)}/mes</p>}
                     </div>
-                  ))}
+                    <div>
+                      {sectionTitle('Simulación libre')}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', cursor: 'pointer' }}>
+                          <input type="checkbox" checked={simulacionLibre} onChange={e => setSimulacionLibre(e.target.checked)} />
+                          <span style={{ fontWeight: '600', color: simulacionLibre ? NARANJA : '#94a3b8' }}>🔧 Activar simulación personalizada</span>
+                        </label>
+                        {simulacionLibre && (
+                          <button onClick={() => { setSimUmas(mod40Umas); setSimMeses(mod40Meses) }}
+                            style={{ fontSize: '11px', padding: '4px 10px', border: '1px solid #e2e8f0', borderRadius: '6px', background: '#F4F6FB', cursor: 'pointer', color: '#64748b' }}>
+                            ↩️ Restablecer base
+                          </button>
+                        )}
+                      </div>
+                      {simulacionLibre && (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                          <div>
+                            <label style={labelSt}>UMAs ({simUmas})</label>
+                            <input type="range" min="1" max="25" value={simUmas} onChange={e => setSimUmas(parseFloat(e.target.value))} style={{ width: '100%' }} />
+                          </div>
+                          <div>
+                            <label style={labelSt}>Meses ({simMeses})</label>
+                            <input type="range" min="12" max="120" step="12" value={simMeses} onChange={e => setSimMeses(parseInt(e.target.value))} style={{ width: '100%' }} />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-                {/* Comparativo visual */}
-                <div style={cardSt}>
-                  {sectionTitle('Comparativo de pensión mensual')}
+                {/* ── Escenarios grid ── */}
+                <div style={{ display: 'grid', gridTemplateColumns: `repeat(${escenarios.length}, minmax(0, 1fr))`, gap: '10px' }}>
                   {escenarios.map((esc, i) => {
-                    const maxPension = Math.max(...escenarios.map(e => e.pension_mensual))
-                    const pct = maxPension > 0 ? (esc.pension_mensual / maxPension) * 100 : 0
-                    const colors = ['#94a3b8', '#3b82f6', '#F05B21', '#1B3A6B']
+                    const isElegido = escElegidoIdx === i
+                    const pctObjetivo = ingresoObjetivo > 0 ? Math.round((esc.pension_mensual / ingresoObjetivo) * 100) : null
+                    const brecha = ingresoObjetivo > 0 ? ingresoObjetivo - esc.pension_mensual : null
+                    const isSim = esc.id === 'e_sim'
+                    const isM10 = esc.id === 'e_m10'
                     return (
-                      <div key={esc.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                        <span style={{ fontSize: '11px', color: '#64748b', width: '130px', flexShrink: 0 }}>{esc.label}</span>
-                        <div style={{ flex: 1, height: '8px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: `${pct}%`, background: colors[i] ?? AZUL, borderRadius: '4px', transition: 'width .4s' }} />
-                        </div>
-                        <span style={{ fontSize: '12px', fontWeight: '700', color: colors[i] ?? AZUL, width: '90px', textAlign: 'right' }}>{fmtMXN(esc.pension_mensual)}</span>
-                        {i > 0 && <span style={{ fontSize: '10px', color: VERDE, width: '60px', textAlign: 'right' }}>+{fmtMXN(esc.incremento_vs_base)}</span>}
+                      <div key={esc.id}
+                        style={{ border: `${isElegido ? '2px' : '1px'} solid ${isElegido ? NARANJA : isSim ? '#f97316' : '#e2e8f0'}`, borderRadius: '10px', padding: '12px', background: isElegido ? '#fff5f2' : isSim ? '#fff7ed' : 'white', position: 'relative', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        {esc.recomendado && <div style={{ position: 'absolute', top: '-1px', right: '-1px', background: NARANJA, color: 'white', fontSize: '9px', fontWeight: '700', padding: '2px 7px', borderRadius: '0 8px 0 6px' }}>⭐ ÓPTIMO</div>}
+                        {isSim && <div style={{ position: 'absolute', top: '-1px', left: '-1px', background: '#f97316', color: 'white', fontSize: '9px', fontWeight: '700', padding: '2px 7px', borderRadius: '8px 0 6px 0' }}>🔧 SIM</div>}
+                        {isM10 && <div style={{ position: 'absolute', top: '-1px', left: '-1px', background: VERDE, color: 'white', fontSize: '9px', fontWeight: '700', padding: '2px 7px', borderRadius: '8px 0 6px 0' }}>M10</div>}
+                        <div style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>E{i + 1}</div>
+                        <div style={{ fontSize: '12px', fontWeight: '600', color: '#374151' }}>{esc.label}</div>
+                        <div style={{ fontSize: '10px', color: '#94a3b8' }}>{esc.descripcion}</div>
+                        <div style={{ fontSize: '20px', fontWeight: '700', color: i === 0 ? '#94a3b8' : isElegido ? NARANJA : AZUL }}>{fmtMXN(esc.pension_mensual)}/mes</div>
+                        {esc.inversion_total > 0 && <div style={{ fontSize: '10px', color: '#64748b' }}>Inv: {fmtMXN(esc.inversion_total)} · {fmtMXN(esc.costo_mensual_mod40)}/mes</div>}
+                        {pctObjetivo !== null && (
+                          <div style={{ padding: '4px 8px', borderRadius: '6px', background: pctObjetivo >= 100 ? '#f0fdf4' : pctObjetivo >= 70 ? '#fffbeb' : '#fef2f2', fontSize: '11px', fontWeight: '700', color: pctObjetivo >= 100 ? VERDE : pctObjetivo >= 70 ? '#b45309' : '#ef4444' }}>
+                            {pctObjetivo}% del objetivo {brecha && brecha > 0 ? `· Faltan ${fmtMXN(brecha)}` : '✅'}
+                          </div>
+                        )}
+                        <button onClick={() => { setEscElegidoIdx(i); setEscSelIdx(i) }}
+                          style={{ marginTop: '4px', padding: '6px 8px', border: `1px solid ${isElegido ? NARANJA : '#e2e8f0'}`, borderRadius: '6px', background: isElegido ? NARANJA : 'white', color: isElegido ? 'white' : '#64748b', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
+                          {isElegido ? '⭐ Elegido para diagnóstico' : 'Elegir para diagnóstico'}
+                        </button>
                       </div>
                     )
                   })}
                 </div>
 
-                {/* Detalle del escenario seleccionado */}
-                {escSel && (
-                  <div style={{ ...cardSt, borderLeft: `3px solid ${NARANJA}` }}>
-                    {sectionTitle(`Detalle — ${escSel.label}`, escSel.descripcion)}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '12px' }}>
-                      {kpiBox('Pensión mensual', fmtMXN(escSel.pension_mensual), 'incluyendo asignaciones', VERDE)}
-                      {kpiBox('Pensión anual', fmtMXN(escSel.pension_mensual * 12), 'proyección año 1')}
-                      {escSel.inversion_total > 0 ? kpiBox('Inversión total', fmtMXN(escSel.inversion_total), `${escSel.mod40_meses} meses Mod 40`) : kpiBox('Inversión', '$0', 'Sin Modalidad 40')}
-                      {escSel.roi_meses > 0 ? kpiBox('Punto de equilibrio', `${escSel.roi_meses} meses`, 'ROI de la inversión', '#8b5cf6') : kpiBox('Incremento', '+$0', 'Pensión base')}
-                    </div>
-                    {escSel.inversion_total > 0 && (
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-                        {kpiBox('Incremento vs sin Mod 40', `+${fmtMXN(escSel.incremento_vs_base)}/mes`, 'ingreso adicional mensual', NARANJA)}
-                        {kpiBox('Ingreso adicional 10 años', fmtMXN(escSel.incremento_vs_base * 120), 'vs pensión base', AZUL)}
-                        {kpiBox('Incremento porcentual', escenarios[0]?.pension_mensual > 0 ? `+${Math.round((escSel.incremento_vs_base / escenarios[0].pension_mensual) * 100)}%` : '—', 'sobre pensión base', VERDE)}
+                {/* ── Detalle del escenario elegido ── */}
+                {escElegidoIdx >= 0 && escenarios[escElegidoIdx] && (() => {
+                  const escSel = escenarios[escElegidoIdx]
+                  return (
+                    <div style={cardSt}>
+                      {sectionTitle(`Detalle: ${escSel.label}`)}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '10px' }}>
+                        {kpiBox('Pensión mensual', fmtMXN(escSel.pension_mensual), 'pesos de hoy', VERDE)}
+                        {kpiBox('Inversión total', fmtMXN(escSel.inversion_total), 'costo total Mod 40', AZUL)}
+                        {escSel.incremento_vs_base > 0 ? kpiBox('Incremento vs base', `+${fmtMXN(escSel.incremento_vs_base)}/mes`, 'sobre pensión sin modalidad', NARANJA) : kpiBox('Pensión base', fmtMXN(escenarios[0]?.pension_mensual || 0), 'sin estrategia', '#94a3b8')}
+                        {escSel.roi_meses > 0 ? kpiBox('Recuperación de inversión', `${escSel.roi_meses} meses`, `~${(escSel.roi_meses / 12).toFixed(1)} años`, '#8b5cf6') : kpiBox('Sin inversión adicional', '—', 'pensión base', '#94a3b8')}
                       </div>
-                    )}
-                  </div>
-                )}
+                      {ingresoObjetivo > 0 && (
+                        <div style={{ padding: '10px 14px', background: escSel.pension_mensual >= ingresoObjetivo ? '#f0fdf4' : '#fef2f2', border: `1px solid ${escSel.pension_mensual >= ingresoObjetivo ? '#bbf7d0' : '#fecaca'}`, borderRadius: '8px', fontSize: '12px', color: escSel.pension_mensual >= ingresoObjetivo ? '#15803d' : '#991b1b' }}>
+                          {escSel.pension_mensual >= ingresoObjetivo
+                            ? `✅ Este escenario alcanza el objetivo de ${fmtMXN(ingresoObjetivo)}/mes`
+                            : `⚠️ Faltan ${fmtMXN(ingresoObjetivo - escSel.pension_mensual)}/mes para alcanzar el objetivo de ${fmtMXN(ingresoObjetivo)}/mes`}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()}
               </>
             )}
-            {navButtons(() => setTab(3), () => setTab(6), 'Siguiente: Financiamiento →')}
+            {navButtons(() => setTab(4), () => setTab(6), 'Siguiente: Financiamiento →')}
           </div>
         )}
 
-        {/* ══ TAB 6: FINANCIAMIENTO ═══════════════════════════════ */}
+                {/* ══ TAB 6: FINANCIAMIENTO ═══════════════════════════════ */}
         {tab === 6 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div style={{ padding: '12px 16px', background: '#EEF2F8', border: '1px solid #bfdbfe', borderRadius: '10px', fontSize: '12px', color: AZUL, lineHeight: 1.6 }}>
@@ -1220,6 +1349,20 @@ function CalculadoraInner() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {mensaje && <div style={{ padding: '10px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', fontSize: '12px', fontWeight: '600', color: VERDE }}>{mensaje}</div>}
 
+            {/* Banner: análisis requerido */}
+            {analisis.length === 0 && escenarios.length > 0 && (
+              <div style={{ padding: '12px 16px', background: '#F5F3FF', border: '2px solid #8b5cf6', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <p style={{ fontSize: '13px', fontWeight: '700', color: '#8b5cf6', margin: '0 0 2px' }}>✨ El análisis con IA es requerido antes de guardar</p>
+                  <p style={{ fontSize: '11px', color: '#7c3aed', margin: 0 }}>Genera el análisis narrativo personalizado para poder guardar y exportar el diagnóstico.</p>
+                </div>
+                <button onClick={generarAnalisisIA} disabled={generandoAnalisis}
+                  style={{ padding: '8px 18px', background: '#8b5cf6', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', flexShrink: 0 }}>
+                  {generandoAnalisis ? '⏳ Generando...' : '✨ Generar ahora'}
+                </button>
+              </div>
+            )}
+
             {/* Header resumen */}
             <div style={{ ...cardSt, borderLeft: `3px solid ${NARANJA}` }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '10px' }}>
@@ -1232,18 +1375,37 @@ function CalculadoraInner() {
                   </p>
                 </div>
                 <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                  <button onClick={guardarDiagnostico} disabled={!clienteId || guardando}
-                    style={{ ...btnSecondary, fontSize: '12px', opacity: !clienteId ? 0.5 : 1 }}>
-                    {guardando ? '⏳ Guardando...' : '💾 Guardar'}
+                  {/* 1. Análisis IA — obligatorio antes de guardar */}
+                  <button onClick={generarAnalisisIA} disabled={generandoAnalisis || escenarios.length === 0 || estatus === 'autorizado'}
+                    style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', border: `2px solid ${analisis.length === 0 ? '#8b5cf6' : '#c4b5fd'}`, borderRadius: '8px', background: analisis.length === 0 ? '#F5F3FF' : '#f8fafc', color: '#8b5cf6', fontSize: '12px', fontWeight: '700', cursor: generandoAnalisis || estatus === 'autorizado' ? 'not-allowed' : 'pointer', animation: analisis.length === 0 ? 'pulse 2s infinite' : 'none' }}>
+                    {generandoAnalisis ? '⏳ Generando...' : analisis.length === 0 ? '✨ Generar análisis IA (requerido)' : '✨ Regenerar análisis'}
                   </button>
-                  <button onClick={generarAnalisisIA} disabled={generandoAnalisis || escenarios.length === 0}
-                    style={{ ...btnSecondary, fontSize: '12px', color: '#8b5cf6', borderColor: '#c4b5fd' }}>
-                    {generandoAnalisis ? '⏳ Generando...' : '✨ Análisis IA'}
+                  {/* 2. Guardar borrador — requiere análisis */}
+                  <button onClick={() => guardarDiagnostico('borrador')} disabled={!clienteId || guardando || analisis.length === 0 || estatus === 'autorizado'}
+                    style={{ ...btnSecondary, fontSize: '12px', opacity: (!clienteId || analisis.length === 0 || estatus === 'autorizado') ? 0.5 : 1 }}>
+                    {guardando && estatus !== 'autorizado' ? '⏳ Guardando...' : diagGuardadoId ? '💾 Actualizar borrador' : '💾 Guardar borrador'}
                   </button>
-                  <button onClick={exportarPDF} disabled={escenarios.length === 0}
-                    style={{ ...btnPrimary, fontSize: '12px', opacity: escenarios.length === 0 ? 0.5 : 1 }}>
-                    📄 Exportar PDF
-                  </button>
+                  {/* 3. PDF borrador — requiere diagnóstico guardado */}
+                  {diagGuardadoId && estatus === 'borrador' && (
+                    <button onClick={exportarPDF}
+                      style={{ ...btnSecondary, fontSize: '12px', color: '#f59e0b', borderColor: '#fcd34d' }}>
+                      📄 PDF borrador
+                    </button>
+                  )}
+                  {/* 4. Autorizar — requiere borrador guardado */}
+                  {diagGuardadoId && estatus === 'borrador' && (
+                    <button onClick={() => guardarDiagnostico('autorizado')} disabled={guardando}
+                      style={{ ...btnPrimary, fontSize: '12px', background: VERDE }}>
+                      {guardando ? '⏳...' : '✅ Autorizar diagnóstico'}
+                    </button>
+                  )}
+                  {/* 5. PDF oficial — solo si autorizado */}
+                  {estatus === 'autorizado' && (
+                    <button onClick={exportarPDF}
+                      style={{ ...btnPrimary, fontSize: '12px' }}>
+                      📄 PDF oficial
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
