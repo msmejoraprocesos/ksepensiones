@@ -749,7 +749,7 @@ function CalculadoraInner() {
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '14px' }}>
                     {kpiBox('Estado', cons.vigente ? 'Vigente' : 'Vencido', cons.venceEn ? `${cons.venceEn} meses restantes (${cons.semanasConservacion} sem de conservación)` : 'Período vencido', color)}
                     {kpiBox('Semanas cotizadas', datos.semanas_totales.toLocaleString(), 'total histórico', datos.semanas_totales >= 500 ? VERDE : '#f59e0b')}
-                    {kpiBox('Plazo de conservación', cons.indefinida ? 'Indefinido' : cons.venceEn !== null ? `${cons.venceEn} meses` : 'Sin conservación', cons.indefinida ? '500+ semanas' : 'Art. 182 LSS')}
+                    {kpiBox('Plazo de conservación', cons.indefinida ? 'Indefinido' : cons.venceEn !== null ? `${cons.venceEn} meses` : 'Sin conservación', cons.semanasConservacion ? `${cons.semanasConservacion} semanas = semanas ÷ 4` : 'Art. 183 LSS')}
                     {kpiBox('Meses desde última cot.', mesesDesde.toString(), fechaUltimaCot ? new Date(fechaUltimaCot).toLocaleDateString('es-MX', { month: 'short', year: 'numeric' }) : '—')}
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -760,33 +760,74 @@ function CalculadoraInner() {
               )
             })()}
 
+            {/* ── NIVEL 1: Estimación rápida ── */}
             <div style={cardSt}>
-              {sectionTitle('Tabla de referencia — Art. 182 LSS 1973')}
-              <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-                  <thead>
-                    <tr style={{ background: '#F4F6FB' }}>
-                      {['Semanas cotizadas','Tiempo de conservación','Condición'].map((h, i) => (
-                        <th key={i} style={{ padding: '7px 12px', textAlign: 'left', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[
-                      ['Menos de 150', 'Sin conservación', 'No hay derechos pensionarios', '#ef4444'],
-                      ['150 – 499 semanas', 'Mitad de las semanas cotizadas (en meses)', 'Condicional — tiempo limitado', '#f59e0b'],
-                      ['500 o más semanas', 'Indefinido — sin vencimiento', 'Derechos conservados siempre', VERDE],
-                    ].map(([sem, tiempo, cond, color], i) => (
-                      <tr key={i} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #f1f5f9' }}>
-                        <td style={{ padding: '8px 12px', fontWeight: datos.semanas_totales >= 500 && i === 2 ? '700' : '400', color: '#374151' }}>{sem} {datos.semanas_totales >= 500 && i === 2 ? '✓' : ''}</td>
-                        <td style={{ padding: '8px 12px', color: '#374151' }}>{tiempo}</td>
-                        <td style={{ padding: '8px 12px' }}><span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '12px', background: `${color}20`, color, fontWeight: '600' }}>{cond}</span></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              {sectionTitle('Nivel 1 — Estimación rápida (Art. 183 LSS 1973)')}
+              <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px', lineHeight: 1.7 }}>
+                La conservación de derechos equivale a <strong>la cuarta parte (÷ 4) del total de semanas cotizadas</strong>, contada a partir de la última baja. Con {datos.semanas_totales} semanas cotizadas, el período de conservación estimado es de <strong>{Math.round(datos.semanas_totales / 4)} semanas (~{(Math.round(datos.semanas_totales / 4) / 4.33 / 12).toFixed(1)} años)</strong>.
+              </p>
+              <div style={{ padding: '8px 14px', background: '#F4F6FB', borderRadius: '8px', fontFamily: 'monospace', fontSize: '13px', color: '#374151' }}>
+                {datos.semanas_totales} semanas ÷ 4 = {Math.round(datos.semanas_totales / 4)} semanas de conservación
               </div>
+              <p style={{ fontSize: '10px', color: '#94a3b8', margin: '8px 0 0', lineHeight: 1.6 }}>
+                ⚠️ Estimación basada en Art. 183 LSS. El resultado definitivo está sujeto a validación con el historial oficial del IMSS.
+              </p>
             </div>
+
+            {/* ── NIVEL 2: Recuperación de derechos (Arts. 150, 151 y 152) ── */}
+            {(() => {
+              const aniosSinCotizan = mesesDesde / 12
+              let recuperacion: { tipo: string; color: string; bg: string; descripcion: string; accion: string }
+              if (mesesDesde === 0) {
+                recuperacion = { tipo: 'Cotizando actualmente', color: VERDE, bg: '#f0fdf4', descripcion: 'El trabajador sigue activo. No aplica recuperación.', accion: '' }
+              } else if (aniosSinCotizan <= 3) {
+                recuperacion = { tipo: '≤ 3 años sin cotizar', color: VERDE, bg: '#f0fdf4', descripcion: 'Las semanas anteriores se reconocen de inmediato al reingresar.', accion: 'No requiere semanas adicionales para el reconocimiento (Art. 151 LSS).' }
+              } else if (aniosSinCotizan <= 6) {
+                recuperacion = { tipo: 'Entre 3 y 6 años sin cotizar', color: '#f59e0b', bg: '#fffbeb', descripcion: 'Para que el IMSS reconozca las semanas anteriores, el trabajador debe cotizar 26 semanas nuevas.', accion: 'Acción recomendada: cotizar 26 semanas (~6 meses) para recuperar el reconocimiento (Art. 151 LSS).' }
+              } else {
+                recuperacion = { tipo: 'Más de 6 años sin cotizar', color: '#ef4444', bg: '#fef2f2', descripcion: 'Para que el IMSS reconozca las semanas anteriores, el trabajador debe cotizar 52 semanas nuevas.', accion: 'Acción recomendada: cotizar 52 semanas (~12 meses) para recuperar el reconocimiento (Art. 151 LSS). Considerar Modalidad 10 primero, luego Modalidad 40.' }
+              }
+              return (
+                <div style={cardSt}>
+                  {sectionTitle('Nivel 2 — Recuperación de derechos (Arts. 150, 151 y 152 LSS)')}
+                  <div style={{ padding: '14px 16px', background: recuperacion.bg, borderRadius: '10px', border: `1px solid ${recuperacion.color}30`, marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                      <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 10px', borderRadius: '10px', background: `${recuperacion.color}20`, color: recuperacion.color }}>{recuperacion.tipo}</span>
+                      <span style={{ fontSize: '12px', color: '#64748b' }}>{mesesDesde > 0 ? `${mesesDesde} meses sin cotizar` : ''}</span>
+                    </div>
+                    <p style={{ fontSize: '13px', color: '#374151', margin: '0 0 6px', lineHeight: 1.7 }}>{recuperacion.descripcion}</p>
+                    {recuperacion.accion && <p style={{ fontSize: '12px', color: recuperacion.color, fontWeight: '600', margin: 0, lineHeight: 1.6 }}>{recuperacion.accion}</p>}
+                  </div>
+                  <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                      <thead>
+                        <tr style={{ background: '#F4F6FB' }}>
+                          {['Tiempo sin cotizar','Requisito para recuperar reconocimiento','Art. LSS'].map((h, i) => (
+                            <th key={i} style={{ padding: '7px 12px', textAlign: 'left', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[
+                          ['Hasta 3 años', 'Reconocimiento inmediato al reingresar', 'Art. 150', aniosSinCotizan <= 3 ? VERDE : '#94a3b8'],
+                          ['3 a 6 años', '26 semanas nuevas de cotización (~6 meses)', 'Art. 151', aniosSinCotizan > 3 && aniosSinCotizan <= 6 ? '#f59e0b' : '#94a3b8'],
+                          ['Más de 6 años', '52 semanas nuevas de cotización (~12 meses)', 'Art. 152', aniosSinCotizan > 6 ? '#ef4444' : '#94a3b8'],
+                        ].map(([tiempo, requisito, art, color], i) => (
+                          <tr key={i} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #f1f5f9' }}>
+                            <td style={{ padding: '8px 12px', fontWeight: '600', color }}>{tiempo}</td>
+                            <td style={{ padding: '8px 12px', color: '#374151' }}>{requisito}</td>
+                            <td style={{ padding: '8px 12px', color: '#64748b', fontSize: '11px' }}>{art}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p style={{ fontSize: '10px', color: '#94a3b8', margin: '8px 0 0', lineHeight: 1.6 }}>
+                    Nota: Las semanas cotizadas nunca desaparecen. Lo que se regula es su reconocimiento formal al reingresar. Para casos con duplicidad de NSS o semanas no reconocidas, se requiere trámite de aclaración en la subdelegación IMSS correspondiente.
+                  </p>
+                </div>
+              )
+            })()}
 
             {navButtons(() => setTab(1), () => setTab(3), 'Siguiente: Modalidad 40 →')}
           </div>
