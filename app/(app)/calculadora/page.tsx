@@ -415,7 +415,6 @@ function CalculadoraInner() {
       logoUrl: asesorPerfil?.logo_url ?? undefined,
       razonSocial: asesorPerfil?.razon_social ?? undefined,
       asesorNombre: asesorPerfil?.nombre ?? undefined,
-      esBorrador,
     })
     const nombre = datos.nombre?.replace(/\s+/g, '_') || 'cliente'
     const sufijo = esBorrador ? '_BORRADOR' : '_OFICIAL'
