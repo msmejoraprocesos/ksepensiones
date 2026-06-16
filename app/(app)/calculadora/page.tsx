@@ -147,7 +147,7 @@ function CalculadoraInner() {
 
   // Tab state
   const [tab, setTab] = useState(0)
-  const TABS = ['Datos generales','Salario 250 sem.','Conservación','Modalidad 40','Escenarios','Financiamiento','Resumen']
+  const TABS = ['Datos generales','Salario 250 sem.','Conservación','Modalidad 40','Modalidad 10','Escenarios','Financiamiento','Resumen']
 
   // Tab 1 state
   const [datos, setDatos] = useState<DatosGenerales>(DEFAULT_DATOS)
@@ -870,13 +870,137 @@ function CalculadoraInner() {
               </div>
             </div>
 
-            {navButtons(() => setTab(2), () => setTab(4), 'Siguiente: Escenarios de pensión →')}
+            <div style={{ padding: '12px 16px', background: '#F0FDF4', border: '1px solid #bbf7d0', borderRadius: '10px', fontSize: '12px', color: '#15803d', lineHeight: 1.6 }}>
+              <strong>¿Tu cliente es trabajador independiente o no califica para Mod 40?</strong> La <strong>Modalidad 10</strong> permite afiliarse al IMSS con cobertura completa (médica + pensión + Infonavit) y puede usarse como paso previo para habilitar Mod 40.{' '}
+              <button onClick={() => setTab(4)} style={{ background: 'none', border: 'none', color: '#15803d', fontWeight: '700', cursor: 'pointer', textDecoration: 'underline', fontFamily: 'inherit', fontSize: '12px', padding: 0 }}>Ver Modalidad 10 →</button>
+            </div>
+            {navButtons(() => setTab(2), () => setTab(5), 'Siguiente: Escenarios de pensión →')}
           </div>
         )}
 
 
+        {/* ══ TAB 4: MODALIDAD 10 ══════════════════════════════════ */}
+        {tab === 4 && (() => {
+          const UMA_DIARIA = sys.UMA_DIARIA || 113.14
+          const DIAS_MES = 30.4
+          const TASA_M10 = 0.22
+          const TASA_M40 = sys.mod40_pct ? sys.mod40_pct / 100 : 0.14438
+          const sbcMensual = mod40Umas * UMA_DIARIA * DIAS_MES
+          const cuotaM10 = sbcMensual * TASA_M10
+          const cuotaM40 = sbcMensual * TASA_M40
+          const diferencia = cuotaM10 - cuotaM40
+          const totalM10 = cuotaM10 * mod40Meses
+          const totalM40 = cuotaM40 * mod40Meses
+          const semanas = Math.round(mod40Meses * 4.33)
+          return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div style={{ padding: '12px 16px', background: '#EEF2F8', border: '1px solid #bfdbfe', borderRadius: '10px', fontSize: '12px', color: AZUL, lineHeight: 1.6 }}>
+              <strong>Modalidad 10 — Incorporación Voluntaria al Régimen Obligatorio (Art. 240 LSS):</strong> Permite a trabajadores independientes afiliarse al IMSS con cobertura integral. Más cara que Mod 40 porque incluye todos los ramos de seguro, pero es la única vía legal para independientes sin patrón.
+            </div>
+
+            {guiaCampos(true)}
+
+            <div style={cardSt}>
+              {sectionTitle('Configuración (comparte parámetros con Mod 40)')}
+              <p style={{ fontSize: '11px', color: '#94a3b8', margin: '-4px 0 10px' }}>Los valores de UMAs y meses se toman de la pestaña Modalidad 40. Ajústalos ahí para actualizar esta comparativa.</p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                <div>
+                  <label style={labelSt}>Salario base (UMAs)</label>
+                  <input type="number" style={manualNumInputSt} value={mod40Umas} readOnly />
+                  <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>SDI: {fmtMXN2(mod40Umas * UMA_DIARIA)}/día</p>
+                </div>
+                <div>
+                  <label style={labelSt}>Meses de cotización</label>
+                  <input type="number" style={manualNumInputSt} value={mod40Meses} readOnly />
+                  <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>{semanas} semanas adicionales</p>
+                </div>
+                <div>
+                  <label style={labelSt}>Tasa Mod 10 (estimada)</label>
+                  <input type="number" style={sysNumInputSt} value={22} readOnly />
+                  <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>% promedio todos los ramos</p>
+                </div>
+              </div>
+            </div>
+
+            <div style={cardSt}>
+              {sectionTitle('Comparativa de costos')}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
+                <div style={{ background: '#EEF2F8', borderRadius: '10px', padding: '14px', border: '2px solid #bfdbfe' }}>
+                  <p style={{ fontSize: '11px', color: '#64748b', margin: '0 0 4px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Modalidad 40</p>
+                  <p style={{ fontSize: '22px', fontWeight: '700', color: AZUL, margin: '0 0 4px' }}>{fmtMXN(cuotaM40)}<span style={{ fontSize: '12px', fontWeight: '400' }}>/mes</span></p>
+                  <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Total {mod40Meses} meses: {fmtMXN(totalM40)}</p>
+                </div>
+                <div style={{ background: '#F0FDF4', borderRadius: '10px', padding: '14px', border: '1px solid #bbf7d0' }}>
+                  <p style={{ fontSize: '11px', color: '#64748b', margin: '0 0 4px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Modalidad 10</p>
+                  <p style={{ fontSize: '22px', fontWeight: '700', color: VERDE, margin: '0 0 4px' }}>{fmtMXN(cuotaM10)}<span style={{ fontSize: '12px', fontWeight: '400' }}>/mes</span></p>
+                  <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Total {mod40Meses} meses: {fmtMXN(totalM10)}</p>
+                </div>
+              </div>
+              <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px', padding: '10px 14px', fontSize: '12px', color: '#92400e' }}>
+                Por <strong>{fmtMXN(diferencia)}/mes</strong> más ({fmtMXN(totalM10 - totalM40)} en total), Mod 10 agrega: servicio médico completo para el titular y familia, guarderías, cobertura de riesgos de trabajo e Infonavit.
+              </div>
+            </div>
+
+            <div style={cardSt}>
+              {sectionTitle('¿Qué incluye cada modalidad?')}
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                <thead>
+                  <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #e2e8f0' }}>
+                    <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: '700', color: '#64748b', fontSize: '10px', textTransform: 'uppercase' }}>Beneficio</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'center', fontWeight: '700', color: AZUL, fontSize: '10px', textTransform: 'uppercase' }}>Mod 40</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'center', fontWeight: '700', color: VERDE, fontSize: '10px', textTransform: 'uppercase' }}>Mod 10</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    ['Mejora SDI para pensión', true, true],
+                    ['Acumula semanas cotizadas', true, true],
+                    ['Seguro de Invalidez y Vida', true, true],
+                    ['Servicio médico IMSS', false, true],
+                    ['Seguro de Enf. y Maternidad', false, true],
+                    ['Seguro de Riesgos de Trabajo', false, true],
+                    ['Guarderías y Prestaciones Sociales', false, true],
+                    ['Aportaciones Infonavit', false, true],
+                    ['Requiere historial previo IMSS', true, false],
+                    ['Disponible para independientes', false, true],
+                  ].map(([label, m40, m10], i) => (
+                    <tr key={i} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                      <td style={{ padding: '8px 12px', color: '#374151' }}>{label as string}</td>
+                      <td style={{ padding: '8px 12px', textAlign: 'center' }}>{m40 ? '✅' : '❌'}</td>
+                      <td style={{ padding: '8px 12px', textAlign: 'center' }}>{m10 ? '✅' : '❌'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div style={cardSt}>
+              {sectionTitle('Flujo estratégico recomendado')}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12px', color: '#374151', lineHeight: 1.7 }}>
+                <div style={{ padding: '10px 14px', background: '#F4F6FB', borderRadius: '8px', borderLeft: '3px solid ' + AZUL }}>
+                  <strong>Si el cliente tiene historial IMSS y no necesita servicio médico</strong> → Mod 40 directamente. Maximiza pensión al menor costo.
+                </div>
+                <div style={{ padding: '10px 14px', background: '#F4F6FB', borderRadius: '8px', borderLeft: '3px solid ' + VERDE }}>
+                  <strong>Si el cliente es independiente sin cobertura médica</strong> → Mod 10. Protección completa para él y su familia mientras acumula semanas.
+                </div>
+                <div style={{ padding: '10px 14px', background: '#FFF7ED', borderRadius: '8px', borderLeft: '3px solid #f97316' }}>
+                  <strong>Si no califica para Mod 40 (lleva mucho tiempo sin cotizar)</strong> → Mod 10 por mínimo 12 meses, luego migra a Mod 40. La Mod 10 rehabilita su vigencia de derechos.
+                </div>
+              </div>
+            </div>
+
+            <div style={{ padding: '10px 14px', background: '#F8FAFC', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '11px', color: '#64748b', lineHeight: 1.6 }}>
+              ⚠️ La tasa del 22% es un estimado — el monto exacto varía según actividad económica y zona geográfica.{' '}
+              <a href="https://serviciosdigitales.imss.gob.mx/gestionAsegurados-web/asegurados/incorporacionVoluntaria" target="_blank" rel="noopener noreferrer" style={{ color: AZUL, fontWeight: '700' }}>Calcular cuota exacta en el portal oficial del IMSS →</a>
+            </div>
+
+            {navButtons(() => setTab(3), () => setTab(5), 'Siguiente: Escenarios de pensión →')}
+          </div>
+          )
+        })()}
+
         {/* ══ TAB 5: ESCENARIOS ═══════════════════════════════════ */}
-        {tab === 4 && (
+        {tab === 5 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {escenarios.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontSize: '13px' }}>
@@ -940,12 +1064,12 @@ function CalculadoraInner() {
                 )}
               </>
             )}
-            {navButtons(() => setTab(3), () => setTab(5), 'Siguiente: Financiamiento →')}
+            {navButtons(() => setTab(3), () => setTab(6), 'Siguiente: Financiamiento →')}
           </div>
         )}
 
         {/* ══ TAB 6: FINANCIAMIENTO ═══════════════════════════════ */}
-        {tab === 5 && (
+        {tab === 6 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div style={{ padding: '12px 16px', background: '#EEF2F8', border: '1px solid #bfdbfe', borderRadius: '10px', fontSize: '12px', color: AZUL, lineHeight: 1.6 }}>
               Si el cliente no puede pagar la Modalidad 40 de contado, una financiera puede adelantar el capital. La pensión obtenida debe superar la cuota mensual del crédito — de lo contrario el financiamiento no es viable.
@@ -1036,12 +1160,12 @@ function CalculadoraInner() {
                 )}
               </>
             )}
-            {navButtons(() => setTab(4), () => setTab(6), 'Siguiente: Resumen ejecutivo →')}
+            {navButtons(() => setTab(5), () => setTab(7), 'Siguiente: Resumen ejecutivo →')}
           </div>
         )}
 
         {/* ══ TAB 7: RESUMEN EJECUTIVO ════════════════════════════ */}
-        {tab === 6 && (
+        {tab === 7 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {mensaje && <div style={{ padding: '10px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', fontSize: '12px', fontWeight: '600', color: VERDE }}>{mensaje}</div>}
 
@@ -1162,7 +1286,7 @@ function CalculadoraInner() {
               </div>
             )}
 
-            {navButtons(() => setTab(5))}
+            {navButtons(() => setTab(6))}
           </div>
         )}
 
