@@ -254,9 +254,14 @@ function ClientesInner() {
   const [showConfirmEtapa, setShowConfirmEtapa] = useState<{clienteId: string; nombre: string; etapaActual: string; etapaNueva: string} | null>(null)
   const [pendingClose, setPendingClose] = useState(false)
   const [formServicio, setFormServicio] = useState({ tipo: 'Diagnóstico', monto_acordado: '', descripcion: '' })
-  const [modalTab, setModalTab] = useState<'info' | 'diagnosticos' | 'actividades' | 'pagos'>('info')
+  const [modalTab, setModalTab] = useState<'info' | 'diagnosticos' | 'financiamiento' | 'actividades' | 'pagos'>('info')
 
   // Nuevo cliente
+  // Financiamiento state
+  const [finSelId, setFinSelId] = useState('')
+  const [finPlazo, setFinPlazo] = useState(24)
+  const [financieras, setFinancieras] = useState<{id: string; nombre: string; tasa_anual: number; plazo_min: number; plazo_max: number; monto_min: number; monto_max: number}[]>([])
+
   const [showNuevo, setShowNuevo] = useState(false)
   const [editando, setEditando] = useState(false)
   const [formEdit, setFormEdit] = useState({ nombre: '', telefono: '', email: '', notas: '' })
@@ -330,6 +335,12 @@ function ClientesInner() {
     setDiagnosticos([])
     setActividades([])
     setServicios([])
+    // Load financieras
+    if (userIdRef.current) {
+      supabase.from('financieras').select('*').eq('asesor_id', userIdRef.current).then(({ data }) => {
+        if (data) { setFinancieras(data); if (data[0]) setFinSelId(data[0].id) }
+      })
+    }
     const [{ data: diags }, { data: acts }, { data: pags }, { data: srvs }] = await Promise.all([
       supabase.from('diagnosticos').select('*').eq('cliente_id', cliente.id).order('created_at', { ascending: false }),
       supabase.from('actividades').select('*').eq('cliente_id', cliente.id).order('fecha_programada', { ascending: false }),
@@ -1130,10 +1141,10 @@ function ClientesInner() {
 
             {/* Tabs */}
             <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', padding: '0 22px' }}>
-              {(['info', 'pagos', 'diagnosticos', 'actividades'] as const).map(tab => (
+              {(['info', 'pagos', 'diagnosticos', 'financiamiento', 'actividades'] as const).map(tab => (
                 <button key={tab} onClick={() => setModalTab(tab)}
                   style={{ padding: '10px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: modalTab === tab ? '700' : '400', color: modalTab === tab ? AZUL : '#64748b', borderBottom: modalTab === tab ? `2px solid ${AZUL}` : '2px solid transparent', marginBottom: '-1px' }}>
-                  {tab === 'info' ? 'Datos' : tab === 'pagos' ? `💰 Pagos (${pagos.length})` : tab === 'diagnosticos' ? `Diagnósticos (${diagnosticos.length})` : `Actividades (${actividades.length})`}
+                  {tab === 'info' ? 'Datos' : tab === 'pagos' ? `💰 Pagos (${pagos.length})` : tab === 'diagnosticos' ? `Diagnósticos (${diagnosticos.length})` : tab === 'financiamiento' ? '🏦 Financiamiento' : `Actividades (${actividades.length})`}
                 </button>
               ))}
             </div>
@@ -1338,6 +1349,156 @@ function ClientesInner() {
                   )}
                 </div>
               )}
+
+              {/* ── TAB FINANCIAMIENTO ── */}
+              {modalTab === 'financiamiento' && (() => {
+                // Get most recent authorized diagnostico capital
+                const diagAuth = diagnosticos.find(d => d.estatus === 'autorizado') ?? diagnosticos[0]
+                const capitalBase = diagAuth?.inversion_mod40 ?? 0
+                const pensionBase = diagAuth?.pension_con_mod40 ?? 0
+                const finSel = financieras.find(f => f.id === finSelId)
+
+                // Corrida financiera
+                function calcCorrida(capital: number, tasaAnual: number, plazo: number) {
+                  const tm = tasaAnual / 100 / 12
+                  const cuota = tm > 0 ? capital * (tm * Math.pow(1+tm,plazo)) / (Math.pow(1+tm,plazo)-1) : capital/plazo
+                  let saldo = capital; const rows = []
+                  for (let i = 1; i <= plazo; i++) {
+                    const interes = saldo * tm
+                    const cap = cuota - interes
+                    saldo -= cap
+                    rows.push({ mes: i, cuota, capital: cap, interes, saldo: Math.max(0, saldo) })
+                  }
+                  return { cuota, totalPagado: cuota * plazo, rows }
+                }
+
+                const capital = capitalBase > 0 ? capitalBase : 100000
+                const corrida = finSel ? calcCorrida(capital, finSel.tasa_anual, finPlazo) : null
+                const fmtM = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 0 }).format(n)
+
+                return (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    {/* Info banner */}
+                    <div style={{ padding: '10px 14px', background: '#EEF2F8', border: '1px solid #bfdbfe', borderRadius: '8px', fontSize: '12px', color: '#1B3A6B', lineHeight: 1.6 }}>
+                      Si el cliente no puede pagar la Modalidad 40 de contado, una financiera puede adelantar el capital. La pensión obtenida debe superar la cuota mensual del crédito.
+                      {diagAuth && <span style={{ fontWeight: '700' }}> Basado en diagnóstico del {new Date(diagAuth.created_at).toLocaleDateString('es-MX')}.</span>}
+                    </div>
+
+                    {/* Capital y pensión del diagnóstico */}
+                    {diagAuth && (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                        <div style={{ background: '#F8FAFC', borderRadius: '10px', padding: '12px', border: '1px solid #e2e8f0' }}>
+                          <p style={{ fontSize: '10px', color: '#94a3b8', margin: '0 0 4px', textTransform: 'uppercase', fontWeight: '700' }}>Capital a financiar (Mod 40)</p>
+                          <p style={{ fontSize: '20px', fontWeight: '700', color: '#1B3A6B', margin: 0 }}>{fmtM(capitalBase)}</p>
+                          <p style={{ fontSize: '10px', color: '#94a3b8', margin: '3px 0 0' }}>Del diagnóstico {diagAuth.estatus === 'autorizado' ? '✅ autorizado' : '📝 borrador'}</p>
+                        </div>
+                        <div style={{ background: '#F0FDF4', borderRadius: '10px', padding: '12px', border: '1px solid #bbf7d0' }}>
+                          <p style={{ fontSize: '10px', color: '#94a3b8', margin: '0 0 4px', textTransform: 'uppercase', fontWeight: '700' }}>Pensión estimada</p>
+                          <p style={{ fontSize: '20px', fontWeight: '700', color: '#2E8B57', margin: 0 }}>{fmtM(pensionBase)}/mes</p>
+                          <p style={{ fontSize: '10px', color: '#94a3b8', margin: '3px 0 0' }}>Escenario elegido</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {financieras.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '24px', background: '#F4F6FB', borderRadius: '10px', color: '#94a3b8', fontSize: '12px' }}>
+                        No hay financieras configuradas. Agrega financieras en Configuración → Financieras aliadas.
+                      </div>
+                    ) : (
+                      <>
+                        {/* Configuración */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                          <div>
+                            <label style={{ fontSize: '10px', fontWeight: '700', color: '#475569', display: 'block', marginBottom: '4px', textTransform: 'uppercase' }}>Financiera aliada</label>
+                            <select value={finSelId} onChange={e => setFinSelId(e.target.value)}
+                              style={{ width: '100%', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontFamily: 'inherit' }}>
+                              {financieras.map(f => <option key={f.id} value={f.id}>{f.nombre} — {f.tasa_anual}% anual</option>)}
+                            </select>
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '10px', fontWeight: '700', color: '#475569', display: 'block', marginBottom: '4px', textTransform: 'uppercase' }}>Plazo</label>
+                            <div style={{ display: 'flex', gap: '6px' }}>
+                              {finSel && [12, 24, 36, 48].filter(p => p >= finSel.plazo_min && p <= finSel.plazo_max).map(p => (
+                                <button key={p} onClick={() => setFinPlazo(p)}
+                                  style={{ flex: 1, padding: '8px 4px', borderRadius: '7px', border: `2px solid ${finPlazo === p ? '#1B3A6B' : '#e2e8f0'}`, background: finPlazo === p ? '#1B3A6B' : 'white', color: finPlazo === p ? 'white' : '#64748b', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
+                                  {p}m
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* KPIs viabilidad */}
+                        {corrida && (
+                          <div style={{ background: '#F8FAFC', borderRadius: '10px', border: `2px solid ${corrida.cuota < pensionBase ? '#bbf7d0' : '#fecaca'}`, padding: '14px' }}>
+                            <p style={{ fontSize: '11px', fontWeight: '700', color: '#475569', margin: '0 0 10px', textTransform: 'uppercase' }}>Análisis de viabilidad</p>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '12px' }}>
+                              {[
+                                { label: 'Cuota mensual', value: fmtM(corrida.cuota), sub: `${finSel?.tasa_anual}% · ${finPlazo}m`, color: '#F05B21' },
+                                { label: 'Pensión obtenida', value: fmtM(pensionBase), sub: 'del diagnóstico', color: '#2E8B57' },
+                                { label: 'Saldo neto', value: fmtM(pensionBase - corrida.cuota), sub: 'pensión − cuota', color: pensionBase > corrida.cuota ? '#2E8B57' : '#ef4444' },
+                                { label: 'Total a pagar', value: fmtM(corrida.totalPagado), sub: 'capital + intereses', color: '#64748b' },
+                              ].map((k, i) => (
+                                <div key={i} style={{ background: 'white', borderRadius: '8px', padding: '10px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+                                  <p style={{ fontSize: '10px', color: '#94a3b8', margin: '0 0 4px' }}>{k.label}</p>
+                                  <p style={{ fontSize: '15px', fontWeight: '700', color: k.color, margin: '0 0 2px' }}>{k.value}</p>
+                                  <p style={{ fontSize: '9px', color: '#94a3b8', margin: 0 }}>{k.sub}</p>
+                                </div>
+                              ))}
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                              {[
+                                [corrida.cuota < pensionBase, corrida.cuota < pensionBase ? 'La pensión cubre la cuota mensual del crédito ✅' : 'La cuota supera la pensión — revisa el plazo o el escenario ⚠️'],
+                                [pensionBase - corrida.cuota > 2000, pensionBase - corrida.cuota > 2000 ? `Margen cómodo: ${fmtM(pensionBase - corrida.cuota)}/mes sobrante ✅` : 'Margen ajustado — evalúa con el cliente ⚠️'],
+                              ].map(([ok, txt], i) => (
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', padding: '6px 10px', background: ok ? '#f0fdf4' : '#fff7ed', borderRadius: '6px', color: ok ? '#15803d' : '#92400e' }}>
+                                  {txt as string}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Tabla amortización */}
+                        {corrida && (
+                          <div>
+                            <p style={{ fontSize: '11px', fontWeight: '700', color: '#475569', margin: '0 0 8px', textTransform: 'uppercase' }}>Tabla de amortización — primeros 6 meses de {finPlazo}</p>
+                            <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                                <thead>
+                                  <tr style={{ background: '#F4F6FB' }}>
+                                    {['#', 'Cuota', 'Capital', 'Interés', 'Saldo'].map((h, i) => (
+                                      <th key={i} style={{ padding: '7px 10px', textAlign: i === 0 ? 'center' : 'right', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
+                                    ))}
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {corrida.rows.slice(0, 6).map((r, i) => (
+                                    <tr key={r.mes} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #f1f5f9' }}>
+                                      <td style={{ padding: '6px 10px', textAlign: 'center', color: '#94a3b8', fontWeight: '600' }}>{r.mes}</td>
+                                      <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: '600', color: '#1B3A6B' }}>{fmtM(r.cuota)}</td>
+                                      <td style={{ padding: '6px 10px', textAlign: 'right', color: '#2E8B57' }}>{fmtM(r.capital)}</td>
+                                      <td style={{ padding: '6px 10px', textAlign: 'right', color: '#F05B21' }}>{fmtM(r.interes)}</td>
+                                      <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: '600', color: '#374151' }}>{fmtM(r.saldo)}</td>
+                                    </tr>
+                                  ))}
+                                  <tr style={{ background: '#EEF2F8', borderTop: '2px solid #e2e8f0' }}>
+                                    <td style={{ padding: '7px 10px', textAlign: 'center', fontWeight: '700', color: '#1B3A6B' }}>Tot</td>
+                                    <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: '#1B3A6B' }}>{fmtM(corrida.totalPagado)}</td>
+                                    <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: '#2E8B57' }}>{fmtM(capital)}</td>
+                                    <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: '#F05B21' }}>{fmtM(corrida.totalPagado - capital)}</td>
+                                    <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: '#374151' }}>—</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )
+              })()}
 
               {/* ── TAB PAGOS ── */}
               {modalTab === 'pagos' && (
