@@ -156,7 +156,7 @@ function CalculadoraInner() {
 
   // Tab state
   const [tab, setTab] = useState(0)
-  const TABS = ['Datos generales','Salario 250 sem.','Conservación','Modalidad 40','Modalidad 10','Escenarios','Financiamiento','Resumen']
+  const TABS = ['Datos generales','Salario 250 sem.','Conservación','Modalidad 40','Modalidad 10','Escenarios','Resumen']
 
   // Tab 1 state
   const [datos, setDatos] = useState<DatosGenerales>(DEFAULT_DATOS)
@@ -1243,108 +1243,12 @@ function CalculadoraInner() {
                 })()}
               </>
             )}
-            {navButtons(() => setTab(4), () => setTab(6), 'Siguiente: Financiamiento →')}
+            {navButtons(() => setTab(4), () => setTab(6), 'Siguiente: Resumen →')}
           </div>
         )}
 
-                {/* ══ TAB 6: FINANCIAMIENTO ═══════════════════════════════ */}
+                {/* ══ TAB 7: RESUMEN EJECUTIVO ════════════════════════════ */}
         {tab === 6 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <div style={{ padding: '12px 16px', background: '#EEF2F8', border: '1px solid #bfdbfe', borderRadius: '10px', fontSize: '12px', color: AZUL, lineHeight: 1.6 }}>
-              Si el cliente no puede pagar la Modalidad 40 de contado, una financiera puede adelantar el capital. La pensión obtenida debe superar la cuota mensual del crédito — de lo contrario el financiamiento no es viable.
-            </div>
-
-            {financieras.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '24px', background: '#F4F6FB', borderRadius: '10px', color: '#94a3b8', fontSize: '12px' }}>
-                No hay financieras aliadas configuradas. Agrega financieras en Configuración.
-              </div>
-            ) : (
-              <>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
-                  <div style={cardSt}>
-                    <label style={labelSt}>Financiera aliada</label>
-                    <select style={inputSt} value={finSelId} onChange={e => setFinSelId(e.target.value)}>
-                      {financieras.map(f => <option key={f.id} value={f.id}>{f.nombre} — {f.tasa_anual}% anual</option>)}
-                    </select>
-                  </div>
-                  <div style={cardSt}>
-                    <label style={labelSt}>Capital a financiar</label>
-                    <input type="number" style={numInputSt} value={Math.round(escSel?.inversion_total || 0)} readOnly />
-                    <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>Del escenario seleccionado</p>
-                  </div>
-                  <div style={cardSt}>
-                    <label style={labelSt}>Plazo (meses)</label>
-                    <div style={{ display: 'flex', gap: '6px' }}>
-                      {finSel && [12, 24, 36, 48].filter(p => p >= finSel.plazo_min && p <= finSel.plazo_max).map(p => (
-                        <button key={p} onClick={() => setFinPlazo(p)}
-                          style={{ flex: 1, padding: '8px 4px', borderRadius: '7px', border: `2px solid ${finPlazo === p ? AZUL : '#e2e8f0'}`, background: finPlazo === p ? AZUL : 'white', color: finPlazo === p ? 'white' : '#64748b', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
-                          {p}m
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {corridaFin && escSel && (
-                  <>
-                    {/* KPIs viabilidad */}
-                    <div style={{ ...cardSt, borderLeft: `3px solid ${corridaFin.cuota < (escSel.pension_mensual) ? VERDE : '#ef4444'}` }}>
-                      {sectionTitle('Análisis de viabilidad')}
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '12px' }}>
-                        {kpiBox('Cuota mensual crédito', fmtMXN(corridaFin.cuota), `${finSel?.tasa_anual}% anual · ${finPlazo} meses`, NARANJA)}
-                        {kpiBox('Pensión obtenida', fmtMXN(escSel.pension_mensual), `Escenario ${escSelIdx + 1}`, VERDE)}
-                        {kpiBox('Saldo neto mensual', fmtMXN(escSel.pension_mensual - corridaFin.cuota), 'Pensión − cuota', escSel.pension_mensual > corridaFin.cuota ? VERDE : '#ef4444')}
-                        {kpiBox('Total a pagar', fmtMXN(corridaFin.totalPagado), `Capital + intereses`, '#64748b')}
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                        {semaforo(corridaFin.cuota < escSel.pension_mensual, corridaFin.cuota < escSel.pension_mensual ? 'La pensión cubre la cuota mensual del crédito' : 'La cuota supera la pensión — revisar plazo o escenario')}
-                        {semaforo(escSel.pension_mensual - corridaFin.cuota > 2000, escSel.pension_mensual - corridaFin.cuota > 2000 ? `Margen cómodo: ${fmtMXN(escSel.pension_mensual - corridaFin.cuota)}/mes sobrante` : 'Margen ajustado — evaluar con el cliente')}
-                      </div>
-                    </div>
-
-                    {/* Tabla amortización */}
-                    <div style={cardSt}>
-                      {sectionTitle('Tabla de amortización', `Primeros 6 meses de ${finPlazo} · tabla completa en PDF`)}
-                      <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', tableLayout: 'fixed' }}>
-                          <thead>
-                            <tr style={{ background: '#F4F6FB' }}>
-                              {['#', 'Cuota', 'Capital', 'Interés', 'Saldo'].map((h, i) => (
-                                <th key={i} style={{ padding: '7px 10px', textAlign: i === 0 ? 'center' : 'right', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0', borderRight: i < 4 ? '1px solid #f1f5f9' : 'none' }}>{h}</th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {corridaFin.rows.slice(0, 6).map((r, i) => (
-                              <tr key={r.mes} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #f1f5f9' }}>
-                                <td style={{ padding: '6px 10px', textAlign: 'center', color: '#94a3b8', fontWeight: '600', borderRight: '1px solid #f1f5f9' }}>{r.mes}</td>
-                                <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: '600', color: AZUL, borderRight: '1px solid #f1f5f9' }}>{fmtMXN(r.cuota)}</td>
-                                <td style={{ padding: '6px 10px', textAlign: 'right', color: VERDE, borderRight: '1px solid #f1f5f9' }}>{fmtMXN(r.capital)}</td>
-                                <td style={{ padding: '6px 10px', textAlign: 'right', color: NARANJA, borderRight: '1px solid #f1f5f9' }}>{fmtMXN(r.interes)}</td>
-                                <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: '600', color: '#374151' }}>{fmtMXN(r.saldo)}</td>
-                              </tr>
-                            ))}
-                            <tr style={{ background: '#EEF2F8', borderTop: '2px solid #e2e8f0' }}>
-                              <td style={{ padding: '7px 10px', textAlign: 'center', fontWeight: '700', color: AZUL, borderRight: '1px solid #e2e8f0' }}>Tot</td>
-                              <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: AZUL, borderRight: '1px solid #e2e8f0' }}>{fmtMXN(corridaFin.totalPagado)}</td>
-                              <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: VERDE, borderRight: '1px solid #e2e8f0' }}>{fmtMXN(escSel.inversion_total)}</td>
-                              <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: NARANJA, borderRight: '1px solid #e2e8f0' }}>{fmtMXN(corridaFin.totalPagado - escSel.inversion_total)}</td>
-                              <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: '#374151' }}>—</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </>
-            )}
-            {navButtons(() => setTab(5), () => setTab(7), 'Siguiente: Resumen ejecutivo →')}
-          </div>
-        )}
-
-        {/* ══ TAB 7: RESUMEN EJECUTIVO ════════════════════════════ */}
-        {tab === 7 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {mensaje && <div style={{ padding: '10px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', fontSize: '12px', fontWeight: '600', color: VERDE }}>{mensaje}</div>}
 
