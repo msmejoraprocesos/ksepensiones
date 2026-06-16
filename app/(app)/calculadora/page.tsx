@@ -113,12 +113,21 @@ function calcCorrida(capital: number, tasaAnual: number, plazo: number) {
   return { cuota, totalPagado: cuota * plazo, rows }
 }
 
-function calcConservacion(semanas: number, mesesDesdeUltimaCot: number): { vigente: boolean; indefinida: boolean; venceEn: number | null } {
-  if (semanas >= 500) return { vigente: true, indefinida: true, venceEn: null }
-  if (semanas < 150) return { vigente: false, indefinida: false, venceEn: 0 }
-  const mesesConservacion = Math.floor(semanas / 2 / 4.33) // semanas/2 → en meses
+function calcConservacion(semanas: number, mesesDesdeUltimaCot: number): { vigente: boolean; indefinida: boolean; venceEn: number | null; semanasConservacion: number } {
+  // Art. 183 LSS 1973: La conservación de derechos equivale a 1/4 del total de semanas cotizadas
+  // contado a partir de la última baja. No hay mínimo de semanas para la fórmula, pero sí para pensión (500 sem).
+  // Fórmula: semanas_conservacion = semanas_cotizadas / 4
+  // Las semanas se convierten a meses para comparar con mesesDesdeUltimaCot
+  const semanasConservacion = Math.floor(semanas / 4)
+  const mesesConservacion = Math.round(semanasConservacion / 4.33)
   const mesesRestantes = mesesConservacion - mesesDesdeUltimaCot
-  return { vigente: mesesRestantes > 0, indefinida: false, venceEn: Math.max(0, mesesRestantes) }
+  const vigente = mesesRestantes > 0
+  return {
+    vigente,
+    indefinida: false, // La Ley 73 no establece conservación indefinida
+    venceEn: vigente ? Math.max(0, mesesRestantes) : 0,
+    semanasConservacion,
+  }
 }
 
 // ── DEFAULTS ────────────────────────────────────────────────────────
@@ -738,7 +747,7 @@ function CalculadoraInner() {
                 <div style={{ ...cardSt, borderLeft: `3px solid ${color}` }}>
                   {sectionTitle('Estado de conservación de derechos')}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '14px' }}>
-                    {kpiBox('Estado', cons.vigente ? 'Vigente' : 'Vencido', cons.indefinida ? 'Sin límite de tiempo' : cons.venceEn ? `${cons.venceEn} meses restantes` : 'Derechos perdidos', color)}
+                    {kpiBox('Estado', cons.vigente ? 'Vigente' : 'Vencido', cons.venceEn ? `${cons.venceEn} meses restantes (${cons.semanasConservacion} sem de conservación)` : 'Período vencido', color)}
                     {kpiBox('Semanas cotizadas', datos.semanas_totales.toLocaleString(), 'total histórico', datos.semanas_totales >= 500 ? VERDE : '#f59e0b')}
                     {kpiBox('Plazo de conservación', cons.indefinida ? 'Indefinido' : cons.venceEn !== null ? `${cons.venceEn} meses` : 'Sin conservación', cons.indefinida ? '500+ semanas' : 'Art. 182 LSS')}
                     {kpiBox('Meses desde última cot.', mesesDesde.toString(), fechaUltimaCot ? new Date(fechaUltimaCot).toLocaleDateString('es-MX', { month: 'short', year: 'numeric' }) : '—')}
