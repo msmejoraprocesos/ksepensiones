@@ -776,6 +776,7 @@ function CalculadoraInner() {
 
             {/* ── NIVEL 2: Recuperación de derechos (Arts. 150, 151 y 152) ── */}
             {(() => {
+              const mesesDesde = fechaUltimaCot ? Math.floor((Date.now() - new Date(fechaUltimaCot).getTime()) / (30 * 86400000)) : 0
               const aniosSinCotizan = mesesDesde / 12
               let recuperacion: { tipo: string; color: string; bg: string; descripcion: string; accion: string }
               if (mesesDesde === 0) {
