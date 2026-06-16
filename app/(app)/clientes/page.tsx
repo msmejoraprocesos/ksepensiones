@@ -1567,9 +1567,9 @@ function ClientesInner() {
                             </div>
                           ))}
                         </div>
-                        {d.inversion_mod40 > 0 && (
+                        {(d.inversion_mod40 ?? 0) > 0 && (
                           <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '8px', padding: '5px 8px', background: 'white', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
-                            💰 Inversión Mod 40: {fmtMXN(d.inversion_mod40)} total
+                            💰 Inversión Mod 40: {fmtMXN(d.inversion_mod40 ?? 0)} total
                             {d.mod40_umas && d.mod40_meses && <span> · {d.mod40_umas} UMAs · {d.mod40_meses} meses</span>}
                           </div>
                         )}
