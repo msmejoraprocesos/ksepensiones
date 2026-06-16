@@ -198,6 +198,16 @@ interface Diagnostico {
   id: string; ley: string; semanas: number; edad_retiro: number; ingreso_deseado: number | null
   resultado_e1: number | null; resultado_e2: number | null; resultado_e3: number | null; resultado_e4: number | null
   created_at: string; notas: string | null; analisis_narrativo: any | null; salario_diario: number | null
+  // Nuevas columnas flujo Borrador/Autorizado
+  estatus: string | null
+  escenario_elegido: string | null
+  ingreso_objetivo: number | null
+  mod40_umas: number | null
+  mod40_meses: number | null
+  fecha_autorizacion: string | null
+  pension_sin_mod40: number | null
+  pension_con_mod40: number | null
+  inversion_mod40: number | null
 }
 
 interface Actividad {
