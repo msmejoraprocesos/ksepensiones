@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, Suspense } from 'react'
 import { createClient } from '@/utils/supabase/client'
+import { generarPDFProyecto } from '@/app/utils/pdf-generator'
 import { useSearchParams, useRouter } from 'next/navigation'
 
 const AZUL = '#1B3A6B'
@@ -301,6 +302,39 @@ function ClientesInner() {
     })
     if (searchParams.get('nuevo') === 'true') { setShowNuevo(true); router.replace('/clientes') }
   }, [])
+
+  async function generarPDFDesdeDiag(d: Diagnostico) {
+    const p = d.params_json as any
+    if (!p) return
+    try {
+      const analisisParsed = d.analisis_narrativo
+        ? (() => { try { return JSON.parse(d.analisis_narrativo) } catch { return [] } })()
+        : []
+      const doc = await generarPDFProyecto({
+        datos: p.datos || {},
+        periodos: p.periodos || [],
+        sdiPromedio: p.sdiPromedio || 0,
+        escenarios: p.escenarios || [],
+        escSelIdx: p.escElegidoIdx ?? 0,
+        corridaFin: undefined,
+        finSel: undefined,
+        finPlazo: 24,
+        analisis: Array.isArray(analisisParsed) ? analisisParsed : [],
+        logoUrl: userIdRef.current ? undefined : undefined,
+        razonSocial: undefined,
+        asesorNombre: undefined,
+        ingresoObjetivo: p.ingresoObjetivo || undefined,
+        esBorrador: d.estatus !== 'autorizado',
+      })
+      const nombre = (p.datos?.nombre_trabajador || p.datos?.nombre || 'cliente').replace(/\s+/g, '_')
+      const sufijo = d.estatus === 'autorizado' ? '_OFICIAL' : '_BORRADOR'
+      const fecha  = new Date(d.created_at).toISOString().slice(0, 10)
+      doc.save(`Proyecto_Pension_${nombre}_${fecha}${sufijo}.pdf`)
+    } catch (err) {
+      console.error('Error generando PDF desde diagnóstico:', err)
+      alert('Error al generar el PDF. Intenta desde la calculadora.')
+    }
+  }
 
   async function loadClientes(uid: string) {
     setLoading(true)
@@ -1791,10 +1825,10 @@ function ClientesInner() {
                               🔒 Diagnóstico oficial — inmutable
                             </div>
                           )}
-                          {analisis && (
-                            <button onClick={() => verAnalisis(d, idx, analisis, selected.nombre)}
-                              style={{ flex: 1, padding: '7px', background: '#f0fdf4', color: VERDE, border: '1px solid #bbf7d0', borderRadius: '7px', fontSize: '11px', fontWeight: '600', cursor: 'pointer' }}>
-                              📄 Ver análisis
+                          {d.params_json && (
+                            <button onClick={() => generarPDFDesdeDiag(d)}
+                              style={{ flex: 1, padding: '7px', background: d.estatus === 'autorizado' ? '#f0fdf4' : '#fffbeb', color: d.estatus === 'autorizado' ? VERDE : '#92400e', border: `1px solid ${d.estatus === 'autorizado' ? '#bbf7d0' : '#fde68a'}`, borderRadius: '7px', fontSize: '11px', fontWeight: '600', cursor: 'pointer' }}>
+                              📄 {d.estatus === 'autorizado' ? 'PDF oficial' : 'PDF borrador'}
                             </button>
                           )}
                         </div>
