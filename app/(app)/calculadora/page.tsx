@@ -851,6 +851,10 @@ function CalculadoraInner() {
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '11px', background: '#1B3A6B', color: 'white', borderRadius: '10px', textDecoration: 'none', fontSize: '13px', fontWeight: '700' }}>
               ＋ Registrar nuevo cliente
             </a>
+            <a href="/"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '9px', background: '#F8FAFC', color: '#64748b', borderRadius: '10px', textDecoration: 'none', fontSize: '12px', fontWeight: '600', border: '1px solid #e2e8f0' }}>
+              ← Salir — ir a mi día
+            </a>
           </div>
         </div>
       )}
