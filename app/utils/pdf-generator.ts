@@ -249,10 +249,10 @@ export async function generarPDFProyecto(params: {
       doc.rect(chartX, rowY + 1.5, barLen, barH - 3, 'F')
       // Highlight accent stripe
       if (item.highlight) { setF(NARANJA); doc.rect(chartX, rowY + 1.5, 2.5, barH - 3, 'F') }
-      // Value label
-      doc.setFontSize(7.5); doc.setFont('helvetica', 'bold')
+      // Value label — larger for highlighted scenario
+      doc.setFontSize(item.highlight ? 9 : 8); doc.setFont('helvetica', 'bold')
       setC(item.highlight ? HC : '#374151')
-      t(fmtMXN(item.value), W - MR - 2, rowY + barH * 0.65, { align: 'right' })
+      t(fmtMXN(item.value) + '/mes', W - MR - 2, rowY + barH * 0.65, { align: 'right' })
     })
     y += items.length * (barH + gap) + 4
 
