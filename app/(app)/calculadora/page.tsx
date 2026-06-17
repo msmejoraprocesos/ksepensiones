@@ -1770,6 +1770,9 @@ function CalculadoraInner() {
             {analisis.length > 0 && (
               <div style={cardSt}>
                 {sectionTitle('Análisis narrativo — Resumen ejecutivo', 'Generado por IA · Editable por el asesor')}
+                <div style={{ padding: '10px 14px', background: '#F5F3FF', border: '1px solid #ddd6fe', borderRadius: '8px', fontSize: '12px', color: '#6d28d9', lineHeight: 1.6, marginBottom: '4px' }}>
+                  <strong>✏️ Este análisis es editable.</strong> El texto generado por IA es un punto de partida — puedes complementar, ajustar o depurar cualquier sección directamente en los campos de texto antes de guardar y generar el PDF. Los cambios se guardan junto con el diagnóstico.
+                </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {analisis.map((sec, i) => (
                     <div key={i} style={{ borderBottom: i < analisis.length - 1 ? '1px solid #f1f5f9' : 'none', paddingBottom: i < analisis.length - 1 ? '12px' : 0 }}>
