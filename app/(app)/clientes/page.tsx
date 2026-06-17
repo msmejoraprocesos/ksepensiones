@@ -260,6 +260,7 @@ function ClientesInner() {
   // Financiamiento state
   const [finSelId, setFinSelId] = useState('')
   const [finPlazo, setFinPlazo] = useState(24)
+  const [diagFinId, setDiagFinId] = useState('')
   const [financieras, setFinancieras] = useState<{id: string; nombre: string; tasa_anual: number; plazo_min: number; plazo_max: number; monto_min: number; monto_max: number}[]>([])
 
   const [showNuevo, setShowNuevo] = useState(false)
@@ -335,6 +336,7 @@ function ClientesInner() {
     setDiagnosticos([])
     setActividades([])
     setServicios([])
+    setDiagFinId('')
     // Load financieras
     if (userIdRef.current) {
       supabase.from('financieras').select('*').eq('asesor_id', userIdRef.current).then(({ data }) => {
@@ -1352,10 +1354,10 @@ function ClientesInner() {
 
               {/* ── TAB FINANCIAMIENTO ── */}
               {modalTab === 'financiamiento' && (() => {
-                // Get most recent authorized diagnostico capital
-                const diagAuth = diagnosticos.find(d => d.estatus === 'autorizado') ?? diagnosticos[0]
-                const capitalBase = diagAuth?.inversion_mod40 ?? 0
-                const pensionBase = diagAuth?.pension_con_mod40 ?? 0
+                // Asesor elige el diagnóstico base
+                const diagSel = diagnosticos.find(d => d.id === diagFinId) ?? null
+                const capitalBase = diagSel?.inversion_mod40 ?? 0
+                const pensionBase = diagSel?.pension_con_mod40 ?? 0
                 const finSel = financieras.find(f => f.id === finSelId)
 
                 // Corrida financiera
@@ -1381,26 +1383,58 @@ function ClientesInner() {
                     {/* Info banner */}
                     <div style={{ padding: '10px 14px', background: '#EEF2F8', border: '1px solid #bfdbfe', borderRadius: '8px', fontSize: '12px', color: '#1B3A6B', lineHeight: 1.6 }}>
                       Si el cliente no puede pagar la Modalidad 40 de contado, una financiera puede adelantar el capital. La pensión obtenida debe superar la cuota mensual del crédito.
-                      {diagAuth && <span style={{ fontWeight: '700' }}> Basado en diagnóstico del {new Date(diagAuth.created_at).toLocaleDateString('es-MX')}.</span>}
                     </div>
 
-                    {/* Capital y pensión del diagnóstico */}
-                    {diagAuth && (
+                    {/* Selector de diagnóstico base */}
+                    <div>
+                      <label style={{ fontSize: '10px', fontWeight: '700', color: '#475569', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        1. Selecciona el diagnóstico base
+                      </label>
+                      {diagnosticos.filter(d => (d.inversion_mod40 ?? 0) > 0).length === 0 ? (
+                        <div style={{ padding: '12px 14px', background: '#FFF7ED', border: '1px solid #fed7aa', borderRadius: '8px', fontSize: '12px', color: '#92400e' }}>
+                          Ningún diagnóstico tiene inversión de Mod 40 registrada. Corre la calculadora y guarda un diagnóstico con escenario de Modalidad 40.
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          {diagnosticos.filter(d => (d.inversion_mod40 ?? 0) > 0).map((d, i) => (
+                            <button key={d.id} onClick={() => setDiagFinId(d.id)}
+                              style={{ padding: '10px 14px', border: `2px solid ${diagFinId === d.id ? '#1B3A6B' : '#e2e8f0'}`, borderRadius: '8px', background: diagFinId === d.id ? '#EEF2F8' : 'white', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px', background: d.estatus === 'autorizado' ? '#dcfce7' : '#f1f5f9', color: d.estatus === 'autorizado' ? '#15803d' : '#64748b' }}>
+                                    {d.estatus === 'autorizado' ? '✅ Autorizado' : '📝 Borrador'}
+                                  </span>
+                                  <span style={{ fontSize: '11px', color: '#64748b' }}>{new Date(d.created_at).toLocaleDateString('es-MX')}</span>
+                                  {d.escenario_elegido && <span style={{ fontSize: '11px', color: '#1B3A6B', fontWeight: '600' }}>{d.escenario_elegido}</span>}
+                                </div>
+                                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                                  <span style={{ fontSize: '13px', fontWeight: '700', color: '#1B3A6B' }}>{fmtM(d.inversion_mod40 ?? 0)}</span>
+                                  <span style={{ fontSize: '12px', color: '#2E8B57', fontWeight: '600' }}>{fmtM(d.pension_con_mod40 ?? 0)}/mes</span>
+                                </div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Capital y pensión del diagnóstico seleccionado */}
+                    {diagSel && (
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                         <div style={{ background: '#F8FAFC', borderRadius: '10px', padding: '12px', border: '1px solid #e2e8f0' }}>
                           <p style={{ fontSize: '10px', color: '#94a3b8', margin: '0 0 4px', textTransform: 'uppercase', fontWeight: '700' }}>Capital a financiar (Mod 40)</p>
                           <p style={{ fontSize: '20px', fontWeight: '700', color: '#1B3A6B', margin: 0 }}>{fmtM(capitalBase)}</p>
-                          <p style={{ fontSize: '10px', color: '#94a3b8', margin: '3px 0 0' }}>Del diagnóstico {diagAuth.estatus === 'autorizado' ? '✅ autorizado' : '📝 borrador'}</p>
+                          <p style={{ fontSize: '10px', color: '#94a3b8', margin: '3px 0 0' }}>Del diagnóstico seleccionado</p>
                         </div>
                         <div style={{ background: '#F0FDF4', borderRadius: '10px', padding: '12px', border: '1px solid #bbf7d0' }}>
                           <p style={{ fontSize: '10px', color: '#94a3b8', margin: '0 0 4px', textTransform: 'uppercase', fontWeight: '700' }}>Pensión estimada</p>
                           <p style={{ fontSize: '20px', fontWeight: '700', color: '#2E8B57', margin: 0 }}>{fmtM(pensionBase)}/mes</p>
-                          <p style={{ fontSize: '10px', color: '#94a3b8', margin: '3px 0 0' }}>Escenario elegido</p>
+                          <p style={{ fontSize: '10px', color: '#94a3b8', margin: '3px 0 0' }}>Escenario elegido en el diagnóstico</p>
                         </div>
                       </div>
                     )}
 
-                    {financieras.length === 0 ? (
+                    {!diagSel ? null : financieras.length === 0 ? (
                       <div style={{ textAlign: 'center', padding: '24px', background: '#F4F6FB', borderRadius: '10px', color: '#94a3b8', fontSize: '12px' }}>
                         No hay financieras configuradas. Agrega financieras en Configuración → Financieras aliadas.
                       </div>
