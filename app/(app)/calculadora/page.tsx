@@ -22,7 +22,7 @@ interface SysVars {
   mod40_pct?: number
 }
 
-interface Cliente { id: string; nombre: string }
+interface Cliente { id: string; nombre: string; etapa_kanban?: string; telefono?: string }
 interface Financiera { id: string; nombre: string; tasa_anual: number; plazo_min: number; plazo_max: number; monto_min: number; monto_max: number; comision_apertura: number; seguro_mensual: number; contacto_nombre: string | null; contacto_email: string | null; contacto_telefono: string | null }
 
 interface PeriodoSalarial {
@@ -726,7 +726,7 @@ function CalculadoraInner() {
                     </div>
                     <div>
                       <div style={{ fontSize: '13px', fontWeight: '600', color: '#1e293b' }}>{c.nombre}</div>
-                      <div style={{ fontSize: '11px', color: '#94a3b8' }}>{c.etapa_kanban}</div>
+                      <div style={{ fontSize: '11px', color: '#94a3b8' }}>{c.etapa_kanban ?? 'prospecto'}{c.telefono ? ` · ${c.telefono}` : ''}</div>
                     </div>
                   </button>
                 ))
