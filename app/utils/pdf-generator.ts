@@ -70,7 +70,16 @@ export async function generarPDFProyecto(params: {
 
   // ── Page management
   const checkPage = (needed = 30) => { if (y + needed > H - 18) newPage() }
-  const newPage   = () => { doc.addPage(); y = 22; addHeader() }
+  const newPage   = () => {
+    doc.addPage(); y = 22; addHeader()
+    if (esBorrador) {
+      doc.saveGraphicsState()
+      try { doc.setGState(new (doc as any).GState({ opacity: 0.06 })) } catch(_) {}
+      doc.setFontSize(48); doc.setFont('helvetica', 'bold'); setC(ROJO)
+      t('BORRADOR', W / 2, H / 2, { align: 'center', angle: 35 })
+      doc.restoreGraphicsState()
+    }
+  }
 
   // ── Running header (pages 2+)
   function addHeader() {
@@ -388,18 +397,15 @@ export async function generarPDFProyecto(params: {
     const edadFinMod = Math.round(edadA + mMod / 12)
     // Build steps: always Hoy + fin Mod40 + cesantía(62) + vejez(65)
     // Avoid duplicate or out-of-order ages
-    const tlSteps = [
-      { lbl: 'Hoy (' + edadA + ' años)', desc: 'Verificar semanas en portal IMSS', color: NARANJA },
-      { lbl: edadFinMod + ' años', desc: 'Alta Mod 40 - ' + fmtMXN(escSel?.costo_mensual_mod40 || 0) + '/mes', color: HC },
-      { lbl: '62 años', desc: 'Solicitar cesantía IMSS', color: HC },
-      { lbl: '65 años', desc: 'Pensión vejez - ' + fmtMXN(escSel?.pension_mensual || 0) + '/mes', color: VERDE },
-    ].filter((s, i, arr) => {
-      // Remove duplicates or steps that are out of order
-      if (i === 0) return true
-      const prevAge = parseInt(arr[i-1].lbl)
-      const thisAge = parseInt(s.lbl)
-      return isNaN(prevAge) || isNaN(thisAge) || thisAge > prevAge
-    })
+    // Build 4 chronological hitos — edadFinMod is when Mod40 payments end
+    const hitos: {lbl: string; desc: string; color: string; age: number}[] = [
+      { lbl: 'Hoy (' + edadA + ' años)', desc: 'Verificar semanas IMSS', color: NARANJA, age: edadA },
+      { lbl: edadFinMod + ' anos', desc: 'Alta Mod 40 ' + fmtMXN(escSel?.costo_mensual_mod40 || 0) + '/mes', color: HC, age: edadFinMod },
+      { lbl: '65 anos', desc: 'Pension vejez ' + fmtMXN(escSel?.pension_mensual || 0) + '/mes', color: VERDE, age: 65 },
+    ]
+    // Insert cesantia at 60 only if it falls between Mod40 end and 65
+    if (edadFinMod < 60) hitos.splice(2, 0, { lbl: '60 anos', desc: 'Solicitar cesantia IMSS', color: HC, age: 60 })
+    const tlSteps = hitos.sort((a,b) => a.age - b.age).filter((s,i,arr) => i===0 || s.age > arr[i-1].age).map(({lbl,desc,color}) => ({lbl,desc,color}))
     const tlY = y + 6
     const stepW2 = (W - ML - MR) / tlSteps.length
     // Line
@@ -604,13 +610,13 @@ export async function generarPDFProyecto(params: {
       { label: 'Cuota mensual (22%)', value: fmtMXN(escM10.costo_mensual_mod40), color: VERDE },
       { label: 'Inversión total', value: fmtMXN(escM10.inversion_total), color: NARANJA },
       { label: 'Pensión estimada', value: fmtMXN(escM10.pension_mensual) + '/mes', color: VERDE },
-      { label: 'Costo extra vs Mod 40', value: '+' + fmtMXN(difM) + '/mes', color: '#f97316', sub: 'por servicio médico + Infonavit + guarderías' },
+      { label: 'Costo extra vs Mod 40', value: fmtMXN(difM) + '/mes mas cara', color: '#f97316', sub: 'por servicio médico + Infonavit + guarderías' },
     ])
     subTitle('Comparativa Modalidad 10 vs Modalidad 40')
     const wsM10 = [52, 36, 36, 36, 20]
     tHead(['Concepto', 'Modalidad 10', 'Modalidad 40', 'Diferencia', 'Extra'], wsM10)
     const compRows = [
-      ['Cuota mensual', fmtMXN(escM10.costo_mensual_mod40), fmtMXN(cuotaM40ref), '+' + fmtMXN(difM) + ' mas cara', ''],
+      ['Cuota mensual', fmtMXN(escM10.costo_mensual_mod40), fmtMXN(cuotaM40ref), fmtMXN(difM) + ' mas cara', ''],
       ['Inversión total', fmtMXN(escM10.inversion_total), fmtMXN(escSel?.inversion_total || 0), '+' + fmtMXN(escM10.inversion_total - (escSel?.inversion_total || 0)), ''],
       ['Pensión estimada', fmtMXN(escM10.pension_mensual) + '/mes', fmtMXN(escSel?.pension_mensual || 0) + '/mes', '= mismo monto', ''],
       ['Servicio médico IMSS', 'Sí ✓', 'No ✗', '', '✓'],
@@ -683,16 +689,17 @@ export async function generarPDFProyecto(params: {
   const numSec8 = escM10 ? '8' : analisis.length > 0 ? '7' : '6'
   sectionTitle(numSec8, 'PRÓXIMOS PASOS')
 
-  // Build timeline from data
+  // Build 4 chronological hitos for section 8
   const edadActual   = datos.edad_actual || 60
   const mesesMod40   = escSel?.mod40_meses || 0
-  const edadFinMod40 = Math.round((edadActual + mesesMod40 / 12) * 10) / 10
-  const steps: {label: string; desc: string; color: string}[] = [
-    { label: 'Hoy', desc: 'Inicio Mod 40\n' + fmtMXN(escSel?.costo_mensual_mod40 || 0) + '/mes', color: NARANJA },
+  const edadFinMod40 = Math.round(edadActual + mesesMod40 / 12)
+  const hitosS8: {label: string; desc: string; color: string; age: number}[] = [
+    { label: 'Hoy (' + edadActual + ' anos)', desc: 'Verificar semanas en portal IMSS', color: NARANJA, age: edadActual },
+    { label: edadFinMod40 + ' anos', desc: 'Alta Mod 40: ' + fmtMXN(escSel?.costo_mensual_mod40 || 0) + '/mes', color: HC, age: edadFinMod40 },
+    { label: '65 anos', desc: 'Pension vejez: ' + fmtMXN(escSel?.pension_mensual || 0) + '/mes', color: VERDE, age: 65 },
   ]
-  if (mesesMod40 >= 12) steps.push({ label: edadFinMod40.toFixed(0) + ' años', desc: 'Fin cotización\nInversión completa', color: HC })
-  steps.push({ label: '60 años', desc: 'Cesantía\n(si aplica)', color: HC })
-  steps.push({ label: '65 años', desc: 'Vejez\n' + fmtMXN(escSel?.pension_mensual || 0) + '/mes', color: VERDE })
+  if (edadFinMod40 < 60) hitosS8.splice(2, 0, { label: '60 anos', desc: 'Solicitar cesantia IMSS', color: HC, age: 60 })
+  const steps = hitosS8.sort((a,b) => a.age - b.age).filter((s,i,arr) => i===0 || s.age > arr[i-1].age).map(({label,desc,color}) => ({label,desc,color}))
 
   timeline(steps)
 
