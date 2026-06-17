@@ -439,25 +439,37 @@ function CalculadoraInner() {
 
   // ── Generar PDF completo
   async function exportarPDF() {
-    if (!escSel || !diagGuardadoId) return
+    if (!diagGuardadoId) return
     const esBorrador = estatus === 'borrador'
-    const doc = generarPDFProyecto({
-      datos,
-      periodos,
-      sdiPromedio,
-      escenarios,
-      escSelIdx: escElegidoIdx >= 0 ? escElegidoIdx : escSelIdx,
-      corridaFin: corridaFin ?? undefined,
-      finSel: finSel ?? undefined,
-      finPlazo,
-      analisis,
-      logoUrl: asesorPerfil?.logo_url ?? undefined,
-      razonSocial: asesorPerfil?.razon_social ?? undefined,
-      asesorNombre: asesorPerfil?.nombre ?? undefined,
-    })
-    const nombre = datos.nombre?.replace(/\s+/g, '_') || 'cliente'
-    const sufijo = esBorrador ? '_BORRADOR' : '_OFICIAL'
-    doc.save(`Proyecto_Pension_${nombre}_${new Date().toISOString().slice(0,10)}${sufijo}.pdf`)
+    const idxToUse = escElegidoIdx >= 0 ? escElegidoIdx : escSelIdx
+    const escToUse = escenarios[idxToUse] ?? escenarios.find(e => e.recomendado) ?? escenarios[0]
+    if (!escToUse) { setMensaje('⚠️ Selecciona un escenario antes de generar el PDF'); setTimeout(() => setMensaje(''), 4000); return }
+    try {
+      const doc = generarPDFProyecto({
+        datos,
+        periodos,
+        sdiPromedio,
+        escenarios,
+        escSelIdx: idxToUse,
+        corridaFin: corridaFin ?? undefined,
+        finSel: finSel ?? undefined,
+        finPlazo,
+        analisis,
+        logoUrl: asesorPerfil?.logo_url ?? undefined,
+        razonSocial: asesorPerfil?.razon_social ?? undefined,
+        asesorNombre: asesorPerfil?.nombre ?? undefined,
+        ingresoObjetivo: ingresoObjetivo || undefined,
+      })
+      const nombre = (datos.nombre_trabajador || datos.nombre)?.replace(/\s+/g, '_') || 'cliente'
+      const sufijo = esBorrador ? '_BORRADOR' : '_OFICIAL'
+      doc.save(`Proyecto_Pension_${nombre}_${new Date().toISOString().slice(0,10)}${sufijo}.pdf`)
+      setMensaje(esBorrador ? '📄 PDF borrador generado' : '📄 PDF oficial generado')
+      setTimeout(() => setMensaje(''), 4000)
+    } catch (err) {
+      console.error('Error generando PDF:', err)
+      setMensaje('❌ Error al generar el PDF. Revisa la consola.')
+      setTimeout(() => setMensaje(''), 5000)
+    }
   }
 
   // ── Generar análisis IA
