@@ -645,114 +645,19 @@ cesantía IMSS', color: HC },
   })
   y += 8
 
-  // Bar chart with objective line
+  // Bar chart — real proportional bars
   subTitle('Comparativa visual de pensión mensual por escenario')
   const maxPension = Math.max(...escenarios.map((e: any) => e.pension_mensual || 0), ingresoObjetivo || 0)
-  const chartBarW  = W - ML - MR - 58
   const barColors  = ['#94a3b8', '#3b82f6', '#eab308', '#f97316', HC, '#7c3aed']
-  const barH2 = 9, gap2 = 4
-  checkPage(escenarios.length * (barH2 + gap2) + 20)
-  const chartStartY = y
-  escenarios.forEach((esc: any, i: number) => {
-    const isEl = i === escSelIdx || (escSelIdx < 0 && esc.recomendado)
-    const pct  = Math.min((esc.pension_mensual || 0) / maxPension, 1)
-    const bLen = Math.max(pct * chartBarW, 2)
-    doc.setFontSize(7); doc.setFont('helvetica', isEl ? 'bold' : 'normal'); setC(isEl ? HC : GRIS)
-    const lbl2 = doc.splitTextToSize(esc.label, 55)
-    t(lbl2[0], ML, y + 6)
-    const [rb2,gb2,bb2] = hexToRgb(barColors[i] || HC)
-    doc.setFillColor(rb2,gb2,bb2); doc.rect(ML + 57, y + 1, bLen, barH2 - 2, 'F')
-    if (isEl) { setF(NARANJA); doc.rect(ML + 57, y + 1, 2.5, barH2 - 2, 'F') }
-    doc.setFontSize(7); doc.setFont('helvetica', 'bold'); setC(isEl ? HC : (barColors[i] || GRIS))
-    t(fmtMXN(esc.pension_mensual || 0) + '/mes', ML + 57 + bLen + 3, y + 6)
-    y += barH2 + gap2
-  })
-  // Objective line (red dashed)
-  if (ingresoObjetivo && ingresoObjetivo > 0) {
-    const objPct = Math.min(ingresoObjetivo / maxPension, 1)
-    const objX   = ML + 57 + objPct * chartBarW
-    setS(ROJO); doc.setLineWidth(0.4)
-    doc.setLineDashPattern([1.5, 1.5], 0)
-    doc.line(objX, chartStartY, objX, y)
-    doc.setLineDashPattern([], 0)
-    doc.setFontSize(6.5); doc.setFont('helvetica', 'bold'); setC(ROJO)
-    t('Objetivo', objX + 1, chartStartY + 4)
-    t(fmtMXN(ingresoObjetivo), objX + 1, chartStartY + 8)
-    y += 6
-    const pctAlcanza = Math.round((escSel.pension_mensual / ingresoObjetivo) * 100)
-    if (pctAlcanza >= 100) alertChip('✓ El escenario elegido alcanza el objetivo de ' + fmtMXN(ingresoObjetivo) + '/mes (' + pctAlcanza + '%)', 'success')
-    else alertChip('⚠ El escenario elegido cubre el ' + pctAlcanza + '% del objetivo — faltan ' + fmtMXN(ingresoObjetivo - escSel.pension_mensual) + '/mes', pctAlcanza >= 70 ? 'warning' : 'danger')
-  } else { y += 4 }
+  barChart(
+    escenarios.map((esc: any, i: number) => ({
+      label: esc.label,
+      value: esc.pension_mensual || 0,
+      color: barColors[i] || HC,
+      highlight: i === escSelIdx || (escSelIdx < 0 && esc.recomendado),
+    })),
+    maxPension,
+    ingresoObjetivo ?? undefined
+  )
 
-  // ══════════════════════════════════════════════════
-  // SECCIÓN 7 — ANÁLISIS EJECUTIVO
-  // ══════════════════════════════════════════════════
-  if (analisis.length > 0) {
-    newPage()
-    const numSec7 = escM10 ? '7' : '6'
-    sectionTitle(numSec7, 'ANÁLISIS EJECUTIVO DEL PROYECTO DE PENSIÓN')
-    // Skip "Próximos pasos" section — it lives in sección 8
-    analisis
-      .filter((sec: any) => !sec.titulo?.toLowerCase().includes('paso') && !sec.titulo?.toLowerCase().includes('siguiente'))
-      .forEach((sec: any) => {
-        checkPage(30)
-        subTitle(sec.titulo || '')
-        bodyText(sec.contenido || '')
-      })
-  }
-
-  // ══════════════════════════════════════════════════
-  // SECCIÓN 8 — PRÓXIMOS PASOS (timeline)
-  // ══════════════════════════════════════════════════
-  checkPage(60)
-  const numSec8 = escM10 ? '8' : analisis.length > 0 ? '7' : '6'
-  sectionTitle(numSec8, 'PRÓXIMOS PASOS')
-
-  // Timeline — 4 hitos cronológicos sin duplicados
-  const edadActual   = datos.edad_actual || 60
-  const mesesMod40   = escSel?.mod40_meses || 0
-  const edadFinMod40 = Math.round(edadActual + mesesMod40 / 12)
-  const stepsRaw2: {label: string; desc: string; color: string; age: number}[] = [
-    { label: 'Hoy (' + edadActual + ' años)', desc: 'Verificar semanas\nen portal IMSS', color: NARANJA, age: edadActual },
-    { label: edadFinMod40 + ' años', desc: 'Alta Mod 40\n' + fmtMXN(escSel?.costo_mensual_mod40 || 0) + '/mes', color: HC, age: edadFinMod40 },
-    { label: '62 años', desc: 'Solicitar cesantía\nante el IMSS', color: HC, age: 62 },
-    { label: '65 años', desc: 'Pensión vejez\n' + fmtMXN(escSel?.pension_mensual || 0) + '/mes', color: VERDE, age: 65 },
-  ]
-  const steps = stepsRaw2
-    .sort((a, b) => a.age - b.age)
-    .filter((s, i, arr) => i === 0 || s.age > arr[i - 1].age)
-    .map(({ label, desc, color }) => ({ label, desc, color }))
-
-  timeline(steps)
-
-  const lastSec = analisis.find((s: any) => s.titulo?.toLowerCase().includes('paso'))
-  if (lastSec) bodyText(lastSec.contenido || '')
-  else {
-    bodyText('1. Confirmar los datos presentados en este diagnóstico con el asesor.')
-    bodyText('2. Tramitar el alta en Modalidad 40 ante el IMSS (subdelegación correspondiente o imss.gob.mx).')
-    bodyText('3. Iniciar pagos mensuales de ' + fmtMXN(escSel?.costo_mensual_mod40 || 0) + ' durante ' + mesesMod40 + ' meses.')
-    bodyText('4. Al completar el período, iniciar trámite de pensión con la documentación requerida.')
-    bodyText('5. Verificar periódicamente el historial de semanas en el portal del IMSS: imss.gob.mx')
-  }
-
-  // ══════════════════════════════════════════════════
-  // AVISO LEGAL — página propia
-  // ══════════════════════════════════════════════════
-  newPage()
-  sectionTitle('', 'AVISO LEGAL Y LIMITACIONES')
-  bodyText('Este diagnóstico pensional fue elaborado con base en la información proporcionada por el trabajador y los datos registrados en la constancia de semanas cotizadas emitida por el Instituto Mexicano del Seguro Social (IMSS).')
-  bodyText('Los cálculos se realizan conforme a la Ley del Seguro Social de 1973 y sus reformas vigentes. El monto final de la pensión estará sujeto a la resolución definitiva del IMSS, quien determinará el importe de acuerdo con los salarios y semanas registrados en sus sistemas oficiales.')
-  bodyText('Este documento tiene carácter informativo y no constituye una promesa de pago ni un compromiso por parte del IMSS ni del asesor. Los escenarios presentados son proyecciones basadas en los datos disponibles al momento del diagnóstico y pueden variar.')
-  bodyText('Se recomienda verificar periódicamente la vigencia y exactitud de la información de semanas cotizadas en el portal oficial del IMSS: imss.gob.mx · Tel. IMSS: 800 623 2323')
-  if (esBorrador) {
-    y += 6
-    alertChip('BORRADOR — Este documento no ha sido autorizado por el asesor. No debe ser entregado al cliente en este estado.', 'warning')
-  }
-  y += 10
-  setS('#e2e8f0'); doc.setLineWidth(0.3); doc.line(ML, y, W - MR, y); y += 6
-  doc.setFontSize(7); doc.setFont('helvetica', 'normal'); setC('#94a3b8')
-  t(razonSocial || 'KSE Pensiones', ML, y)
-  t('Generado el ' + new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }), W - MR, y, { align: 'right' })
-
-  return doc
-}
+  
