@@ -31,7 +31,12 @@ export function generarPDFProyecto(params: {
   ingresoObjetivo?: number
 }) {
   const { datos, periodos, sdiPromedio, escenarios, escSelIdx, corridaFin, finSel, finPlazo, analisis, logoUrl, razonSocial, asesorNombre, ingresoObjetivo } = params
-  const escSel = escenarios[escSelIdx]
+  const escSel = escenarios[escSelIdx] ?? escenarios.find((e: any) => e.recomendado) ?? escenarios[escenarios.length - 1] ?? null
+  if (!escSel || escenarios.length === 0) {
+    const emptyDoc = new jsPDF()
+    emptyDoc.text('Error: No hay escenarios calculados para generar el PDF.', 20, 30)
+    return emptyDoc
+  }
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' })
   const W = 216, H = 279
   const ML = 18, MR = 18, MT = 18
@@ -193,7 +198,7 @@ export function generarPDFProyecto(params: {
   setColor('#64748b')
   text(`NSS: ${datos.nss || '—'}  ·  ${datos.ley === '73' ? 'Régimen Ley 73 (pre-1997)' : datos.ley === '97' ? 'Régimen Ley 97 (post-1997)' : 'Régimen por determinar'}`, W / 2, y, { align: 'center' })
   y += 6
-  text(`${datos.semanas_totales.toLocaleString()} semanas cotizadas  ·  Edad: ${datos.edad_actual} años`, W / 2, y, { align: 'center' })
+  text(`${datos.semanas_totales.toLocaleString()} semanas cotizadas  ·  Edad: ${datos.edad_actual} años${datos.fecha_calculo ? '  ·  Últ. cotización: ' + datos.fecha_calculo : ''}`, W / 2, y, { align: 'center' })
 
   y += 20
   // Resumen de la propuesta en portada
@@ -258,17 +263,19 @@ export function generarPDFProyecto(params: {
   sectionHeader('2. CONSERVACIÓN DE DERECHOS', 'Art. 183 Ley del Seguro Social 1973')
   const semanasConserv = Math.floor(datos.semanas_totales / 4)
   const mesesConserv = Math.round(semanasConserv / 4.33)
-  const mesesDesde = datos.fecha_calculo ? Math.floor((Date.now() - new Date(datos.fecha_calculo).getTime()) / (30 * 86400000)) : 0
-  const mesesRestantes = Math.max(0, mesesConserv - mesesDesde)
-  const vigente = mesesRestantes > 0
+  const mesesDesde = datos.fecha_calculo ? Math.floor((Date.now() - new Date(datos.fecha_calculo).getTime()) / (30 * 86400000)) : -1
+  const mesesRestantes = mesesDesde >= 0 ? Math.max(0, mesesConserv - mesesDesde) : null
+  const vigente = mesesDesde >= 0 ? mesesRestantes! > 0 : null // null = unknown
+  const estadoConserv = vigente === null ? 'SIN FECHA DE BAJA' : vigente ? 'VIGENTE ✓' : 'VENCIDO ✗'
+  const colorConserv = vigente === null ? '#94a3b8' : vigente ? VERDE : '#ef4444'
   kpiRow([
     { label: 'Semanas de conservación', value: semanasConserv + ' sem', color: AZUL },
     { label: 'Período de conservación', value: (semanasConserv / 4.33 / 12).toFixed(1) + ' años', color: AZUL },
-    { label: 'Estado', value: vigente ? 'VIGENTE ✓' : 'VENCIDO ✗', color: vigente ? VERDE : '#ef4444' },
-    { label: 'Meses restantes', value: vigente ? mesesRestantes + ' meses' : 'Requiere reactivación', color: vigente ? VERDE : '#ef4444' },
+    { label: 'Estado', value: estadoConserv, color: colorConserv },
+    { label: 'Meses restantes', value: vigente === null ? 'Capturar fecha de baja' : vigente ? (mesesRestantes! + ' meses') : 'Requiere reactivación', color: colorConserv },
   ])
-  if (!vigente) {
-    const aniosSin = mesesDesde / 12
+  if (vigente === false) {
+    const aniosSin = (mesesDesde > 0 ? mesesDesde : 0) / 12
     const accion = aniosSin <= 3 ? 'Reconocimiento inmediato al reingresar' : aniosSin <= 6 ? 'Requiere 26 semanas nuevas (Art. 151)' : 'Requiere 52 semanas nuevas (Art. 151)'
     doc.setFontSize(8)
     doc.setFont('helvetica', 'bold')
