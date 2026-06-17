@@ -85,7 +85,9 @@ export async function generarPDFProyecto(params: {
   function addHeader() {
     setF(HC); doc.rect(0, 0, W, 12, 'F')
     doc.setFontSize(7); doc.setFont('helvetica', 'bold'); setC('#ffffff')
-    t((razonSocial || 'KSE Pensiones') + ' — ' + HTIT, ML, 8)
+    const headerStr = (razonSocial || 'KSE Pensiones') + ' — ' + HTIT
+    const headerLines = doc.splitTextToSize(headerStr, (W - ML - MR) / 2)
+    t(headerLines[0], ML, 8)
     doc.setFont('helvetica', 'normal')
     t(new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }), W - MR, 8, { align: 'right' })
     if (esBorrador) {
@@ -99,11 +101,14 @@ export async function generarPDFProyecto(params: {
     checkPage(24)
     setF(HC); setS(HC); doc.setLineWidth(0)
     doc.rect(ML, y, W - ML - MR, 10, 'F')
-    doc.setFontSize(11); doc.setFont('helvetica', 'bold'); setC('#ffffff')
-    t(num + '  ' + title, ML + 4, y + 7)
+    doc.setFontSize(10); doc.setFont('helvetica', 'bold'); setC('#ffffff')
+    const titleStr = (num ? num + '  ' : '') + title
+    const titleLines = doc.splitTextToSize(titleStr, W - ML - MR - (sub ? 60 : 10))
+    t(titleLines[0], ML + 4, y + 7)
     if (sub) {
-      doc.setFontSize(7); doc.setFont('helvetica', 'normal'); setC('rgba(255,255,255,0.75)')
-      t(sub, W - MR - 3, y + 7, { align: 'right' })
+      doc.setFontSize(6.5); doc.setFont('helvetica', 'normal'); setC('rgba(255,255,255,0.75)')
+      const subTrunc = doc.splitTextToSize(sub, 55)
+      t(subTrunc[0], W - MR - 3, y + 7, { align: 'right' })
     }
     y += 14
   }
@@ -131,12 +136,14 @@ export async function generarPDFProyecto(params: {
     const brd  = type === 'danger' ? '#fecaca' : type === 'warning' ? '#fde68a' : '#bbf7d0'
     const txt  = type === 'danger' ? '#991b1b' : type === 'warning' ? '#92400e' : '#15803d'
     const acc  = type === 'danger' ? ROJO      : type === 'warning' ? '#f59e0b' : VERDE
+    const chipLines = doc.splitTextToSize(msg, W - ML - MR - 10)
+    const chipH = Math.max(8, chipLines.length * 5 + 4)
     setF(bg); setS(brd); doc.setLineWidth(0.3)
-    doc.rect(ML, y, W - ML - MR, 8, 'FD')
-    setF(acc); doc.rect(ML, y, 2.5, 8, 'F')
+    doc.rect(ML, y, W - ML - MR, chipH, 'FD')
+    setF(acc); doc.rect(ML, y, 2.5, chipH, 'F')
     doc.setFontSize(8); doc.setFont('helvetica', 'bold'); setC(txt)
-    t(msg, ML + 6, y + 5.5)
-    y += 11
+    chipLines.forEach((cl: string, ci: number) => t(cl, ML + 6, y + 5.5 + ci * 5))
+    y += chipH + 3
   }
 
   // ── KPI row (4 cards)
@@ -147,15 +154,18 @@ export async function generarPDFProyecto(params: {
       const x = ML + i * cw
       setF('#F4F6FB'); setS('#e2e8f0'); doc.setLineWidth(0.3)
       doc.rect(x, y, cw - 1, 16, 'FD')
-      doc.setFontSize(6.5); doc.setFont('helvetica', 'normal'); setC('#94a3b8')
-      t(item.label.toUpperCase(), x + 3, y + 4.5)
-      doc.setFontSize(9.5); doc.setFont('helvetica', 'bold')
+      doc.setFontSize(6); doc.setFont('helvetica', 'normal'); setC('#94a3b8')
+      const lblLines = doc.splitTextToSize(item.label.toUpperCase(), cw - 6)
+      lblLines.slice(0,2).forEach((ll: string, li: number) => t(ll, x + 3, y + 4 + li * 3.5))
+      doc.setFontSize(9); doc.setFont('helvetica', 'bold')
       const [r,g,b] = hexToRgb(item.color || HC)
       doc.setTextColor(r,g,b)
-      t(item.value, x + 3, y + 12)
+      const valLines = doc.splitTextToSize(item.value, cw - 6)
+      t(valLines[0], x + 3, y + 12.5)
       if (item.sub) {
-        doc.setFontSize(6); doc.setFont('helvetica', 'normal'); setC(GRIS)
-        t(item.sub, x + 3, y + 15.5)
+        doc.setFontSize(5.5); doc.setFont('helvetica', 'normal'); setC(GRIS)
+        const subLines = doc.splitTextToSize(item.sub, cw - 6)
+        t(subLines[0], x + 3, y + 15.5)
       }
     })
     y += 19
@@ -183,7 +193,9 @@ export async function generarPDFProyecto(params: {
     let x = startX
     cells.forEach((c, i) => {
       const align = aligns?.[i] || (i === 0 ? 'left' : 'right')
-      t(c, align === 'right' ? x + widths[i] - 2 : x + 2, y + 5, { align })
+      const maxW = widths[i] - 4
+      const cellLines = doc.splitTextToSize(String(c), maxW)
+      t(cellLines[0], align === 'right' ? x + widths[i] - 2 : x + 2, y + 5, { align })
       x += widths[i]
     })
     y += 7
@@ -198,7 +210,9 @@ export async function generarPDFProyecto(params: {
     let x = startX
     cells.forEach((c, i) => {
       const align = aligns?.[i] || (i === 0 ? 'left' : 'right')
-      t(c, align === 'right' ? x + widths[i] - 2 : x + 2, y + 5.5, { align })
+      const maxW2 = widths[i] - 4
+      const footLines = doc.splitTextToSize(String(c), maxW2)
+      t(footLines[0], align === 'right' ? x + widths[i] - 2 : x + 2, y + 5.5, { align })
       x += widths[i]
     })
     y += 11
@@ -351,10 +365,13 @@ export async function generarPDFProyecto(params: {
   doc.setFontSize(15); doc.setFont('helvetica', 'bold'); setC('#1e293b')
   t(trabajador, ML, y); y += 7
   doc.setFontSize(8); doc.setFont('helvetica', 'normal'); setC(GRIS)
-  const l1 = [datos.nss ? 'NSS: ' + datos.nss : null, datos.ley === '73' ? 'Ley 73' : datos.ley === '97' ? 'Ley 97' : null, datos.edad_actual ? datos.edad_actual + ' años' : null].filter(Boolean).join('  ·  ')
-  t(l1, ML, y); y += 5
-  const l2 = [datos.semanas_totales ? datos.semanas_totales.toLocaleString() + ' semanas cotizadas' : null, datos.fecha_calculo ? 'Últ. cotización: ' + datos.fecha_calculo : null, cliente ? 'Solicitante: ' + cliente : null].filter(Boolean).join('  ·  ')
-  t(l2, ML, y); y += 10
+  const l1 = [datos.nss ? 'NSS: ' + datos.nss : null, datos.ley === '73' ? 'Ley 73' : datos.ley === '97' ? 'Ley 97' : null, datos.edad_actual ? datos.edad_actual + ' anos' : null].filter(Boolean).join('  ·  ')
+  const l1w = doc.splitTextToSize(l1, W - ML - MR)
+  l1w.forEach((ll: string) => { t(ll, ML, y); y += 5 })
+  const l2 = [datos.semanas_totales ? datos.semanas_totales.toLocaleString() + ' semanas cotizadas' : null, datos.fecha_calculo ? 'Ult. cotizacion: ' + datos.fecha_calculo : null, cliente ? 'Solicitante: ' + cliente : null].filter(Boolean).join('  ·  ')
+  const l2w = doc.splitTextToSize(l2, W - ML - MR)
+  l2w.forEach((ll: string) => { t(ll, ML, y); y += 5 })
+  y += 4
 
   // 4 KPI cards
   const escBase = escenarios[0]
