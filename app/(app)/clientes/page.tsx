@@ -209,6 +209,7 @@ interface Diagnostico {
   pension_sin_mod40: number | null
   pension_con_mod40: number | null
   inversion_mod40: number | null
+  params_json: any | null
 }
 
 interface Actividad {
