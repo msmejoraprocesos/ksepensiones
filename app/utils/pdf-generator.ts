@@ -117,7 +117,8 @@ export async function generarPDFProyecto(params: {
   function subTitle(title: string) {
     checkPage(16)
     // Remove leading special chars
-    const cleanTitle = title.replace(/^[→•\-–—#*]+\s*/, '')
+    const safeTitle2 = (title == null || typeof title !== 'string') ? '' : title
+    const cleanTitle = safeTitle2.replace(/^[→•\-–—#*]+\s*/, '')
     doc.setFontSize(9.5); doc.setFont('helvetica', 'bold'); setC(HC)
     t(cleanTitle, ML, y + 6)
     y += 11
@@ -127,7 +128,8 @@ export async function generarPDFProyecto(params: {
   function bodyText(txt: string, indent = 0) {
     doc.setFontSize(8.5); doc.setFont('helvetica', 'normal'); setC('#374151')
     // Clean up bullet chars — replace & or * at start with proper bullet
-    const cleanTxt = txt.replace(/^[&*]\s*/, '• ').replace(/\s*&\s*/g, ' • ')
+    const safeTxt = (txt == null || typeof txt !== 'string') ? '' : txt
+    const cleanTxt = safeTxt.replace(/^[&*]\s*/, '• ').replace(/\s*&\s*/g, ' • ')
     const lines = doc.splitTextToSize(cleanTxt, W - ML - MR - indent - 2)
     lines.forEach((l: string) => { checkPage(6); t(l, ML + indent + 2, y); y += 5 })
     y += 2
@@ -140,7 +142,7 @@ export async function generarPDFProyecto(params: {
     const brd  = type === 'danger' ? '#fecaca' : type === 'warning' ? '#fde68a' : '#bbf7d0'
     const txt  = type === 'danger' ? '#991b1b' : type === 'warning' ? '#92400e' : '#15803d'
     const acc  = type === 'danger' ? ROJO      : type === 'warning' ? '#f59e0b' : VERDE
-    const chipLines = doc.splitTextToSize(msg, W - ML - MR - 10)
+    const chipLines = doc.splitTextToSize(String(msg ?? ''),  W - ML - MR - 10)
     const chipH = Math.max(8, chipLines.length * 5 + 4)
     setF(bg); setS(brd); doc.setLineWidth(0.3)
     doc.rect(ML, y, W - ML - MR, chipH, 'FD')
@@ -161,13 +163,13 @@ export async function generarPDFProyecto(params: {
       doc.rect(x, y, cw - 1, cardH, 'FD')
       // Label centered horizontally
       doc.setFontSize(6.5); doc.setFont('helvetica', 'normal'); setC('#94a3b8')
-      const lblLines = doc.splitTextToSize(item.label.toUpperCase(), cw - 6)
+      const lblLines = doc.splitTextToSize(String(item?.label ?? '').toUpperCase(), cw - 6)
       lblLines.slice(0,2).forEach((ll: string, li: number) => t(ll, x + (cw - 1) / 2, y + 5 + li * 3.5, { align: 'center' }))
       // Value centered, larger
       doc.setFontSize(10); doc.setFont('helvetica', 'bold')
       const [r,g,b] = hexToRgb(item.color || HC)
       doc.setTextColor(r,g,b)
-      const valLines = doc.splitTextToSize(item.value, cw - 6)
+      const valLines = doc.splitTextToSize(String(item?.value ?? ''), cw - 6)
       t(valLines[0], x + (cw - 1) / 2, y + cardH - 5, { align: 'center' })
     })
     y += cardH + 2
