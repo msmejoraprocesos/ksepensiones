@@ -172,7 +172,7 @@ function CalculadoraInner() {
 
   // Tab 4 state - Mod40
   const [mod40Activo, setMod40Activo] = useState(true)
-  const [mod40Umas, setMod40Umas] = useState(15)
+  const [mod40Umas, setMod40Umas] = useState(25)
   const [mod40Meses, setMod40Meses] = useState(36)
 
   // Tab 5 - Escenarios
@@ -191,11 +191,13 @@ function CalculadoraInner() {
   const [asesorPerfil, setAsesorPerfil] = useState<{razon_social?: string; nombre?: string; logo_url?: string} | null>(null)
   const [showWappModal, setShowWappModal] = useState(false)
 
+  const [showAllMonths, setShowAllMonths] = useState(false)
+
   // Flujo diagnóstico
   const [ingresoObjetivo, setIngresoObjetivo] = useState(0)
   const [escElegidoIdx, setEscElegidoIdx] = useState(-1)
   const [simulacionLibre, setSimulacionLibre] = useState(false)
-  const [simUmas, setSimUmas] = useState(15)
+  const [simUmas, setSimUmas] = useState(25)
   const [simMeses, setSimMeses] = useState(36)
   const [diagGuardadoId, setDiagGuardadoId] = useState<string | null>(null)
   const [estatus, setEstatus] = useState<'borrador' | 'autorizado'>('borrador')
@@ -427,23 +429,55 @@ function CalculadoraInner() {
     setGenerandoAnalisis(true)
     try {
       const clienteObj = clientes.find(c => c.id === clienteId)
+      const esc0 = escenarios[0]
+      const escM10 = escenarios.find(e => e.id === 'e_m10')
+      const escM40 = escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 2]
       const res = await fetch('/api/analisis-pensional', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           nombre: clienteObj?.nombre || datos.nombre,
-          ley: datos.ley, semanas: datos.semanas_totales,
-          salario: sdiPromedio, edad: datos.edad_actual,
-          pension_sin_mod40: escenarios[0]?.pension_mensual,
-          pension_con_mod40: escSel.pension_mensual,
-          inversion: escSel.inversion_total,
-          roi_meses: escSel.roi_meses,
-          tiene_conyuge: datos.tiene_conyuge,
-          num_hijos: datos.num_hijos,
+          ley: datos.ley,
+          semanas: datos.semanas_totales,
+          salarioDiario: sdiPromedio,
+          salarioMensual: sdiPromedio * 30.4,
+          edadActual: datos.edad_actual,
+          edadRetiro: 65,
+          aniosRetiro: Math.max(0, 65 - datos.edad_actual),
+          ingresoDes: ingresoObjetivo || 0,
+          inflacion: 4,
+          sys,
+          e1: { pension_real: esc0?.pension_mensual ?? 0 },
+          e2: { pension_real: escM10?.pension_mensual ?? esc0?.pension_mensual ?? 0 },
+          e3: { pension_real: escM40?.pension_mensual ?? esc0?.pension_mensual ?? 0 },
+          e4: { pension_real: escSel.pension_mensual },
+          escRecomendado: escSel.label,
+          mod10Activo: !!escM10,
+          mod40Activo: escSel.mod40_meses > 0,
+          mod40UMAs: escSel.mod40_umas,
+          mod40Anios: escSel.mod40_meses / 12,
+          mod40Costo: escSel.costo_mensual_mod40,
+          tieneISSSTe: false,
+          aniosISSSTe: 0,
+          aforeSaldo: 0,
+          rendimiento: 6.5,
         })
       })
       const data = await res.json()
-      if (data.secciones) setAnalisis(data.secciones)
+      if (data.ok && data.analisis) {
+        const a = data.analisis
+        setAnalisis([
+          { titulo: 'Contexto', contenido: a.contexto ?? '' },
+          { titulo: 'Diagnóstico actual', contenido: a.diagnostico_actual ?? '' },
+          { titulo: 'Opciones disponibles', contenido: a.opciones_disponibles ?? '' },
+          { titulo: 'Recomendación', contenido: a.recomendacion ?? '' },
+          { titulo: 'Próximos pasos', contenido: a.proximos_pasos ?? '' },
+        ].filter(s => s.contenido))
+      } else {
+        console.error('Analisis error:', data.error)
+        setMensaje('Error al generar el análisis. Intenta de nuevo.')
+        setTimeout(() => setMensaje(''), 4000)
+      }
     } catch (e) { console.error(e) }
     setGenerandoAnalisis(false)
   }
@@ -962,7 +996,16 @@ function CalculadoraInner() {
 
             {/* Tabla de cotización mensual */}
             <div style={cardSt}>
-              {sectionTitle('Proyección de cotización mensual', `${mod40Meses} meses · ${fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys))}/mes`)}
+              {(() => {
+                const header = sectionTitle('Proyección de cotización mensual', `${mod40Meses} meses · ${fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys))}/mes`)
+                return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  {header}
+                  <button onClick={() => setShowAllMonths(v => !v)}
+                    style={{ fontSize: '11px', padding: '4px 10px', border: '1px solid #e2e8f0', borderRadius: '6px', background: '#F4F6FB', cursor: 'pointer', color: '#64748b', fontFamily: 'inherit', flexShrink: 0 }}>
+                    {showAllMonths ? '↩️ Ver resumen' : '📋 Ver todos los meses'}
+                  </button>
+                </div>
+              })()}
               <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                   <thead>
@@ -977,7 +1020,7 @@ function CalculadoraInner() {
                       const costoMensual = calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys)
                       const sdiMod40 = mod40Umas * sys.UMA_DIARIA
                       const rows = []
-                      const showMonths = [1, 2, 3, Math.floor(mod40Meses/2), mod40Meses]
+                      const showMonths = showAllMonths ? Array.from({length: mod40Meses}, (_, i) => i + 1) : [1, 2, 3, Math.floor(mod40Meses/2), mod40Meses]
                       for (const mes of [...new Set(showMonths)].filter(m => m >= 1 && m <= mod40Meses)) {
                         rows.push(
                           <tr key={mes} style={{ background: mes % 2 === 0 ? '#F8FAFC' : 'white', borderBottom: '1px solid #f1f5f9' }}>
@@ -1164,7 +1207,7 @@ function CalculadoraInner() {
                           <span style={{ fontWeight: '600', color: simulacionLibre ? NARANJA : '#94a3b8' }}>🔧 Activar simulación personalizada</span>
                         </label>
                         {simulacionLibre && (
-                          <button onClick={() => { setSimUmas(mod40Umas); setSimMeses(mod40Meses) }}
+                          <button onClick={() => { setSimUmas(mod40Umas); setSimMeses(mod40Meses); if (escenarios[escElegidoIdx]?.id === 'e_sim') setEscElegidoIdx(escenarios.findIndex(e => e.recomendado)) }}
                             style={{ fontSize: '11px', padding: '4px 10px', border: '1px solid #e2e8f0', borderRadius: '6px', background: '#F4F6FB', cursor: 'pointer', color: '#64748b' }}>
                             ↩️ Restablecer base
                           </button>
@@ -1173,7 +1216,7 @@ function CalculadoraInner() {
                       {simulacionLibre && (
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                           <div>
-                            <label style={labelSt}>UMAs ({simUmas})</label>
+                            <label style={labelSt}>UMAs ({simUmas} = {fmtMXN(simUmas * sys.UMA_DIARIA * 30.4)}/mes)</label>
                             <input type="range" min="1" max="25" value={simUmas} onChange={e => setSimUmas(parseFloat(e.target.value))} style={{ width: '100%' }} />
                           </div>
                           <div>
@@ -1206,8 +1249,12 @@ function CalculadoraInner() {
                         <div style={{ fontSize: '20px', fontWeight: '700', color: i === 0 ? '#94a3b8' : isElegido ? NARANJA : AZUL }}>{fmtMXN(esc.pension_mensual)}/mes</div>
                         {esc.inversion_total > 0 && <div style={{ fontSize: '10px', color: '#64748b' }}>Inv: {fmtMXN(esc.inversion_total)} · {fmtMXN(esc.costo_mensual_mod40)}/mes</div>}
                         {pctObjetivo !== null && (
-                          <div style={{ padding: '4px 8px', borderRadius: '6px', background: pctObjetivo >= 100 ? '#f0fdf4' : pctObjetivo >= 70 ? '#fffbeb' : '#fef2f2', fontSize: '11px', fontWeight: '700', color: pctObjetivo >= 100 ? VERDE : pctObjetivo >= 70 ? '#b45309' : '#ef4444' }}>
-                            {pctObjetivo}% del objetivo {brecha && brecha > 0 ? `· Faltan ${fmtMXN(brecha)}` : '✅'}
+                          <div style={{ padding: '6px 8px', borderRadius: '6px', background: pctObjetivo >= 100 ? '#f0fdf4' : pctObjetivo >= 70 ? '#fffbeb' : '#fef2f2', fontSize: '11px', fontWeight: '700', color: pctObjetivo >= 100 ? VERDE : pctObjetivo >= 70 ? '#b45309' : '#ef4444' }}>
+                            {pctObjetivo >= 100
+                              ? `✅ ${pctObjetivo}% — alcanza el objetivo`
+                              : pctObjetivo >= 70
+                              ? `⚠️ ${pctObjetivo}% — faltan ${fmtMXN(brecha ?? 0)}/mes · Considera más UMAs o más meses`
+                              : `❌ ${pctObjetivo}% — faltan ${fmtMXN(brecha ?? 0)}/mes · El objetivo puede ser alto para este historial`}
                           </div>
                         )}
                         <button onClick={() => { setEscElegidoIdx(i); setEscSelIdx(i) }}
@@ -1357,7 +1404,6 @@ function CalculadoraInner() {
                   {escSel && (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
                       {kpiBox('Inversión total', fmtMXN(escSel.inversion_total))}
-                      {kpiBox('Cuota financiera', corridaFin ? fmtMXN(corridaFin.cuota) + '/mes' : '—')}
                       {kpiBox('Incremento mensual', `+${fmtMXN(escSel.incremento_vs_base)}`, 'vs sin Mod 40', VERDE)}
                       {kpiBox('ROI', escSel.roi_meses > 0 ? `${escSel.roi_meses} meses` : '—', 'punto de equilibrio', '#8b5cf6')}
                     </div>
