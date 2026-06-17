@@ -491,7 +491,7 @@ function CalculadoraInner() {
   const conservacion = calcConservacion(datos.semanas_totales, fechaUltimaCot ? Math.floor((Date.now() - new Date(fechaUltimaCot).getTime()) / (30 * 86400000)) : 0)
 
   // ── Generar PDF completo
-  async async function exportarPDF() {
+  async function exportarPDF() {
     if (!diagGuardadoId) return
     const esBorrador = estatus === 'borrador'
     const idxToUse = escElegidoIdx >= 0 ? escElegidoIdx : escSelIdx
