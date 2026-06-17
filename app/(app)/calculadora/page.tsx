@@ -22,7 +22,7 @@ interface SysVars {
   mod40_pct?: number
 }
 
-interface Cliente { id: string; nombre: string; etapa_kanban?: string; telefono?: string }
+interface Cliente { id: string; nombre: string; etapa_kanban?: string; telefono?: string; tipo_servicio?: string }
 interface Financiera { id: string; nombre: string; tasa_anual: number; plazo_min: number; plazo_max: number; monto_min: number; monto_max: number; comision_apertura: number; seguro_mensual: number; contacto_nombre: string | null; contacto_email: string | null; contacto_telefono: string | null }
 
 interface PeriodoSalarial {
@@ -193,6 +193,8 @@ function CalculadoraInner() {
 
   const [showAllMonths, setShowAllMonths] = useState(false)
   const [showClienteModal, setShowClienteModal] = useState(false)
+  const [showSugerirEtapa, setShowSugerirEtapa] = useState(false)
+  const [etapaSugerida, setEtapaSugerida] = useState('')
   const [showConfirmCambio, setShowConfirmCambio] = useState(false)
   const [pendingClienteId, setPendingClienteId] = useState('')
   const [buscarCliente, setBuscarCliente] = useState('')
@@ -220,7 +222,12 @@ function CalculadoraInner() {
   }, [])
 
   async function loadClientes(uid: string) {
-    const { data } = await supabase.from('clientes').select('id, nombre').eq('asesor_id', uid).order('nombre')
+    const { data } = await supabase.from('clientes')
+      .select('id, nombre, etapa_kanban, telefono, tipo_servicio')
+      .eq('asesor_id', uid)
+      .in('etapa_kanban', ['prospecto', 'diagnostico'])
+      .eq('activo', true)
+      .order('created_at', { ascending: false })
     setClientes(data ?? [])
   }
 
@@ -325,6 +332,23 @@ function CalculadoraInner() {
   useEffect(() => {
     if (!clienteId) setShowClienteModal(true)
   }, [])
+
+  const ETAPA_LABELS: Record<string, string> = {
+    prospecto: 'Prospecto',
+    diagnostico: 'Diagnóstico / Asesoría',
+    recopilacion: 'Recopilación',
+    tramite: 'Trámite',
+    cierre: 'Cierre (Exitoso)',
+    cancelado: 'Cancelado',
+  }
+
+  async function moverEtapa(clienteId: string, nuevaEtapa: string) {
+    await supabase.from('clientes').update({ etapa_kanban: nuevaEtapa }).eq('id', clienteId)
+    setClientes(prev => prev.map(c => c.id === clienteId ? { ...c, etapa_kanban: nuevaEtapa } : c))
+    setShowSugerirEtapa(false)
+    setMensaje(`✅ Cliente movido a ${ETAPA_LABELS[nuevaEtapa]}`)
+    setTimeout(() => setMensaje(''), 4000)
+  }
 
   function calcEscenarioMod40(sem: number, sdiBase: number, umas: number, meses: number, pensionBase: number) {
     const costoMensual = calcCostoMod40(umas, sys.mod40_pct ?? 14.438, sys)
@@ -537,6 +561,18 @@ function CalculadoraInner() {
         setDiagGuardadoId(data.id)
         setEstatus(nuevoEstatus)
         setMensaje(nuevoEstatus === 'borrador' ? '💾 Borrador guardado en el expediente del cliente' : '✅ Diagnóstico autorizado')
+        // Suggest etapa change
+        const clienteActual = clientes.find(c => c.id === clienteId)
+        const etapa = clienteActual?.etapa_kanban
+        const tipo = clienteActual?.tipo_servicio
+        if (etapa === 'prospecto') {
+          setEtapaSugerida('diagnostico')
+          setShowSugerirEtapa(true)
+        } else if (etapa === 'diagnostico' && nuevoEstatus === 'autorizado') {
+          const siguiente = tipo === 'asesoria' ? 'cierre' : 'recopilacion'
+          setEtapaSugerida(siguiente)
+          setShowSugerirEtapa(true)
+        }
       }
     }
     setTimeout(() => setMensaje(''), 5000)
@@ -700,7 +736,7 @@ function CalculadoraInner() {
             <div style={{ textAlign: 'center', marginBottom: '20px' }}>
               <div style={{ fontSize: '36px', marginBottom: '8px' }}>🧮</div>
               <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#1B3A6B', margin: '0 0 6px' }}>Calculadora de pensión</h2>
-              <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>Para continuar debes seleccionar un cliente existente o registrar uno nuevo.</p>
+              <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>Selecciona un <strong>Prospecto</strong> o cliente en <strong>Diagnóstico</strong>, o registra uno nuevo.</p>
             </div>
 
             {/* Buscar cliente */}
@@ -724,10 +760,13 @@ function CalculadoraInner() {
                     <div style={{ width: '28px', height: '28px', background: '#EEF2F8', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '700', color: '#1B3A6B', flexShrink: 0 }}>
                       {c.nombre.charAt(0).toUpperCase()}
                     </div>
-                    <div>
+                    <div style={{ flex: 1 }}>
                       <div style={{ fontSize: '13px', fontWeight: '600', color: '#1e293b' }}>{c.nombre}</div>
-                      <div style={{ fontSize: '11px', color: '#94a3b8' }}>{c.etapa_kanban ?? 'prospecto'}{c.telefono ? ` · ${c.telefono}` : ''}</div>
+                      <div style={{ fontSize: '11px', color: '#94a3b8' }}>{c.telefono ?? ''}</div>
                     </div>
+                    <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px', background: c.etapa_kanban === 'diagnostico' ? '#EEF7F1' : '#EEF2F8', color: c.etapa_kanban === 'diagnostico' ? '#2E8B57' : '#1B3A6B', flexShrink: 0 }}>
+                      {c.etapa_kanban === 'diagnostico' ? 'Diagnóstico' : 'Prospecto'}
+                    </span>
                   </button>
                 ))
               )}
@@ -741,6 +780,36 @@ function CalculadoraInner() {
           </div>
         </div>
       )}
+
+      {/* ── Modal sugerencia de avance de etapa ── */}
+      {showSugerirEtapa && (() => {
+        const clienteActual = clientes.find(c => c.id === clienteId)
+        const esAutorizacion = estatus === 'autorizado'
+        return (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+            <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '100%', maxWidth: '400px', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+              <div style={{ fontSize: '28px', textAlign: 'center', marginBottom: '8px' }}>🎯</div>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1B3A6B', margin: '0 0 10px', textAlign: 'center' }}>
+                {esAutorizacion ? '¡Diagnóstico autorizado!' : '¡Diagnóstico guardado!'}
+              </h3>
+              <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 16px', lineHeight: 1.6, textAlign: 'center' }}>
+                <strong>{clienteActual?.nombre}</strong> está en <strong>{ETAPA_LABELS[clienteActual?.etapa_kanban ?? '']}</strong>.
+                ¿Deseas moverlo a <strong style={{ color: '#2E8B57' }}>{ETAPA_LABELS[etapaSugerida]}</strong>?
+              </p>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button onClick={() => setShowSugerirEtapa(false)}
+                  style={{ flex: 1, padding: '9px', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#F4F6FB', color: '#64748b', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
+                  Ahora no
+                </button>
+                <button onClick={() => moverEtapa(clienteId, etapaSugerida)}
+                  style={{ flex: 2, padding: '9px', border: 'none', borderRadius: '8px', background: '#2E8B57', color: 'white', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
+                  Sí, mover a {ETAPA_LABELS[etapaSugerida]}
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
 
       {/* ── Modal confirmación cambio de cliente ── */}
       {showConfirmCambio && (
