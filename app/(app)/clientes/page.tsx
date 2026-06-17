@@ -782,13 +782,23 @@ function ClientesInner() {
       '<div class="kpi"><div class="kpi-label">Modalidad 40</div><div class="kpi-val" style="color:#F05B21">' + e3 + '</div></div>',
       '<div class="kpi"><div class="kpi-label">Escenario óptimo</div><div class="kpi-val" style="color:#2E8B57">' + e4 + '</div></div>',
       '</div>',
-      analisis ? [
-        seccion('Contexto del asegurado', analisis.contexto),
-        seccion('Diagnóstico actual', analisis.diagnostico_actual),
-        seccion('Opciones disponibles', analisis.opciones_disponibles),
-        seccion('Recomendación', analisis.recomendacion),
-        seccion('Próximos pasos', analisis.proximos_pasos),
-      ].join('') : '<p style="color:#94a3b8">Sin análisis narrativo generado.</p>',
+      (() => {
+        try {
+          const secs = typeof analisis === 'string' ? JSON.parse(analisis) : analisis
+          if (Array.isArray(secs) && secs.length > 0) {
+            return secs.map((s: any) => seccion(s.titulo || '', s.contenido || '')).join('')
+          } else if (secs && typeof secs === 'object') {
+            return [
+              seccion('Contexto', secs.contexto || ''),
+              seccion('Diagnóstico actual', secs.diagnostico_actual || ''),
+              seccion('Opciones disponibles', secs.opciones_disponibles || ''),
+              seccion('Recomendación', secs.recomendacion || ''),
+              seccion('Próximos pasos', secs.proximos_pasos || ''),
+            ].join('')
+          }
+        } catch(e) {}
+        return '<p style="color:#94a3b8">Sin análisis narrativo generado.</p>'
+      })(),
       '<div class="footer"><span>KSE Pensiones · Diagnóstico ' + letra + '</span><span>Generado el ' + fecha + '</span></div>',
       '<button class="print-btn" onclick="window.print()">🖨️ Imprimir / Guardar como PDF</button>',
       '</body></html>'
