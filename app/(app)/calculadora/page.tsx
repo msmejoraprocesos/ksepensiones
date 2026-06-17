@@ -1234,7 +1234,7 @@ function CalculadoraInner() {
               <strong>¿Tu cliente es trabajador independiente o no califica para Mod 40?</strong> La <strong>Modalidad 10</strong> permite afiliarse al IMSS con cobertura completa (médica + pensión + Infonavit) y puede usarse como paso previo para habilitar Mod 40.{' '}
               <button onClick={() => setTab(4)} style={{ background: 'none', border: 'none', color: '#15803d', fontWeight: '700', cursor: 'pointer', textDecoration: 'underline', fontFamily: 'inherit', fontSize: '12px', padding: 0 }}>Ver Modalidad 10 →</button>
             </div>
-            {navButtons(() => setTab(2), () => setTab(5), 'Siguiente: Escenarios de pensión →')}
+            {navButtons(() => setTab(2), () => setTab(4), 'Siguiente: Modalidad 10 →')}
           </div>
         )}
 
