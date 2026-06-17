@@ -253,33 +253,42 @@ export async function generarPDFProyecto(params: {
 
   // Logo
   let logoLoaded = false
+  const bandH = 48
+  const textX = ML  // left-aligned text baseline
   if (logoUrl) {
     try {
       const img = new Image(); img.crossOrigin = 'anonymous'; img.src = logoUrl
       await new Promise(res => { img.onload = res; img.onerror = res })
       if (img.complete && img.naturalWidth > 0) {
-        const lh = LSIZ
-        const lw = Math.min(lh * img.naturalWidth / img.naturalHeight, 70)
-        doc.addImage(img as any, 'PNG', ML, (48 - lh) / 2, lw, lh)
+        // Cap logo size: max height = bandH - 8mm padding, max width = 50mm
+        const maxH = bandH - 10
+        const maxW = 50
+        const aspect = img.naturalWidth / Math.max(img.naturalHeight, 1)
+        const lh = Math.min(LSIZ, maxH)
+        const lw = Math.min(lh * aspect, maxW)
+        const ly = (bandH - lh) / 2
+        doc.addImage(img as any, 'PNG', ML, ly, lw, lh)
         logoLoaded = true
-        // Razon social next to logo
+        // Text to the right of logo, vertically centered in band
+        const txBase = bandH / 2 - 4
         doc.setFontSize(HFSZ); doc.setFont('helvetica', 'bold'); setC('#ffffff')
-        t(razonSocial || '', ML + lw + 6, 22)
+        t(razonSocial || '', ML + lw + 6, txBase)
         doc.setFontSize(HFSZ - 3); doc.setFont('helvetica', 'normal'); setC('rgba(255,255,255,0.8)')
-        t(HTIT, ML + lw + 6, 30)
+        t(HTIT, ML + lw + 6, txBase + 8)
       }
     } catch (_) {}
   }
   if (!logoLoaded) {
+    const txBase = bandH / 2 - 4
     doc.setFontSize(HFSZ + 2); doc.setFont('helvetica', 'bold'); setC('#ffffff')
-    t(razonSocial || 'KSE Pensiones', ML, 26)
+    t(razonSocial || 'KSE Pensiones', textX, txBase)
     doc.setFontSize(HFSZ - 2); doc.setFont('helvetica', 'normal'); setC('rgba(255,255,255,0.8)')
-    t(HTIT, ML, 36)
+    t(HTIT, textX, txBase + 9)
   }
-  // Date + asesor
+  // Date + asesor — right aligned, vertically centered
   doc.setFontSize(7.5); doc.setFont('helvetica', 'normal'); setC('rgba(255,255,255,0.7)')
-  t(new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }), W - MR, 24, { align: 'right' })
-  if (asesorNombre) t('Asesor: ' + asesorNombre, W - MR, 32, { align: 'right' })
+  t(new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }), W - MR, bandH / 2 - 4, { align: 'right' })
+  if (asesorNombre) t('Asesor: ' + asesorNombre, W - MR, bandH / 2 + 4, { align: 'right' })
 
   // BORRADOR diagonal watermark
   if (esBorrador) {
@@ -346,6 +355,34 @@ export async function generarPDFProyecto(params: {
     y += 20
   }
 
+  // ── Mini timeline en portada (llena la zona inferior)
+  {
+    const edadA  = datos.edad_actual || 60
+    const mMod   = escSel?.mod40_meses || 0
+    const edadFin = Math.round(edadA + mMod / 12)
+    const tlSteps = [
+      { lbl: 'Hoy (' + edadA + ' años)', desc: 'Alta Mod 40', color: NARANJA },
+      { lbl: edadFin + ' años', desc: 'Fin cotización', color: HC },
+      { lbl: '62 años', desc: 'Cesantía posible', color: HC },
+      { lbl: '65 años', desc: fmtMXN(escSel?.pension_mensual || 0) + '/mes', color: VERDE },
+    ]
+    const tlY = y + 6
+    const stepW2 = (W - ML - MR) / tlSteps.length
+    // Line
+    setS('#e2e8f0'); doc.setLineWidth(0.4)
+    doc.line(ML + stepW2 / 2, tlY + 4, W - MR - stepW2 / 2, tlY + 4)
+    tlSteps.forEach((s, i) => {
+      const cx = ML + i * stepW2 + stepW2 / 2
+      const [r,g,b] = hexToRgb(s.color); doc.setFillColor(r,g,b)
+      doc.circle(cx, tlY + 4, 3, 'F')
+      doc.setFontSize(7.5); doc.setFont('helvetica', 'bold'); setC(s.color)
+      t(s.lbl, cx, tlY + 11, { align: 'center' })
+      doc.setFontSize(6.5); doc.setFont('helvetica', 'normal'); setC(GRIS)
+      t(s.desc, cx, tlY + 16, { align: 'center' })
+    })
+    y += 28
+  }
+
   // Alerta conservación de derechos en portada
   const semanasConservPortada = Math.floor(datos.semanas_totales / 4)
   const mesesConservPortada   = Math.round(semanasConservPortada / 4.33)
@@ -369,27 +406,32 @@ export async function generarPDFProyecto(params: {
   if (esBorrador) { doc.setFont('helvetica', 'bold'); setC('#b45309'); t('BORRADOR — Pendiente de autorización oficial. No compartir con el cliente.', ML, y) }
 
   // ══════════════════════════════════════════════════
-  // PÁGINA 2 — RESUMEN EJECUTIVO
+  // PÁGINA 2 — RESUMEN EJECUTIVO (visual, no duplicar sección 7)
   // ══════════════════════════════════════════════════
   doc.addPage(); y = 22; addHeader()
   sectionTitle('0', 'RESUMEN EJECUTIVO')
 
-  if (analisis.length > 0) {
-    // Show first 2 sections as executive summary
-    const resumen = analisis.slice(0, 2)
-    resumen.forEach((sec: any) => {
-      subTitle(sec.titulo)
-      bodyText(sec.contenido || '')
-    })
-  } else {
-    // Auto-generate brief summary from data
-    subTitle('Situación actual')
-    bodyText(`${datos.nombre_trabajador || datos.nombre || 'El trabajador'} cuenta con ${datos.semanas_totales || 0} semanas cotizadas bajo ${datos.ley === '73' ? 'Ley 73 (régimen pre-1997)' : 'Ley 97'}. Sin ninguna acción adicional, la pensión estimada sería de ${fmtMXN(escBase?.pension_mensual || 0)} al mes.`)
-    subTitle('Oportunidad')
-    bodyText(`Mediante la estrategia de ${escSel.label}, es posible incrementar la pensión mensual en ${fmtMXN(escSel.incremento_vs_base || 0)}, alcanzando ${fmtMXN(escSel.pension_mensual || 0)} al mes. La inversión total requerida es de ${fmtMXN(escSel.inversion_total || 0)} y el punto de equilibrio se alcanza en ${escSel.roi_meses || '—'} meses de pensión.`)
-    subTitle('Recomendación')
-    bodyText(`Se recomienda iniciar la cotización bajo Modalidad 40 a ${(escSel.mod40_umas || 0).toFixed(1)} UMAs por un período de ${escSel.mod40_meses || 0} meses, con un costo mensual de ${fmtMXN(escSel.costo_mensual_mod40 || 0)}.`)
-  }
+  // 3 highlight cards — situación, oportunidad, recomendación
+  const resCards = [
+    { icon: '→', title: 'Situación actual', color: GRIS, bg: '#F8FAFC',
+      body: `${datos.nombre_trabajador || datos.nombre || 'El trabajador'} tiene ${datos.semanas_totales || 0} semanas cotizadas bajo Ley ${datos.ley || '73'}. Sin acción, la pensión estimada sería de ${fmtMXN(escBase?.pension_mensual || 0)}/mes.` },
+    { icon: '↑', title: 'Oportunidad detectada', color: VERDE, bg: '#f0fdf4',
+      body: `Con la estrategia recomendada (${escSel.label}), la pensión puede llegar a ${fmtMXN(escSel.pension_mensual || 0)}/mes — un incremento de ${fmtMXN(escSel.incremento_vs_base || 0)}/mes. La inversión se recupera en ${escSel.roi_meses || '—'} meses de pensión.` },
+    { icon: '★', title: 'Recomendación', color: HC, bg: '#EEF2F8',
+      body: `Iniciar Modalidad 40 a ${(escSel.mod40_umas || 0).toFixed(1)} UMAs por ${escSel.mod40_meses || 0} meses. Costo: ${fmtMXN(escSel.costo_mensual_mod40 || 0)}/mes. Inversión total: ${fmtMXN(escSel.inversion_total || 0)}.` },
+  ]
+  resCards.forEach((card) => {
+    checkPage(30)
+    const [rb,gb,bb] = hexToRgb(card.bg)
+    doc.setFillColor(rb,gb,bb); doc.rect(ML, y, W - ML - MR, 28, 'F')
+    const [ra,ga,ba] = hexToRgb(card.color); doc.setFillColor(ra,ga,ba); doc.rect(ML, y, 3, 28, 'F')
+    doc.setFontSize(10); doc.setFont('helvetica', 'bold'); setC(card.color)
+    t(card.icon + '  ' + card.title, ML + 7, y + 8)
+    doc.setFontSize(8); doc.setFont('helvetica', 'normal'); setC('#374151')
+    const bLines = doc.splitTextToSize(card.body, W - ML - MR - 14)
+    bLines.forEach((l: string, li: number) => t(l, ML + 7, y + 16 + li * 4.5))
+    y += 32
+  })
 
   // ══════════════════════════════════════════════════
   // SECCIÓN 1 — DATOS DEL TRABAJADOR
@@ -516,9 +558,9 @@ export async function generarPDFProyecto(params: {
     const wsM10 = [52, 36, 36, 36, 20]
     tHead(['Concepto', 'Modalidad 10', 'Modalidad 40', 'Diferencia', 'Extra'], wsM10)
     const compRows = [
-      ['Cuota mensual', fmtMXN(escM10.costo_mensual_mod40), fmtMXN(cuotaM40ref), '+' + fmtMXN(difM), ''],
+      ['Cuota mensual', fmtMXN(escM10.costo_mensual_mod40), fmtMXN(cuotaM40ref), '+' + fmtMXN(difM) + ' mas cara', ''],
       ['Inversión total', fmtMXN(escM10.inversion_total), fmtMXN(escSel?.inversion_total || 0), '+' + fmtMXN(escM10.inversion_total - (escSel?.inversion_total || 0)), ''],
-      ['Pensión estimada', fmtMXN(escM10.pension_mensual) + '/mes', fmtMXN(escSel?.pension_mensual || 0) + '/mes', '≈ igual', ''],
+      ['Pensión estimada', fmtMXN(escM10.pension_mensual) + '/mes', fmtMXN(escSel?.pension_mensual || 0) + '/mes', '= mismo monto', ''],
       ['Servicio médico IMSS', 'Sí ✓', 'No ✗', '', '✓'],
       ['Guarderías', 'Sí ✓', 'No ✗', '', '✓'],
       ['Aportaciones Infonavit', 'Sí ✓', 'No ✗', '', '✓'],
@@ -547,27 +589,44 @@ export async function generarPDFProyecto(params: {
   })
   y += 8
 
-  // Bar chart
+  // Bar chart with objective line
   subTitle('Comparativa visual de pensión mensual por escenario')
-  const maxPension = Math.max(...escenarios.map((e: any) => e.pension_mensual || 0))
+  const maxPension = Math.max(...escenarios.map((e: any) => e.pension_mensual || 0), ingresoObjetivo || 0)
+  const chartBarW  = W - ML - MR - 58
   const barColors  = ['#94a3b8', '#3b82f6', '#eab308', '#f97316', HC, '#7c3aed']
-  barChart(
-    escenarios.map((esc: any, i: number) => ({
-      label: esc.label,
-      value: esc.pension_mensual || 0,
-      color: barColors[i] || HC,
-      highlight: i === escSelIdx || (escSelIdx < 0 && esc.recomendado),
-    })),
-    maxPension
-  )
-
+  const barH2 = 9, gap2 = 4
+  checkPage(escenarios.length * (barH2 + gap2) + 20)
+  const chartStartY = y
+  escenarios.forEach((esc: any, i: number) => {
+    const isEl = i === escSelIdx || (escSelIdx < 0 && esc.recomendado)
+    const pct  = Math.min((esc.pension_mensual || 0) / maxPension, 1)
+    const bLen = Math.max(pct * chartBarW, 2)
+    doc.setFontSize(7); doc.setFont('helvetica', isEl ? 'bold' : 'normal'); setC(isEl ? HC : GRIS)
+    const lbl2 = doc.splitTextToSize(esc.label, 55)
+    t(lbl2[0], ML, y + 6)
+    const [rb2,gb2,bb2] = hexToRgb(barColors[i] || HC)
+    doc.setFillColor(rb2,gb2,bb2); doc.rect(ML + 57, y + 1, bLen, barH2 - 2, 'F')
+    if (isEl) { setF(NARANJA); doc.rect(ML + 57, y + 1, 2.5, barH2 - 2, 'F') }
+    doc.setFontSize(7); doc.setFont('helvetica', 'bold'); setC(isEl ? HC : (barColors[i] || GRIS))
+    t(fmtMXN(esc.pension_mensual || 0) + '/mes', ML + 57 + bLen + 3, y + 6)
+    y += barH2 + gap2
+  })
+  // Objective line (red dashed)
   if (ingresoObjetivo && ingresoObjetivo > 0) {
-    doc.setFontSize(7); doc.setFont('helvetica', 'italic'); setC(GRIS)
-    t('Objetivo de pensión del cliente: ' + fmtMXN(ingresoObjetivo) + '/mes', ML, y); y += 6
+    const objPct = Math.min(ingresoObjetivo / maxPension, 1)
+    const objX   = ML + 57 + objPct * chartBarW
+    setS(ROJO); doc.setLineWidth(0.4)
+    doc.setLineDashPattern([1.5, 1.5], 0)
+    doc.line(objX, chartStartY, objX, y)
+    doc.setLineDashPattern([], 0)
+    doc.setFontSize(6.5); doc.setFont('helvetica', 'bold'); setC(ROJO)
+    t('Objetivo', objX + 1, chartStartY + 4)
+    t(fmtMXN(ingresoObjetivo), objX + 1, chartStartY + 8)
+    y += 6
     const pctAlcanza = Math.round((escSel.pension_mensual / ingresoObjetivo) * 100)
     if (pctAlcanza >= 100) alertChip('✓ El escenario elegido alcanza el objetivo de ' + fmtMXN(ingresoObjetivo) + '/mes (' + pctAlcanza + '%)', 'success')
     else alertChip('⚠ El escenario elegido cubre el ' + pctAlcanza + '% del objetivo — faltan ' + fmtMXN(ingresoObjetivo - escSel.pension_mensual) + '/mes', pctAlcanza >= 70 ? 'warning' : 'danger')
-  }
+  } else { y += 4 }
 
   // ══════════════════════════════════════════════════
   // SECCIÓN 7 — ANÁLISIS EJECUTIVO
@@ -576,11 +635,14 @@ export async function generarPDFProyecto(params: {
     newPage()
     const numSec7 = escM10 ? '7' : '6'
     sectionTitle(numSec7, 'ANÁLISIS EJECUTIVO DEL PROYECTO DE PENSIÓN')
-    analisis.forEach((sec: any) => {
-      checkPage(30)
-      subTitle(sec.titulo || '')
-      bodyText(sec.contenido || '')
-    })
+    // Skip "Próximos pasos" section — it lives in sección 8
+    analisis
+      .filter((sec: any) => !sec.titulo?.toLowerCase().includes('paso') && !sec.titulo?.toLowerCase().includes('siguiente'))
+      .forEach((sec: any) => {
+        checkPage(30)
+        subTitle(sec.titulo || '')
+        bodyText(sec.contenido || '')
+      })
   }
 
   // ══════════════════════════════════════════════════
