@@ -32,8 +32,16 @@ export function generarPDFProyecto(params: {
   razonSocial?: string
   asesorNombre?: string
   ingresoObjetivo?: number
+  encabezadoColor?: string
+  encabezadoTitulo?: string
+  encabezadoLogoSize?: number
+  encabezadoFontSize?: number
 }) {
-  const { datos, periodos, sdiPromedio, escenarios, escSelIdx, corridaFin, finSel, finPlazo, analisis, logoUrl, razonSocial, asesorNombre, ingresoObjetivo } = params
+  const { datos, periodos, sdiPromedio, escenarios, escSelIdx, corridaFin, finSel, finPlazo, analisis, logoUrl, razonSocial, asesorNombre, ingresoObjetivo, encabezadoColor, encabezadoTitulo, encabezadoLogoSize, encabezadoFontSize } = params
+  const HEADER_COLOR = encabezadoColor || AZUL
+  const HEADER_TITULO = encabezadoTitulo || 'Diagnóstico Pensional'
+  const LOGO_SIZE = encabezadoLogoSize || 28
+  const FONT_SIZE_HEADER = encabezadoFontSize || 13
   const escSel = escenarios[escSelIdx] ?? escenarios.find((e: any) => e.recomendado) ?? escenarios[escenarios.length - 1] ?? null
   if (!escSel || escenarios.length === 0) {
     const emptyDoc = new jsPDF()
@@ -57,13 +65,13 @@ export function generarPDFProyecto(params: {
   const checkPage = (needed = 30) => { if (y + needed > H - 20) newPage() }
 
   function addHeader() {
-    setFill(AZUL)
+    setFill(HEADER_COLOR)
     doc.rect(0, 0, W, 14, 'F')
-    doc.setFontSize(8)
+    doc.setFontSize(FONT_SIZE_HEADER - 4)
     doc.setFont('helvetica', 'bold')
     setColor('#ffffff')
-    text('KSE Pensiones — Proyecto de Pensión Confidencial', ML, 9)
-    setColor('#94a3b8')
+    text((razonSocial || 'KSE Pensiones') + ' — ' + HEADER_TITULO, ML, 9)
+    setColor('rgba(255,255,255,0.8)')
     doc.setFont('helvetica', 'normal')
     text(new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }), W - MR, 9, { align: 'right' })
     y = 22
@@ -71,7 +79,7 @@ export function generarPDFProyecto(params: {
 
   function sectionHeader(title: string, sub?: string) {
     checkPage(20)
-    setFill(AZUL)
+    setFill(HEADER_COLOR)
     doc.rect(ML, y, W - ML - MR, 8, 'F')
     doc.setFontSize(9)
     doc.setFont('helvetica', 'bold')
@@ -109,7 +117,7 @@ export function generarPDFProyecto(params: {
   }
 
   function tableHeader(headers: string[], widths: number[], startX = ML) {
-    setFill('#1B3A6B')
+    setFill(HEADER_COLOR)
     const totalW = widths.reduce((s,w) => s+w, 0)
     doc.rect(startX, y, totalW, 7, 'F')
     doc.setFontSize(7)
@@ -150,7 +158,7 @@ export function generarPDFProyecto(params: {
     doc.rect(startX, y, totalW, 7, 'F')
     doc.setFontSize(8)
     doc.setFont('helvetica', 'bold')
-    setColor(AZUL)
+    setColor(HEADER_COLOR)
     let x = startX
     cells.forEach((c, i) => {
       const align = aligns?.[i] || (i === 0 ? 'left' : 'right')
@@ -164,18 +172,18 @@ export function generarPDFProyecto(params: {
   // ══════════════════════════════════════════════════
   // PÁGINA 1: PORTADA
   // ══════════════════════════════════════════════════
-  setFill(AZUL)
+  setFill(HEADER_COLOR)
   doc.rect(0, 0, W, 80, 'F')
 
   // Logo / Razón social del asesor
-  doc.setFontSize(22)
+  doc.setFontSize(FONT_SIZE_HEADER + 9)
   doc.setFont('helvetica', 'bold')
   setColor('#ffffff')
   text(razonSocial || 'KSE Pensiones', W / 2, 35, { align: 'center' })
-  doc.setFontSize(11)
+  doc.setFontSize(FONT_SIZE_HEADER - 2)
   doc.setFont('helvetica', 'normal')
   setColor('rgba(255,255,255,0.7)')
-  text('Consultoría Pensional Especializada', W / 2, 44, { align: 'center' })
+  text(HEADER_TITULO, W / 2, 44, { align: 'center' })
 
   // Título del documento
   y = 95
