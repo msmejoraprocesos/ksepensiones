@@ -195,29 +195,55 @@ export async function generarPDFProyecto(params: {
     y += 11
   }
 
-  // ── Horizontal bar chart for scenarios
-  function barChart(items: {label: string; value: number; color: string; highlight?: boolean}[], maxVal: number) {
-    const chartW = W - ML - MR - 55
-    const barH   = 9
-    const gap    = 4
-    checkPage(items.length * (barH + gap) + 10)
-    items.forEach((item) => {
-      const pct   = Math.min(item.value / maxVal, 1)
-      const barLen = Math.max(pct * chartW, 2)
+  // ── Real horizontal bar chart with proportional filled rectangles
+  function barChart(items: {label: string; value: number; color: string; highlight?: boolean}[], maxVal: number, objLine?: number) {
+    const labelW = 56
+    const valW   = 30
+    const chartW = W - ML - MR - labelW - valW
+    const barH   = 10
+    const gap    = 5
+    const chartX = ML + labelW
+    checkPage(items.length * (barH + gap) + 20)
+
+    // Background track
+    items.forEach((item, idx) => {
+      const rowY = y + idx * (barH + gap)
+      // Zebra background
+      if (idx % 2 === 0) { setF('#F8FAFC'); doc.rect(ML, rowY, W - ML - MR, barH + gap - 1, 'F') }
       // Label
-      doc.setFontSize(7.5); doc.setFont('helvetica', item.highlight ? 'bold' : 'normal'); setC(item.highlight ? HC : GRIS)
-      const labelLines = doc.splitTextToSize(item.label, 52)
-      t(labelLines[0], ML, y + 6)
-      // Bar
-      setF(item.color); doc.rect(ML + 54, y + 1, barLen, barH - 2, 'F')
-      if (item.highlight) {
-        setF(NARANJA); doc.rect(ML + 54, y + 1, 2, barH - 2, 'F')
-      }
-      // Value
-      doc.setFontSize(7.5); doc.setFont('helvetica', 'bold'); setC(item.highlight ? HC : item.color)
-      t(fmtMXN(item.value) + '/mes', ML + 54 + barLen + 3, y + 6)
-      y += barH + gap
+      doc.setFontSize(7); doc.setFont('helvetica', item.highlight ? 'bold' : 'normal')
+      setC(item.highlight ? HC : GRIS)
+      const lLines = doc.splitTextToSize(item.label, labelW - 3)
+      t(lLines[0], ML + 2, rowY + barH * 0.65)
+      // Bar track (light gray)
+      setF('#E8EDF5'); doc.rect(chartX, rowY + 1.5, chartW, barH - 3, 'F')
+      // Filled bar — proportional
+      const pct    = maxVal > 0 ? Math.min(item.value / maxVal, 1) : 0
+      const barLen = Math.max(pct * chartW, 1)
+      const [r,g,b] = hexToRgb(item.color); doc.setFillColor(r,g,b)
+      doc.rect(chartX, rowY + 1.5, barLen, barH - 3, 'F')
+      // Highlight accent stripe
+      if (item.highlight) { setF(NARANJA); doc.rect(chartX, rowY + 1.5, 2.5, barH - 3, 'F') }
+      // Value label
+      doc.setFontSize(7.5); doc.setFont('helvetica', 'bold')
+      setC(item.highlight ? HC : '#374151')
+      t(fmtMXN(item.value), W - MR - 2, rowY + barH * 0.65, { align: 'right' })
     })
+    y += items.length * (barH + gap) + 4
+
+    // Objective vertical line
+    if (objLine && objLine > 0 && maxVal > 0) {
+      const objPct = Math.min(objLine / maxVal, 1)
+      const objX   = chartX + objPct * chartW
+      const lineTop = y - items.length * (barH + gap) - 4
+      setS(ROJO); doc.setLineWidth(0.5)
+      doc.setLineDashPattern([2, 1.5], 0)
+      doc.line(objX, lineTop, objX, y - 4)
+      doc.setLineDashPattern([], 0)
+      doc.setFontSize(6.5); doc.setFont('helvetica', 'bold'); setC(ROJO)
+      t('Objetivo', objX + 1, lineTop + 4)
+      t(fmtMXN(objLine), objX + 1, lineTop + 8)
+    }
     y += 4
   }
 
@@ -355,17 +381,29 @@ export async function generarPDFProyecto(params: {
     y += 20
   }
 
-  // ── Mini timeline en portada (llena la zona inferior)
+  // ── Mini timeline en portada — 4 hitos en orden cronológico real
   {
     const edadA  = datos.edad_actual || 60
     const mMod   = escSel?.mod40_meses || 0
-    const edadFin = Math.round(edadA + mMod / 12)
+    const edadFinMod = Math.round(edadA + mMod / 12)
+    // Build steps: always Hoy + fin Mod40 + cesantía(62) + vejez(65)
+    // Avoid duplicate or out-of-order ages
     const tlSteps = [
-      { lbl: 'Hoy (' + edadA + ' años)', desc: 'Alta Mod 40', color: NARANJA },
-      { lbl: edadFin + ' años', desc: 'Fin cotización', color: HC },
-      { lbl: '62 años', desc: 'Cesantía posible', color: HC },
-      { lbl: '65 años', desc: fmtMXN(escSel?.pension_mensual || 0) + '/mes', color: VERDE },
-    ]
+      { lbl: 'Hoy (' + edadA + ' años)', desc: 'Verificar semanas
+en portal IMSS', color: NARANJA },
+      { lbl: edadFinMod + ' años', desc: 'Alta Mod 40
+' + fmtMXN(escSel?.costo_mensual_mod40 || 0) + '/mes', color: HC },
+      { lbl: '62 años', desc: 'Solicitar
+cesantía IMSS', color: HC },
+      { lbl: '65 años', desc: 'Pensión vejez
+' + fmtMXN(escSel?.pension_mensual || 0) + '/mes', color: VERDE },
+    ].filter((s, i, arr) => {
+      // Remove duplicates or steps that are out of order
+      if (i === 0) return true
+      const prevAge = parseInt(arr[i-1].lbl)
+      const thisAge = parseInt(s.lbl)
+      return isNaN(prevAge) || isNaN(thisAge) || thisAge > prevAge
+    })
     const tlY = y + 6
     const stepW2 = (W - ML - MR) / tlSteps.length
     // Line
@@ -420,6 +458,14 @@ export async function generarPDFProyecto(params: {
     { icon: '★', title: 'Recomendación', color: HC, bg: '#EEF2F8',
       body: `Iniciar Modalidad 40 a ${(escSel.mod40_umas || 0).toFixed(1)} UMAs por ${escSel.mod40_meses || 0} meses. Costo: ${fmtMXN(escSel.costo_mensual_mod40 || 0)}/mes. Inversión total: ${fmtMXN(escSel.inversion_total || 0)}.` },
   ]
+  // KPI row above bullets
+  kpiRow([
+    { label: 'Pensión sin acción', value: fmtMXN(escBase?.pension_mensual || 0) + '/mes', color: GRIS },
+    { label: 'Pensión con estrategia', value: fmtMXN(escSel?.pension_mensual || 0) + '/mes', color: HC },
+    { label: '% del objetivo', value: ingresoObjetivo && ingresoObjetivo > 0 ? Math.round(escSel.pension_mensual / ingresoObjetivo * 100) + '%' : '—', color: VERDE },
+    { label: 'Recuperación inversión', value: (escSel?.roi_meses || 0) + ' meses', color: NARANJA },
+  ])
+
   resCards.forEach((card) => {
     checkPage(30)
     const [rb,gb,bb] = hexToRgb(card.bg)
@@ -432,6 +478,16 @@ export async function generarPDFProyecto(params: {
     bLines.forEach((l: string, li: number) => t(l, ML + 7, y + 16 + li * 4.5))
     y += 32
   })
+
+  // Conservacion alert at end of sec 0
+  {
+    const scP = Math.floor(datos.semanas_totales / 4)
+    const mcP = Math.round(scP / 4.33)
+    const mdP = datos.fecha_calculo ? Math.floor((Date.now() - new Date(datos.fecha_calculo).getTime()) / (30 * 86400000)) : -1
+    const mrP = mdP >= 0 ? Math.max(0, mcP - mdP) : null
+    if (mrP !== null && mrP === 0) alertChip('⚠ Conservación de derechos VENCIDA — se requiere reactivación antes de tramitar la pensión', 'danger')
+    else if (mrP !== null && mrP < 12) alertChip('⚠ Conservación de derechos vigente pero próxima a vencer — ' + mrP + ' meses restantes', 'warning')
+  }
 
   // ══════════════════════════════════════════════════
   // SECCIÓN 1 — DATOS DEL TRABAJADOR
@@ -652,16 +708,20 @@ export async function generarPDFProyecto(params: {
   const numSec8 = escM10 ? '8' : analisis.length > 0 ? '7' : '6'
   sectionTitle(numSec8, 'PRÓXIMOS PASOS')
 
-  // Build timeline from data
+  // Timeline — 4 hitos cronológicos sin duplicados
   const edadActual   = datos.edad_actual || 60
   const mesesMod40   = escSel?.mod40_meses || 0
-  const edadFinMod40 = Math.round((edadActual + mesesMod40 / 12) * 10) / 10
-  const steps: {label: string; desc: string; color: string}[] = [
-    { label: 'Hoy', desc: 'Inicio Mod 40\n' + fmtMXN(escSel?.costo_mensual_mod40 || 0) + '/mes', color: NARANJA },
+  const edadFinMod40 = Math.round(edadActual + mesesMod40 / 12)
+  const stepsRaw2: {label: string; desc: string; color: string; age: number}[] = [
+    { label: 'Hoy (' + edadActual + ' años)', desc: 'Verificar semanas\nen portal IMSS', color: NARANJA, age: edadActual },
+    { label: edadFinMod40 + ' años', desc: 'Alta Mod 40\n' + fmtMXN(escSel?.costo_mensual_mod40 || 0) + '/mes', color: HC, age: edadFinMod40 },
+    { label: '62 años', desc: 'Solicitar cesantía\nante el IMSS', color: HC, age: 62 },
+    { label: '65 años', desc: 'Pensión vejez\n' + fmtMXN(escSel?.pension_mensual || 0) + '/mes', color: VERDE, age: 65 },
   ]
-  if (mesesMod40 >= 12) steps.push({ label: edadFinMod40.toFixed(0) + ' años', desc: 'Fin cotización\nInversión completa', color: HC })
-  steps.push({ label: '60 años', desc: 'Cesantía\n(si aplica)', color: HC })
-  steps.push({ label: '65 años', desc: 'Vejez\n' + fmtMXN(escSel?.pension_mensual || 0) + '/mes', color: VERDE })
+  const steps = stepsRaw2
+    .sort((a, b) => a.age - b.age)
+    .filter((s, i, arr) => i === 0 || s.age > arr[i - 1].age)
+    .map(({ label, desc, color }) => ({ label, desc, color }))
 
   timeline(steps)
 
