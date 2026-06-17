@@ -191,7 +191,7 @@ function CalculadoraInner() {
   const [generandoAnalisis, setGenerandoAnalisis] = useState(false)
   const [guardando, setGuardando] = useState(false)
   const [mensaje, setMensaje] = useState('')
-  const [asesorPerfil, setAsesorPerfil] = useState<{razon_social?: string; nombre?: string; logo_url?: string} | null>(null)
+  const [asesorPerfil, setAsesorPerfil] = useState<{razon_social?: string; nombre?: string; logo_url?: string; encabezado_color?: string; encabezado_titulo?: string; encabezado_logo_size?: number; encabezado_font_size?: number} | null>(null)
   const [showWappModal, setShowWappModal] = useState(false)
 
   const [showAllMonths, setShowAllMonths] = useState(false)
@@ -292,7 +292,7 @@ function CalculadoraInner() {
   }
 
   async function loadAsesorPerfil(uid: string) {
-    const { data } = await supabase.from('perfiles_usuario').select('nombre, razon_social, logo_url').eq('id', uid).single()
+    const { data } = await supabase.from('perfiles_usuario').select('nombre, razon_social, logo_url, encabezado_color, encabezado_titulo, encabezado_logo_size, encabezado_font_size').eq('id', uid).single()
     if (data) setAsesorPerfil(data)
   }
 
@@ -512,6 +512,10 @@ function CalculadoraInner() {
         razonSocial: asesorPerfil?.razon_social ?? undefined,
         asesorNombre: asesorPerfil?.nombre ?? undefined,
         ingresoObjetivo: ingresoObjetivo || undefined,
+        encabezadoColor: asesorPerfil?.encabezado_color ?? undefined,
+        encabezadoTitulo: asesorPerfil?.encabezado_titulo ?? undefined,
+        encabezadoLogoSize: asesorPerfil?.encabezado_logo_size ?? undefined,
+        encabezadoFontSize: asesorPerfil?.encabezado_font_size ?? undefined,
       })
       const nombre = (datos.nombre_trabajador || datos.nombre)?.replace(/\s+/g, '_') || 'cliente'
       const sufijo = esBorrador ? '_BORRADOR' : '_OFICIAL'
