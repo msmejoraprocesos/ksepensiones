@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   try {
     const datos = await req.json()
     const {
-      nombre, ley, semanas, salarioDiario, salarioMensual, edadActual, edadRetiro,
+      nombre, nombre_trabajador, ley, semanas, salarioDiario, salarioMensual, edadActual, edadRetiro,
       aniosRetiro, ingresoDes, inflacion, sys,
       e1, e2, e3, e4, escRecomendado,
       mod10Activo, mod10Anios, mod40Activo, mod40UMAs, mod40Anios, mod40Costo,
@@ -25,7 +25,8 @@ Sé directo, empático y usa lenguaje que cualquier persona pueda entender.
 NO uses tecnicismos innecesarios. SÍ explica las consecuencias reales.
 
 DATOS DEL DIAGNÓSTICO:
-- Cliente: ${nombre || 'el asegurado'}
+- Cliente / quien solicita: ${nombre || 'el asegurado'}
+- Trabajador titular (constancia IMSS): ${nombre_trabajador || nombre || 'el asegurado'}
 - Régimen: Ley ${ley}
 - Edad actual: ${edadActual} años
 - Edad de retiro deseada: ${edadRetiro} años (${aniosRetiro} años para el retiro)
