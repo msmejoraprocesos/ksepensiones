@@ -635,6 +635,10 @@ export async function generarPDFProyecto(params: {
     newPage()
     const numSec7 = escM10 ? '7' : '6'
     sectionTitle(numSec7, 'ANÁLISIS EJECUTIVO DEL PROYECTO DE PENSIÓN')
+    // Note about editability
+    doc.setFontSize(7); doc.setFont('helvetica', 'italic'); setC(GRIS)
+    t('Análisis generado con inteligencia artificial y revisado por el asesor. El contenido puede haber sido complementado o ajustado para este caso específico.', ML, y)
+    y += 7
     // Skip "Próximos pasos" section — it lives in sección 8
     analisis
       .filter((sec: any) => !sec.titulo?.toLowerCase().includes('paso') && !sec.titulo?.toLowerCase().includes('siguiente'))
