@@ -28,8 +28,9 @@ export function generarPDFProyecto(params: {
   logoUrl?: string
   razonSocial?: string
   asesorNombre?: string
+  ingresoObjetivo?: number
 }) {
-  const { datos, periodos, sdiPromedio, escenarios, escSelIdx, corridaFin, finSel, finPlazo, analisis, logoUrl, razonSocial, asesorNombre } = params
+  const { datos, periodos, sdiPromedio, escenarios, escSelIdx, corridaFin, finSel, finPlazo, analisis, logoUrl, razonSocial, asesorNombre, ingresoObjetivo } = params
   const escSel = escenarios[escSelIdx]
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' })
   const W = 216, H = 279
@@ -252,8 +253,32 @@ export function generarPDFProyecto(params: {
     { label: 'Estado', value: datos.semanas_totales >= 500 ? 'Apto para pensionarse' : 'Semanas insuficientes', color: datos.semanas_totales >= 500 ? VERDE : '#ef4444' },
   ])
 
-  y += 4
-  sectionHeader('2. SALARIO PROMEDIO — ÚLTIMAS 250 SEMANAS COTIZADAS', 'Art. 167 Ley del Seguro Social 1973')
+  // Conservacion de derechos
+  y += 2
+  sectionHeader('2. CONSERVACIÓN DE DERECHOS', 'Art. 183 Ley del Seguro Social 1973')
+  const semanasConserv = Math.floor(datos.semanas_totales / 4)
+  const mesesConserv = Math.round(semanasConserv / 4.33)
+  const mesesDesde = datos.fecha_calculo ? Math.floor((Date.now() - new Date(datos.fecha_calculo).getTime()) / (30 * 86400000)) : 0
+  const mesesRestantes = Math.max(0, mesesConserv - mesesDesde)
+  const vigente = mesesRestantes > 0
+  kpiRow([
+    { label: 'Semanas de conservación', value: semanasConserv + ' sem', color: AZUL },
+    { label: 'Período de conservación', value: (semanasConserv / 4.33 / 12).toFixed(1) + ' años', color: AZUL },
+    { label: 'Estado', value: vigente ? 'VIGENTE ✓' : 'VENCIDO ✗', color: vigente ? VERDE : '#ef4444' },
+    { label: 'Meses restantes', value: vigente ? mesesRestantes + ' meses' : 'Requiere reactivación', color: vigente ? VERDE : '#ef4444' },
+  ])
+  if (!vigente) {
+    const aniosSin = mesesDesde / 12
+    const accion = aniosSin <= 3 ? 'Reconocimiento inmediato al reingresar' : aniosSin <= 6 ? 'Requiere 26 semanas nuevas (Art. 151)' : 'Requiere 52 semanas nuevas (Art. 151)'
+    doc.setFontSize(8)
+    doc.setFont('helvetica', 'bold')
+    setColor('#991b1b')
+    text('⚠ Para reactivar: ' + accion, ML, y)
+    y += 7
+  }
+
+  y += 2
+  sectionHeader('3. SALARIO PROMEDIO — ÚLTIMAS 250 SEMANAS COTIZADAS', 'Art. 167 Ley del Seguro Social 1973')
 
   doc.setFontSize(8)
   doc.setFont('helvetica', 'normal')
@@ -291,7 +316,7 @@ export function generarPDFProyecto(params: {
   // PÁGINA 3: MODALIDAD 40 + ESCENARIOS
   // ══════════════════════════════════════════════════
   checkPage(40)
-  sectionHeader('3. MODALIDAD 40 — ESTRATEGIA DE OPTIMIZACIÓN', 'Art. 218 Ley del Seguro Social 1973')
+  sectionHeader('4. MODALIDAD 40 — ESTRATEGIA DE OPTIMIZACIÓN', 'Art. 218 Ley del Seguro Social 1973')
 
   if (escSel) {
     kpiRow([
@@ -327,8 +352,59 @@ export function generarPDFProyecto(params: {
     tableFooter(['Total', '—', fmtMXN(costoMes)+'/mes', fmtMXN(escSel.inversion_total), (escSel.mod40_meses * 4.33).toFixed(0)], wsMod, ML, ['left','center','right','right','right'])
   }
 
+  // ══════════════════════════════════════════════════
+  // MODALIDAD 10 (si aplica)
+  // ══════════════════════════════════════════════════
+  const escM10 = escenarios.find((e: any) => e.id === 'e_m10')
+  if (escM10) {
+    checkPage(50)
+    sectionHeader('4. MODALIDAD 10 — INCORPORACIÓN VOLUNTARIA', 'Art. 240 Ley del Seguro Social — Para trabajadores independientes')
+
+    kpiRow([
+      { label: 'Salario base (UMAs)', value: (escM10.mod40_umas || 0).toFixed(1), color: VERDE },
+      { label: 'Período', value: `${escM10.mod40_meses} meses`, color: VERDE },
+      { label: 'Cuota mensual (22%)', value: fmtMXN(escM10.costo_mensual_mod40), color: NARANJA },
+      { label: 'Inversión total', value: fmtMXN(escM10.inversion_total), color: NARANJA },
+    ])
+
+    // Diferencia vs Mod40
+    const cuotaM40ref = escSel ? escSel.costo_mensual_mod40 : 0
+    const difMensual = escM10.costo_mensual_mod40 - cuotaM40ref
+    kpiRow([
+      { label: 'Pensión estimada', value: fmtMXN(escM10.pension_mensual) + '/mes', color: VERDE },
+      { label: 'Diferencia vs Mod 40', value: '+' + fmtMXN(difMensual) + '/mes', color: '#f97316' },
+      { label: 'Cobertura adicional', value: 'Médica + Infonavit + Guarderías', color: AZUL },
+      { label: 'Vs objetivo', value: ingresoObjetivo > 0 ? Math.round(escM10.pension_mensual / ingresoObjetivo * 100) + '% del objetivo' : '—' },
+    ])
+
+    // Tabla comparativa Mod10 vs Mod40
+    const wsM10 = [55, 38, 38, 38, 27]
+    tableHeader(['Concepto', 'Modalidad 10', 'Modalidad 40', 'Diferencia', '¿Qué incluye extra?'], wsM10)
+    const compRows = [
+      ['Cuota mensual', fmtMXN(escM10.costo_mensual_mod40), fmtMXN(cuotaM40ref), '+' + fmtMXN(difMensual), 'Más cara'],
+      ['Inversión total', fmtMXN(escM10.inversion_total), fmtMXN(escSel?.inversion_total || 0), '+' + fmtMXN(escM10.inversion_total - (escSel?.inversion_total || 0)), ''],
+      ['Pensión estimada', fmtMXN(escM10.pension_mensual) + '/mes', fmtMXN(escSel?.pension_mensual || 0) + '/mes', '≈ igual', ''],
+      ['Servicio médico', 'Sí ✓', 'No ✗', '+Beneficio', 'IMSS familiar'],
+      ['Infonavit', 'Sí ✓', 'No ✗', '+Beneficio', 'Crédito vivienda'],
+      ['Guarderías', 'Sí ✓', 'No ✗', '+Beneficio', 'Hijos hasta 4 años'],
+      ['Req. historial IMSS', 'No requerido', 'Sí requerido', '', ''],
+    ]
+    compRows.forEach((row, i) => {
+      checkPage(8)
+      tableRow(row, wsM10, i % 2 === 0, ML, ['left','right','right','right','left'])
+    })
+
+    y += 4
+    doc.setFontSize(7.5)
+    doc.setFont('helvetica', 'italic')
+    setColor('#94a3b8')
+    const notaM10 = doc.splitTextToSize('Nota: La tasa de Modalidad 10 (22%) es un estimado. El monto exacto varía según actividad económica y zona geográfica. Verificar en el portal oficial del IMSS.', W - ML - MR)
+    doc.text(notaM10, ML, y)
+    y += notaM10.length * 4 + 4
+  }
+
   y += 4
-  sectionHeader('4. COMPARATIVO DE ESCENARIOS DE PENSIÓN')
+  sectionHeader(escM10 ? '5. COMPARATIVO DE ESCENARIOS DE PENSIÓN' : '4. COMPARATIVO DE ESCENARIOS DE PENSIÓN')
 
   const wsEsc = [55, 32, 32, 28, 28, 25]
   tableHeader(['Escenario', 'Pensión mensual', 'Incremento', 'Inversión', 'ROI meses', 'Recom.'], wsEsc)
@@ -385,7 +461,7 @@ export function generarPDFProyecto(params: {
   // ══════════════════════════════════════════════════
   if (analisis.length > 0) {
     checkPage(40)
-    sectionHeader('6. ANÁLISIS EJECUTIVO DEL PROYECTO DE PENSIÓN')
+    sectionHeader('7. ANÁLISIS EJECUTIVO DEL PROYECTO DE PENSIÓN')
 
     analisis.forEach((sec: any) => {
       checkPage(25)
