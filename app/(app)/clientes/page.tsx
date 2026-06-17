@@ -10,12 +10,12 @@ const NARANJA = '#F47920'
 
 // ── Etapas del pipeline ──────────────────────────────────────────
 const COLUMNAS = [
-  { id: 'prospecto',    label: 'Prospecto',          color: '#64748b', bg: '#f1f5f9', orden: 0 },
-  { id: 'diagnostico',  label: 'Diagnóstico',        color: '#3b82f6', bg: '#eff6ff', orden: 1 },
-  { id: 'recopilacion', label: 'Recopilación',       color: '#eab308', bg: '#fefce8', orden: 2 },
-  { id: 'tramite',      label: 'Trámite',            color: '#f97316', bg: '#fff7ed', orden: 3 },
-  { id: 'cierre',       label: 'Cierre (Exitoso) ✅', color: VERDE,     bg: '#f0fdf4', orden: 4, esFinal: true },
-  { id: 'cancelado',    label: 'Cancelado',          color: '#94a3b8', bg: '#f8fafc', orden: 5, esFinal: true },
+  { id: 'prospecto',    label: 'Prospecto',          color: '#64748b', bg: '#f1f5f9', orden: 0, desc: 'Primer contacto registrado. El asesor agenda la asesoría y ejecuta el diagnóstico en la calculadora.' },
+  { id: 'diagnostico',  label: 'Diagnóstico',        color: '#3b82f6', bg: '#eff6ff', orden: 1, desc: 'Diagnóstico pensional realizado. Se entregó la propuesta. Se define el tipo de servicio y esquema de pago.' },
+  { id: 'recopilacion', label: 'Recopilación',       color: '#eab308', bg: '#fefce8', orden: 2, desc: 'Se está armando el expediente físico y digital con la documentación oficial requerida por el IMSS.' },
+  { id: 'tramite',      label: 'Trámite',            color: '#f97316', bg: '#fff7ed', orden: 3, desc: 'Expediente entregado. El trámite está en proceso ante el IMSS o la institución correspondiente.' },
+  { id: 'cierre',       label: 'Cierre (Exitoso) ✅', color: VERDE,     bg: '#f0fdf4', orden: 4, esFinal: true, desc: 'Servicio concluido exitosamente. Pensión otorgada o gestión finalizada. Se procede al cobro de honorarios.' },
+  { id: 'cancelado',    label: 'Cancelado',          color: '#94a3b8', bg: '#f8fafc', orden: 5, esFinal: true , desc: 'Expediente detenido. Cliente que no continuó, caso no viable o sin respuesta. Se conserva el historial completo.' },
 ]
 
 const TIPOS_SERVICIO = [
@@ -2000,8 +2000,9 @@ function ClientesInner() {
                 { label: 'CANCELADO', color: '#94a3b8', desc: 'TODOS LOS SERVICIOS ACTIVO.', sub: 'Expedientes detenidos.' },
               ].map((col, i) => (
                 <div key={i} style={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ background: col.color, color: 'white', padding: '10px 6px', textAlign: 'center', fontSize: '11px', fontWeight: '800' }}>
-                    {col.label}
+                  <div style={{ background: col.color, color: 'white', padding: '8px 6px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '11px', fontWeight: '800', marginBottom: '3px' }}>{col.label}</div>
+                    {'desc' in col && <div style={{ fontSize: '9px', opacity: 0.85, lineHeight: 1.4, fontWeight: '400' }}>{(col as any).desc}</div>}
                   </div>
                   <div style={{ padding: '8px 6px', flex: 1 }}>
                     <p style={{ fontSize: '10px', fontWeight: '700', color: '#374151', margin: '0 0 4px', lineHeight: 1.3 }}>{col.desc}</p>
