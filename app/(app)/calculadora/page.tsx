@@ -36,6 +36,7 @@ interface PeriodoSalarial {
 
 interface DatosGenerales {
   nombre: string
+  nombre_trabajador: string
   fecha_calculo: string
   fecha_nacimiento: string
   edad_actual: number
@@ -132,7 +133,8 @@ function calcConservacion(semanas: number, mesesDesdeUltimaCot: number): { vigen
 
 // ── DEFAULTS ────────────────────────────────────────────────────────
 const DEFAULT_DATOS: DatosGenerales = {
-  nombre: '', fecha_calculo: new Date().toISOString().split('T')[0],
+  nombre: '',
+  nombre_trabajador: '', fecha_calculo: new Date().toISOString().split('T')[0],
   fecha_nacimiento: '', edad_actual: 0, semanas_totales: 0,
   semanas_descontadas: 0, sigue_cotizando: true, tiene_conyuge: false,
   num_hijos: 0, num_padres: 0, ley: '', nss: ''
@@ -282,6 +284,7 @@ function CalculadoraInner() {
         setDatos(prev => ({
           ...prev,
           nombre: result.nombre || prev.nombre,
+          nombre_trabajador: result.nombre || prev.nombre_trabajador,
           semanas_totales: result.semanas || prev.semanas_totales,
           nss: result.nss || prev.nss,
           fecha_nacimiento: result.fecha_nac || prev.fecha_nacimiento,
@@ -471,6 +474,7 @@ function CalculadoraInner() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           nombre: clienteObj?.nombre || datos.nombre,
+          nombre_trabajador: datos.nombre_trabajador || datos.nombre,
           ley: datos.ley,
           semanas: datos.semanas_totales,
           salarioDiario: sdiPromedio,
@@ -859,9 +863,11 @@ function CalculadoraInner() {
 
             <div style={cardSt}>
               {sectionTitle('Identificación del trabajador')}
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '10px', marginBottom: '10px' }}>
-                <div><label style={labelSt}>Nombre completo</label>
-                  <input style={autoInputSt} value={datos.nombre} onChange={e => setDatos(p => ({ ...p, nombre: e.target.value }))} placeholder="Nombre del trabajador" /></div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px', marginBottom: '10px' }}>
+                <div><label style={labelSt}>Nombre del cliente / asesorado</label>
+                  <input style={manualInputSt} value={datos.nombre} onChange={e => setDatos(p => ({ ...p, nombre: e.target.value }))} placeholder="Nombre del cliente (quien contrata)" /></div>
+                <div><label style={labelSt}>Nombre del trabajador (constancia IMSS)</label>
+                  <input style={autoInputSt} value={datos.nombre_trabajador} onChange={e => setDatos(p => ({ ...p, nombre_trabajador: e.target.value }))} placeholder="Nombre como aparece en la constancia" /></div>
                 <div><label style={labelSt}>NSS</label>
                   <input style={autoInputSt} value={datos.nss} onChange={e => setDatos(p => ({ ...p, nss: e.target.value }))} placeholder="NSS" /></div>
                 <div><label style={labelSt}>Régimen</label>
@@ -1494,8 +1500,8 @@ function CalculadoraInner() {
                             {pctObjetivo >= 100
                               ? `✅ ${pctObjetivo}% — alcanza el objetivo`
                               : pctObjetivo >= 70
-                              ? `⚠️ ${pctObjetivo}% — faltan ${fmtMXN(brecha ?? 0)}/mes · Considera más UMAs o más meses`
-                              : `❌ ${pctObjetivo}% — faltan ${fmtMXN(brecha ?? 0)}/mes · El objetivo puede ser alto para este historial`}
+                              ? `⚠️ ${pctObjetivo}% — faltan ${fmtMXN(brecha ?? 0)}/mes · Prueba con más UMAs o más meses en la simulación libre`
+                              : `❌ ${pctObjetivo}% — faltan ${fmtMXN(brecha ?? 0)}/mes`}
                           </div>
                         )}
                         <button onClick={() => { setEscElegidoIdx(i); setEscSelIdx(i) }}
@@ -1519,13 +1525,40 @@ function CalculadoraInner() {
                         {escSel.incremento_vs_base > 0 ? kpiBox('Incremento vs base', `+${fmtMXN(escSel.incremento_vs_base)}/mes`, 'sobre pensión sin modalidad', NARANJA) : kpiBox('Pensión base', fmtMXN(escenarios[0]?.pension_mensual || 0), 'sin estrategia', '#94a3b8')}
                         {escSel.roi_meses > 0 ? kpiBox('Recuperación de inversión', `${escSel.roi_meses} meses`, `~${(escSel.roi_meses / 12).toFixed(1)} años`, '#8b5cf6') : kpiBox('Sin inversión adicional', '—', 'pensión base', '#94a3b8')}
                       </div>
-                      {ingresoObjetivo > 0 && (
-                        <div style={{ padding: '10px 14px', background: escSel.pension_mensual >= ingresoObjetivo ? '#f0fdf4' : '#fef2f2', border: `1px solid ${escSel.pension_mensual >= ingresoObjetivo ? '#bbf7d0' : '#fecaca'}`, borderRadius: '8px', fontSize: '12px', color: escSel.pension_mensual >= ingresoObjetivo ? '#15803d' : '#991b1b' }}>
-                          {escSel.pension_mensual >= ingresoObjetivo
-                            ? `✅ Este escenario alcanza el objetivo de ${fmtMXN(ingresoObjetivo)}/mes`
-                            : `⚠️ Faltan ${fmtMXN(ingresoObjetivo - escSel.pension_mensual)}/mes para alcanzar el objetivo de ${fmtMXN(ingresoObjetivo)}/mes`}
-                        </div>
-                      )}
+                      {ingresoObjetivo > 0 && (() => {
+                        const brechaEsc = ingresoObjetivo - escSel.pension_mensual
+                        const alcanza = brechaEsc <= 0
+                        // Calculate what UMAs would be needed
+                        const sem = datos.semanas_totales - datos.semanas_descontadas
+                        const sdiBase = sdiPromedio > 0 ? sdiPromedio : sys.SALARIO_MIN
+                        const pmg = sys.PMG_L73 ?? 6000
+                        // Rough inverse: more UMAs = higher SDI ponderado
+                        const umasNecesario = !alcanza && escSel.mod40_meses > 0
+                          ? Math.ceil(escSel.mod40_umas * (ingresoObjetivo / Math.max(escSel.pension_mensual, pmg + 1)))
+                          : null
+                        const mesesNecesario = !alcanza && escSel.mod40_meses > 0 && escSel.pension_mensual > pmg
+                          ? Math.ceil(escSel.mod40_meses * (ingresoObjetivo / escSel.pension_mensual))
+                          : null
+                        return (
+                          <div style={{ padding: '12px 14px', background: alcanza ? '#f0fdf4' : '#fef2f2', border: `1px solid ${alcanza ? '#bbf7d0' : '#fecaca'}`, borderRadius: '8px', fontSize: '12px', color: alcanza ? '#15803d' : '#991b1b', lineHeight: 1.7 }}>
+                            {alcanza ? (
+                              `✅ Este escenario alcanza el objetivo de ${fmtMXN(ingresoObjetivo)}/mes`
+                            ) : (
+                              <>
+                                <div style={{ fontWeight: '700', marginBottom: '6px' }}>⚠️ Faltan {fmtMXN(brechaEsc)}/mes para alcanzar {fmtMXN(ingresoObjetivo)}/mes</div>
+                                <div style={{ fontSize: '11px', color: '#7f1d1d' }}>Para acercarte al objetivo puedes considerar:</div>
+                                <ul style={{ margin: '4px 0 0', paddingLeft: '16px', fontSize: '11px', color: '#7f1d1d' }}>
+                                  {escSel.mod40_meses > 0 && umasNecesario && umasNecesario <= 25 && <li>Aumentar el salario base a <strong>{umasNecesario} UMAs</strong> manteniendo el mismo plazo</li>}
+                                  {escSel.mod40_meses > 0 && mesesNecesario && mesesNecesario <= 120 && <li>Extender el período a <strong>{mesesNecesario} meses</strong> con las mismas UMAs</li>}
+                                  {(umasNecesario ?? 0) > 25 && <li>El objetivo supera lo alcanzable con Modalidad 40 solo (máx. 25 UMAs) — considera ajustar la expectativa de pensión</li>}
+                                  <li>Usa la <strong>Simulación libre</strong> para explorar combinaciones de UMAs y meses</li>
+                                  {ingresoObjetivo > 15000 && <li>Para objetivos altos considera combinar la pensión IMSS con ahorro privado (AFORE voluntario)</li>}
+                                </ul>
+                              </>
+                            )}
+                          </div>
+                        )
+                      })()}
                     </div>
                   )
                 })()}
