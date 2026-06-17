@@ -374,7 +374,7 @@ export function generarPDFProyecto(params: {
       { label: 'Pensión estimada', value: fmtMXN(escM10.pension_mensual) + '/mes', color: VERDE },
       { label: 'Diferencia vs Mod 40', value: '+' + fmtMXN(difMensual) + '/mes', color: '#f97316' },
       { label: 'Cobertura adicional', value: 'Médica + Infonavit + Guarderías', color: AZUL },
-      { label: 'Vs objetivo', value: ingresoObjetivo > 0 ? Math.round(escM10.pension_mensual / ingresoObjetivo * 100) + '% del objetivo' : '—' },
+      { label: 'Vs objetivo', value: (ingresoObjetivo ?? 0) > 0 ? Math.round(escM10.pension_mensual / (ingresoObjetivo!) * 100) + '% del objetivo' : '—' },
     ])
 
     // Tabla comparativa Mod10 vs Mod40
