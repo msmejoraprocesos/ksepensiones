@@ -389,14 +389,11 @@ export async function generarPDFProyecto(params: {
     // Build steps: always Hoy + fin Mod40 + cesantía(62) + vejez(65)
     // Avoid duplicate or out-of-order ages
     const tlSteps = [
-      { lbl: 'Hoy (' + edadA + ' años)', desc: 'Verificar semanas
-en portal IMSS', color: NARANJA },
-      { lbl: edadFinMod + ' años', desc: 'Alta Mod 40
-' + fmtMXN(escSel?.costo_mensual_mod40 || 0) + '/mes', color: HC },
+      { lbl: 'Hoy (' + edadA + ' años)', desc: 'Verificar semanas en portal IMSS', color: NARANJA },
+      { lbl: edadFinMod + ' años', desc: 'Alta Mod 40 - ' + fmtMXN(escSel?.costo_mensual_mod40 || 0) + '/mes', color: HC },
       { lbl: '62 años', desc: 'Solicitar
 cesantía IMSS', color: HC },
-      { lbl: '65 años', desc: 'Pensión vejez
-' + fmtMXN(escSel?.pension_mensual || 0) + '/mes', color: VERDE },
+      { lbl: '65 años', desc: 'Pensión vejez - ' + fmtMXN(escSel?.pension_mensual || 0) + '/mes', color: VERDE },
     ].filter((s, i, arr) => {
       // Remove duplicates or steps that are out of order
       if (i === 0) return true
