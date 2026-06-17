@@ -18,7 +18,7 @@ function hexToRgb(hex: string): [number, number, number] {
   return [isNaN(r) ? 0 : r, isNaN(g) ? 0 : g, isNaN(b) ? 0 : b]
 }
 
-export function generarPDFProyecto(params: {
+export async function generarPDFProyecto(params: {
   datos: any
   periodos: any[]
   sdiPromedio: number
@@ -172,82 +172,166 @@ export function generarPDFProyecto(params: {
   // ══════════════════════════════════════════════════
   // PÁGINA 1: PORTADA
   // ══════════════════════════════════════════════════
-  setFill(HEADER_COLOR)
-  doc.rect(0, 0, W, 80, 'F')
 
-  // Logo / Razón social del asesor
-  doc.setFontSize(FONT_SIZE_HEADER + 9)
-  doc.setFont('helvetica', 'bold')
-  setColor('#ffffff')
-  text(razonSocial || 'KSE Pensiones', W / 2, 35, { align: 'center' })
-  doc.setFontSize(FONT_SIZE_HEADER - 2)
+  // ── Franja superior del asesor (compacta 45mm)
+  setFill(HEADER_COLOR)
+  doc.rect(0, 0, W, 45, 'F')
+
+  // Logo del asesor (si existe)
+  if (logoUrl) {
+    try {
+      const img = new Image(); img.crossOrigin = 'anonymous'; img.src = logoUrl
+      await new Promise(r => { img.onload = r; img.onerror = r })
+      if (img.complete && img.naturalWidth > 0) {
+        const logoH = LOGO_SIZE
+        const logoW = Math.min(logoH * (img.naturalWidth / img.naturalHeight), 60)
+        doc.addImage(img, 'PNG', ML, (45 - logoH) / 2, logoW, logoH)
+        // Razon social next to logo
+        doc.setFontSize(FONT_SIZE_HEADER)
+        doc.setFont('helvetica', 'bold')
+        setColor('#ffffff')
+        text(razonSocial || '', ML + logoW + 6, 22)
+        doc.setFontSize(FONT_SIZE_HEADER - 3)
+        doc.setFont('helvetica', 'normal')
+        setColor('rgba(255,255,255,0.8)')
+        text(HEADER_TITULO, ML + logoW + 6, 31)
+      }
+    } catch(e) {
+      // Logo failed — fallback to text only
+      doc.setFontSize(FONT_SIZE_HEADER + 2)
+      doc.setFont('helvetica', 'bold')
+      setColor('#ffffff')
+      text(razonSocial || 'KSE Pensiones', ML, 27)
+      doc.setFontSize(FONT_SIZE_HEADER - 2)
+      doc.setFont('helvetica', 'normal')
+      setColor('rgba(255,255,255,0.8)')
+      text(HEADER_TITULO, ML, 36)
+    }
+  } else {
+    doc.setFontSize(FONT_SIZE_HEADER + 2)
+    doc.setFont('helvetica', 'bold')
+    setColor('#ffffff')
+    text(razonSocial || 'KSE Pensiones', ML, 27)
+    doc.setFontSize(FONT_SIZE_HEADER - 2)
+    doc.setFont('helvetica', 'normal')
+    setColor('rgba(255,255,255,0.8)')
+    text(HEADER_TITULO, ML, 36)
+  }
+
+  // Fecha en esquina superior derecha
+  doc.setFontSize(8)
   doc.setFont('helvetica', 'normal')
   setColor('rgba(255,255,255,0.7)')
-  text(HEADER_TITULO, W / 2, 44, { align: 'center' })
+  text(new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }), W - MR, 27, { align: 'right' })
+  text(asesorNombre ? 'Asesor: ' + asesorNombre : '', W - MR, 36, { align: 'right' })
 
-  // Título del documento
-  y = 95
-  doc.setFontSize(18)
+  // ── Título del diagnóstico
+  y = 62
+  doc.setFontSize(20)
   doc.setFont('helvetica', 'bold')
-  setColor(AZUL)
-  text('PROYECTO DE PENSIÓN', W / 2, y, { align: 'center' })
-  text('CON MODALIDAD 40', W / 2, y + 10, { align: 'center' })
+  setColor(HEADER_COLOR)
+  text('DIAGNÓSTICO PENSIONAL', W / 2, y, { align: 'center' })
+  y += 10
+  doc.setFontSize(12)
+  doc.setFont('helvetica', 'normal')
+  setColor('#64748b')
+  text('Proyecto de optimización de pensión IMSS', W / 2, y, { align: 'center' })
 
-  y += 25
+  // ── Línea divisoria naranja
+  y += 8
   setFill(NARANJA)
-  doc.rect(ML, y, W - ML - MR, 0.5, 'F')
+  doc.rect(ML, y, W - ML - MR, 1, 'F')
   y += 8
 
-  // Datos del trabajador en portada
-  doc.setFontSize(13)
+  // ── Datos del trabajador (dos columnas)
+  const trabajador = datos.nombre_trabajador || datos.nombre || '—'
+  const cliente = datos.nombre && datos.nombre !== trabajador ? datos.nombre : null
+
+  doc.setFontSize(15)
   doc.setFont('helvetica', 'bold')
   setColor('#1e293b')
-  text(datos.nombre || 'Trabajador', W / 2, y, { align: 'center' })
+  text(trabajador, ML, y)
   y += 7
+
   doc.setFontSize(9)
   doc.setFont('helvetica', 'normal')
   setColor('#64748b')
-  text(`NSS: ${datos.nss || '—'}  ·  ${datos.ley === '73' ? 'Régimen Ley 73 (pre-1997)' : datos.ley === '97' ? 'Régimen Ley 97 (post-1997)' : 'Régimen por determinar'}`, W / 2, y, { align: 'center' })
+  const linea1Parts = [
+    datos.nss ? 'NSS: ' + datos.nss : null,
+    datos.ley === '73' ? 'Ley 73 (cotizó antes Jul-1997)' : datos.ley === '97' ? 'Ley 97 (AFORE)' : null,
+    datos.edad_actual ? datos.edad_actual + ' años' : null,
+  ].filter(Boolean).join('  ·  ')
+  text(linea1Parts, ML, y)
   y += 6
-  text(`${datos.semanas_totales.toLocaleString()} semanas cotizadas  ·  Edad: ${datos.edad_actual} años${datos.fecha_calculo ? '  ·  Últ. cotización: ' + datos.fecha_calculo : ''}`, W / 2, y, { align: 'center' })
 
-  y += 20
-  // Resumen de la propuesta en portada
-  const items = [
-    { label: 'Pensión sin Mod 40', value: fmtMXN(escenarios[0]?.pension_mensual || 0) + '/mes', color: '#94a3b8' },
-    { label: 'Pensión con Mod 40', value: fmtMXN(escSel?.pension_mensual || 0) + '/mes', color: AZUL },
-    { label: 'Incremento mensual', value: '+' + fmtMXN(escSel?.incremento_vs_base || 0), color: VERDE },
-    { label: 'Punto de equilibrio', value: (escSel?.roi_meses || 0) + ' meses', color: NARANJA },
+  const linea2Parts = [
+    datos.semanas_totales ? datos.semanas_totales.toLocaleString() + ' semanas cotizadas' : null,
+    datos.fecha_calculo ? 'Últ. cotización: ' + datos.fecha_calculo : null,
+    cliente ? 'Cliente/Asesorado: ' + cliente : null,
+  ].filter(Boolean).join('  ·  ')
+  text(linea2Parts, ML, y)
+  y += 12
+
+  // ── Resumen ejecutivo en portada (4 KPIs clave)
+  const escBase = escenarios[0]
+  const kpiItems = [
+    { label: 'Pensión actual (sin acción)', value: fmtMXN(escBase?.pension_mensual || 0) + '/mes', color: '#94a3b8', bg: '#F8FAFC' },
+    { label: 'Pensión con estrategia elegida', value: fmtMXN(escSel?.pension_mensual || 0) + '/mes', color: HEADER_COLOR, bg: '#EEF2F8', highlight: true },
+    { label: 'Incremento mensual', value: escSel?.incremento_vs_base > 0 ? '+' + fmtMXN(escSel.incremento_vs_base) : '—', color: VERDE, bg: '#F0FDF4' },
+    { label: 'Inversión total requerida', value: fmtMXN(escSel?.inversion_total || 0), color: NARANJA, bg: '#FFF7ED' },
   ]
-  const colW2 = (W - ML - MR) / 4
-  items.forEach((item, i) => {
-    const x = ML + i * colW2
-    setFill(i === 1 ? '#EEF2F8' : '#F4F6FB')
+  const kpiW = (W - ML - MR) / 4
+  kpiItems.forEach((k, i) => {
+    const x = ML + i * kpiW
+    const [rb,gb,bb] = hexToRgb(k.bg)
+    doc.setFillColor(rb,gb,bb)
     setStroke('#e2e8f0')
-    doc.setLineWidth(0.3)
-    doc.rect(x, y, colW2 - 2, 22, 'FD')
-    if (i === 1) { setFill(NARANJA); doc.rect(x, y, 2, 22, 'F') }
+    doc.setLineWidth(k.highlight ? 0 : 0.3)
+    doc.rect(x, y, kpiW - 2, 24, 'FD')
+    if (k.highlight) { setFill(NARANJA); doc.rect(x, y, 2, 24, 'F') }
     doc.setFontSize(7)
     doc.setFont('helvetica', 'normal')
     setColor('#94a3b8')
-    text(item.label.toUpperCase(), x + 5, y + 6)
-    doc.setFontSize(11)
+    const labelLines = doc.splitTextToSize(k.label.toUpperCase(), kpiW - 10)
+    labelLines.forEach((l: string, li: number) => text(l, x + 5, y + 5 + li * 3.5))
+    doc.setFontSize(10)
     doc.setFont('helvetica', 'bold')
-    const [r,g,b] = hexToRgb(item.color || AZUL)
+    const [r,g,b] = hexToRgb(k.color || HEADER_COLOR)
     doc.setTextColor(r,g,b)
-    text(item.value, x + 5, y + 16)
+    text(k.value, x + 5, y + 19)
   })
+  y += 28
 
-  y += 30
-  // Footer portada
-  setColor('#94a3b8')
-  doc.setFontSize(8)
-  doc.setFont('helvetica', 'normal')
-  text(`Elaborado por: ${asesorNombre || razonSocial || 'Asesor KSE'}`, ML, H - 25)
-  text(`Fecha: ${new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}`, W - MR, H - 25, { align: 'right' })
-  text('Este documento es confidencial y fue elaborado exclusivamente para el trabajador indicado.', W / 2, H - 18, { align: 'center' })
+  // ── Escenario elegido destacado
+  if (escSel && escSel.mod40_meses > 0) {
+    y += 4
+    setFill('#EEF2F8')
+    doc.rect(ML, y, W - ML - MR, 16, 'F')
+    setFill(HEADER_COLOR)
+    doc.rect(ML, y, 3, 16, 'F')
+    doc.setFontSize(8)
+    doc.setFont('helvetica', 'bold')
+    setColor(HEADER_COLOR)
+    text('ESTRATEGIA RECOMENDADA: ' + escSel.label, ML + 7, y + 6)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(8)
+    setColor('#374151')
+    text(`Cotización: ${escSel.mod40_umas?.toFixed(1) || '—'} UMAs · ${escSel.mod40_meses || '—'} meses · Costo: ${fmtMXN(escSel.costo_mensual_mod40 || 0)}/mes · Recuperación: ${escSel.roi_meses || '—'} meses`, ML + 7, y + 12)
+    y += 20
+  }
+
+  // ── Footer portada
+  y = H - 30
+  setStroke('#e2e8f0')
+  doc.setLineWidth(0.3)
+  doc.line(ML, y, W - MR, y)
+  y += 6
   doc.setFontSize(7)
-  text('KSE Pensiones · Consultoría Pensional Especializada · Información basada en Ley del Seguro Social 1973', W / 2, H - 13, { align: 'center' })
+  doc.setFont('helvetica', 'normal')
+  setColor('#94a3b8')
+  text('Este documento es confidencial. Elaborado exclusivamente para el trabajador indicado. Los cálculos son estimaciones basadas en', ML, y)
+  y += 4
+  text('la Ley del Seguro Social 1973. El monto final de la pensión será determinado por el IMSS conforme a sus registros oficiales.', ML, y)
 
   // ══════════════════════════════════════════════════
   // PÁGINA 2: DATOS GENERALES + SALARIO 250 SEMANAS
