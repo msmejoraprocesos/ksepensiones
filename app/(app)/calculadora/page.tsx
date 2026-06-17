@@ -192,6 +192,10 @@ function CalculadoraInner() {
   const [showWappModal, setShowWappModal] = useState(false)
 
   const [showAllMonths, setShowAllMonths] = useState(false)
+  const [showClienteModal, setShowClienteModal] = useState(false)
+  const [showConfirmCambio, setShowConfirmCambio] = useState(false)
+  const [pendingClienteId, setPendingClienteId] = useState('')
+  const [buscarCliente, setBuscarCliente] = useState('')
   const [showAllMonthsM10, setShowAllMonthsM10] = useState(false)
 
   // Flujo diagnóstico
@@ -316,6 +320,11 @@ function CalculadoraInner() {
 
   // Recalculate escenarios when sdiPromedio or mod40 changes
   useEffect(() => { if (sdiPromedio > 0 || datos.semanas_totales > 0) recalcEscenarios() }, [sdiPromedio, datos, mod40Umas, mod40Meses, sys, simulacionLibre, simUmas, simMeses])
+
+  // Show client selection modal on mount if no client pre-selected
+  useEffect(() => {
+    if (!clienteId) setShowClienteModal(true)
+  }, [])
 
   function calcEscenarioMod40(sem: number, sdiBase: number, umas: number, meses: number, pensionBase: number) {
     const costoMensual = calcCostoMod40(umas, sys.mod40_pct ?? 14.438, sys)
@@ -636,7 +645,16 @@ function CalculadoraInner() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <select value={clienteId} onChange={e => { setClienteId(e.target.value); setDiagGuardadoId(null); setEstatus('borrador'); setAnalisis([]) }}
+          <select value={clienteId} onChange={e => {
+              if (analisis.length > 0 || diagGuardadoId) {
+                setPendingClienteId(e.target.value)
+                setShowConfirmCambio(true)
+              } else {
+                setClienteId(e.target.value)
+                setDiagGuardadoId(null)
+                setEstatus('borrador')
+              }
+            }}
             style={{ ...inputSt, width: '200px', fontSize: '12px', padding: '6px 10px', borderColor: !clienteId ? '#f97316' : '#e2e8f0' }}>
             <option value="">— Seleccionar cliente —</option>
             {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
@@ -674,6 +692,87 @@ function CalculadoraInner() {
   // ══════════════════════════════════════════════════════════════════
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 48px)', overflow: 'hidden' }}>
+
+      {/* ── Modal selección de cliente (bloqueante) ── */}
+      {showClienteModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'white', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '480px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <div style={{ fontSize: '36px', marginBottom: '8px' }}>🧮</div>
+              <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#1B3A6B', margin: '0 0 6px' }}>Calculadora de pensión</h2>
+              <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>Para continuar debes seleccionar un cliente existente o registrar uno nuevo.</p>
+            </div>
+
+            {/* Buscar cliente */}
+            <div style={{ marginBottom: '12px' }}>
+              <input
+                value={buscarCliente}
+                onChange={e => setBuscarCliente(e.target.value)}
+                placeholder="🔍 Buscar cliente..."
+                style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box', fontFamily: 'inherit' }}
+              />
+            </div>
+
+            {/* Lista de clientes */}
+            <div style={{ maxHeight: '200px', overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px', marginBottom: '12px' }}>
+              {clientes.filter(c => c.nombre.toLowerCase().includes(buscarCliente.toLowerCase())).length === 0 ? (
+                <div style={{ padding: '16px', textAlign: 'center', color: '#94a3b8', fontSize: '13px' }}>Sin resultados</div>
+              ) : (
+                clientes.filter(c => c.nombre.toLowerCase().includes(buscarCliente.toLowerCase())).map(c => (
+                  <button key={c.id} onClick={() => { setClienteId(c.id); setShowClienteModal(false); setBuscarCliente('') }}
+                    style={{ width: '100%', padding: '10px 14px', background: 'none', border: 'none', borderBottom: '1px solid #f1f5f9', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ width: '28px', height: '28px', background: '#EEF2F8', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '700', color: '#1B3A6B', flexShrink: 0 }}>
+                      {c.nombre.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: '600', color: '#1e293b' }}>{c.nombre}</div>
+                      <div style={{ fontSize: '11px', color: '#94a3b8' }}>{c.etapa_kanban}</div>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+
+            {/* Registrar nuevo */}
+            <a href="/clientes?nuevo=1"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '11px', background: '#1B3A6B', color: 'white', borderRadius: '10px', textDecoration: 'none', fontSize: '13px', fontWeight: '700' }}>
+              ＋ Registrar nuevo cliente
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal confirmación cambio de cliente ── */}
+      {showConfirmCambio && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '100%', maxWidth: '380px', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1B3A6B', margin: '0 0 10px' }}>⚠️ ¿Cambiar de cliente?</h3>
+            <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 20px', lineHeight: 1.6 }}>
+              {diagGuardadoId
+                ? 'El diagnóstico ya fue guardado. Puedes cambiar de cliente sin perder nada.'
+                : 'El análisis generado y los datos actuales se perderán si no has guardado el diagnóstico.'}
+            </p>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button onClick={() => { setShowConfirmCambio(false); setPendingClienteId('') }}
+                style={{ flex: 1, padding: '9px', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#F4F6FB', color: '#64748b', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
+                Cancelar
+              </button>
+              <button onClick={() => {
+                setClienteId(pendingClienteId)
+                setDiagGuardadoId(null)
+                setEstatus('borrador')
+                setAnalisis([])
+                setPendingClienteId('')
+                setShowConfirmCambio(false)
+              }}
+                style={{ flex: 2, padding: '9px', border: 'none', borderRadius: '8px', background: '#1B3A6B', color: 'white', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
+                Sí, cambiar de cliente
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {navBar}
       {tabBar}
 
@@ -1036,9 +1135,9 @@ function CalculadoraInner() {
                             <td style={{ padding: '6px 10px', textAlign: 'right', color: '#374151' }}>{(mes * 4.33).toFixed(1)}</td>
                           </tr>
                         )
-                        if (mes === 3 && mod40Meses > 5) rows.push(
+                        if (!showAllMonths && mes === 3 && mod40Meses > 5) rows.push(
                           <tr key="dots" style={{ background: '#F8FAFC' }}>
-                            <td colSpan={5} style={{ padding: '5px 10px', textAlign: 'center', color: '#94a3b8', fontSize: '11px' }}>⋯ meses intermedios ⋯</td>
+                            <td colSpan={5} style={{ padding: '5px 10px', textAlign: 'center', color: '#94a3b8', fontSize: '11px' }}>⋯ {mod40Meses - 4} meses intermedios — presiona "Ver todos los meses" para expandir ⋯</td>
                           </tr>
                         )
                       }
