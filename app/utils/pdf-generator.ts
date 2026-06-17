@@ -102,7 +102,7 @@ export async function generarPDFProyecto(params: {
     setF(HC); setS(HC); doc.setLineWidth(0)
     doc.rect(ML, y, W - ML - MR, 10, 'F')
     doc.setFontSize(10); doc.setFont('helvetica', 'bold'); setC('#ffffff')
-    const titleStr = (num ? num + '  ' : '') + title
+    const titleStr = title // No section numbers per client request
     const titleLines = doc.splitTextToSize(titleStr, W - ML - MR - (sub ? 60 : 10))
     t(titleLines[0], ML + 4, y + 7)
     if (sub) {
@@ -115,17 +115,22 @@ export async function generarPDFProyecto(params: {
 
   // ── Sub-section label (H2 — 14pt)
   function subTitle(title: string) {
-    checkPage(14)
-    doc.setFontSize(9); doc.setFont('helvetica', 'bold'); setC(HC)
-    t(title, ML, y + 5)
-    y += 9
+    checkPage(16)
+    // Remove leading special chars
+    const cleanTitle = title.replace(/^[→•\-–—#*]+\s*/, '')
+    doc.setFontSize(9.5); doc.setFont('helvetica', 'bold'); setC(HC)
+    t(cleanTitle, ML, y + 6)
+    y += 11
   }
 
   // ── Body text (11pt)
   function bodyText(txt: string, indent = 0) {
-    doc.setFontSize(8); doc.setFont('helvetica', 'normal'); setC('#374151')
-    const lines = doc.splitTextToSize(txt, W - ML - MR - indent)
-    lines.forEach((l: string) => { checkPage(6); t(l, ML + indent, y); y += 4.8 })
+    doc.setFontSize(8.5); doc.setFont('helvetica', 'normal'); setC('#374151')
+    // Clean up bullet chars — replace & or * at start with proper bullet
+    const cleanTxt = txt.replace(/^[&*]\s*/, '• ').replace(/\s*&\s*/g, '
+• ')
+    const lines = doc.splitTextToSize(cleanTxt, W - ML - MR - indent - 2)
+    lines.forEach((l: string) => { checkPage(6); t(l, ML + indent + 2, y); y += 5 })
     y += 2
   }
 
@@ -150,25 +155,23 @@ export async function generarPDFProyecto(params: {
   function kpiRow(items: {label: string; value: string; color?: string; sub?: string}[]) {
     checkPage(20)
     const cw = (W - ML - MR) / items.length
+    const cardH = 20
     items.forEach((item, i) => {
       const x = ML + i * cw
       setF('#F4F6FB'); setS('#e2e8f0'); doc.setLineWidth(0.3)
-      doc.rect(x, y, cw - 1, 16, 'FD')
-      doc.setFontSize(6); doc.setFont('helvetica', 'normal'); setC('#94a3b8')
+      doc.rect(x, y, cw - 1, cardH, 'FD')
+      // Label centered horizontally
+      doc.setFontSize(6.5); doc.setFont('helvetica', 'normal'); setC('#94a3b8')
       const lblLines = doc.splitTextToSize(item.label.toUpperCase(), cw - 6)
-      lblLines.slice(0,2).forEach((ll: string, li: number) => t(ll, x + 3, y + 4 + li * 3.5))
-      doc.setFontSize(9); doc.setFont('helvetica', 'bold')
+      lblLines.slice(0,2).forEach((ll: string, li: number) => t(ll, x + (cw - 1) / 2, y + 5 + li * 3.5, { align: 'center' }))
+      // Value centered, larger
+      doc.setFontSize(10); doc.setFont('helvetica', 'bold')
       const [r,g,b] = hexToRgb(item.color || HC)
       doc.setTextColor(r,g,b)
       const valLines = doc.splitTextToSize(item.value, cw - 6)
-      t(valLines[0], x + 3, y + 12.5)
-      if (item.sub) {
-        doc.setFontSize(5.5); doc.setFont('helvetica', 'normal'); setC(GRIS)
-        const subLines = doc.splitTextToSize(item.sub, cw - 6)
-        t(subLines[0], x + 3, y + 15.5)
-      }
+      t(valLines[0], x + (cw - 1) / 2, y + cardH - 5, { align: 'center' })
     })
-    y += 19
+    y += cardH + 2
   }
 
   // ── Table helpers
@@ -183,7 +186,7 @@ export async function generarPDFProyecto(params: {
   }
 
   function tRow(cells: string[], widths: number[], even: boolean, startX = ML, aligns?: string[], highlight = false) {
-    checkPage(8)
+    checkPage(12)
     const tw = widths.reduce((s, w) => s + w, 0)
     if (highlight) { setF('#EEF2F8'); doc.rect(startX, y, tw, 7, 'F') }
     else if (even) { setF('#F8FAFC'); doc.rect(startX, y, tw, 7, 'F') }
@@ -310,8 +313,8 @@ export async function generarPDFProyecto(params: {
       await new Promise(res => { img.onload = res; img.onerror = res })
       if (img.complete && img.naturalWidth > 0) {
         // Cap logo size: max height = bandH - 8mm padding, max width = 50mm
-        const maxH = bandH - 10
-        const maxW = 50
+        const maxH = Math.min(bandH - 12, 22) // hard cap: 22mm max height
+        const maxW = 45
         const aspect = img.naturalWidth / Math.max(img.naturalHeight, 1)
         const lh = Math.min(LSIZ, maxH)
         const lw = Math.min(lh * aspect, maxW)
@@ -319,19 +322,19 @@ export async function generarPDFProyecto(params: {
         doc.addImage(img as any, 'PNG', ML, ly, lw, lh)
         logoLoaded = true
         // Text to the right of logo, vertically centered in band
-        const txBase = bandH / 2 - 4
-        doc.setFontSize(HFSZ); doc.setFont('helvetica', 'bold'); setC('#ffffff')
+        const txBase = bandH / 2 - 3
+        doc.setFontSize(Math.max(HFSZ, 13)); doc.setFont('helvetica', 'bold'); setC('#ffffff')
         t(razonSocial || '', ML + lw + 6, txBase)
-        doc.setFontSize(HFSZ - 3); doc.setFont('helvetica', 'normal'); setC('rgba(255,255,255,0.8)')
-        t(HTIT, ML + lw + 6, txBase + 8)
+        doc.setFontSize(Math.max(HFSZ - 2, 10)); doc.setFont('helvetica', 'normal'); setC('#ffffff')
+        t(HTIT, ML + lw + 6, txBase + 9)
       }
     } catch (_) {}
   }
   if (!logoLoaded) {
-    const txBase = bandH / 2 - 4
-    doc.setFontSize(HFSZ + 2); doc.setFont('helvetica', 'bold'); setC('#ffffff')
+    const txBase = bandH / 2 - 3
+    doc.setFontSize(Math.max(HFSZ + 2, 15)); doc.setFont('helvetica', 'bold'); setC('#ffffff')
     t(razonSocial || 'KSE Pensiones', textX, txBase)
-    doc.setFontSize(HFSZ - 2); doc.setFont('helvetica', 'normal'); setC('rgba(255,255,255,0.8)')
+    doc.setFontSize(Math.max(HFSZ, 11)); doc.setFont('helvetica', 'normal'); setC('#ffffff')
     t(HTIT, textX, txBase + 9)
   }
   // Date + asesor — right aligned, vertically centered
@@ -693,9 +696,18 @@ export async function generarPDFProyecto(params: {
     analisis
       .filter((sec: any) => !sec.titulo?.toLowerCase().includes('paso') && !sec.titulo?.toLowerCase().includes('siguiente'))
       .forEach((sec: any) => {
-        checkPage(30)
-        subTitle(sec.titulo || '')
-        bodyText(sec.contenido || '')
+        checkPage(35)
+        // Section subtitle with underline
+        doc.setFontSize(10); doc.setFont('helvetica', 'bold'); setC(HC)
+        t(sec.titulo || '', ML, y + 6)
+        setS(HC); doc.setLineWidth(0.4)
+        doc.line(ML, y + 8, ML + 60, y + 8)
+        y += 13
+        // Content with better size and line height
+        doc.setFontSize(9); doc.setFont('helvetica', 'normal'); setC('#1e293b')
+        const secLines = doc.splitTextToSize(sec.contenido || '', W - ML - MR - 4)
+        secLines.forEach((l: string) => { checkPage(7); t(l, ML + 2, y); y += 5.5 })
+        y += 6
       })
   }
 
