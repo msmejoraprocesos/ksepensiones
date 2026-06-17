@@ -249,6 +249,8 @@ function CalculadoraInner() {
             if (p.simUmas) setSimUmas(p.simUmas)
             if (p.simMeses) setSimMeses(p.simMeses)
             if (typeof p.escElegidoIdx === 'number') setEscElegidoIdx(p.escElegidoIdx)
+            if (p.fechaUltimaCot) setFechaUltimaCot(p.fechaUltimaCot)
+            else if (p.datos?.fecha_calculo) setFechaUltimaCot(p.datos.fecha_calculo)
           } else {
             // Fallback: restore basic data from columns
             setDatos(prev => ({
@@ -610,6 +612,7 @@ function CalculadoraInner() {
         escenarios, escElegidoIdx,
         ingresoObjetivo, simulacionLibre, simUmas, simMeses,
         mod40Umas, mod40Meses,
+        fechaUltimaCot,
       },
     }
     if (diagGuardadoId && nuevoEstatus === 'autorizado') {
