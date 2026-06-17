@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, Suspense } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { generarPDFProyecto } from '@/app/utils/pdf-generator'
 
 const AZUL = '#1B3A6B'
@@ -149,6 +149,7 @@ const SYS_DEFAULT: SysVars = {
 function CalculadoraInner() {
   const supabase = createClient()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const fileRef = useRef<HTMLInputElement>(null)
   const [userId, setUserId] = useState('')
   const [clientes, setClientes] = useState<Cliente[]>([])
@@ -213,13 +214,63 @@ function CalculadoraInner() {
 
   // ── Load inicial
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/login'); return }
       setUserId(session.user.id)
       loadClientes(session.user.id)
       loadFinancieras()
       loadSysVars(session.user.id)
       loadAsesorPerfil(session.user.id)
+
+      // Restore borrador from URL params
+      const clienteParam = searchParams.get('cliente')
+      const diagParam = searchParams.get('diag')
+
+      if (clienteParam) {
+        setClienteId(clienteParam)
+        setShowClienteModal(false)
+      }
+
+      if (diagParam) {
+        const { data: diag } = await supabase.from('diagnosticos')
+          .select('*').eq('id', diagParam).single()
+        if (diag) {
+          setDiagGuardadoId(diag.id)
+          setEstatus(diag.estatus ?? 'borrador')
+          // Restore from params_json if available
+          const p = diag.params_json
+          if (p) {
+            if (p.datos) setDatos(p.datos)
+            if (p.periodos) { setPeriodos(p.periodos); setSdiPromedio(p.sdiPromedio ?? 0) }
+            if (p.mod40Umas) setMod40Umas(p.mod40Umas)
+            if (p.mod40Meses) setMod40Meses(p.mod40Meses)
+            if (p.ingresoObjetivo) setIngresoObjetivo(p.ingresoObjetivo)
+            if (p.simulacionLibre) setSimulacionLibre(p.simulacionLibre)
+            if (p.simUmas) setSimUmas(p.simUmas)
+            if (p.simMeses) setSimMeses(p.simMeses)
+            if (typeof p.escElegidoIdx === 'number') setEscElegidoIdx(p.escElegidoIdx)
+          } else {
+            // Fallback: restore basic data from columns
+            setDatos(prev => ({
+              ...prev,
+              ley: diag.ley ?? prev.ley,
+              semanas_totales: diag.semanas ?? prev.semanas_totales,
+            }))
+            if (diag.mod40_umas) setMod40Umas(diag.mod40_umas)
+            if (diag.mod40_meses) setMod40Meses(diag.mod40_meses)
+            if (diag.ingreso_objetivo) setIngresoObjetivo(diag.ingreso_objetivo)
+          }
+          // Restore analisis
+          if (diag.analisis_narrativo) {
+            try {
+              const parsed = JSON.parse(diag.analisis_narrativo)
+              if (Array.isArray(parsed)) setAnalisis(parsed)
+            } catch(e) {}
+          }
+          setTab(6) // Go to Resumen to show saved state
+          setShowClienteModal(false)
+        }
+      }
     })
   }, [])
 
