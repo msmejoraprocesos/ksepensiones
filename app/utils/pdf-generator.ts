@@ -391,8 +391,7 @@ export async function generarPDFProyecto(params: {
     const tlSteps = [
       { lbl: 'Hoy (' + edadA + ' años)', desc: 'Verificar semanas en portal IMSS', color: NARANJA },
       { lbl: edadFinMod + ' años', desc: 'Alta Mod 40 - ' + fmtMXN(escSel?.costo_mensual_mod40 || 0) + '/mes', color: HC },
-      { lbl: '62 años', desc: 'Solicitar
-cesantía IMSS', color: HC },
+      { lbl: '62 años', desc: 'Solicitar cesantía IMSS', color: HC },
       { lbl: '65 años', desc: 'Pensión vejez - ' + fmtMXN(escSel?.pension_mensual || 0) + '/mes', color: VERDE },
     ].filter((s, i, arr) => {
       // Remove duplicates or steps that are out of order
