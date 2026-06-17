@@ -889,9 +889,10 @@ function ClientesInner() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)', background: '#F4F6FB', overflow: 'hidden' }}>
       {/* Header */}
-      <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '10px 20px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <h1 style={{ color: AZUL, fontSize: '18px', fontWeight: '800', margin: 0 }}>Clientes</h1>
-        <div style={{ display: 'flex', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
+      <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '10px 20px', flexShrink: 0, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px' }}>
+        {/* Fila 1: título + toggle vista + botones principales */}
+        <h1 style={{ color: AZUL, fontSize: '18px', fontWeight: '800', margin: 0, flexShrink: 0 }}>Clientes</h1>
+        <div style={{ display: 'flex', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', flexShrink: 0 }}>
           {(['lista', 'pipeline'] as const).map(v => (
             <button key={v} onClick={() => setVista(v)}
               style={{ padding: '6px 14px', background: vista === v ? AZUL : 'white', color: vista === v ? 'white' : '#64748b', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>
@@ -900,9 +901,9 @@ function ClientesInner() {
           ))}
         </div>
         {vista === 'lista' && (
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', flex: 1, minWidth: '200px' }}>
             <input placeholder="Buscar..." value={search} onChange={e => setSearch(e.target.value)}
-              style={{ padding: '7px 14px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', width: '200px', outline: 'none' }} />
+              style={{ padding: '7px 14px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', width: '160px', minWidth: '120px', outline: 'none' }} />
             <select value={filtroEtapa} onChange={e => setFiltroEtapa(e.target.value)}
               style={{ padding: '7px 10px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', outline: 'none', background: 'white', color: filtroEtapa ? '#374151' : '#94a3b8' }}>
               <option value="">Todas las etapas</option>
@@ -935,7 +936,7 @@ function ClientesInner() {
           </div>
         )}
         {vista === 'pipeline' && (
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             {[
               { label: 'Total', value: clientes.length, color: AZUL },
               { label: 'Cobrado', value: fmtMXN(totalCobrado), color: VERDE },
@@ -950,11 +951,11 @@ function ClientesInner() {
         )}
         <div style={{ flex: 1 }} />
         <button onClick={() => { setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', tipo_servicio: '', esquema_pago: '', monto_acordado: '', monto_pension_mensual: '', numero_meses_cobro: '', porcentaje_recuperacion: '', tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } } }); setFormErrors({}); setShowNuevo(true) }}
-          style={{ background: AZUL, color: 'white', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+          style={{ background: AZUL, color: 'white', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', flexShrink: 0 }}>
           + Nuevo cliente
         </button>
         <button onClick={() => setShowGuia(true)}
-          style={{ background: '#F4F6FB', color: AZUL, border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px 14px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+          style={{ background: '#F4F6FB', color: AZUL, border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px 14px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', flexShrink: 0 }}>
           📖 Guía
         </button>
       </div>
