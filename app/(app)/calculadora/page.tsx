@@ -192,6 +192,7 @@ function CalculadoraInner() {
   const [showWappModal, setShowWappModal] = useState(false)
 
   const [showAllMonths, setShowAllMonths] = useState(false)
+  const [showAllMonthsM10, setShowAllMonthsM10] = useState(false)
 
   // Flujo diagnóstico
   const [ingresoObjetivo, setIngresoObjetivo] = useState(0)
@@ -1127,7 +1128,16 @@ function CalculadoraInner() {
             </div>
 
             <div style={cardSt}>
-              {sectionTitle('Proyección de cotización mensual — Mod 10', `${mod40Meses} meses · ${fmtMXN(Math.round(mod40Umas * (sys.UMA_DIARIA || 113.14) * 30.4 * 0.22))}/mes`)}
+              {(() => {
+                const header = sectionTitle('Proyección de cotización mensual — Mod 10', `${mod40Meses} meses · ${fmtMXN(Math.round(mod40Umas * (sys.UMA_DIARIA || 113.14) * 30.4 * 0.22))}/mes`)
+                return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  {header}
+                  <button onClick={() => setShowAllMonthsM10(v => !v)}
+                    style={{ fontSize: '11px', padding: '4px 10px', border: '1px solid #e2e8f0', borderRadius: '6px', background: '#F4F6FB', cursor: 'pointer', color: '#64748b', fontFamily: 'inherit', flexShrink: 0 }}>
+                    {showAllMonthsM10 ? '↩️ Ver resumen' : '📋 Ver todos los meses'}
+                  </button>
+                </div>
+              })()}
               <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                   <thead>
@@ -1144,8 +1154,10 @@ function CalculadoraInner() {
                       const cuotaM10 = sbcMensual * 0.22
                       const cuotaM40 = sbcMensual * ((sys.mod40_pct ?? 14.438) / 100)
                       const diff = cuotaM10 - cuotaM40
-                      const showM10Months = mod40Meses <= 24 ? Array.from({length: mod40Meses}, (_, i) => i + 1) : [1, 2, 3, 6, 12, mod40Meses]
-                      return [...new Set(showM10Months)].filter(m => m >= 1 && m <= mod40Meses).map((mes, i) => (
+                      const showM10Months = showAllMonthsM10 ? Array.from({length: mod40Meses}, (_, i) => i + 1) : (mod40Meses <= 24 ? Array.from({length: mod40Meses}, (_, i) => i + 1) : [1, 2, 3, 6, 12, mod40Meses])
+                      const m10rows: React.ReactNode[] = []
+                      ;[...new Set(showM10Months)].filter(m => m >= 1 && m <= mod40Meses).forEach((mes, i) => {
+                        m10rows.push(
                         <tr key={mes} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #f1f5f9' }}>
                           <td style={{ padding: '6px 10px', textAlign: 'center', color: '#94a3b8', fontWeight: '600' }}>{mes}</td>
                           <td style={{ padding: '6px 10px', textAlign: 'right', color: AZUL, fontWeight: '600' }}>{fmtMXN(sbcMensual)}</td>
@@ -1154,7 +1166,14 @@ function CalculadoraInner() {
                           <td style={{ padding: '6px 10px', textAlign: 'right', color: '#f97316', fontWeight: '600' }}>+{fmtMXN(diff)}</td>
                           <td style={{ padding: '6px 10px', textAlign: 'right', color: AZUL, fontWeight: '700' }}>{fmtMXN(cuotaM10 * mes)}</td>
                         </tr>
-                      ))
+                        )
+                        if (!showAllMonthsM10 && mes === 3 && mod40Meses > 6) m10rows.push(
+                          <tr key="dots-m10" style={{ background: '#F8FAFC' }}>
+                            <td colSpan={6} style={{ padding: '5px 10px', textAlign: 'center', color: '#94a3b8', fontSize: '11px' }}>⋯ {mod40Meses - 4} meses intermedios — presiona "Ver todos los meses" para expandir ⋯</td>
+                          </tr>
+                        )
+                      })
+                      return m10rows
                     })()}
                     <tr style={{ background: '#F0FDF4', borderTop: '2px solid #bbf7d0' }}>
                       <td style={{ padding: '7px 10px', textAlign: 'center', fontWeight: '700', color: VERDE }}>Tot</td>
