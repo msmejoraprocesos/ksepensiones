@@ -658,3 +658,72 @@ export async function generarPDFProyecto(params: {
 
 
   
+
+  // ══════════════════════════════════════════════════
+  // SECCIÓN 7 — ANÁLISIS EJECUTIVO
+  // ══════════════════════════════════════════════════
+  if (analisis.length > 0) {
+    newPage()
+    const numSec7 = escM10 ? '7' : '6'
+    sectionTitle(numSec7, 'ANÁLISIS EJECUTIVO DEL PROYECTO DE PENSIÓN')
+    // Skip "Próximos pasos" section — it lives in sección 8
+    analisis
+      .filter((sec: any) => !sec.titulo?.toLowerCase().includes('paso') && !sec.titulo?.toLowerCase().includes('siguiente'))
+      .forEach((sec: any) => {
+        checkPage(30)
+        subTitle(sec.titulo || '')
+        bodyText(sec.contenido || '')
+      })
+  }
+
+  // ══════════════════════════════════════════════════
+  // SECCIÓN 8 — PRÓXIMOS PASOS (timeline)
+  // ══════════════════════════════════════════════════
+  checkPage(60)
+  const numSec8 = escM10 ? '8' : analisis.length > 0 ? '7' : '6'
+  sectionTitle(numSec8, 'PRÓXIMOS PASOS')
+
+  // Build timeline from data
+  const edadActual   = datos.edad_actual || 60
+  const mesesMod40   = escSel?.mod40_meses || 0
+  const edadFinMod40 = Math.round((edadActual + mesesMod40 / 12) * 10) / 10
+  const steps: {label: string; desc: string; color: string}[] = [
+    { label: 'Hoy', desc: 'Inicio Mod 40\n' + fmtMXN(escSel?.costo_mensual_mod40 || 0) + '/mes', color: NARANJA },
+  ]
+  if (mesesMod40 >= 12) steps.push({ label: edadFinMod40.toFixed(0) + ' años', desc: 'Fin cotización\nInversión completa', color: HC })
+  steps.push({ label: '60 años', desc: 'Cesantía\n(si aplica)', color: HC })
+  steps.push({ label: '65 años', desc: 'Vejez\n' + fmtMXN(escSel?.pension_mensual || 0) + '/mes', color: VERDE })
+
+  timeline(steps)
+
+  const lastSec = analisis.find((s: any) => s.titulo?.toLowerCase().includes('paso'))
+  if (lastSec) bodyText(lastSec.contenido || '')
+  else {
+    bodyText('1. Confirmar los datos presentados en este diagnóstico con el asesor.')
+    bodyText('2. Tramitar el alta en Modalidad 40 ante el IMSS (subdelegación correspondiente o imss.gob.mx).')
+    bodyText('3. Iniciar pagos mensuales de ' + fmtMXN(escSel?.costo_mensual_mod40 || 0) + ' durante ' + mesesMod40 + ' meses.')
+    bodyText('4. Al completar el período, iniciar trámite de pensión con la documentación requerida.')
+    bodyText('5. Verificar periódicamente el historial de semanas en el portal del IMSS: imss.gob.mx')
+  }
+
+  // ══════════════════════════════════════════════════
+  // AVISO LEGAL — página propia
+  // ══════════════════════════════════════════════════
+  newPage()
+  sectionTitle('', 'AVISO LEGAL Y LIMITACIONES')
+  bodyText('Este diagnóstico pensional fue elaborado con base en la información proporcionada por el trabajador y los datos registrados en la constancia de semanas cotizadas emitida por el Instituto Mexicano del Seguro Social (IMSS).')
+  bodyText('Los cálculos se realizan conforme a la Ley del Seguro Social de 1973 y sus reformas vigentes. El monto final de la pensión estará sujeto a la resolución definitiva del IMSS, quien determinará el importe de acuerdo con los salarios y semanas registrados en sus sistemas oficiales.')
+  bodyText('Este documento tiene carácter informativo y no constituye una promesa de pago ni un compromiso por parte del IMSS ni del asesor. Los escenarios presentados son proyecciones basadas en los datos disponibles al momento del diagnóstico y pueden variar.')
+  bodyText('Se recomienda verificar periódicamente la vigencia y exactitud de la información de semanas cotizadas en el portal oficial del IMSS: imss.gob.mx · Tel. IMSS: 800 623 2323')
+  if (esBorrador) {
+    y += 6
+    alertChip('BORRADOR — Este documento no ha sido autorizado por el asesor. No debe ser entregado al cliente en este estado.', 'warning')
+  }
+  y += 10
+  setS('#e2e8f0'); doc.setLineWidth(0.3); doc.line(ML, y, W - MR, y); y += 6
+  doc.setFontSize(7); doc.setFont('helvetica', 'normal'); setC('#94a3b8')
+  t(razonSocial || 'KSE Pensiones', ML, y)
+  t('Generado el ' + new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }), W - MR, y, { align: 'right' })
+
+  return doc
+}
