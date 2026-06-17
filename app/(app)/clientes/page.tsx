@@ -245,6 +245,7 @@ function ClientesInner() {
   const [savingActividad, setSavingActividad] = useState(false)
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [deletingCliente, setDeletingCliente] = useState(false)
+  const [showConfirmArchivar, setShowConfirmArchivar] = useState(false)
   const [showConfirmClose, setShowConfirmClose] = useState(false)
   const [bloqueoMsg, setBloqueoMsg] = useState<string | null>(null)
   const [notaCancelacion, setNotaCancelacion] = useState('')
@@ -2209,9 +2210,32 @@ function ClientesInner() {
                 style={{ flex: 1, padding: '11px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
                 Cancelar
               </button>
-              <button onClick={archivarCliente} disabled={deletingCliente}
+              <button onClick={() => setShowConfirmArchivar(true)} disabled={deletingCliente}
                 style={{ flex: 1, padding: '11px', background: deletingCliente ? '#94a3b8' : '#dc2626', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: deletingCliente ? 'not-allowed' : 'pointer' }}>
                 {deletingCliente ? 'Archivando...' : 'Sí, archivar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL CONFIRMAR ARCHIVAR ── */}
+      {showConfirmArchivar && selected && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '100%', maxWidth: '400px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            <div style={{ fontSize: '32px', textAlign: 'center', marginBottom: '12px' }}>📦</div>
+            <h3 style={{ fontSize: '17px', fontWeight: '700', color: '#1e293b', margin: '0 0 10px', textAlign: 'center' }}>¿Archivar a {selected.nombre}?</h3>
+            <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 20px', lineHeight: 1.6, textAlign: 'center' }}>
+              El cliente será movido al archivo. Podrás consultarlo y reactivarlo en cualquier momento desde la vista de archivados.
+            </p>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button onClick={() => setShowConfirmArchivar(false)}
+                style={{ flex: 1, padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#F4F6FB', color: '#64748b', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
+                Cancelar
+              </button>
+              <button onClick={() => { setShowConfirmArchivar(false); archivarCliente() }} disabled={deletingCliente}
+                style={{ flex: 1, padding: '10px', border: 'none', borderRadius: '8px', background: '#dc2626', color: 'white', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
+                {deletingCliente ? 'Archivando...' : '📦 Sí, archivar'}
               </button>
             </div>
           </div>
