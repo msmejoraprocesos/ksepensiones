@@ -127,8 +127,7 @@ export async function generarPDFProyecto(params: {
   function bodyText(txt: string, indent = 0) {
     doc.setFontSize(8.5); doc.setFont('helvetica', 'normal'); setC('#374151')
     // Clean up bullet chars — replace & or * at start with proper bullet
-    const cleanTxt = txt.replace(/^[&*]\s*/, '• ').replace(/\s*&\s*/g, '
-• ')
+    const cleanTxt = txt.replace(/^[&*]\s*/, '• ').replace(/\s*&\s*/g, ' • ')
     const lines = doc.splitTextToSize(cleanTxt, W - ML - MR - indent - 2)
     lines.forEach((l: string) => { checkPage(6); t(l, ML + indent + 2, y); y += 5 })
     y += 2
