@@ -491,7 +491,7 @@ function CalculadoraInner() {
       cliente_id: clienteId, asesor_id: userId,
       ley: datos.ley,
       semanas: datos.semanas_totales,
-      salario: sdiPromedio,
+      salario_diario: sdiPromedio,
       edad_retiro: 65,
       pension_sin_mod40: escenarios[0]?.pension_mensual,
       pension_con_mod40: escElegido?.pension_mensual,
@@ -518,8 +518,12 @@ function CalculadoraInner() {
       setMensaje('✅ Diagnóstico autorizado — el PDF oficial ya está disponible')
     } else {
       // Create new record (always insert — immutable history)
-      const { data } = await supabase.from('diagnosticos').insert(payload).select('id').single()
-      if (data) {
+      const { data, error } = await supabase.from('diagnosticos').insert(payload).select('id').single()
+      if (error) {
+        console.error('Error al guardar diagnóstico:', error)
+        setMensaje('❌ Error al guardar: ' + error.message)
+        setTimeout(() => setMensaje(''), 6000)
+      } else if (data) {
         setDiagGuardadoId(data.id)
         setEstatus(nuevoEstatus)
         setMensaje(nuevoEstatus === 'borrador' ? '💾 Borrador guardado en el expediente del cliente' : '✅ Diagnóstico autorizado')
@@ -1175,6 +1179,52 @@ function CalculadoraInner() {
               <a href="https://serviciosdigitales.imss.gob.mx/gestionAsegurados-web/asegurados/incorporacionVoluntaria" target="_blank" rel="noopener noreferrer" style={{ color: AZUL, fontWeight: '700' }}>Calcular cuota exacta en el portal oficial del IMSS →</a>
             </div>
 
+            <div style={cardSt}>
+              {sectionTitle('Proyección de cotización mensual — Mod 10', `${mod40Meses} meses · ${fmtMXN(Math.round(mod40Umas * (sys.UMA_DIARIA || 113.14) * 30.4 * 0.22))}/mes`)}
+              <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                  <thead>
+                    <tr style={{ background: '#F4F6FB' }}>
+                      {['Mes','SBC mensual','Cuota Mod 10 (22%)','Cuota Mod 40 (ref.)','Diferencia','Acumulado Mod 10'].map((h, i) => (
+                        <th key={i} style={{ padding: '7px 10px', textAlign: i === 0 ? 'center' : 'right', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0', whiteSpace: 'nowrap' }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(() => {
+                      const UMA = sys.UMA_DIARIA || 113.14
+                      const sbcMensual = mod40Umas * UMA * 30.4
+                      const cuotaM10 = sbcMensual * 0.22
+                      const cuotaM40 = sbcMensual * ((sys.mod40_pct ?? 14.438) / 100)
+                      const diff = cuotaM10 - cuotaM40
+                      const showM10Months = mod40Meses <= 24 ? Array.from({length: mod40Meses}, (_, i) => i + 1) : [1, 2, 3, 6, 12, mod40Meses]
+                      return [...new Set(showM10Months)].filter(m => m >= 1 && m <= mod40Meses).map((mes, i) => (
+                        <tr key={mes} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #f1f5f9' }}>
+                          <td style={{ padding: '6px 10px', textAlign: 'center', color: '#94a3b8', fontWeight: '600' }}>{mes}</td>
+                          <td style={{ padding: '6px 10px', textAlign: 'right', color: AZUL, fontWeight: '600' }}>{fmtMXN(sbcMensual)}</td>
+                          <td style={{ padding: '6px 10px', textAlign: 'right', color: VERDE, fontWeight: '700' }}>{fmtMXN(cuotaM10)}</td>
+                          <td style={{ padding: '6px 10px', textAlign: 'right', color: '#94a3b8' }}>{fmtMXN(cuotaM40)}</td>
+                          <td style={{ padding: '6px 10px', textAlign: 'right', color: '#f97316', fontWeight: '600' }}>+{fmtMXN(diff)}</td>
+                          <td style={{ padding: '6px 10px', textAlign: 'right', color: AZUL, fontWeight: '700' }}>{fmtMXN(cuotaM10 * mes)}</td>
+                        </tr>
+                      ))
+                    })()}
+                    <tr style={{ background: '#F0FDF4', borderTop: '2px solid #bbf7d0' }}>
+                      <td style={{ padding: '7px 10px', textAlign: 'center', fontWeight: '700', color: VERDE }}>Tot</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right', color: '#64748b' }}>—</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '800', color: VERDE }}>{fmtMXN(mod40Umas * (sys.UMA_DIARIA || 113.14) * 30.4 * 0.22 * mod40Meses)}</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right', color: '#94a3b8' }}>{fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses)}</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right', color: '#f97316', fontWeight: '700' }}>+{fmtMXN((mod40Umas * (sys.UMA_DIARIA || 113.14) * 30.4 * 0.22 - calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys)) * mod40Meses)}</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '800', color: VERDE }}>{fmtMXN(mod40Umas * (sys.UMA_DIARIA || 113.14) * 30.4 * 0.22 * mod40Meses)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p style={{ fontSize: '10px', color: '#94a3b8', margin: '6px 0 0', lineHeight: 1.6 }}>
+                La columna "Diferencia" muestra cuánto más pagas con Mod 10 vs Mod 40 — ese extra te da cobertura médica completa y los demás seguros adicionales.
+              </p>
+            </div>
+
             {navButtons(() => setTab(3), () => setTab(5), 'Siguiente: Escenarios de pensión →')}
           </div>
           )
@@ -1183,6 +1233,9 @@ function CalculadoraInner() {
         {/* ══ TAB 5: ESCENARIOS ═══════════════════════════════════ */}
         {tab === 5 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div style={{ padding: '12px 16px', background: '#F4F6FB', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '12px', color: '#374151', lineHeight: 1.7 }}>
+              <strong style={{ color: AZUL }}>¿Cómo leer los escenarios?</strong> Cada columna representa una estrategia diferente para el mismo cliente. <strong>E1</strong> es la base sin ninguna acción. <strong>E2 (Mod 10)</strong> aplica si el cliente es trabajador independiente o necesita servicio médico. <strong>E3, E4, E5 (Mod 40)</strong> muestran el impacto de cotizar voluntariamente a distintos plazos — a más meses y más UMAs, mayor pensión pero mayor inversión. Elige el escenario que mejor se adapte al cliente y presiona <strong>"Elegir para diagnóstico"</strong> para usarlo como base del análisis y el PDF.
+            </div>
             {escenarios.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontSize: '13px' }}>
                 Completa los datos generales y el salario promedio para ver los escenarios.
