@@ -1127,6 +1127,53 @@ function CalculadoraInner() {
             </div>
 
             <div style={cardSt}>
+              {sectionTitle('Proyección de cotización mensual — Mod 10', `${mod40Meses} meses · ${fmtMXN(Math.round(mod40Umas * (sys.UMA_DIARIA || 113.14) * 30.4 * 0.22))}/mes`)}
+              <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                  <thead>
+                    <tr style={{ background: '#F4F6FB' }}>
+                      {['Mes','SBC mensual','Cuota Mod 10 (22%)','Cuota Mod 40 (ref.)','Diferencia','Acumulado Mod 10'].map((h, i) => (
+                        <th key={i} style={{ padding: '7px 10px', textAlign: i === 0 ? 'center' : 'right', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0', whiteSpace: 'nowrap' }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(() => {
+                      const UMA = sys.UMA_DIARIA || 113.14
+                      const sbcMensual = mod40Umas * UMA * 30.4
+                      const cuotaM10 = sbcMensual * 0.22
+                      const cuotaM40 = sbcMensual * ((sys.mod40_pct ?? 14.438) / 100)
+                      const diff = cuotaM10 - cuotaM40
+                      const showM10Months = mod40Meses <= 24 ? Array.from({length: mod40Meses}, (_, i) => i + 1) : [1, 2, 3, 6, 12, mod40Meses]
+                      return [...new Set(showM10Months)].filter(m => m >= 1 && m <= mod40Meses).map((mes, i) => (
+                        <tr key={mes} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #f1f5f9' }}>
+                          <td style={{ padding: '6px 10px', textAlign: 'center', color: '#94a3b8', fontWeight: '600' }}>{mes}</td>
+                          <td style={{ padding: '6px 10px', textAlign: 'right', color: AZUL, fontWeight: '600' }}>{fmtMXN(sbcMensual)}</td>
+                          <td style={{ padding: '6px 10px', textAlign: 'right', color: VERDE, fontWeight: '700' }}>{fmtMXN(cuotaM10)}</td>
+                          <td style={{ padding: '6px 10px', textAlign: 'right', color: '#94a3b8' }}>{fmtMXN(cuotaM40)}</td>
+                          <td style={{ padding: '6px 10px', textAlign: 'right', color: '#f97316', fontWeight: '600' }}>+{fmtMXN(diff)}</td>
+                          <td style={{ padding: '6px 10px', textAlign: 'right', color: AZUL, fontWeight: '700' }}>{fmtMXN(cuotaM10 * mes)}</td>
+                        </tr>
+                      ))
+                    })()}
+                    <tr style={{ background: '#F0FDF4', borderTop: '2px solid #bbf7d0' }}>
+                      <td style={{ padding: '7px 10px', textAlign: 'center', fontWeight: '700', color: VERDE }}>Tot</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right', color: '#64748b' }}>—</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '800', color: VERDE }}>{fmtMXN(mod40Umas * (sys.UMA_DIARIA || 113.14) * 30.4 * 0.22 * mod40Meses)}</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right', color: '#94a3b8' }}>{fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses)}</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right', color: '#f97316', fontWeight: '700' }}>+{fmtMXN((mod40Umas * (sys.UMA_DIARIA || 113.14) * 30.4 * 0.22 - calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys)) * mod40Meses)}</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '800', color: VERDE }}>{fmtMXN(mod40Umas * (sys.UMA_DIARIA || 113.14) * 30.4 * 0.22 * mod40Meses)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p style={{ fontSize: '10px', color: '#94a3b8', margin: '6px 0 0', lineHeight: 1.6 }}>
+                La columna "Diferencia" muestra cuánto más pagas con Mod 10 vs Mod 40 — ese extra te da cobertura médica completa y los demás seguros adicionales.
+              </p>
+            </div>
+
+
+            <div style={cardSt}>
               {sectionTitle('¿Qué incluye cada modalidad?')}
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                 <thead>
@@ -1177,52 +1224,6 @@ function CalculadoraInner() {
             <div style={{ padding: '10px 14px', background: '#F8FAFC', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '11px', color: '#64748b', lineHeight: 1.6 }}>
               ⚠️ La tasa del 22% es un estimado — el monto exacto varía según actividad económica y zona geográfica.{' '}
               <a href="https://serviciosdigitales.imss.gob.mx/gestionAsegurados-web/asegurados/incorporacionVoluntaria" target="_blank" rel="noopener noreferrer" style={{ color: AZUL, fontWeight: '700' }}>Calcular cuota exacta en el portal oficial del IMSS →</a>
-            </div>
-
-            <div style={cardSt}>
-              {sectionTitle('Proyección de cotización mensual — Mod 10', `${mod40Meses} meses · ${fmtMXN(Math.round(mod40Umas * (sys.UMA_DIARIA || 113.14) * 30.4 * 0.22))}/mes`)}
-              <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-                  <thead>
-                    <tr style={{ background: '#F4F6FB' }}>
-                      {['Mes','SBC mensual','Cuota Mod 10 (22%)','Cuota Mod 40 (ref.)','Diferencia','Acumulado Mod 10'].map((h, i) => (
-                        <th key={i} style={{ padding: '7px 10px', textAlign: i === 0 ? 'center' : 'right', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0', whiteSpace: 'nowrap' }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(() => {
-                      const UMA = sys.UMA_DIARIA || 113.14
-                      const sbcMensual = mod40Umas * UMA * 30.4
-                      const cuotaM10 = sbcMensual * 0.22
-                      const cuotaM40 = sbcMensual * ((sys.mod40_pct ?? 14.438) / 100)
-                      const diff = cuotaM10 - cuotaM40
-                      const showM10Months = mod40Meses <= 24 ? Array.from({length: mod40Meses}, (_, i) => i + 1) : [1, 2, 3, 6, 12, mod40Meses]
-                      return [...new Set(showM10Months)].filter(m => m >= 1 && m <= mod40Meses).map((mes, i) => (
-                        <tr key={mes} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #f1f5f9' }}>
-                          <td style={{ padding: '6px 10px', textAlign: 'center', color: '#94a3b8', fontWeight: '600' }}>{mes}</td>
-                          <td style={{ padding: '6px 10px', textAlign: 'right', color: AZUL, fontWeight: '600' }}>{fmtMXN(sbcMensual)}</td>
-                          <td style={{ padding: '6px 10px', textAlign: 'right', color: VERDE, fontWeight: '700' }}>{fmtMXN(cuotaM10)}</td>
-                          <td style={{ padding: '6px 10px', textAlign: 'right', color: '#94a3b8' }}>{fmtMXN(cuotaM40)}</td>
-                          <td style={{ padding: '6px 10px', textAlign: 'right', color: '#f97316', fontWeight: '600' }}>+{fmtMXN(diff)}</td>
-                          <td style={{ padding: '6px 10px', textAlign: 'right', color: AZUL, fontWeight: '700' }}>{fmtMXN(cuotaM10 * mes)}</td>
-                        </tr>
-                      ))
-                    })()}
-                    <tr style={{ background: '#F0FDF4', borderTop: '2px solid #bbf7d0' }}>
-                      <td style={{ padding: '7px 10px', textAlign: 'center', fontWeight: '700', color: VERDE }}>Tot</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right', color: '#64748b' }}>—</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '800', color: VERDE }}>{fmtMXN(mod40Umas * (sys.UMA_DIARIA || 113.14) * 30.4 * 0.22 * mod40Meses)}</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right', color: '#94a3b8' }}>{fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses)}</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right', color: '#f97316', fontWeight: '700' }}>+{fmtMXN((mod40Umas * (sys.UMA_DIARIA || 113.14) * 30.4 * 0.22 - calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys)) * mod40Meses)}</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '800', color: VERDE }}>{fmtMXN(mod40Umas * (sys.UMA_DIARIA || 113.14) * 30.4 * 0.22 * mod40Meses)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <p style={{ fontSize: '10px', color: '#94a3b8', margin: '6px 0 0', lineHeight: 1.6 }}>
-                La columna "Diferencia" muestra cuánto más pagas con Mod 10 vs Mod 40 — ese extra te da cobertura médica completa y los demás seguros adicionales.
-              </p>
             </div>
 
             {navButtons(() => setTab(3), () => setTab(5), 'Siguiente: Escenarios de pensión →')}
