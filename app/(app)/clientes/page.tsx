@@ -265,6 +265,12 @@ function ClientesInner() {
   const [diagFinId, setDiagFinId] = useState('')
   const [financieras, setFinancieras] = useState<{id: string; nombre: string; tasa_anual: number; plazo_min: number; plazo_max: number; monto_min: number; monto_max: number}[]>([])
 
+  const [asesorPerfil, setAsesorPerfil] = useState<{
+    razon_social?: string; nombre?: string; logo_url?: string
+    encabezado_color?: string; encabezado_titulo?: string
+    encabezado_logo_size?: number; encabezado_font_size?: number
+  } | null>(null)
+
   const [showNuevo, setShowNuevo] = useState(false)
   const [editando, setEditando] = useState(false)
   const [formEdit, setFormEdit] = useState({ nombre: '', telefono: '', email: '', notas: '' })
@@ -298,6 +304,12 @@ function ClientesInner() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) return
       userIdRef.current = session.user.id
+      // Load asesor profile for PDF generation
+      supabase.from('perfiles_usuario')
+        .select('nombre, razon_social, logo_url, encabezado_color, encabezado_titulo, encabezado_logo_size, encabezado_font_size')
+        .eq('id', userIdRef.current)
+        .single()
+        .then(({ data }) => { if (data) setAsesorPerfil(data) })
       loadClientes(session.user.id)
       loadMateriales(session.user.id)
     })
@@ -321,10 +333,14 @@ function ClientesInner() {
         finSel: undefined,
         finPlazo: 24,
         analisis: Array.isArray(analisisParsed) ? analisisParsed : [],
-        logoUrl: userIdRef.current ? undefined : undefined,
-        razonSocial: undefined,
-        asesorNombre: undefined,
+        logoUrl: asesorPerfil?.logo_url ?? undefined,
+        razonSocial: asesorPerfil?.razon_social ?? undefined,
+        asesorNombre: asesorPerfil?.nombre ?? undefined,
         ingresoObjetivo: p.ingresoObjetivo || undefined,
+        encabezadoColor: asesorPerfil?.encabezado_color ?? undefined,
+        encabezadoTitulo: asesorPerfil?.encabezado_titulo ?? undefined,
+        encabezadoLogoSize: asesorPerfil?.encabezado_logo_size ?? undefined,
+        encabezadoFontSize: asesorPerfil?.encabezado_font_size ?? undefined,
         esBorrador: d.estatus !== 'autorizado',
       })
       const nombre = (p.datos?.nombre_trabajador || p.datos?.nombre || 'cliente').replace(/\s+/g, '_')
