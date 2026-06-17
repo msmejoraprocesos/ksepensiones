@@ -9,10 +9,13 @@ const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency'
 const fmtMXN2 = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n || 0)
 
 function hexToRgb(hex: string): [number, number, number] {
+  if (!hex || typeof hex !== 'string' || !hex.startsWith('#') || hex.length < 7) {
+    return [27, 58, 107] // fallback: AZUL
+  }
   const r = parseInt(hex.slice(1, 3), 16)
   const g = parseInt(hex.slice(3, 5), 16)
   const b = parseInt(hex.slice(5, 7), 16)
-  return [r, g, b]
+  return [isNaN(r) ? 0 : r, isNaN(g) ? 0 : g, isNaN(b) ? 0 : b]
 }
 
 export function generarPDFProyecto(params: {
@@ -222,7 +225,7 @@ export function generarPDFProyecto(params: {
     text(item.label.toUpperCase(), x + 5, y + 6)
     doc.setFontSize(11)
     doc.setFont('helvetica', 'bold')
-    const [r,g,b] = hexToRgb(item.color)
+    const [r,g,b] = hexToRgb(item.color || AZUL)
     doc.setTextColor(r,g,b)
     text(item.value, x + 5, y + 16)
   })
