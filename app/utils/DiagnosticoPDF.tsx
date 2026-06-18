@@ -303,7 +303,7 @@ const BarChart = ({ escenarios, escSelIdx, maxVal, objetivo }: {
   const TOTAL_H = escenarios.length * ROW_H + 30
 
   return (
-    <View style={{ marginBottom: 10, width: '100%' }}>
+    <View style={{ marginBottom: 10, width: '100%', maxWidth: '100%' }}>
       <Svg width={W_CHART} height={TOTAL_H} style={{ width: '100%' }}>
         {escenarios.map((esc, i) => {
           const isEl   = i === escSelIdx || (escSelIdx < 0 && !!esc.recomendado)
@@ -666,7 +666,7 @@ const PaginaSalario = ({ periodos, sdiPromedio, color, titulo, razonSocial, esBo
           mxn((p.sdi || 0) * 30.4),
           (p.peso || 0).toFixed(1) + '%',
         ])}
-        totalRow={['Promedio ponderado', '', '', periodos.reduce((s, p) => s + (p.semanas || 0), 0).toString(), mxn2(sdiPromedio), mxn(sdiPromedio * 30.4), '100%']}
+        totalRow={['Promedio pond.', '', '', periodos.reduce((s, p) => s + (p.semanas || 0), 0).toString(), mxn2(sdiPromedio), mxn(sdiPromedio * 30.4), '100%']}
       />
     )}
   </Page>
@@ -877,8 +877,8 @@ const PaginaPasos = ({ datos, escenarios, escSelIdx, analisis, color, titulo, ra
           ? rawContent.split(/\n|\r\n/).map((s: string) => s.replace(/^[\d]+\.\s*|^[-•]\s*/, '').trim()).filter((s: string) => s.length > 0)
           : defaultSteps
         return steps.map((paso: string, i: number) => (
-          <View key={i} style={{ flexDirection: 'row', marginBottom: 8 }}>
-            <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color, width: 18, marginTop: 1 }}>{i + 1}.</Text>
+          <View key={i} style={{ flexDirection: 'row', marginBottom: 8, alignItems: 'flex-start' }}>
+            <Text style={{ fontSize: 8, color, width: 12, marginTop: 2 }}>•</Text>
             <Text style={[s.body, { flex: 1, lineHeight: 1.8 }]}>{paso.replace(/^\d+\.\s*/, '')}</Text>
           </View>
         ))
