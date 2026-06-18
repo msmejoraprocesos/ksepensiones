@@ -773,7 +773,7 @@ const PaginaAnalisis = ({ analisis, color, titulo, razonSocial, esBorrador }: PD
           <View style={{ backgroundColor: '#EEF2F8', borderLeftWidth: 3, borderLeftColor: color, paddingVertical: 5, paddingHorizontal: 8, marginBottom: 6, borderRadius: 3 }} wrap={false}>
             <Text style={{ fontSize: 11, fontFamily: 'Helvetica-Bold', color }}>{sec.titulo || ''}</Text>
           </View>
-          <Text style={[s.body, { lineHeight: 1.8, paddingHorizontal: 4 }]}>{sec.contenido || ''}</Text>
+          <Text style={[s.body, { lineHeight: 1.8, paddingHorizontal: 4 }]}>{String(sec?.contenido || '')}</Text>
         </View>
       ))}
     </Page>
@@ -806,7 +806,7 @@ const PaginaPasos = ({ datos, escenarios, escSelIdx, analisis, color, titulo, ra
       <Timeline steps={steps.map(s => ({ label: s.label, desc: s.desc, color: s.color }))} />
 
       {pasosSec
-        ? pasosSec.contenido.split('\n').filter((p: string) => p.trim()).map((paso: string, i: number) => (
+        ? String(pasosSec.contenido || '').split('\n').filter((p: string) => p.trim()).map((paso: string, i: number) => (
             <View key={i} style={{ flexDirection: 'row', marginBottom: 8, marginTop: i === 0 ? 8 : 0 }}>
               <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color, width: 16, marginTop: 1 }}>•</Text>
               <Text style={[s.body, { flex: 1, lineHeight: 1.7 }]}>{paso.trim()}</Text>
