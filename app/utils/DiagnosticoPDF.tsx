@@ -281,7 +281,7 @@ const BarChart = ({ escenarios, escSelIdx, maxVal, objetivo }: {
   return (
     <Canvas
       style={{ width: 420, height: totalH, marginBottom: 8 }}
-      paint={(painter) => {
+      paint={((painter: any): null => {
         escenarios.forEach((esc, i) => {
           const rowY = i * (barH + gap)
           const isEl = i === escSelIdx || (escSelIdx < 0 && esc.recomendado)
@@ -332,7 +332,8 @@ const BarChart = ({ escenarios, escSelIdx, maxVal, objetivo }: {
           painter.fontSize(6.5).fillColor(C.rojo).text('Objetivo', objX + 2, 2)
           painter.fontSize(6.5).fillColor(C.rojo).text(mxn(objetivo), objX + 2, 9)
         }
-      }}
+        return null
+      }) as any}
     />
   )
 }
@@ -345,7 +346,7 @@ const Timeline = ({ steps }: { steps: { label: string; desc: string; color: stri
   return (
     <Canvas
       style={{ width: 420, height: 48, marginVertical: 10 }}
-      paint={(painter) => {
+      paint={((painter: any): null => {
         // Line
         painter
           .moveTo(stepW / 2, 10)
@@ -372,6 +373,7 @@ const Timeline = ({ steps }: { steps: { label: string; desc: string; color: stri
             .fillColor(C.gris)
             .text(step.desc, cx - stepW / 2 + 2, 29, { width: stepW - 4, align: 'center' })
         })
+        return null
       }}
     />
   )
