@@ -609,7 +609,7 @@ const PaginaDatosConservacion = ({ datos, color, titulo, razonSocial, esBorrador
         { label: 'Semanas cotizadas', value: (datos.semanas_totales || 0).toLocaleString(), color: (datos.semanas_totales || 0) >= 500 ? C.verde : C.rojo },
         { label: 'Fecha de nacimiento', value: fmtFecha(datos.fecha_nacimiento) },
         { label: 'Última cotización', value: fmtFechaCta(datos.fecha_calculo) || 'No registrada', color: datos.fecha_calculo ? C.azul : C.gris },
-        { label: 'Asignaciones familiares', value: '+' + ((datos.tiene_conyuge ? 15 : 0) + (datos.num_hijos || 0) * 10) + '% sobre pensión base', color: C.naranja },
+        { label: 'Asignaciones familiares', value: '+' + ((datos.tiene_conyuge ? 15 : 0) + (datos.num_hijos || 0) * 10) + '%', sub: 'sobre pensión base', color: C.naranja },
       ]} />
       {(datos.semanas_totales || 0) >= 500
         ? <AlertChip msg={`✓ Semanas suficientes para pensionarse (${datos.semanas_totales} de 500 requeridas)`} type="success" />
@@ -665,7 +665,7 @@ const PaginaSalario = ({ periodos, sdiPromedio, color, titulo, razonSocial, esBo
           mxn((p.sdi || 0) * 30.4),
           (p.peso || 0).toFixed(1) + '%',
         ])}
-        totalRow={['Promedio ponderado', '', '', periodos.reduce((s, p) => s + (p.semanas || 0), 0).toString(), mxn2(sdiPromedio), mxn(sdiPromedio * 30.4), '100%']}
+        totalRow={['Prom. ponderado', '', '', periodos.reduce((s, p) => s + (p.semanas || 0), 0).toString(), mxn2(sdiPromedio), mxn(sdiPromedio * 30.4), '100%']}
       />
     )}
   </Page>
@@ -876,11 +876,9 @@ const PaginaPasos = ({ datos, escenarios, escSelIdx, analisis, color, titulo, ra
           ? rawContent.split(/\n|\r\n/).map((s: string) => s.replace(/^[\d]+\.\s*|^[-•]\s*/, '').trim()).filter((s: string) => s.length > 0)
           : defaultSteps
         return steps.map((paso: string, i: number) => (
-          <View key={i} style={{ flexDirection: 'row', marginBottom: 10, marginTop: 2 }}>
-            <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: color, alignItems: 'center', justifyContent: 'center', marginRight: 8, marginTop: 1, flexShrink: 0 }}>
-              <Text style={{ fontSize: 8, fontFamily: 'Helvetica-Bold', color: 'white' }}>{i + 1}</Text>
-            </View>
-            <Text style={[s.body, { flex: 1, lineHeight: 1.8, marginTop: 3 }]}>{paso}</Text>
+          <View key={i} style={{ flexDirection: 'row', marginBottom: 8 }}>
+            <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color, width: 18, marginTop: 1 }}>{i + 1}.</Text>
+            <Text style={[s.body, { flex: 1, lineHeight: 1.8 }]}>{paso}</Text>
           </View>
         ))
       })()}
