@@ -3,7 +3,8 @@
 import { useEffect, useState, useRef, Suspense } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { generarPDFProyecto } from '@/app/utils/pdf-generator'
+import { pdf } from '@react-pdf/renderer'
+import { DiagnosticoPDF } from '@/app/utils/DiagnosticoPDF'
 
 const AZUL = '#1B3A6B'
 const VERDE = '#2E8B57'
@@ -495,31 +496,36 @@ function CalculadoraInner() {
     if (!diagGuardadoId) return
     const esBorrador = estatus === 'borrador'
     const idxToUse = escElegidoIdx >= 0 ? escElegidoIdx : escSelIdx
-    const escToUse = escenarios[idxToUse] ?? escenarios.find(e => e.recomendado) ?? escenarios[0]
+    const escToUse = escenarios[idxToUse] ?? escenarios.find((e: any) => e.recomendado) ?? escenarios[0]
     if (!escToUse) { setMensaje('⚠️ Selecciona un escenario antes de generar el PDF'); setTimeout(() => setMensaje(''), 4000); return }
     try {
-      const doc = await generarPDFProyecto({
-        datos,
-        periodos,
-        sdiPromedio,
-        escenarios,
-        escSelIdx: idxToUse,
-        corridaFin: corridaFin ?? undefined,
-        finSel: finSel ?? undefined,
-        finPlazo,
-        analisis,
-        logoUrl: asesorPerfil?.logo_url ?? undefined,
-        razonSocial: asesorPerfil?.razon_social ?? undefined,
-        asesorNombre: asesorPerfil?.nombre ?? undefined,
-        ingresoObjetivo: ingresoObjetivo || undefined,
-        encabezadoColor: asesorPerfil?.encabezado_color ?? undefined,
-        encabezadoTitulo: asesorPerfil?.encabezado_titulo ?? undefined,
-        encabezadoLogoSize: asesorPerfil?.encabezado_logo_size ?? undefined,
-        encabezadoFontSize: asesorPerfil?.encabezado_font_size ?? undefined,
-      })
+      setMensaje('⏳ Generando PDF...')
+      const elemento = (
+        <DiagnosticoPDF
+          datos={datos}
+          periodos={periodos}
+          sdiPromedio={sdiPromedio}
+          escenarios={escenarios}
+          escSelIdx={idxToUse}
+          analisis={analisis}
+          ingresoObjetivo={ingresoObjetivo || undefined}
+          logoUrl={asesorPerfil?.logo_url ?? undefined}
+          razonSocial={asesorPerfil?.razon_social ?? undefined}
+          asesorNombre={asesorPerfil?.nombre ?? undefined}
+          encabezadoColor={asesorPerfil?.encabezado_color ?? undefined}
+          encabezadoTitulo={asesorPerfil?.encabezado_titulo ?? undefined}
+          esBorrador={esBorrador}
+        />
+      )
+      const blob = await pdf(elemento).toBlob()
+      const url  = URL.createObjectURL(blob)
+      const a    = document.createElement('a')
       const nombre = (datos.nombre_trabajador || datos.nombre)?.replace(/\s+/g, '_') || 'cliente'
       const sufijo = esBorrador ? '_BORRADOR' : '_OFICIAL'
-      doc.save(`Proyecto_Pension_${nombre}_${new Date().toISOString().slice(0,10)}${sufijo}.pdf`)
+      a.href = url
+      a.download = `Proyecto_Pension_${nombre}_${new Date().toISOString().slice(0,10)}${sufijo}.pdf`
+      a.click()
+      URL.revokeObjectURL(url)
       setMensaje(esBorrador ? '📄 PDF borrador generado' : '📄 PDF oficial generado')
       setTimeout(() => setMensaje(''), 4000)
     } catch (err) {
