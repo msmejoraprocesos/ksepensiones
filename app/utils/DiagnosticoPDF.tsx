@@ -111,16 +111,16 @@ const s = StyleSheet.create({
     fontFamily: 'Helvetica',
     fontSize: 9,
     color: C.texto,
-    paddingTop: 52,
-    paddingBottom: 28,
-    paddingHorizontal: 28,
+    paddingTop: 46,
+    paddingBottom: 24,
+    paddingHorizontal: 24,
     backgroundColor: C.blanco,
   },
   // Header en cada página interior
   pageHeader: {
     position: 'absolute',
     top: 0, left: 0, right: 0,
-    height: 40,
+    height: 36,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -131,12 +131,12 @@ const s = StyleSheet.create({
   // Borrador watermark
   watermark: {
     position: 'absolute',
-    top: '35%', left: '10%',
-    transform: 'rotate(-35deg)',
-    fontSize: 72,
+    top: '38%',
+    left: '8%',
+    fontSize: 68,
     fontFamily: 'Helvetica-Bold',
     color: '#DC2626',
-    opacity: 0.06,
+    opacity: 0.07,
   },
   // Section title bar
   sectionBar: {
@@ -203,7 +203,11 @@ const PageHeader = ({ razonSocial, titulo, color, esBorrador }: { razonSocial?: 
 
 // Marca de agua BORRADOR
 const Watermark = () => (
-  <Text style={[s.watermark, { top: '40%', left: '5%' }]} fixed>BORRADOR</Text>
+  <Text
+    style={s.watermark}
+    fixed
+    render={() => 'BORRADOR'}
+  />
 )
 
 // Barra de sección
@@ -249,31 +253,31 @@ const DataTable = ({
 }: {
   headers: string[]
   rows: string[][]
-  widths: number[]
+  widths: string[] | number[]
   aligns?: string[]
   totalRow?: string[]
   highlightRows?: boolean[]
 }) => (
-  <View style={{ marginBottom: 8 }}>
-    <View style={s.tableHeader}>
+  <View style={{ marginBottom: 10, width: '100%' }}>
+    <View style={[s.tableHeader, { width: '100%' }]}>
       {headers.map((h, i) => (
-        <Text key={i} style={[s.tableHeaderCell, { width: widths[i], textAlign: (aligns?.[i] || 'center') as any }]}>{h}</Text>
+        <Text key={i} style={[s.tableHeaderCell, { width: widths[i] as any, textAlign: (aligns?.[i] || 'center') as any, flexShrink: 1 }]}>{h}</Text>
       ))}
     </View>
     {rows.map((row, ri) => (
-      <View key={ri} style={[s.tableRow, ri % 2 === 1 ? s.tableRowEven : {}, highlightRows?.[ri] ? { backgroundColor: '#E1F5EE' } : {}]} wrap={false}>
+      <View key={ri} style={[s.tableRow, ri % 2 === 1 ? s.tableRowEven : {}, highlightRows?.[ri] ? { backgroundColor: '#E1F5EE' } : {}, { width: '100%' }]} wrap={false}>
         {row.map((cell, ci) => (
-          <Text key={ci} style={[s.tableCell, { width: widths[ci], textAlign: (aligns?.[ci] || (ci === 0 ? 'left' : 'right')) as any }, highlightRows?.[ri] ? { fontFamily: 'Helvetica-Bold', color: C.azul } : {}]}>
-            {cell}
+          <Text key={ci} style={[s.tableCell, { width: widths[ci] as any, textAlign: (aligns?.[ci] || (ci === 0 ? 'left' : 'right')) as any, flexShrink: 1 }, highlightRows?.[ri] ? { fontFamily: 'Helvetica-Bold', color: C.azul } : {}]}>
+            {String(cell ?? '')}
           </Text>
         ))}
       </View>
     ))}
     {totalRow && (
-      <View style={[s.tableRow, s.tableRowTotal]} wrap={false}>
+      <View style={[s.tableRow, s.tableRowTotal, { width: '100%' }]} wrap={false}>
         {totalRow.map((cell, ci) => (
-          <Text key={ci} style={[s.tableCellBold, { width: widths[ci], textAlign: (aligns?.[ci] || (ci === 0 ? 'left' : 'right')) as any }]}>
-            {cell}
+          <Text key={ci} style={[s.tableCellBold, { width: widths[ci] as any, textAlign: (aligns?.[ci] || (ci === 0 ? 'left' : 'right')) as any, flexShrink: 1 }]}>
+            {String(cell ?? '')}
           </Text>
         ))}
       </View>
@@ -488,19 +492,19 @@ const PaginaPortada = ({ datos, escenarios, escSelIdx, ingresoObjetivo, logoUrl,
               {(datos.semanas_totales || 0).toLocaleString()}
             </Text>
           </View>
-          <View style={{ width: 0.5, backgroundColor: C.borde, marginVertical: 4 }} />
+          <View style={{ width: 1, backgroundColor: C.borde, marginHorizontal: 4 }} />
           <View style={{ flex: 1, alignItems: 'center' }}>
             <Text style={{ fontSize: 7, color: C.textoSm, marginBottom: 2 }}>MÍNIMO REQUERIDO</Text>
             <Text style={{ fontSize: 13, fontFamily: 'Helvetica-Bold', color: C.gris }}>500</Text>
           </View>
-          <View style={{ width: 0.5, backgroundColor: C.borde, marginVertical: 4 }} />
+          <View style={{ width: 1, backgroundColor: C.borde, marginHorizontal: 4 }} />
           <View style={{ flex: 1, alignItems: 'center' }}>
             <Text style={{ fontSize: 7, color: C.textoSm, marginBottom: 2 }}>RÉGIMEN</Text>
             <Text style={{ fontSize: 13, fontFamily: 'Helvetica-Bold', color: color }}>
               Ley {datos.ley || '73'}
             </Text>
           </View>
-          <View style={{ width: 0.5, backgroundColor: C.borde, marginVertical: 4 }} />
+          <View style={{ width: 1, backgroundColor: C.borde, marginHorizontal: 4 }} />
           <View style={{ flex: 1, alignItems: 'center' }}>
             <Text style={{ fontSize: 7, color: C.textoSm, marginBottom: 2 }}>CONSERVACIÓN</Text>
             <Text style={{ fontSize: 11, fontFamily: 'Helvetica-Bold', color: venc ? C.rojo : C.verde }}>
@@ -513,16 +517,18 @@ const PaginaPortada = ({ datos, escenarios, escSelIdx, ingresoObjetivo, logoUrl,
         {venc && <AlertChip msg="ATENCIÓN: Conservación de derechos VENCIDA — se requiere reactivación antes del trámite" type="danger" />}
         {!venc && mRest !== null && mRest < 12 && <AlertChip msg={`Conservación vigente pero próxima a vencer — ${mRest} meses restantes`} type="warning" />}
 
-        {/* Footer */}
-        <View style={{ position: 'absolute', bottom: 16, left: 28, right: 28 }}>
+        {/* Footer — separate views to avoid overlap */}
+        <View style={{ marginTop: 10 }}>
           <View style={{ height: 0.5, backgroundColor: C.borde, marginBottom: 6 }} />
           <Text style={{ fontSize: 7, color: C.textoSm }}>
             Documento confidencial elaborado exclusivamente para el trabajador indicado. Los cálculos son estimaciones basadas en la Ley del Seguro Social 1973.
           </Text>
           {esBorrador && (
-            <Text style={{ fontSize: 7, fontFamily: 'Helvetica-Bold', color: '#b45309', marginTop: 3 }}>
-              BORRADOR — Pendiente de autorización oficial. No compartir con el cliente.
-            </Text>
+            <View style={{ marginTop: 10, backgroundColor: '#FEE2E2', borderLeftWidth: 3, borderLeftColor: C.rojo, padding: 8, borderRadius: 3 }}>
+              <Text style={{ fontSize: 7.5, fontFamily: 'Helvetica-Bold', color: '#991b1b' }}>
+                BORRADOR — Pendiente de autorización oficial. No compartir con el cliente.
+              </Text>
+            </View>
           )}
         </View>
       </View>
@@ -611,13 +617,13 @@ const PaginaDatosConservacion = ({ datos, color, titulo, razonSocial, esBorrador
       }
 
       {/* Sección 2 — Conservación */}
-      <View style={{ marginTop: 8 }} />
+      
       <SectionTitle title="CONSERVACIÓN DE DERECHOS" sub="Art. 183 Ley del Seguro Social 1973" color={color} />
       <KpiRow color={color} items={[
         { label: 'Semanas de conservación', value: semC + ' semanas', color },
         { label: 'Período', value: (semC / 4.33 / 12).toFixed(1) + ' años', color },
         { label: 'Estado actual', value: vigente === null ? 'Sin fecha de baja' : vigente ? 'VIGENTE ✓' : 'VENCIDO ✗', color: vigente === null ? C.gris : vigente ? C.verde : C.rojo },
-        { label: vigente ? 'Meses restantes' : 'Estado', value: mRest !== null ? (vigente ? mRest + ' meses restantes' : 'Requiere reactivación') : 'Sin fecha de baja registrada', color: vigente ? C.verde : C.rojo },
+        { label: vigente ? 'Meses restantes' : 'Estado', value: mRest !== null ? (vigente ? mRest + ' meses restantes' : 'Requiere\nreactivación') : 'Sin fecha\nde baja', color: vigente ? C.verde : C.rojo },
       ]} />
       {vigente === false && (
         <AlertChip msg={`⚠ Período de conservación vencido — ${mDes / 12 <= 3 ? 'reconocimiento inmediato al reingresar' : mDes / 12 <= 6 ? 'cotizar 26 semanas nuevas (Art. 151)' : 'cotizar 52 semanas nuevas (Art. 151)'}`} type="danger" />
@@ -648,7 +654,7 @@ const PaginaSalario = ({ periodos, sdiPromedio, color, titulo, razonSocial, esBo
     {periodos.length > 0 && (
       <DataTable
         headers={['#', 'Inicio', 'Fin', 'Sem.', 'SDI diario', 'SDI mensual', 'Peso %']}
-        widths={[18, 52, 52, 24, 52, 52, 34]}
+        widths={['6%', '17%', '17%', '8%', '17%', '18%', '17%']}
         aligns={['center', 'center', 'center', 'right', 'right', 'right', 'right']}
         rows={periodos.map((p, i) => [
           (i + 1).toString(),
@@ -701,7 +707,7 @@ const PaginaMod40 = ({ escenarios, escSelIdx, color, titulo, razonSocial, esBorr
       <Text style={s.h2}>Proyección de cotización mensual</Text>
       <DataTable
         headers={['Mes', 'SDI cotizado/día', 'Cuota mensual', 'Acumulado', 'Sem. adicionales', '% del plazo']}
-        widths={[20, 68, 68, 68, 70, 50]}
+        widths={['8%', '18%', '18%', '20%', '20%', '16%']}
         aligns={['center', 'right', 'right', 'right', 'right', 'right']}
         rows={showMs.map((mes, i) => [
           mes.toString(),
@@ -711,7 +717,7 @@ const PaginaMod40 = ({ escenarios, escSelIdx, color, titulo, razonSocial, esBorr
           Math.round(mes * 4.33).toString(),
           Math.round(mes / meses * 100) + '%',
         ])}
-        totalRow={['TOTALES', '—', mxn(costoM) + '/mes', mxn(escSel.inversion_total || 0), Math.round(meses * 4.33).toString() + ' sem.', '100%']}
+        totalRow={['TOTALES', '—', mxn(costoM) + '/mes', mxn(escSel.inversion_total || 0), Math.round(meses * 4.33).toString() + ' sem', '100%']}
       />
     </Page>
   )
@@ -743,7 +749,7 @@ const PaginaMod10 = ({ escenarios, escSelIdx, color, titulo, razonSocial, esBorr
       <Text style={s.h2}>Comparativa Modalidad 10 vs Modalidad 40</Text>
       <DataTable
         headers={['Concepto', 'Mod 10', 'Mod 40', 'Diferencia', 'Extra']}
-        widths={[120, 68, 68, 72, 36]}
+        widths={['30%', '17%', '17%', '22%', '14%']}
         aligns={['left', 'right', 'right', 'right', 'center']}
         rows={[
           ['Cuota mensual', mxn(escM10.costo_mensual_mod40), mxn(cuotaM40), '+' + mxn(dif) + ' más', ''],
@@ -776,7 +782,7 @@ const PaginaEscenarios = ({ escenarios, escSelIdx, ingresoObjetivo, color, titul
       {/* Tabla comparativa */}
       <DataTable
         headers={['Escenario', 'Pensión/mes', 'Incremento', 'Inversión total', 'ROI (meses)', 'Elegido']}
-        widths={[130, 56, 52, 60, 48, 18]}
+        widths={['32%', '16%', '15%', '17%', '13%', '7%']}
         aligns={['left', 'right', 'right', 'right', 'right', 'center']}
         rows={escenarios.map((esc, i) => {
           const isEl = i === escSelIdx || (escSelIdx < 0 && esc.recomendado)
