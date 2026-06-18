@@ -294,17 +294,17 @@ const BarChart = ({ escenarios, escSelIdx, maxVal, objetivo }: {
   objetivo?: number
 }) => {
   const barColors = ['#94a3b8', '#3b82f6', '#eab308', '#f97316', C.azul, '#7c3aed']
-  const W_CHART = 420
-  const LABEL_W = 115
-  const VAL_W   = 72
-  const BAR_W   = W_CHART - LABEL_W - VAL_W  // 233
+  const W_CHART = 470
+  const LABEL_W = 140  // 22% of 470 ≈ 103, use 140 for readability
+  const VAL_W   = 90   // 20%
+  const BAR_W   = W_CHART - LABEL_W - VAL_W  // ~240 = 58%
   const BAR_H   = 12
   const ROW_H   = 20
-  const TOTAL_H = escenarios.length * ROW_H + 20
+  const TOTAL_H = escenarios.length * ROW_H + 30
 
   return (
-    <View style={{ marginBottom: 10 }}>
-      <Svg width={W_CHART} height={TOTAL_H}>
+    <View style={{ marginBottom: 10, width: '100%' }}>
+      <Svg width={W_CHART} height={TOTAL_H} style={{ width: '100%' }}>
         {escenarios.map((esc, i) => {
           const isEl   = i === escSelIdx || (escSelIdx < 0 && !!esc.recomendado)
           const pct    = maxVal > 0 ? Math.min((esc.pension_mensual || 0) / maxVal, 1) : 0
@@ -336,7 +336,7 @@ const BarChart = ({ escenarios, escSelIdx, maxVal, objetivo }: {
           return (
             <View key={i} style={{ flexDirection: 'row', alignItems: 'center', height: ROW_H }}>
               <Text style={{ width: LABEL_W, fontSize: isEl ? 8 : 7, fontFamily: isEl ? 'Helvetica-Bold' : 'Helvetica', color: isEl ? C.azul : C.gris, paddingLeft: 2 }}>
-                {isEl ? '★ ' : ''}{esc.label.substring(0, 20)}
+                {isEl ? '★ ' : ''}{esc.label.substring(0, 28)}
               </Text>
               <View style={{ width: BAR_W }} />
               <Text style={{ width: VAL_W, fontSize: isEl ? 9 : 7.5, fontFamily: 'Helvetica-Bold', color: isEl ? C.azul : '#374151', textAlign: 'right', paddingRight: 2 }}>
@@ -655,7 +655,7 @@ const PaginaSalario = ({ periodos, sdiPromedio, color, titulo, razonSocial, esBo
     {periodos.length > 0 && (
       <DataTable
         headers={['#', 'Inicio', 'Fin', 'Sem.', 'SDI diario', 'SDI mensual', 'Peso %']}
-        widths={['6%', '17%', '17%', '8%', '17%', '18%', '17%']}
+        widths={['12%', '14%', '11%', '8%', '17%', '18%', '20%']}
         aligns={['center', 'center', 'center', 'right', 'right', 'right', 'right']}
         rows={periodos.map((p, i) => [
           (i + 1).toString(),
@@ -666,7 +666,7 @@ const PaginaSalario = ({ periodos, sdiPromedio, color, titulo, razonSocial, esBo
           mxn((p.sdi || 0) * 30.4),
           (p.peso || 0).toFixed(1) + '%',
         ])}
-        totalRow={['Prom. ponderado', '', '', periodos.reduce((s, p) => s + (p.semanas || 0), 0).toString(), mxn2(sdiPromedio), mxn(sdiPromedio * 30.4), '100%']}
+        totalRow={['Promedio ponderado', '', '', periodos.reduce((s, p) => s + (p.semanas || 0), 0).toString(), mxn2(sdiPromedio), mxn(sdiPromedio * 30.4), '100%']}
       />
     )}
   </Page>
@@ -828,11 +828,11 @@ const PaginaAnalisis = ({ analisis, color, titulo, razonSocial, esBorrador }: PD
       <PageHeader razonSocial={razonSocial} titulo={titulo} color={color} esBorrador={esBorrador} />
       <SectionTitle title="ANÁLISIS EJECUTIVO DEL PROYECTO DE PENSIÓN" color={color} />
       {secciones.map((sec, i) => (
-        <View key={i} style={{ marginBottom: 14 }}>
-          <View style={{ backgroundColor: '#EEF2F8', borderLeftWidth: 3, borderLeftColor: color, paddingVertical: 5, paddingHorizontal: 8, marginBottom: 6, borderRadius: 3 }} wrap={false}>
-            <Text style={{ fontSize: 12, fontFamily: 'Helvetica-Bold', color }}>{String(sec?.titulo || '')}</Text>
+        <View key={i} style={{ marginBottom: 10 }}>
+          <View style={{ backgroundColor: '#EEF2F8', borderLeftWidth: 3, borderLeftColor: color, paddingVertical: 4, paddingHorizontal: 8, marginBottom: 5, borderRadius: 3 }}>
+            <Text style={{ fontSize: 11, fontFamily: 'Helvetica-Bold', color }}>{String(sec?.titulo || '')}</Text>
           </View>
-          <Text style={[s.body, { lineHeight: 1.9, paddingHorizontal: 4, marginBottom: 6 }]}>{String(sec?.contenido || '')}</Text>
+          <Text style={[s.body, { lineHeight: 1.8, paddingHorizontal: 4 }]}>{String(sec?.contenido || '')}</Text>
         </View>
       ))}
     </Page>
@@ -879,7 +879,7 @@ const PaginaPasos = ({ datos, escenarios, escSelIdx, analisis, color, titulo, ra
         return steps.map((paso: string, i: number) => (
           <View key={i} style={{ flexDirection: 'row', marginBottom: 8 }}>
             <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color, width: 18, marginTop: 1 }}>{i + 1}.</Text>
-            <Text style={[s.body, { flex: 1, lineHeight: 1.8 }]}>{paso}</Text>
+            <Text style={[s.body, { flex: 1, lineHeight: 1.8 }]}>{paso.replace(/^\d+\.\s*/, '')}</Text>
           </View>
         ))
       })()}
