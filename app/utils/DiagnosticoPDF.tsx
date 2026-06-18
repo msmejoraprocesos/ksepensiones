@@ -174,7 +174,7 @@ const s = StyleSheet.create({
   tableRowEven: { backgroundColor: C.zebraFondo },
   tableRowTotal: { backgroundColor: C.totalFondo },
   tableCell: { fontSize: 7.5, paddingVertical: 4, paddingHorizontal: 4, color: C.texto },
-  tableCellBold: { fontSize: 7.5, paddingVertical: 4, paddingHorizontal: 4, fontFamily: 'Helvetica-Bold', color: C.azul },
+  tableCellBold: { fontSize: 7, paddingVertical: 4, paddingHorizontal: 3, fontFamily: 'Helvetica-Bold', color: C.azul },
   // Alert chip
   chip: { flexDirection: 'row', borderRadius: 5, marginBottom: 8, overflow: 'hidden' },
   chipAccent: { width: 4 },
@@ -336,7 +336,7 @@ const BarChart = ({ escenarios, escSelIdx, maxVal, objetivo }: {
           return (
             <View key={i} style={{ flexDirection: 'row', alignItems: 'center', height: ROW_H }}>
               <Text style={{ width: LABEL_W, fontSize: isEl ? 8 : 7, fontFamily: isEl ? 'Helvetica-Bold' : 'Helvetica', color: isEl ? C.azul : C.gris, paddingLeft: 2 }}>
-                {isEl ? '★ ' : ''}{esc.label.substring(0, 28)}
+                {isEl ? '> ' : ''}{esc.label.substring(0, 28)}
               </Text>
               <View style={{ width: BAR_W }} />
               <Text style={{ width: VAL_W, fontSize: isEl ? 9 : 7.5, fontFamily: 'Helvetica-Bold', color: isEl ? C.azul : '#374151', textAlign: 'right', paddingRight: 2 }}>
@@ -802,7 +802,7 @@ const PaginaEscenarios = ({ escenarios, escSelIdx, ingresoObjetivo, color, titul
       {/* Gráfica */}
       <Text style={[s.h2, { marginTop: 10 }]}>Pensión mensual estimada por escenario</Text>
       <Text style={{ fontSize: 8, color: C.textoSm, marginBottom: 8 }}>
-        Las barras muestran la pensión mensual estimada. La barra marcada con ★ es el escenario recomendado.
+        Las barras muestran la pensión mensual estimada. La barra en azul marino es el escenario recomendado.
       </Text>
       <BarChart escenarios={escenarios} escSelIdx={escSelIdx} maxVal={maxVal} objetivo={ingresoObjetivo} />
 
@@ -878,7 +878,7 @@ const PaginaPasos = ({ datos, escenarios, escSelIdx, analisis, color, titulo, ra
           : defaultSteps
         return steps.map((paso: string, i: number) => (
           <View key={i} style={{ flexDirection: 'row', marginBottom: 8, alignItems: 'flex-start' }}>
-            <Text style={{ fontSize: 8, color, width: 12, marginTop: 2 }}>•</Text>
+            <Text style={{ fontSize: 9, color, width: 14, marginTop: 1 }}>-</Text>
             <Text style={[s.body, { flex: 1, lineHeight: 1.8 }]}>{paso.replace(/^\d+\.\s*/, '')}</Text>
           </View>
         ))
