@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useRef, Suspense } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { generarPDFProyecto } from '@/app/utils/pdf-generator'
+import { pdf } from '@react-pdf/renderer'
+import { DiagnosticoPDF } from '@/app/utils/DiagnosticoPDF'
 import { useSearchParams, useRouter } from 'next/navigation'
 
 const AZUL = '#1B3A6B'
@@ -324,30 +325,33 @@ function ClientesInner() {
       const analisisParsed = d.analisis_narrativo
         ? (() => { try { return JSON.parse(d.analisis_narrativo) } catch { return [] } })()
         : []
-      const doc = await generarPDFProyecto({
-        datos: p.datos || {},
-        periodos: p.periodos || [],
-        sdiPromedio: p.sdiPromedio || 0,
-        escenarios: p.escenarios || [],
-        escSelIdx: p.escElegidoIdx ?? 0,
-        corridaFin: undefined,
-        finSel: undefined,
-        finPlazo: 24,
-        analisis: Array.isArray(analisisParsed) ? analisisParsed : [],
-        logoUrl: asesorPerfil?.logo_url ?? undefined,
-        razonSocial: asesorPerfil?.razon_social ?? undefined,
-        asesorNombre: asesorPerfil?.nombre ?? undefined,
-        ingresoObjetivo: p.ingresoObjetivo || undefined,
-        encabezadoColor: asesorPerfil?.encabezado_color ?? undefined,
-        encabezadoTitulo: asesorPerfil?.encabezado_titulo ?? undefined,
-        encabezadoLogoSize: asesorPerfil?.encabezado_logo_size ?? undefined,
-        encabezadoFontSize: asesorPerfil?.encabezado_font_size ?? undefined,
-        esBorrador: d.estatus !== 'autorizado',
-      })
+      const elemento = (
+        <DiagnosticoPDF
+          datos={p.datos || {}}
+          periodos={p.periodos || []}
+          sdiPromedio={p.sdiPromedio || 0}
+          escenarios={p.escenarios || []}
+          escSelIdx={p.escElegidoIdx ?? 0}
+          analisis={Array.isArray(analisisParsed) ? analisisParsed : []}
+          ingresoObjetivo={p.ingresoObjetivo || undefined}
+          logoUrl={asesorPerfil?.logo_url ?? undefined}
+          razonSocial={asesorPerfil?.razon_social ?? undefined}
+          asesorNombre={asesorPerfil?.nombre ?? undefined}
+          encabezadoColor={asesorPerfil?.encabezado_color ?? undefined}
+          encabezadoTitulo={asesorPerfil?.encabezado_titulo ?? undefined}
+          esBorrador={d.estatus !== 'autorizado'}
+        />
+      )
+      const blob = await pdf(elemento).toBlob()
+      const url  = URL.createObjectURL(blob)
+      const a    = document.createElement('a')
       const nombre = (p.datos?.nombre_trabajador || p.datos?.nombre || 'cliente').replace(/\s+/g, '_')
       const sufijo = d.estatus === 'autorizado' ? '_OFICIAL' : '_BORRADOR'
       const fecha  = new Date(d.created_at).toISOString().slice(0, 10)
-      doc.save(`Proyecto_Pension_${nombre}_${fecha}${sufijo}.pdf`)
+      a.href = url
+      a.download = `Proyecto_Pension_${nombre}_${fecha}${sufijo}.pdf`
+      a.click()
+      URL.revokeObjectURL(url)
     } catch (err) {
       console.error('Error generando PDF desde diagnóstico:', err)
       alert('Error al generar el PDF. Intenta desde la calculadora.')
