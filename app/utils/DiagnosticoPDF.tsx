@@ -886,7 +886,6 @@ const PaginaPasos = ({ datos, escenarios, escSelIdx, analisis, color, titulo, ra
           </View>
         ))
       })()}
-      }
     </Page>
   )
 }
