@@ -640,7 +640,7 @@ function ClientesInner() {
       monto: montoNuevo,
       concepto,
       notas: formPago.notas || null,
-      fecha_pago: new Date(formPago.fecha_pago).toISOString(),
+      fecha_pago: new Date(formPago.fecha_pago + 'T12:00:00').toISOString(),
       comprobante_url,
       servicio_id: servicioActivo,
     }).select().single()
