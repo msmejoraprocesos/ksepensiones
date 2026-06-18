@@ -98,19 +98,23 @@ export async function generarPDFProyecto(params: {
 
   // ── Section title bar (H1 equivalent — 20pt visual weight)
   function sectionTitle(num: string, title: string, sub?: string) {
-    checkPage(24)
-    setF(HC); setS(HC); doc.setLineWidth(0)
-    doc.rect(ML, y, W - ML - MR, 10, 'F')
-    doc.setFontSize(10); doc.setFont('helvetica', 'bold'); setC('#ffffff')
-    const titleStr = title // No section numbers per client request
-    const titleLines = doc.splitTextToSize(titleStr, W - ML - MR - (sub ? 60 : 10))
-    t(titleLines[0], ML + 4, y + 7)
+    checkPage(28)
+    // Background bar
+    setF(HC); doc.rect(ML, y, W - ML - MR, 11, 'F')
+    // Title in white, 13pt bold
+    doc.setFontSize(13); doc.setFont('helvetica', 'bold'); setC('#ffffff')
+    const titleStr = String(title || '')
+    const titleLines = doc.splitTextToSize(titleStr, W - ML - MR - (sub ? 65 : 12))
+    t(titleLines[0], ML + 5, y + 8)
     if (sub) {
-      doc.setFontSize(6.5); doc.setFont('helvetica', 'normal'); setC('rgba(255,255,255,0.75)')
-      const subTrunc = doc.splitTextToSize(sub, 55)
-      t(subTrunc[0], W - MR - 3, y + 7, { align: 'right' })
+      doc.setFontSize(7); doc.setFont('helvetica', 'normal'); setC('#ffffff')
+      const subTrunc = doc.splitTextToSize(String(sub), 60)
+      t(subTrunc[0], W - MR - 4, y + 8, { align: 'right' })
     }
-    y += 14
+    // Underline below bar
+    setS(HC); doc.setLineWidth(1.5)
+    doc.line(ML, y + 11, W - MR, y + 11)
+    y += 17
   }
 
   // ── Sub-section label (H2 — 14pt)
@@ -165,8 +169,8 @@ export async function generarPDFProyecto(params: {
       doc.setFontSize(6.5); doc.setFont('helvetica', 'normal'); setC('#94a3b8')
       const lblLines = doc.splitTextToSize(String(item?.label ?? '').toUpperCase(), cw - 6)
       lblLines.slice(0,2).forEach((ll: string, li: number) => t(ll, x + (cw - 1) / 2, y + 5 + li * 3.5, { align: 'center' }))
-      // Value centered, larger
-      doc.setFontSize(10); doc.setFont('helvetica', 'bold')
+      // Value centered, larger and impactful
+      doc.setFontSize(12); doc.setFont('helvetica', 'bold')
       const [r,g,b] = hexToRgb(item.color || HC)
       doc.setTextColor(r,g,b)
       const valLines = doc.splitTextToSize(String(item?.value ?? ''), cw - 6)
@@ -192,8 +196,8 @@ export async function generarPDFProyecto(params: {
     if (highlight) { setF('#EEF2F8'); doc.rect(startX, y, tw, 7, 'F') }
     else if (even) { setF('#F8FAFC'); doc.rect(startX, y, tw, 7, 'F') }
     setS('#e2e8f0'); doc.setLineWidth(0.2); doc.line(startX, y + 7, startX + tw, y + 7)
-    doc.setFontSize(7.5); doc.setFont(highlight ? 'helvetica' : 'helvetica', highlight ? 'bold' : 'normal')
-    setC(highlight ? HC : '#374151')
+    doc.setFontSize(7.5); doc.setFont('helvetica', highlight ? 'bold' : 'normal')
+    setC(highlight ? HC : '#1e293b')
     let x = startX
     cells.forEach((c, i) => {
       const align = aligns?.[i] || (i === 0 ? 'left' : 'right')
@@ -314,8 +318,8 @@ export async function generarPDFProyecto(params: {
       await new Promise(res => { img.onload = res; img.onerror = res })
       if (img.complete && img.naturalWidth > 0) {
         // Cap logo size: max height = bandH - 8mm padding, max width = 50mm
-        const maxH = Math.min(bandH - 12, 22) // hard cap: 22mm max height
-        const maxW = 45
+        const maxH = Math.min(bandH - 16, 18) // strict cap: 18mm
+        const maxW = 40
         const aspect = img.naturalWidth / Math.max(img.naturalHeight, 1)
         const lh = Math.min(LSIZ, maxH)
         const lw = Math.min(lh * aspect, maxW)
@@ -323,20 +327,22 @@ export async function generarPDFProyecto(params: {
         doc.addImage(img as any, 'PNG', ML, ly, lw, lh)
         logoLoaded = true
         // Text to the right of logo, vertically centered in band
-        const txBase = bandH / 2 - 3
-        doc.setFontSize(Math.max(HFSZ, 13)); doc.setFont('helvetica', 'bold'); setC('#ffffff')
-        t(razonSocial || '', ML + lw + 6, txBase)
-        doc.setFontSize(Math.max(HFSZ - 2, 10)); doc.setFont('helvetica', 'normal'); setC('#ffffff')
+        const txBase = bandH / 2 - 5
+        doc.setFontSize(18); doc.setFont('helvetica', 'bold'); setC('#ffffff')
+        const rsLines = doc.splitTextToSize(razonSocial || '', W - ML - MR - lw - 10)
+        t(rsLines[0], ML + lw + 6, txBase)
+        doc.setFontSize(12); doc.setFont('helvetica', 'normal'); setC('#ffffff')
         t(HTIT, ML + lw + 6, txBase + 9)
       }
     } catch (_) {}
   }
   if (!logoLoaded) {
-    const txBase = bandH / 2 - 3
-    doc.setFontSize(Math.max(HFSZ + 2, 15)); doc.setFont('helvetica', 'bold'); setC('#ffffff')
-    t(razonSocial || 'KSE Pensiones', textX, txBase)
-    doc.setFontSize(Math.max(HFSZ, 11)); doc.setFont('helvetica', 'normal'); setC('#ffffff')
-    t(HTIT, textX, txBase + 9)
+    const txBase = bandH / 2 - 5
+    doc.setFontSize(20); doc.setFont('helvetica', 'bold'); setC('#ffffff')
+    const rsLines2 = doc.splitTextToSize(razonSocial || 'KSE Pensiones', W - ML - MR - 60)
+    t(rsLines2[0], textX, txBase)
+    doc.setFontSize(13); doc.setFont('helvetica', 'normal'); setC('#ffffff')
+    t(HTIT, textX, txBase + 10)
   }
   // Date + asesor — right aligned, vertically centered
   doc.setFontSize(7.5); doc.setFont('helvetica', 'normal'); setC('rgba(255,255,255,0.7)')
@@ -369,7 +375,7 @@ export async function generarPDFProyecto(params: {
   doc.setFontSize(15); doc.setFont('helvetica', 'bold'); setC('#1e293b')
   t(trabajador, ML, y); y += 7
   doc.setFontSize(8); doc.setFont('helvetica', 'normal'); setC(GRIS)
-  const l1 = [datos.nss ? 'NSS: ' + datos.nss : null, datos.ley === '73' ? 'Ley 73' : datos.ley === '97' ? 'Ley 97' : null, datos.edad_actual ? datos.edad_actual + ' anos' : null].filter(Boolean).join('  ·  ')
+  const l1 = [datos.nss ? 'NSS: ' + datos.nss : null, datos.ley === '73' ? 'Ley 73' : datos.ley === '97' ? 'Ley 97' : null, datos.edad_actual ? datos.edad_actual + ' años' : null].filter(Boolean).join('  ·  ')
   const l1w = doc.splitTextToSize(l1, W - ML - MR)
   l1w.forEach((ll: string) => { t(ll, ML, y); y += 5 })
   const l2 = [datos.semanas_totales ? datos.semanas_totales.toLocaleString() + ' semanas cotizadas' : null, datos.fecha_calculo ? 'Ult. cotizacion: ' + datos.fecha_calculo : null, cliente ? 'Solicitante: ' + cliente : null].filter(Boolean).join('  ·  ')
@@ -386,35 +392,28 @@ export async function generarPDFProyecto(params: {
     { label: 'Inversión requerida', value: fmtMXN(escSel?.inversion_total || 0), color: NARANJA },
   ]
   const kW = (W - ML - MR) / 4
-  const kH = 26
   kpiPortada.forEach((k, i) => {
     const x = ML + i * kW
-    const cx = x + (kW - 2) / 2
     setF(i === 1 ? '#EEF2F8' : '#F4F6FB'); setS('#e2e8f0'); doc.setLineWidth(i === 1 ? 0 : 0.3)
-    doc.rect(x, y, kW - 2, kH, 'FD')
-    if (i === 1) { setF(NARANJA); doc.rect(x, y, 2, kH, 'F') }
-    // Label — centered, 2 lines max
-    doc.setFontSize(6); doc.setFont('helvetica', 'normal'); setC('#94a3b8')
+    doc.rect(x, y, kW - 2, 22, 'FD')
+    if (i === 1) { setF(NARANJA); doc.rect(x, y, 2, 22, 'F') }
+    doc.setFontSize(6.5); doc.setFont('helvetica', 'normal'); setC('#94a3b8')
     const lbl = doc.splitTextToSize(k.label.toUpperCase(), kW - 8)
-    lbl.slice(0,2).forEach((ll: string, li: number) => t(ll, cx, y + 5 + li * 3.5, { align: 'center' }))
-    // Value — centered, larger
-    doc.setFontSize(10); doc.setFont('helvetica', 'bold')
+    lbl.forEach((ll: string, li: number) => t(ll, x + 5, y + 5 + li * 3.5))
+    doc.setFontSize(9.5); doc.setFont('helvetica', 'bold')
     const [r,g,b] = hexToRgb(k.color); doc.setTextColor(r,g,b)
-    const vLines = doc.splitTextToSize(k.value, kW - 6)
-    t(vLines[0], cx, y + kH - 5, { align: 'center' })
+    t(k.value, x + 5, y + 18)
   })
-  y += kH + 4
+  y += 26
 
   // Estrategia recomendada chip
   if (escSel && escSel.mod40_meses > 0) {
     setF('#EEF2F8'); doc.rect(ML, y, W - ML - MR, 16, 'F')
     setF(HC); doc.rect(ML, y, 2.5, 16, 'F')
     doc.setFontSize(8); doc.setFont('helvetica', 'bold'); setC(HC)
-    const stratLabel = doc.splitTextToSize('ESTRATEGIA RECOMENDADA: ' + String(escSel.label || ''), W - ML - MR - 14)
-    t(stratLabel[0], ML + 6, y + 6)
+    t('ESTRATEGIA RECOMENDADA: ' + escSel.label, ML + 6, y + 6)
     doc.setFont('helvetica', 'normal'); setC('#374151')
-    const stratDetail = doc.splitTextToSize(`${(escSel.mod40_umas || 0).toFixed(1)} UMAs · ${escSel.mod40_meses || 0} meses · Costo: ${fmtMXN(escSel.costo_mensual_mod40 || 0)}/mes · ROI: ${escSel.roi_meses || '—'} meses`, W - ML - MR - 14)
-    t(stratDetail[0], ML + 6, y + 12)
+    t(`${(escSel.mod40_umas || 0).toFixed(1)} UMAs · ${escSel.mod40_meses || 0} meses · Costo: ${fmtMXN(escSel.costo_mensual_mod40 || 0)}/mes · ROI: ${escSel.roi_meses || '—'} meses`, ML + 6, y + 12)
     y += 20
   }
 
@@ -428,11 +427,11 @@ export async function generarPDFProyecto(params: {
     // Build 4 chronological hitos — edadFinMod is when Mod40 payments end
     const hitos: {lbl: string; desc: string; color: string; age: number}[] = [
       { lbl: 'Hoy (' + edadA + ' años)', desc: 'Verificar semanas IMSS', color: NARANJA, age: edadA },
-      { lbl: edadFinMod + ' anos', desc: 'Alta Mod 40 ' + fmtMXN(escSel?.costo_mensual_mod40 || 0) + '/mes', color: HC, age: edadFinMod },
-      { lbl: '65 anos', desc: 'Pension vejez ' + fmtMXN(escSel?.pension_mensual || 0) + '/mes', color: VERDE, age: 65 },
+      { lbl: edadFinMod + ' años', desc: 'Alta Mod 40 ' + fmtMXN(escSel?.costo_mensual_mod40 || 0) + '/mes', color: HC, age: edadFinMod },
+      { lbl: '65 años', desc: 'Pension vejez ' + fmtMXN(escSel?.pension_mensual || 0) + '/mes', color: VERDE, age: 65 },
     ]
     // Insert cesantia at 60 only if it falls between Mod40 end and 65
-    if (edadFinMod < 60) hitos.splice(2, 0, { lbl: '60 anos', desc: 'Solicitar cesantia IMSS', color: HC, age: 60 })
+    if (edadFinMod < 60) hitos.splice(2, 0, { lbl: '60 años', desc: 'Solicitar cesantía IMSS', color: HC, age: 60 })
     const tlSteps = hitos.sort((a,b) => a.age - b.age).filter((s,i,arr) => i===0 || s.age > arr[i-1].age).map(({lbl,desc,color}) => ({lbl,desc,color}))
     const tlY = y + 6
     const stepW2 = (W - ML - MR) / tlSteps.length
@@ -469,8 +468,7 @@ export async function generarPDFProyecto(params: {
   y = H - 24
   setS('#e2e8f0'); doc.setLineWidth(0.3); doc.line(ML, y, W - MR, y); y += 5
   doc.setFontSize(7); doc.setFont('helvetica', 'normal'); setC('#94a3b8')
-  const footerLines = doc.splitTextToSize('Documento confidencial elaborado exclusivamente para el trabajador indicado. Los cálculos son estimaciones basadas en la Ley del Seguro Social 1973.', W - ML - MR)
-  footerLines.forEach((fl: string) => { t(fl, ML, y); y += 4 })
+  t('Documento confidencial elaborado exclusivamente para el trabajador indicado. Los cálculos son estimaciones basadas en la Ley del Seguro Social 1973.', ML, y)
   y += 4
   if (esBorrador) { doc.setFont('helvetica', 'bold'); setC('#b45309'); t('BORRADOR — Pendiente de autorización oficial. No compartir con el cliente.', ML, y) }
 
@@ -478,15 +476,15 @@ export async function generarPDFProyecto(params: {
   // PÁGINA 2 — RESUMEN EJECUTIVO (visual, no duplicar sección 7)
   // ══════════════════════════════════════════════════
   doc.addPage(); y = 22; addHeader()
-  sectionTitle('', 'RESUMEN EJECUTIVO')
+  sectionTitle('0', 'RESUMEN EJECUTIVO')
 
   // 3 highlight cards — situación, oportunidad, recomendación
   const resCards = [
-    { icon: '→', title: 'Situación actual', color: GRIS, bg: '#F8FAFC',
+    { icon: '●', title: 'Situación actual', color: GRIS, bg: '#F8FAFC',
       body: `${datos.nombre_trabajador || datos.nombre || 'El trabajador'} tiene ${datos.semanas_totales || 0} semanas cotizadas bajo Ley ${datos.ley || '73'}. Sin acción, la pensión estimada sería de ${fmtMXN(escBase?.pension_mensual || 0)}/mes.` },
-    { icon: '↑', title: 'Oportunidad detectada', color: VERDE, bg: '#f0fdf4',
+    { icon: '▲', title: 'Oportunidad detectada', color: VERDE, bg: '#f0fdf4',
       body: `Con la estrategia recomendada (${escSel.label}), la pensión puede llegar a ${fmtMXN(escSel.pension_mensual || 0)}/mes — un incremento de ${fmtMXN(escSel.incremento_vs_base || 0)}/mes. La inversión se recupera en ${escSel.roi_meses || '—'} meses de pensión.` },
-    { icon: '★', title: 'Recomendación', color: HC, bg: '#EEF2F8',
+    { icon: '✓', title: 'Recomendación', color: HC, bg: '#EEF2F8',
       body: `Iniciar Modalidad 40 a ${(escSel.mod40_umas || 0).toFixed(1)} UMAs por ${escSel.mod40_meses || 0} meses. Costo: ${fmtMXN(escSel.costo_mensual_mod40 || 0)}/mes. Inversión total: ${fmtMXN(escSel.inversion_total || 0)}.` },
   ]
   // KPI row above bullets
@@ -498,17 +496,16 @@ export async function generarPDFProyecto(params: {
   ])
 
   resCards.forEach((card) => {
-    const bLines = doc.splitTextToSize(String(card.body || ''), W - ML - MR - 16)
-    const cardH2 = Math.max(28, bLines.length * 5 + 16)
-    checkPage(cardH2 + 4)
+    checkPage(30)
     const [rb,gb,bb] = hexToRgb(card.bg)
-    doc.setFillColor(rb,gb,bb); doc.rect(ML, y, W - ML - MR, cardH2, 'F')
-    const [ra,ga,ba] = hexToRgb(card.color); doc.setFillColor(ra,ga,ba); doc.rect(ML, y, 3, cardH2, 'F')
+    doc.setFillColor(rb,gb,bb); doc.rect(ML, y, W - ML - MR, 28, 'F')
+    const [ra,ga,ba] = hexToRgb(card.color); doc.setFillColor(ra,ga,ba); doc.rect(ML, y, 3, 28, 'F')
     doc.setFontSize(10); doc.setFont('helvetica', 'bold'); setC(card.color)
-    t(String(card.icon || '') + '  ' + String(card.title || ''), ML + 7, y + 8)
-    doc.setFontSize(8.5); doc.setFont('helvetica', 'normal'); setC('#374151')
-    bLines.forEach((l: string, li: number) => t(l, ML + 7, y + 16 + li * 5))
-    y += cardH2 + 4
+    t(card.icon + '  ' + card.title, ML + 7, y + 8)
+    doc.setFontSize(8); doc.setFont('helvetica', 'normal'); setC('#374151')
+    const bLines = doc.splitTextToSize(card.body, W - ML - MR - 14)
+    bLines.forEach((l: string, li: number) => t(l, ML + 7, y + 16 + li * 4.5))
+    y += 32
   })
 
   // Conservacion alert at end of sec 0
@@ -525,7 +522,7 @@ export async function generarPDFProyecto(params: {
   // SECCIÓN 1 — DATOS DEL TRABAJADOR
   // ══════════════════════════════════════════════════
   checkPage(50)
-  sectionTitle('', 'DATOS DEL TRABAJADOR')
+  sectionTitle('1', 'DATOS DEL TRABAJADOR')
   kpiRow([
     { label: 'Nombre', value: (datos.nombre_trabajador || datos.nombre || '—').substring(0, 22) },
     { label: 'NSS', value: datos.nss || '—' },
@@ -548,7 +545,7 @@ export async function generarPDFProyecto(params: {
   // SECCIÓN 2 — CONSERVACIÓN DE DERECHOS
   // ══════════════════════════════════════════════════
   checkPage(50)
-  sectionTitle('', 'CONSERVACIÓN DE DERECHOS', 'Art. 183 Ley del Seguro Social 1973')
+  sectionTitle('2', 'CONSERVACIÓN DE DERECHOS', 'Art. 183 Ley del Seguro Social 1973')
   const semConserv  = Math.floor(datos.semanas_totales / 4)
   const mesConserv  = Math.round(semConserv / 4.33)
   const mDesde      = datos.fecha_calculo ? Math.floor((Date.now() - new Date(datos.fecha_calculo).getTime()) / (30 * 86400000)) : -1
@@ -573,7 +570,7 @@ export async function generarPDFProyecto(params: {
   // SECCIÓN 3 — SALARIO PROMEDIO 250 SEMANAS
   // ══════════════════════════════════════════════════
   newPage()
-  sectionTitle('', 'SALARIO PROMEDIO — ÚLTIMAS 250 SEMANAS COTIZADAS', 'Art. 167 LSS 1973')
+  sectionTitle('3', 'SALARIO PROMEDIO — ÚLTIMAS 250 SEMANAS COTIZADAS', 'Art. 167 LSS 1973')
   bodyText('La pensión bajo Ley 73 se calcula sobre el promedio del Salario Diario Integrado (SDI) de las últimas 250 semanas cotizadas (~5 años). Este promedio es la base de todos los escenarios calculados en este diagnóstico.')
   kpiRow([
     { label: 'SDI promedio 250 sem.', value: fmtMXN2(sdiPromedio), color: NARANJA },
@@ -582,7 +579,7 @@ export async function generarPDFProyecto(params: {
     { label: 'Semanas cubiertas', value: periodos.reduce((s: number, p: any) => s + (p.semanas || 0), 0).toString() },
   ])
   if (periodos.length > 0) {
-    const ws = [8, 28, 28, 18, 34, 34, 34]
+    const ws = [8, 26, 26, 18, 30, 30, 22]
     tHead(['#', 'Inicio', 'Fin', 'Sem.', 'SDI diario', 'SDI mensual', 'Peso %'], ws)
     periodos.forEach((p: any, i: number) => {
       tRow([(i+1).toString(), p.fecha_inicio || '—', p.fecha_fin || '—', (p.semanas || 0).toString(), fmtMXN2(p.sdi || 0), fmtMXN((p.sdi || 0) * 30.4), (p.peso || 0).toFixed(1) + '%'], ws, i % 2 === 0, ML, ['center','center','center','right','right','right','right'])
@@ -594,7 +591,7 @@ export async function generarPDFProyecto(params: {
   // SECCIÓN 4 — MODALIDAD 40
   // ══════════════════════════════════════════════════
   newPage()
-  sectionTitle('', 'MODALIDAD 40 — ESTRATEGIA DE OPTIMIZACIÓN', 'Art. 218 Ley del Seguro Social 1973')
+  sectionTitle('4', 'MODALIDAD 40 — ESTRATEGIA DE OPTIMIZACIÓN', 'Art. 218 Ley del Seguro Social 1973')
   bodyText('La Modalidad 40 permite al trabajador continuar cotizando voluntariamente al IMSS sobre un salario mayor al histórico, incrementando el SDI promedio de las últimas 250 semanas y con ello la pensión final. Solo aplica a trabajadores con historial de cotización previa bajo Ley 73.')
   if (escSel && escSel.mod40_meses > 0) {
     kpiRow([
@@ -611,7 +608,7 @@ export async function generarPDFProyecto(params: {
     ])
     // Projection table
     subTitle('Proyección de cotización mensual')
-    const wsMod = [14, 40, 32, 32, 34, 32]
+    const wsMod = [16, 38, 32, 32, 32, 30]
     tHead(['Mes', 'SDI cotizado/día', 'Cuota mensual', 'Acumulado', 'Sem. adicionales', '% del plazo'], wsMod)
     const sdiM40  = (escSel.mod40_umas || 0) * 117.31
     const costoM  = escSel.costo_mensual_mod40 || 0
@@ -632,7 +629,7 @@ export async function generarPDFProyecto(params: {
   const escM10 = escenarios.find((e: any) => e.id === 'e_m10')
   if (escM10) {
     newPage()
-    sectionTitle('', 'MODALIDAD 10 — INCORPORACIÓN VOLUNTARIA', 'Art. 240 Ley del Seguro Social — Trabajadores independientes')
+    sectionTitle('5', 'MODALIDAD 10 — INCORPORACIÓN VOLUNTARIA', 'Art. 240 Ley del Seguro Social — Trabajadores independientes')
     bodyText('La Modalidad 10 permite a trabajadores independientes afiliarse al IMSS con cobertura integral, incluyendo servicio médico, guarderías e Infonavit, además de acumular semanas para pensión. Es más cara que Mod 40 pero ofrece beneficios adicionales significativos.')
     const cuotaM40ref = escSel?.costo_mensual_mod40 || 0
     const difM = escM10.costo_mensual_mod40 - cuotaM40ref
@@ -643,11 +640,11 @@ export async function generarPDFProyecto(params: {
       { label: 'Costo extra vs Mod 40', value: fmtMXN(difM) + '/mes mas cara', color: '#f97316', sub: 'por servicio médico + Infonavit + guarderías' },
     ])
     subTitle('Comparativa Modalidad 10 vs Modalidad 40')
-    const wsM10 = [52, 36, 36, 36, 20]
+    const wsM10 = [50, 30, 30, 40, 34]
     tHead(['Concepto', 'Modalidad 10', 'Modalidad 40', 'Diferencia', 'Extra'], wsM10)
     const compRows = [
       ['Cuota mensual', fmtMXN(escM10.costo_mensual_mod40), fmtMXN(cuotaM40ref), fmtMXN(difM) + ' mas cara', ''],
-      ['Inversión total', fmtMXN(escM10.inversion_total), fmtMXN(escSel?.inversion_total || 0), fmtMXN(escM10.inversion_total - (escSel?.inversion_total || 0)) + ' mas', ''],
+      ['Inversión total', fmtMXN(escM10.inversion_total), fmtMXN(escSel?.inversion_total || 0), '+' + fmtMXN(escM10.inversion_total - (escSel?.inversion_total || 0)), ''],
       ['Pensión estimada', fmtMXN(escM10.pension_mensual) + '/mes', fmtMXN(escSel?.pension_mensual || 0) + '/mes', '= mismo monto', ''],
       ['Servicio médico IMSS', 'Sí ✓', 'No ✗', '', '✓'],
       ['Guarderías', 'Sí ✓', 'No ✗', '', '✓'],
@@ -666,10 +663,10 @@ export async function generarPDFProyecto(params: {
   // ══════════════════════════════════════════════════
   newPage()
   const numSec6 = escM10 ? '6' : '5'
-  sectionTitle('', 'COMPARATIVO DE ESCENARIOS DE PENSIÓN')
+  sectionTitle(numSec6, 'COMPARATIVO DE ESCENARIOS DE PENSIÓN')
 
   // Table
-  const wsEsc = [60, 30, 28, 28, 22, 16]
+  const wsEsc = [58, 28, 28, 28, 22, 16]
   tHead(['Escenario', 'Pensión/mes', 'Incremento', 'Inversión', 'ROI meses', 'Elegido'], wsEsc)
   escenarios.forEach((esc: any, i: number) => {
     const isElegido = i === escSelIdx || (escSelIdx < 0 && esc.recomendado)
@@ -678,7 +675,11 @@ export async function generarPDFProyecto(params: {
   y += 8
 
   // Bar chart — real proportional bars
-  subTitle('Comparativa visual de pensión mensual por escenario')
+  checkPage(20)
+  doc.setFontSize(11); doc.setFont('helvetica', 'bold'); setC(HC)
+  t('Pensión mensual estimada por escenario', ML, y); y += 7
+  doc.setFontSize(8); doc.setFont('helvetica', 'normal'); setC(GRIS)
+  t('Las barras muestran la pensión mensual estimada. La barra marcada con ★ es el escenario recomendado.', ML, y); y += 7
   const maxPension = Math.max(...escenarios.map((e: any) => e.pension_mensual || 0), ingresoObjetivo || 0)
   const barColors  = ['#94a3b8', '#3b82f6', '#eab308', '#f97316', HC, '#7c3aed']
   barChart(
@@ -701,7 +702,7 @@ export async function generarPDFProyecto(params: {
   if (analisis.length > 0) {
     newPage()
     const numSec7 = escM10 ? '7' : '6'
-    sectionTitle('', 'ANÁLISIS EJECUTIVO DEL PROYECTO DE PENSIÓN')
+    sectionTitle(numSec7, 'ANÁLISIS EJECUTIVO DEL PROYECTO DE PENSIÓN')
     // Skip "Próximos pasos" section — it lives in sección 8
     analisis
       .filter((sec: any) => !sec.titulo?.toLowerCase().includes('paso') && !sec.titulo?.toLowerCase().includes('siguiente'))
@@ -709,14 +710,24 @@ export async function generarPDFProyecto(params: {
         checkPage(35)
         // Section subtitle with underline
         doc.setFontSize(10); doc.setFont('helvetica', 'bold'); setC(HC)
-        t(String(sec?.titulo || ''), ML, y + 6)
+        t(sec.titulo || '', ML, y + 6)
         setS(HC); doc.setLineWidth(0.4)
         doc.line(ML, y + 8, ML + 60, y + 8)
         y += 13
         // Content with better size and line height
         doc.setFontSize(9); doc.setFont('helvetica', 'normal'); setC('#1e293b')
-        const secLines = doc.splitTextToSize(sec.contenido || '', W - ML - MR - 4)
-        secLines.forEach((l: string) => { checkPage(7); t(l, ML + 2, y); y += 5.5 })
+        const rawContent = String(sec?.contenido ?? '')
+        const secLines = doc.splitTextToSize(rawContent, W - ML - MR - 6)
+        secLines.forEach((l: string) => {
+          checkPage(8)
+          // Detect lines with key financial data and make them slightly bolder
+          const hasAmount = /\$[\d,]+/.test(l) || /\d+\s*meses/.test(l) || /VENCID/.test(l)
+          doc.setFont('helvetica', hasAmount ? 'bold' : 'normal')
+          setC(hasAmount ? HC : '#1e293b')
+          t(l, ML + 2, y)
+          y += 5.5
+        })
+        doc.setFont('helvetica', 'normal'); setC('#1e293b')
         y += 6
       })
   }
@@ -726,18 +737,18 @@ export async function generarPDFProyecto(params: {
   // ══════════════════════════════════════════════════
   checkPage(60)
   const numSec8 = escM10 ? '8' : analisis.length > 0 ? '7' : '6'
-  sectionTitle('', 'PRÓXIMOS PASOS')
+  sectionTitle(numSec8, 'PRÓXIMOS PASOS')
 
   // Build 4 chronological hitos for section 8
   const edadActual   = datos.edad_actual || 60
   const mesesMod40   = escSel?.mod40_meses || 0
   const edadFinMod40 = Math.round(edadActual + mesesMod40 / 12)
   const hitosS8: {label: string; desc: string; color: string; age: number}[] = [
-    { label: 'Hoy (' + edadActual + ' anos)', desc: 'Verificar semanas en portal IMSS', color: NARANJA, age: edadActual },
-    { label: edadFinMod40 + ' anos', desc: 'Alta Mod 40: ' + fmtMXN(escSel?.costo_mensual_mod40 || 0) + '/mes', color: HC, age: edadFinMod40 },
-    { label: '65 anos', desc: 'Pension vejez: ' + fmtMXN(escSel?.pension_mensual || 0) + '/mes', color: VERDE, age: 65 },
+    { label: 'Hoy (' + edadActual + ' años)', desc: 'Verificar semanas en portal IMSS', color: NARANJA, age: edadActual },
+    { label: edadFinMod40 + ' años', desc: 'Alta Mod 40: ' + fmtMXN(escSel?.costo_mensual_mod40 || 0) + '/mes', color: HC, age: edadFinMod40 },
+    { label: '65 años', desc: 'Pension vejez: ' + fmtMXN(escSel?.pension_mensual || 0) + '/mes', color: VERDE, age: 65 },
   ]
-  if (edadFinMod40 < 60) hitosS8.splice(2, 0, { label: '60 anos', desc: 'Solicitar cesantia IMSS', color: HC, age: 60 })
+  if (edadFinMod40 < 60) hitosS8.splice(2, 0, { label: '60 años', desc: 'Solicitar cesantía IMSS', color: HC, age: 60 })
   const steps = hitosS8.sort((a,b) => a.age - b.age).filter((s,i,arr) => i===0 || s.age > arr[i-1].age).map(({label,desc,color}) => ({label,desc,color}))
 
   timeline(steps)
