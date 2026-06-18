@@ -782,18 +782,30 @@ function CalculadoraInner() {
     </div>
   )
 
-  const kpiBox = (label: string, value: string, sub?: string, color = '#1e293b') => (
-    <div style={kpiSt}>
-      <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '3px' }}>{label}</div>
-      <div style={{ fontSize: '16px', fontWeight: '700', color }}>{value}</div>
-      {sub && <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '1px' }}>{sub}</div>}
-    </div>
-  )
+  const KPI_THEMES: Record<string, { bg: string; border: string; accent: string; labelColor: string }> = {
+    naranja: { bg: '#FFF7ED', border: '#fed7aa', accent: '#F05B21', labelColor: '#92400e' },
+    verde:   { bg: '#F0FDF4', border: '#bbf7d0', accent: '#2E8B57', labelColor: '#15803d' },
+    azul:    { bg: '#EEF2F8', border: '#bfdbfe', accent: '#1B3A6B', labelColor: '#1e40af' },
+    rojo:    { bg: '#FEF2F2', border: '#fecaca', accent: '#dc2626', labelColor: '#991b1b' },
+    gris:    { bg: '#F4F6FB', border: '#e2e8f0', accent: '#64748b', labelColor: '#64748b' },
+    verde2:  { bg: '#F0FDF4', border: '#bbf7d0', accent: '#16a34a', labelColor: '#15803d' },
+  }
+
+  const kpiBox = (label: string, value: string, sub?: string, color = '#1e293b', tema?: string) => {
+    const th = tema ? KPI_THEMES[tema] : null
+    return (
+      <div style={th ? { background: th.bg, border: `0.5px solid ${th.border}`, borderLeft: `3px solid ${th.accent}`, borderRadius: '8px', padding: '10px 12px' } : kpiSt}>
+        <div style={{ fontSize: '10px', color: th ? th.labelColor : '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '3px' }}>{label}</div>
+        <div style={{ fontSize: '16px', fontWeight: '700', color: th ? th.accent : color }}>{value}</div>
+        {sub && <div style={{ fontSize: '10px', color: th ? th.labelColor : '#94a3b8', marginTop: '1px' }}>{sub}</div>}
+      </div>
+    )
+  }
 
   const semaforo = (ok: boolean, label: string) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', padding: '5px 10px', background: ok ? '#F0FDF4' : '#FEF2F2', borderRadius: '6px', border: `0.5px solid ${ok ? '#bbf7d0' : '#fecaca'}` }}>
       <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: ok ? VERDE : '#ef4444', flexShrink: 0 }} />
-      <span style={{ color: ok ? VERDE : '#ef4444', fontWeight: '500' }}>{label}</span>
+      <span style={{ color: ok ? '#15803d' : '#991b1b', fontWeight: '500' }}>{label}</span>
     </div>
   )
 
@@ -1143,11 +1155,11 @@ function CalculadoraInner() {
                 <div style={{ ...cardSt, borderLeft: `3px solid ${cumple ? VERDE : '#ef4444'}` }}>
                   {sectionTitle('Resumen automático')}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px', marginBottom: '12px' }}>
-                    {kpiBox('Semanas válidas', sem.toLocaleString(), 'descontadas AFORE', cumple ? VERDE : '#ef4444')}
-                    {kpiBox('Edad mín. pensión', `${edadMin} años`, 'Vejez (sin Mod 40)', AZUL)}
+                    {kpiBox('Semanas válidas', sem.toLocaleString(), 'descontadas AFORE', cumple ? VERDE : '#ef4444', cumple ? 'verde' : 'rojo')}
+                    {kpiBox('Edad mín. pensión', `${edadMin} años`, 'Vejez (sin Mod 40)', AZUL, 'azul')}
                     {kpiBox('Asignaciones familiares', `+${asignaciones}%`, `cónyuge + ${datos.num_hijos} hijo(s)`, '#8b5cf6')}
                     {kpiBox('Régimen', datos.ley === '73' ? 'Ley 73' : datos.ley === '97' ? 'Ley 97' : 'Por detectar', datos.ley ? 'Detectado del PDF' : 'Carga la constancia', AZUL)}
-                    {kpiBox('Estado', cumple ? 'Apto' : 'Insuficiente', `${Math.max(0, 500 - sem)} sem. faltan`, cumple ? VERDE : '#ef4444')}
+                    {kpiBox('Estado', cumple ? 'Apto' : 'Insuficiente', `${Math.max(0, 500 - sem)} sem. faltan`, cumple ? VERDE : '#ef4444', cumple ? 'verde' : 'rojo')}
                   </div>
                   {semaforo(cumple, cumple ? `Cumple semanas mínimas — ${sem} de 500 requeridas` : `Faltan ${500 - sem} semanas para poder pensionarse`)}
                 </div>
@@ -1169,8 +1181,8 @@ function CalculadoraInner() {
             <div style={{ ...cardSt, borderLeft: `3px solid ${NARANJA}` }}>
               {sectionTitle('Resumen del cálculo', periodos.length > 0 ? `${periodos.length} períodos analizados · ${periodos.reduce((s,p) => s+p.semanas, 0)} semanas` : 'Carga la constancia IMSS para calcular automáticamente')}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '12px' }}>
-                {kpiBox('SDI promedio 250 sem.', sdiPromedio > 0 ? fmtMXN2(sdiPromedio) : '—', 'Base oficial de pensión', AZUL)}
-                {kpiBox('SDI mensual equivalente', sdiPromedio > 0 ? fmtMXN(sdiPromedio * 30.4) : '—', '× 30.4 días')}
+                {kpiBox('SDI promedio 250 sem.', sdiPromedio > 0 ? fmtMXN2(sdiPromedio) : '—', 'Base oficial de pensión', AZUL, 'azul')}
+                {kpiBox('SDI mensual equivalente', sdiPromedio > 0 ? fmtMXN(sdiPromedio * 30.4) : '—', '× 30.4 días', '#1e293b', 'gris')}
                 {kpiBox('Diferencia vs SDI actual', periodos.length > 0 && sdiPromedio > 0 ? fmtMXN2(periodos[periodos.length-1]?.sdi - sdiPromedio) : '—', 'SDI actual vs promedio', periodos.length > 0 && periodos[periodos.length-1]?.sdi > sdiPromedio ? '#ef4444' : VERDE)}
                 {kpiBox('Período cubierto', periodos.length > 0 ? `${periodos[0]?.fecha_inicio?.slice(0,7) || '—'} → ${periodos[periodos.length-1]?.fecha_fin?.slice(0,7) || '—'}` : '—', '250 semanas hacia atrás')}
               </div>
@@ -1192,7 +1204,7 @@ function CalculadoraInner() {
                           <tr key={p.id} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #f1f5f9' }}>
                             <td style={{ padding: '6px 10px', color: '#374151' }}>{p.fecha_inicio?.slice(0,7)} → {p.fecha_fin?.slice(0,7)}</td>
                             <td style={{ padding: '6px 10px', textAlign: 'right', color: '#374151' }}>{p.semanas}</td>
-                            <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: '600', color: AZUL }}>{fmtMXN2(p.sdi)}</td>
+                            <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: '600', color: NARANJA }}>{fmtMXN2(p.sdi)}</td>
                             <td style={{ padding: '6px 10px', textAlign: 'right', color: '#374151' }}>{fmtMXN(p.sdi * 30.4)}</td>
                             <td style={{ padding: '6px 10px', textAlign: 'right', color: '#94a3b8' }}>{p.peso.toFixed(1)}%</td>
                           </tr>
@@ -1207,7 +1219,7 @@ function CalculadoraInner() {
                         <tr style={{ background: '#EEF2F8', borderTop: '2px solid #e2e8f0' }}>
                           <td style={{ padding: '7px 10px', fontWeight: '700', color: AZUL }}>Promedio ponderado</td>
                           <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: AZUL }}>{periodos.reduce((s,p) => s+p.semanas, 0)}</td>
-                          <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '800', color: NARANJA }}>{fmtMXN2(sdiPromedio)}</td>
+                          <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '800', color: NARANJA, fontSize: '14px' }}>{fmtMXN2(sdiPromedio)}</td>
                           <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: AZUL }}>{fmtMXN(sdiPromedio * 30.4)}</td>
                           <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: AZUL }}>100%</td>
                         </tr>
@@ -1397,10 +1409,10 @@ function CalculadoraInner() {
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '14px' }}>
-                {kpiBox('Costo mensual', fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys)), 'Pago mensual al IMSS', NARANJA)}
-                {kpiBox('Inversión total', fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses), `${mod40Meses} meses`)}
-                {kpiBox('SDI con Mod 40', fmtMXN2(mod40Umas * sys.UMA_DIARIA), 'Salario cotizado')}
-                {kpiBox('Semanas que agrega', `${(mod40Meses * 4.33).toFixed(0)}`, 'al historial')}
+                {kpiBox('Costo mensual', fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys)), 'Pago mensual al IMSS', NARANJA, 'naranja')}
+                {kpiBox('Inversión total', fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses), `${mod40Meses} meses`, '#dc2626', 'rojo')}
+                {kpiBox('SDI con Mod 40', fmtMXN2(mod40Umas * sys.UMA_DIARIA), 'Salario cotizado', AZUL, 'azul')}
+                {kpiBox('Semanas que agrega', `${(mod40Meses * 4.33).toFixed(0)}`, 'al historial', VERDE, 'verde')}
               </div>
             </div>
 
@@ -1436,8 +1448,8 @@ function CalculadoraInner() {
                           <tr key={mes} style={{ background: mes % 2 === 0 ? '#F8FAFC' : 'white', borderBottom: '1px solid #f1f5f9' }}>
                             <td style={{ padding: '6px 10px', textAlign: 'center', color: '#94a3b8', fontWeight: '600', borderRight: '1px solid #f1f5f9' }}>{mes}</td>
                             <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: '600', color: AZUL, borderRight: '1px solid #f1f5f9' }}>{fmtMXN2(sdiMod40)}</td>
-                            <td style={{ padding: '6px 10px', textAlign: 'right', color: '#374151', borderRight: '1px solid #f1f5f9' }}>{fmtMXN(costoMensual)}</td>
-                            <td style={{ padding: '6px 10px', textAlign: 'right', color: VERDE, borderRight: '1px solid #f1f5f9' }}>{fmtMXN(costoMensual * mes)}</td>
+                            <td style={{ padding: '6px 10px', textAlign: 'right', color: NARANJA, fontWeight: '600', borderRight: '1px solid #f1f5f9' }}>{fmtMXN(costoMensual)}</td>
+                            <td style={{ padding: '6px 10px', textAlign: 'right', color: VERDE, fontWeight: '600', borderRight: '1px solid #f1f5f9' }}>{fmtMXN(costoMensual * mes)}</td>
                             <td style={{ padding: '6px 10px', textAlign: 'right', color: '#374151' }}>{(mes * 4.33).toFixed(1)}</td>
                           </tr>
                         )
@@ -1500,8 +1512,8 @@ function CalculadoraInner() {
                             <td style={{ padding: '6px 10px', textAlign: 'right', color: '#374151' }}>{fmtMXN2(uma)}</td>
                             <td style={{ padding: '6px 10px', textAlign: 'right', color: '#374151' }}>{(tasa * 100).toFixed(3)}%</td>
                             <td style={{ padding: '6px 10px', textAlign: 'right', color: '#374151' }}>{fmtMXN(salario)}</td>
-                            <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: '600', color: NARANJA }}>{isActive ? fmtMXN(cuotaMes) : '—'}</td>
-                            <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: '600', color: AZUL }}>{isActive ? fmtMXN(cuotaAnual) : '—'}</td>
+                            <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: '600', color: isActive ? NARANJA : '#94a3b8' }}>{isActive ? fmtMXN(cuotaMes) : '—'}</td>
+                            <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: '600', color: isActive ? VERDE : '#94a3b8' }}>{isActive ? fmtMXN(cuotaAnual) : '—'}</td>
                           </tr>
                         )
                       }
@@ -1587,13 +1599,13 @@ function CalculadoraInner() {
               {sectionTitle('Comparativa de costos')}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
                 <div style={{ background: '#EEF2F8', borderRadius: '10px', padding: '14px', border: '2px solid #bfdbfe' }}>
-                  <p style={{ fontSize: '11px', color: '#64748b', margin: '0 0 4px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Modalidad 40</p>
-                  <p style={{ fontSize: '22px', fontWeight: '700', color: AZUL, margin: '0 0 4px' }}>{fmtMXN(cuotaM40)}<span style={{ fontSize: '12px', fontWeight: '400' }}>/mes</span></p>
+                  <p style={{ fontSize: '11px', color: '#1e40af', margin: '0 0 4px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Modalidad 40</p>
+                  <p style={{ fontSize: '22px', fontWeight: '700', color: NARANJA, margin: '0 0 4px' }}>{fmtMXN(cuotaM40)}<span style={{ fontSize: '12px', fontWeight: '400' }}>/mes</span></p>
                   <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Total {mod40Meses} meses: {fmtMXN(totalM40)}</p>
                 </div>
                 <div style={{ background: '#F0FDF4', borderRadius: '10px', padding: '14px', border: '1px solid #bbf7d0' }}>
-                  <p style={{ fontSize: '11px', color: '#64748b', margin: '0 0 4px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Modalidad 10</p>
-                  <p style={{ fontSize: '22px', fontWeight: '700', color: VERDE, margin: '0 0 4px' }}>{fmtMXN(cuotaM10)}<span style={{ fontSize: '12px', fontWeight: '400' }}>/mes</span></p>
+                  <p style={{ fontSize: '11px', color: '#15803d', margin: '0 0 4px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Modalidad 10</p>
+                  <p style={{ fontSize: '22px', fontWeight: '700', color: '#dc2626', margin: '0 0 4px' }}>{fmtMXN(cuotaM10)}<span style={{ fontSize: '12px', fontWeight: '400' }}>/mes</span></p>
                   <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Total {mod40Meses} meses: {fmtMXN(totalM10)}</p>
                 </div>
               </div>
@@ -1803,8 +1815,9 @@ function CalculadoraInner() {
                         <div style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>E{i + 1}</div>
                         <div style={{ fontSize: '12px', fontWeight: '600', color: '#374151' }}>{esc.label}</div>
                         <div style={{ fontSize: '10px', color: '#94a3b8' }}>{esc.descripcion}</div>
-                        <div style={{ fontSize: '20px', fontWeight: '700', color: i === 0 ? '#94a3b8' : isElegido ? NARANJA : AZUL }}>{fmtMXN(esc.pension_mensual)}/mes</div>
-                        {esc.inversion_total > 0 && <div style={{ fontSize: '10px', color: '#64748b' }}>Inv: {fmtMXN(esc.inversion_total)} · {fmtMXN(esc.costo_mensual_mod40)}/mes</div>}
+                        <div style={{ fontSize: '20px', fontWeight: '700', color: i === 0 ? '#94a3b8' : isElegido ? VERDE : AZUL }}>{fmtMXN(esc.pension_mensual)}/mes</div>
+                        {esc.incremento_vs_base > 0 && <div style={{ fontSize: '11px', color: VERDE, fontWeight: '600' }}>+{fmtMXN(esc.incremento_vs_base)}/mes vs base</div>}
+                        {esc.inversion_total > 0 && <div style={{ fontSize: '10px' }}><span style={{ color: NARANJA, fontWeight: '600' }}>{fmtMXN(esc.costo_mensual_mod40)}/mes</span><span style={{ color: '#94a3b8' }}> · {fmtMXN(esc.inversion_total)} total</span></div>}
                         {pctObjetivo !== null && (
                           <div style={{ padding: '6px 8px', borderRadius: '6px', background: pctObjetivo >= 100 ? '#f0fdf4' : pctObjetivo >= 70 ? '#fffbeb' : '#fef2f2', fontSize: '11px', fontWeight: '700', color: pctObjetivo >= 100 ? VERDE : pctObjetivo >= 70 ? '#b45309' : '#ef4444' }}>
                             {pctObjetivo >= 100
@@ -1830,10 +1843,10 @@ function CalculadoraInner() {
                     <div style={cardSt}>
                       {sectionTitle(`Detalle: ${escSel.label}`)}
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '10px' }}>
-                        {kpiBox('Pensión mensual', fmtMXN(escSel.pension_mensual), 'pesos de hoy', VERDE)}
-                        {kpiBox('Inversión total', fmtMXN(escSel.inversion_total), 'costo total Mod 40', AZUL)}
-                        {escSel.incremento_vs_base > 0 ? kpiBox('Incremento vs base', `+${fmtMXN(escSel.incremento_vs_base)}/mes`, 'sobre pensión sin modalidad', NARANJA) : kpiBox('Pensión base', fmtMXN(escenarios[0]?.pension_mensual || 0), 'sin estrategia', '#94a3b8')}
-                        {escSel.roi_meses > 0 ? kpiBox('Recuperación de inversión', `${escSel.roi_meses} meses`, `~${(escSel.roi_meses / 12).toFixed(1)} años`, '#8b5cf6') : kpiBox('Sin inversión adicional', '—', 'pensión base', '#94a3b8')}
+                        {kpiBox('Pensión mensual', fmtMXN(escSel.pension_mensual), 'pesos de hoy', VERDE, 'verde')}
+                        {kpiBox('Inversión total', fmtMXN(escSel.inversion_total), 'costo total Mod 40', AZUL, 'rojo')}
+                        {escSel.incremento_vs_base > 0 ? kpiBox('Incremento vs base', `+${fmtMXN(escSel.incremento_vs_base)}/mes`, 'sobre pensión sin modalidad', NARANJA, 'naranja') : kpiBox('Pensión base', fmtMXN(escenarios[0]?.pension_mensual || 0), 'sin estrategia', '#94a3b8')}
+                        {escSel.roi_meses > 0 ? kpiBox('Recuperación de inversión', `${escSel.roi_meses} meses`, `~${(escSel.roi_meses / 12).toFixed(1)} años`, '#8b5cf6', 'azul') : kpiBox('Sin inversión adicional', '—', 'pensión base', '#94a3b8')}
                       </div>
                       {ingresoObjetivo > 0 && (() => {
                         const brechaEsc = ingresoObjetivo - escSel.pension_mensual
