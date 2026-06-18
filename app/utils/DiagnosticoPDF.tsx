@@ -5,7 +5,6 @@
 import React from 'react'
 import {
   Document, Page, View, Text, Image, StyleSheet,
-  Font, Canvas,
 } from '@react-pdf/renderer'
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
@@ -263,7 +262,7 @@ const DataTable = ({
   </View>
 )
 
-// Gráfica de barras horizontal (Canvas de react-pdf)
+// Gráfica de barras horizontal — View based (no Canvas)
 const BarChart = ({ escenarios, escSelIdx, maxVal, objetivo }: {
   escenarios: Escenario[]
   escSelIdx: number
@@ -271,115 +270,74 @@ const BarChart = ({ escenarios, escSelIdx, maxVal, objetivo }: {
   objetivo?: number
 }) => {
   const barColors = ['#94a3b8', '#3b82f6', '#eab308', '#f97316', C.azul, '#7c3aed']
-  const barH = 14
-  const gap  = 6
   const labelW = 120
-  const valW   = 65
-  const totalH = escenarios.length * (barH + gap) + 20
-  const chartW = 420 - labelW - valW
+  const valW   = 70
 
   return (
-    {/* @ts-ignore */}
-    <Canvas
-      style={{ width: 420, height: totalH, marginBottom: 8 }}
-      paint={((painter: any) => { /* eslint-disable-next-line */
-        escenarios.forEach((esc, i) => {
-          const rowY = i * (barH + gap)
-          const isEl = i === escSelIdx || (escSelIdx < 0 && esc.recomendado)
-          const pct  = maxVal > 0 ? Math.min(esc.pension_mensual / maxVal, 1) : 0
-          const barLen = Math.max(pct * chartW, 2)
-          const color  = barColors[i] || C.azul
-
-          // Zebra background
-          if (i % 2 === 0) {
-            painter.rect(0, rowY, 420, barH + gap - 1).fill('#F8FAFC')
-          }
-
-          // Label
-          painter
-            .fontSize(isEl ? 8 : 7)
-            .fillColor(isEl ? C.azul : C.gris)
-            .text(esc.label.substring(0, 22), 2, rowY + barH * 0.3, { width: labelW - 4 })
-
-          // Bar track
-          painter.rect(labelW, rowY + 2, chartW, barH - 4).fill('#E8EDF5')
-
-          // Filled bar
-          painter.rect(labelW, rowY + 2, barLen, barH - 4).fill(color)
-
-          // Highlight stripe
-          if (isEl) {
-            painter.rect(labelW, rowY + 2, 3, barH - 4).fill(C.naranja)
-          }
-
-          // Value
-          painter
-            .fontSize(isEl ? 9 : 8)
-            .fillColor(isEl ? C.azul : '#374151')
-            .text(mxn(esc.pension_mensual) + '/mes', labelW + chartW + 4, rowY + barH * 0.3, { width: valW - 4 })
-        })
-
-        // Objetivo line
-        if (objetivo && objetivo > 0 && maxVal > 0) {
-          const objX = labelW + Math.min(objetivo / maxVal, 1) * chartW
-          painter
-            .moveTo(objX, 0)
-            .lineTo(objX, totalH - 20)
-            .dash(3, { space: 2 })
-            .strokeColor(C.rojo)
-            .lineWidth(1)
-            .stroke()
-          painter.undash()
-          painter.fontSize(6.5).fillColor(C.rojo).text('Objetivo', objX + 2, 2)
-          painter.fontSize(6.5).fillColor(C.rojo).text(mxn(objetivo), objX + 2, 9)
-        }
-        return null
-      }) as any}
-    />
+    <View style={{ marginBottom: 8 }}>
+      {escenarios.map((esc, i) => {
+        const isEl  = i === escSelIdx || (escSelIdx < 0 && !!esc.recomendado)
+        const pct   = maxVal > 0 ? Math.min((esc.pension_mensual || 0) / maxVal, 1) : 0
+        const color = barColors[i] || C.azul
+        return (
+          <View key={i} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5, backgroundColor: i % 2 === 0 ? '#F8FAFC' : C.blanco, paddingVertical: 3 }}>
+            {/* Label */}
+            <Text style={{ width: labelW, fontSize: isEl ? 8 : 7, fontFamily: isEl ? 'Helvetica-Bold' : 'Helvetica', color: isEl ? C.azul : C.gris }}>
+              {esc.label.length > 22 ? esc.label.substring(0, 22) + '…' : esc.label}
+            </Text>
+            {/* Bar track */}
+            <View style={{ flex: 1, height: 8, backgroundColor: '#E8EDF5', borderRadius: 2, position: 'relative' }}>
+              {/* Filled bar */}
+              <View style={{ position: 'absolute', left: 0, top: 0, height: 8, width: `${Math.round(pct * 100)}%` as any, backgroundColor: color, borderRadius: 2 }} />
+              {/* Highlight stripe */}
+              {isEl && <View style={{ position: 'absolute', left: 0, top: 0, height: 8, width: 3, backgroundColor: C.naranja, borderRadius: 2 }} />}
+            </View>
+            {/* Value */}
+            <Text style={{ width: valW, fontSize: isEl ? 9 : 7.5, fontFamily: 'Helvetica-Bold', color: isEl ? C.azul : '#374151', textAlign: 'right', paddingLeft: 4 }}>
+              {mxn(esc.pension_mensual || 0)}/mes
+            </Text>
+          </View>
+        )
+      })}
+      {/* Objetivo note */}
+      {objetivo && objetivo > 0 && (
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
+          <View style={{ width: 12, height: 1.5, backgroundColor: C.rojo, marginRight: 4 }} />
+          <Text style={{ fontSize: 7, color: C.rojo, fontFamily: 'Helvetica-Bold' }}>
+            Objetivo del cliente: {mxn(objetivo)}/mes
+          </Text>
+        </View>
+      )}
+    </View>
   )
 }
 
-// Timeline horizontal
-const Timeline = ({ steps }: { steps: { label: string; desc: string; color: string }[] }) => {
-  const w = 420
-  const stepW = w / steps.length
+// Timeline horizontal — View based
+const Timeline = ({ steps }: { steps: { label: string; desc: string; color: string }[] }) => (
+  <View style={{ marginVertical: 10 }}>
+    <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+      {steps.map((step, i) => (
+        <View key={i} style={{ flex: 1, alignItems: 'center' }}>
+          {/* Connector line */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%', marginBottom: 4 }}>
+            {i > 0 && <View style={{ flex: 1, height: 1, backgroundColor: C.borde }} />}
+            <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: step.color }} />
+            {i < steps.length - 1 && <View style={{ flex: 1, height: 1, backgroundColor: C.borde }} />}
+          </View>
+          {/* Label */}
+          <Text style={{ fontSize: 7.5, fontFamily: 'Helvetica-Bold', color: step.color, textAlign: 'center', paddingHorizontal: 2 }}>
+            {step.label}
+          </Text>
+          {/* Desc */}
+          <Text style={{ fontSize: 6.5, color: C.textoSm, textAlign: 'center', paddingHorizontal: 2, marginTop: 2, lineHeight: 1.4 }}>
+            {step.desc}
+          </Text>
+        </View>
+      ))}
+    </View>
+  </View>
+)
 
-  return (
-{/* @ts-ignore */}
-        <Canvas
-      style={{ width: 420, height: 48, marginVertical: 10 }}
-      paint={((painter: any) => { /* eslint-disable-next-line */
-        // Line
-        painter
-          .moveTo(stepW / 2, 10)
-          .lineTo(w - stepW / 2, 10)
-          .strokeColor('#e2e8f0')
-          .lineWidth(1)
-          .stroke()
-
-        steps.forEach((step, i) => {
-          const cx = i * stepW + stepW / 2
-
-          // Circle
-          painter.circle(cx, 10, 5).fill(step.color)
-
-          // Label
-          painter
-            .fontSize(7.5)
-            .fillColor(step.color)
-            .text(step.label, cx - stepW / 2 + 2, 18, { width: stepW - 4, align: 'center' })
-
-          // Desc
-          painter
-            .fontSize(6.5)
-            .fillColor(C.gris)
-            .text(step.desc, cx - stepW / 2 + 2, 29, { width: stepW - 4, align: 'center' })
-        })
-        return null
-      }}
-    />
-  )
-}
 
 // ─── PÁGINA 1: PORTADA ────────────────────────────────────────────────────────
 const PaginaPortada = ({ datos, escenarios, escSelIdx, ingresoObjetivo, logoUrl, razonSocial, asesorNombre, color, titulo, esBorrador }: PDFProps & { color: string; titulo: string }) => {
