@@ -84,6 +84,24 @@ const C = {
 // ─── Formato MXN ─────────────────────────────────────────────────────────────
 const mxn = (n: number) =>
   new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n || 0)
+// Formato fecha ISO → español
+const fmtFecha = (iso?: string) => {
+  if (!iso) return '—'
+  const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre']
+  const match = iso.match(/(\d{4})-(\d{2})-(\d{2})/)
+  if (!match) return iso
+  const [,y,m,d] = match
+  return `${parseInt(d)} de ${meses[parseInt(m)-1]} de ${y}`
+}
+const fmtFechaCta = (iso?: string) => {
+  if (!iso) return '—'
+  const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']
+  const match = iso.match(/(\d{4})-(\d{2})/)
+  if (!match) return iso
+  const [,y,m] = match
+  return `${meses[parseInt(m)-1]} ${y}`
+}
+
 const mxn2 = (n: number) =>
   new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n || 0)
 
@@ -185,7 +203,7 @@ const PageHeader = ({ razonSocial, titulo, color, esBorrador }: { razonSocial?: 
 
 // Marca de agua BORRADOR
 const Watermark = () => (
-  <Text style={s.watermark} fixed>BORRADOR</Text>
+  <Text style={[s.watermark, { top: '40%', left: '5%' }]} fixed>BORRADOR</Text>
 )
 
 // Barra de sección
@@ -227,13 +245,14 @@ const AlertChip = ({ msg, type = 'danger' }: { msg: string; type?: 'danger' | 's
 
 // Tabla genérica
 const DataTable = ({
-  headers, rows, widths, aligns, totalRow,
+  headers, rows, widths, aligns, totalRow, highlightRows,
 }: {
   headers: string[]
   rows: string[][]
   widths: number[]
   aligns?: string[]
   totalRow?: string[]
+  highlightRows?: boolean[]
 }) => (
   <View style={{ marginBottom: 8 }}>
     <View style={s.tableHeader}>
@@ -242,9 +261,9 @@ const DataTable = ({
       ))}
     </View>
     {rows.map((row, ri) => (
-      <View key={ri} style={[s.tableRow, ri % 2 === 1 ? s.tableRowEven : {}]} wrap={false}>
+      <View key={ri} style={[s.tableRow, ri % 2 === 1 ? s.tableRowEven : {}, highlightRows?.[ri] ? { backgroundColor: '#E1F5EE' } : {}]} wrap={false}>
         {row.map((cell, ci) => (
-          <Text key={ci} style={[s.tableCell, { width: widths[ci], textAlign: (aligns?.[ci] || (ci === 0 ? 'left' : 'right')) as any }]}>
+          <Text key={ci} style={[s.tableCell, { width: widths[ci], textAlign: (aligns?.[ci] || (ci === 0 ? 'left' : 'right')) as any }, highlightRows?.[ri] ? { fontFamily: 'Helvetica-Bold', color: C.azul } : {}]}>
             {cell}
           </Text>
         ))}
@@ -385,7 +404,7 @@ const PaginaPortada = ({ datos, escenarios, escSelIdx, ingresoObjetivo, logoUrl,
             {new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}
           </Text>
           {asesorNombre && <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 8, marginTop: 2 }}>Asesor: {asesorNombre}</Text>}
-          {esBorrador && <Text style={{ color: '#fbbf24', fontSize: 8, fontFamily: 'Helvetica-Bold', marginTop: 4 }}>BORRADOR — No oficial</Text>}
+          {esBorrador && <Text style={{ color: C.rojo, fontSize: 7, fontFamily: 'Helvetica-Bold', marginTop: 4, backgroundColor: 'rgba(255,255,255,0.15)', padding: 2 }}>● BORRADOR</Text>}
         </View>
       </View>
 
@@ -412,7 +431,7 @@ const PaginaPortada = ({ datos, escenarios, escSelIdx, ingresoObjetivo, logoUrl,
             { label: 'Pensión sin acción', value: mxn(escBase?.pension_mensual || 0) + '/mes', color: C.gris, bg: '#F8FAFC' },
             { label: 'Pensión con estrategia', value: mxn(escSel?.pension_mensual || 0) + '/mes', color: color, bg: '#EEF7F4' },
             { label: 'Incremento mensual', value: escSel?.incremento_vs_base > 0 ? '+' + mxn(escSel.incremento_vs_base) : '—', color: C.verde, bg: '#f0fdf4' },
-            { label: 'Inversión requerida', value: mxn(escSel?.inversion_total || 0), color: C.naranja, bg: '#FFF7ED' },
+            { label: 'Inversión requerida', value: mxn(escSel?.inversion_total || 0), color: C.gris, bg: '#F8FAFC' },
           ].map((k, i) => (
             <View key={i} style={{ flex: 1, backgroundColor: k.bg, borderRadius: 7, padding: 10, alignItems: 'center' }}>
               <Text style={{ fontSize: 7, color: C.textoSm, textTransform: 'uppercase', textAlign: 'center', marginBottom: 5 }}>{k.label}</Text>
@@ -466,9 +485,9 @@ const PaginaResumen = ({ datos, escenarios, escSelIdx, analisis, ingresoObjetivo
   const trabajador = datos.nombre_trabajador || datos.nombre || 'El trabajador'
 
   const cards = [
-    { icon: '●', title: 'Situación actual', color: C.gris, bg: '#F8FAFC', body: `${trabajador} tiene ${datos.semanas_totales || 0} semanas cotizadas bajo Ley ${datos.ley || '73'}. Sin acción, la pensión estimada sería de ${mxn(escBase?.pension_mensual || 0)}/mes.` },
-    { icon: '▲', title: 'Oportunidad detectada', color: C.verde, bg: '#f0fdf4', body: `Con la estrategia ${escSel?.label}, la pensión puede llegar a ${mxn(escSel?.pension_mensual || 0)}/mes — un incremento de ${mxn(escSel?.incremento_vs_base || 0)}/mes. La inversión se recupera en ${escSel?.roi_meses || '—'} meses.` },
-    { icon: '✓', title: 'Recomendación', color: color, bg: '#EEF2F8', body: `Iniciar Modalidad 40 a ${(escSel?.mod40_umas || 0).toFixed(1)} UMAs por ${escSel?.mod40_meses || 0} meses. Costo: ${mxn(escSel?.costo_mensual_mod40 || 0)}/mes. Inversión total: ${mxn(escSel?.inversion_total || 0)}.` },
+    { icon: '○', title: 'Situación actual', color: C.gris, bg: '#F8FAFC', body: `${trabajador} tiene ${datos.semanas_totales || 0} semanas cotizadas bajo Ley ${datos.ley || '73'}. Sin acción, la pensión estimada sería de ${mxn(escBase?.pension_mensual || 0)}/mes.` },
+    { icon: '↑', title: 'Oportunidad detectada', color: C.verde, bg: '#f0fdf4', body: `Con la estrategia ${escSel?.label}, la pensión puede llegar a ${mxn(escSel?.pension_mensual || 0)}/mes — un incremento de ${mxn(escSel?.incremento_vs_base || 0)}/mes. La inversión se recupera en ${escSel?.roi_meses || '—'} meses.` },
+    { icon: '★', title: 'Recomendación', color: color, bg: '#EEF2F8', body: `Iniciar Modalidad 40 a ${(escSel?.mod40_umas || 0).toFixed(1)} UMAs por ${escSel?.mod40_meses || 0} meses. Costo: ${mxn(escSel?.costo_mensual_mod40 || 0)}/mes. Inversión total: ${mxn(escSel?.inversion_total || 0)}.` },
   ]
 
   // Conservación
@@ -488,7 +507,7 @@ const PaginaResumen = ({ datos, escenarios, escSelIdx, analisis, ingresoObjetivo
       <KpiRow color={color} items={[
         { label: 'Pensión sin acción', value: mxn(escBase?.pension_mensual || 0) + '/mes', color: C.gris },
         { label: 'Pensión con estrategia', value: mxn(escSel?.pension_mensual || 0) + '/mes', color: color },
-        { label: '% del objetivo', value: ingresoObjetivo && ingresoObjetivo > 0 ? Math.round((escSel?.pension_mensual || 0) / ingresoObjetivo * 100) + '%' : '—', color: C.verde },
+        { label: ingresoObjetivo && ingresoObjetivo > 0 ? `% de ${mxn(ingresoObjetivo)}/mes` : '% del objetivo', value: ingresoObjetivo && ingresoObjetivo > 0 ? Math.round((escSel?.pension_mensual || 0) / ingresoObjetivo * 100) + '%' : '—', color: C.verde },
         { label: 'Recuperación inversión', value: (escSel?.roi_meses || 0) + ' meses', color: C.naranja },
       ]} />
 
@@ -501,8 +520,8 @@ const PaginaResumen = ({ datos, escenarios, escSelIdx, analisis, ingresoObjetivo
       ))}
 
       {/* Alerta conservación al final */}
-      {mRest !== null && mRest === 0 && <AlertChip msg="⚠ Conservación de derechos VENCIDA — se requiere reactivación antes de tramitar la pensión" type="danger" />}
-      {mRest !== null && mRest > 0 && mRest < 12 && <AlertChip msg={`⚠ Conservación vigente pero próxima a vencer — ${mRest} meses restantes`} type="warning" />}
+      {mRest !== null && mRest === 0 && <AlertChip msg="ATENCION: Conservacion de derechos VENCIDA — requiere reactivacion antes de tramitar la pension" type="danger" />}
+      {mRest !== null && mRest > 0 && mRest < 12 && <AlertChip msg={`Conservacion vigente pero proxima a vencer — ${mRest} meses restantes`} type="warning" />}
     </Page>
   )
 }
@@ -530,9 +549,9 @@ const PaginaDatosConservacion = ({ datos, color, titulo, razonSocial, esBorrador
       ]} />
       <KpiRow color={color} items={[
         { label: 'Semanas cotizadas', value: (datos.semanas_totales || 0).toLocaleString(), color: (datos.semanas_totales || 0) >= 500 ? C.verde : C.rojo },
-        { label: 'Fecha de nacimiento', value: datos.fecha_nacimiento || '—' },
-        { label: 'Última cotización', value: datos.fecha_calculo || 'No registrada' },
-        { label: 'Asignaciones familiares', value: '+' + ((datos.tiene_conyuge ? 15 : 0) + (datos.num_hijos || 0) * 10) + '%', color: C.naranja },
+        { label: 'Fecha de nacimiento', value: fmtFecha(datos.fecha_nacimiento) },
+        { label: 'Última cotización', value: datos.fecha_calculo || 'No registrada', color: datos.fecha_calculo ? C.azul : C.gris },
+        { label: 'Asignaciones familiares', value: '+' + ((datos.tiene_conyuge ? 15 : 0) + (datos.num_hijos || 0) * 10) + '% sobre pension base', color: C.naranja },
       ]} />
       {(datos.semanas_totales || 0) >= 500
         ? <AlertChip msg={`✓ Semanas suficientes para pensionarse (${datos.semanas_totales} de 500 requeridas)`} type="success" />
@@ -546,7 +565,7 @@ const PaginaDatosConservacion = ({ datos, color, titulo, razonSocial, esBorrador
         { label: 'Semanas de conservación', value: semC + ' semanas', color },
         { label: 'Período', value: (semC / 4.33 / 12).toFixed(1) + ' años', color },
         { label: 'Estado actual', value: vigente === null ? 'Sin fecha de baja' : vigente ? 'VIGENTE ✓' : 'VENCIDO ✗', color: vigente === null ? C.gris : vigente ? C.verde : C.rojo },
-        { label: 'Meses restantes', value: mRest !== null ? (vigente ? mRest + ' meses' : 'Requiere reactivación') : 'Capturar fecha', color: vigente ? C.verde : C.rojo },
+        { label: vigente ? 'Meses restantes' : 'Estado', value: mRest !== null ? (vigente ? mRest + ' meses restantes' : 'Requiere reactivacion') : 'Sin fecha de baja registrada', color: vigente ? C.verde : C.rojo },
       ]} />
       {vigente === false && (
         <AlertChip msg={`⚠ Período de conservación vencido — ${mDes / 12 <= 3 ? 'reconocimiento inmediato al reingresar' : mDes / 12 <= 6 ? 'cotizar 26 semanas nuevas (Art. 151)' : 'cotizar 52 semanas nuevas (Art. 151)'}`} type="danger" />
@@ -581,8 +600,8 @@ const PaginaSalario = ({ periodos, sdiPromedio, color, titulo, razonSocial, esBo
         aligns={['center', 'center', 'center', 'right', 'right', 'right', 'right']}
         rows={periodos.map((p, i) => [
           (i + 1).toString(),
-          p.fecha_inicio || '—',
-          p.fecha_fin || '—',
+          fmtFechaCta(p.fecha_inicio),
+          fmtFechaCta(p.fecha_fin),
           (p.semanas || 0).toString(),
           mxn2(p.sdi || 0),
           mxn((p.sdi || 0) * 30.4),
@@ -624,7 +643,7 @@ const PaginaMod40 = ({ escenarios, escSelIdx, color, titulo, razonSocial, esBorr
         { label: 'Pensión estimada', value: mxn(escSel.pension_mensual || 0) + '/mes', color: C.verde },
         { label: 'Incremento vs base', value: '+' + mxn(escSel.incremento_vs_base || 0) + '/mes', color: C.verde },
         { label: 'Recuperación de inversión', value: (escSel.roi_meses || 0) + ' meses', color },
-        { label: 'Tasa aplicada', value: '14.438%', color: C.gris },
+        { label: 'Cuota Mod 40 (% SBC)', value: '14.438% sobre SBC', color: C.gris },
       ]} />
 
       <Text style={s.h2}>Proyección de cotización mensual</Text>
@@ -637,10 +656,10 @@ const PaginaMod40 = ({ escenarios, escSelIdx, color, titulo, razonSocial, esBorr
           mxn2(sdiM40),
           mxn(costoM),
           mxn(costoM * mes),
-          (mes * 4.33).toFixed(1),
+          Math.round(mes * 4.33).toString(),
           Math.round(mes / meses * 100) + '%',
         ])}
-        totalRow={['Total', '—', mxn(costoM) + '/mes', mxn(escSel.inversion_total || 0), (meses * 4.33).toFixed(0), '100%']}
+        totalRow={['TOTALES', '—', mxn(costoM) + '/mes', mxn(escSel.inversion_total || 0), Math.round(meses * 4.33).toString() + ' sem.', '100%']}
       />
     </Page>
   )
@@ -667,7 +686,7 @@ const PaginaMod10 = ({ escenarios, escSelIdx, color, titulo, razonSocial, esBorr
         { label: 'Cuota mensual (22%)', value: mxn(escM10.costo_mensual_mod40), color: C.verde },
         { label: 'Inversión total', value: mxn(escM10.inversion_total), color: C.naranja },
         { label: 'Pensión estimada', value: mxn(escM10.pension_mensual) + '/mes', color: C.verde },
-        { label: 'Extra vs Mod 40', value: '+' + mxn(dif) + '/mes', color: '#f97316' },
+        { label: 'Costo extra vs Mod 40', value: '+' + mxn(dif) + '/mes (seguro medico + Infonavit)', color: '#f97316' },
       ]} />
       <Text style={s.h2}>Comparativa Modalidad 10 vs Modalidad 40</Text>
       <DataTable
@@ -675,9 +694,9 @@ const PaginaMod10 = ({ escenarios, escSelIdx, color, titulo, razonSocial, esBorr
         widths={[120, 68, 68, 72, 36]}
         aligns={['left', 'right', 'right', 'right', 'center']}
         rows={[
-          ['Cuota mensual', mxn(escM10.costo_mensual_mod40), mxn(cuotaM40), mxn(dif) + ' más', ''],
+          ['Cuota mensual', mxn(escM10.costo_mensual_mod40), mxn(cuotaM40), '+' + mxn(dif) + ' mas cara', ''],
           ['Inversión total', mxn(escM10.inversion_total), mxn(escSel?.inversion_total || 0), mxn(escM10.inversion_total - (escSel?.inversion_total || 0)) + ' más', ''],
-          ['Pensión estimada', mxn(escM10.pension_mensual) + '/mes', mxn(escSel?.pension_mensual || 0) + '/mes', '≈ igual', ''],
+          ['Pensión estimada', mxn(escM10.pension_mensual) + '/mes', mxn(escSel?.pension_mensual || 0) + '/mes', 'mismo monto', ''],
           ['Servicio médico IMSS', 'Sí', 'No', '', '✓'],
           ['Guarderías', 'Sí', 'No', '', '✓'],
           ['Aportaciones Infonavit', 'Sí', 'No', '', '✓'],
@@ -704,20 +723,21 @@ const PaginaEscenarios = ({ escenarios, escSelIdx, ingresoObjetivo, color, titul
 
       {/* Tabla comparativa */}
       <DataTable
-        headers={['Escenario', 'Pensión/mes', 'Incremento', 'Inversión', 'ROI', '★']}
-        widths={[130, 56, 56, 56, 40, 26]}
+        headers={['Escenario', 'Pension/mes', 'Incremento', 'Inversion total', 'ROI (meses)', 'Elegido']}
+        widths={[130, 56, 52, 60, 48, 18]}
         aligns={['left', 'right', 'right', 'right', 'right', 'center']}
         rows={escenarios.map((esc, i) => {
           const isEl = i === escSelIdx || (escSelIdx < 0 && esc.recomendado)
           return [
-            esc.label,
+            (isEl ? '★ ' : '') + esc.label,
             mxn(esc.pension_mensual),
             i === 0 ? '—' : '+' + mxn(esc.incremento_vs_base),
             i === 0 ? '$0' : mxn(esc.inversion_total),
-            i === 0 ? '—' : (esc.roi_meses || '—') + 'm',
-            isEl ? '★' : '',
+            i === 0 ? '—' : (esc.roi_meses || '—'),
+            isEl ? 'SI' : '',
           ]
         })}
+        highlightRows={escenarios.map((esc, i) => i === escSelIdx || (escSelIdx < 0 && !!esc.recomendado))}
       />
 
       {/* Gráfica */}
@@ -749,9 +769,11 @@ const PaginaAnalisis = ({ analisis, color, titulo, razonSocial, esBorrador }: PD
       <PageHeader razonSocial={razonSocial} titulo={titulo} color={color} esBorrador={esBorrador} />
       <SectionTitle title="ANÁLISIS EJECUTIVO DEL PROYECTO DE PENSIÓN" color={color} />
       {secciones.map((sec, i) => (
-        <View key={i} style={{ marginBottom: 12 }} wrap={false}>
-          <Text style={[s.h2, { borderBottomWidth: 0.5, borderBottomColor: C.borde, paddingBottom: 3 }]}>{sec.titulo || ''}</Text>
-          <Text style={[s.body, { lineHeight: 1.7 }]}>{sec.contenido || ''}</Text>
+        <View key={i} style={{ marginBottom: 14 }}>
+          <View style={{ backgroundColor: '#EEF2F8', borderLeftWidth: 3, borderLeftColor: color, paddingVertical: 5, paddingHorizontal: 8, marginBottom: 6, borderRadius: 3 }} wrap={false}>
+            <Text style={{ fontSize: 11, fontFamily: 'Helvetica-Bold', color }}>{sec.titulo || ''}</Text>
+          </View>
+          <Text style={[s.body, { lineHeight: 1.8, paddingHorizontal: 4 }]}>{sec.contenido || ''}</Text>
         </View>
       ))}
     </Page>
@@ -784,14 +806,24 @@ const PaginaPasos = ({ datos, escenarios, escSelIdx, analisis, color, titulo, ra
       <Timeline steps={steps.map(s => ({ label: s.label, desc: s.desc, color: s.color }))} />
 
       {pasosSec
-        ? <Text style={[s.body, { lineHeight: 1.7, marginTop: 8 }]}>{pasosSec.contenido}</Text>
+        ? pasosSec.contenido.split('\n').filter((p: string) => p.trim()).map((paso: string, i: number) => (
+            <View key={i} style={{ flexDirection: 'row', marginBottom: 8, marginTop: i === 0 ? 8 : 0 }}>
+              <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color, width: 16, marginTop: 1 }}>•</Text>
+              <Text style={[s.body, { flex: 1, lineHeight: 1.7 }]}>{paso.trim()}</Text>
+            </View>
+          ))
         : [
-            '1. Confirmar los datos presentados en este diagnóstico con el asesor.',
-            '2. Tramitar el alta en Modalidad 40 ante el IMSS (subdelegación o imss.gob.mx).',
-            `3. Iniciar pagos mensuales de ${mxn(escSel?.costo_mensual_mod40 || 0)} durante ${mMod} meses consecutivos.`,
-            '4. Al completar el período, reunir documentación y solicitar la pensión en la subdelegación IMSS.',
-            '5. Verificar periódicamente el historial de semanas en el portal del IMSS: imss.gob.mx · Tel: 800 623 2323',
-          ].map((p, i) => <Text key={i} style={[s.body, { marginBottom: 4 }]}>{p}</Text>)
+            'Confirmar los datos de este diagnostico con el asesor.',
+            'Tramitar el alta en Modalidad 40 ante el IMSS (subdelegacion o imss.gob.mx).',
+            `Iniciar pagos mensuales de ${mxn(escSel?.costo_mensual_mod40 || 0)} durante ${mMod} meses consecutivos.`,
+            'Al completar el periodo, reunir documentacion y solicitar la pension en la subdelegacion IMSS.',
+            'Verificar periodicamente el historial de semanas en el portal del IMSS.',
+          ].map((p, i) => (
+            <View key={i} style={{ flexDirection: 'row', marginBottom: 8 }}>
+              <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color, width: 16 }}>{i + 1}.</Text>
+              <Text style={[s.body, { flex: 1, lineHeight: 1.7 }]}>{p}</Text>
+            </View>
+          ))
       }
     </Page>
   )
@@ -810,7 +842,7 @@ const PaginaAviso = ({ razonSocial, color, titulo, esBorrador }: Partial<PDFProp
       'Se recomienda verificar periódicamente la vigencia y exactitud de la información de semanas cotizadas en el portal oficial del IMSS: imss.gob.mx · Tel. IMSS: 800 623 2323',
     ].map((p, i) => <Text key={i} style={[s.body, { marginBottom: 8, lineHeight: 1.7 }]}>{p}</Text>)}
 
-    {esBorrador && <AlertChip msg="BORRADOR — Este documento no ha sido autorizado por el asesor. No debe ser entregado al cliente en este estado." type="warning" />}
+    {esBorrador && <AlertChip msg="BORRADOR — Este documento es un borrador de trabajo. Debe ser revisado y aprobado por el asesor antes de entregarlo al cliente." type="warning" />}
 
     <View style={{ marginTop: 16, borderTopWidth: 0.5, borderTopColor: C.borde, paddingTop: 8 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
