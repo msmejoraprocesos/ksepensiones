@@ -4,7 +4,7 @@
 
 import React from 'react'
 import {
-  Document, Page, View, Text, Image, StyleSheet, Svg, Rect, Line,
+  Document, Page, View, Text, Image, StyleSheet, Svg, Rect,
 } from '@react-pdf/renderer'
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
@@ -322,15 +322,7 @@ const BarChart = ({ escenarios, escSelIdx, maxVal, objetivo }: {
             </React.Fragment>
           )
         })}
-        {/* Objetivo line */}
-        {objetivo && objetivo > 0 && maxVal > 0 && (() => {
-          const objX = LABEL_W + Math.min(objetivo / maxVal, 1) * BAR_W
-          return (
-            <React.Fragment>
-              <Line x1={objX} y1={0} x2={objX} y2={escenarios.length * ROW_H} stroke={C.rojo} strokeWidth={1} strokeDasharray="3 2" />
-            </React.Fragment>
-          )
-        })()}
+
       </Svg>
       {/* Labels and values as Text overlay */}
       <View style={{ position: 'absolute', top: 0, left: 0, width: W_CHART }}>
