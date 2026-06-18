@@ -4,7 +4,7 @@
 
 import React from 'react'
 import {
-  Document, Page, View, Text, Image, StyleSheet,
+  Document, Page, View, Text, Image, StyleSheet, Svg, Rect, Line as SvgLine,
 } from '@react-pdf/renderer'
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
@@ -281,7 +281,7 @@ const DataTable = ({
   </View>
 )
 
-// Gráfica de barras horizontal — View based (no Canvas)
+// Gráfica de barras horizontal — SVG proporcional
 const BarChart = ({ escenarios, escSelIdx, maxVal, objetivo }: {
   escenarios: Escenario[]
   escSelIdx: number
@@ -289,44 +289,75 @@ const BarChart = ({ escenarios, escSelIdx, maxVal, objetivo }: {
   objetivo?: number
 }) => {
   const barColors = ['#94a3b8', '#3b82f6', '#eab308', '#f97316', C.azul, '#7c3aed']
-  const labelW = 120
-  const valW   = 70
+  const W_CHART = 420
+  const LABEL_W = 115
+  const VAL_W   = 72
+  const BAR_W   = W_CHART - LABEL_W - VAL_W  // 233
+  const BAR_H   = 12
+  const ROW_H   = 20
+  const TOTAL_H = escenarios.length * ROW_H + 20
 
   return (
-    <View style={{ marginBottom: 8 }}>
-      {escenarios.map((esc, i) => {
-        const isEl  = i === escSelIdx || (escSelIdx < 0 && !!esc.recomendado)
-        const pct   = maxVal > 0 ? Math.min((esc.pension_mensual || 0) / maxVal, 1) : 0
-        const color = barColors[i] || C.azul
-        return (
-          <View key={i} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5, backgroundColor: i % 2 === 0 ? '#F8FAFC' : C.blanco, paddingVertical: 3 }}>
-            {/* Label */}
-            <Text style={{ width: labelW, fontSize: isEl ? 8 : 7, fontFamily: isEl ? 'Helvetica-Bold' : 'Helvetica', color: isEl ? C.azul : C.gris }}>
-              {esc.label.length > 22 ? esc.label.substring(0, 22) + '…' : esc.label}
-            </Text>
-            {/* Bar track */}
-            <View style={{ flex: 1, height: 8, backgroundColor: '#E8EDF5', borderRadius: 2, position: 'relative' }}>
+    <View style={{ marginBottom: 10 }}>
+      <Svg width={W_CHART} height={TOTAL_H}>
+        {escenarios.map((esc, i) => {
+          const isEl   = i === escSelIdx || (escSelIdx < 0 && !!esc.recomendado)
+          const pct    = maxVal > 0 ? Math.min((esc.pension_mensual || 0) / maxVal, 1) : 0
+          const barLen = Math.max(Math.round(pct * BAR_W), 2)
+          const rowY   = i * ROW_H
+          const color  = barColors[i] || C.azul
+          const bgColor = i % 2 === 0 ? '#F8FAFC' : '#FFFFFF'
+          return (
+            <React.Fragment key={i}>
+              {/* Row background */}
+              <Rect x={0} y={rowY} width={W_CHART} height={ROW_H} fill={bgColor} />
+              {/* Highlight background for selected */}
+              {isEl && <Rect x={0} y={rowY} width={W_CHART} height={ROW_H} fill="#EEF7F4" />}
+              {/* Bar track */}
+              <Rect x={LABEL_W} y={rowY + 4} width={BAR_W} height={BAR_H} fill="#E8EDF5" rx={2} />
               {/* Filled bar */}
-              <View style={{ position: 'absolute', left: 0, top: 0, height: 8, width: `${Math.round(pct * 100)}%` as any, backgroundColor: color, borderRadius: 2 }} />
-              {/* Highlight stripe */}
-              {isEl && <View style={{ position: 'absolute', left: 0, top: 0, height: 8, width: 3, backgroundColor: C.naranja, borderRadius: 2 }} />}
+              <Rect x={LABEL_W} y={rowY + 4} width={barLen} height={BAR_H} fill={color} rx={2} />
+              {/* Accent stripe for selected */}
+              {isEl && <Rect x={LABEL_W} y={rowY + 4} width={4} height={BAR_H} fill={C.naranja} rx={2} />}
+            </React.Fragment>
+          )
+        })}
+        {/* Objetivo line */}
+        {objetivo && objetivo > 0 && maxVal > 0 && (() => {
+          const objX = LABEL_W + Math.min(objetivo / maxVal, 1) * BAR_W
+          return (
+            <React.Fragment>
+              <SvgLine x1={objX} y1={0} x2={objX} y2={escenarios.length * ROW_H} stroke={C.rojo} strokeWidth={1} strokeDasharray="3 2" />
+            </React.Fragment>
+          )
+        })()}
+      </Svg>
+      {/* Labels and values as Text overlay */}
+      <View style={{ position: 'absolute', top: 0, left: 0, width: W_CHART }}>
+        {escenarios.map((esc, i) => {
+          const isEl = i === escSelIdx || (escSelIdx < 0 && !!esc.recomendado)
+          return (
+            <View key={i} style={{ flexDirection: 'row', alignItems: 'center', height: ROW_H }}>
+              <Text style={{ width: LABEL_W, fontSize: isEl ? 8 : 7, fontFamily: isEl ? 'Helvetica-Bold' : 'Helvetica', color: isEl ? C.azul : C.gris, paddingLeft: 2 }}>
+                {isEl ? '★ ' : ''}{esc.label.substring(0, 20)}
+              </Text>
+              <View style={{ width: BAR_W }} />
+              <Text style={{ width: VAL_W, fontSize: isEl ? 9 : 7.5, fontFamily: 'Helvetica-Bold', color: isEl ? C.azul : '#374151', textAlign: 'right', paddingRight: 2 }}>
+                {mxn(esc.pension_mensual || 0)}/mes
+              </Text>
             </View>
-            {/* Value */}
-            <Text style={{ width: valW, fontSize: isEl ? 9 : 7.5, fontFamily: 'Helvetica-Bold', color: isEl ? C.azul : '#374151', textAlign: 'right', paddingLeft: 4 }}>
-              {mxn(esc.pension_mensual || 0)}/mes
+          )
+        })}
+        {/* Objetivo label */}
+        {objetivo && objetivo > 0 && maxVal > 0 && (
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
+            <View style={{ width: 16, height: 1.5, backgroundColor: C.rojo, marginRight: 4 }} />
+            <Text style={{ fontSize: 7, color: C.rojo, fontFamily: 'Helvetica-Bold' }}>
+              Objetivo: {mxn(objetivo)}/mes
             </Text>
           </View>
-        )
-      })}
-      {/* Objetivo note */}
-      {objetivo && objetivo > 0 && (
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-          <View style={{ width: 12, height: 1.5, backgroundColor: C.rojo, marginRight: 4 }} />
-          <Text style={{ fontSize: 7, color: C.rojo, fontFamily: 'Helvetica-Bold' }}>
-            Objetivo del cliente: {mxn(objetivo)}/mes
-          </Text>
-        </View>
-      )}
+        )}
+      </View>
     </View>
   )
 }
@@ -375,7 +406,7 @@ const PaginaPortada = ({ datos, escenarios, escSelIdx, ingresoObjetivo, logoUrl,
   // Timeline portada
   const edadA = datos.edad_actual || 60
   const mMod  = escSel?.mod40_meses || 0
-  const edadFin = Math.round(edadA + mMod / 12)
+  const edadFin = Math.ceil(edadA + mMod / 12)
   const tlSteps = [
     { label: `Hoy (${edadA} años)`, desc: 'Verificar semanas IMSS', color: C.naranja, age: edadA },
     { label: `${edadFin} años`, desc: `Alta Mod 40\n${mxn(escSel?.costo_mensual_mod40 || 0)}/mes`, color: color, age: edadFin },
@@ -404,7 +435,7 @@ const PaginaPortada = ({ datos, escenarios, escSelIdx, ingresoObjetivo, logoUrl,
             {new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}
           </Text>
           {asesorNombre && <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 8, marginTop: 2 }}>Asesor: {asesorNombre}</Text>}
-          {esBorrador && <Text style={{ color: C.rojo, fontSize: 7, fontFamily: 'Helvetica-Bold', marginTop: 4, backgroundColor: 'rgba(255,255,255,0.15)', padding: 2 }}>● BORRADOR</Text>}
+          {esBorrador && <Text style={{ color: C.rojo, fontSize: 7, fontFamily: 'Helvetica-Bold', marginTop: 4, backgroundColor: 'rgba(255,255,255,0.15)', padding: 2 }}>BORRADOR</Text>}
         </View>
       </View>
 
@@ -457,9 +488,38 @@ const PaginaPortada = ({ datos, escenarios, escSelIdx, ingresoObjetivo, logoUrl,
           <Timeline steps={stepsOrd.map(s => ({ label: s.label, desc: s.desc, color: s.color }))} />
         </View>
 
+        {/* Semanas info bar */}
+        <View style={{ flexDirection: 'row', backgroundColor: C.grisCl, borderRadius: 6, padding: 8, marginTop: 8, marginBottom: 6 }}>
+          <View style={{ flex: 1, alignItems: 'center' }}>
+            <Text style={{ fontSize: 7, color: C.textoSm, marginBottom: 2 }}>SEMANAS COTIZADAS</Text>
+            <Text style={{ fontSize: 13, fontFamily: 'Helvetica-Bold', color: (datos.semanas_totales || 0) >= 500 ? C.verde : C.rojo }}>
+              {(datos.semanas_totales || 0).toLocaleString()}
+            </Text>
+          </View>
+          <View style={{ width: 0.5, backgroundColor: C.borde, marginVertical: 4 }} />
+          <View style={{ flex: 1, alignItems: 'center' }}>
+            <Text style={{ fontSize: 7, color: C.textoSm, marginBottom: 2 }}>MÍNIMO REQUERIDO</Text>
+            <Text style={{ fontSize: 13, fontFamily: 'Helvetica-Bold', color: C.gris }}>500</Text>
+          </View>
+          <View style={{ width: 0.5, backgroundColor: C.borde, marginVertical: 4 }} />
+          <View style={{ flex: 1, alignItems: 'center' }}>
+            <Text style={{ fontSize: 7, color: C.textoSm, marginBottom: 2 }}>RÉGIMEN</Text>
+            <Text style={{ fontSize: 13, fontFamily: 'Helvetica-Bold', color: color }}>
+              Ley {datos.ley || '73'}
+            </Text>
+          </View>
+          <View style={{ width: 0.5, backgroundColor: C.borde, marginVertical: 4 }} />
+          <View style={{ flex: 1, alignItems: 'center' }}>
+            <Text style={{ fontSize: 7, color: C.textoSm, marginBottom: 2 }}>CONSERVACIÓN</Text>
+            <Text style={{ fontSize: 11, fontFamily: 'Helvetica-Bold', color: venc ? C.rojo : C.verde }}>
+              {venc ? 'VENCIDA' : (mRest !== null ? mRest + ' meses' : 'Vigente')}
+            </Text>
+          </View>
+        </View>
+
         {/* Alerta conservación */}
-        {venc && <AlertChip msg="⚠ Conservación de derechos VENCIDA — se requiere reactivación antes del trámite" type="danger" />}
-        {!venc && mRest !== null && mRest < 12 && <AlertChip msg={`⚠ Conservación vigente pero próxima a vencer — ${mRest} meses restantes`} type="warning" />}
+        {venc && <AlertChip msg="ATENCIÓN: Conservación de derechos VENCIDA — se requiere reactivación antes del trámite" type="danger" />}
+        {!venc && mRest !== null && mRest < 12 && <AlertChip msg={`Conservación vigente pero próxima a vencer — ${mRest} meses restantes`} type="warning" />}
 
         {/* Footer */}
         <View style={{ position: 'absolute', bottom: 16, left: 28, right: 28 }}>
@@ -485,9 +545,9 @@ const PaginaResumen = ({ datos, escenarios, escSelIdx, analisis, ingresoObjetivo
   const trabajador = datos.nombre_trabajador || datos.nombre || 'El trabajador'
 
   const cards = [
-    { icon: '○', title: 'Situación actual', color: C.gris, bg: '#F8FAFC', body: `${trabajador} tiene ${datos.semanas_totales || 0} semanas cotizadas bajo Ley ${datos.ley || '73'}. Sin acción, la pensión estimada sería de ${mxn(escBase?.pension_mensual || 0)}/mes.` },
-    { icon: '↑', title: 'Oportunidad detectada', color: C.verde, bg: '#f0fdf4', body: `Con la estrategia ${escSel?.label}, la pensión puede llegar a ${mxn(escSel?.pension_mensual || 0)}/mes — un incremento de ${mxn(escSel?.incremento_vs_base || 0)}/mes. La inversión se recupera en ${escSel?.roi_meses || '—'} meses.` },
-    { icon: '★', title: 'Recomendación', color: color, bg: '#EEF2F8', body: `Iniciar Modalidad 40 a ${(escSel?.mod40_umas || 0).toFixed(1)} UMAs por ${escSel?.mod40_meses || 0} meses. Costo: ${mxn(escSel?.costo_mensual_mod40 || 0)}/mes. Inversión total: ${mxn(escSel?.inversion_total || 0)}.` },
+    { icon: '', title: 'Situación actual', color: C.gris, bg: '#F8FAFC', body: `${trabajador} tiene ${datos.semanas_totales || 0} semanas cotizadas bajo Ley ${datos.ley || '73'}. Sin acción, la pensión estimada sería de ${mxn(escBase?.pension_mensual || 0)}/mes.` },
+    { icon: '', title: 'Oportunidad detectada', color: C.verde, bg: '#f0fdf4', body: `Con la estrategia ${escSel?.label}, la pensión puede llegar a ${mxn(escSel?.pension_mensual || 0)}/mes — un incremento de ${mxn(escSel?.incremento_vs_base || 0)}/mes. La inversión se recupera en ${escSel?.roi_meses || '—'} meses.` },
+    { icon: '', title: 'Recomendación', color: color, bg: '#EEF2F8', body: `Iniciar Modalidad 40 a ${(escSel?.mod40_umas || 0).toFixed(1)} UMAs por ${escSel?.mod40_meses || 0} meses. Costo: ${mxn(escSel?.costo_mensual_mod40 || 0)}/mes. Inversión total: ${mxn(escSel?.inversion_total || 0)}.` },
   ]
 
   // Conservación
@@ -514,14 +574,14 @@ const PaginaResumen = ({ datos, escenarios, escSelIdx, analisis, ingresoObjetivo
       {/* Tarjetas situación/oportunidad/recomendación */}
       {cards.map((card, i) => (
         <View key={i} style={{ backgroundColor: card.bg, borderRadius: 7, padding: 10, marginBottom: 8, borderLeftWidth: 3, borderLeftColor: card.color }} wrap={false}>
-          <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: card.color, marginBottom: 4 }}>{card.icon}  {card.title}</Text>
+          <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: card.color, marginBottom: 4 }}>{card.title}</Text>
           <Text style={{ fontSize: 8.5, color: C.texto, lineHeight: 1.6 }}>{card.body}</Text>
         </View>
       ))}
 
       {/* Alerta conservación al final */}
-      {mRest !== null && mRest === 0 && <AlertChip msg="ATENCION: Conservacion de derechos VENCIDA — requiere reactivacion antes de tramitar la pension" type="danger" />}
-      {mRest !== null && mRest > 0 && mRest < 12 && <AlertChip msg={`Conservacion vigente pero proxima a vencer — ${mRest} meses restantes`} type="warning" />}
+      {mRest !== null && mRest === 0 && <AlertChip msg="ATENCIÓN: Conservación de derechos VENCIDA — requiere reactivación antes de tramitar la pensión" type="danger" />}
+      {mRest !== null && mRest > 0 && mRest < 12 && <AlertChip msg={`Conservación vigente pero próxima a vencer — ${mRest} meses restantes`} type="warning" />}
     </Page>
   )
 }
@@ -550,8 +610,8 @@ const PaginaDatosConservacion = ({ datos, color, titulo, razonSocial, esBorrador
       <KpiRow color={color} items={[
         { label: 'Semanas cotizadas', value: (datos.semanas_totales || 0).toLocaleString(), color: (datos.semanas_totales || 0) >= 500 ? C.verde : C.rojo },
         { label: 'Fecha de nacimiento', value: fmtFecha(datos.fecha_nacimiento) },
-        { label: 'Última cotización', value: datos.fecha_calculo || 'No registrada', color: datos.fecha_calculo ? C.azul : C.gris },
-        { label: 'Asignaciones familiares', value: '+' + ((datos.tiene_conyuge ? 15 : 0) + (datos.num_hijos || 0) * 10) + '% sobre pension base', color: C.naranja },
+        { label: 'Última cotización', value: fmtFechaCta(datos.fecha_calculo) || 'No registrada', color: datos.fecha_calculo ? C.azul : C.gris },
+        { label: 'Asignaciones familiares', value: '+' + ((datos.tiene_conyuge ? 15 : 0) + (datos.num_hijos || 0) * 10) + '% sobre pensión base', color: C.naranja },
       ]} />
       {(datos.semanas_totales || 0) >= 500
         ? <AlertChip msg={`✓ Semanas suficientes para pensionarse (${datos.semanas_totales} de 500 requeridas)`} type="success" />
@@ -565,7 +625,7 @@ const PaginaDatosConservacion = ({ datos, color, titulo, razonSocial, esBorrador
         { label: 'Semanas de conservación', value: semC + ' semanas', color },
         { label: 'Período', value: (semC / 4.33 / 12).toFixed(1) + ' años', color },
         { label: 'Estado actual', value: vigente === null ? 'Sin fecha de baja' : vigente ? 'VIGENTE ✓' : 'VENCIDO ✗', color: vigente === null ? C.gris : vigente ? C.verde : C.rojo },
-        { label: vigente ? 'Meses restantes' : 'Estado', value: mRest !== null ? (vigente ? mRest + ' meses restantes' : 'Requiere reactivacion') : 'Sin fecha de baja registrada', color: vigente ? C.verde : C.rojo },
+        { label: vigente ? 'Meses restantes' : 'Estado', value: mRest !== null ? (vigente ? mRest + ' meses restantes' : 'Requiere reactivación') : 'Sin fecha de baja registrada', color: vigente ? C.verde : C.rojo },
       ]} />
       {vigente === false && (
         <AlertChip msg={`⚠ Período de conservación vencido — ${mDes / 12 <= 3 ? 'reconocimiento inmediato al reingresar' : mDes / 12 <= 6 ? 'cotizar 26 semanas nuevas (Art. 151)' : 'cotizar 52 semanas nuevas (Art. 151)'}`} type="danger" />
@@ -686,7 +746,7 @@ const PaginaMod10 = ({ escenarios, escSelIdx, color, titulo, razonSocial, esBorr
         { label: 'Cuota mensual (22%)', value: mxn(escM10.costo_mensual_mod40), color: C.verde },
         { label: 'Inversión total', value: mxn(escM10.inversion_total), color: C.naranja },
         { label: 'Pensión estimada', value: mxn(escM10.pension_mensual) + '/mes', color: C.verde },
-        { label: 'Costo extra vs Mod 40', value: '+' + mxn(dif) + '/mes (seguro medico + Infonavit)', color: '#f97316' },
+        { label: 'Costo extra vs Mod 40', value: mxn(dif) + '/mes más que Mod 40', color: '#f97316' },
       ]} />
       <Text style={s.h2}>Comparativa Modalidad 10 vs Modalidad 40</Text>
       <DataTable
@@ -694,7 +754,7 @@ const PaginaMod10 = ({ escenarios, escSelIdx, color, titulo, razonSocial, esBorr
         widths={[120, 68, 68, 72, 36]}
         aligns={['left', 'right', 'right', 'right', 'center']}
         rows={[
-          ['Cuota mensual', mxn(escM10.costo_mensual_mod40), mxn(cuotaM40), '+' + mxn(dif) + ' mas cara', ''],
+          ['Cuota mensual', mxn(escM10.costo_mensual_mod40), mxn(cuotaM40), '+' + mxn(dif) + ' más', ''],
           ['Inversión total', mxn(escM10.inversion_total), mxn(escSel?.inversion_total || 0), mxn(escM10.inversion_total - (escSel?.inversion_total || 0)) + ' más', ''],
           ['Pensión estimada', mxn(escM10.pension_mensual) + '/mes', mxn(escSel?.pension_mensual || 0) + '/mes', 'mismo monto', ''],
           ['Servicio médico IMSS', 'Sí', 'No', '', '✓'],
@@ -703,7 +763,7 @@ const PaginaMod10 = ({ escenarios, escSelIdx, color, titulo, razonSocial, esBorr
           ['Requiere historial IMSS', 'No', 'Sí', '', ''],
         ]}
       />
-      <Text style={{ fontSize: 7, color: C.textoSm, fontFamily: 'Helvetica-Oblique', marginTop: 4 }}>
+      <Text style={{ fontSize: 7.5, color: C.textoSm, fontFamily: 'Helvetica-Oblique', marginTop: 6, paddingTop: 6, borderTopWidth: 0.5, borderTopColor: C.borde }}>
         Nota: La tasa del 22% es un estimado. El monto exacto varía por actividad y zona geográfica. Verificar en imss.gob.mx
       </Text>
     </Page>
@@ -723,7 +783,7 @@ const PaginaEscenarios = ({ escenarios, escSelIdx, ingresoObjetivo, color, titul
 
       {/* Tabla comparativa */}
       <DataTable
-        headers={['Escenario', 'Pension/mes', 'Incremento', 'Inversion total', 'ROI (meses)', 'Elegido']}
+        headers={['Escenario', 'Pensión/mes', 'Incremento', 'Inversión total', 'ROI (meses)', 'Elegido']}
         widths={[130, 56, 52, 60, 48, 18]}
         aligns={['left', 'right', 'right', 'right', 'right', 'center']}
         rows={escenarios.map((esc, i) => {
@@ -771,9 +831,9 @@ const PaginaAnalisis = ({ analisis, color, titulo, razonSocial, esBorrador }: PD
       {secciones.map((sec, i) => (
         <View key={i} style={{ marginBottom: 14 }}>
           <View style={{ backgroundColor: '#EEF2F8', borderLeftWidth: 3, borderLeftColor: color, paddingVertical: 5, paddingHorizontal: 8, marginBottom: 6, borderRadius: 3 }} wrap={false}>
-            <Text style={{ fontSize: 11, fontFamily: 'Helvetica-Bold', color }}>{sec.titulo || ''}</Text>
+            <Text style={{ fontSize: 12, fontFamily: 'Helvetica-Bold', color }}>{String(sec?.titulo || '')}</Text>
           </View>
-          <Text style={[s.body, { lineHeight: 1.8, paddingHorizontal: 4 }]}>{String(sec?.contenido || '')}</Text>
+          <Text style={[s.body, { lineHeight: 1.9, paddingHorizontal: 4, marginBottom: 6 }]}>{String(sec?.contenido || '')}</Text>
         </View>
       ))}
     </Page>
@@ -785,7 +845,7 @@ const PaginaPasos = ({ datos, escenarios, escSelIdx, analisis, color, titulo, ra
   const escSel = escenarios[escSelIdx] ?? escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
   const edadA  = datos.edad_actual || 60
   const mMod   = escSel?.mod40_meses || 0
-  const edadFin = Math.round(edadA + mMod / 12)
+  const edadFin = Math.ceil(edadA + mMod / 12)
 
   const hitos = [
     { label: `Hoy (${edadA} años)`, desc: 'Verificar semanas en portal IMSS', color: C.naranja, age: edadA },
@@ -805,25 +865,27 @@ const PaginaPasos = ({ datos, escenarios, escSelIdx, analisis, color, titulo, ra
 
       <Timeline steps={steps.map(s => ({ label: s.label, desc: s.desc, color: s.color }))} />
 
-      {pasosSec
-        ? String(pasosSec.contenido || '').split('\n').filter((p: string) => p.trim()).map((paso: string, i: number) => (
-            <View key={i} style={{ flexDirection: 'row', marginBottom: 8, marginTop: i === 0 ? 8 : 0 }}>
-              <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color, width: 16, marginTop: 1 }}>•</Text>
-              <Text style={[s.body, { flex: 1, lineHeight: 1.7 }]}>{paso.trim()}</Text>
+      {(() => {
+        const defaultSteps = [
+          'Confirmar los datos de este diagnóstico con el asesor antes de cualquier acción.',
+          `Tramitar el alta en Modalidad 40 ante el IMSS. Llevar: CURP, NSS, identificación oficial y comprobante de domicilio. Portal: imss.gob.mx`,
+          `Iniciar pagos mensuales de ${mxn(escSel?.costo_mensual_mod40 || 0)} durante ${mMod} meses consecutivos sin interrupción.`,
+          'Al completar el período de cotización, reunir documentación y solicitar la pensión en la subdelegación IMSS correspondiente.',
+          'Verificar periódicamente el historial de semanas en el portal del IMSS: imss.gob.mx · Tel: 800 623 2323',
+        ]
+        const rawContent = pasosSec ? String(pasosSec.contenido || '') : ''
+        const steps = pasosSec && rawContent.length > 10
+          ? rawContent.split(/\n|\r\n/).map((s: string) => s.replace(/^[\d]+\.\s*|^[-•]\s*/, '').trim()).filter((s: string) => s.length > 0)
+          : defaultSteps
+        return steps.map((paso: string, i: number) => (
+          <View key={i} style={{ flexDirection: 'row', marginBottom: 10, marginTop: 2 }}>
+            <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: color, alignItems: 'center', justifyContent: 'center', marginRight: 8, marginTop: 1, flexShrink: 0 }}>
+              <Text style={{ fontSize: 8, fontFamily: 'Helvetica-Bold', color: 'white' }}>{i + 1}</Text>
             </View>
-          ))
-        : [
-            'Confirmar los datos de este diagnostico con el asesor.',
-            'Tramitar el alta en Modalidad 40 ante el IMSS (subdelegacion o imss.gob.mx).',
-            `Iniciar pagos mensuales de ${mxn(escSel?.costo_mensual_mod40 || 0)} durante ${mMod} meses consecutivos.`,
-            'Al completar el periodo, reunir documentacion y solicitar la pension en la subdelegacion IMSS.',
-            'Verificar periodicamente el historial de semanas en el portal del IMSS.',
-          ].map((p, i) => (
-            <View key={i} style={{ flexDirection: 'row', marginBottom: 8 }}>
-              <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color, width: 16 }}>{i + 1}.</Text>
-              <Text style={[s.body, { flex: 1, lineHeight: 1.7 }]}>{p}</Text>
-            </View>
-          ))
+            <Text style={[s.body, { flex: 1, lineHeight: 1.8, marginTop: 3 }]}>{paso}</Text>
+          </View>
+        ))
+      })()}
       }
     </Page>
   )
@@ -844,13 +906,16 @@ const PaginaAviso = ({ razonSocial, color, titulo, esBorrador }: Partial<PDFProp
 
     {esBorrador && <AlertChip msg="BORRADOR — Este documento es un borrador de trabajo. Debe ser revisado y aprobado por el asesor antes de entregarlo al cliente." type="warning" />}
 
-    <View style={{ marginTop: 16, borderTopWidth: 0.5, borderTopColor: C.borde, paddingTop: 8 }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-        <Text style={{ fontSize: 7, color: C.textoSm }}>{razonSocial || 'KSE Pensiones'}</Text>
+    <View style={{ marginTop: 16, borderTopWidth: 1, borderTopColor: C.azul, paddingTop: 10 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Text style={{ fontSize: 8, fontFamily: 'Helvetica-Bold', color: C.azul }}>{razonSocial || 'KSE Pensiones'}</Text>
         <Text style={{ fontSize: 7, color: C.textoSm }}>
           Generado el {new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}
         </Text>
       </View>
+      <Text style={{ fontSize: 8, color: C.textoSm, marginTop: 4 }}>
+        imss.gob.mx · Tel. IMSS: <Text style={{ fontFamily: 'Helvetica-Bold', color: C.azul }}>800 623 2323</Text>
+      </Text>
     </View>
   </Page>
 )
