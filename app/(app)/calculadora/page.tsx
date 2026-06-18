@@ -475,7 +475,8 @@ function CalculadoraInner() {
 
   function recalcEscenarios() {
     const sem = datos.semanas_totales - datos.semanas_descontadas
-    if (sem <= 0 && sdiPromedio <= 0) return
+    // No calcular sin datos reales cargados
+    if (datos.semanas_totales === 0 || sdiPromedio <= 0) return
     const sdiBase = sdiPromedio > 0 ? sdiPromedio : sys.SALARIO_MIN
     const anioBase = new Date().getFullYear()
     const anioR = anioBase + (edadRetiro - (datos.edad_actual || 60))
@@ -1237,6 +1238,13 @@ function CalculadoraInner() {
         {/* ══ TAB 3: CONSERVACIÓN DE DERECHOS ════════════════════ */}
         {tab === 2 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            {datos.semanas_totales === 0 && (
+              <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94a3b8', fontSize: '13px' }}>
+                <div style={{ fontSize: '32px', marginBottom: '10px' }}>📋</div>
+                Carga primero la constancia IMSS en la pestaña <strong>Datos generales</strong> para calcular la conservación de derechos.
+              </div>
+            )}
+            {datos.semanas_totales > 0 && <>
             <div style={{ padding: '12px 16px', background: '#EEF2F8', border: '1px solid #bfdbfe', borderRadius: '10px', fontSize: '12px', color: AZUL, lineHeight: 1.6 }}>
               <strong>Art. 182 Ley del Seguro Social 1973:</strong> Cuando un trabajador deja de cotizar, sus derechos pensionarios se conservan por un período proporcional. Es crítico saber si el cliente puede iniciar el trámite ahora o si ya perdió sus derechos.
             </div>
@@ -1345,12 +1353,21 @@ function CalculadoraInner() {
             })()}
 
             {navButtons(() => setTab(1), () => setTab(3), 'Siguiente: Modalidad 40 →')}
+            </>}
+
           </div>
         )}
 
         {/* ══ TAB 4: MODALIDAD 40 ═════════════════════════════════ */}
         {tab === 3 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            {datos.semanas_totales === 0 && (
+              <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94a3b8', fontSize: '13px' }}>
+                <div style={{ fontSize: '32px', marginBottom: '10px' }}>📋</div>
+                Carga primero la constancia IMSS en <strong>Datos generales</strong> para configurar la Modalidad 40.
+              </div>
+            )}
+            {datos.semanas_totales > 0 && <>
             <div style={{ padding: '12px 16px', background: '#EEF2F8', border: '1px solid #bfdbfe', borderRadius: '10px', fontSize: '12px', color: AZUL, lineHeight: 1.6 }}>
               <strong>Modalidad 40 (Art. 218 LSS 1973):</strong> Permite al trabajador cotizar voluntariamente sobre un salario superior al actual, incrementando la base de cálculo de su pensión. Es la estrategia de optimización pensional más poderosa disponible en México.
             </div>
@@ -1511,12 +1528,20 @@ function CalculadoraInner() {
               <button onClick={() => setTab(4)} style={{ background: 'none', border: 'none', color: '#15803d', fontWeight: '700', cursor: 'pointer', textDecoration: 'underline', fontFamily: 'inherit', fontSize: '12px', padding: 0 }}>Ver Modalidad 10 →</button>
             </div>
             {navButtons(() => setTab(2), () => setTab(4), 'Siguiente: Modalidad 10 →')}
+            </>}
+
           </div>
         )}
 
 
         {/* ══ TAB 4: MODALIDAD 10 ══════════════════════════════════ */}
-        {tab === 4 && (() => {
+        {tab === 4 && datos.semanas_totales === 0 && (
+          <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94a3b8', fontSize: '13px' }}>
+            <div style={{ fontSize: '32px', marginBottom: '10px' }}>📋</div>
+            Carga primero la constancia IMSS en <strong>Datos generales</strong> para ver la comparativa de Modalidad 10.
+          </div>
+        )}
+        {tab === 4 && datos.semanas_totales > 0 && (() => {
           const UMA_DIARIA = sys.UMA_DIARIA || 113.14
           const DIAS_MES = 30.4
           const TASA_M10 = 0.22
