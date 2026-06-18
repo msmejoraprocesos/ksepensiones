@@ -219,12 +219,13 @@ const SectionTitle = ({ title, sub, color }: { title: string; sub?: string; colo
 )
 
 // Fila de KPI cards
-const KpiRow = ({ items, color }: { items: { label: string; value: string; color?: string }[]; color: string }) => (
+const KpiRow = ({ items, color }: { items: { label: string; value: string; color?: string; sub?: string }[]; color: string }) => (
   <View style={s.kpiRow}>
     {items.map((item, i) => (
       <View key={i} style={[s.kpiCard, i === 0 ? { marginLeft: 0 } : {}, i === items.length - 1 ? { marginRight: 0 } : {}]}>
         <Text style={s.kpiLabel}>{item.label}</Text>
         <Text style={[s.kpiValue, { color: item.color || color }]}>{item.value}</Text>
+        {item.sub ? <Text style={{ fontSize: 6, color: C.textoSm, textAlign: 'center', marginTop: 2 }}>{item.sub}</Text> : null}
       </View>
     ))}
   </View>
