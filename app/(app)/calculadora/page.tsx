@@ -72,21 +72,25 @@ interface AnalisisSeccion {
 }
 
 // ── FÓRMULAS OFICIALES ─────────────────────────────────────────────
-function calcPensionLey73(semanas: number, sdi: number, edadRetiro: number, sys: SysVars, tieneConyuge: boolean, numHijos: number, numPadres: number): number {
+function calcPensionLey73(semanas: number, sdi: number, edadRetiro: number, sys: SysVars, tieneConyuge: boolean, numHijos: number, numPadres: number, anioRetiro?: number): number {
   if (semanas < 500) return 0
   const semanasExtra = Math.max(0, semanas - 500)
   const incrementos = Math.floor(semanasExtra / 52)
   const pct = Math.min(1.0, 0.35 + incrementos * 0.0125)
   const pensionDiaria = sdi * pct
   const pensionMensual = pensionDiaria * 30.4
-  const base = Math.max(sys.PMG_L73, pensionMensual)
-  const factor = edadRetiro < 65 ? (FACTOR_CESANTIA[edadRetiro] ?? 1.0) : 1.0
+  // PMG proyectada al año de retiro
+  const pmgBase = anioRetiro ? proyectarValor(sys.PMG_L73, new Date().getFullYear(), anioRetiro) : sys.PMG_L73
+  const factorEdad = FACTOR_EDAD_RETIRO[edadRetiro] ?? 1.0
+  const pmgConFactor = pmgBase * factorEdad
+  const pensionConFactor = pensionMensual * factorEdad
+  const base = Math.max(pmgConFactor, pensionConFactor)
   // Asignaciones familiares
   const asignConyuge = tieneConyuge ? 0.15 : 0
   const asignHijos = Math.min(numHijos, 2) * 0.10
   const asignPadres = Math.min(numPadres, 2) * 0.10
   const totalAsign = 1 + asignConyuge + asignHijos + asignPadres
-  return base * factor * totalAsign
+  return base * totalAsign
 }
 
 function calcPromedioSalarial250(periodos: PeriodoSalarial[]): number {
@@ -130,6 +134,34 @@ function calcConservacion(semanas: number, mesesDesdeUltimaCot: number): { vigen
     venceEn: vigente ? Math.max(0, mesesRestantes) : 0,
     semanasConservacion,
   }
+}
+
+// ── PROYECCIÓN DE VARIABLES ─────────────────────────────────────────
+function proyectarValor(base: number, anioBase: number, anioTarget: number, inpc = 0.04): number {
+  if (anioTarget <= anioBase) return base
+  let v = base
+  for (let a = anioBase + 1; a <= anioTarget; a++) v *= (1 + inpc)
+  return v
+}
+
+// Tabla de cuantía de pensión por edad (Ley 73)
+const TABLA_CUANTIA = [
+  { semanas: 500, pct: 35, descripcion: 'Mínimo para pensionarse' },
+  { semanas: 552, pct: 36.25, descripcion: '+1 año (52 sem.)' },
+  { semanas: 604, pct: 37.5, descripcion: '+2 años' },
+  { semanas: 656, pct: 38.75, descripcion: '+3 años' },
+  { semanas: 708, pct: 40, descripcion: '+4 años' },
+  { semanas: 760, pct: 41.25, descripcion: '+5 años' },
+  { semanas: 812, pct: 42.5, descripcion: '+6 años' },
+  { semanas: 864, pct: 43.75, descripcion: '+7 años' },
+  { semanas: 916, pct: 45, descripcion: '+8 años' },
+  { semanas: 968, pct: 46.25, descripcion: '+9 años' },
+  { semanas: 1020, pct: 47.5, descripcion: '+10 años (1020 sem.)' },
+]
+
+const FACTOR_EDAD_RETIRO: Record<number, number> = {
+  60: 0.75, 61: 0.80, 62: 0.85, 63: 0.90, 64: 0.95, 65: 1.0,
+  66: 1.0, 67: 1.0, 68: 1.0, 69: 1.0, 70: 1.0,
 }
 
 // ── DEFAULTS ────────────────────────────────────────────────────────
@@ -204,6 +236,11 @@ function CalculadoraInner() {
   const [buscarCliente, setBuscarCliente] = useState('')
   const [showAllMonthsM10, setShowAllMonthsM10] = useState(false)
 
+  // Edad de retiro y año de trámite
+  const [edadRetiro, setEdadRetiro] = useState(65)
+  const [anioInicioTramite, setAnioInicioTramite] = useState(new Date().getFullYear())
+  const [showTooltipCuantia, setShowTooltipCuantia] = useState(false)
+
   // Flujo diagnóstico
   const [ingresoObjetivo, setIngresoObjetivo] = useState(0)
   const [escElegidoIdx, setEscElegidoIdx] = useState(-1)
@@ -251,6 +288,8 @@ function CalculadoraInner() {
             if (p.simMeses) setSimMeses(p.simMeses)
             if (typeof p.escElegidoIdx === 'number') setEscElegidoIdx(p.escElegidoIdx)
             if (p.fechaUltimaCot) setFechaUltimaCot(p.fechaUltimaCot)
+            if (p.edadRetiro) setEdadRetiro(p.edadRetiro)
+            if (p.anioInicioTramite) setAnioInicioTramite(p.anioInicioTramite)
             else if (p.datos?.fecha_calculo) setFechaUltimaCot(p.datos.fecha_calculo)
           } else {
             // Fallback: restore basic data from columns
@@ -383,7 +422,7 @@ function CalculadoraInner() {
   }
 
   // Recalculate escenarios when sdiPromedio or mod40 changes
-  useEffect(() => { if (sdiPromedio > 0 || datos.semanas_totales > 0) recalcEscenarios() }, [sdiPromedio, datos, mod40Umas, mod40Meses, sys, simulacionLibre, simUmas, simMeses])
+  useEffect(() => { if (sdiPromedio > 0 || datos.semanas_totales > 0) recalcEscenarios() }, [sdiPromedio, datos, mod40Umas, mod40Meses, sys, simulacionLibre, simUmas, simMeses, edadRetiro, anioInicioTramite])
 
   // Show client selection modal on mount if no client pre-selected
   useEffect(() => {
@@ -407,30 +446,41 @@ function CalculadoraInner() {
     setTimeout(() => setMensaje(''), 4000)
   }
 
-  function calcEscenarioMod40(sem: number, sdiBase: number, umas: number, meses: number, pensionBase: number) {
-    const costoMensual = calcCostoMod40(umas, sys.mod40_pct ?? 14.438, sys)
+  function calcEscenarioMod40(sem: number, sdiBase: number, umas: number, meses: number, pensionBase: number, edadRet?: number, anioInicio?: number) {
+    const anioBase = new Date().getFullYear()
+    const edadR = edadRet ?? edadRetiro
+    const anioI = anioInicio ?? anioInicioTramite
+    const anioR = anioBase + (edadR - datos.edad_actual)
+    // UMA proyectada al año de inicio del trámite
+    const umaProyectada = proyectarValor(sys.UMA_DIARIA, anioBase, anioI)
+    // SDI con UMA proyectada
+    const sdiMod40 = umas * umaProyectada
+    // Tasa también sube año con año (estimado: +1% por año)
+    const aniosHastaInicio = Math.max(0, anioI - anioBase)
+    const tasaProyectada = Math.min(0.188, (sys.mod40_pct ?? 14.438) / 100 + aniosHastaInicio * 0.01)
+    const costoMensual = sdiMod40 * 30.4 * tasaProyectada
     const invTotal = costoMensual * meses
-    // SDI ponderado: promedia el SDI actual con el SDI de Mod40
-    // Solo las últimas 250 semanas importan (60 meses máx), así que limitamos la ponderación
-    const sdiMod40 = umas * sys.UMA_DIARIA
-    const semMod40 = Math.min(meses * 4.33, 250) // cap 250 semanas para SDI
+    // SDI ponderado 250 semanas (las más recientes desplazan las más antiguas)
+    const semMod40 = Math.min(meses * 4.33, 250)
     const semEfectivo = Math.min(sem, 250 - semMod40)
     const sdiNuevo = semEfectivo + semMod40 > 0
       ? (sdiBase * semEfectivo + sdiMod40 * semMod40) / (semEfectivo + semMod40)
       : sdiBase
     const semTotal = sem + meses * 4.33
-    const pension = calcPensionLey73(semTotal, sdiNuevo, 65, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres)
+    const pension = calcPensionLey73(semTotal, sdiNuevo, edadR, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, anioR)
     const incr = pension - pensionBase
     const roi = incr > 0 ? Math.ceil(invTotal / incr) : 0
-    return { costoMensual, invTotal, sdiNuevo, semTotal, pension, incr, roi }
+    return { costoMensual, invTotal, sdiNuevo, semTotal, pension, incr, roi, umaProyectada, tasaProyectada, sdiMod40 }
   }
 
   function recalcEscenarios() {
     const sem = datos.semanas_totales - datos.semanas_descontadas
     if (sem <= 0 && sdiPromedio <= 0) return
     const sdiBase = sdiPromedio > 0 ? sdiPromedio : sys.SALARIO_MIN
+    const anioBase = new Date().getFullYear()
+    const anioR = anioBase + (edadRetiro - (datos.edad_actual || 60))
 
-    const pensionBase = calcPensionLey73(sem, sdiBase, 65, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres)
+    const pensionBase = calcPensionLey73(sem, sdiBase, edadRetiro, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, anioR)
 
     // E0: Sin ninguna modalidad
     const escs: Escenario[] = [{
@@ -455,13 +505,14 @@ function CalculadoraInner() {
       incremento_vs_base: pensionM10 - pensionBase, roi_meses: 0, recomendado: false
     })
 
-    // E2–E4: Modalidad 40 a distintos plazos
+    // E2–E4: Modalidad 40 a distintos plazos con UMA proyectada
+    const mesesDisp = Math.max(12, (edadRetiro - (datos.edad_actual || 60)) * 12)
     for (const [meses, umas, label, desc, esOpt] of [
-      [12, mod40Umas * 0.7, 'Modalidad 40 · 12 meses', 'Cotización breve — menor costo', false],
-      [24, mod40Umas * 0.85, 'Modalidad 40 · 24 meses', 'Estrategia media — balance costo/beneficio', false],
-      [mod40Meses, mod40Umas, `Modalidad 40 · ${mod40Meses} meses`, 'Estrategia óptima configurada', true],
+      [Math.min(24, mesesDisp), mod40Umas * 0.6, `Mod 40 · ${Math.min(24, mesesDisp)} meses · ${Math.round(mod40Umas * 0.6)} UMAs`, 'Inversión conservadora', false],
+      [Math.min(36, mesesDisp), mod40Umas * 0.8, `Mod 40 · ${Math.min(36, mesesDisp)} meses · ${Math.round(mod40Umas * 0.8)} UMAs`, 'Estrategia media', false],
+      [Math.min(mod40Meses, mesesDisp), mod40Umas, `Mod 40 · ${Math.min(mod40Meses, mesesDisp)} meses · ${mod40Umas} UMAs`, 'Estrategia configurada', true],
     ] as [number, number, string, string, boolean][]) {
-      const r = calcEscenarioMod40(sem, sdiBase, umas, meses, pensionBase)
+      const r = calcEscenarioMod40(sem, sdiBase, umas, meses, pensionBase, edadRetiro, anioInicioTramite)
       escs.push({
         id: `e_m40_${meses}`, label, descripcion: desc,
         mod40_meses: meses, mod40_umas: umas, sdi_base: r.sdiNuevo,
@@ -472,7 +523,7 @@ function CalculadoraInner() {
 
     // E5: Simulación libre (si está activa)
     if (simulacionLibre) {
-      const r = calcEscenarioMod40(sem, sdiBase, simUmas, simMeses, pensionBase)
+      const r = calcEscenarioMod40(sem, sdiBase, simUmas, simMeses, pensionBase, edadRetiro, anioInicioTramite)
       escs.push({
         id: 'e_sim', label: `Mi simulación · ${simMeses} meses · ${simUmas} UMAs`, descripcion: '🔧 Parámetros personalizados',
         mod40_meses: simMeses, mod40_umas: simUmas, sdi_base: r.sdiNuevo,
@@ -555,8 +606,11 @@ function CalculadoraInner() {
           salarioDiario: sdiPromedio,
           salarioMensual: sdiPromedio * 30.4,
           edadActual: datos.edad_actual,
-          edadRetiro: 65,
-          aniosRetiro: Math.max(0, 65 - datos.edad_actual),
+          edadRetiro: edadRetiro,
+          tipoPension: edadRetiro >= 65 ? 'Vejez' : 'Cesantia en edad avanzada',
+          factorEdad: (FACTOR_EDAD_RETIRO[edadRetiro] ?? 1) * 100,
+          anioInicioTramite: anioInicioTramite,
+          aniosRetiro: Math.max(0, edadRetiro - datos.edad_actual),
           ingresoDes: ingresoObjetivo || 0,
           inflacion: 4,
           sys,
@@ -605,7 +659,7 @@ function CalculadoraInner() {
       ley: datos.ley,
       semanas: datos.semanas_totales,
       salario_diario: sdiPromedio,
-      edad_retiro: 65,
+      edad_retiro: edadRetiro,
       pension_sin_mod40: escenarios[0]?.pension_mensual,
       pension_con_mod40: escElegido?.pension_mensual,
       inversion_mod40: escElegido?.inversion_total,
@@ -895,7 +949,57 @@ function CalculadoraInner() {
         )
       })()}
 
-      {/* ── Modal confirmación cambio de cliente ── */}
+      {/* ── Tooltip tabla cuantía de pensión ── */}
+      {showTooltipCuantia && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+          onClick={e => { if (e.target === e.currentTarget) setShowTooltipCuantia(false) }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '100%', maxWidth: '520px', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+              <div>
+                <p style={{ fontSize: '14px', fontWeight: '700', color: AZUL, margin: 0 }}>Tabla de cuantía de pensión — Ley 73</p>
+                <p style={{ fontSize: '11px', color: '#94a3b8', margin: '2px 0 0' }}>Art. 167 LSS 1973 · La cuantía aumenta 1.25% por cada 52 semanas adicionales sobre 500</p>
+              </div>
+              <button onClick={() => setShowTooltipCuantia(false)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
+            </div>
+            <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px', marginBottom: '12px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                <thead>
+                  <tr style={{ background: AZUL }}>
+                    {['Semanas cotizadas', 'Años cotizados', '% del SDI', 'Sobre pensión base'].map((h, i) => (
+                      <th key={i} style={{ padding: '7px 10px', color: 'white', textAlign: i > 0 ? 'right' : 'left', fontSize: '10px', fontWeight: '700' }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {TABLA_CUANTIA.map((row, i) => (
+                    <tr key={i} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #f1f5f9' }}>
+                      <td style={{ padding: '6px 10px', fontWeight: '600', color: AZUL }}>{row.semanas}</td>
+                      <td style={{ padding: '6px 10px', textAlign: 'right', color: '#374151' }}>{Math.floor((row.semanas - 500) / 52) + 9.6} aprox.</td>
+                      <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: '700', color: NARANJA }}>{row.pct}%</td>
+                      <td style={{ padding: '6px 10px', textAlign: 'right', color: '#94a3b8', fontSize: '11px' }}>{row.descripcion}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+              <div style={{ background: '#FFF7ED', borderRadius: '8px', padding: '10px 12px', border: '1px solid #fed7aa' }}>
+                <p style={{ fontSize: '10px', color: '#92400e', margin: '0 0 3px', fontWeight: '700' }}>CESANTÍA (60-64 años)</p>
+                <p style={{ fontSize: '11px', color: '#92400e', margin: 0, lineHeight: 1.5 }}>Se aplica un factor reductor: 75% a los 60, 80% a los 61, 85% a los 62, 90% a los 63, 95% a los 64 años. Se requiere acreditar haber dejado de trabajar.</p>
+              </div>
+              <div style={{ background: '#F0FDF4', borderRadius: '8px', padding: '10px 12px', border: '1px solid #bbf7d0' }}>
+                <p style={{ fontSize: '10px', color: '#15803d', margin: '0 0 3px', fontWeight: '700' }}>VEJEZ (65+ años)</p>
+                <p style={{ fontSize: '11px', color: '#15803d', margin: 0, lineHeight: 1.5 }}>Factor del 100%. No requiere acreditar cesantía. Es la modalidad más conveniente si el cliente puede esperar hasta los 65 años.</p>
+              </div>
+            </div>
+            <p style={{ fontSize: '10px', color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
+              Fuente: Ley del Seguro Social 1973, Arts. 167-168. La cuantía también se incrementa en 2% por cada 52 semanas adicionales sobre las 500 mínimas, con un tope del 100% del SDI promedio.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal confirmación cambio de cliente ── */}}
       {showConfirmCambio && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '100%', maxWidth: '380px', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
@@ -983,8 +1087,13 @@ function CalculadoraInner() {
                   </select>
                   {datos.fecha_calculo && <p style={{ fontSize: '9px', color: '#94a3b8', margin: '2px 0 0' }}>Basado en la última cotización registrada. Verifica con el cliente.</p>}
                 </div>
-                <div><label style={labelSt}>Semanas descontadas AFORE/ISSSTE</label>
-                  <input type="number" style={manualNumInputSt} value={datos.semanas_descontadas || ''} onChange={e => setDatos(p => ({ ...p, semanas_descontadas: parseInt(e.target.value) || 0 }))} placeholder="0" /></div>
+                <div>
+                  <label style={labelSt}>Semanas descontadas AFORE/ISSSTE
+                    <span style={{ fontSize: '9px', fontWeight: '400', color: '#94a3b8', marginLeft: '4px' }}>auto desde constancia · editable</span>
+                  </label>
+                  <input type="number" style={datos.semanas_descontadas > 0 ? autoNumInputSt : manualNumInputSt} value={datos.semanas_descontadas || ''} onChange={e => setDatos(p => ({ ...p, semanas_descontadas: parseInt(e.target.value) || 0 }))} placeholder="0" />
+                  <p style={{ fontSize: '9px', color: '#94a3b8', margin: '2px 0 0' }}>Art. 150 LSS — semanas que se descuentan por haber retirado AFORE</p>
+                </div>
                 <div><label style={labelSt}>¿Tiene esposa(o)/concubina(o)?</label>
                   <select style={manualInputSt} value={datos.tiene_conyuge ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, tiene_conyuge: e.target.value === 'si' }))}>
                     <option value="si">Sí (+15%)</option><option value="no">No</option>
@@ -995,6 +1104,31 @@ function CalculadoraInner() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
                 <div><label style={labelSt}>Padres económicamente dependientes</label>
                   <input type="number" style={manualNumInputSt} value={datos.num_padres || ''} onChange={e => setDatos(p => ({ ...p, num_padres: parseInt(e.target.value) || 0 }))} placeholder="0" /></div>
+                <div>
+                  <label style={labelSt}>
+                    Edad deseada de retiro
+                    <button onClick={() => setShowTooltipCuantia(v => !v)} style={{ marginLeft: '6px', background: AZUL, color: 'white', border: 'none', borderRadius: '50%', width: '14px', height: '14px', fontSize: '9px', cursor: 'pointer', fontWeight: '700', lineHeight: '14px', padding: 0 }}>?</button>
+                  </label>
+                  <select style={manualInputSt} value={edadRetiro} onChange={e => setEdadRetiro(parseInt(e.target.value))}>
+                    <option value={60}>60 años — Cesantía (75%)</option>
+                    <option value={61}>61 años — Cesantía (80%)</option>
+                    <option value={62}>62 años — Cesantía (85%)</option>
+                    <option value={63}>63 años — Cesantía (90%)</option>
+                    <option value={64}>64 años — Cesantía (95%)</option>
+                    <option value={65}>65 años — Vejez (100%) ★</option>
+                    <option value={66}>66 años — Vejez (100%)</option>
+                    <option value={67}>67 años — Vejez (100%)</option>
+                    <option value={68}>68 años — Vejez (100%)</option>
+                  </select>
+                  <p style={{ fontSize: '9px', color: '#94a3b8', margin: '2px 0 0' }}>Factor Cesantía aplica 60-64 años · Vejez 65+</p>
+                </div>
+                <div>
+                  <label style={labelSt}>Año de inicio del trámite Mod 40</label>
+                  <select style={manualInputSt} value={anioInicioTramite} onChange={e => setAnioInicioTramite(parseInt(e.target.value))}>
+                    {[2026,2027,2028,2029,2030].map(a => <option key={a} value={a}>{a} — UMA: {new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN',maximumFractionDigits:2}).format(proyectarValor(117.31, 2026, a))}/día</option>)}
+                  </select>
+                  <p style={{ fontSize: '9px', color: '#94a3b8', margin: '2px 0 0' }}>Los costos se proyectan con la UMA de ese año</p>
+                </div>
               </div>
             </div>
 
@@ -1310,6 +1444,68 @@ function CalculadoraInner() {
               </div>
             </div>
 
+            {/* Tabla costo año por año con tasa incremental */}
+            <div style={cardSt}>
+              {sectionTitle('Costo Modalidad 40 por año (con UMA proyectada)', `Inicio: ${anioInicioTramite} · UMA proyectada: ${fmtMXN2(proyectarValor(sys.UMA_DIARIA, new Date().getFullYear(), anioInicioTramite))}/día`)}
+              <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px', marginBottom: '12px' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                  <thead>
+                    <tr style={{ background: AZUL }}>
+                      {['Año', 'UMA diaria', 'Tasa Mod 40', 'Salario registrado', 'Cuota mensual', 'Cuota anual'].map((h, i) => (
+                        <th key={i} style={{ padding: '7px 10px', color: 'white', textAlign: i > 0 ? 'right' : 'left', fontSize: '10px', fontWeight: '700', borderRight: i < 5 ? '1px solid rgba(255,255,255,0.2)' : 'none' }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(() => {
+                      const anioBase = new Date().getFullYear()
+                      const tasaBase = (sys.mod40_pct ?? 14.438) / 100
+                      const anioFin = anioInicioTramite + Math.ceil(mod40Meses / 12)
+                      const rows = []
+                      let costoTotal = 0
+                      for (let anio = anioInicioTramite; anio <= anioFin; anio++) {
+                        const uma = proyectarValor(sys.UMA_DIARIA, anioBase, anio)
+                        const tasa = Math.min(0.188, tasaBase + Math.max(0, anio - anioBase) * 0.01)
+                        const salario = mod40Umas * uma * 30.4
+                        const mesInicio = anio === anioInicioTramite ? 1 : 1
+                        const mesesEnAnio = anio === anioInicioTramite
+                          ? Math.min(12, mod40Meses)
+                          : anio === anioFin
+                          ? mod40Meses % 12 || 12
+                          : 12
+                        const cuotaMes = salario * tasa
+                        const cuotaAnual = cuotaMes * mesesEnAnio
+                        costoTotal += cuotaAnual
+                        const isActive = mesesEnAnio > 0
+                        rows.push(
+                          <tr key={anio} style={{ background: isActive ? (rows.length % 2 === 0 ? 'white' : '#F8FAFC') : '#F8FAFC', borderBottom: '1px solid #f1f5f9', opacity: isActive ? 1 : 0.4 }}>
+                            <td style={{ padding: '6px 10px', fontWeight: '600', color: isActive ? AZUL : '#94a3b8' }}>{anio}{anio === anioBase ? ' (hoy)' : ''}</td>
+                            <td style={{ padding: '6px 10px', textAlign: 'right', color: '#374151' }}>{fmtMXN2(uma)}</td>
+                            <td style={{ padding: '6px 10px', textAlign: 'right', color: '#374151' }}>{(tasa * 100).toFixed(3)}%</td>
+                            <td style={{ padding: '6px 10px', textAlign: 'right', color: '#374151' }}>{fmtMXN(salario)}</td>
+                            <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: '600', color: NARANJA }}>{isActive ? fmtMXN(cuotaMes) : '—'}</td>
+                            <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: '600', color: AZUL }}>{isActive ? fmtMXN(cuotaAnual) : '—'}</td>
+                          </tr>
+                        )
+                      }
+                      return rows
+                    })()}
+                    <tr style={{ background: '#EEF2F8', borderTop: '2px solid #e2e8f0' }}>
+                      <td colSpan={4} style={{ padding: '7px 10px', fontWeight: '700', color: AZUL }}>Costo total Mod 40</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: NARANJA }}>{fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys))}/mes aprox.</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '800', color: AZUL }}>{fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              {/* Recuperación vía AFORE */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                {kpiBox('Costo total Mod 40', fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses), 'inversión bruta', AZUL)}
+                {kpiBox('Recuperación vía AFORE', fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses * 0.20), '~20% regresa al trámite de pensión', VERDE)}
+                {kpiBox('Inversión real neta', fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses * 0.80), 'costo - recuperación AFORE', NARANJA)}
+              </div>
+            </div>
+
             <div style={{ padding: '12px 16px', background: '#F0FDF4', border: '1px solid #bbf7d0', borderRadius: '10px', fontSize: '12px', color: '#15803d', lineHeight: 1.6 }}>
               <strong>¿Tu cliente es trabajador independiente o no califica para Mod 40?</strong> La <strong>Modalidad 10</strong> permite afiliarse al IMSS con cobertura completa (médica + pensión + Infonavit) y puede usarse como paso previo para habilitar Mod 40.{' '}
               <button onClick={() => setTab(4)} style={{ background: 'none', border: 'none', color: '#15803d', fontWeight: '700', cursor: 'pointer', textDecoration: 'underline', fontFamily: 'inherit', fontSize: '12px', padding: 0 }}>Ver Modalidad 10 →</button>
@@ -1508,7 +1704,16 @@ function CalculadoraInner() {
         {tab === 5 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div style={{ padding: '12px 16px', background: '#F4F6FB', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '12px', color: '#374151', lineHeight: 1.7 }}>
-              <strong style={{ color: AZUL }}>¿Cómo leer los escenarios?</strong> Cada columna representa una estrategia diferente para el mismo cliente. <strong>E1</strong> es la base sin ninguna acción. <strong>E2 (Mod 10)</strong> aplica si el cliente es trabajador independiente o necesita servicio médico. <strong>E3, E4, E5 (Mod 40)</strong> muestran el impacto de cotizar voluntariamente a distintos plazos — a más meses y más UMAs, mayor pensión pero mayor inversión. Elige el escenario que mejor se adapte al cliente y presiona <strong>"Elegir para diagnóstico"</strong> para usarlo como base del análisis y el PDF.
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+                <div>
+                  <strong style={{ color: AZUL }}>Escenarios para {datos.nombre_trabajador || datos.nombre || 'el cliente'}</strong>
+                  {' '}· Retiro a los <strong>{edadRetiro} años</strong> ({edadRetiro >= 65 ? 'Vejez · 100%' : `Cesantía · ${(FACTOR_EDAD_RETIRO[edadRetiro] ?? 1) * 100}%`}) · Trámite Mod 40 en <strong>{anioInicioTramite}</strong>
+                  {' '}· Meses disponibles: <strong>{Math.max(0, (edadRetiro - (datos.edad_actual || 60)) * 12)}</strong>
+                </div>
+                <div style={{ background: edadRetiro >= 65 ? '#f0fdf4' : '#fffbeb', border: `1px solid ${edadRetiro >= 65 ? '#bbf7d0' : '#fde68a'}`, borderRadius: '8px', padding: '6px 12px', fontSize: '11px', fontWeight: '700', color: edadRetiro >= 65 ? '#15803d' : '#92400e', whiteSpace: 'nowrap' as const }}>
+                  Factor: {((FACTOR_EDAD_RETIRO[edadRetiro] ?? 1) * 100).toFixed(0)}%
+                </div>
+              </div>
             </div>
             {escenarios.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontSize: '13px' }}>
