@@ -733,7 +733,7 @@ const PaginaEscenarios = ({ escenarios, escSelIdx, ingresoObjetivo, color, titul
             mxn(esc.pension_mensual),
             i === 0 ? '—' : '+' + mxn(esc.incremento_vs_base),
             i === 0 ? '$0' : mxn(esc.inversion_total),
-            i === 0 ? '—' : (esc.roi_meses || '—'),
+            i === 0 ? '—' : String(esc.roi_meses || '—'),
             isEl ? 'SI' : '',
           ]
         })}
