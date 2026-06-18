@@ -788,7 +788,7 @@ const PaginaEscenarios = ({ escenarios, escSelIdx, ingresoObjetivo, color, titul
         rows={escenarios.map((esc, i) => {
           const isEl = i === escSelIdx || (escSelIdx < 0 && esc.recomendado)
           return [
-            (isEl ? '★ ' : '') + esc.label,
+            (isEl ? '' : '') + esc.label,
             mxn(esc.pension_mensual),
             i === 0 ? '—' : '+' + mxn(esc.incremento_vs_base),
             i === 0 ? '$0' : mxn(esc.inversion_total),
