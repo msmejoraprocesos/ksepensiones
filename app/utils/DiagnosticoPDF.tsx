@@ -281,7 +281,7 @@ const BarChart = ({ escenarios, escSelIdx, maxVal, objetivo }: {
   return (
     <Canvas
       style={{ width: 420, height: totalH, marginBottom: 8 }}
-      paint={((painter: any): null => {
+      paint={((painter: any, _w: number, _h: number): null => {
         escenarios.forEach((esc, i) => {
           const rowY = i * (barH + gap)
           const isEl = i === escSelIdx || (escSelIdx < 0 && esc.recomendado)
@@ -346,7 +346,7 @@ const Timeline = ({ steps }: { steps: { label: string; desc: string; color: stri
   return (
     <Canvas
       style={{ width: 420, height: 48, marginVertical: 10 }}
-      paint={((painter: any): null => {
+      paint={((painter: any, _w: number, _h: number): null => {
         // Line
         painter
           .moveTo(stepW / 2, 10)
