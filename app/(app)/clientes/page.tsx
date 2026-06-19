@@ -896,7 +896,9 @@ function ClientesInner() {
       {/* Header */}
       <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '10px 20px', flexShrink: 0, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px', rowGap: '8px' }}>
         {/* Fila 1: título + toggle vista + botones principales */}
-        <h1 style={{ color: AZUL, fontSize: '18px', fontWeight: '800', margin: 0, flexShrink: 0 }}>Clientes</h1>
+        <h1 style={{ color: AZUL, fontSize: '18px', fontWeight: '800', margin: 0, flexShrink: 0 }}>
+          Clientes <span style={{ color: '#94a3b8', fontWeight: '600', fontSize: '14px' }}>({clientesFiltrados.length})</span>
+        </h1>
         <div style={{ display: 'flex', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', flexShrink: 0 }}>
           {(['lista', 'pipeline'] as const).map(v => (
             <button key={v} onClick={() => setVista(v)}

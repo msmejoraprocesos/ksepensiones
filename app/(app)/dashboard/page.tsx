@@ -77,17 +77,18 @@ function MiDiaInner() {
     clientes.filter(c => c.servicio_contratado === 'Combo')
 
   // ── MÉTRICAS FINANCIERAS ──
-  const ingresosTotal = pagosPeriodo.reduce((s, p) => s + p.monto, 0)
-  const ingresosAsesoria = pagosPeriodo.filter(p => p.clientes?.servicio_contratado === 'Diagnóstico').reduce((s, p) => s + p.monto, 0)
-  const ingresosGestoria = pagosPeriodo.filter(p => p.clientes?.servicio_contratado === 'Trámite').reduce((s, p) => s + p.monto, 0)
-  const ingresosCombo = pagosPeriodo.filter(p => p.clientes?.servicio_contratado === 'Combo').reduce((s, p) => s + p.monto, 0)
-  const comisionesFinancieras = solicitudes.filter(s => s.aprobada && new Date(s.created_at) >= start).reduce((sum, s) => sum + (s.comision_cobrada || 0), 0)
+  // Number(p.monto) por si Supabase devuelve la columna numeric/decimal como string (gotcha clásico de PostgREST)
+  const ingresosTotal = pagosPeriodo.reduce((s, p) => s + (Number(p.monto) || 0), 0)
+  const ingresosAsesoria = pagosPeriodo.filter(p => p.clientes?.servicio_contratado === 'Diagnóstico').reduce((s, p) => s + (Number(p.monto) || 0), 0)
+  const ingresosGestoria = pagosPeriodo.filter(p => p.clientes?.servicio_contratado === 'Trámite').reduce((s, p) => s + (Number(p.monto) || 0), 0)
+  const ingresosCombo = pagosPeriodo.filter(p => p.clientes?.servicio_contratado === 'Combo').reduce((s, p) => s + (Number(p.monto) || 0), 0)
+  const comisionesFinancieras = solicitudes.filter(s => s.aprobada && new Date(s.created_at) >= start).reduce((sum, s) => sum + (Number(s.comision_cobrada) || 0), 0)
   const ingresosConComisiones = ingresosTotal + comisionesFinancieras
   const clientesUnicos = new Set(pagosPeriodo.map(p => p.cliente_id)).size
   const ticketPromedio = clientesUnicos > 0 ? ingresosTotal / clientesUnicos : 0
   // total_pagado no es una columna real en `clientes`; se calcula sumando todos los pagos por cliente
   const totalPagadoPorCliente = pagos.reduce((acc: Record<string, number>, p: any) => {
-    acc[p.cliente_id] = (acc[p.cliente_id] ?? 0) + p.monto
+    acc[p.cliente_id] = (acc[p.cliente_id] ?? 0) + (Number(p.monto) || 0)
     return acc
   }, {} as Record<string, number>)
   const porCobrar = clientes.reduce((s, c) => s + Math.max(0, (c.monto_acordado || 0) - (totalPagadoPorCliente[c.id] ?? 0)), 0)
