@@ -15,7 +15,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/clientes',       label: 'Clientes',       icon: '◎' },
   { href: '/seguimiento',    label: 'Seguimiento',    icon: '◷' },
   { href: '/calculadora',    label: 'Calculadora',    icon: '⊞' },
-  { href: '/financiamiento', label: 'Financiamiento', icon: '💳' },
+  { href: '/financiamiento', label: 'Financiamiento', icon: '◐' },
   { href: '/configuracion',  label: 'Configuración',  icon: '⚙' },
 ]
 
