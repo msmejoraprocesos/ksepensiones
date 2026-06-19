@@ -870,7 +870,7 @@ function ClientesInner() {
     return true
   })
 
-  const clientesPorColumna = (colId: string) => clientes.filter(c => (c.etapa_kanban || 'prospecto') === colId)
+  const clientesPorColumna = (colId: string) => filtered.filter(c => (c.etapa_kanban || 'prospecto') === colId)
   const totalCobrado = clientes.reduce((s, c) => s + (c.total_pagado ?? 0), 0)
   const totalPorCobrar = clientes.reduce((s, c) => s + Math.max(0, (c.monto_acordado ?? 0) - (c.total_pagado ?? 0)), 0)
   const filtered = clientes.filter(c => {
@@ -907,7 +907,7 @@ function ClientesInner() {
             </button>
           ))}
         </div>
-        {vista === 'lista' && (
+        {(vista === 'lista' || vista === 'pipeline') && (
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', flex: 1, minWidth: '700px' }}>
             <input placeholder="Buscar..." value={search} onChange={e => setSearch(e.target.value)}
               style={{ padding: '7px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', width: '130px', minWidth: '100px', outline: 'none' }} />
@@ -939,20 +939,20 @@ function ClientesInner() {
                 onChange={e => { setMostrarArchivados(e.target.checked); if (e.target.checked && userIdRef.current) loadArchivados(userIdRef.current) }} />
               📦 Archivados {clientesArchivados.length > 0 ? `(${clientesArchivados.length})` : ''}
             </label>
-          </div>
-        )}
-        {vista === 'pipeline' && (
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            {[
-              { label: 'Total', value: clientes.length, color: AZUL },
-              { label: 'Cobrado', value: fmtMXN(totalCobrado), color: VERDE },
-              { label: 'Por cobrar', value: fmtMXN(totalPorCobrar), color: '#ef4444' },
-            ].map((k, i) => (
-              <div key={i} style={{ background: '#F4F6FB', borderRadius: '8px', padding: '4px 12px', border: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase' }}>{k.label}</div>
-                <div style={{ fontSize: '13px', fontWeight: '800', color: k.color }}>{k.value}</div>
+            {vista === 'pipeline' && (
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginLeft: 'auto' }}>
+                {[
+                  { label: 'Total', value: filtered.length, color: AZUL },
+                  { label: 'Cobrado', value: fmtMXN(filtered.reduce((s, c) => s + (c.total_pagado ?? 0), 0)), color: VERDE },
+                  { label: 'Por cobrar', value: fmtMXN(filtered.reduce((s, c) => s + Math.max(0, (c.monto_acordado ?? 0) - (c.total_pagado ?? 0)), 0)), color: '#ef4444' },
+                ].map((k, i) => (
+                  <div key={i} style={{ background: '#F4F6FB', borderRadius: '8px', padding: '4px 12px', border: '1px solid #e2e8f0' }}>
+                    <div style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase' }}>{k.label}</div>
+                    <div style={{ fontSize: '13px', fontWeight: '800', color: k.color }}>{k.value}</div>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
         )}
         <div style={{ flex: 1 }} />
