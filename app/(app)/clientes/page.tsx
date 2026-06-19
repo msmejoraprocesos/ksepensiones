@@ -253,6 +253,7 @@ function ClientesInner() {
   const [showGuia, setShowGuia] = useState(false)
   const [materialesSeleccionados, setMaterialesSeleccionados] = useState<string[]>([])
   const [mostrarArchivados, setMostrarArchivados] = useState(false)
+  const [confirmDelPago, setConfirmDelPago] = useState<{ id: string, monto: number } | null>(null)
   const [clientesArchivados, setClientesArchivados] = useState<Cliente[]>([])
   const [loadingArchivados, setLoadingArchivados] = useState(false)
   const [showConfirmEtapa, setShowConfirmEtapa] = useState<{clienteId: string; nombre: string; etapaActual: string; etapaNueva: string} | null>(null)
@@ -677,7 +678,6 @@ function ClientesInner() {
   }
 
   async function eliminarPago(pagoId: string, monto: number) {
-    if (!confirm('¿Eliminar este pago?')) return
     await supabase.from('pagos').delete().eq('id', pagoId)
     setPagos(prev => prev.filter(p => p.id !== pagoId))
     const uid = userIdRef.current
@@ -1756,7 +1756,7 @@ function ClientesInner() {
                                     <input type="file" accept="image/*,.pdf" onChange={e => { const f = e.target.files?.[0]; if (f) uploadComprobantePago(pago.id, f) }} style={{ display: 'none' }} disabled={uploadingComp === pago.id} />
                                   </label>
                                 )}
-                                <button onClick={() => eliminarPago(pago.id, pago.monto)}
+                                <button onClick={() => setConfirmDelPago({ id: pago.id, monto: pago.monto })}
                                   style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: '14px', padding: '4px', flexShrink: 0 }}>🗑️</button>
                               </div>
                             </div>
@@ -1768,6 +1768,29 @@ function ClientesInner() {
                         </div>
                       )}
                     </>
+
+                  {confirmDelPago && (
+                    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+                      onClick={() => setConfirmDelPago(null)}>
+                      <div onClick={e => e.stopPropagation()}
+                        style={{ background: 'white', borderRadius: '12px', padding: '24px', maxWidth: '360px', width: '100%', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}>
+                        <p style={{ fontSize: '15px', fontWeight: '700', color: '#1e293b', margin: '0 0 6px' }}>¿Eliminar este pago?</p>
+                        <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 20px' }}>
+                          Se eliminará el pago de {fmtMXN(confirmDelPago.monto)}. Esta acción no se puede deshacer.
+                        </p>
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                          <button onClick={() => setConfirmDelPago(null)}
+                            style={{ padding: '8px 16px', border: '1.5px solid #e2e8f0', borderRadius: '8px', background: 'white', color: '#64748b', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
+                            Cancelar
+                          </button>
+                          <button onClick={() => { eliminarPago(confirmDelPago.id, confirmDelPago.monto); setConfirmDelPago(null) }}
+                            style={{ padding: '8px 16px', border: 'none', borderRadius: '8px', background: '#ef4444', color: 'white', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>
+                            🗑️ Eliminar
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   )}
                 </div>
               )}
