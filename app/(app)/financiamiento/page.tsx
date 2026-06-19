@@ -305,9 +305,9 @@ function FinanciamientoInner() {
   if (loading) return <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Cargando…</div>
 
   return (
-    <div style={{ minHeight: '100vh', background: FONDO }}>
+    <div style={{ minHeight: '100vh', width: '100%', background: FONDO }}>
       {/* Header */}
-      <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: '12px' }}>
+      <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: '12px', width: '100%', boxSizing: 'border-box' as const }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <h1 style={{ color: AZUL, fontSize: '19px', fontWeight: '800', margin: 0 }}>💳 Financiamiento</h1>
           <div style={{ display: 'flex', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
@@ -328,7 +328,7 @@ function FinanciamientoInner() {
         </div>
       )}
 
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '24px' }}>
+      <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto', padding: '24px', boxSizing: 'border-box' as const }}>
 
         {/* ══ VISTA: LISTA DE CORRIDAS ══ */}
         {vista === 'lista' && (
@@ -354,7 +354,7 @@ function FinanciamientoInner() {
                     {f.estatus === 'autorizado' ? '✅ Autorizado' : '📝 Borrador'}
                   </span>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '8px' }}>
                   {kpiBox('Inversión Mod 40', fmtMXN(f.inversion_mod40_total || 0), `${f.mod40_meses || 0} meses`, 'rojo')}
                   {f.modalidad_pago === 'financiado'
                     ? kpiBox('Descuento mensual', fmtMXN(f.descuento_mensual_pension || 0), `${f.plazo_meses || 0} meses de plazo`, 'naranja')
@@ -375,7 +375,7 @@ function FinanciamientoInner() {
 
             <div style={cardSt}>
               <p style={{ fontSize: '13px', fontWeight: '700', color: AZUL, margin: '0 0 14px' }}>1. Selecciona cliente y diagnóstico</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
                 <div>
                   <label style={labelSt}>Cliente</label>
                   <select style={inputSt} value={clienteSelId} onChange={e => { setClienteSelId(e.target.value); setDiagSelId('') }}>
@@ -457,7 +457,7 @@ function FinanciamientoInner() {
             {diagSel && modalidadPago === 'financiado' && previewCalc && (
               <div style={cardSt}>
                 <p style={{ fontSize: '13px', fontWeight: '700', color: AZUL, margin: '0 0 14px' }}>3. Análisis de la inversión</p>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginBottom: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px', marginBottom: '12px' }}>
                   {kpiBox('Monto del crédito', fmtMXN(previewCalc.montoBanco), `${pctBanco}% del financiador`, 'azul')}
                   {kpiBox('Aportación cliente', fmtMXN(previewCalc.montoCliente), `${100 - pctBanco}% del cliente`, 'gris')}
                   {kpiBox('Costo financiamiento', fmtMXN(previewCalc.costoFinanciamiento), `${tasaMensual}%/mes × 12 meses trámite`, 'naranja')}
@@ -481,7 +481,7 @@ function FinanciamientoInner() {
             {diagSel && modalidadPago === 'contado' && previewContado && (
               <div style={cardSt}>
                 <p style={{ fontSize: '13px', fontWeight: '700', color: AZUL, margin: '0 0 14px' }}>3. Análisis de la inversión (contado)</p>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px' }}>
                   {kpiBox('Inversión total', fmtMXN(diagSel.inversion_mod40 || 0), 'pago único', 'rojo')}
                   {kpiBox('Pensión mensual', fmtMXN(diagSel.pension_con_mod40 || 0), 'sin descuentos', 'verde')}
                   {kpiBox('Recuperación', `${Math.round(previewContado.periodoRecuperacion)} meses`, `~${(previewContado.periodoRecuperacion/12).toFixed(1)} años`, 'azul')}
