@@ -97,6 +97,8 @@ function MiDiaInner() {
 
   // ── MÉTRICAS COMERCIALES ──
   const prospectos = clientes.filter(c => c.etapa_kanban === 'prospecto')
+  const enDiagnostico = clientes.filter(c => c.etapa_kanban === 'diagnostico')
+  const enRecopilacion = clientes.filter(c => c.etapa_kanban === 'recopilacion')
   const pensionados = clientes.filter(c => c.etapa_kanban === 'cierre')
   const enTramite = clientes.filter(c => c.etapa_kanban === 'tramite')
   const clientesActivos = clientes.filter(c => c.etapa_kanban !== 'cancelado')
@@ -227,14 +229,21 @@ function MiDiaInner() {
 
       <div style={{ padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
-        {/* KPIs row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '8px' }}>
+        {/* KPIs row — embudo completo */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px' }}>
           {[
             { label: 'Clientes activos', value: clientesActivos.length.toString(), color: AZUL },
-            { label: 'Prospectos', value: clientes.filter(c => c.etapa_kanban === 'prospecto').length.toString(), sub: 'por contactar', color: AZUL, filled: true },
-            { label: 'En recopilación', value: clientes.filter(c => c.etapa_kanban === 'recopilacion').length.toString(), sub: 'armando expediente', color: '#0d9488', filled: true },
+            { label: 'Prospectos', value: prospectos.length.toString(), sub: 'por contactar', color: AZUL, filled: true },
+            { label: 'En diagnóstico', value: enDiagnostico.length.toString(), sub: 'propuesta enviada', color: '#3b82f6', filled: true },
+            { label: 'En recopilación', value: enRecopilacion.length.toString(), sub: 'armando expediente', color: '#0d9488', filled: true },
             { label: 'En trámite', value: enTramite.length.toString(), color: '#f59e0b' },
             { label: 'Cierres exitosos', value: pensionados.length.toString(), color: VERDE, filled: true },
+          ].map((k, i) => kpi(k.label, k.value, k.sub, k.color, (k as any).filled))}
+        </div>
+
+        {/* KPIs row — financieros */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+          {[
             { label: 'Cobrado hoy', value: fmtMXN(ingresosTotal), color: VERDE },
             { label: 'Por cobrar', value: fmtMXN(porCobrar), color: '#f59e0b' },
             { label: 'Ticket prom.', value: fmtMXN(ticketPromedio), color: AZUL },
