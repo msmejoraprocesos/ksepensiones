@@ -12,11 +12,21 @@ const fmtMXN2 = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency
 interface Financiador {
   id: string
   nombre: string
-  tipo: string
-  tasa_mensual: number
-  plazo_default_meses: number
-  activo: boolean
-  notas: string | null
+  descripcion: string | null
+  logo_url: string | null
+  tasa_anual: number
+  plazo_min: number | null
+  plazo_max: number | null
+  monto_min: number | null
+  monto_max: number | null
+  comision_apertura: number | null
+  comision_porcentaje: number | null
+  seguro_mensual: number | null
+  contacto_nombre: string | null
+  contacto_email: string | null
+  contacto_telefono: string | null
+  activa: boolean
+  orden: number | null
 }
 
 interface ClienteOpt {
@@ -145,13 +155,7 @@ function FinanciamientoInner() {
   const [pctBanco, setPctBanco] = useState(100)
   const [saving, setSaving] = useState(false)
 
-  // Form: nuevo financiador
-  const [showNuevoFinanciador, setShowNuevoFinanciador] = useState(false)
-  const [nfNombre, setNfNombre] = useState('')
-  const [nfTipo, setNfTipo] = useState('banco')
-  const [nfTasa, setNfTasa] = useState(2.55)
-  const [nfPlazo, setNfPlazo] = useState(60)
-  const [nfNotas, setNfNotas] = useState('')
+
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -160,8 +164,8 @@ function FinanciamientoInner() {
 
       const [cliRes, finRes, financiadoresRes] = await Promise.all([
         supabase.from('clientes').select('id, nombre, etapa_kanban').eq('asesor_id', session.user.id).eq('activo', true).order('nombre'),
-        supabase.from('financieras').select('*, clientes(nombre)').eq('asesor_id', session.user.id).order('created_at', { ascending: false }),
-        supabase.from('financiadores').select('*').eq('asesor_id', session.user.id).order('created_at'),
+        supabase.from('financiamientos_corridas').select('*, clientes(nombre)').eq('asesor_id', session.user.id).order('created_at', { ascending: false }),
+        supabase.from('financieras').select('*').order('orden', { ascending: true }),
       ])
       if (cliRes.data) setClientes(cliRes.data)
       if (finRes.data) setFinancieras(finRes.data as any)
@@ -189,27 +193,16 @@ function FinanciamientoInner() {
     setDiagSel(d || null)
   }, [diagSelId, diagnosticosCliente])
 
-  // Cuando se selecciona financiador, traer su tasa default
+  // Cuando se selecciona financiador, traer su tasa (anual -> mensual) y plazo
   useEffect(() => {
     const f = financiadores.find(f => f.id === financiadorSelId)
-    if (f) { setTasaMensual(f.tasa_mensual); setPlazoMeses(f.plazo_default_meses) }
+    if (f) {
+      setTasaMensual(Math.round((f.tasa_anual / 12) * 100) / 100)
+      setPlazoMeses(f.plazo_max || f.plazo_min || 60)
+    }
   }, [financiadorSelId, financiadores])
 
-  async function guardarFinanciador() {
-    if (!nfNombre) { setMensaje('⚠️ Captura el nombre del financiador'); setTimeout(() => setMensaje(''), 3000); return }
-    const { data, error } = await supabase.from('financiadores').insert({
-      asesor_id: userIdRef.current,
-      nombre: nfNombre, tipo: nfTipo, tasa_mensual: nfTasa,
-      plazo_default_meses: nfPlazo, notas: nfNotas || null, activo: true,
-    }).select().single()
-    if (!error && data) {
-      setFinanciadores(prev => [...prev, data])
-      setShowNuevoFinanciador(false)
-      setNfNombre(''); setNfTipo('banco'); setNfTasa(2.55); setNfPlazo(60); setNfNotas('')
-      setMensaje('✓ Financiador agregado al catálogo')
-      setTimeout(() => setMensaje(''), 3000)
-    }
-  }
+
 
   async function guardarCorrida() {
     if (!clienteSelId || !diagSel) { setMensaje('⚠️ Selecciona cliente y diagnóstico'); setTimeout(() => setMensaje(''), 3000); return }
@@ -227,7 +220,7 @@ function FinanciamientoInner() {
       })
     }
 
-    const { data, error } = await supabase.from('financieras').insert({
+    const { data, error } = await supabase.from('financiamientos_corridas').insert({
       asesor_id: userIdRef.current,
       cliente_id: clienteSelId,
       diagnostico_id: diagSel.id,
@@ -438,7 +431,7 @@ function FinanciamientoInner() {
                       <label style={labelSt}>Financiador</label>
                       <select style={inputSt} value={financiadorSelId} onChange={e => setFinanciadorSelId(e.target.value)}>
                         <option value="">Selecciona un financiador (opcional)...</option>
-                        {financiadores.filter(f => f.activo).map(f => <option key={f.id} value={f.id}>{f.nombre} — {f.tasa_mensual}%/mes</option>)}
+                        {financiadores.filter(f => f.activa).map(f => <option key={f.id} value={f.id}>{f.nombre} — {f.tasa_anual}%/año ({Math.round((f.tasa_anual/12)*100)/100}%/mes)</option>)}
                       </select>
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
@@ -507,79 +500,56 @@ function FinanciamientoInner() {
           </div>
         )}
 
-        {/* ══ VISTA: FINANCIADORES ══ */}
+        {/* ══ VISTA: FINANCIADORES (catálogo global) ══ */}
         {vista === 'financiadores' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>Catálogo de bancos, fondeadores y opciones propias para financiar Mod 40</p>
-              <button onClick={() => setShowNuevoFinanciador(true)} style={{ background: AZUL, color: 'white', border: 'none', borderRadius: '8px', padding: '9px 16px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>+ Nuevo financiador</button>
+            <div style={{ padding: '10px 14px', background: '#EEF2F8', border: '1px solid #bfdbfe', borderRadius: '8px', fontSize: '12px', color: '#1e40af' }}>
+              Catálogo global de financiadoras — gestionado centralmente. Para agregar o editar financiadoras contacta al administrador del sistema.
             </div>
 
-            {showNuevoFinanciador && (
-              <div style={cardSt}>
-                <p style={{ fontSize: '13px', fontWeight: '700', color: AZUL, margin: '0 0 14px' }}>Nuevo financiador</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px', marginBottom: '12px' }}>
-                  <div>
-                    <label style={labelSt}>Nombre</label>
-                    <input style={inputSt} value={nfNombre} onChange={e => setNfNombre(e.target.value)} placeholder="Ej. Banco Regulado XYZ" />
-                  </div>
-                  <div>
-                    <label style={labelSt}>Tipo</label>
-                    <select style={inputSt} value={nfTipo} onChange={e => setNfTipo(e.target.value)}>
-                      <option value="banco">Banco regulado</option>
-                      <option value="fondeador">Fondeador / segundo fondeador</option>
-                      <option value="propio">Cuenta propia del cliente</option>
-                    </select>
-                  </div>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginBottom: '12px' }}>
-                  <div>
-                    <label style={labelSt}>Tasa mensual (%)</label>
-                    <input type="number" step="0.01" style={inputSt} value={nfTasa} onChange={e => setNfTasa(parseFloat(e.target.value) || 0)} />
-                  </div>
-                  <div>
-                    <label style={labelSt}>Plazo default (meses)</label>
-                    <input type="number" style={inputSt} value={nfPlazo} onChange={e => setNfPlazo(parseInt(e.target.value) || 0)} />
-                  </div>
-                </div>
-                <div style={{ marginBottom: '14px' }}>
-                  <label style={labelSt}>Notas (opcional)</label>
-                  <input style={inputSt} value={nfNotas} onChange={e => setNfNotas(e.target.value)} placeholder="Requisitos, contacto, condiciones especiales..." />
-                </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <button onClick={() => setShowNuevoFinanciador(false)} style={{ padding: '10px 18px', border: '1.5px solid #e2e8f0', borderRadius: '8px', background: 'white', color: '#64748b', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>Cancelar</button>
-                  <button onClick={guardarFinanciador} style={{ padding: '10px 18px', border: 'none', borderRadius: '8px', background: AZUL, color: 'white', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>Guardar financiador</button>
-                </div>
-              </div>
-            )}
-
-            {financiadores.length === 0 && !showNuevoFinanciador && (
+            {financiadores.length === 0 && (
               <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94a3b8' }}>
                 <div style={{ fontSize: '32px', marginBottom: '10px' }}>🏦</div>
-                Aún no has agregado financiadores al catálogo
+                No hay financiadoras activas en el catálogo
               </div>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '12px' }}>
               {financiadores.map(f => (
                 <div key={f.id} style={cardSt}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                    <p style={{ fontSize: '14px', fontWeight: '700', color: AZUL, margin: 0 }}>{f.nombre}</p>
-                    <span style={{ fontSize: '9px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px', background: '#EEF2F8', color: AZUL, textTransform: 'uppercase' }}>
-                      {f.tipo === 'banco' ? 'Banco' : f.tipo === 'fondeador' ? 'Fondeador' : 'Propio'}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                    {f.logo_url && <img src={f.logo_url} alt="" style={{ width: '32px', height: '32px', borderRadius: '6px', objectFit: 'contain' as const }} />}
                     <div>
-                      <p style={{ fontSize: '9px', color: '#94a3b8', margin: '0 0 2px' }}>TASA MENSUAL</p>
-                      <p style={{ fontSize: '15px', fontWeight: '700', color: NARANJA, margin: 0 }}>{f.tasa_mensual}%</p>
-                    </div>
-                    <div>
-                      <p style={{ fontSize: '9px', color: '#94a3b8', margin: '0 0 2px' }}>PLAZO DEFAULT</p>
-                      <p style={{ fontSize: '15px', fontWeight: '700', color: AZUL, margin: 0 }}>{f.plazo_default_meses}m</p>
+                      <p style={{ fontSize: '14px', fontWeight: '700', color: AZUL, margin: 0 }}>{f.nombre}</p>
+                      {f.descripcion && <p style={{ fontSize: '10px', color: '#94a3b8', margin: '2px 0 0' }}>{f.descripcion}</p>}
                     </div>
                   </div>
-                  {f.notas && <p style={{ fontSize: '11px', color: '#64748b', margin: '8px 0 0', lineHeight: 1.5 }}>{f.notas}</p>}
+                  <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' as const, marginBottom: '8px' }}>
+                    <div>
+                      <p style={{ fontSize: '9px', color: '#94a3b8', margin: '0 0 2px' }}>TASA ANUAL</p>
+                      <p style={{ fontSize: '15px', fontWeight: '700', color: NARANJA, margin: 0 }}>{f.tasa_anual}%</p>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '9px', color: '#94a3b8', margin: '0 0 2px' }}>TASA MENSUAL APROX.</p>
+                      <p style={{ fontSize: '15px', fontWeight: '700', color: AZUL, margin: 0 }}>{Math.round((f.tasa_anual/12)*100)/100}%</p>
+                    </div>
+                    {f.plazo_max && (
+                      <div>
+                        <p style={{ fontSize: '9px', color: '#94a3b8', margin: '0 0 2px' }}>PLAZO</p>
+                        <p style={{ fontSize: '15px', fontWeight: '700', color: '#374151', margin: 0 }}>{f.plazo_min || 1}-{f.plazo_max}m</p>
+                      </div>
+                    )}
+                  </div>
+                  {(f.comision_apertura || f.comision_porcentaje) && (
+                    <p style={{ fontSize: '10px', color: '#92400e', margin: '0 0 4px' }}>
+                      Comisión: {f.comision_apertura ? fmtMXN(f.comision_apertura) : ''}{f.comision_porcentaje ? ` (${f.comision_porcentaje}%)` : ''}
+                    </p>
+                  )}
+                  {f.contacto_nombre && (
+                    <p style={{ fontSize: '11px', color: '#64748b', margin: '6px 0 0', paddingTop: '6px', borderTop: '1px solid #f1f5f9' }}>
+                      📞 {f.contacto_nombre} {f.contacto_telefono ? `· ${f.contacto_telefono}` : ''}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
