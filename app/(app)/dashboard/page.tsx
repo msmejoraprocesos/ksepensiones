@@ -227,7 +227,7 @@ function MiDiaInner() {
             { label: 'En recopilación', value: clientes.filter(c => c.etapa_kanban === 'recopilacion').length.toString(), sub: 'armando expediente', color: '#0d9488', filled: true },
             { label: 'En trámite', value: enTramite.length.toString(), color: '#f59e0b' },
             { label: 'Cierres exitosos', value: pensionados.length.toString(), color: VERDE, filled: true },
-            { label: 'Ingresos', value: fmtMXN(ingresosTotal), color: VERDE },
+            { label: 'Cobrado hoy', value: fmtMXN(ingresosTotal), color: VERDE },
             { label: 'Por cobrar', value: fmtMXN(porCobrar), color: '#f59e0b' },
             { label: 'Ticket prom.', value: fmtMXN(ticketPromedio), color: AZUL },
           ].map((k, i) => kpi(k.label, k.value, k.sub, k.color, (k as any).filled))}
