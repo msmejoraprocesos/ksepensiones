@@ -932,11 +932,10 @@ function ClientesInner() {
                 ✕ Limpiar
               </button>
             )}
-            <div style={{ flex: 1 }} />
-            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748b', cursor: 'pointer', userSelect: 'none' as const }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748b', cursor: 'pointer', userSelect: 'none' as const, padding: '7px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', background: mostrarArchivados ? '#F4F6FB' : 'white', flexShrink: 0 }}>
               <input type="checkbox" checked={mostrarArchivados}
                 onChange={e => { setMostrarArchivados(e.target.checked); if (e.target.checked && userIdRef.current) loadArchivados(userIdRef.current) }} />
-              📦 Mostrar archivados {clientesArchivados.length > 0 ? `(${clientesArchivados.length})` : ''}
+              📦 Archivados {clientesArchivados.length > 0 ? `(${clientesArchivados.length})` : ''}
             </label>
           </div>
         )}
