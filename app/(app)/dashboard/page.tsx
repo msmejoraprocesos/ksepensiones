@@ -22,6 +22,7 @@ function MiDiaInner() {
 
   const [clientes, setClientes] = useState<any[]>([])
   const [pagos, setPagos] = useState<any[]>([])
+  const [pgErrorMsg, setPgErrorMsg] = useState<string | null>(null)
   const [diagnosticos, setDiagnosticos] = useState<any[]>([])
   const [actividades, setActividades] = useState<any[]>([])
   const [financieras, setFinancieras] = useState<any[]>([])
@@ -44,15 +45,20 @@ function MiDiaInner() {
 
     const [{ data: cl }, { data: pg, error: pgError }, { data: dg }, { data: act }, { data: fin }, { data: solf }] = await Promise.all([
       supabase.from('clientes').select('*').eq('asesor_id', uid),
-      supabase.from('pagos').select('*, clientes(nombre, servicio_contratado, etapa_kanban)').eq('asesor_id', uid),
+      supabase.from('pagos').select('*').eq('asesor_id', uid),
       supabase.from('diagnosticos').select('*').eq('asesor_id', uid),
       supabase.from('actividades').select('*, clientes(nombre)').eq('asesor_id', uid),
       supabase.from('financieras').select('*').eq('activa', true),
       supabase.from('solicitudes_financiamiento').select('*, financieras(nombre)').eq('asesor_id', uid),
     ])
     setClientes(cl ?? [])
-    if (pgError) console.error('🔴 Error cargando pagos:', pgError)
-    console.log('🔍 DIAGNÓSTICO pagos:', (pg ?? []).map(p => ({ monto: p.monto, tipo_monto: typeof p.monto, fecha_pago: p.fecha_pago, cliente_id: p.cliente_id })))
+    if (pgError) {
+      console.error('🔴 Error cargando pagos:', pgError)
+      setPgErrorMsg(`${pgError.message}${pgError.hint ? ' | hint: ' + pgError.hint : ''}${pgError.code ? ' | code: ' + pgError.code : ''}`)
+    } else {
+      setPgErrorMsg(null)
+    }
+    console.log('🔍 DIAGNÓSTICO pagos:', { pgError, count: (pg ?? []).length, sample: (pg ?? []).map(p => ({ monto: p.monto, tipo_monto: typeof p.monto, fecha_pago: p.fecha_pago, cliente_id: p.cliente_id })) })
     setPagos(pg ?? [])
     setDiagnosticos(dg ?? [])
     setActividades(act ?? [])
@@ -81,9 +87,13 @@ function MiDiaInner() {
   // ── MÉTRICAS FINANCIERAS ──
   // Number(p.monto) por si Supabase devuelve la columna numeric/decimal como string (gotcha clásico de PostgREST)
   const ingresosTotal = pagosPeriodo.reduce((s, p) => s + (Number(p.monto) || 0), 0)
-  const ingresosAsesoria = pagosPeriodo.filter(p => p.clientes?.servicio_contratado === 'Diagnóstico').reduce((s, p) => s + (Number(p.monto) || 0), 0)
-  const ingresosGestoria = pagosPeriodo.filter(p => p.clientes?.servicio_contratado === 'Trámite').reduce((s, p) => s + (Number(p.monto) || 0), 0)
-  const ingresosCombo = pagosPeriodo.filter(p => p.clientes?.servicio_contratado === 'Combo').reduce((s, p) => s + (Number(p.monto) || 0), 0)
+  const servicioPorCliente = clientes.reduce((acc: Record<string, string>, c: any) => {
+    acc[c.id] = c.servicio_contratado
+    return acc
+  }, {} as Record<string, string>)
+  const ingresosAsesoria = pagosPeriodo.filter(p => servicioPorCliente[p.cliente_id] === 'Diagnóstico').reduce((s, p) => s + (Number(p.monto) || 0), 0)
+  const ingresosGestoria = pagosPeriodo.filter(p => servicioPorCliente[p.cliente_id] === 'Trámite').reduce((s, p) => s + (Number(p.monto) || 0), 0)
+  const ingresosCombo = pagosPeriodo.filter(p => servicioPorCliente[p.cliente_id] === 'Combo').reduce((s, p) => s + (Number(p.monto) || 0), 0)
   const comisionesFinancieras = solicitudes.filter(s => s.aprobada && new Date(s.created_at) >= start).reduce((sum, s) => sum + (Number(s.comision_cobrada) || 0), 0)
   const ingresosConComisiones = ingresosTotal + comisionesFinancieras
   const clientesUnicos = new Set(pagosPeriodo.map(p => p.cliente_id)).size
@@ -232,6 +242,7 @@ function MiDiaInner() {
         {/* 🔍 PANEL TEMPORAL DE DIAGNÓSTICO — quitar una vez resuelto el bug de Cobrado hoy */}
         <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px', padding: '10px 14px', fontSize: '11px', fontFamily: 'monospace', color: '#7c2d12', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
           {`DEBUG → pagos totales: ${pagos.length} | pagosPeriodo (${filtroPeriodo}): ${pagosPeriodo.length} | start: ${start.toISOString()}\n` +
+            `ERROR query pagos: ${pgErrorMsg ?? 'ninguno'}\n` +
             pagos.map(p => `  · monto=${p.monto} (${typeof p.monto}) | fecha_pago=${p.fecha_pago} | cliente_id=${p.cliente_id} | dentro_periodo=${new Date(p.fecha_pago) >= start}`).join('\n')}
         </div>
 
