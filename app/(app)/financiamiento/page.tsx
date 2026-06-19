@@ -305,15 +305,15 @@ function FinanciamientoInner() {
   if (loading) return <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>Cargando…</div>
 
   return (
-    <div style={{ minHeight: '100vh', width: '100%', background: FONDO }}>
+    <div style={{ display: 'flex', flexDirection: 'column' as const, height: 'calc(100vh - 56px)', width: '100%', background: FONDO, overflow: 'hidden' }}>
       {/* Header */}
-      <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: '12px', width: '100%', boxSizing: 'border-box' as const }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <h1 style={{ color: AZUL, fontSize: '19px', fontWeight: '800', margin: 0 }}>💳 Financiamiento</h1>
-          <div style={{ display: 'flex', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
+      <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '12px 24px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: '12px', width: '100%', boxSizing: 'border-box' as const }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' as const }}>
+          <h1 style={{ color: AZUL, fontSize: '19px', fontWeight: '800', margin: 0, flexShrink: 0 }}>Financiamiento</h1>
+          <div style={{ display: 'flex', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', flexShrink: 0 }}>
             {(['lista', 'nueva', 'financiadores'] as const).map(v => (
               <button key={v} onClick={() => setVista(v)}
-                style={{ padding: '7px 14px', background: vista === v ? AZUL : 'white', color: vista === v ? 'white' : '#64748b', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>
+                style={{ padding: '7px 14px', whiteSpace: 'nowrap' as const, background: vista === v ? AZUL : 'white', color: vista === v ? 'white' : '#64748b', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>
                 {v === 'lista' ? '📋 Corridas' : v === 'nueva' ? '+ Nueva corrida' : '🏦 Financiadores'}
               </button>
             ))}
@@ -328,7 +328,8 @@ function FinanciamientoInner() {
         </div>
       )}
 
-      <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto', padding: '24px', boxSizing: 'border-box' as const }}>
+      <div style={{ flex: 1, overflow: 'auto', width: '100%', padding: '24px', boxSizing: 'border-box' as const }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
 
         {/* ══ VISTA: LISTA DE CORRIDAS ══ */}
         {vista === 'lista' && (
@@ -556,6 +557,7 @@ function FinanciamientoInner() {
           </div>
         )}
 
+        </div>
       </div>
     </div>
   )
