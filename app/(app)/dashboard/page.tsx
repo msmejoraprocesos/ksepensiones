@@ -42,7 +42,7 @@ function MiDiaInner() {
     const { data: perfil } = await supabase.from('perfiles_usuario').select('nombre, razon_social').eq('id', uid).single()
     setNombreAsesor(perfil?.razon_social || perfil?.nombre || 'Asesor')
 
-    const [{ data: cl }, { data: pg }, { data: dg }, { data: act }, { data: fin }, { data: solf }] = await Promise.all([
+    const [{ data: cl }, { data: pg, error: pgError }, { data: dg }, { data: act }, { data: fin }, { data: solf }] = await Promise.all([
       supabase.from('clientes').select('*').eq('asesor_id', uid),
       supabase.from('pagos').select('*, clientes(nombre, servicio_contratado, etapa_kanban)').eq('asesor_id', uid),
       supabase.from('diagnosticos').select('*').eq('asesor_id', uid),
@@ -50,6 +50,7 @@ function MiDiaInner() {
       supabase.from('financieras').select('*').eq('activa', true),
       supabase.from('solicitudes_financiamiento').select('*, financieras(nombre)').eq('asesor_id', uid),
     ])
+    console.log('🔍 DEBUG pagos query:', { uid, pagosCount: pg?.length, pagos: pg, pgError })
     setClientes(cl ?? [])
     setPagos(pg ?? [])
     setDiagnosticos(dg ?? [])
