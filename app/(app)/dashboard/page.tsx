@@ -91,13 +91,16 @@ function MiDiaInner() {
   // ── MÉTRICAS FINANCIERAS ──
   // Number(p.monto) por si Supabase devuelve la columna numeric/decimal como string (gotcha clásico de PostgREST)
   const ingresosTotal = pagosPeriodo.reduce((s, p) => s + (Number(p.monto) || 0), 0)
+  // tipo_servicio (no servicio_contratado) es el campo real que usa la página Clientes: asesoria | gestion | financiamiento | gestoria_global
   const servicioPorCliente = clientes.reduce((acc: Record<string, string>, c: any) => {
-    acc[c.id] = c.servicio_contratado
+    acc[c.id] = c.tipo_servicio
     return acc
   }, {} as Record<string, string>)
-  const ingresosAsesoria = pagosPeriodo.filter(p => servicioPorCliente[p.cliente_id] === 'Diagnóstico').reduce((s, p) => s + (Number(p.monto) || 0), 0)
-  const ingresosGestoria = pagosPeriodo.filter(p => servicioPorCliente[p.cliente_id] === 'Trámite').reduce((s, p) => s + (Number(p.monto) || 0), 0)
-  const ingresosCombo = pagosPeriodo.filter(p => servicioPorCliente[p.cliente_id] === 'Combo').reduce((s, p) => s + (Number(p.monto) || 0), 0)
+  const ingresosAsesoria = pagosPeriodo.filter(p => servicioPorCliente[p.cliente_id] === 'asesoria').reduce((s, p) => s + (Number(p.monto) || 0), 0)
+  const ingresosGestoria = pagosPeriodo.filter(p => servicioPorCliente[p.cliente_id] === 'gestion').reduce((s, p) => s + (Number(p.monto) || 0), 0)
+  const ingresosFinanciamiento = pagosPeriodo.filter(p => servicioPorCliente[p.cliente_id] === 'financiamiento').reduce((s, p) => s + (Number(p.monto) || 0), 0)
+  const ingresosGestoriaGlobal = pagosPeriodo.filter(p => servicioPorCliente[p.cliente_id] === 'gestoria_global').reduce((s, p) => s + (Number(p.monto) || 0), 0)
+  const ingresosSinClasificar = pagosPeriodo.filter(p => !['asesoria','gestion','financiamiento','gestoria_global'].includes(servicioPorCliente[p.cliente_id])).reduce((s, p) => s + (Number(p.monto) || 0), 0)
   const comisionesFinancieras = solicitudes.filter(s => s.aprobada && new Date(s.created_at) >= start).reduce((sum, s) => sum + (Number(s.comision_cobrada) || 0), 0)
   const ingresosConComisiones = ingresosTotal + comisionesFinancieras
   const clientesUnicos = new Set(pagosPeriodo.map(p => p.cliente_id)).size
@@ -277,10 +280,12 @@ function MiDiaInner() {
               {/* Donut grande */}
               {(() => {
                 const items = [
-                  { label: 'Asesorías / Diagnóstico', value: ingresosAsesoria, color: AZUL },
-                  { label: 'Honorarios Gestoría', value: ingresosGestoria, color: VERDE },
-                  { label: 'Combo', value: ingresosCombo, color: '#8b5cf6' },
+                  { label: 'Asesoría', value: ingresosAsesoria, color: AZUL },
+                  { label: 'Trámite de Pensión', value: ingresosGestoria, color: VERDE },
+                  { label: 'Financiamiento', value: ingresosFinanciamiento, color: '#eab308' },
+                  { label: 'Gestoría Global', value: ingresosGestoriaGlobal, color: '#8b5cf6' },
                   { label: 'Comisiones Financieras', value: comisionesFinancieras, color: NARANJA },
+                  { label: 'Sin clasificar', value: ingresosSinClasificar, color: '#94a3b8' },
                 ]
                 const total = items.reduce((s, it) => s + it.value, 0)
                 const R = 42, CIRC = 2 * Math.PI * R
@@ -309,10 +314,12 @@ function MiDiaInner() {
               {/* Leyenda en 2x2 */}
               <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 14px' }}>
                 {[
-                  { label: 'Asesorías / Diagnóstico', value: ingresosAsesoria, color: AZUL },
-                  { label: 'Honorarios Gestoría', value: ingresosGestoria, color: VERDE },
-                  { label: 'Combo', value: ingresosCombo, color: '#8b5cf6' },
+                  { label: 'Asesoría', value: ingresosAsesoria, color: AZUL },
+                  { label: 'Trámite de Pensión', value: ingresosGestoria, color: VERDE },
+                  { label: 'Financiamiento', value: ingresosFinanciamiento, color: '#eab308' },
+                  { label: 'Gestoría Global', value: ingresosGestoriaGlobal, color: '#8b5cf6' },
                   { label: 'Comisiones Financieras', value: comisionesFinancieras, color: NARANJA },
+                  { label: 'Sin clasificar', value: ingresosSinClasificar, color: '#94a3b8' },
                 ].map((item, i) => (
                   <div key={i}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
