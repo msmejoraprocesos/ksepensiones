@@ -101,7 +101,10 @@ function MiDiaInner() {
   const comisionesFinancieras = solicitudes.filter(s => s.aprobada && new Date(s.created_at) >= start).reduce((sum, s) => sum + (Number(s.comision_cobrada) || 0), 0)
   const ingresosConComisiones = ingresosTotal + comisionesFinancieras
   const clientesUnicos = new Set(pagosPeriodo.map(p => p.cliente_id)).size
-  const ticketPromedio = clientesUnicos > 0 ? ingresosTotal / clientesUnicos : 0
+  // Ticket promedio = monto acordado promedio de todos los servicios con costo (independiente del periodo Mes/Trimestre/Año)
+  const clientesConCosto = clientesFiltrados.filter(c => (c.monto_acordado || 0) > 0)
+  const ticketPromedio = clientesConCosto.length > 0
+    ? clientesConCosto.reduce((s, c) => s + (c.monto_acordado || 0), 0) / clientesConCosto.length : 0
   // total_pagado no es una columna real en `clientes`; se calcula sumando todos los pagos por cliente
   const totalPagadoPorCliente = pagos.reduce((acc: Record<string, number>, p: any) => {
     acc[p.cliente_id] = (acc[p.cliente_id] ?? 0) + (Number(p.monto) || 0)
