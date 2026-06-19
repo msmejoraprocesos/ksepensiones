@@ -70,7 +70,7 @@ function tieneEsquemaDefinido(cliente: Cliente): boolean {
   }
 }
 
-function puedeMoverse(desde: string, hacia: string, cliente?: Cliente): { ok: boolean; razon?: string } {
+function puedeMoverse(desde: string, hacia: string, cliente?: Cliente, tieneDiagnostico?: boolean): { ok: boolean; razon?: string } {
   if (desde === hacia) return { ok: false }
   const colDesde = COLUMNAS.find(c => c.id === desde)
   const colHacia = COLUMNAS.find(c => c.id === hacia)
@@ -82,6 +82,11 @@ function puedeMoverse(desde: string, hacia: string, cliente?: Cliente): { ok: bo
 
   // Cancelado siempre permitido desde cualquier etapa no final (requiere nota, validado en UI)
   if (hacia === 'cancelado') return { ok: true }
+
+  // No se puede pasar de Diagnóstico a Recopilación sin al menos un diagnóstico (aunque sea borrador)
+  if (desde === 'diagnostico' && hacia === 'recopilacion' && !tieneDiagnostico) {
+    return { ok: false, razon: 'Este cliente no tiene ningún diagnóstico (ni borrador). Genera uno antes de avanzar a Recopilación.' }
+  }
 
   const esAsesoria = cliente?.tipo_servicio === 'asesoria'
 
@@ -236,6 +241,7 @@ function ClientesInner() {
   // Expediente
   const [selected, setSelected] = useState<Cliente | null>(null)
   const [diagnosticos, setDiagnosticos] = useState<Diagnostico[]>([])
+  const [clientesConDiagnostico, setClientesConDiagnostico] = useState<Set<string>>(new Set())
   const [actividades, setActividades] = useState<Actividad[]>([])
   const [pagos, setPagos] = useState<Pago[]>([])
   const [servicios, setServicios] = useState<Servicio[]>([])
@@ -369,6 +375,9 @@ function ClientesInner() {
     pagosData?.forEach((p: any) => { totales[p.cliente_id] = (totales[p.cliente_id] ?? 0) + p.monto })
     const clientesConPago = data.map((c: any) => ({ ...c, total_pagado: totales[c.id] ?? 0 }))
     setClientes(clientesConPago as Cliente[])
+    // Set de clientes con al menos un diagnóstico (incluye borradores) — necesario para validar el paso Diagnóstico → Recopilación
+    const { data: diagIds } = await supabase.from('diagnosticos').select('cliente_id').eq('asesor_id', uid)
+    setClientesConDiagnostico(new Set((diagIds ?? []).map((d: any) => d.cliente_id)))
     setLoading(false)
   }
 
@@ -1074,7 +1083,8 @@ function ClientesInner() {
             {COLUMNAS.map(col => {
               const cards = clientesPorColumna(col.id)
               const isDragOver = dragOver === col.id
-              const canDrop = dragging ? puedeMoverse(clientes.find(c => c.id === dragging)?.etapa_kanban ?? 'prospecto', col.id, clientes.find(c => c.id === dragging)).ok : true
+              const draggingCliente = dragging ? clientes.find(c => c.id === dragging) : undefined
+              const canDrop = dragging ? puedeMoverse(draggingCliente?.etapa_kanban ?? 'prospecto', col.id, draggingCliente, draggingCliente ? clientesConDiagnostico.has(draggingCliente.id) : false).ok : true
               return (
                 <div key={col.id}
                   onDragOver={e => { e.preventDefault(); if (canDrop) setDragOver(col.id) }}
@@ -1084,7 +1094,7 @@ function ClientesInner() {
                       const cliente = clientes.find(c => c.id === dragging)
                       if (cliente) {
                         const etapaActual = cliente.etapa_kanban ?? 'prospecto'
-                        const check = puedeMoverse(etapaActual, col.id, cliente)
+                        const check = puedeMoverse(etapaActual, col.id, cliente, clientesConDiagnostico.has(cliente.id))
                         if (check.ok) {
                           setShowConfirmEtapa({ clienteId: cliente.id, nombre: cliente.nombre, etapaActual, etapaNueva: col.id })
                         } else if (check.razon) {
@@ -1191,7 +1201,7 @@ function ClientesInner() {
                     const nuevaEtapa = e.target.value
                     const etapaActual = selected.etapa_kanban || 'prospecto'
                     if (nuevaEtapa === etapaActual) return
-                    const check = puedeMoverse(etapaActual, nuevaEtapa, selected)
+                    const check = puedeMoverse(etapaActual, nuevaEtapa, selected, diagnosticos.length > 0)
                     if (check.ok) {
                       setShowConfirmEtapa({ clienteId: selected.id, nombre: selected.nombre, etapaActual, etapaNueva: nuevaEtapa })
                     } else if (check.razon) {
