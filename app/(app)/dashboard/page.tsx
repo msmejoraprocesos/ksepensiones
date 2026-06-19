@@ -50,7 +50,6 @@ function MiDiaInner() {
       supabase.from('financieras').select('*').eq('activa', true),
       supabase.from('solicitudes_financiamiento').select('*, financieras(nombre)').eq('asesor_id', uid),
     ])
-    console.log('🔍 DEBUG pagos query:', { uid, pagosCount: pg?.length, pagos: pg, pgError })
     setClientes(cl ?? [])
     setPagos(pg ?? [])
     setDiagnosticos(dg ?? [])
@@ -86,7 +85,12 @@ function MiDiaInner() {
   const ingresosConComisiones = ingresosTotal + comisionesFinancieras
   const clientesUnicos = new Set(pagosPeriodo.map(p => p.cliente_id)).size
   const ticketPromedio = clientesUnicos > 0 ? ingresosTotal / clientesUnicos : 0
-  const porCobrar = clientes.reduce((s, c) => s + Math.max(0, (c.monto_acordado || 0) - (c.total_pagado || 0)), 0)
+  // total_pagado no es una columna real en `clientes`; se calcula sumando todos los pagos por cliente
+  const totalPagadoPorCliente = pagos.reduce((acc: Record<string, number>, p: any) => {
+    acc[p.cliente_id] = (acc[p.cliente_id] ?? 0) + p.monto
+    return acc
+  }, {} as Record<string, number>)
+  const porCobrar = clientes.reduce((s, c) => s + Math.max(0, (c.monto_acordado || 0) - (totalPagadoPorCliente[c.id] ?? 0)), 0)
 
   // ── MÉTRICAS COMERCIALES ──
   const prospectos = clientes.filter(c => c.etapa_kanban === 'prospecto')

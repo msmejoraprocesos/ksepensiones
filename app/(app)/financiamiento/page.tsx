@@ -329,7 +329,7 @@ function FinanciamientoInner() {
       )}
 
       <div style={{ flex: 1, overflow: 'auto', width: '100%', padding: '24px', boxSizing: 'border-box' as const }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <div style={{ width: '100%' }}>
 
         {/* ══ VISTA: LISTA DE CORRIDAS ══ */}
         {vista === 'lista' && (
