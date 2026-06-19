@@ -51,6 +51,8 @@ function MiDiaInner() {
       supabase.from('solicitudes_financiamiento').select('*, financieras(nombre)').eq('asesor_id', uid),
     ])
     setClientes(cl ?? [])
+    if (pgError) console.error('🔴 Error cargando pagos:', pgError)
+    console.log('🔍 DIAGNÓSTICO pagos:', (pg ?? []).map(p => ({ monto: p.monto, tipo_monto: typeof p.monto, fecha_pago: p.fecha_pago, cliente_id: p.cliente_id })))
     setPagos(pg ?? [])
     setDiagnosticos(dg ?? [])
     setActividades(act ?? [])
