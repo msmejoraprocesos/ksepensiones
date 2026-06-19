@@ -894,7 +894,7 @@ function ClientesInner() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)', background: '#F4F6FB', overflow: 'hidden' }}>
       {/* Header */}
-      <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '10px 20px', flexShrink: 0, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px' }}>
+      <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '10px 20px', flexShrink: 0, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px', rowGap: '8px' }}>
         {/* Fila 1: título + toggle vista + botones principales */}
         <h1 style={{ color: AZUL, fontSize: '18px', fontWeight: '800', margin: 0, flexShrink: 0 }}>Clientes</h1>
         <div style={{ display: 'flex', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', flexShrink: 0 }}>
@@ -908,19 +908,19 @@ function ClientesInner() {
         {vista === 'lista' && (
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', flex: 1, minWidth: '200px' }}>
             <input placeholder="Buscar..." value={search} onChange={e => setSearch(e.target.value)}
-              style={{ padding: '7px 14px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', width: '160px', minWidth: '120px', outline: 'none' }} />
+              style={{ padding: '7px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', width: '130px', minWidth: '100px', outline: 'none' }} />
             <select value={filtroEtapa} onChange={e => setFiltroEtapa(e.target.value)}
-              style={{ padding: '7px 10px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', outline: 'none', background: 'white', color: filtroEtapa ? '#374151' : '#94a3b8' }}>
+              style={{ padding: '7px 8px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '11px', outline: 'none', background: 'white', color: filtroEtapa ? '#374151' : '#94a3b8', maxWidth: '125px' }}>
               <option value="">Todas las etapas</option>
               {COLUMNAS.map(col => <option key={col.id} value={col.id}>{col.label}</option>)}
             </select>
             <select value={filtroServicio} onChange={e => setFiltroServicio(e.target.value)}
-              style={{ padding: '7px 10px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', outline: 'none', background: 'white', color: filtroServicio ? '#374151' : '#94a3b8' }}>
+              style={{ padding: '7px 8px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '11px', outline: 'none', background: 'white', color: filtroServicio ? '#374151' : '#94a3b8', maxWidth: '125px' }}>
               <option value="">Todos los servicios</option>
               {TIPOS_SERVICIO.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
             </select>
             <select value={filtroPago} onChange={e => setFiltroPago(e.target.value)}
-              style={{ padding: '7px 10px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', outline: 'none', background: 'white', color: filtroPago ? '#374151' : '#94a3b8' }}>
+              style={{ padding: '7px 8px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '11px', outline: 'none', background: 'white', color: filtroPago ? '#374151' : '#94a3b8', maxWidth: '115px' }}>
               <option value="">Todos los pagos</option>
               <option value="Pendiente">🔴 Pendiente</option>
               <option value="Parcial">🟡 Parcial</option>
@@ -932,7 +932,7 @@ function ClientesInner() {
                 ✕ Limpiar
               </button>
             )}
-            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748b', cursor: 'pointer', userSelect: 'none' as const, padding: '7px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', background: mostrarArchivados ? '#F4F6FB' : 'white', flexShrink: 0 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748b', cursor: 'pointer', userSelect: 'none' as const, padding: '7px 10px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '11px', background: mostrarArchivados ? '#F4F6FB' : 'white', flexShrink: 0 }}>
               <input type="checkbox" checked={mostrarArchivados}
                 onChange={e => { setMostrarArchivados(e.target.checked); if (e.target.checked && userIdRef.current) loadArchivados(userIdRef.current) }} />
               📦 Archivados {clientesArchivados.length > 0 ? `(${clientesArchivados.length})` : ''}
