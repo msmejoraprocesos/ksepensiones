@@ -156,7 +156,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                   }}>
-                    <span style={{ fontSize: '14px', flexShrink: 0 }}>{item.icon}</span>
+                    <span style={{ fontSize: '14px', flexShrink: 0, width: '16px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{item.icon}</span>
                     {!collapsed && <span>{item.label}</span>}
                   </div>
                 </Link>
