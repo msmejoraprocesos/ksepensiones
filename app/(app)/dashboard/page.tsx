@@ -58,7 +58,6 @@ function MiDiaInner() {
     } else {
       setPgErrorMsg(null)
     }
-    console.log('🔍 DIAGNÓSTICO pagos:', { pgError, count: (pg ?? []).length, sample: (pg ?? []).map(p => ({ monto: p.monto, tipo_monto: typeof p.monto, fecha_pago: p.fecha_pago, cliente_id: p.cliente_id })) })
     setPagos(pg ?? [])
     setDiagnosticos(dg ?? [])
     setActividades(act ?? [])
@@ -238,13 +237,6 @@ function MiDiaInner() {
       </div>
 
       <div style={{ padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-
-        {/* 🔍 PANEL TEMPORAL DE DIAGNÓSTICO — quitar una vez resuelto el bug de Cobrado hoy */}
-        <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px', padding: '10px 14px', fontSize: '11px', fontFamily: 'monospace', color: '#7c2d12', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
-          {`DEBUG → pagos totales: ${pagos.length} | pagosPeriodo (${filtroPeriodo}): ${pagosPeriodo.length} | start: ${start.toISOString()}\n` +
-            `ERROR query pagos: ${pgErrorMsg ?? 'ninguno'}\n` +
-            pagos.map(p => `  · monto=${p.monto} (${typeof p.monto}) | fecha_pago=${p.fecha_pago} | cliente_id=${p.cliente_id} | dentro_periodo=${new Date(p.fecha_pago) >= start}`).join('\n')}
-        </div>
 
         {/* KPIs row — embudo completo */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px' }}>
