@@ -247,7 +247,7 @@ function MiDiaInner() {
             { label: 'Cobrado hoy', value: fmtMXN(ingresosTotal), color: VERDE },
             { label: 'Por cobrar', value: fmtMXN(porCobrar), color: '#f59e0b' },
             { label: 'Ticket prom.', value: fmtMXN(ticketPromedio), color: AZUL },
-          ].map((k, i) => kpi(k.label, k.value, k.sub, k.color, (k as any).filled))}
+          ].map((k: any, i) => kpi(k.label, k.value, k.sub, k.color, k.filled))}
         </div>
 
         {/* Row 2: Financiero + Comercial + Agenda */}
