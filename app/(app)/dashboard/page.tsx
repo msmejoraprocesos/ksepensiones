@@ -75,13 +75,18 @@ function MiDiaInner() {
   }
 
   const start = getStart()
-  const pagosPeriodo = pagos.filter(p => new Date(p.fecha_pago) >= start)
 
-  // Filter by tipo
-  const clientesFiltrados = filtroTipo === 'todos' ? clientes :
-    filtroTipo === 'mod10' ? diagnosticos.filter(d => d.mod10_activo).map(d => d.cliente_id) :
-    filtroTipo === 'mod40' ? diagnosticos.filter(d => d.mod40_activo).map(d => d.cliente_id) :
-    clientes.filter(c => c.servicio_contratado === 'Combo')
+  // Filtro por tipo: set de cliente_id que cumplen el filtro (null = sin filtro / 'todos')
+  const clienteIdsFiltro: Set<string> | null =
+    filtroTipo === 'todos' ? null :
+    filtroTipo === 'mod10' ? new Set(diagnosticos.filter(d => d.mod10_activo).map(d => d.cliente_id)) :
+    filtroTipo === 'mod40' ? new Set(diagnosticos.filter(d => d.mod40_activo).map(d => d.cliente_id)) :
+    new Set(clientes.filter(c => c.servicio_contratado === 'Combo').map(c => c.id))
+
+  const clientesFiltrados = clienteIdsFiltro ? clientes.filter(c => clienteIdsFiltro.has(c.id)) : clientes
+  const pagosPeriodo = pagos
+    .filter(p => new Date(p.fecha_pago) >= start)
+    .filter(p => !clienteIdsFiltro || clienteIdsFiltro.has(p.cliente_id))
 
   // ── MÉTRICAS FINANCIERAS ──
   // Number(p.monto) por si Supabase devuelve la columna numeric/decimal como string (gotcha clásico de PostgREST)
@@ -102,15 +107,15 @@ function MiDiaInner() {
     acc[p.cliente_id] = (acc[p.cliente_id] ?? 0) + (Number(p.monto) || 0)
     return acc
   }, {} as Record<string, number>)
-  const porCobrar = clientes.reduce((s, c) => s + Math.max(0, (c.monto_acordado || 0) - (totalPagadoPorCliente[c.id] ?? 0)), 0)
+  const porCobrar = clientesFiltrados.reduce((s, c) => s + Math.max(0, (c.monto_acordado || 0) - (totalPagadoPorCliente[c.id] ?? 0)), 0)
 
   // ── MÉTRICAS COMERCIALES ──
-  const prospectos = clientes.filter(c => c.etapa_kanban === 'prospecto')
-  const enDiagnostico = clientes.filter(c => c.etapa_kanban === 'diagnostico')
-  const enRecopilacion = clientes.filter(c => c.etapa_kanban === 'recopilacion')
-  const pensionados = clientes.filter(c => c.etapa_kanban === 'cierre')
-  const enTramite = clientes.filter(c => c.etapa_kanban === 'tramite')
-  const clientesActivos = clientes.filter(c => c.etapa_kanban !== 'cancelado')
+  const prospectos = clientesFiltrados.filter(c => c.etapa_kanban === 'prospecto')
+  const enDiagnostico = clientesFiltrados.filter(c => c.etapa_kanban === 'diagnostico')
+  const enRecopilacion = clientesFiltrados.filter(c => c.etapa_kanban === 'recopilacion')
+  const pensionados = clientesFiltrados.filter(c => c.etapa_kanban === 'cierre')
+  const enTramite = clientesFiltrados.filter(c => c.etapa_kanban === 'tramite')
+  const clientesActivos = clientesFiltrados.filter(c => c.etapa_kanban !== 'cancelado')
   const tasaConversion = (prospectos.length + pensionados.length) > 0
     ? (pensionados.length / (prospectos.length + pensionados.length)) * 100 : 0
   const tasaExitoGestiones = enTramite.length > 0
