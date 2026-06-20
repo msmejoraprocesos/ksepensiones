@@ -664,7 +664,9 @@ function CalculadoraInner() {
     const semTotal = sem + meses * 4.33
     const { monto: pension, pmg_aplica } = calcPensionLey73(semTotal, sdiNuevo, edadR, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, anioR)
     const incr = pension - pensionBase
-    const roi = incr > 0 ? Math.ceil(invTotal / incr) : 0
+    // ROI usa la inversión NETA (descontando el % que regresa la AFORE), como en el Excel de referencia
+    const invNeta = invTotal * (1 - (sys.pct_afore_mod40 ?? 20) / 100)
+    const roi = incr > 0 ? Math.ceil(invNeta / incr) : 0
     return { costoMensual, invTotal, sdiNuevo, semTotal, pension, pmg_aplica, incr, roi, umaProyectada, tasaProyectada, sdiMod40 }
   }
 
