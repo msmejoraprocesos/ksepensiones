@@ -75,7 +75,41 @@ interface AnalisisSeccion {
 
 // Tabla oficial Art. 167 LSS — % de cuantía básica e incremento anual según el salario
 // proporcional en veces-UMA (SDI promedio ÷ UMA diaria). Fuente: hoja '1' del Excel de referencia.
-const TABLA_CUANTIA_UMA: { min: number; max: number; basica: number; incremento: number }[] = [
+// ── PAGO RETROACTIVO (recargos + actualizaciones) — tasas extraídas del Excel de referencia validado ──
+// Actualización (INPC) mensual por año en que cayó el mes adeudado
+const TASA_ACTUALIZACION_MENSUAL_POR_ANIO: Record<number, number> = {
+  2019: 0.0030333, 2020: 0.002625, 2021: 0.005, 2022: 0.0065166, 2023: 0.0038833, 2024: 0.0043,
+}
+const TASA_ACTUALIZACION_MENSUAL_DEFAULT = 0.0036 // años > 2024
+// Recargos mensuales: 1.47% antes de 2026, 2.07% desde 2026 (tasas vigentes en el Excel de referencia)
+function tasaRecargoMensual(anio: number) { return anio < 2026 ? 0.0147 : 0.0207 }
+function tasaActualizacionMensual(anio: number) { return TASA_ACTUALIZACION_MENSUAL_POR_ANIO[anio] ?? TASA_ACTUALIZACION_MENSUAL_DEFAULT }
+
+// Calcula el costo retroactivo de Modalidad 40: para cada mes adeudado, el monto se actualiza por
+// inflación y se le suman recargos en proporción a cuántos meses lleva vencido (interés simple),
+// usando la tasa de cada año calendario en que cayó ese mes — replica la metodología del Excel.
+function calcPagoRetroactivo(mesesAdeudados: number, fechaBaja: Date, mod40Umas: number, sys: SysVars, getMod40PctFn: (anio: number) => number) {
+  let totalActualizacion = 0
+  let totalRecargos = 0
+  let costoBase = 0
+  for (let i = 1; i <= mesesAdeudados; i++) {
+    const fechaMes = new Date(fechaBaja)
+    fechaMes.setMonth(fechaMes.getMonth() - i)
+    const anioMes = fechaMes.getFullYear()
+    const umaDelAnio = proyectarValor(sys.UMA_DIARIA, new Date().getFullYear(), anioMes)
+    const costoMensual = calcCostoMod40(mod40Umas, getMod40PctFn(anioMes), { ...sys, UMA_DIARIA: umaDelAnio })
+    costoBase += costoMensual
+    totalActualizacion += costoMensual * i * tasaActualizacionMensual(anioMes)
+    totalRecargos += costoMensual * i * tasaRecargoMensual(anioMes)
+  }
+  const costoTotal = costoBase + totalActualizacion + totalRecargos
+  const pctIncremento = costoBase > 0 ? (totalActualizacion + totalRecargos) / costoBase : 0
+  const recuperaAfore = costoTotal * 0.20
+  const costoNeto = costoTotal - recuperaAfore
+  return { costoBase, totalActualizacion, totalRecargos, costoTotal, pctIncremento, recuperaAfore, costoNeto }
+}
+
+
   { min: 0,    max: 1.00, basica: 0.80,   incremento: 0.00563 },
   { min: 1.01, max: 1.25, basica: 0.7711, incremento: 0.00814 },
   { min: 1.26, max: 1.50, basica: 0.5818, incremento: 0.01178 },
@@ -354,6 +388,8 @@ function CalculadoraInner() {
   const [anioInicioTramite, setAnioInicioTramite] = useState(new Date().getFullYear())
   const [edadInicioMod40Anios, setEdadInicioMod40Anios] = useState<number | ''>('')
   const [edadInicioMod40Meses, setEdadInicioMod40Meses] = useState<number | ''>('')
+  const [tieneAtraso, setTieneAtraso] = useState(false)
+  const [fechaAtrasoMod40, setFechaAtrasoMod40] = useState('')
   // Año de inicio del trámite Mod 40, calculado automáticamente a partir de "¿a qué edad quieres iniciar?" (años y meses)
   useEffect(() => {
     if (edadInicioMod40Anios === '' && edadInicioMod40Meses === '') return
@@ -1735,6 +1771,53 @@ function CalculadoraInner() {
                   </div>
                 )
               })()}
+
+              {/* Pago retroactivo — solo si el cliente ya debería estar pagando Mod 40 y no lo ha hecho */}
+              <div style={cardSt}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: tieneAtraso ? '14px' : 0 }}>
+                  <input type="checkbox" checked={tieneAtraso} onChange={e => setTieneAtraso(e.target.checked)} />
+                  <span style={{ fontSize: '13px', fontWeight: '700', color: '#1e293b' }}>✏️ ¿El cliente ya debería haber iniciado Mod 40 y no lo ha hecho? (pago retroactivo)</span>
+                </label>
+                {tieneAtraso && (() => {
+                  const fechaDebioIniciar = fechaAtrasoMod40 ? new Date(fechaAtrasoMod40 + 'T00:00:00') : null
+                  const mesesAtraso = fechaDebioIniciar
+                    ? Math.max(0, Math.round((Date.now() - fechaDebioIniciar.getTime()) / (30.4 * 86400000)))
+                    : 0
+                  const retro = mesesAtraso > 0 ? calcPagoRetroactivo(Math.min(mesesAtraso, 60), new Date(), mod40Umas, sys, getMod40Pct) : null
+                  return (
+                    <>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '10px', marginBottom: '12px' }}>
+                        <div>
+                          <label style={labelSt}>✏️ ¿Desde cuándo debió iniciar?</label>
+                          <input type="date" style={manualInputSt} value={fechaAtrasoMod40} onChange={e => setFechaAtrasoMod40(e.target.value)} />
+                          <p style={{ fontSize: '9px', color: '#94a3b8', margin: '2px 0 0' }}>Máximo 5 años (60 meses) de retroactivo permitido por el IMSS</p>
+                        </div>
+                        <div>
+                          <label style={labelSt}>⚡ Meses de atraso</label>
+                          <div style={{ ...autoInputSt, display: 'flex', alignItems: 'center', fontWeight: '700' }}>{Math.min(mesesAtraso, 60)} meses{mesesAtraso > 60 ? ' (limitado a 60)' : ''}</div>
+                        </div>
+                      </div>
+                      {retro && (
+                        <>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px', marginBottom: '8px' }}>
+                            {kpiBox('Costo base (cuotas atrasadas)', fmtMXN(retro.costoBase), `${Math.min(mesesAtraso, 60)} meses sin pagar`, '#64748b')}
+                            {kpiBox('+ Actualización (INPC)', fmtMXN(retro.totalActualizacion), 'por inflación acumulada', '#0891b2')}
+                            {kpiBox('+ Recargos', fmtMXN(retro.totalRecargos), '1.47-2.07% mensual', '#dc2626')}
+                            {kpiBox('Costo total retroactivo', fmtMXN(retro.costoTotal), `+${(retro.pctIncremento * 100).toFixed(1)}% vs pagar a tiempo`, NARANJA, 'naranja', true)}
+                          </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px' }}>
+                            {kpiBox(`Te regresa AFORE (~${(sys.pct_afore_mod40 ?? 20).toFixed(0)}%)`, fmtMXN(retro.recuperaAfore), 'Subcuenta Retiro 97', '#0891b2', 'azul')}
+                            {kpiBox('Costo neto del retroactivo', fmtMXN(retro.costoNeto), 'costo total − AFORE', VERDE, 'verde', true)}
+                          </div>
+                          <p style={{ fontSize: '9px', color: '#94a3b8', marginTop: '8px' }}>
+                            Estimado — usa actualización por INPC histórico y una tasa de recargos de referencia (1.47% mensual antes de 2026, 2.07% desde 2026). El monto exacto lo determina el IMSS al emitir la línea de captura; puede variar hasta ~10%.
+                          </p>
+                        </>
+                      )}
+                    </>
+                  )
+                })()}
+              </div>
             </div>
 
             {/* Tabla de cotización mensual */}
