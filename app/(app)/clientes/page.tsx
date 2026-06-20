@@ -957,7 +957,7 @@ function ClientesInner() {
               📦 Archivados {clientesArchivados.length > 0 ? `(${clientesArchivados.length})` : ''}
             </label>
             {vista === 'pipeline' && (
-              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginLeft: 'auto' }}>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'nowrap' }}>
                 {[
                   { label: 'Total', value: filtered.length, color: AZUL },
                   { label: 'Cobrado', value: fmtMXN(filtered.reduce((s, c) => s + (c.total_pagado ?? 0), 0)), color: VERDE },
