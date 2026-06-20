@@ -112,7 +112,7 @@ const s = StyleSheet.create({
     fontSize: 9,
     color: C.texto,
     paddingTop: 46,
-    paddingBottom: 24,
+    paddingBottom: 46,
     paddingHorizontal: 24,
     backgroundColor: C.blanco,
   },
@@ -201,10 +201,19 @@ const PageHeader = ({ razonSocial, titulo, color, esBorrador }: { razonSocial?: 
   </View>
 )
 
-// Tapa blanca que cubre el encabezado delgado SOLO en la página 1 (ahí ya está el banner grande).
-// No es fixed: al ser contenido normal, solo existe una vez — justo donde cae la página 1.
-const PageHeaderMaskPagina1 = () => (
-  <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 36, backgroundColor: C.blanco }} />
+// Pie de página — fixed, se repite en cada página
+const PageFooter = ({ esBorrador }: { esBorrador?: boolean }) => (
+  <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, paddingHorizontal: 24, paddingBottom: 10 }} fixed>
+    <View style={{ height: 0.5, backgroundColor: C.borde, marginBottom: 5 }} />
+    <Text style={{ fontSize: 6.5, color: C.textoSm }}>
+      Documento confidencial elaborado exclusivamente para el trabajador indicado. Los cálculos son estimaciones basadas en la Ley del Seguro Social 1973.
+    </Text>
+    {esBorrador && (
+      <Text style={{ fontSize: 6.5, fontFamily: 'Helvetica-Bold', color: C.rojo, marginTop: 2 }}>
+        BORRADOR — Pendiente de autorización oficial. No compartir con el cliente.
+      </Text>
+    )}
+  </View>
 )
 
 // Marca de agua BORRADOR
@@ -266,12 +275,26 @@ const DataTable = ({
   highlightRows?: boolean[]
 }) => (
   <View style={{ marginBottom: 10, width: '100%' }}>
-    <View style={[s.tableHeader, { width: '100%' }]}>
-      {headers.map((h, i) => (
-        <Text key={i} style={[s.tableHeaderCell, { width: widths[i] as any, textAlign: (aligns?.[i] || 'center') as any, flexShrink: 1 }]}>{h}</Text>
-      ))}
+    {/* Header + primera fila pegados: nunca debe quedar el header solo al final de una página */}
+    <View wrap={false}>
+      <View style={[s.tableHeader, { width: '100%' }]}>
+        {headers.map((h, i) => (
+          <Text key={i} style={[s.tableHeaderCell, { width: widths[i] as any, textAlign: (aligns?.[i] || 'center') as any, flexShrink: 1 }]}>{h}</Text>
+        ))}
+      </View>
+      {rows[0] && (
+        <View style={[s.tableRow, highlightRows?.[0] ? { backgroundColor: '#E1F5EE' } : {}, { width: '100%' }]}>
+          {rows[0].map((cell, ci) => (
+            <Text key={ci} style={[s.tableCell, { width: widths[ci] as any, textAlign: (aligns?.[ci] || (ci === 0 ? 'left' : 'right')) as any, flexShrink: 1 }, highlightRows?.[0] ? { fontFamily: 'Helvetica-Bold', color: C.azul } : {}]}>
+              {String(cell ?? '')}
+            </Text>
+          ))}
+        </View>
+      )}
     </View>
-    {rows.map((row, ri) => (
+    {rows.slice(1).map((row, i) => {
+      const ri = i + 1
+      return (
       <View key={ri} style={[s.tableRow, ri % 2 === 1 ? s.tableRowEven : {}, highlightRows?.[ri] ? { backgroundColor: '#E1F5EE' } : {}, { width: '100%' }]} wrap={false}>
         {row.map((cell, ci) => (
           <Text key={ci} style={[s.tableCell, { width: widths[ci] as any, textAlign: (aligns?.[ci] || (ci === 0 ? 'left' : 'right')) as any, flexShrink: 1 }, highlightRows?.[ri] ? { fontFamily: 'Helvetica-Bold', color: C.azul } : {}]}>
@@ -279,7 +302,7 @@ const DataTable = ({
           </Text>
         ))}
       </View>
-    ))}
+    )})}
     {totalRow && (
       <View style={[s.tableRow, s.tableRowTotal, { width: '100%' }]} wrap={false}>
         {totalRow.map((cell, ci) => (
@@ -421,7 +444,7 @@ const PaginaPortada = ({ datos, escenarios, escSelIdx, ingresoObjetivo, logoUrl,
   return (
     <>
       {/* Franja del asesor — contenido normal (no fixed), por eso solo aparece una vez al inicio del documento */}
-      <View style={{ backgroundColor: color, height: 70, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, marginHorizontal: -24, marginTop: -10, marginBottom: 18 }}>
+      <View style={{ backgroundColor: color, height: 70, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, marginHorizontal: -24, marginTop: -46, marginBottom: 18 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
           {logoUrl && (
             <Image src={logoUrl} style={{ height: 36, maxWidth: 60, objectFit: 'contain' }} />
@@ -546,21 +569,6 @@ const PaginaPortada = ({ datos, escenarios, escSelIdx, ingresoObjetivo, logoUrl,
             </View>
           ))}
         </View>
-
-        {/* Footer — separate views to avoid overlap */}
-        <View style={{ marginTop: 10 }}>
-          <View style={{ height: 0.5, backgroundColor: C.borde, marginBottom: 6 }} />
-          <Text style={{ fontSize: 7, color: C.textoSm }}>
-            Documento confidencial elaborado exclusivamente para el trabajador indicado. Los cálculos son estimaciones basadas en la Ley del Seguro Social 1973.
-          </Text>
-          {esBorrador && (
-            <View style={{ marginTop: 10, backgroundColor: '#FEE2E2', borderLeftWidth: 3, borderLeftColor: C.rojo, padding: 8, borderRadius: 3 }}>
-              <Text style={{ fontSize: 7.5, fontFamily: 'Helvetica-Bold', color: '#991b1b' }}>
-                BORRADOR — Pendiente de autorización oficial. No compartir con el cliente.
-              </Text>
-            </View>
-          )}
-        </View>
       </View>
     </>
   )
@@ -577,13 +585,15 @@ const PaginaDatosConservacion = ({ datos, color, titulo, razonSocial, esBorrador
   return (
     <>
       {/* Sección 1 — Datos */}
-      <SectionTitle title="DATOS DEL TRABAJADOR" color={color} />
-      <KpiRow color={color} items={[
-        { label: 'Nombre', value: (datos.nombre_trabajador || datos.nombre || '—').substring(0, 24) },
-        { label: 'NSS', value: datos.nss || '—' },
-        { label: 'Edad actual', value: (datos.edad_actual || '—') + ' años' },
-        { label: 'Régimen', value: datos.ley === '73' ? 'Ley 73' : datos.ley === '97' ? 'Ley 97' : '—', color: datos.ley === '73' ? color : C.verde },
-      ]} />
+      <View wrap={false}>
+        <SectionTitle title="DATOS DEL TRABAJADOR" color={color} />
+        <KpiRow color={color} items={[
+          { label: 'Nombre', value: (datos.nombre_trabajador || datos.nombre || '—').substring(0, 24) },
+          { label: 'NSS', value: datos.nss || '—' },
+          { label: 'Edad actual', value: (datos.edad_actual || '—') + ' años' },
+          { label: 'Régimen', value: datos.ley === '73' ? 'Ley 73' : datos.ley === '97' ? 'Ley 97' : '—', color: datos.ley === '73' ? color : C.verde },
+        ]} />
+      </View>
       <KpiRow color={color} items={[
         { label: 'Semanas cotizadas', value: (datos.semanas_totales || 0).toLocaleString(), color: (datos.semanas_totales || 0) >= 500 ? C.verde : C.rojo },
         { label: 'Fecha de nacimiento', value: fmtFecha(datos.fecha_nacimiento) },
@@ -596,14 +606,15 @@ const PaginaDatosConservacion = ({ datos, color, titulo, razonSocial, esBorrador
       }
 
       {/* Sección 2 — Conservación */}
-      
-      <SectionTitle title="CONSERVACIÓN DE DERECHOS" sub="Art. 183 Ley del Seguro Social 1973" color={color} />
-      <KpiRow color={color} items={[
-        { label: 'Semanas de conservación', value: semC + ' semanas', color },
-        { label: 'Período', value: (semC / 4.33 / 12).toFixed(1) + ' años', color },
-        { label: 'Estado actual', value: vigente === null ? 'Sin fecha de baja' : vigente ? 'VIGENTE ✓' : 'VENCIDO ✗', color: vigente === null ? C.gris : vigente ? C.verde : C.rojo },
+      <View wrap={false}>
+        <SectionTitle title="CONSERVACIÓN DE DERECHOS" sub="Art. 183 Ley del Seguro Social 1973" color={color} />
+        <KpiRow color={color} items={[
+          { label: 'Semanas de conservación', value: semC + ' semanas', color },
+          { label: 'Período', value: (semC / 4.33 / 12).toFixed(1) + ' años', color },
+          { label: 'Estado actual', value: vigente === null ? 'Sin fecha de baja' : vigente ? 'VIGENTE ✓' : 'VENCIDO ✗', color: vigente === null ? C.gris : vigente ? C.verde : C.rojo },
         { label: vigente ? 'Meses restantes' : 'Estado', value: mRest !== null ? (vigente ? mRest + ' meses restantes' : 'Requiere\nreactivación') : 'Sin fecha\nde baja', color: vigente ? C.verde : C.rojo },
-      ]} />
+        ]} />
+      </View>
       {vigente === false && (
         <AlertChip msg={`⚠ Período de conservación vencido — ${mDes / 12 <= 3 ? 'reconocimiento inmediato al reingresar' : mDes / 12 <= 6 ? 'cotizar 26 semanas nuevas (Art. 151)' : 'cotizar 52 semanas nuevas (Art. 151)'}`} type="danger" />
       )}
@@ -618,16 +629,18 @@ const PaginaDatosConservacion = ({ datos, color, titulo, razonSocial, esBorrador
 // ─── PÁGINA 4: SALARIO PROMEDIO 250 SEMANAS ──────────────────────────────────
 const PaginaSalario = ({ periodos, sdiPromedio, color, titulo, razonSocial, esBorrador }: PDFProps & { color: string; titulo: string }) => (
   <View style={{ marginTop: 14 }}>
-    <SectionTitle title="SALARIO PROMEDIO — ÚLTIMAS 250 SEMANAS COTIZADAS" sub="Art. 167 LSS 1973" color={color} />
-    <Text style={[s.body, { marginBottom: 8 }]}>
-      La pensión bajo Ley 73 se calcula sobre el promedio del Salario Diario Integrado (SDI) de las últimas 250 semanas cotizadas (~5 años). Este promedio es la base de todos los escenarios del diagnóstico.
-    </Text>
-    <KpiRow color={color} items={[
-      { label: 'SDI promedio 250 sem.', value: mxn2(sdiPromedio), color: C.naranja },
-      { label: 'SDI mensual equivalente', value: mxn(sdiPromedio * 30.4) },
-      { label: 'Períodos analizados', value: periodos.length.toString() },
-      { label: 'Semanas cubiertas', value: periodos.reduce((s, p) => s + (p.semanas || 0), 0).toString() },
-    ]} />
+    <View wrap={false}>
+      <SectionTitle title="SALARIO PROMEDIO — ÚLTIMAS 250 SEMANAS COTIZADAS" sub="Art. 167 LSS 1973" color={color} />
+      <Text style={[s.body, { marginBottom: 8 }]}>
+        La pensión bajo Ley 73 se calcula sobre el promedio del Salario Diario Integrado (SDI) de las últimas 250 semanas cotizadas (~5 años). Este promedio es la base de todos los escenarios del diagnóstico.
+      </Text>
+      <KpiRow color={color} items={[
+        { label: 'SDI promedio 250 sem.', value: mxn2(sdiPromedio), color: C.naranja },
+        { label: 'SDI mensual equivalente', value: mxn(sdiPromedio * 30.4) },
+        { label: 'Períodos analizados', value: periodos.length.toString() },
+        { label: 'Semanas cubiertas', value: periodos.reduce((s, p) => s + (p.semanas || 0), 0).toString() },
+      ]} />
+    </View>
     {periodos.length > 0 && (
       <DataTable
         headers={['#', 'Inicio', 'Fin', 'Sem.', 'SDI diario', 'SDI mensual', 'Peso %']}
@@ -669,16 +682,18 @@ const PaginaMod40Mod10 = ({ escenarios, escSelIdx, color, titulo, razonSocial, e
     <View style={{ marginTop: 14 }}>
       {tieneMod40 && (
         <>
-          <SectionTitle title="MODALIDAD 40 — ESTRATEGIA DE OPTIMIZACIÓN" sub="Art. 218 Ley del Seguro Social 1973" color={color} />
-          <Text style={[s.body, { marginBottom: 8 }]}>
-            La Modalidad 40 permite al trabajador continuar cotizando voluntariamente al IMSS sobre un salario mayor al histórico, incrementando el SDI promedio de las últimas 250 semanas y con ello la pensión final.
-          </Text>
-          <KpiRow color={color} items={[
-            { label: 'Salario base (UMAs)', value: (escSel.mod40_umas || 0).toFixed(1) + ' UMAs', color },
-            { label: 'Período de cotización', value: meses + ' meses', color },
-            { label: 'Costo mensual', value: mxn(costoM), color: C.naranja },
-            { label: 'Inversión total', value: mxn(escSel.inversion_total || 0), color: C.naranja },
-          ]} />
+          <View wrap={false}>
+            <SectionTitle title="MODALIDAD 40 — ESTRATEGIA DE OPTIMIZACIÓN" sub="Art. 218 Ley del Seguro Social 1973" color={color} />
+            <Text style={[s.body, { marginBottom: 8 }]}>
+              La Modalidad 40 permite al trabajador continuar cotizando voluntariamente al IMSS sobre un salario mayor al histórico, incrementando el SDI promedio de las últimas 250 semanas y con ello la pensión final.
+            </Text>
+            <KpiRow color={color} items={[
+              { label: 'Salario base (UMAs)', value: (escSel.mod40_umas || 0).toFixed(1) + ' UMAs', color },
+              { label: 'Período de cotización', value: meses + ' meses', color },
+              { label: 'Costo mensual', value: mxn(costoM), color: C.naranja },
+              { label: 'Inversión total', value: mxn(escSel.inversion_total || 0), color: C.naranja },
+            ]} />
+          </View>
           <KpiRow color={color} items={[
             { label: 'Pensión estimada', value: mxn(escSel.pension_mensual || 0) + '/mes', color: C.verde },
             { label: 'Incremento vs base', value: '+' + mxn(escSel.incremento_vs_base || 0) + '/mes', color: C.verde },
@@ -706,16 +721,18 @@ const PaginaMod40Mod10 = ({ escenarios, escSelIdx, color, titulo, razonSocial, e
 
       {escM10 && (
         <View style={{ marginTop: tieneMod40 ? 14 : 0 }}>
-          <SectionTitle title="MODALIDAD 10 — INCORPORACIÓN VOLUNTARIA" sub="Art. 240 Ley del Seguro Social" color={color} />
-          <Text style={[s.body, { marginBottom: 8 }]}>
-            La Modalidad 10 permite a trabajadores independientes afiliarse al IMSS con cobertura integral: servicio médico, guarderías e Infonavit. Es más cara que Mod 40 pero ofrece beneficios adicionales significativos.
-          </Text>
-          <KpiRow color={color} items={[
-            { label: 'Cuota mensual (22%)', value: mxn(escM10.costo_mensual_mod40), color: C.verde },
-            { label: 'Inversión total', value: mxn(escM10.inversion_total), color: C.naranja },
-            { label: 'Pensión estimada', value: mxn(escM10.pension_mensual) + '/mes', color: C.verde },
-            { label: 'Costo extra vs Mod 40', value: mxn(dif) + '/mes más que Mod 40', color: '#f97316' },
-          ]} />
+          <View wrap={false}>
+            <SectionTitle title="MODALIDAD 10 — INCORPORACIÓN VOLUNTARIA" sub="Art. 240 Ley del Seguro Social" color={color} />
+            <Text style={[s.body, { marginBottom: 8 }]}>
+              La Modalidad 10 permite a trabajadores independientes afiliarse al IMSS con cobertura integral: servicio médico, guarderías e Infonavit. Es más cara que Mod 40 pero ofrece beneficios adicionales significativos.
+            </Text>
+            <KpiRow color={color} items={[
+              { label: 'Cuota mensual (22%)', value: mxn(escM10.costo_mensual_mod40), color: C.verde },
+              { label: 'Inversión total', value: mxn(escM10.inversion_total), color: C.naranja },
+              { label: 'Pensión estimada', value: mxn(escM10.pension_mensual) + '/mes', color: C.verde },
+              { label: 'Costo extra vs Mod 40', value: mxn(dif) + '/mes más que Mod 40', color: '#f97316' },
+            ]} />
+          </View>
           <Text style={s.h2}>Comparativa Modalidad 10 vs Modalidad 40</Text>
           <DataTable
             headers={['Concepto', 'Mod 10', 'Mod 40', 'Diferencia', 'Extra']}
@@ -747,26 +764,28 @@ const PaginaEscenarios = ({ escenarios, escSelIdx, ingresoObjetivo, color, titul
 
   return (
     <View style={{ marginTop: 14 }}>
-      <SectionTitle title="COMPARATIVO DE ESCENARIOS DE PENSIÓN" color={color} />
+      <View wrap={false}>
+        <SectionTitle title="COMPARATIVO DE ESCENARIOS DE PENSIÓN" color={color} />
 
-      {/* Tabla comparativa */}
-      <DataTable
-        headers={['Escenario', 'Pensión/mes', 'Incremento', 'Inversión total', 'ROI (meses)', 'Elegido']}
-        widths={['32%', '16%', '15%', '17%', '13%', '7%']}
-        aligns={['left', 'right', 'right', 'right', 'right', 'center']}
-        rows={escenarios.map((esc, i) => {
-          const isEl = i === escSelIdx || (escSelIdx < 0 && esc.recomendado)
-          return [
-            (isEl ? '' : '') + esc.label,
-            mxn(esc.pension_mensual),
-            i === 0 ? '—' : '+' + mxn(esc.incremento_vs_base),
-            i === 0 ? '$0' : mxn(esc.inversion_total),
-            i === 0 ? '—' : String(esc.roi_meses || '—'),
-            isEl ? 'SI' : '',
-          ]
-        })}
-        highlightRows={escenarios.map((esc, i) => i === escSelIdx || (escSelIdx < 0 && !!esc.recomendado))}
-      />
+        {/* Tabla comparativa */}
+        <DataTable
+          headers={['Escenario', 'Pensión/mes', 'Incremento', 'Inversión total', 'ROI (meses)', 'Elegido']}
+          widths={['32%', '16%', '15%', '17%', '13%', '7%']}
+          aligns={['left', 'right', 'right', 'right', 'right', 'center']}
+          rows={escenarios.map((esc, i) => {
+            const isEl = i === escSelIdx || (escSelIdx < 0 && esc.recomendado)
+            return [
+              (isEl ? '' : '') + esc.label,
+              mxn(esc.pension_mensual),
+              i === 0 ? '—' : '+' + mxn(esc.incremento_vs_base),
+              i === 0 ? '$0' : mxn(esc.inversion_total),
+              i === 0 ? '—' : String(esc.roi_meses || '—'),
+              isEl ? 'SI' : '',
+            ]
+          })}
+          highlightRows={escenarios.map((esc, i) => i === escSelIdx || (escSelIdx < 0 && !!esc.recomendado))}
+        />
+      </View>
 
       {/* Gráfica */}
       <Text style={[s.h2, { marginTop: 10 }]}>Pensión mensual estimada por escenario</Text>
@@ -809,23 +828,36 @@ const PaginaAnalisisPasos = ({ datos, escenarios, escSelIdx, analisis, color, ti
     <View style={{ marginTop: 14 }}>
       {secciones.length > 0 && (
         <>
-          <SectionTitle title="ANÁLISIS EJECUTIVO DEL PROYECTO DE PENSIÓN" color={color} />
           {secciones.map((sec, i) => (
-            <View key={i} style={{ marginBottom: 10 }}>
-              <View style={{ backgroundColor: '#EEF2F8', borderLeftWidth: 3, borderLeftColor: color, paddingVertical: 4, paddingHorizontal: 8, marginBottom: 5, borderRadius: 3 }}>
-                <Text style={{ fontSize: 11, fontFamily: 'Helvetica-Bold', color }}>{String(sec?.titulo || '')}</Text>
+            i === 0 ? (
+              <View key={i} wrap={false}>
+                <SectionTitle title="ANÁLISIS EJECUTIVO DEL PROYECTO DE PENSIÓN" color={color} />
+                <View style={{ marginBottom: 10 }}>
+                  <View style={{ backgroundColor: '#EEF2F8', borderLeftWidth: 3, borderLeftColor: color, paddingVertical: 4, paddingHorizontal: 8, marginBottom: 5, borderRadius: 3 }}>
+                    <Text style={{ fontSize: 11, fontFamily: 'Helvetica-Bold', color }}>{String(sec?.titulo || '')}</Text>
+                  </View>
+                  <Text style={[s.body, { lineHeight: 1.8, paddingHorizontal: 4 }]}>{String(sec?.contenido || '')}</Text>
+                </View>
               </View>
-              <Text style={[s.body, { lineHeight: 1.8, paddingHorizontal: 4 }]}>{String(sec?.contenido || '')}</Text>
-            </View>
+            ) : (
+              <View key={i} style={{ marginBottom: 10 }} wrap={false}>
+                <View style={{ backgroundColor: '#EEF2F8', borderLeftWidth: 3, borderLeftColor: color, paddingVertical: 4, paddingHorizontal: 8, marginBottom: 5, borderRadius: 3 }}>
+                  <Text style={{ fontSize: 11, fontFamily: 'Helvetica-Bold', color }}>{String(sec?.titulo || '')}</Text>
+                </View>
+                <Text style={[s.body, { lineHeight: 1.8, paddingHorizontal: 4 }]}>{String(sec?.contenido || '')}</Text>
+              </View>
+            )
           ))}
         </>
       )}
 
-      <View style={{ marginTop: secciones.length > 0 ? 14 : 0 }}>
+      <View style={{ marginTop: secciones.length > 0 ? 14 : 0 }} wrap={false}>
         <SectionTitle title="PRÓXIMOS PASOS" color={color} />
 
         <Timeline steps={steps.map(s => ({ label: s.label, desc: s.desc, color: s.color }))} />
+      </View>
 
+      <View>
         {(() => {
           const defaultSteps = [
             'Confirmar los datos de este diagnóstico con el asesor antes de cualquier acción.',
@@ -853,9 +885,13 @@ const PaginaAnalisisPasos = ({ datos, escenarios, escSelIdx, analisis, color, ti
 // ─── PÁGINA 10: AVISO LEGAL ───────────────────────────────────────────────────
 const PaginaAviso = ({ razonSocial, color, titulo, esBorrador }: Partial<PDFProps> & { color: string; titulo: string }) => (
   <View style={{ marginTop: 14 }}>
-    <SectionTitle title="AVISO LEGAL Y LIMITACIONES" color={color} />
+    <View wrap={false}>
+      <SectionTitle title="AVISO LEGAL Y LIMITACIONES" color={color} />
+      <Text style={[s.body, { marginBottom: 8, lineHeight: 1.7 }]}>
+        Este diagnóstico pensional fue elaborado con base en la información proporcionada por el trabajador y los datos registrados en la constancia de semanas cotizadas emitida por el Instituto Mexicano del Seguro Social (IMSS).
+      </Text>
+    </View>
     {[
-      'Este diagnóstico pensional fue elaborado con base en la información proporcionada por el trabajador y los datos registrados en la constancia de semanas cotizadas emitida por el Instituto Mexicano del Seguro Social (IMSS).',
       'Los cálculos se realizan conforme a la Ley del Seguro Social de 1973 y sus reformas vigentes. El monto final de la pensión estará sujeto a la resolución definitiva del IMSS, quien determinará el importe de acuerdo con los salarios y semanas registrados en sus sistemas oficiales.',
       'Este documento tiene carácter informativo y no constituye una promesa de pago ni un compromiso por parte del IMSS ni del asesor. Los escenarios presentados son proyecciones basadas en los datos disponibles al momento del diagnóstico y pueden variar.',
       'Se recomienda verificar periódicamente la vigencia y exactitud de la información de semanas cotizadas en el portal oficial del IMSS: imss.gob.mx · Tel. IMSS: 800 623 2323',
@@ -900,7 +936,7 @@ export const DiagnosticoPDF = (props: PDFProps) => {
       <Page size="LETTER" style={s.page} wrap>
         {esBorrador && <Watermark />}
         <PageHeader razonSocial={razonSocial} titulo={titulo} color={color} esBorrador={esBorrador} />
-        <PageHeaderMaskPagina1 />
+        <PageFooter esBorrador={esBorrador} />
 
         <PaginaPortada {...shared} />
         <PaginaDatosConservacion {...shared} />
