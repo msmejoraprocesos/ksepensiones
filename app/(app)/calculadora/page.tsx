@@ -1201,6 +1201,10 @@ function CalculadoraInner() {
                 { t: 'Conservación de derechos', d: 'El tiempo que una persona conserva el derecho a pensionarse después de dejar de cotizar, antes de que ese derecho "venza" y tenga que volver a cotizar semanas para recuperarlo.' },
                 { t: 'Ley 73 vs Ley 97', d: 'Dos regímenes de pensión distintos según cuándo empezó a cotizar la persona. Ley 73 (antes de jul 1997) suele dar pensiones más altas y permite estrategias como Modalidad 40; Ley 97 (después) se basa en el saldo acumulado en la AFORE.' },
                 { t: 'Semanas de cotización', d: 'El total de semanas trabajadas y registradas ante el IMSS. Se necesita un mínimo (500 en Ley 73) para tener derecho a pensión.' },
+                { t: 'Subcuenta Retiro 97 (AFORE)', d: 'Una parte del dinero que pagas en Modalidad 40 no se "gasta" — se deposita en tu cuenta individual de AFORE y se te regresa completa, en una sola exhibición, el día que te pensiones. Por eso el costo real de Mod 40 es menor al costo bruto que pagas mes a mes.' },
+                { t: 'Actualización (INPC)', d: 'Cuando un pago al IMSS se hace tarde (retroactivo), el monto original se "actualiza" multiplicándolo por la inflación acumulada de esos meses, para que valga lo mismo en pesos de hoy que cuando se debió pagar.' },
+                { t: 'Recargos', d: 'Un cargo adicional que cobra el IMSS por cada mes de atraso en un pago, similar a un interés moratorio. Se suma encima de la actualización por inflación.' },
+                { t: 'Pensión Mínima Garantizada (PMG)', d: 'Un piso que nunca se cruza hacia abajo: si la pensión calculada con la fórmula normal sale menor a este monto (equivalente a un salario mínimo), el IMSS paga la PMG en su lugar.' },
               ].map((item, i) => (
                 <div key={i} style={{ paddingBottom: '10px', borderBottom: i < 7 ? '1px solid #f1f5f9' : 'none' }}>
                   <p style={{ fontSize: '12.5px', fontWeight: '700', color: '#1e293b', margin: '0 0 3px' }}>{item.t}</p>
@@ -2152,6 +2156,16 @@ function CalculadoraInner() {
                 </div>
               </div>
             </div>
+            {sdiPromedio > 0 && (() => {
+              const vecesUMA = sdiPromedio / sys.UMA_DIARIA
+              const { basica, incremento } = buscarCuantiaPorUMA(vecesUMA)
+              return (
+                <div style={{ padding: '10px 16px', background: '#EFF6FF', border: '1px solid #bfdbfe', borderRadius: '10px', fontSize: '11px', color: '#1e40af', lineHeight: 1.6 }}>
+                  💡 El salario promedio (${sdiPromedio.toFixed(2)}/día) equivale a <strong>{vecesUMA.toFixed(2)} veces la UMA</strong> — por la tabla oficial de la Ley 73 (Art. 167), eso le corresponde un <strong>{(basica * 100).toFixed(1)}%</strong> de cuantía básica y <strong>{(incremento * 100).toFixed(2)}%</strong> de incremento por cada año extra cotizado.
+                  {' '}<span style={{ color: '#64748b' }}>(Entre menor el salario relativo a la UMA, mayor el % de pensión — así está diseñada la ley.)</span>
+                </div>
+              )
+            })()}
             {escenarios.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontSize: '13px' }}>
                 <div style={{ fontSize: '32px', marginBottom: '10px' }}>📊</div>
