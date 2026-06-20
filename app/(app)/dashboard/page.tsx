@@ -73,8 +73,26 @@ function MiDiaInner() {
     if (filtroPeriodo === 'trimestre') { const s = new Date(now); s.setMonth(now.getMonth()-3); return s }
     return new Date(now.getFullYear(), 0, 1)
   }
+  // Rango del periodo ANTERIOR equivalente (mismo tamaño de ventana, justo antes del actual) — para comparativos
+  const getPrevRange = (currentStart: Date) => {
+    const now = new Date()
+    if (filtroPeriodo === 'mes') {
+      const prevEnd = new Date(currentStart)
+      const prevStart = new Date(currentStart); prevStart.setMonth(prevStart.getMonth() - 1)
+      return { prevStart, prevEnd }
+    }
+    if (filtroPeriodo === 'trimestre') {
+      const prevEnd = new Date(currentStart)
+      const prevStart = new Date(currentStart); prevStart.setMonth(prevStart.getMonth() - 3)
+      return { prevStart, prevEnd }
+    }
+    const prevStart = new Date(currentStart.getFullYear() - 1, 0, 1)
+    const prevEnd = new Date(currentStart.getFullYear(), 0, 1)
+    return { prevStart, prevEnd }
+  }
 
   const start = getStart()
+  const { prevStart, prevEnd } = getPrevRange(start)
 
   // Filtro por tipo: set de cliente_id que cumplen el filtro (null = sin filtro / 'todos')
   const clienteIdsFiltro: Set<string> | null =
@@ -91,6 +109,13 @@ function MiDiaInner() {
   // ── MÉTRICAS FINANCIERAS ──
   // Number(p.monto) por si Supabase devuelve la columna numeric/decimal como string (gotcha clásico de PostgREST)
   const ingresosTotal = pagosPeriodo.reduce((s, p) => s + (Number(p.monto) || 0), 0)
+  // Comparativo vs periodo anterior equivalente
+  const pagosPeriodoAnterior = pagos
+    .filter(p => { const f = new Date(p.fecha_pago); return f >= prevStart && f < prevEnd })
+    .filter(p => !clienteIdsFiltro || clienteIdsFiltro.has(p.cliente_id))
+  const ingresosTotalAnterior = pagosPeriodoAnterior.reduce((s, p) => s + (Number(p.monto) || 0), 0)
+  const deltaIngresos = ingresosTotalAnterior > 0 ? ((ingresosTotal - ingresosTotalAnterior) / ingresosTotalAnterior) * 100 : null
+  const clientesNuevosAnterior = clientes.filter(c => { const f = new Date(c.created_at); return f >= prevStart && f < prevEnd }).length
   // tipo_servicio (no servicio_contratado) es el campo real que usa la página Clientes: asesoria | gestion | financiamiento | gestoria_global
   const servicioPorCliente = clientes.reduce((acc: Record<string, string>, c: any) => {
     acc[c.id] = c.tipo_servicio
@@ -205,6 +230,18 @@ function MiDiaInner() {
     </div>
   )
 
+  // Insignia de comparativo vs periodo anterior (↑/↓ %). null = sin datos del periodo anterior para comparar.
+  const deltaBadge = (delta: number | null) => {
+    if (delta === null) return <span style={{ fontSize: '10px', color: '#cbd5e1' }}>sin comparativo</span>
+    const subio = delta >= 0
+    return (
+      <span style={{ fontSize: '11px', fontWeight: '700', color: subio ? VERDE : '#ef4444', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+        {subio ? '▲' : '▼'} {Math.abs(delta).toFixed(0)}%
+        <span style={{ fontSize: '9px', fontWeight: '500', color: '#94a3b8', marginLeft: '2px' }}>vs periodo anterior</span>
+      </span>
+    )
+  }
+
   const bar = (val: number, max: number, color: string) => (
     <div style={{ height: '4px', background: '#f1f5f9', borderRadius: '2px', overflow: 'hidden', marginTop: '3px' }}>
       <div style={{ height: '100%', width: `${max > 0 ? Math.min(100, (val/max)*100) : 0}%`, background: color, borderRadius: '2px', transition: 'width 0.4s' }} />
@@ -248,6 +285,37 @@ function MiDiaInner() {
       </div>
 
       <div style={{ padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+
+        {(() => {
+          const HOY = new Date()
+          const diasDesde = (fecha: string) => Math.floor((HOY.getTime() - new Date(fecha).getTime()) / 86400000)
+          const tramiteEstancado = clientes.filter(c => c.etapa_kanban === 'tramite' && c.created_at && diasDesde(c.created_at) > 60)
+          const saldoAltoSinPago = clientesFiltrados.filter(c => Math.max(0, (c.monto_acordado || 0) - (c.total_pagado || 0)) >= 5000)
+          const diagSinResultado = diagnosticos.filter(d => d.resultado_e4 == null)
+          const alertas = [
+            tramiteEstancado.length > 0 && { icon: '⏰', texto: `${tramiteEstancado.length} cliente${tramiteEstancado.length !== 1 ? 's' : ''} en trámite con más de 60 días desde su alta sin cerrar`, color: '#ef4444', link: '/clientes' },
+            saldoAltoSinPago.length > 0 && { icon: '💸', texto: `${saldoAltoSinPago.length} cliente${saldoAltoSinPago.length !== 1 ? 's' : ''} con saldo pendiente ≥ ${fmtMXN(5000)}`, color: '#f59e0b', link: '/clientes' },
+            diagSinResultado.length > 0 && { icon: '📋', texto: `${diagSinResultado.length} diagnóstico${diagSinResultado.length !== 1 ? 's' : ''} sin resultado capturado`, color: '#8b5cf6', link: '/clientes' },
+          ].filter(Boolean) as { icon: string; texto: string; color: string; link: string }[]
+          if (alertas.length === 0) return null
+          return (
+            <div style={{ background: '#FFFBEB', border: '1px solid #fde68a', borderRadius: '8px', padding: '10px 14px' }}>
+              <div style={{ fontSize: '11px', fontWeight: '800', color: '#92400e', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '6px' }}>🚨 Necesita tu atención</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                {alertas.map((a, i) => (
+                  <a key={i} href={a.link} style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', padding: '4px 6px', borderRadius: '5px' }}>
+                    <span style={{ fontSize: '13px' }}>{a.icon}</span>
+                    <span style={{ fontSize: '12px', color: '#374151' }}>{a.texto}</span>
+                    <span style={{ marginLeft: 'auto', fontSize: '11px', color: a.color, fontWeight: '600' }}>Ver →</span>
+                  </a>
+                ))}
+              </div>
+              <p style={{ fontSize: '9px', color: '#a16207', marginTop: '6px' }}>
+                "Estancado" se mide desde la fecha de alta del cliente (no tenemos aún fecha de cambio de etapa) — es una aproximación.
+              </p>
+            </div>
+          )
+        })()}
 
         {/* KPIs row — embudo completo */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px' }}>
@@ -357,6 +425,7 @@ function MiDiaInner() {
           {/* Bloque Financiero — dona */}
           {card(<>
             {sTitle('💰 Ingresos reales', filtroPeriodo)}
+            <div style={{ marginBottom: '6px' }}>{deltaBadge(deltaIngresos)}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
               {/* Donut grande */}
               {(() => {
