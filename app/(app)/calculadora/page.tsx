@@ -233,22 +233,6 @@ function CalculadoraInner() {
     const t = setInterval(() => setNowTick(Date.now()), 1000)
     return () => clearInterval(t)
   }, [])
-
-  // Año de inicio del trámite Mod 40, calculado automáticamente a partir de "¿a qué edad quieres iniciar?" (años y meses)
-  useEffect(() => {
-    if (edadInicioMod40Anios === '' && edadInicioMod40Meses === '') return
-    const anios = typeof edadInicioMod40Anios === 'number' ? edadInicioMod40Anios : 0
-    const meses = typeof edadInicioMod40Meses === 'number' ? edadInicioMod40Meses : 0
-    const metaMeses = anios * 12 + meses
-
-    const ed = edadDetallada(datos.fecha_nacimiento, Date.now())
-    const edadActualMeses = ed ? ed.anios * 12 + ed.meses : (datos.edad_actual || 0) * 12
-
-    const mesesFaltantes = metaMeses - edadActualMeses
-    const hoy = new Date()
-    const fechaInicio = new Date(hoy.getFullYear(), hoy.getMonth() + mesesFaltantes, 1)
-    setAnioInicioTramite(fechaInicio.getFullYear())
-  }, [edadInicioMod40Anios, edadInicioMod40Meses, datos.fecha_nacimiento, datos.edad_actual])
   const [showDetalle250, setShowDetalle250] = useState(false)
   const [showHistorialCompleto, setShowHistorialCompleto] = useState(false)
   const [sdiPromedio, setSdiPromedio] = useState(0)
@@ -291,6 +275,21 @@ function CalculadoraInner() {
   const [anioInicioTramite, setAnioInicioTramite] = useState(new Date().getFullYear())
   const [edadInicioMod40Anios, setEdadInicioMod40Anios] = useState<number | ''>('')
   const [edadInicioMod40Meses, setEdadInicioMod40Meses] = useState<number | ''>('')
+  // Año de inicio del trámite Mod 40, calculado automáticamente a partir de "¿a qué edad quieres iniciar?" (años y meses)
+  useEffect(() => {
+    if (edadInicioMod40Anios === '' && edadInicioMod40Meses === '') return
+    const anios = typeof edadInicioMod40Anios === 'number' ? edadInicioMod40Anios : 0
+    const meses = typeof edadInicioMod40Meses === 'number' ? edadInicioMod40Meses : 0
+    const metaMeses = anios * 12 + meses
+
+    const ed = edadDetallada(datos.fecha_nacimiento, Date.now())
+    const edadActualMeses = ed ? ed.anios * 12 + ed.meses : (datos.edad_actual || 0) * 12
+
+    const mesesFaltantes = metaMeses - edadActualMeses
+    const hoy = new Date()
+    const fechaInicio = new Date(hoy.getFullYear(), hoy.getMonth() + mesesFaltantes, 1)
+    setAnioInicioTramite(fechaInicio.getFullYear())
+  }, [edadInicioMod40Anios, edadInicioMod40Meses, datos.fecha_nacimiento, datos.edad_actual])
   const [showTooltipCuantia, setShowTooltipCuantia] = useState(false)
 
   // Flujo diagnóstico
