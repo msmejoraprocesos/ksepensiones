@@ -817,9 +817,9 @@ function CalculadoraInner() {
   const guiaCampos = (compact = false) => (
     <div style={{ padding: compact ? '8px 12px' : '12px 16px', background: '#FAFAFA', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: compact ? '10px' : '11px', color: '#64748b', display: 'flex', flexWrap: 'wrap' as const, gap: compact ? '10px' : '16px', alignItems: 'center' }}>
       {!compact && <strong style={{ color: '#374151' }}>Guía de colores:</strong>}
-      <span>{legendoDot('#EFF6FF', '#bfdbfe')} <strong>Azul</strong> — se llena solo al cargar la constancia IMSS</span>
-      <span>{legendoDot('#F5F3FF', '#ddd6fe')} <strong>Morado</strong> — viene de Configuración del sistema</span>
-      <span>{legendoDot('#FFFBEB', '#f59e0b')} <strong style={{ color: '#92400e' }}>Ámbar</strong> — tú debes llenarlo o confirmarlo</span>
+      <span>⚡ <strong style={{ color: '#1e40af' }}>Azul</strong> — se llena solo al cargar la constancia IMSS</span>
+      <span>⚙️ <strong style={{ color: '#5b21b6' }}>Morado</strong> — viene de Configuración del sistema</span>
+      <span>✏️ <strong style={{ color: '#92400e' }}>Ámbar</strong> — tú debes llenarlo o confirmarlo</span>
     </div>
   )
 
@@ -925,10 +925,27 @@ function CalculadoraInner() {
   )
 
   const tabBar = (
-    <div style={{ display: 'flex', gap: '0', borderBottom: '2px solid #e2e8f0', overflowX: 'auto', background: 'white', flexShrink: 0, padding: '0 20px' }}>
+    <div style={{ display: 'flex', gap: '4px', borderBottom: '1px solid #e2e8f0', overflowX: 'auto', background: 'white', flexShrink: 0, padding: '8px 20px', alignItems: 'center' }}>
       {TABS.map((t, i) => (
-        <button key={i} onClick={() => setTab(i)} style={tabSt(i)}>
-          {i < tab ? '✓ ' : ''}{t}
+        <button key={i} onClick={() => setTab(i)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '7px', padding: '6px 12px 6px 8px',
+            borderRadius: '20px', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap',
+            background: tab === i ? '#FFF1EC' : 'transparent',
+            transition: 'background 0.15s',
+          }}>
+          <span style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: '20px', height: '20px', borderRadius: '50%', fontSize: '10px', fontWeight: '700',
+            background: i < tab ? VERDE : tab === i ? NARANJA : '#e2e8f0',
+            color: i <= tab ? 'white' : '#94a3b8',
+            flexShrink: 0,
+          }}>
+            {i < tab ? '✓' : i + 1}
+          </span>
+          <span style={{ fontSize: '12px', fontWeight: tab === i ? '700' : '500', color: tab === i ? NARANJA : i < tab ? '#374151' : '#94a3b8' }}>
+            {t}
+          </span>
         </button>
       ))}
     </div>
