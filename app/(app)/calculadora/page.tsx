@@ -805,8 +805,8 @@ function CalculadoraInner() {
   const numInputSt: React.CSSProperties = { ...inputSt, textAlign: 'right' }
   const autoInputSt: React.CSSProperties = { ...inputSt, background: '#EFF6FF', borderColor: '#bfdbfe' }
   const autoNumInputSt: React.CSSProperties = { ...numInputSt, background: '#EFF6FF', borderColor: '#bfdbfe' }
-  const manualInputSt: React.CSSProperties = { ...inputSt, background: '#F8FAFC', borderColor: '#e2e8f0' }
-  const manualNumInputSt: React.CSSProperties = { ...numInputSt, background: '#F8FAFC', borderColor: '#e2e8f0' }
+  const manualInputSt: React.CSSProperties = { ...inputSt, background: '#FFFBEB', borderColor: '#f59e0b', borderWidth: '2px' }
+  const manualNumInputSt: React.CSSProperties = { ...numInputSt, background: '#FFFBEB', borderColor: '#f59e0b', borderWidth: '2px' }
   const sysInputSt: React.CSSProperties = { ...inputSt, background: '#F5F3FF', borderColor: '#ddd6fe' }
   const sysNumInputSt: React.CSSProperties = { ...numInputSt, background: '#F5F3FF', borderColor: '#ddd6fe' }
 
@@ -1172,10 +1172,10 @@ function CalculadoraInner() {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: '10px', marginTop: '10px' }}>
                 <div><label style={labelSt}>¿A qué edad quieres iniciar Mod 40? — años</label>
-                  <input type="number" min={0} style={manualInputSt} value={edadInicioMod40Anios} placeholder="ej. 61"
+                  <input type="number" min={0} style={manualNumInputSt} value={edadInicioMod40Anios} placeholder="ej. 61"
                     onChange={e => setEdadInicioMod40Anios(e.target.value === '' ? '' : parseInt(e.target.value) || 0)} /></div>
                 <div><label style={labelSt}>...y meses</label>
-                  <input type="number" min={0} max={11} style={manualInputSt} value={edadInicioMod40Meses} placeholder="0-11"
+                  <input type="number" min={0} max={11} style={manualNumInputSt} value={edadInicioMod40Meses} placeholder="0-11"
                     onChange={e => setEdadInicioMod40Meses(e.target.value === '' ? '' : parseInt(e.target.value) || 0)} /></div>
                 <div>
                   <label style={labelSt}>Año de inicio del trámite Mod 40 (automático)</label>
