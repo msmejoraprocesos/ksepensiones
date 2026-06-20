@@ -289,7 +289,7 @@ function MiDiaInner() {
         {(() => {
           const HOY = new Date()
           const diasDesde = (fecha: string) => Math.floor((HOY.getTime() - new Date(fecha).getTime()) / 86400000)
-          const tramiteEstancado = clientes.filter(c => c.etapa_kanban === 'tramite' && c.created_at && diasDesde(c.created_at) > 60)
+          const tramiteEstancado = clientes.filter(c => c.etapa_kanban === 'tramite' && diasDesde(c.fecha_etapa || c.created_at) > 60)
           const saldoAltoSinPago = clientesFiltrados.filter(c => Math.max(0, (c.monto_acordado || 0) - (c.total_pagado || 0)) >= 5000)
           const diagSinResultado = diagnosticos.filter(d => d.resultado_e4 == null)
           const alertas = [
@@ -311,7 +311,7 @@ function MiDiaInner() {
                 ))}
               </div>
               <p style={{ fontSize: '9px', color: '#a16207', marginTop: '6px' }}>
-                "Estancado" se mide desde la fecha de alta del cliente (no tenemos aún fecha de cambio de etapa) — es una aproximación.
+                "Estancado" se mide desde la fecha del último cambio de etapa. Para clientes movidos antes de este cambio, se usa su fecha de alta como respaldo.
               </p>
             </div>
           )

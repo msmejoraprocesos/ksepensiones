@@ -490,6 +490,7 @@ function ClientesInner() {
       email: form.email || null,
       notas: form.notas || null,
       etapa_kanban: form.etapa_kanban,
+      fecha_etapa: new Date().toISOString(),
       tipo_servicio: form.tipo_servicio || null,
     }
 
@@ -719,7 +720,7 @@ function ClientesInner() {
   }
 
   async function moverCliente(clienteId: string, etapaActual: string, nuevaEtapa: string, notaCancel?: string) {
-    const updates: any = { etapa_kanban: nuevaEtapa, ultimo_contacto: new Date().toISOString() }
+    const updates: any = { etapa_kanban: nuevaEtapa, ultimo_contacto: new Date().toISOString(), fecha_etapa: new Date().toISOString() }
     if (nuevaEtapa === 'cancelado' && notaCancel) updates.nota_cancelacion = notaCancel
     await supabase.from('clientes').update(updates).eq('id', clienteId)
     setClientes(prev => prev.map(c => c.id === clienteId ? { ...c, ...updates } : c))
