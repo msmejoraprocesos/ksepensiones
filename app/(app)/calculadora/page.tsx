@@ -897,7 +897,7 @@ function CalculadoraInner() {
           <span style={{ fontSize: '12px', color: '#92400e' }}>No se puede guardar ni generar PDF sin un cliente vinculado.</span>
         </div>
       )}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', flexWrap: 'wrap', gap: '10px' }}>
         <div>
           <p style={{ fontSize: '14px', fontWeight: '700', color: '#1e293b', margin: 0 }}>Calculadora de pensión</p>
           <p style={{ fontSize: '11px', color: '#94a3b8', margin: '1px 0 0' }}>
@@ -906,7 +906,7 @@ function CalculadoraInner() {
             {diagGuardadoId && <span style={{ color: estatus === 'autorizado' ? VERDE : '#f59e0b', fontWeight: '600' }}> · {estatus === 'autorizado' ? '✅ Autorizado' : '📝 Borrador'}</span>}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
           <select value={clienteId} onChange={e => {
               if (analisis.length > 0 || diagGuardadoId) {
                 setPendingClienteId(e.target.value)
@@ -917,7 +917,7 @@ function CalculadoraInner() {
                 setEstatus('borrador')
               }
             }}
-            style={{ ...inputSt, width: '200px', fontSize: '12px', padding: '6px 10px', borderColor: !clienteId ? '#f97316' : '#e2e8f0' }}>
+            style={{ ...inputSt, minWidth: '160px', maxWidth: '220px', fontSize: '12px', padding: '6px 10px', borderColor: !clienteId ? '#f97316' : '#e2e8f0' }}>
             <option value="">— Seleccionar cliente —</option>
             {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
           </select>
@@ -1146,7 +1146,7 @@ function CalculadoraInner() {
                 </tbody>
               </table>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', marginBottom: '12px' }}>
               <div style={{ background: '#FFF7ED', borderRadius: '8px', padding: '10px 12px', border: '1px solid #fed7aa' }}>
                 <p style={{ fontSize: '10px', color: '#92400e', margin: '0 0 3px', fontWeight: '700' }}>CESANTÍA (60-64 años)</p>
                 <p style={{ fontSize: '11px', color: '#92400e', margin: 0, lineHeight: 1.5 }}>Se aplica un factor reductor: 75% a los 60, 80% a los 61, 85% a los 62, 90% a los 63, 95% a los 64 años. Se requiere acreditar haber dejado de trabajar.</p>
@@ -1211,7 +1211,7 @@ function CalculadoraInner() {
 
             <div style={cardSt}>
               {sectionTitle('Identificación del trabajador')}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px', marginBottom: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px', marginBottom: '10px' }}>
                 <div><label style={labelSt}>✏️ Nombre del cliente / asesorado</label>
                   <input style={manualInputSt} value={datos.nombre} onChange={e => setDatos(p => ({ ...p, nombre: e.target.value }))} placeholder="Nombre del cliente (quien contrata)" /></div>
                 <div><label style={labelSt}>⚡ Nombre del trabajador (constancia IMSS)</label>
@@ -1226,7 +1226,7 @@ function CalculadoraInner() {
                   </select>
                 </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px' }}>
                 <div><label style={labelSt}>⚡ Fecha de nacimiento</label>
                   <input type="date" style={autoInputSt} value={datos.fecha_nacimiento} onChange={e => {
                     const edad = e.target.value ? Math.floor((Date.now() - new Date(e.target.value).getTime()) / (365.25 * 86400000)) : 0
@@ -1249,7 +1249,7 @@ function CalculadoraInner() {
                 <div><label style={labelSt}>⚡ Semanas cotizadas</label>
                   <input type="number" style={autoNumInputSt} value={datos.semanas_totales || ''} onChange={e => setDatos(p => ({ ...p, semanas_totales: parseInt(e.target.value) || 0 }))} /></div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: '10px', marginTop: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '10px', marginTop: '10px' }}>
                 <div><label style={labelSt}>
                     ✏️ ¿A qué edad quieres iniciar Mod 40? — años
                     <button onClick={() => setShowGuiaEdadMod40(true)} style={{ marginLeft: '6px', background: AZUL, color: 'white', border: 'none', borderRadius: '50%', width: '14px', height: '14px', fontSize: '9px', cursor: 'pointer', fontWeight: '700', lineHeight: '14px', padding: 0 }}>?</button>
@@ -1271,7 +1271,7 @@ function CalculadoraInner() {
 
             <div style={cardSt}>
               {sectionTitle('Situación laboral y familiar')}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px', marginBottom: '10px' }}>
                 <div>
                   <label style={labelSt}>{datos.fecha_calculo ? '⚡' : '✏️'} ¿Sigue cotizando al IMSS?{datos.fecha_calculo && <span style={{ color: AZUL, fontWeight: '600', textTransform: 'none' }}> · sugerido</span>}</label>
                   <select style={datos.fecha_calculo ? autoInputSt : manualInputSt} value={datos.sigue_cotizando ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, sigue_cotizando: e.target.value === 'si' }))}>
@@ -1293,7 +1293,7 @@ function CalculadoraInner() {
                 <div><label style={labelSt}>✏️ Hijos menores de 16 / est. hasta 25</label>
                   <input type="number" style={manualNumInputSt} value={datos.num_hijos || ''} onChange={e => setDatos(p => ({ ...p, num_hijos: parseInt(e.target.value) || 0 }))} placeholder="0" /></div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px' }}>
                 <div><label style={labelSt}>✏️ Padres económicamente dependientes</label>
                   <input type="number" style={manualNumInputSt} value={datos.num_padres || ''} onChange={e => setDatos(p => ({ ...p, num_padres: parseInt(e.target.value) || 0 }))} placeholder="0" /></div>
                 <div>
@@ -1333,7 +1333,7 @@ function CalculadoraInner() {
               return (
                 <div style={{ ...cardSt, borderLeft: `3px solid ${cumple ? VERDE : '#ef4444'}` }}>
                   {sectionTitle('Resumen automático')}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px', marginBottom: '12px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '8px', marginBottom: '12px' }}>
                     {kpiBox('Semanas válidas', sem.toLocaleString(), 'descontadas AFORE', cumple ? VERDE : '#ef4444', cumple ? 'verde' : 'rojo')}
                     {kpiBox('Edad mín. pensión', `${edadMin} años`, 'Vejez (sin Mod 40)', AZUL, 'azul')}
                     {kpiBox('Asignaciones familiares', `+${asignaciones}%`, `cónyuge + ${datos.num_hijos} hijo(s)`, '#8b5cf6')}
@@ -1359,7 +1359,7 @@ function CalculadoraInner() {
             {/* Resumen */}
             <div style={{ ...cardSt, borderLeft: `3px solid ${NARANJA}` }}>
               {sectionTitle('Resumen del cálculo', periodos.length > 0 ? `${periodos.length} períodos analizados · ${periodos.reduce((s,p) => s+p.semanas, 0)} semanas` : 'Carga la constancia IMSS para calcular automáticamente')}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', marginBottom: '12px' }}>
                 {kpiBox('SDI promedio 250 sem.', sdiPromedio > 0 ? fmtMXN2(sdiPromedio) : '—', 'Base oficial de pensión', AZUL, 'azul')}
                 {kpiBox('SDI mensual equivalente', sdiPromedio > 0 ? fmtMXN(sdiPromedio * 30.4) : '—', '× 30.4 días', '#1e293b', 'gris')}
                 {kpiBox('Diferencia vs SDI actual', periodos.length > 0 && sdiPromedio > 0 ? fmtMXN2(periodos[periodos.length-1]?.sdi - sdiPromedio) : '—', 'SDI actual vs promedio', periodos.length > 0 && periodos[periodos.length-1]?.sdi > sdiPromedio ? '#ef4444' : VERDE)}
@@ -1450,7 +1450,7 @@ function CalculadoraInner() {
             </div>
 
             {guiaCampos(true)}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
               <div style={cardSt}>
                 <label style={labelSt}>⚡ Fecha de última cotización</label>
                 <input type="date" style={autoInputSt} value={fechaUltimaCot} onChange={e => setFechaUltimaCot(e.target.value)} />
@@ -1468,7 +1468,7 @@ function CalculadoraInner() {
               return (
                 <div style={{ ...cardSt, borderLeft: `3px solid ${color}` }}>
                   {sectionTitle('Estado de conservación de derechos')}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '14px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', marginBottom: '14px' }}>
                     {kpiBox('Estado', cons.vigente ? 'Vigente' : 'Vencido', cons.venceEn ? `${cons.venceEn} meses restantes (${cons.semanasConservacion} sem de conservación)` : 'Período vencido', color)}
                     {kpiBox('Semanas cotizadas', datos.semanas_totales.toLocaleString(), 'total histórico', datos.semanas_totales >= 500 ? VERDE : '#f59e0b')}
                     {kpiBox('Plazo de conservación', cons.indefinida ? 'Indefinido' : cons.venceEn !== null ? `${cons.venceEn} meses` : 'Sin conservación', cons.semanasConservacion ? `${cons.semanasConservacion} semanas = semanas ÷ 4` : 'Art. 183 LSS')}
@@ -1576,7 +1576,7 @@ function CalculadoraInner() {
             {guiaCampos(true)}
             <div style={cardSt}>
               {sectionTitle('Configuración de la Modalidad 40')}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '14px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '10px', marginBottom: '14px' }}>
                 <div>
                   <label style={labelSt}>✏️ Salario base Mod 40 (veces UMA)</label>
                   <p style={{ fontSize: '10px', color: '#94a3b8', margin: '2px 0 5px', lineHeight: 1.4 }}>El salario sobre el que el cliente quiere cotizar voluntariamente. A mayor UMA, mayor pensión final pero mayor costo mensual. Rango típico: 10–25 UMAs.</p>
@@ -1608,7 +1608,7 @@ function CalculadoraInner() {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '14px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', marginBottom: '14px' }}>
                 {kpiBox('Costo mensual', fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys)), 'Pago mensual al IMSS', NARANJA, 'naranja')}
                 {kpiBox('Inversión total', fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses), `${mod40Meses} meses`, '#dc2626', 'rojo')}
                 {kpiBox('SDI con Mod 40', fmtMXN2(mod40Umas * sys.UMA_DIARIA), 'Salario cotizado', AZUL, 'azul')}
@@ -1624,7 +1624,7 @@ function CalculadoraInner() {
                 const umaEnInicio = proyectarValor(sys.UMA_DIARIA, new Date().getFullYear(), anioInicioTramite)
                 const sdiEnBaja = mod40Umas * umaEnInicio
                 return (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '14px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px', marginBottom: '14px' }}>
                     {kpiBox('Fecha estimada de baja', fechaBaja.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }), 'Fin de Modalidad 40', '#7c3aed', 'azul')}
                     {kpiBox('Semanas cotizadas en ese momento', semanasEnBaja.toString(), `${datos.semanas_totales || 0} actuales + ${(mod40Meses * 4.33).toFixed(0)} de Mod 40`, VERDE, 'verde')}
                     {kpiBox('Salario (SDI) en ese momento', fmtMXN2(sdiEnBaja), `UMA proyectada a ${anioInicioTramite}`, AZUL, 'azul')}
@@ -1745,7 +1745,7 @@ function CalculadoraInner() {
                 </table>
               </div>
               {/* Recuperación vía AFORE */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px' }}>
                 {kpiBox('Costo total Mod 40', fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses), 'inversión bruta', AZUL)}
                 {kpiBox('Recuperación vía AFORE', fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses * 0.20), '~20% regresa al trámite de pensión', VERDE)}
                 {kpiBox('Inversión real neta', fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses * 0.80), 'costo - recuperación AFORE', NARANJA)}
@@ -1794,7 +1794,7 @@ function CalculadoraInner() {
             <div style={cardSt}>
               {sectionTitle('Configuración (comparte parámetros con Mod 40)')}
               <p style={{ fontSize: '11px', color: '#94a3b8', margin: '-4px 0 10px' }}>Los valores de UMAs y meses se toman de la pestaña Modalidad 40. Ajústalos ahí para actualizar esta comparativa.</p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '10px' }}>
                 <div>
                   <label style={labelSt}>🔗 Salario base (UMAs) — viene de Mod 40</label>
                   <input type="number" style={{ ...autoNumInputSt, background: '#F4F6FB', borderColor: '#cbd5e1', color: '#64748b' }} value={mod40Umas} readOnly />
@@ -1815,7 +1815,7 @@ function CalculadoraInner() {
 
             <div style={cardSt}>
               {sectionTitle('Comparativa de costos')}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '14px' }}>
                 <div style={{ background: '#EEF2F8', borderRadius: '10px', padding: '14px', border: '2px solid #bfdbfe' }}>
                   <p style={{ fontSize: '11px', color: '#1e40af', margin: '0 0 4px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Modalidad 40</p>
                   <p style={{ fontSize: '22px', fontWeight: '700', color: NARANJA, margin: '0 0 4px' }}>{fmtMXN(cuotaM40)}<span style={{ fontSize: '12px', fontWeight: '400' }}>/mes</span></p>
@@ -1980,7 +1980,7 @@ function CalculadoraInner() {
               <>
                 {/* ── Pensión objetivo + simulación libre ── */}
                 <div style={cardSt}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', alignItems: 'end' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', alignItems: 'end' }}>
                     <div>
                       {sectionTitle('Pensión objetivo del cliente')}
                       <label style={labelSt}>¿Cuánto quiere recibir al mes? ($)</label>
@@ -2003,7 +2003,7 @@ function CalculadoraInner() {
                         )}
                       </div>
                       {simulacionLibre && (
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
                           <div>
                             <label style={labelSt}>UMAs ({simUmas} = {fmtMXN(simUmas * sys.UMA_DIARIA * 30.4)}/mes)</label>
                             <input type="range" min="1" max="25" value={simUmas} onChange={e => setSimUmas(parseFloat(e.target.value))} style={{ width: '100%' }} />
@@ -2063,7 +2063,7 @@ function CalculadoraInner() {
                   return (
                     <div style={cardSt}>
                       {sectionTitle(`Detalle: ${escSel.label}`)}
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '10px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', marginBottom: '10px' }}>
                         {kpiBox('Pensión mensual', fmtMXN(escSel.pension_mensual), 'pesos de hoy', VERDE, 'verde')}
                         {kpiBox('Inversión total', fmtMXN(escSel.inversion_total), 'costo total Mod 40', AZUL, 'rojo')}
                         {escSel.incremento_vs_base > 0 ? kpiBox('Incremento vs base', `+${fmtMXN(escSel.incremento_vs_base)}/mes`, 'sobre pensión sin modalidad', NARANJA, 'naranja') : kpiBox('Pensión base', fmtMXN(escenarios[0]?.pension_mensual || 0), 'sin estrategia', '#94a3b8')}
@@ -2178,7 +2178,7 @@ function CalculadoraInner() {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
               {/* Columna izq */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <div style={cardSt}>
@@ -2222,7 +2222,7 @@ function CalculadoraInner() {
                     </div>
                   )}
                   {escSel && (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '6px' }}>
                       {kpiBox('Inversión total', fmtMXN(escSel.inversion_total))}
                       {kpiBox('Incremento mensual', `+${fmtMXN(escSel.incremento_vs_base)}`, 'vs sin Mod 40', VERDE)}
                       {kpiBox('ROI', escSel.roi_meses > 0 ? `${escSel.roi_meses} meses` : '—', 'punto de equilibrio', '#8b5cf6')}
@@ -2329,7 +2329,7 @@ function CalculadoraInner() {
         {showHistorialCompleto && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
             onClick={e => { if (e.target === e.currentTarget) setShowHistorialCompleto(false) }}>
-            <div style={{ background: 'white', borderRadius: '14px', padding: '20px', width: '720px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}>
+            <div style={{ background: 'white', borderRadius: '14px', padding: '20px', width: '720px', maxWidth: '100%', maxHeight: '80vh', display: 'flex', flexDirection: 'column', boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                 <div>
                   <p style={{ fontSize: '14px', fontWeight: '700', color: '#1e293b', margin: 0 }}>Historial laboral completo — toda la vida laboral</p>
@@ -2375,7 +2375,7 @@ function CalculadoraInner() {
         {showDetalle250 && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
             onClick={e => { if (e.target === e.currentTarget) setShowDetalle250(false) }}>
-            <div style={{ background: 'white', borderRadius: '14px', padding: '20px', width: '680px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}>
+            <div style={{ background: 'white', borderRadius: '14px', padding: '20px', width: '680px', maxWidth: '100%', maxHeight: '80vh', display: 'flex', flexDirection: 'column', boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                 <div>
                   <p style={{ fontSize: '14px', fontWeight: '700', color: '#1e293b', margin: 0 }}>Desglose completo — 250 semanas cotizadas</p>
