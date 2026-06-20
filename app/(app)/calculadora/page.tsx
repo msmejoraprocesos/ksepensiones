@@ -1793,17 +1793,17 @@ function CalculadoraInner() {
               <p style={{ fontSize: '11px', color: '#94a3b8', margin: '-4px 0 10px' }}>Los valores de UMAs y meses se toman de la pestaña Modalidad 40. Ajústalos ahí para actualizar esta comparativa.</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                 <div>
-                  <label style={labelSt}>Salario base (UMAs)</label>
-                  <input type="number" style={manualNumInputSt} value={mod40Umas} readOnly />
+                  <label style={labelSt}>🔗 Salario base (UMAs) — viene de Mod 40</label>
+                  <input type="number" style={{ ...autoNumInputSt, background: '#F4F6FB', borderColor: '#cbd5e1', color: '#64748b' }} value={mod40Umas} readOnly />
                   <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>SDI: {fmtMXN2(mod40Umas * UMA_DIARIA)}/día</p>
                 </div>
                 <div>
-                  <label style={labelSt}>Meses de cotización</label>
-                  <input type="number" style={manualNumInputSt} value={mod40Meses} readOnly />
+                  <label style={labelSt}>🔗 Meses de cotización — viene de Mod 40</label>
+                  <input type="number" style={{ ...autoNumInputSt, background: '#F4F6FB', borderColor: '#cbd5e1', color: '#64748b' }} value={mod40Meses} readOnly />
                   <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>{semanas} semanas adicionales</p>
                 </div>
                 <div>
-                  <label style={labelSt}>Tasa Mod 10 (estimada)</label>
+                  <label style={labelSt}>⚙️ Tasa Mod 10 (estimada)</label>
                   <input type="number" style={sysNumInputSt} value={22} readOnly />
                   <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>% promedio todos los ramos</p>
                 </div>
