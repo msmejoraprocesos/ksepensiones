@@ -1502,6 +1502,17 @@ function CalculadoraInner() {
                   <label style={labelSt}>Período de cotización (meses)</label>
                   <p style={{ fontSize: '10px', color: '#94a3b8', margin: '2px 0 5px', lineHeight: 1.4 }}>Cuántos meses pagará Modalidad 40 antes de tramitar la pensión. Solo cuentan los <strong>últimos 60 meses</strong> (5 años) para el promedio del SDI — periodos más largos no incrementan más la pensión pero sí el costo total.</p>
                   <input type="number" style={manualNumInputSt} value={mod40Meses} onChange={e => setMod40Meses(parseInt(e.target.value) || 1)} />
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginTop: '5px' }}>
+                    <span style={{ fontSize: '10px', color: '#94a3b8' }}>= </span>
+                    <input type="number" min={0} style={{ ...manualNumInputSt, padding: '4px 6px', fontSize: '11px', width: '50px' }}
+                      value={Math.floor(mod40Meses / 12)}
+                      onChange={e => { const a = parseInt(e.target.value) || 0; const m = mod40Meses % 12; setMod40Meses(a * 12 + m) }} />
+                    <span style={{ fontSize: '10px', color: '#94a3b8' }}>años</span>
+                    <input type="number" min={0} max={11} style={{ ...manualNumInputSt, padding: '4px 6px', fontSize: '11px', width: '50px' }}
+                      value={mod40Meses % 12}
+                      onChange={e => { const m = Math.min(11, parseInt(e.target.value) || 0); const a = Math.floor(mod40Meses / 12); setMod40Meses(a * 12 + m) }} />
+                    <span style={{ fontSize: '10px', color: '#94a3b8' }}>meses</span>
+                  </div>
                   <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>{(mod40Meses * 4.33).toFixed(0)} semanas adicionales</p>
                 </div>
                 <div>
@@ -1920,6 +1931,7 @@ function CalculadoraInner() {
                         <div style={{ fontSize: '12px', fontWeight: '600', color: '#374151' }}>{esc.label}</div>
                         <div style={{ fontSize: '10px', color: '#94a3b8' }}>{esc.descripcion}</div>
                         <div style={{ fontSize: '20px', fontWeight: '700', color: i === 0 ? '#94a3b8' : isElegido ? VERDE : AZUL }}>{fmtMXN(esc.pension_mensual)}/mes</div>
+                        <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '-4px' }}>{fmtMXN(esc.pension_mensual * 12)}/año</div>
                         {esc.incremento_vs_base > 0 && <div style={{ fontSize: '11px', color: VERDE, fontWeight: '600' }}>+{fmtMXN(esc.incremento_vs_base)}/mes vs base</div>}
                         {esc.inversion_total > 0 && <div style={{ fontSize: '10px' }}><span style={{ color: NARANJA, fontWeight: '600' }}>{fmtMXN(esc.costo_mensual_mod40)}/mes</span><span style={{ color: '#94a3b8' }}> · {fmtMXN(esc.inversion_total)} total</span></div>}
                         {pctObjetivo !== null && (
@@ -2088,6 +2100,7 @@ function CalculadoraInner() {
                 <div style={cardSt}>
                   {sectionTitle('Pensión sin Modalidad 40')}
                   <div style={{ fontSize: '26px', fontWeight: '700', color: '#94a3b8', marginBottom: '4px' }}>{fmtMXN(escenarios[0]?.pension_mensual || 0)}/mes</div>
+                  <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '4px' }}>{fmtMXN((escenarios[0]?.pension_mensual || 0) * 12)}/año</div>
                   <div style={{ fontSize: '11px', color: '#94a3b8' }}>SDI base: {fmtMXN2(sdiPromedio)} · Pensión base sin estrategia</div>
                 </div>
               </div>
@@ -2097,6 +2110,7 @@ function CalculadoraInner() {
                 <div style={{ ...cardSt, border: `2px solid ${NARANJA}` }}>
                   {sectionTitle('Pensión recomendada', escSel?.label)}
                   <div style={{ fontSize: '30px', fontWeight: '700', color: AZUL, marginBottom: '4px' }}>{fmtMXN(escSel?.pension_mensual || 0)}/mes</div>
+                  <div style={{ fontSize: '13px', color: AZUL, fontWeight: '600', marginBottom: '4px' }}>{fmtMXN((escSel?.pension_mensual || 0) * 12)}/año</div>
                   {escSel && escSel.incremento_vs_base > 0 && (
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '3px 10px', background: '#f0fdf4', borderRadius: '20px', fontSize: '12px', fontWeight: '700', color: VERDE, marginBottom: '10px' }}>
                       +{Math.round((escSel.incremento_vs_base / (escenarios[0]?.pension_mensual || 1)) * 100)}% sobre pensión base
