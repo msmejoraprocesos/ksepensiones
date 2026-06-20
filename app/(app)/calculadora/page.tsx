@@ -897,16 +897,16 @@ function CalculadoraInner() {
           <span style={{ fontSize: '12px', color: '#92400e' }}>No se puede guardar ni generar PDF sin un cliente vinculado.</span>
         </div>
       )}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', flexWrap: 'wrap', gap: '10px' }}>
-        <div>
-          <p style={{ fontSize: '14px', fontWeight: '700', color: '#1e293b', margin: 0 }}>Calculadora de pensión</p>
-          <p style={{ fontSize: '11px', color: '#94a3b8', margin: '1px 0 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', flexWrap: 'nowrap', gap: '14px', overflowX: 'auto' }}>
+        <div style={{ flexShrink: 0 }}>
+          <p style={{ fontSize: '14px', fontWeight: '700', color: '#1e293b', margin: 0, whiteSpace: 'nowrap' }}>Calculadora de pensión</p>
+          <p style={{ fontSize: '11px', color: '#94a3b8', margin: '1px 0 0', whiteSpace: 'nowrap' }}>
             {tab + 1} de {TABS.length} — {TABS[tab]}
             {clienteSeleccionado && <span style={{ color: AZUL, fontWeight: '600' }}> · {clienteSeleccionado.nombre}</span>}
             {diagGuardadoId && <span style={{ color: estatus === 'autorizado' ? VERDE : '#f59e0b', fontWeight: '600' }}> · {estatus === 'autorizado' ? '✅ Autorizado' : '📝 Borrador'}</span>}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'nowrap', flexShrink: 0 }}>
           <select value={clienteId} onChange={e => {
               if (analisis.length > 0 || diagGuardadoId) {
                 setPendingClienteId(e.target.value)
@@ -917,11 +917,11 @@ function CalculadoraInner() {
                 setEstatus('borrador')
               }
             }}
-            style={{ ...inputSt, minWidth: '160px', maxWidth: '220px', fontSize: '12px', padding: '6px 10px', borderColor: !clienteId ? '#f97316' : '#e2e8f0' }}>
+            style={{ ...inputSt, minWidth: '160px', maxWidth: '220px', fontSize: '12px', padding: '6px 10px', height: '34px', borderColor: !clienteId ? '#f97316' : '#e2e8f0' }}>
             <option value="">— Seleccionar cliente —</option>
             {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
           </select>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '7px 14px', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: extracting ? 'not-allowed' : 'pointer', fontSize: '12px', fontWeight: '600', color: AZUL, background: '#EEF2F8', whiteSpace: 'nowrap' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '0 14px', height: '34px', boxSizing: 'border-box', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: extracting ? 'not-allowed' : 'pointer', fontSize: '12px', fontWeight: '600', color: AZUL, background: '#EEF2F8', whiteSpace: 'nowrap' }}>
             {extracting ? '⏳ Extrayendo...' : '📄 Cargar constancia IMSS'}
             <input ref={fileRef} type="file" accept=".pdf" style={{ display: 'none' }} disabled={extracting}
               onChange={e => { const f = e.target.files?.[0]; if (f) extraerPDF(f) }} />
