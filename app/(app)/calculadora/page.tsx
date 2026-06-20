@@ -671,7 +671,12 @@ function CalculadoraInner() {
   }
 
   function recalcEscenarios() {
-    const sem = datos.semanas_totales - datos.semanas_descontadas
+    const semBase = datos.semanas_totales - datos.semanas_descontadas
+    // Si el cliente sigue cotizando normalmente (sin Mod 40) entre hoy y el año de inicio del trámite,
+    // esas semanas naturales también se suman al total antes de empezar Mod 40 (igual que el Excel de referencia)
+    const anioActual = new Date().getFullYear()
+    const mesesHastaInicioMod40 = datos.sigue_cotizando ? Math.max(0, (anioInicioTramite - anioActual) * 12) : 0
+    const sem = semBase + mesesHastaInicioMod40 * 4.33
     // No calcular sin datos reales cargados
     if (datos.semanas_totales === 0 || sdiPromedio <= 0) return
     const sdiBase = sdiPromedio > 0 ? sdiPromedio : sys.SALARIO_MIN
