@@ -292,6 +292,7 @@ function CalculadoraInner() {
   }, [edadInicioMod40Anios, edadInicioMod40Meses, datos.fecha_nacimiento, datos.edad_actual])
   const [showTooltipCuantia, setShowTooltipCuantia] = useState(false)
   const [showGuiaEdadMod40, setShowGuiaEdadMod40] = useState(false)
+  const [showGlosario, setShowGlosario] = useState(false)
 
   // Flujo diagnóstico
   const [ingresoObjetivo, setIngresoObjetivo] = useState(0)
@@ -815,11 +816,17 @@ function CalculadoraInner() {
   )
 
   const guiaCampos = (compact = false) => (
-    <div style={{ padding: compact ? '8px 12px' : '12px 16px', background: '#FAFAFA', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: compact ? '10px' : '11px', color: '#64748b', display: 'flex', flexWrap: 'wrap' as const, gap: compact ? '10px' : '16px', alignItems: 'center' }}>
-      {!compact && <strong style={{ color: '#374151' }}>Guía de colores:</strong>}
-      <span>⚡ <strong style={{ color: '#1e40af' }}>Azul</strong> — se llena solo al cargar la constancia IMSS</span>
-      <span>⚙️ <strong style={{ color: '#5b21b6' }}>Morado</strong> — viene de Configuración del sistema</span>
-      <span>✏️ <strong style={{ color: '#92400e' }}>Ámbar</strong> — tú debes llenarlo o confirmarlo</span>
+    <div style={{ padding: compact ? '8px 12px' : '12px 16px', background: '#FAFAFA', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: compact ? '10px' : '11px', color: '#64748b', display: 'flex', flexWrap: 'wrap' as const, gap: compact ? '10px' : '16px', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: compact ? '10px' : '16px', alignItems: 'center' }}>
+        {!compact && <strong style={{ color: '#374151' }}>Guía de colores:</strong>}
+        <span>⚡ <strong style={{ color: '#1e40af' }}>Azul</strong> — se llena solo al cargar la constancia IMSS</span>
+        <span>⚙️ <strong style={{ color: '#5b21b6' }}>Morado</strong> — viene de Configuración del sistema</span>
+        <span>✏️ <strong style={{ color: '#92400e' }}>Ámbar</strong> — tú debes llenarlo o confirmarlo</span>
+      </div>
+      <button onClick={() => setShowGlosario(true)}
+        style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'white', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '4px 9px', fontSize: compact ? '10px' : '11px', fontWeight: '600', color: AZUL, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+        📖 Glosario de términos
+      </button>
     </div>
   )
 
@@ -1050,6 +1057,36 @@ function CalculadoraInner() {
           </div>
         )
       })()}
+
+      {/* ── Glosario de términos técnicos ── */}
+      {showGlosario && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+          onClick={e => { if (e.target === e.currentTarget) setShowGlosario(false) }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '100%', maxWidth: '560px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+              <p style={{ fontSize: '14px', fontWeight: '700', color: AZUL, margin: 0 }}>📖 Glosario de términos</p>
+              <button onClick={() => setShowGlosario(false)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {[
+                { t: 'SDI — Salario Diario Integrado', d: 'El salario que se usa para calcular cuotas y pensión. No es solo el sueldo: incluye aguinaldo, prima vacacional y otras prestaciones, expresado como un monto diario.' },
+                { t: 'SBC — Salario Base de Cotización', d: 'El mismo concepto que el SDI, visto desde el lado del IMSS: es el monto sobre el cual el patrón (o el propio trabajador en Mod 40) paga las cuotas mensuales.' },
+                { t: 'UMA — Unidad de Medida y Actualización', d: 'Una referencia en pesos que el gobierno actualiza cada 1° de enero (similar a como antes se usaba el salario mínimo). Se usa para calcular topes, costos de Modalidad 40 y pensiones mínimas garantizadas.' },
+                { t: 'Modalidad 40', d: 'Un esquema voluntario del IMSS que permite seguir cotizando aunque ya no se trabaje, pagando uno mismo la cuota, para subir el salario promedio y con ello la pensión final.' },
+                { t: 'Modalidad 10', d: 'Otro esquema voluntario, pensado para trabajadores independientes: permite seguir cotizando con cobertura médica completa (a diferencia de Mod 40, que no incluye servicio médico).' },
+                { t: 'Conservación de derechos', d: 'El tiempo que una persona conserva el derecho a pensionarse después de dejar de cotizar, antes de que ese derecho "venza" y tenga que volver a cotizar semanas para recuperarlo.' },
+                { t: 'Ley 73 vs Ley 97', d: 'Dos regímenes de pensión distintos según cuándo empezó a cotizar la persona. Ley 73 (antes de jul 1997) suele dar pensiones más altas y permite estrategias como Modalidad 40; Ley 97 (después) se basa en el saldo acumulado en la AFORE.' },
+                { t: 'Semanas de cotización', d: 'El total de semanas trabajadas y registradas ante el IMSS. Se necesita un mínimo (500 en Ley 73) para tener derecho a pensión.' },
+              ].map((item, i) => (
+                <div key={i} style={{ paddingBottom: '10px', borderBottom: i < 7 ? '1px solid #f1f5f9' : 'none' }}>
+                  <p style={{ fontSize: '12.5px', fontWeight: '700', color: '#1e293b', margin: '0 0 3px' }}>{item.t}</p>
+                  <p style={{ fontSize: '12px', color: '#64748b', margin: 0, lineHeight: 1.6 }}>{item.d}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Guía: por qué importan los años Y meses al elegir cuándo iniciar Mod 40 ── */}
       {showGuiaEdadMod40 && (
