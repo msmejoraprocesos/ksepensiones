@@ -194,7 +194,7 @@ export default function SeguimientoPage() {
                           const cfg = TIPO_CONFIG[a.tipo] ?? TIPO_CONFIG.nota
                           return (
                             <div key={a.id} onClick={e => { e.stopPropagation(); setDetalle(a) }}
-                              style={{ fontSize: '10px', lineHeight: '14px', height: '18px', boxSizing: 'border-box', padding: '2px 5px', borderRadius: '4px', background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer', textDecoration: a.estatus === 'completado' ? 'line-through' : 'none' }}>
+                              style={{ fontSize: '10px', padding: '2px 5px', borderRadius: '4px', background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer', textDecoration: a.estatus === 'completado' ? 'line-through' : 'none' }}>
                               {TIPO_ICONS[a.tipo]} {a.titulo}{a.fecha_programada ? ' ' + new Date(a.fecha_programada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : ''}
                             </div>
                           )
@@ -275,7 +275,7 @@ export default function SeguimientoPage() {
                   const leftPct = col * widthPct + 2
                   return (
                     <div key={a.id} onClick={e => { e.stopPropagation(); setDetalle(a) }}
-                      style={{ position: 'absolute', top, left: `${leftPct}%`, width: `${widthPct}%`, minHeight: '24px', borderRadius: '6px', padding: '3px 6px', background: cfg.bg, border: `1px solid ${cfg.border}`, cursor: 'pointer', zIndex: 10 + col, opacity: a.estatus === 'completado' ? 0.6 : 1, boxSizing: 'border-box' }}>
+                      style={{ position: 'absolute', top, left: `${leftPct}%`, width: `${widthPct}%`, height: '36px', borderRadius: '6px', padding: '3px 6px', background: cfg.bg, border: `1px solid ${cfg.border}`, cursor: 'pointer', zIndex: 10 + col, opacity: a.estatus === 'completado' ? 0.6 : 1, boxSizing: 'border-box', overflow: 'hidden' }}>
                       <div style={{ fontSize: '10px', fontWeight: '700', color: cfg.color, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: a.estatus === 'completado' ? 'line-through' : 'none' }}>
                         {TIPO_ICONS[a.tipo]} {d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })} {a.titulo}
                       </div>
