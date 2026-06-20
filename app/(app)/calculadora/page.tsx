@@ -73,27 +73,91 @@ interface AnalisisSeccion {
   contenido: string
 }
 
-// ── FÓRMULAS OFICIALES ─────────────────────────────────────────────
+// Tabla oficial Art. 167 LSS — % de cuantía básica e incremento anual según el salario
+// proporcional en veces-UMA (SDI promedio ÷ UMA diaria). Fuente: hoja '1' del Excel de referencia.
+const TABLA_CUANTIA_UMA: { min: number; max: number; basica: number; incremento: number }[] = [
+  { min: 0,    max: 1.00, basica: 0.80,   incremento: 0.00563 },
+  { min: 1.01, max: 1.25, basica: 0.7711, incremento: 0.00814 },
+  { min: 1.26, max: 1.50, basica: 0.5818, incremento: 0.01178 },
+  { min: 1.51, max: 1.75, basica: 0.4923, incremento: 0.0143 },
+  { min: 1.76, max: 2.00, basica: 0.4267, incremento: 0.01615 },
+  { min: 2.01, max: 2.25, basica: 0.3765, incremento: 0.01756 },
+  { min: 2.26, max: 2.50, basica: 0.3368, incremento: 0.01868 },
+  { min: 2.51, max: 2.75, basica: 0.3048, incremento: 0.01958 },
+  { min: 2.76, max: 3.00, basica: 0.2783, incremento: 0.02033 },
+  { min: 3.01, max: 3.25, basica: 0.256,  incremento: 0.02096 },
+  { min: 3.26, max: 3.50, basica: 0.237,  incremento: 0.02149 },
+  { min: 3.51, max: 3.75, basica: 0.2207, incremento: 0.02195 },
+  { min: 3.76, max: 4.00, basica: 0.2065, incremento: 0.02235 },
+  { min: 4.01, max: 4.25, basica: 0.1939, incremento: 0.02271 },
+  { min: 4.26, max: 4.50, basica: 0.1829, incremento: 0.02302 },
+  { min: 4.51, max: 4.75, basica: 0.173,  incremento: 0.0233 },
+  { min: 4.76, max: 5.00, basica: 0.1641, incremento: 0.02355 },
+  { min: 5.01, max: 5.25, basica: 0.1561, incremento: 0.02377 },
+  { min: 5.26, max: 5.50, basica: 0.1488, incremento: 0.02398 },
+  { min: 5.51, max: 5.75, basica: 0.1422, incremento: 0.02416 },
+  { min: 5.76, max: 6.00, basica: 0.1362, incremento: 0.02433 },
+  { min: 6.01, max: Infinity, basica: 0.13, incremento: 0.0245 },
+]
+function buscarCuantiaPorUMA(vecesUMA: number) {
+  const fila = TABLA_CUANTIA_UMA.find(f => vecesUMA <= f.max) ?? TABLA_CUANTIA_UMA[TABLA_CUANTIA_UMA.length - 1]
+  return fila
+}
+// Factor 1.11 (111%): se aplica de forma consistente en todo el Excel de referencia a la
+// cuantía básica, incrementos, asignaciones y pensión mínima garantizada. No hay nota que
+// explique su origen exacto en el archivo, pero se replica tal cual por ser la metodología validada.
+const FACTOR_111 = 1.11
+
+// ── FÓRMULAS OFICIALES (Art. 167-171 LSS) — replica fiel del Excel de referencia ──────────
 function calcPensionLey73(semanas: number, sdi: number, edadRetiro: number, sys: SysVars, tieneConyuge: boolean, numHijos: number, numPadres: number, anioRetiro?: number): { monto: number; pmg_aplica: boolean } {
   if (semanas < 500) return { monto: 0, pmg_aplica: false }
-  const semanasExtra = Math.max(0, semanas - 500)
-  const incrementos = Math.floor(semanasExtra / 52)
-  const pct = Math.min(1.0, 0.35 + incrementos * 0.0125)
-  const pensionDiaria = sdi * pct
-  const pensionMensual = pensionDiaria * 30.4
-  // PMG proyectada al año de retiro
-  const pmgBase = anioRetiro ? proyectarValor(sys.PMG_L73, new Date().getFullYear(), anioRetiro) : sys.PMG_L73
+
+  const vecesUMA = sdi / sys.UMA_DIARIA
+  const { basica: pctBasica, incremento: pctIncremento } = buscarCuantiaPorUMA(vecesUMA)
+
+  const cuantiaBasicaAnual = sdi * pctBasica * 365
+
+  // Número de incrementos anuales (Art. 167 LSS, redondeo oficial)
+  const numIncrementosCrudo = (semanas - 500) / 52
+  const numIncrementos = Math.floor(numIncrementosCrudo) +
+    (numIncrementosCrudo % 1 >= 27 / 52 ? 1 : numIncrementosCrudo % 1 >= 13 / 52 ? 0.5 : 0)
+  const incrementoAnual = sdi * pctIncremento * 365
+  const incrementosTotalAnual = incrementoAnual * numIncrementos
+
+  const cuantiaTotalRaw = cuantiaBasicaAnual + incrementosTotalAnual // sin ×1.11 ni %edad — base para asignaciones
   const factorEdad = FACTOR_EDAD_RETIRO[edadRetiro] ?? 1.0
-  const pmgConFactor = pmgBase * factorEdad
-  const pensionConFactor = pensionMensual * factorEdad
-  const pmg_aplica = pmgConFactor > pensionConFactor
-  const base = Math.max(pmgConFactor, pensionConFactor)
-  // Asignaciones familiares
-  const asignConyuge = tieneConyuge ? 0.15 : 0
-  const asignHijos = Math.min(numHijos, 2) * 0.10
-  const asignPadres = Math.min(numPadres, 2) * 0.10
-  const totalAsign = 1 + asignConyuge + asignHijos + asignPadres
-  return { monto: base * totalAsign, pmg_aplica }
+
+  const baseConFactorYEdad = (cuantiaBasicaAnual + incrementosTotalAnual) * FACTOR_111 * factorEdad
+
+  // Asignaciones familiares (15% cónyuge + 10% por hijo + 10% por padre dependiente, sobre la cuantía total cruda)
+  const hayBeneficiarios = tieneConyuge || numHijos > 0
+  const asignConyuge = tieneConyuge ? cuantiaTotalRaw * 0.15 : 0
+  const asignHijos = numHijos > 0 ? cuantiaTotalRaw * 0.10 * numHijos : 0
+  const asignPadres = (!hayBeneficiarios && numPadres > 0) ? cuantiaTotalRaw * 0.10 * numPadres : 0
+  const asignaciones = (asignConyuge + asignHijos + asignPadres) * FACTOR_111 * factorEdad
+
+  // Ayuda asistencial (solo si no hay cónyuge, hijos, ni padres dependientes — o solo 1 padre)
+  const sinBeneficiarios = !tieneConyuge && numHijos === 0 && numPadres === 0
+  const soloUnPadre = !tieneConyuge && numHijos === 0 && numPadres === 1
+  const pctAyuda = sinBeneficiarios ? 0.15 : soloUnPadre ? 0.10 : 0
+  const ayudaAsistencial = pctAyuda > 0
+    ? Math.max(0, Math.min(
+        cuantiaTotalRaw * pctAyuda * FACTOR_111 * factorEdad,
+        Math.max(0, sys.UMA_DIARIA * 25 * 365 - (baseConFactorYEdad + asignaciones)),
+        sdi * 365 * FACTOR_111 - (baseConFactorYEdad + asignaciones)
+      ))
+    : 0
+
+  const totalAnual = baseConFactorYEdad + asignaciones + ayudaAsistencial
+  const pensionMensual = totalAnual / 12
+
+  // PMG — proyectada al año de retiro. Importante: la PMG NO se reduce por el factor de edad/cesantía
+  // (es la misma a los 60 que a los 65), a diferencia de la pensión calculada.
+  const pmgBase = anioRetiro ? proyectarValor(sys.PMG_L73, new Date().getFullYear(), anioRetiro) : sys.PMG_L73
+  const pmg_aplica = pmgBase > pensionMensual
+  const montoFinal = Math.max(pmgBase, pensionMensual)
+
+  return { monto: montoFinal, pmg_aplica }
 }
 
 // Edad exacta desglosada en años, meses, días, horas, minutos y segundos a partir de la fecha de nacimiento
