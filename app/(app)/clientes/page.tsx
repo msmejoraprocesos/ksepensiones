@@ -925,7 +925,7 @@ function ClientesInner() {
           ))}
         </div>
         {(vista === 'lista' || vista === 'pipeline') && (
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', flex: 1, minWidth: '700px' }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', flex: 1, minWidth: '820px' }}>
             <input placeholder="Buscar..." value={search} onChange={e => setSearch(e.target.value)}
               style={{ padding: '7px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', width: '130px', minWidth: '100px', outline: 'none' }} />
             <select value={filtroEtapa} onChange={e => setFiltroEtapa(e.target.value)}
