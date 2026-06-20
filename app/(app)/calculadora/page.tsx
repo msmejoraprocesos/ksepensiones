@@ -1175,13 +1175,13 @@ function CalculadoraInner() {
             <div style={cardSt}>
               {sectionTitle('Identificación del trabajador')}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px', marginBottom: '10px' }}>
-                <div><label style={labelSt}>Nombre del cliente / asesorado</label>
+                <div><label style={labelSt}>✏️ Nombre del cliente / asesorado</label>
                   <input style={manualInputSt} value={datos.nombre} onChange={e => setDatos(p => ({ ...p, nombre: e.target.value }))} placeholder="Nombre del cliente (quien contrata)" /></div>
-                <div><label style={labelSt}>Nombre del trabajador (constancia IMSS)</label>
+                <div><label style={labelSt}>⚡ Nombre del trabajador (constancia IMSS)</label>
                   <input style={autoInputSt} value={datos.nombre_trabajador} onChange={e => setDatos(p => ({ ...p, nombre_trabajador: e.target.value }))} placeholder="Nombre como aparece en la constancia" /></div>
-                <div><label style={labelSt}>NSS</label>
+                <div><label style={labelSt}>⚡ NSS</label>
                   <input style={autoInputSt} value={datos.nss} onChange={e => setDatos(p => ({ ...p, nss: e.target.value }))} placeholder="NSS" /></div>
-                <div><label style={labelSt}>Régimen</label>
+                <div><label style={labelSt}>{datos.ley ? '⚡' : '✏️'} Régimen{!datos.ley && ' — confírmalo'}</label>
                   <select style={datos.ley ? autoInputSt : manualInputSt} value={datos.ley} onChange={e => setDatos(p => ({ ...p, ley: e.target.value as '73' | '97' }))}>
                     <option value="">Detectar automáticamente</option>
                     <option value="73">Ley 73 (cotizó antes de Jul 1997)</option>
@@ -1190,12 +1190,12 @@ function CalculadoraInner() {
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px' }}>
-                <div><label style={labelSt}>Fecha de nacimiento</label>
+                <div><label style={labelSt}>⚡ Fecha de nacimiento</label>
                   <input type="date" style={autoInputSt} value={datos.fecha_nacimiento} onChange={e => {
                     const edad = e.target.value ? Math.floor((Date.now() - new Date(e.target.value).getTime()) / (365.25 * 86400000)) : 0
                     setDatos(p => ({ ...p, fecha_nacimiento: e.target.value, edad_actual: edad }))
                   }} /></div>
-                <div><label style={labelSt}>Edad actual</label>
+                <div><label style={labelSt}>⚡ Edad actual</label>
                   <input type="number" style={autoNumInputSt} value={datos.edad_actual || ''} onChange={e => setDatos(p => ({ ...p, edad_actual: parseInt(e.target.value) || 0 }))} />
                   {(() => {
                     const ed = edadDetallada(datos.fecha_nacimiento, nowTick)
@@ -1207,23 +1207,23 @@ function CalculadoraInner() {
                     )
                   })()}
                 </div>
-                <div><label style={labelSt}>Fecha de cálculo / baja IMSS</label>
+                <div><label style={labelSt}>⚡ Fecha de cálculo / baja IMSS</label>
                   <input type="date" style={autoInputSt} value={datos.fecha_calculo} onChange={e => setDatos(p => ({ ...p, fecha_calculo: e.target.value }))} /></div>
-                <div><label style={labelSt}>Semanas cotizadas</label>
+                <div><label style={labelSt}>⚡ Semanas cotizadas</label>
                   <input type="number" style={autoNumInputSt} value={datos.semanas_totales || ''} onChange={e => setDatos(p => ({ ...p, semanas_totales: parseInt(e.target.value) || 0 }))} /></div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: '10px', marginTop: '10px' }}>
                 <div><label style={labelSt}>
-                    ¿A qué edad quieres iniciar Mod 40? — años
+                    ✏️ ¿A qué edad quieres iniciar Mod 40? — años
                     <button onClick={() => setShowGuiaEdadMod40(true)} style={{ marginLeft: '6px', background: AZUL, color: 'white', border: 'none', borderRadius: '50%', width: '14px', height: '14px', fontSize: '9px', cursor: 'pointer', fontWeight: '700', lineHeight: '14px', padding: 0 }}>?</button>
                   </label>
                   <input type="number" min={0} style={manualNumInputSt} value={edadInicioMod40Anios} placeholder="ej. 61"
                     onChange={e => setEdadInicioMod40Anios(e.target.value === '' ? '' : parseInt(e.target.value) || 0)} /></div>
-                <div><label style={labelSt}>...y meses</label>
+                <div><label style={labelSt}>✏️ ...y meses</label>
                   <input type="number" min={0} max={11} style={manualNumInputSt} value={edadInicioMod40Meses} placeholder="0-11"
                     onChange={e => setEdadInicioMod40Meses(e.target.value === '' ? '' : parseInt(e.target.value) || 0)} /></div>
                 <div>
-                  <label style={labelSt}>Año de inicio del trámite Mod 40 (automático)</label>
+                  <label style={labelSt}>⚡ Año de inicio del trámite Mod 40 (automático)</label>
                   <div style={{ ...autoInputSt, display: 'flex', alignItems: 'center', fontWeight: '700', color: AZUL }}>
                     {edadInicioMod40Anios !== '' || edadInicioMod40Meses !== '' ? anioInicioTramite : '— define la edad de inicio —'}
                   </div>
@@ -1236,28 +1236,28 @@ function CalculadoraInner() {
               {sectionTitle('Situación laboral y familiar')}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '10px' }}>
                 <div>
-                  <label style={labelSt}>¿Sigue cotizando al IMSS?{datos.fecha_calculo && <span style={{ color: AZUL, fontWeight: '600', textTransform: 'none' }}> · sugerido</span>}</label>
+                  <label style={labelSt}>{datos.fecha_calculo ? '⚡' : '✏️'} ¿Sigue cotizando al IMSS?{datos.fecha_calculo && <span style={{ color: AZUL, fontWeight: '600', textTransform: 'none' }}> · sugerido</span>}</label>
                   <select style={datos.fecha_calculo ? autoInputSt : manualInputSt} value={datos.sigue_cotizando ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, sigue_cotizando: e.target.value === 'si' }))}>
                     <option value="si">Sí</option><option value="no">No</option>
                   </select>
                   {datos.fecha_calculo && <p style={{ fontSize: '9px', color: '#94a3b8', margin: '2px 0 0' }}>Basado en la última cotización registrada. Verifica con el cliente.</p>}
                 </div>
                 <div>
-                  <label style={labelSt}>Semanas descontadas AFORE/ISSSTE
+                  <label style={labelSt}>{datos.semanas_descontadas > 0 ? '⚡' : '✏️'} Semanas descontadas AFORE/ISSSTE
                     <span style={{ fontSize: '9px', fontWeight: '400', color: '#94a3b8', marginLeft: '4px' }}>auto desde constancia · editable</span>
                   </label>
                   <input type="number" style={datos.semanas_descontadas > 0 ? autoNumInputSt : manualNumInputSt} value={datos.semanas_descontadas || ''} onChange={e => setDatos(p => ({ ...p, semanas_descontadas: parseInt(e.target.value) || 0 }))} placeholder="0" />
                   <p style={{ fontSize: '9px', color: '#94a3b8', margin: '2px 0 0' }}>Art. 150 LSS — semanas que se descuentan por haber retirado AFORE</p>
                 </div>
-                <div><label style={labelSt}>¿Tiene esposa(o)/concubina(o)?</label>
+                <div><label style={labelSt}>✏️ ¿Tiene esposa(o)/concubina(o)?</label>
                   <select style={manualInputSt} value={datos.tiene_conyuge ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, tiene_conyuge: e.target.value === 'si' }))}>
                     <option value="si">Sí (+15%)</option><option value="no">No</option>
                   </select></div>
-                <div><label style={labelSt}>Hijos menores de 16 / est. hasta 25</label>
+                <div><label style={labelSt}>✏️ Hijos menores de 16 / est. hasta 25</label>
                   <input type="number" style={manualNumInputSt} value={datos.num_hijos || ''} onChange={e => setDatos(p => ({ ...p, num_hijos: parseInt(e.target.value) || 0 }))} placeholder="0" /></div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
-                <div><label style={labelSt}>Padres económicamente dependientes</label>
+                <div><label style={labelSt}>✏️ Padres económicamente dependientes</label>
                   <input type="number" style={manualNumInputSt} value={datos.num_padres || ''} onChange={e => setDatos(p => ({ ...p, num_padres: parseInt(e.target.value) || 0 }))} placeholder="0" /></div>
                 <div>
                   <label style={labelSt}>
