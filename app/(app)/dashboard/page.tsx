@@ -270,7 +270,11 @@ function MiDiaInner() {
           ].map((k: any, i) => kpi(k.label, k.value, k.sub, k.color, k.filled))}
         </div>
 
-        {/* Row 1.5: Tendencia de ingresos + Embudo de clientes — vista de director */}
+        {/* ═══ SECCIÓN: TENDENCIAS (vista rápida) ═══ */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+          <span style={{ fontSize: '12px', fontWeight: '800', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px' }}>📈 Tendencias — vista rápida</span>
+          <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
+        </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '12px' }}>
           {card(<>
             {sTitle('📈 Tendencia de ingresos', 'Últimos 6 meses')}
@@ -343,8 +347,12 @@ function MiDiaInner() {
           </>)}
         </div>
 
-        {/* Row 2: Financiero + Comercial + Agenda */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+        {/* ═══ SECCIÓN: FINANZAS Y COMERCIAL ═══ */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+          <span style={{ fontSize: '12px', fontWeight: '800', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px' }}>💰 Finanzas y comercial</span>
+          <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
 
           {/* Bloque Financiero — dona */}
           {card(<>
@@ -471,6 +479,38 @@ function MiDiaInner() {
               </div>
             </div>
           </>)}
+        </div>
+
+        {/* ═══ SECCIÓN: OPERACIÓN ═══ */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+          <span style={{ fontSize: '12px', fontWeight: '800', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px' }}>⚙️ Operación</span>
+          <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+
+          {/* Bloque Operación */}
+          {card(<>
+            {sTitle('⚙️ Operación y volumen')}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '10px' }}>
+              {kpi('Cycle time prom.', fmtWeeks(cycleTime), 'firma → pensión', AZUL)}
+              {kpi('Activos este mes', diagMes.length.toString(), 'diagnósticos', '#8b5cf6')}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              <p style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Servicios activos por fase</p>
+              {[
+                { label: 'En diagnóstico', val: clientes.filter(c => c.etapa_kanban === 'diagnostico').length, color: '#3b82f6' },
+                { label: 'En trámite', val: enTramite.length, color: NARANJA },
+                { label: 'Cierre exitoso ✓', val: pensionados.length, color: VERDE },
+                { label: 'Cancelados', val: clientes.filter(c => c.etapa_kanban === 'cancelado').length, color: '#ef4444' },
+              ].map((e, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '5px 8px', background: '#FAFAFA', borderRadius: '5px', border: '1px solid #f1f5f9' }}>
+                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: e.color, flexShrink: 0 }} />
+                  <span style={{ fontSize: '11px', color: '#64748b', flex: 1 }}>{e.label}</span>
+                  <span style={{ fontSize: '12px', fontWeight: '700', color: '#374151' }}>{e.val}</span>
+                </div>
+              ))}
+            </div>
+          </>)}
 
           {/* Agenda hoy */}
           {card(<>
@@ -502,34 +542,6 @@ function MiDiaInner() {
             <a href="/seguimiento" style={{ display: 'block', textAlign: 'center', marginTop: '8px', fontSize: '11px', color: NARANJA, textDecoration: 'none', fontWeight: '600' }}>
               Ver agenda completa →
             </a>
-          </>)}
-        </div>
-
-        {/* Row 3: Operación + Financieras + Mercado */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-
-          {/* Bloque Operación */}
-          {card(<>
-            {sTitle('⚙️ Operación y volumen')}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '10px' }}>
-              {kpi('Cycle time prom.', fmtWeeks(cycleTime), 'firma → pensión', AZUL)}
-              {kpi('Activos este mes', diagMes.length.toString(), 'diagnósticos', '#8b5cf6')}
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-              <p style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Servicios activos por fase</p>
-              {[
-                { label: 'En diagnóstico', val: clientes.filter(c => c.etapa_kanban === 'diagnostico').length, color: '#3b82f6' },
-                { label: 'En trámite', val: enTramite.length, color: NARANJA },
-                { label: 'Cierre exitoso ✓', val: pensionados.length, color: VERDE },
-                { label: 'Cancelados', val: clientes.filter(c => c.etapa_kanban === 'cancelado').length, color: '#ef4444' },
-              ].map((e, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '5px 8px', background: '#FAFAFA', borderRadius: '5px', border: '1px solid #f1f5f9' }}>
-                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: e.color, flexShrink: 0 }} />
-                  <span style={{ fontSize: '11px', color: '#64748b', flex: 1 }}>{e.label}</span>
-                  <span style={{ fontSize: '12px', fontWeight: '700', color: '#374151' }}>{e.val}</span>
-                </div>
-              ))}
-            </div>
           </>)}
 
           {/* Bloque Financieras */}
@@ -583,6 +595,14 @@ function MiDiaInner() {
               </div>
             )}
           </>)}
+        </div>
+
+        {/* ═══ SECCIÓN: COMERCIAL AVANZADO ═══ */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+          <span style={{ fontSize: '12px', fontWeight: '800', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px' }}>📊 Comercial avanzado</span>
+          <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }}>
 
           {/* Bloque Mercado */}
           {card(<>
@@ -652,7 +672,11 @@ function MiDiaInner() {
           </>)}
         </div>
 
-        {/* Row 4: Pagos pendientes + Resumen */}
+        {/* ═══ SECCIÓN: PAGOS Y RESUMEN ═══ */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+          <span style={{ fontSize: '12px', fontWeight: '800', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px' }}>📋 Pagos y resumen</span>
+          <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
+        </div>
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
 
           {/* Tubería de dinero */}
