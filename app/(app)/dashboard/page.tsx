@@ -270,6 +270,79 @@ function MiDiaInner() {
           ].map((k: any, i) => kpi(k.label, k.value, k.sub, k.color, k.filled))}
         </div>
 
+        {/* Row 1.5: Tendencia de ingresos + Embudo de clientes — vista de director */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '12px' }}>
+          {card(<>
+            {sTitle('📈 Tendencia de ingresos', 'Últimos 6 meses')}
+            {(() => {
+              const hoy = new Date()
+              const meses: { label: string; total: number }[] = []
+              for (let i = 5; i >= 0; i--) {
+                const d = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1)
+                const total = pagos
+                  .filter(p => {
+                    const f = new Date(p.fecha_pago)
+                    return f.getFullYear() === d.getFullYear() && f.getMonth() === d.getMonth()
+                  })
+                  .reduce((s, p) => s + (Number(p.monto) || 0), 0)
+                meses.push({ label: d.toLocaleDateString('es-MX', { month: 'short' }), total })
+              }
+              const max = Math.max(...meses.map(m => m.total), 1)
+              const W = 560, H = 140, padL = 8, padR = 8, barGap = 10
+              const barW = (W - padL - padR - barGap * (meses.length - 1)) / meses.length
+              return (
+                <svg viewBox={`0 0 ${W} ${H + 24}`} style={{ width: '100%', height: 'auto' }}>
+                  {meses.map((m, i) => {
+                    const h = max > 0 ? (m.total / max) * (H - 20) : 0
+                    const x = padL + i * (barW + barGap)
+                    const y = H - h
+                    const esActual = i === meses.length - 1
+                    return (
+                      <g key={i}>
+                        <rect x={x} y={y} width={barW} height={h} rx={4} fill={esActual ? NARANJA : AZUL} opacity={esActual ? 1 : 0.75} />
+                        <text x={x + barW / 2} y={H + 14} textAnchor="middle" fontSize="9" fill="#94a3b8">{m.label}</text>
+                        {m.total > 0 && (
+                          <text x={x + barW / 2} y={y - 4} textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#374151">
+                            {m.total >= 1000 ? `${(m.total / 1000).toFixed(0)}k` : m.total.toFixed(0)}
+                          </text>
+                        )}
+                      </g>
+                    )
+                  })}
+                </svg>
+              )
+            })()}
+          </>)}
+
+          {card(<>
+            {sTitle('🔻 Embudo de clientes', 'Por etapa del pipeline')}
+            {(() => {
+              const etapas = [
+                { id: 'prospecto', label: 'Prospecto', color: AZUL },
+                { id: 'diagnostico', label: 'Diagnóstico', color: '#3b82f6' },
+                { id: 'recopilacion', label: 'Recopilación', color: '#0d9488' },
+                { id: 'tramite', label: 'Trámite', color: '#f59e0b' },
+                { id: 'cierre', label: 'Cierre', color: VERDE },
+              ]
+              const counts = etapas.map(e => ({ ...e, n: clientes.filter(c => (c.etapa_kanban || 'prospecto') === e.id).length }))
+              const max = Math.max(...counts.map(c => c.n), 1)
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {counts.map((c, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '10px', color: '#64748b', width: '78px', flexShrink: 0 }}>{c.label}</span>
+                      <div style={{ flex: 1, background: '#F4F6FB', borderRadius: '4px', height: '18px', position: 'relative' as const }}>
+                        <div style={{ width: `${(c.n / max) * 100}%`, height: '100%', background: c.color, borderRadius: '4px', minWidth: c.n > 0 ? '4px' : 0, transition: 'width 0.3s' }} />
+                      </div>
+                      <span style={{ fontSize: '11px', fontWeight: '700', color: '#374151', width: '20px', textAlign: 'right' as const, flexShrink: 0 }}>{c.n}</span>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
+          </>)}
+        </div>
+
         {/* Row 2: Financiero + Comercial + Agenda */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
 
