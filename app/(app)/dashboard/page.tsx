@@ -221,7 +221,7 @@ function MiDiaInner() {
   )
 
   const card = (content: React.ReactNode, style?: React.CSSProperties) => (
-    <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', ...style }}>
+    <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px 14px', ...style }}>
       {content}
     </div>
   )
@@ -234,12 +234,12 @@ function MiDiaInner() {
   )
 
   const kpi = (label: string, value: string, sub?: string, color = '#374151', filled = false, delta?: number | null) => (
-    <div style={{ background: filled ? color : '#FAFAFA', border: `1.5px solid ${filled ? color : '#e2e8f0'}`, borderRadius: '6px', padding: '9px 11px', textAlign: 'center' as const }}>
-      <div style={{ fontSize: '10px', color: filled ? 'rgba(255,255,255,0.8)' : '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '3px' }}>{label}</div>
-      <div style={{ fontSize: '17px', fontWeight: '700', color: filled ? 'white' : color }}>{value}</div>
-      {sub && <div style={{ fontSize: '10px', color: filled ? 'rgba(255,255,255,0.75)' : '#94a3b8', marginTop: '1px' }}>{sub}</div>}
+    <div style={{ background: filled ? color : '#FAFAFA', border: `1.5px solid ${filled ? color : '#e2e8f0'}`, borderRadius: '6px', padding: '7px 9px', textAlign: 'center' as const }}>
+      <div style={{ fontSize: '9.5px', color: filled ? 'rgba(255,255,255,0.8)' : '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '2px' }}>{label}</div>
+      <div style={{ fontSize: '16px', fontWeight: '700', color: filled ? 'white' : color }}>{value}</div>
+      {sub && <div style={{ fontSize: '9.5px', color: filled ? 'rgba(255,255,255,0.75)' : '#94a3b8', marginTop: '1px' }}>{sub}</div>}
       {delta !== undefined && delta !== null && (
-        <div style={{ fontSize: '9.5px', fontWeight: '700', color: filled ? 'white' : (delta >= 0 ? VERDE : '#ef4444'), marginTop: '2px' }}>
+        <div style={{ fontSize: '9px', fontWeight: '700', color: filled ? 'white' : (delta >= 0 ? VERDE : '#ef4444'), marginTop: '1px' }}>
           {delta >= 0 ? '▲' : '▼'} {Math.abs(delta).toFixed(0)}% vs anterior
         </div>
       )}
@@ -300,7 +300,7 @@ function MiDiaInner() {
         </div>
       </div>
 
-      <div style={{ padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div style={{ padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
 
         {(() => {
           const HOY = new Date()
@@ -359,7 +359,7 @@ function MiDiaInner() {
           <span style={{ fontSize: '12px', fontWeight: '800', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px' }}>📈 Tendencias — vista rápida</span>
           <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '12px', alignItems: 'start' }}>
           {card(<>
             {sTitle('📈 Tendencia de ingresos', 'Últimos 6 meses')}
             {(() => {
@@ -376,27 +376,27 @@ function MiDiaInner() {
                 meses.push({ label: d.toLocaleDateString('es-MX', { month: 'short' }), total })
               }
               const max = Math.max(...meses.map(m => m.total), 1)
-              const W = 560, H = 140, padL = 8, padR = 8, barGap = 10
-              const barW = (W - padL - padR - barGap * (meses.length - 1)) / meses.length
+              const W = 560, H = 90, padL = 16, padR = 16
+              const stepX = (W - padL - padR) / (meses.length - 1)
+              const yFor = (v: number) => H - (max > 0 ? (v / max) * (H - 16) : 0)
+              const puntos = meses.map((m, i) => ({ x: padL + i * stepX, y: yFor(m.total), ...m }))
+              const pathLinea = puntos.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
+              const pathArea = `${pathLinea} L ${puntos[puntos.length - 1].x} ${H} L ${puntos[0].x} ${H} Z`
               return (
-                <svg viewBox={`0 0 ${W} ${H + 24}`} style={{ width: '100%', height: 'auto' }}>
-                  {meses.map((m, i) => {
-                    const h = max > 0 ? (m.total / max) * (H - 20) : 0
-                    const x = padL + i * (barW + barGap)
-                    const y = H - h
-                    const esActual = i === meses.length - 1
-                    return (
-                      <g key={i}>
-                        <rect x={x} y={y} width={barW} height={h} rx={4} fill={esActual ? NARANJA : AZUL} opacity={esActual ? 1 : 0.75} />
-                        <text x={x + barW / 2} y={H + 14} textAnchor="middle" fontSize="9" fill="#94a3b8">{m.label}</text>
-                        {m.total > 0 && (
-                          <text x={x + barW / 2} y={y - 4} textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#374151">
-                            {m.total >= 1000 ? `${(m.total / 1000).toFixed(0)}k` : m.total.toFixed(0)}
-                          </text>
-                        )}
-                      </g>
-                    )
-                  })}
+                <svg viewBox={`0 0 ${W} ${H + 22}`} style={{ width: '100%', height: 'auto' }}>
+                  <path d={pathArea} fill={NARANJA} opacity={0.08} />
+                  <path d={pathLinea} fill="none" stroke={NARANJA} strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
+                  {puntos.map((p, i) => (
+                    <g key={i}>
+                      <circle cx={p.x} cy={p.y} r={i === puntos.length - 1 ? 5 : 3.5} fill="white" stroke={NARANJA} strokeWidth={2.5} />
+                      <text x={p.x} y={H + 16} textAnchor="middle" fontSize="9" fill="#94a3b8">{p.label}</text>
+                      {p.total > 0 && (
+                        <text x={p.x} y={p.y - 9} textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#374151">
+                          {p.total >= 1000 ? `${(p.total / 1000).toFixed(0)}k` : p.total.toFixed(0)}
+                        </text>
+                      )}
+                    </g>
+                  ))}
                 </svg>
               )
             })()}
@@ -442,7 +442,7 @@ function MiDiaInner() {
           {card(<>
             {sTitle('💰 Ingresos reales', filtroPeriodo)}
             <div style={{ marginBottom: '6px' }}>{deltaBadge(deltaIngresos)}</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '8px' }}>
               {/* Donut grande */}
               {(() => {
                 const items = [
@@ -454,31 +454,31 @@ function MiDiaInner() {
                   { label: 'Sin clasificar', value: ingresosSinClasificar, color: '#94a3b8' },
                 ]
                 const total = items.reduce((s, it) => s + it.value, 0)
-                const R = 42, CIRC = 2 * Math.PI * R
+                const R = 40, CIRC = 2 * Math.PI * R
                 let acc = 0
                 return (
                   <div style={{ position: 'relative', flexShrink: 0 }}>
-                    <svg width="148" height="148" viewBox="0 0 100 100">
-                      <circle cx="50" cy="50" r={R} fill="none" stroke="#f1f5f9" strokeWidth="15" />
+                    <svg width="180" height="180" viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r={R} fill="none" stroke="#f1f5f9" strokeWidth="20" />
                       {items.map((it, i) => {
                         const pct = total > 0 ? it.value / total : 0
                         const dash = pct * CIRC
                         const offset = -acc * CIRC
                         acc += pct
                         if (pct === 0) return null
-                        return <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="15"
+                        return <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="20"
                           strokeDasharray={`${dash} ${CIRC}`} strokeDashoffset={offset} transform="rotate(-90 50 50)" />
                       })}
                     </svg>
                     <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-                      <div style={{ fontSize: '15px', fontWeight: '800', color: '#1e293b' }}>{fmtMXN(total)}</div>
+                      <div style={{ fontSize: '16px', fontWeight: '800', color: '#1e293b' }}>{fmtMXN(total)}</div>
                       <div style={{ fontSize: '9px', color: '#94a3b8' }}>total bruto</div>
                     </div>
                   </div>
                 )
               })()}
               {/* Leyenda en 2x2 */}
-              <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 14px' }}>
+              <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 10px' }}>
                 {[
                   { label: 'Asesoría', value: ingresosAsesoria, color: AZUL },
                   { label: 'Trámite de Pensión', value: ingresosGestoria, color: VERDE },
@@ -488,11 +488,11 @@ function MiDiaInner() {
                   { label: 'Sin clasificar', value: ingresosSinClasificar, color: '#94a3b8' },
                 ].map((item, i) => (
                   <div key={i}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-                      <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: item.color, flexShrink: 0 }} />
-                      <span style={{ fontSize: '10px', color: '#64748b' }}>{item.label}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '1px' }}>
+                      <div style={{ width: '7px', height: '7px', borderRadius: '2px', background: item.color, flexShrink: 0 }} />
+                      <span style={{ fontSize: '9.5px', color: '#64748b' }}>{item.label}</span>
                     </div>
-                    <span style={{ fontSize: '13px', fontWeight: '800', color: '#374151' }}>{fmtMXN(item.value)}</span>
+                    <span style={{ fontSize: '12px', fontWeight: '800', color: '#374151' }}>{fmtMXN(item.value)}</span>
                   </div>
                 ))}
               </div>
