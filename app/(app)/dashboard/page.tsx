@@ -116,6 +116,8 @@ function MiDiaInner() {
   const ingresosTotalAnterior = pagosPeriodoAnterior.reduce((s, p) => s + (Number(p.monto) || 0), 0)
   const deltaIngresos = ingresosTotalAnterior > 0 ? ((ingresosTotal - ingresosTotalAnterior) / ingresosTotalAnterior) * 100 : null
   const clientesNuevosAnterior = clientes.filter(c => { const f = new Date(c.created_at); return f >= prevStart && f < prevEnd }).length
+  const clientesNuevosPeriodo = clientesFiltrados.filter(c => { const f = new Date(c.created_at); return f >= start }).length
+  const deltaClientesNuevos = clientesNuevosAnterior > 0 ? ((clientesNuevosPeriodo - clientesNuevosAnterior) / clientesNuevosAnterior) * 100 : null
   // tipo_servicio (no servicio_contratado) es el campo real que usa la página Clientes: asesoria | gestion | financiamiento | gestoria_global
   const servicioPorCliente = clientes.reduce((acc: Record<string, string>, c: any) => {
     acc[c.id] = c.tipo_servicio
@@ -133,6 +135,11 @@ function MiDiaInner() {
   const clientesConCosto = clientesFiltrados.filter(c => (c.monto_acordado || 0) > 0)
   const ticketPromedio = clientesConCosto.length > 0
     ? clientesConCosto.reduce((s, c) => s + (c.monto_acordado || 0), 0) / clientesConCosto.length : 0
+  // Ticket promedio DEL PERIODO (ingresos cobrados / clientes únicos que pagaron) — comparativo, distinto al ticket de catálogo de arriba
+  const ticketPeriodo = clientesUnicos > 0 ? ingresosTotal / clientesUnicos : 0
+  const clientesUnicosAnterior = new Set(pagosPeriodoAnterior.map(p => p.cliente_id)).size
+  const ticketPeriodoAnterior = clientesUnicosAnterior > 0 ? ingresosTotalAnterior / clientesUnicosAnterior : 0
+  const deltaTicket = ticketPeriodoAnterior > 0 ? ((ticketPeriodo - ticketPeriodoAnterior) / ticketPeriodoAnterior) * 100 : null
   // total_pagado no es una columna real en `clientes`; se calcula sumando todos los pagos por cliente
   const totalPagadoPorCliente = pagos.reduce((acc: Record<string, number>, p: any) => {
     acc[p.cliente_id] = (acc[p.cliente_id] ?? 0) + (Number(p.monto) || 0)
@@ -145,6 +152,10 @@ function MiDiaInner() {
   const enDiagnostico = clientesFiltrados.filter(c => c.etapa_kanban === 'diagnostico')
   const enRecopilacion = clientesFiltrados.filter(c => c.etapa_kanban === 'recopilacion')
   const pensionados = clientesFiltrados.filter(c => c.etapa_kanban === 'cierre')
+  // Comparativo de cierres logrados EN el periodo (usa fecha_etapa real; respaldo a created_at para clientes movidos antes de tener ese campo)
+  const cierresPeriodo = pensionados.filter(c => new Date(c.fecha_etapa || c.created_at) >= start).length
+  const cierresPeriodoAnterior = clientes.filter(c => c.etapa_kanban === 'cierre' && (() => { const f = new Date(c.fecha_etapa || c.created_at); return f >= prevStart && f < prevEnd })()).length
+  const deltaCierres = cierresPeriodoAnterior > 0 ? ((cierresPeriodo - cierresPeriodoAnterior) / cierresPeriodoAnterior) * 100 : null
   const enTramite = clientesFiltrados.filter(c => c.etapa_kanban === 'tramite')
   const clientesActivos = clientesFiltrados.filter(c => c.etapa_kanban !== 'cancelado')
   const tasaConversion = (prospectos.length + pensionados.length) > 0
@@ -222,11 +233,16 @@ function MiDiaInner() {
     </div>
   )
 
-  const kpi = (label: string, value: string, sub?: string, color = '#374151', filled = false) => (
+  const kpi = (label: string, value: string, sub?: string, color = '#374151', filled = false, delta?: number | null) => (
     <div style={{ background: filled ? color : '#FAFAFA', border: `1.5px solid ${filled ? color : '#e2e8f0'}`, borderRadius: '6px', padding: '9px 11px', textAlign: 'center' as const }}>
       <div style={{ fontSize: '10px', color: filled ? 'rgba(255,255,255,0.8)' : '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '3px' }}>{label}</div>
       <div style={{ fontSize: '17px', fontWeight: '700', color: filled ? 'white' : color }}>{value}</div>
       {sub && <div style={{ fontSize: '10px', color: filled ? 'rgba(255,255,255,0.75)' : '#94a3b8', marginTop: '1px' }}>{sub}</div>}
+      {delta !== undefined && delta !== null && (
+        <div style={{ fontSize: '9.5px', fontWeight: '700', color: filled ? 'white' : (delta >= 0 ? VERDE : '#ef4444'), marginTop: '2px' }}>
+          {delta >= 0 ? '▲' : '▼'} {Math.abs(delta).toFixed(0)}% vs anterior
+        </div>
+      )}
     </div>
   )
 
@@ -321,21 +337,21 @@ function MiDiaInner() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px' }}>
           {[
             { label: 'Clientes activos', value: clientesActivos.length.toString(), color: AZUL },
-            { label: 'Prospectos', value: prospectos.length.toString(), sub: 'por contactar', color: AZUL, filled: true },
+            { label: 'Prospectos', value: prospectos.length.toString(), sub: `+${clientesNuevosPeriodo} en el periodo`, color: AZUL, filled: true, delta: deltaClientesNuevos },
             { label: 'En diagnóstico', value: enDiagnostico.length.toString(), sub: 'propuesta enviada', color: '#3b82f6', filled: true },
             { label: 'En recopilación', value: enRecopilacion.length.toString(), sub: 'armando expediente', color: '#0d9488', filled: true },
             { label: 'En trámite', value: enTramite.length.toString(), color: '#f59e0b' },
-            { label: 'Cierres exitosos', value: pensionados.length.toString(), color: VERDE, filled: true },
-          ].map((k, i) => kpi(k.label, k.value, k.sub, k.color, (k as any).filled))}
+            { label: 'Cierres exitosos', value: pensionados.length.toString(), sub: `${cierresPeriodo} en el periodo`, color: VERDE, filled: true, delta: deltaCierres },
+          ].map((k, i) => kpi(k.label, k.value, k.sub, k.color, (k as any).filled, (k as any).delta))}
         </div>
 
         {/* KPIs row — financieros */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
           {[
-            { label: 'Cobrado hoy', value: fmtMXN(ingresosTotal), color: VERDE },
+            { label: 'Cobrado hoy', value: fmtMXN(ingresosTotal), color: VERDE, delta: deltaIngresos },
             { label: 'Por cobrar', value: fmtMXN(porCobrar), color: '#f59e0b' },
-            { label: 'Ticket prom.', value: fmtMXN(ticketPromedio), color: AZUL },
-          ].map((k: any, i) => kpi(k.label, k.value, k.sub, k.color, k.filled))}
+            { label: 'Ticket prom.', value: fmtMXN(ticketPromedio), color: AZUL, sub: `periodo: ${fmtMXN(ticketPeriodo)}`, delta: deltaTicket },
+          ].map((k: any, i) => kpi(k.label, k.value, k.sub, k.color, k.filled, k.delta))}
         </div>
 
         {/* ═══ SECCIÓN: TENDENCIAS (vista rápida) ═══ */}
