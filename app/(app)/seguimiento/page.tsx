@@ -50,6 +50,8 @@ export default function SeguimientoPage() {
   const [cargando, setCargando] = useState(true)
   const [userId, setUserId] = useState('')
   const [showModal, setShowModal] = useState(false)
+  const [showBuscarFecha, setShowBuscarFecha] = useState(false)
+  const [fechaBuscar, setFechaBuscar] = useState('')
   const [fechaSel, setFechaSel] = useState('')
   const [horaSel, setHoraSel] = useState('09:00')
   const [form, setForm] = useState({ tipo: 'llamada', titulo: '', cliente_id: '', notas: '' })
@@ -304,6 +306,9 @@ export default function SeguimientoPage() {
         {/* Nav */}
         <button onClick={() => navegar(-1)} style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>‹</button>
         <button onClick={() => setFecha(new Date())} style={{ padding: '4px 12px', borderRadius: '6px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', fontSize: '12px', fontWeight: '600', color: '#374151' }}>Hoy</button>
+        <button onClick={() => { setFechaBuscar(fecha.toISOString().split('T')[0]); setShowBuscarFecha(true) }}
+          title="Buscar fecha"
+          style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>📅</button>
         <button onClick={() => navegar(1)} style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>›</button>
 
         <h2 style={{ fontSize: '15px', fontWeight: '700', color: AZUL, margin: 0, flex: 1, textTransform: 'capitalize' }}>{titulo()}</h2>
@@ -334,6 +339,32 @@ export default function SeguimientoPage() {
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '14px' }}>Cargando agenda...</div>
       ) : (
         vista === 'mes' ? renderMes() : renderSemanaODia()
+      )}
+
+      {/* Modal buscar fecha */}
+      {showBuscarFecha && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          onClick={e => { if (e.target === e.currentTarget) setShowBuscarFecha(false) }}>
+          <div style={{ background: 'white', borderRadius: '12px', padding: '24px', width: '320px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+            <h3 style={{ color: AZUL, fontSize: '16px', fontWeight: '700', margin: '0 0 16px' }}>📅 Buscar fecha</h3>
+            <input type="date" value={fechaBuscar} onChange={e => setFechaBuscar(e.target.value)} autoFocus
+              style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box', marginBottom: '18px' }} />
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button onClick={() => setShowBuscarFecha(false)}
+                style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                Cancelar
+              </button>
+              <button disabled={!fechaBuscar} onClick={() => {
+                if (!fechaBuscar) return
+                setFecha(new Date(fechaBuscar + 'T12:00:00'))
+                setShowBuscarFecha(false)
+              }}
+                style={{ flex: 1, padding: '10px', background: fechaBuscar ? AZUL : '#cbd5e1', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: fechaBuscar ? 'pointer' : 'not-allowed' }}>
+                Ir a la fecha
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Modal nueva actividad */}
