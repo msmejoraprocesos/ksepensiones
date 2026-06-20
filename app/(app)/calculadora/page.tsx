@@ -93,6 +93,33 @@ function calcPensionLey73(semanas: number, sdi: number, edadRetiro: number, sys:
   return base * totalAsign
 }
 
+// Edad exacta desglosada en años, meses, días, horas, minutos y segundos a partir de la fecha de nacimiento
+function edadDetallada(fechaNac: string, ahora: number): { anios: number; meses: number; dias: number; horas: number; minutos: number; segundos: number } | null {
+  if (!fechaNac) return null
+  const nac = new Date(fechaNac + 'T00:00:00')
+  const now = new Date(ahora)
+  if (isNaN(nac.getTime())) return null
+
+  let anios = now.getFullYear() - nac.getFullYear()
+  let meses = now.getMonth() - nac.getMonth()
+  let dias = now.getDate() - nac.getDate()
+  let horas = now.getHours() - nac.getHours()
+  let minutos = now.getMinutes() - nac.getMinutes()
+  let segundos = now.getSeconds() - nac.getSeconds()
+
+  if (segundos < 0) { segundos += 60; minutos-- }
+  if (minutos < 0) { minutos += 60; horas-- }
+  if (horas < 0) { horas += 24; dias-- }
+  if (dias < 0) {
+    const diasMesAnterior = new Date(now.getFullYear(), now.getMonth(), 0).getDate()
+    dias += diasMesAnterior
+    meses--
+  }
+  if (meses < 0) { meses += 12; anios-- }
+
+  return { anios, meses, dias, horas, minutos, segundos }
+}
+
 function calcPromedioSalarial250(periodos: PeriodoSalarial[]): number {
   if (!periodos.length) return 0
   const totalSem = periodos.reduce((s, p) => s + p.semanas, 0)
@@ -201,6 +228,27 @@ function CalculadoraInner() {
   // Tab 2 state
   const [periodos, setPeriodos] = useState<PeriodoSalarial[]>([])
   const [periodosCompletos, setPeriodosCompletos] = useState<any[]>([])
+  const [nowTick, setNowTick] = useState(Date.now())
+  useEffect(() => {
+    const t = setInterval(() => setNowTick(Date.now()), 1000)
+    return () => clearInterval(t)
+  }, [])
+
+  // Año de inicio del trámite Mod 40, calculado automáticamente a partir de "¿a qué edad quieres iniciar?" (años y meses)
+  useEffect(() => {
+    if (edadInicioMod40Anios === '' && edadInicioMod40Meses === '') return
+    const anios = typeof edadInicioMod40Anios === 'number' ? edadInicioMod40Anios : 0
+    const meses = typeof edadInicioMod40Meses === 'number' ? edadInicioMod40Meses : 0
+    const metaMeses = anios * 12 + meses
+
+    const ed = edadDetallada(datos.fecha_nacimiento, Date.now())
+    const edadActualMeses = ed ? ed.anios * 12 + ed.meses : (datos.edad_actual || 0) * 12
+
+    const mesesFaltantes = metaMeses - edadActualMeses
+    const hoy = new Date()
+    const fechaInicio = new Date(hoy.getFullYear(), hoy.getMonth() + mesesFaltantes, 1)
+    setAnioInicioTramite(fechaInicio.getFullYear())
+  }, [edadInicioMod40Anios, edadInicioMod40Meses, datos.fecha_nacimiento, datos.edad_actual])
   const [showDetalle250, setShowDetalle250] = useState(false)
   const [showHistorialCompleto, setShowHistorialCompleto] = useState(false)
   const [sdiPromedio, setSdiPromedio] = useState(0)
@@ -241,6 +289,8 @@ function CalculadoraInner() {
   // Edad de retiro y año de trámite
   const [edadRetiro, setEdadRetiro] = useState(65)
   const [anioInicioTramite, setAnioInicioTramite] = useState(new Date().getFullYear())
+  const [edadInicioMod40Anios, setEdadInicioMod40Anios] = useState<number | ''>('')
+  const [edadInicioMod40Meses, setEdadInicioMod40Meses] = useState<number | ''>('')
   const [showTooltipCuantia, setShowTooltipCuantia] = useState(false)
 
   // Flujo diagnóstico
@@ -1104,11 +1154,36 @@ function CalculadoraInner() {
                     setDatos(p => ({ ...p, fecha_nacimiento: e.target.value, edad_actual: edad }))
                   }} /></div>
                 <div><label style={labelSt}>Edad actual</label>
-                  <input type="number" style={autoNumInputSt} value={datos.edad_actual || ''} onChange={e => setDatos(p => ({ ...p, edad_actual: parseInt(e.target.value) || 0 }))} /></div>
+                  <input type="number" style={autoNumInputSt} value={datos.edad_actual || ''} onChange={e => setDatos(p => ({ ...p, edad_actual: parseInt(e.target.value) || 0 }))} />
+                  {(() => {
+                    const ed = edadDetallada(datos.fecha_nacimiento, nowTick)
+                    if (!ed) return null
+                    return (
+                      <p style={{ fontSize: '10px', color: '#94a3b8', margin: '4px 0 0', lineHeight: '1.5' }}>
+                        {ed.anios} años, {ed.meses} meses, {ed.dias} días, {ed.horas} h, {ed.minutos} min, {ed.segundos} s
+                      </p>
+                    )
+                  })()}
+                </div>
                 <div><label style={labelSt}>Fecha de cálculo / baja IMSS</label>
                   <input type="date" style={autoInputSt} value={datos.fecha_calculo} onChange={e => setDatos(p => ({ ...p, fecha_calculo: e.target.value }))} /></div>
                 <div><label style={labelSt}>Semanas cotizadas</label>
                   <input type="number" style={autoNumInputSt} value={datos.semanas_totales || ''} onChange={e => setDatos(p => ({ ...p, semanas_totales: parseInt(e.target.value) || 0 }))} /></div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: '10px', marginTop: '10px' }}>
+                <div><label style={labelSt}>¿A qué edad quieres iniciar Mod 40? — años</label>
+                  <input type="number" min={0} style={manualInputSt} value={edadInicioMod40Anios} placeholder="ej. 61"
+                    onChange={e => setEdadInicioMod40Anios(e.target.value === '' ? '' : parseInt(e.target.value) || 0)} /></div>
+                <div><label style={labelSt}>...y meses</label>
+                  <input type="number" min={0} max={11} style={manualInputSt} value={edadInicioMod40Meses} placeholder="0-11"
+                    onChange={e => setEdadInicioMod40Meses(e.target.value === '' ? '' : parseInt(e.target.value) || 0)} /></div>
+                <div>
+                  <label style={labelSt}>Año de inicio del trámite Mod 40 (automático)</label>
+                  <div style={{ ...autoInputSt, display: 'flex', alignItems: 'center', fontWeight: '700', color: AZUL }}>
+                    {edadInicioMod40Anios !== '' || edadInicioMod40Meses !== '' ? anioInicioTramite : '— define la edad de inicio —'}
+                  </div>
+                  <p style={{ fontSize: '9px', color: '#94a3b8', margin: '2px 0 0' }}>Calculado a partir de tu edad actual y la edad de inicio que indiques</p>
+                </div>
               </div>
             </div>
 
