@@ -390,6 +390,7 @@ function CalculadoraInner() {
   const [edadInicioMod40Meses, setEdadInicioMod40Meses] = useState<number | ''>('')
   const [tieneAtraso, setTieneAtraso] = useState(false)
   const [fechaAtrasoMod40, setFechaAtrasoMod40] = useState('')
+  const [showDetallesMod40, setShowDetallesMod40] = useState(false)
   // Año de inicio del trámite Mod 40, calculado automáticamente a partir de "¿a qué edad quieres iniciar?" (años y meses)
   useEffect(() => {
     if (edadInicioMod40Anios === '' && edadInicioMod40Meses === '') return
@@ -1746,7 +1747,12 @@ function CalculadoraInner() {
                 {kpiBox('Semanas que agrega', `${(mod40Meses * 4.33).toFixed(0)}`, 'al historial', VERDE, 'verde')}
               </div>
 
-              {(() => {
+              <button onClick={() => setShowDetallesMod40(v => !v)}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '600', color: AZUL, padding: '4px 0', marginBottom: showDetallesMod40 ? '10px' : '14px' }}>
+                {showDetallesMod40 ? '▾' : '▸'} {showDetallesMod40 ? 'Ocultar' : 'Ver'} detalles adicionales (fecha de baja, semanas, costo real con AFORE)
+              </button>
+
+              {showDetallesMod40 && (() => {
                 // Fecha estimada de baja (fin de Mod 40), semanas cotizadas y SDI en ese momento
                 const fechaInicioMod40 = new Date(anioInicioTramite, 0, 1)
                 const fechaBaja = new Date(fechaInicioMod40)
@@ -1763,7 +1769,7 @@ function CalculadoraInner() {
                 )
               })()}
 
-              {(() => {
+              {showDetallesMod40 && (() => {
                 const inversionTotal = calcCostoMod40(mod40Umas, getMod40Pct(anioInicioTramite), sys) * mod40Meses
                 const PCT_AFORE = (sys.pct_afore_mod40 ?? 20) / 100
                 const teRegresaAfore = inversionTotal * PCT_AFORE
