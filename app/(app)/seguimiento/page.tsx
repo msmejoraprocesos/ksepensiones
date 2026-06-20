@@ -245,20 +245,20 @@ export default function SeguimientoPage() {
           <div style={{ display: 'grid', gridTemplateColumns: `56px repeat(${dias.length}, 1fr)`, position: 'relative' }}>
             {/* Columna horas */}
             <div>
-              {HORAS.map(h => (
-                <div key={h} style={{ height: HORA_H, borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end', paddingRight: '8px', paddingTop: '2px' }}>
-                  <span style={{ fontSize: '10px', color: '#94a3b8' }}>{h.toString().padStart(2, '0')}:00</span>
+              {HORAS.map((h, hi) => (
+                <div key={h} style={{ height: HORA_H, borderBottom: '1px solid #f1f5f9', background: hi % 2 === 0 ? '#FAFBFC' : 'white', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end', paddingRight: '8px', paddingTop: '2px' }}>
+                  <span style={{ fontSize: '12px', fontWeight: '700', color: '#475569' }}>{h.toString().padStart(2, '0')}:00</span>
                 </div>
               ))}
             </div>
             {/* Columnas días */}
             {dias.map((dia, di) => (
               <div key={di} style={{ borderLeft: '1px solid #f1f5f9', position: 'relative' }}>
-                {HORAS.map(h => (
+                {HORAS.map((h, hi) => (
                   <div key={h} onClick={() => openModal(dia.toISOString().split('T')[0], `${h.toString().padStart(2, '0')}:00`)}
-                    style={{ height: HORA_H, borderBottom: '1px solid #f1f5f9', cursor: 'pointer' }}
+                    style={{ height: HORA_H, borderBottom: '1px solid #f1f5f9', background: hi % 2 === 0 ? '#FAFBFC' : 'white', cursor: 'pointer' }}
                     onMouseEnter={e => (e.currentTarget.style.background = '#f8fafc')}
-                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    onMouseLeave={e => (e.currentTarget.style.background = hi % 2 === 0 ? '#FAFBFC' : 'white')}
                   />
                 ))}
                 {/* Actividades posicionadas */}
