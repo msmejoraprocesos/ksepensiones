@@ -201,6 +201,12 @@ const PageHeader = ({ razonSocial, titulo, color, esBorrador }: { razonSocial?: 
   </View>
 )
 
+// Tapa blanca que cubre el encabezado delgado SOLO en la página 1 (ahí ya está el banner grande).
+// No es fixed: al ser contenido normal, solo existe una vez — justo donde cae la página 1.
+const PageHeaderMaskPagina1 = () => (
+  <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 36, backgroundColor: C.blanco }} />
+)
+
 // Marca de agua BORRADOR
 const Watermark = () => (
   <Text
@@ -515,6 +521,17 @@ const PaginaPortada = ({ datos, escenarios, escSelIdx, ingresoObjetivo, logoUrl,
         {/* Alerta conservación */}
         {venc && <AlertChip msg="ATENCIÓN: Conservación de derechos VENCIDA — se requiere reactivación antes del trámite" type="danger" />}
         {!venc && mRest !== null && mRest < 12 && <AlertChip msg={`Conservación vigente pero próxima a vencer — ${mRest} meses restantes`} type="warning" />}
+
+        {/* Resumen ejecutivo — KPIs con % de objetivo y recuperación de inversión (se había perdido al fusionar con la portada) */}
+        <View style={{ marginTop: 14 }}>
+          <SectionTitle title="RESUMEN EJECUTIVO" color={color} />
+          <KpiRow color={color} items={[
+            { label: 'Pensión sin acción', value: mxn(escBase?.pension_mensual || 0) + '/mes', color: C.gris },
+            { label: 'Pensión con estrategia', value: mxn(escSel?.pension_mensual || 0) + '/mes', color: color },
+            { label: ingresoObjetivo && ingresoObjetivo > 0 ? `% de ${mxn(ingresoObjetivo)}/mes` : '% del objetivo', value: ingresoObjetivo && ingresoObjetivo > 0 ? Math.round((escSel?.pension_mensual || 0) / ingresoObjetivo * 100) + '%' : '—', color: C.verde },
+            { label: 'Recuperación inversión', value: (escSel?.roi_meses || 0) + ' meses', color: C.naranja },
+          ]} />
+        </View>
 
         {/* Resumen narrativo — antes vivía en una página aparte, ahora aprovecha el espacio sobrante de la portada */}
         <View style={{ marginTop: 10 }}>
@@ -883,6 +900,7 @@ export const DiagnosticoPDF = (props: PDFProps) => {
       <Page size="LETTER" style={s.page} wrap>
         {esBorrador && <Watermark />}
         <PageHeader razonSocial={razonSocial} titulo={titulo} color={color} esBorrador={esBorrador} />
+        <PageHeaderMaskPagina1 />
 
         <PaginaPortada {...shared} />
         <PaginaDatosConservacion {...shared} />
