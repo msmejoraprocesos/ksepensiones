@@ -1440,7 +1440,8 @@ function CalculadoraInner() {
             {datos.semanas_totales === 0 && (
               <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94a3b8', fontSize: '13px' }}>
                 <div style={{ fontSize: '32px', marginBottom: '10px' }}>📋</div>
-                Carga primero la constancia IMSS en la pestaña <strong>Datos generales</strong> para calcular la conservación de derechos.
+                <p style={{ margin: '0 0 14px' }}>Carga primero la constancia IMSS en la pestaña <strong>Datos generales</strong> para calcular la conservación de derechos.</p>
+                <button onClick={() => setTab(0)} style={{ ...btnPrimary, fontSize: '12px' }}>← Ir a Datos generales</button>
               </div>
             )}
             {datos.semanas_totales > 0 && <>
@@ -1563,7 +1564,8 @@ function CalculadoraInner() {
             {datos.semanas_totales === 0 && (
               <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94a3b8', fontSize: '13px' }}>
                 <div style={{ fontSize: '32px', marginBottom: '10px' }}>📋</div>
-                Carga primero la constancia IMSS en <strong>Datos generales</strong> para configurar la Modalidad 40.
+                <p style={{ margin: '0 0 14px' }}>Carga primero la constancia IMSS en <strong>Datos generales</strong> para configurar la Modalidad 40.</p>
+                <button onClick={() => setTab(0)} style={{ ...btnPrimary, fontSize: '12px' }}>← Ir a Datos generales</button>
               </div>
             )}
             {datos.semanas_totales > 0 && <>
@@ -1765,7 +1767,8 @@ function CalculadoraInner() {
         {tab === 4 && datos.semanas_totales === 0 && (
           <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94a3b8', fontSize: '13px' }}>
             <div style={{ fontSize: '32px', marginBottom: '10px' }}>📋</div>
-            Carga primero la constancia IMSS en <strong>Datos generales</strong> para ver la comparativa de Modalidad 10.
+            <p style={{ margin: '0 0 14px' }}>Carga primero la constancia IMSS en <strong>Datos generales</strong> para ver la comparativa de Modalidad 10.</p>
+            <button onClick={() => setTab(0)} style={{ ...btnPrimary, fontSize: '12px' }}>← Ir a Datos generales</button>
           </div>
         )}
         {tab === 4 && datos.semanas_totales > 0 && (() => {
@@ -1969,7 +1972,9 @@ function CalculadoraInner() {
             </div>
             {escenarios.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontSize: '13px' }}>
-                Completa los datos generales y el salario promedio para ver los escenarios.
+                <div style={{ fontSize: '32px', marginBottom: '10px' }}>📊</div>
+                <p style={{ margin: '0 0 14px' }}>Completa los datos generales y el salario promedio para ver los escenarios.</p>
+                <button onClick={() => setTab(0)} style={{ ...btnPrimary, fontSize: '12px' }}>← Ir a Datos generales</button>
               </div>
             ) : (
               <>
