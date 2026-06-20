@@ -870,13 +870,13 @@ function CalculadoraInner() {
     verde2:  { bg: '#F0FDF4', border: '#bbf7d0', accent: '#16a34a', labelColor: '#15803d' },
   }
 
-  const kpiBox = (label: string, value: string, sub?: string, color = '#1e293b', tema?: string) => {
+  const kpiBox = (label: string, value: string, sub?: string, color = '#1e293b', tema?: string, destacado = false) => {
     const th = tema ? KPI_THEMES[tema] : null
     return (
-      <div style={th ? { background: th.bg, border: `0.5px solid ${th.border}`, borderLeft: `3px solid ${th.accent}`, borderRadius: '8px', padding: '10px 12px' } : kpiSt}>
-        <div style={{ fontSize: '10px', color: th ? th.labelColor : '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '3px' }}>{label}</div>
-        <div style={{ fontSize: '16px', fontWeight: '700', color: th ? th.accent : color }}>{value}</div>
-        {sub && <div style={{ fontSize: '10px', color: th ? th.labelColor : '#94a3b8', marginTop: '1px' }}>{sub}</div>}
+      <div style={th ? { background: th.bg, border: `0.5px solid ${th.border}`, borderLeft: `3px solid ${th.accent}`, borderRadius: '8px', padding: destacado ? '14px 14px' : '10px 12px' } : { ...kpiSt, padding: destacado ? '14px 14px' : kpiSt.padding }}>
+        <div style={{ fontSize: destacado ? '11px' : '10px', fontWeight: destacado ? '700' : '400', color: th ? th.labelColor : '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '3px' }}>{label}</div>
+        <div style={{ fontSize: destacado ? '24px' : '16px', fontWeight: '700', color: th ? th.accent : color, lineHeight: 1.15 }}>{value}</div>
+        {sub && <div style={{ fontSize: destacado ? '11px' : '10px', color: th ? th.labelColor : '#94a3b8', marginTop: '2px' }}>{sub}</div>}
       </div>
     )
   }
@@ -1360,7 +1360,7 @@ function CalculadoraInner() {
             <div style={{ ...cardSt, borderLeft: `3px solid ${NARANJA}` }}>
               {sectionTitle('Resumen del cálculo', periodos.length > 0 ? `${periodos.length} períodos analizados · ${periodos.reduce((s,p) => s+p.semanas, 0)} semanas` : 'Carga la constancia IMSS para calcular automáticamente')}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', marginBottom: '12px' }}>
-                {kpiBox('SDI promedio 250 sem.', sdiPromedio > 0 ? fmtMXN2(sdiPromedio) : '—', 'Base oficial de pensión', AZUL, 'azul')}
+                {kpiBox('SDI promedio 250 sem.', sdiPromedio > 0 ? fmtMXN2(sdiPromedio) : '—', 'Base oficial de pensión', AZUL, 'azul', true)}
                 {kpiBox('SDI mensual equivalente', sdiPromedio > 0 ? fmtMXN(sdiPromedio * 30.4) : '—', '× 30.4 días', '#1e293b', 'gris')}
                 {kpiBox('Diferencia vs SDI actual', periodos.length > 0 && sdiPromedio > 0 ? fmtMXN2(periodos[periodos.length-1]?.sdi - sdiPromedio) : '—', 'SDI actual vs promedio', periodos.length > 0 && periodos[periodos.length-1]?.sdi > sdiPromedio ? '#ef4444' : VERDE)}
                 {kpiBox('Período cubierto', periodos.length > 0 ? `${periodos[0]?.fecha_inicio?.slice(0,7) || '—'} → ${periodos[periodos.length-1]?.fecha_fin?.slice(0,7) || '—'}` : '—', '250 semanas hacia atrás')}
@@ -1469,7 +1469,7 @@ function CalculadoraInner() {
                 <div style={{ ...cardSt, borderLeft: `3px solid ${color}` }}>
                   {sectionTitle('Estado de conservación de derechos')}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', marginBottom: '14px' }}>
-                    {kpiBox('Estado', cons.vigente ? 'Vigente' : 'Vencido', cons.venceEn ? `${cons.venceEn} meses restantes (${cons.semanasConservacion} sem de conservación)` : 'Período vencido', color)}
+                    {kpiBox('Estado', cons.vigente ? 'Vigente' : 'Vencido', cons.venceEn ? `${cons.venceEn} meses restantes (${cons.semanasConservacion} sem de conservación)` : 'Período vencido', color, undefined, true)}
                     {kpiBox('Semanas cotizadas', datos.semanas_totales.toLocaleString(), 'total histórico', datos.semanas_totales >= 500 ? VERDE : '#f59e0b')}
                     {kpiBox('Plazo de conservación', cons.indefinida ? 'Indefinido' : cons.venceEn !== null ? `${cons.venceEn} meses` : 'Sin conservación', cons.semanasConservacion ? `${cons.semanasConservacion} semanas = semanas ÷ 4` : 'Art. 183 LSS')}
                     {kpiBox('Meses desde última cot.', mesesDesde.toString(), fechaUltimaCot ? new Date(fechaUltimaCot).toLocaleDateString('es-MX', { month: 'short', year: 'numeric' }) : '—')}
@@ -1609,7 +1609,7 @@ function CalculadoraInner() {
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', marginBottom: '14px' }}>
-                {kpiBox('Costo mensual', fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys)), 'Pago mensual al IMSS', NARANJA, 'naranja')}
+                {kpiBox('Costo mensual', fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys)), 'Pago mensual al IMSS', NARANJA, 'naranja', true)}
                 {kpiBox('Inversión total', fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses), `${mod40Meses} meses`, '#dc2626', 'rojo')}
                 {kpiBox('SDI con Mod 40', fmtMXN2(mod40Umas * sys.UMA_DIARIA), 'Salario cotizado', AZUL, 'azul')}
                 {kpiBox('Semanas que agrega', `${(mod40Meses * 4.33).toFixed(0)}`, 'al historial', VERDE, 'verde')}
