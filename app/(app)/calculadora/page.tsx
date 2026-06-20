@@ -291,6 +291,7 @@ function CalculadoraInner() {
     setAnioInicioTramite(fechaInicio.getFullYear())
   }, [edadInicioMod40Anios, edadInicioMod40Meses, datos.fecha_nacimiento, datos.edad_actual])
   const [showTooltipCuantia, setShowTooltipCuantia] = useState(false)
+  const [showGuiaEdadMod40, setShowGuiaEdadMod40] = useState(false)
 
   // Flujo diagnóstico
   const [ingresoObjetivo, setIngresoObjetivo] = useState(0)
@@ -1033,6 +1034,31 @@ function CalculadoraInner() {
         )
       })()}
 
+      {/* ── Guía: por qué importan los años Y meses al elegir cuándo iniciar Mod 40 ── */}
+      {showGuiaEdadMod40 && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+          onClick={e => { if (e.target === e.currentTarget) setShowGuiaEdadMod40(false) }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '100%', maxWidth: '560px', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+              <p style={{ fontSize: '14px', fontWeight: '700', color: AZUL, margin: 0 }}>¿Por qué pedimos años Y meses, no solo años?</p>
+              <button onClick={() => setShowGuiaEdadMod40(false)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
+            </div>
+            <div style={{ fontSize: '12px', color: '#374151', lineHeight: 1.7 }}>
+              <p>La UMA (Unidad de Medida y Actualización) se actualiza <strong>cada 1° de enero</strong>. El costo mensual de Modalidad 40 y la pensión que resulta dependen de la UMA vigente en el <strong>año calendario</strong> en que el cliente da de alta su Modalidad 40.</p>
+              <p>Si solo usáramos años completos, dos clientes con la misma "edad de inicio: 61 años" podrían en realidad estar arrancando en años calendario distintos:</p>
+              <ul style={{ paddingLeft: '18px', margin: '6px 0' }}>
+                <li>Un cliente que cumple 61 años en <strong>enero</strong> de 2027 inicia con la UMA de 2027.</li>
+                <li>Un cliente que cumple 61 años en <strong>noviembre</strong> de 2027, si decide esperar a "cumplir 61" antes de iniciar, también arranca en 2027 — pero si su cumpleaños cae en <strong>diciembre</strong>, fácilmente termina iniciando ya en <strong>enero del año siguiente</strong>, con una UMA distinta.</li>
+              </ul>
+              <p>Por eso el campo pide <strong>años y meses exactos</strong> desde tu fecha de nacimiento: con esa precisión calculamos el mes y año calendario real en que cumplirías esa edad, y usamos la UMA proyectada de <strong>ese</strong> año — no la de un año aproximado.</p>
+              <p style={{ margin: '10px 0 0', padding: '8px 10px', background: '#EFF6FF', borderRadius: '6px', color: AZUL, fontWeight: '600' }}>
+                En corto: un mes de diferencia en la fecha de inicio puede mover el "Año de inicio del trámite" un año completo, y eso cambia el costo y la pensión proyectada.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Tooltip tabla cuantía de pensión ── */}
       {showTooltipCuantia && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
@@ -1170,7 +1196,10 @@ function CalculadoraInner() {
                   <input type="number" style={autoNumInputSt} value={datos.semanas_totales || ''} onChange={e => setDatos(p => ({ ...p, semanas_totales: parseInt(e.target.value) || 0 }))} /></div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: '10px', marginTop: '10px' }}>
-                <div><label style={labelSt}>¿A qué edad quieres iniciar Mod 40? — años</label>
+                <div><label style={labelSt}>
+                    ¿A qué edad quieres iniciar Mod 40? — años
+                    <button onClick={() => setShowGuiaEdadMod40(true)} style={{ marginLeft: '6px', background: AZUL, color: 'white', border: 'none', borderRadius: '50%', width: '14px', height: '14px', fontSize: '9px', cursor: 'pointer', fontWeight: '700', lineHeight: '14px', padding: 0 }}>?</button>
+                  </label>
                   <input type="number" min={0} style={manualNumInputSt} value={edadInicioMod40Anios} placeholder="ej. 61"
                     onChange={e => setEdadInicioMod40Anios(e.target.value === '' ? '' : parseInt(e.target.value) || 0)} /></div>
                 <div><label style={labelSt}>...y meses</label>
@@ -1529,6 +1558,23 @@ function CalculadoraInner() {
                 {kpiBox('SDI con Mod 40', fmtMXN2(mod40Umas * sys.UMA_DIARIA), 'Salario cotizado', AZUL, 'azul')}
                 {kpiBox('Semanas que agrega', `${(mod40Meses * 4.33).toFixed(0)}`, 'al historial', VERDE, 'verde')}
               </div>
+
+              {(() => {
+                // Fecha estimada de baja (fin de Mod 40), semanas cotizadas y SDI en ese momento
+                const fechaInicioMod40 = new Date(anioInicioTramite, 0, 1)
+                const fechaBaja = new Date(fechaInicioMod40)
+                fechaBaja.setMonth(fechaBaja.getMonth() + mod40Meses)
+                const semanasEnBaja = Math.round((datos.semanas_totales || 0) + mod40Meses * 4.33)
+                const umaEnInicio = proyectarValor(sys.UMA_DIARIA, new Date().getFullYear(), anioInicioTramite)
+                const sdiEnBaja = mod40Umas * umaEnInicio
+                return (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '14px' }}>
+                    {kpiBox('Fecha estimada de baja', fechaBaja.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }), 'Fin de Modalidad 40', '#7c3aed', 'azul')}
+                    {kpiBox('Semanas cotizadas en ese momento', semanasEnBaja.toString(), `${datos.semanas_totales || 0} actuales + ${(mod40Meses * 4.33).toFixed(0)} de Mod 40`, VERDE, 'verde')}
+                    {kpiBox('Salario (SDI) en ese momento', fmtMXN2(sdiEnBaja), `UMA proyectada a ${anioInicioTramite}`, AZUL, 'azul')}
+                  </div>
+                )
+              })()}
             </div>
 
             {/* Tabla de cotización mensual */}
@@ -2121,6 +2167,7 @@ function CalculadoraInner() {
                       {kpiBox('Inversión total', fmtMXN(escSel.inversion_total))}
                       {kpiBox('Incremento mensual', `+${fmtMXN(escSel.incremento_vs_base)}`, 'vs sin Mod 40', VERDE)}
                       {kpiBox('ROI', escSel.roi_meses > 0 ? `${escSel.roi_meses} meses` : '—', 'punto de equilibrio', '#8b5cf6')}
+                      {kpiBox('Aguinaldo anual', fmtMXN(escSel.pension_mensual / 30 * 15), '15 días de pensión · IMSS', '#0891b2')}
                     </div>
                   )}
                 </div>
@@ -2136,6 +2183,55 @@ function CalculadoraInner() {
                 </div>
               </div>
             </div>
+
+            {/* Proyección de la pensión cada 5 años, ajustada por inflación estimada */}
+            {escSel && (
+              <div style={{ ...cardSt, marginTop: '10px' }}>
+                {sectionTitle('Proyección de la pensión a futuro', 'Estimado con inflación anual de 4% · resalta los 80 años (esperanza de vida promedio)')}
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                    <thead>
+                      <tr style={{ background: '#F4F6FB' }}>
+                        {['Edad', 'Año', 'Pensión mensual', 'Pensión anual', '% vs hoy'].map((h, i) => (
+                          <th key={i} style={{ padding: '7px 10px', textAlign: i > 0 ? 'right' : 'center', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(() => {
+                        const edadInicio = Math.max(edadRetiro, 65)
+                        const edades: number[] = []
+                        for (let e = edadInicio; e <= 100; e += 5) edades.push(e)
+                        if (!edades.includes(100)) edades.push(100)
+                        const anioBase = new Date().getFullYear()
+                        const anioRetiroCal = anioBase + (edadRetiro - (datos.edad_actual || edadRetiro))
+                        return edades.map((edad, i) => {
+                          const aniosTranscurridos = edad - edadInicio
+                          const pensionProyectada = escSel.pension_mensual * Math.pow(1.04, aniosTranscurridos)
+                          const anioCal = anioRetiroCal + aniosTranscurridos
+                          const pct = Math.round((pensionProyectada / escSel.pension_mensual - 1) * 100)
+                          const esEsperanzaVida = edad === 80
+                          return (
+                            <tr key={i} style={{ background: esEsperanzaVida ? '#FFF7ED' : i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #f1f5f9', borderLeft: esEsperanzaVida ? `3px solid ${NARANJA}` : 'none' }}>
+                              <td style={{ padding: '6px 10px', textAlign: 'center', fontWeight: esEsperanzaVida ? '800' : '600', color: esEsperanzaVida ? NARANJA : '#374151' }}>
+                                {edad} {esEsperanzaVida ? '★' : ''}
+                              </td>
+                              <td style={{ padding: '6px 10px', textAlign: 'right', color: '#94a3b8' }}>{anioCal}</td>
+                              <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: '700', color: esEsperanzaVida ? NARANJA : AZUL }}>{fmtMXN(pensionProyectada)}</td>
+                              <td style={{ padding: '6px 10px', textAlign: 'right', color: '#374151' }}>{fmtMXN(pensionProyectada * 12)}</td>
+                              <td style={{ padding: '6px 10px', textAlign: 'right', color: VERDE, fontWeight: '600' }}>+{pct}%</td>
+                            </tr>
+                          )
+                        })
+                      })()}
+                    </tbody>
+                  </table>
+                </div>
+                <p style={{ fontSize: '9px', color: '#94a3b8', marginTop: '8px' }}>
+                  ★ 80 años = esperanza de vida promedio en México (fuente: INEGI). Proyección informativa — el IMSS aplica el incremento real anual conforme a inflación oficial (INPC), no necesariamente 4%.
+                </p>
+              </div>
+            )}
 
             {/* Análisis narrativo IA */}
             {analisis.length > 0 && (
