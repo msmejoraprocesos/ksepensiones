@@ -956,22 +956,20 @@ function ClientesInner() {
                 onChange={e => { setMostrarArchivados(e.target.checked); if (e.target.checked && userIdRef.current) loadArchivados(userIdRef.current) }} />
               📦 Archivados {clientesArchivados.length > 0 ? `(${clientesArchivados.length})` : ''}
             </label>
-            {vista === 'pipeline' && (
-              <div style={{ display: 'flex', gap: '10px', flexWrap: 'nowrap' }}>
-                {[
-                  { label: 'Total', value: filtered.length, color: AZUL },
-                  { label: 'Cobrado', value: fmtMXN(filtered.reduce((s, c) => s + (c.total_pagado ?? 0), 0)), color: VERDE },
-                  { label: 'Por cobrar', value: fmtMXN(filtered.reduce((s, c) => s + Math.max(0, (c.monto_acordado ?? 0) - (c.total_pagado ?? 0)), 0)), color: '#ef4444' },
-                ].map((k, i) => (
-                  <div key={i} style={{ background: '#F4F6FB', borderRadius: '8px', padding: '4px 12px', border: '1px solid #e2e8f0' }}>
-                    <div style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase' }}>{k.label}</div>
-                    <div style={{ fontSize: '13px', fontWeight: '800', color: k.color }}>{k.value}</div>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         )}
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'nowrap', flexShrink: 0 }}>
+          {[
+            { label: 'Total', value: filtered.length, color: AZUL },
+            { label: 'Cobrado', value: fmtMXN(filtered.reduce((s, c) => s + (c.total_pagado ?? 0), 0)), color: VERDE },
+            { label: 'Por cobrar', value: fmtMXN(filtered.reduce((s, c) => s + Math.max(0, (c.monto_acordado ?? 0) - (c.total_pagado ?? 0)), 0)), color: '#ef4444' },
+          ].map((k, i) => (
+            <div key={i} style={{ background: '#F4F6FB', borderRadius: '8px', padding: '4px 12px', border: '1px solid #e2e8f0' }}>
+              <div style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase' }}>{k.label}</div>
+              <div style={{ fontSize: '13px', fontWeight: '800', color: k.color }}>{k.value}</div>
+            </div>
+          ))}
+        </div>
         <div style={{ flex: 1 }} />
         <button onClick={() => { setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', tipo_servicio: '', esquema_pago: '', monto_acordado: '', monto_pension_mensual: '', numero_meses_cobro: '', porcentaje_recuperacion: '', tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } } }); setFormErrors({}); setShowNuevo(true) }}
           style={{ background: AZUL, color: 'white', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', flexShrink: 0 }}>
