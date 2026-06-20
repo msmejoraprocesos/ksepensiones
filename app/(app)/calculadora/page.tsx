@@ -960,8 +960,8 @@ function CalculadoraInner() {
 
   const navButtons = (prev?: () => void, next?: () => void, nextLabel = 'Siguiente →') => (
     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px' }}>
-      {prev ? <button onClick={prev} style={btnSecondary}>← Anterior</button> : <div />}
-      {next && <button onClick={next} style={btnPrimary}>{nextLabel}</button>}
+      {prev ? <button onClick={prev} className="btn-secondary" style={btnSecondary}>← Anterior</button> : <div />}
+      {next && <button onClick={next} className="btn-primary" style={btnPrimary}>{nextLabel}</button>}
     </div>
   )
 
@@ -1407,13 +1407,11 @@ function CalculadoraInner() {
                   </div>
 
                   <div style={{ display: 'flex', gap: '10px' }}>
-                    <button onClick={() => setShowDetalle250(true)}
-                      style={{ ...btnSecondary, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <button onClick={() => setShowDetalle250(true)} className="btn-secondary" style={{ ...btnSecondary, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                       📊 Ver desglose completo de las 250 semanas
                     </button>
                     {periodosCompletos.length > 0 && (
-                      <button onClick={() => setShowHistorialCompleto(true)}
-                        style={{ ...btnSecondary, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <button onClick={() => setShowHistorialCompleto(true)} className="btn-secondary" style={{ ...btnSecondary, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                         🗂️ Ver historial laboral completo ({periodosCompletos.reduce((s: number, p: any) => s + (p.semanas || 0), 0)} semanas, {periodosCompletos.length} períodos)
                       </button>
                     )}
@@ -1441,7 +1439,7 @@ function CalculadoraInner() {
               <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94a3b8', fontSize: '13px' }}>
                 <div style={{ fontSize: '32px', marginBottom: '10px' }}>📋</div>
                 <p style={{ margin: '0 0 14px' }}>Carga primero la constancia IMSS en la pestaña <strong>Datos generales</strong> para calcular la conservación de derechos.</p>
-                <button onClick={() => setTab(0)} style={{ ...btnPrimary, fontSize: '12px' }}>← Ir a Datos generales</button>
+                <button onClick={() => setTab(0)} className="btn-primary" style={{ ...btnPrimary, fontSize: '12px' }}>← Ir a Datos generales</button>
               </div>
             )}
             {datos.semanas_totales > 0 && <>
@@ -1565,7 +1563,7 @@ function CalculadoraInner() {
               <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94a3b8', fontSize: '13px' }}>
                 <div style={{ fontSize: '32px', marginBottom: '10px' }}>📋</div>
                 <p style={{ margin: '0 0 14px' }}>Carga primero la constancia IMSS en <strong>Datos generales</strong> para configurar la Modalidad 40.</p>
-                <button onClick={() => setTab(0)} style={{ ...btnPrimary, fontSize: '12px' }}>← Ir a Datos generales</button>
+                <button onClick={() => setTab(0)} className="btn-primary" style={{ ...btnPrimary, fontSize: '12px' }}>← Ir a Datos generales</button>
               </div>
             )}
             {datos.semanas_totales > 0 && <>
@@ -1768,7 +1766,7 @@ function CalculadoraInner() {
           <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94a3b8', fontSize: '13px' }}>
             <div style={{ fontSize: '32px', marginBottom: '10px' }}>📋</div>
             <p style={{ margin: '0 0 14px' }}>Carga primero la constancia IMSS en <strong>Datos generales</strong> para ver la comparativa de Modalidad 10.</p>
-            <button onClick={() => setTab(0)} style={{ ...btnPrimary, fontSize: '12px' }}>← Ir a Datos generales</button>
+            <button onClick={() => setTab(0)} className="btn-primary" style={{ ...btnPrimary, fontSize: '12px' }}>← Ir a Datos generales</button>
           </div>
         )}
         {tab === 4 && datos.semanas_totales > 0 && (() => {
@@ -1974,7 +1972,7 @@ function CalculadoraInner() {
               <div style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontSize: '13px' }}>
                 <div style={{ fontSize: '32px', marginBottom: '10px' }}>📊</div>
                 <p style={{ margin: '0 0 14px' }}>Completa los datos generales y el salario promedio para ver los escenarios.</p>
-                <button onClick={() => setTab(0)} style={{ ...btnPrimary, fontSize: '12px' }}>← Ir a Datos generales</button>
+                <button onClick={() => setTab(0)} className="btn-primary" style={{ ...btnPrimary, fontSize: '12px' }}>← Ir a Datos generales</button>
               </div>
             ) : (
               <>
@@ -2149,28 +2147,24 @@ function CalculadoraInner() {
                     {generandoAnalisis ? '⏳ Generando...' : analisis.length === 0 ? '✨ Generar análisis IA (requerido)' : '✨ Regenerar análisis'}
                   </button>
                   {/* 2. Guardar borrador — requiere análisis */}
-                  <button onClick={() => guardarDiagnostico('borrador')} disabled={!clienteId || guardando || analisis.length === 0 || estatus === 'autorizado'}
-                    style={{ ...btnSecondary, fontSize: '12px', opacity: (!clienteId || analisis.length === 0 || estatus === 'autorizado') ? 0.5 : 1 }}>
+                  <button onClick={() => guardarDiagnostico('borrador')} disabled={!clienteId || guardando || analisis.length === 0 || estatus === 'autorizado'} className="btn-secondary" style={{ ...btnSecondary, fontSize: '12px', opacity: (!clienteId || analisis.length === 0 || estatus === 'autorizado') ? 0.5 : 1 }}>
                     {guardando && estatus !== 'autorizado' ? '⏳ Guardando...' : diagGuardadoId ? '💾 Actualizar borrador' : '💾 Guardar borrador'}
                   </button>
                   {/* 3. PDF borrador — requiere diagnóstico guardado */}
                   {diagGuardadoId && estatus === 'borrador' && (
-                    <button onClick={exportarPDF}
-                      style={{ ...btnSecondary, fontSize: '12px', color: '#f59e0b', borderColor: '#fcd34d' }}>
+                    <button onClick={exportarPDF} className="btn-secondary" style={{ ...btnSecondary, fontSize: '12px', color: '#f59e0b', borderColor: '#fcd34d' }}>
                       📄 PDF borrador
                     </button>
                   )}
                   {/* 4. Autorizar — requiere borrador guardado */}
                   {diagGuardadoId && estatus === 'borrador' && (
-                    <button onClick={() => guardarDiagnostico('autorizado')} disabled={guardando}
-                      style={{ ...btnPrimary, fontSize: '12px', background: VERDE }}>
+                    <button onClick={() => guardarDiagnostico('autorizado')} disabled={guardando} className="btn-primary" style={{ ...btnPrimary, fontSize: '12px', background: VERDE }}>
                       {guardando ? '⏳...' : '✅ Autorizar diagnóstico'}
                     </button>
                   )}
                   {/* 5. PDF oficial — solo si autorizado */}
                   {estatus === 'autorizado' && (
-                    <button onClick={exportarPDF}
-                      style={{ ...btnPrimary, fontSize: '12px' }}>
+                    <button onClick={exportarPDF} className="btn-primary" style={{ ...btnPrimary, fontSize: '12px' }}>
                       📄 PDF oficial
                     </button>
                   )}
