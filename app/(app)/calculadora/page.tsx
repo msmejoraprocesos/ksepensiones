@@ -200,7 +200,9 @@ function CalculadoraInner() {
 
   // Tab 2 state
   const [periodos, setPeriodos] = useState<PeriodoSalarial[]>([])
+  const [periodosCompletos, setPeriodosCompletos] = useState<any[]>([])
   const [showDetalle250, setShowDetalle250] = useState(false)
+  const [showHistorialCompleto, setShowHistorialCompleto] = useState(false)
   const [sdiPromedio, setSdiPromedio] = useState(0)
 
   // Tab 3 - conservacion (calculated from datos)
@@ -397,6 +399,7 @@ function CalculadoraInner() {
         if (result.ultima_cotizacion) setFechaUltimaCot(result.ultima_cotizacion)
         // Build periodos from PDF data
         if (result.periodos && Array.isArray(result.periodos)) {
+          setPeriodosCompletos(result.periodos)
           buildPeriodos250(result.periodos, result.semanas || 0)
         }
       }
@@ -411,11 +414,22 @@ function CalculadoraInner() {
     const reversed = [...rawPeriodos].reverse()
     for (const p of reversed) {
       if (acum >= 250) break
-      const sem = Math.min(p.semanas || 0, 250 - acum)
+      const semDisponibles = p.semanas || 0
+      const sem = Math.min(semDisponibles, 250 - acum)
       acum += sem
+      // Si solo se toma una parte de las semanas del período (el más antiguo incluido),
+      // se recorta la fecha de inicio para reflejar las semanas REALMENTE contadas (las más recientes de ese período),
+      // no la fecha de inicio original del período completo.
+      const truncado = sem < semDisponibles
+      let fechaInicioAjustada = p.fecha_inicio || ''
+      if (truncado && p.fecha_fin) {
+        const fin = new Date(p.fecha_fin)
+        fin.setDate(fin.getDate() - sem * 7)
+        fechaInicioAjustada = fin.toISOString().slice(0, 10)
+      }
       result.unshift({
         id: Math.random().toString(36).slice(2),
-        fecha_inicio: p.fecha_inicio || '',
+        fecha_inicio: fechaInicioAjustada,
         fecha_fin: p.fecha_fin || '',
         sdi: p.sdi || 0,
         semanas: sem,
@@ -1235,10 +1249,18 @@ function CalculadoraInner() {
                     </table>
                   </div>
 
-                  <button onClick={() => setShowDetalle250(true)}
-                    style={{ ...btnSecondary, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    📊 Ver desglose completo de las 250 semanas
-                  </button>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button onClick={() => setShowDetalle250(true)}
+                      style={{ ...btnSecondary, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      📊 Ver desglose completo de las 250 semanas
+                    </button>
+                    {periodosCompletos.length > 0 && (
+                      <button onClick={() => setShowHistorialCompleto(true)}
+                        style={{ ...btnSecondary, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        🗂️ Ver historial laboral completo ({periodosCompletos.reduce((s: number, p: any) => s + (p.semanas || 0), 0)} semanas, {periodosCompletos.length} períodos)
+                      </button>
+                    )}
+                  </div>
                 </>
               )}
 
@@ -2057,6 +2079,52 @@ function CalculadoraInner() {
             )}
 
             {navButtons(() => setTab(6))}
+          </div>
+        )}
+
+        {/* ══ MODAL HISTORIAL LABORAL COMPLETO (todas las semanas, no solo las últimas 250) ═══════════════════════════ */}
+        {showHistorialCompleto && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+            onClick={e => { if (e.target === e.currentTarget) setShowHistorialCompleto(false) }}>
+            <div style={{ background: 'white', borderRadius: '14px', padding: '20px', width: '720px', maxHeight: '80vh', display: 'flex', flexDirection: 'column', boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                <div>
+                  <p style={{ fontSize: '14px', fontWeight: '700', color: '#1e293b', margin: 0 }}>Historial laboral completo — toda la vida laboral</p>
+                  <p style={{ fontSize: '11px', color: '#94a3b8', margin: '2px 0 0' }}>
+                    {periodosCompletos.reduce((s: number, p: any) => s + (p.semanas || 0), 0)} semanas en {periodosCompletos.length} períodos extraídos de la constancia (incluye los que quedan fuera de las últimas 250 semanas).
+                  </p>
+                </div>
+                <button onClick={() => setShowHistorialCompleto(false)}
+                  style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#94a3b8', padding: '4px 8px' }}>✕</button>
+              </div>
+              <div style={{ overflowY: 'auto', flex: 1, border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                  <thead style={{ position: 'sticky', top: 0 }}>
+                    <tr style={{ background: '#F4F6FB' }}>
+                      {['#', 'Patrón', 'Fecha inicio', 'Fecha fin', 'Semanas', 'SDI diario', '¿En últimas 250?'].map((h, i) => (
+                        <th key={i} style={{ padding: '7px 10px', textAlign: i > 0 ? 'right' : 'center', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {periodosCompletos.map((p: any, i: number) => {
+                      const enUltimas250 = periodos.some(pp => pp.fecha_fin === p.fecha_fin && pp.sdi === p.sdi)
+                      return (
+                        <tr key={i} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #f1f5f9' }}>
+                          <td style={{ padding: '6px 10px', textAlign: 'center', color: '#94a3b8' }}>{i + 1}</td>
+                          <td style={{ padding: '6px 10px', textAlign: 'right', color: '#374151' }}>{p.patron || '—'}</td>
+                          <td style={{ padding: '6px 10px', textAlign: 'right', color: '#374151' }}>{p.fecha_inicio}</td>
+                          <td style={{ padding: '6px 10px', textAlign: 'right', color: '#374151' }}>{p.fecha_fin}</td>
+                          <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: '600', color: AZUL }}>{p.semanas}</td>
+                          <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: '600', color: '#374151' }}>{fmtMXN2(p.sdi || 0)}</td>
+                          <td style={{ padding: '6px 10px', textAlign: 'right', color: enUltimas250 ? VERDE : '#cbd5e1', fontWeight: enUltimas250 ? '700' : '400' }}>{enUltimas250 ? '✓ Sí' : '—'}</td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         )}
 
