@@ -816,10 +816,10 @@ function CalculadoraInner() {
 
   const guiaCampos = (compact = false) => (
     <div style={{ padding: compact ? '8px 12px' : '12px 16px', background: '#FAFAFA', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: compact ? '10px' : '11px', color: '#64748b', display: 'flex', flexWrap: 'wrap' as const, gap: compact ? '10px' : '16px', alignItems: 'center' }}>
-      {!compact && <strong style={{ color: '#374151' }}>Guía de campos:</strong>}
-      <span>{legendoDot('#EFF6FF', '#bfdbfe')} <strong>Azul</strong> — se llena al cargar la constancia IMSS</span>
+      {!compact && <strong style={{ color: '#374151' }}>Guía de colores:</strong>}
+      <span>{legendoDot('#EFF6FF', '#bfdbfe')} <strong>Azul</strong> — se llena solo al cargar la constancia IMSS</span>
       <span>{legendoDot('#F5F3FF', '#ddd6fe')} <strong>Morado</strong> — viene de Configuración del sistema</span>
-      <span>{legendoDot('#F8FAFC', '#e2e8f0')} <strong>Gris</strong> — captúralo tú o pídelo al cliente</span>
+      <span>{legendoDot('#FFFBEB', '#f59e0b')} <strong style={{ color: '#92400e' }}>Ámbar</strong> — tú debes llenarlo o confirmarlo</span>
     </div>
   )
 
@@ -1165,7 +1165,7 @@ function CalculadoraInner() {
                 <div><label style={labelSt}>NSS</label>
                   <input style={autoInputSt} value={datos.nss} onChange={e => setDatos(p => ({ ...p, nss: e.target.value }))} placeholder="NSS" /></div>
                 <div><label style={labelSt}>Régimen</label>
-                  <select style={autoInputSt} value={datos.ley} onChange={e => setDatos(p => ({ ...p, ley: e.target.value as '73' | '97' }))}>
+                  <select style={datos.ley ? autoInputSt : manualInputSt} value={datos.ley} onChange={e => setDatos(p => ({ ...p, ley: e.target.value as '73' | '97' }))}>
                     <option value="">Detectar automáticamente</option>
                     <option value="73">Ley 73 (cotizó antes de Jul 1997)</option>
                     <option value="97">Ley 97 (solo cotizó después de Jul 1997)</option>
