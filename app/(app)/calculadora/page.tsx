@@ -374,6 +374,14 @@ function CalculadoraInner() {
           const diasDesdeUltima = (Date.now() - new Date(result.ultima_cotizacion).getTime()) / 86400000
           sigueCotizandoSugerido = diasDesdeUltima <= 60
         }
+        // Régimen (Ley 73 vs 97): se calcula de forma determinística a partir de la fecha de primer empleo
+        // (corte legal: 1° de julio de 1997). Si la IA no logró extraer la fecha exacta, se usa su estimación como respaldo.
+        let leyDetectada: '73' | '97' | undefined
+        if (result.primer_empleo) {
+          leyDetectada = new Date(result.primer_empleo) < new Date('1997-07-01') ? '73' : '97'
+        } else if (typeof result.cotizo_antes_97 === 'boolean') {
+          leyDetectada = result.cotizo_antes_97 ? '73' : '97'
+        }
         setDatos(prev => ({
           ...prev,
           nombre: result.nombre || prev.nombre,
@@ -384,7 +392,7 @@ function CalculadoraInner() {
           edad_actual: edadCalc ?? prev.edad_actual,
           fecha_calculo: result.ultima_cotizacion || prev.fecha_calculo,
           sigue_cotizando: sigueCotizandoSugerido ?? prev.sigue_cotizando,
-          ley: result.cotizo_antes_97 ? '73' : '97',
+          ley: leyDetectada ?? prev.ley,
         }))
         if (result.ultima_cotizacion) setFechaUltimaCot(result.ultima_cotizacion)
         // Build periodos from PDF data

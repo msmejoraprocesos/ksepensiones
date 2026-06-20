@@ -29,8 +29,8 @@ Responde ÚNICAMENTE con un objeto JSON válido, sin backticks ni texto adiciona
   "nss": "número de seguridad social",
   "fecha_nac": "YYYY-MM-DD",
   "semanas": número total de semanas cotizadas,
-  "cotizo_antes_97": true o false,
-  "cotizo_despues_97": true o false,
+  "cotizo_antes_97": true si la fecha de primer empleo (primer_empleo) es ANTERIOR al 1 de julio de 1997 (1997-07-01); false si es igual o posterior a esa fecha,
+  "cotizo_despues_97": true o false (lo opuesto a cotizo_antes_97),
   "primer_empleo": "YYYY-MM-DD o null",
   "ultima_cotizacion": "YYYY-MM-DD o null",
   "periodos": [
