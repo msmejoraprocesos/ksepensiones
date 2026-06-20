@@ -1298,7 +1298,7 @@ function CalculadoraInner() {
                   <input type="number" style={manualNumInputSt} value={datos.num_padres || ''} onChange={e => setDatos(p => ({ ...p, num_padres: parseInt(e.target.value) || 0 }))} placeholder="0" /></div>
                 <div>
                   <label style={labelSt}>
-                    Edad deseada de retiro
+                    ✏️ Edad deseada de retiro
                     <button onClick={() => setShowTooltipCuantia(v => !v)} style={{ marginLeft: '6px', background: AZUL, color: 'white', border: 'none', borderRadius: '50%', width: '14px', height: '14px', fontSize: '9px', cursor: 'pointer', fontWeight: '700', lineHeight: '14px', padding: 0 }}>?</button>
                   </label>
                   <select style={manualInputSt} value={edadRetiro} onChange={e => setEdadRetiro(parseInt(e.target.value))}>
@@ -1315,11 +1315,11 @@ function CalculadoraInner() {
                   <p style={{ fontSize: '9px', color: '#94a3b8', margin: '2px 0 0' }}>Factor Cesantía aplica 60-64 años · Vejez 65+</p>
                 </div>
                 <div>
-                  <label style={labelSt}>Año de inicio del trámite Mod 40</label>
+                  <label style={labelSt}>✏️ Año de inicio del trámite Mod 40 (ajuste manual)</label>
                   <select style={manualInputSt} value={anioInicioTramite} onChange={e => setAnioInicioTramite(parseInt(e.target.value))}>
                     {[2026,2027,2028,2029,2030].map(a => <option key={a} value={a}>{a} — UMA: {new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN',maximumFractionDigits:2}).format(proyectarValor(117.31, 2026, a))}/día</option>)}
                   </select>
-                  <p style={{ fontSize: '9px', color: '#94a3b8', margin: '2px 0 0' }}>Los costos se proyectan con la UMA de ese año</p>
+                  <p style={{ fontSize: '9px', color: '#94a3b8', margin: '2px 0 0' }}>Se llena solo si llenaste "¿A qué edad iniciar Mod 40?" arriba — cámbialo aquí solo si quieres forzar un año distinto</p>
                 </div>
               </div>
             </div>
@@ -1451,11 +1451,11 @@ function CalculadoraInner() {
             {guiaCampos(true)}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
               <div style={cardSt}>
-                <label style={labelSt}>Fecha de última cotización</label>
+                <label style={labelSt}>⚡ Fecha de última cotización</label>
                 <input type="date" style={autoInputSt} value={fechaUltimaCot} onChange={e => setFechaUltimaCot(e.target.value)} />
               </div>
               <div style={cardSt}>
-                <label style={labelSt}>Semanas cotizadas totales</label>
+                <label style={labelSt}>⚡ Semanas cotizadas totales</label>
                 <input type="number" style={autoNumInputSt} value={datos.semanas_totales || ''} readOnly />
               </div>
             </div>
@@ -1576,13 +1576,13 @@ function CalculadoraInner() {
               {sectionTitle('Configuración de la Modalidad 40')}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '14px' }}>
                 <div>
-                  <label style={labelSt}>Salario base Mod 40 (veces UMA)</label>
+                  <label style={labelSt}>✏️ Salario base Mod 40 (veces UMA)</label>
                   <p style={{ fontSize: '10px', color: '#94a3b8', margin: '2px 0 5px', lineHeight: 1.4 }}>El salario sobre el que el cliente quiere cotizar voluntariamente. A mayor UMA, mayor pensión final pero mayor costo mensual. Rango típico: 10–25 UMAs.</p>
                   <input type="number" step="0.5" style={manualNumInputSt} value={mod40Umas} onChange={e => setMod40Umas(parseFloat(e.target.value) || 1)} />
                   <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>SDI: {fmtMXN2(mod40Umas * sys.UMA_DIARIA)}/día</p>
                 </div>
                 <div>
-                  <label style={labelSt}>Período de cotización (meses)</label>
+                  <label style={labelSt}>✏️ Período de cotización (meses)</label>
                   <p style={{ fontSize: '10px', color: '#94a3b8', margin: '2px 0 5px', lineHeight: 1.4 }}>Cuántos meses pagará Modalidad 40 antes de tramitar la pensión. Solo cuentan los <strong>últimos 60 meses</strong> (5 años) para el promedio del SDI — periodos más largos no incrementan más la pensión pero sí el costo total.</p>
                   <input type="number" style={manualNumInputSt} value={mod40Meses} onChange={e => setMod40Meses(parseInt(e.target.value) || 1)} />
                   <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginTop: '5px' }}>
@@ -1599,7 +1599,7 @@ function CalculadoraInner() {
                   <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>{(mod40Meses * 4.33).toFixed(0)} semanas adicionales</p>
                 </div>
                 <div>
-                  <label style={labelSt}>Tasa Mod 40 {new Date().getFullYear()} (%)</label>
+                  <label style={labelSt}>⚙️ Tasa Mod 40 {new Date().getFullYear()} (%)</label>
                   <p style={{ fontSize: '10px', color: '#94a3b8', margin: '2px 0 5px', lineHeight: 1.4 }}>Porcentaje que el IMSS cobra mensualmente sobre el SDI elegido. Se actualiza cada año conforme a la UMA — no se edita aquí.</p>
                   <input type="number" step="0.001" style={sysNumInputSt} value={sys.mod40_pct ?? 14.438} readOnly />
                   <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>Configurable en Configuración</p>
