@@ -518,6 +518,20 @@ const PaginaPortada = ({ datos, escenarios, escSelIdx, ingresoObjetivo, logoUrl,
         {venc && <AlertChip msg="ATENCIÓN: Conservación de derechos VENCIDA — se requiere reactivación antes del trámite" type="danger" />}
         {!venc && mRest !== null && mRest < 12 && <AlertChip msg={`Conservación vigente pero próxima a vencer — ${mRest} meses restantes`} type="warning" />}
 
+        {/* Resumen narrativo — antes vivía en una página aparte, ahora aprovecha el espacio sobrante de la portada */}
+        <View style={{ marginTop: 10 }}>
+          {[
+            { title: 'Situación actual', color: C.gris, bg: '#F8FAFC', body: `${trabajador} tiene ${datos.semanas_totales || 0} semanas cotizadas bajo Ley ${datos.ley || '73'}. Sin acción, la pensión estimada sería de ${mxn(escBase?.pension_mensual || 0)}/mes.` },
+            { title: 'Oportunidad detectada', color: C.verde, bg: '#f0fdf4', body: `Con la estrategia ${escSel?.label}, la pensión puede llegar a ${mxn(escSel?.pension_mensual || 0)}/mes — un incremento de ${mxn(escSel?.incremento_vs_base || 0)}/mes. La inversión se recupera en ${escSel?.roi_meses || '—'} meses.` },
+            { title: 'Recomendación', color: color, bg: '#EEF2F8', body: `Iniciar Modalidad 40 a ${(escSel?.mod40_umas || 0).toFixed(1)} UMAs por ${escSel?.mod40_meses || 0} meses. Costo: ${mxn(escSel?.costo_mensual_mod40 || 0)}/mes. Inversión total: ${mxn(escSel?.inversion_total || 0)}.` },
+          ].map((card, i) => (
+            <View key={i} style={{ backgroundColor: card.bg, borderRadius: 7, padding: 8, marginBottom: 6, borderLeftWidth: 3, borderLeftColor: card.color }} wrap={false}>
+              <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color: card.color, marginBottom: 3 }}>{card.title}</Text>
+              <Text style={{ fontSize: 8, color: C.texto, lineHeight: 1.5 }}>{card.body}</Text>
+            </View>
+          ))}
+        </View>
+
         {/* Footer — separate views to avoid overlap */}
         <View style={{ marginTop: 10 }}>
           <View style={{ height: 0.5, backgroundColor: C.borde, marginBottom: 6 }} />
@@ -673,98 +687,96 @@ const PaginaSalario = ({ periodos, sdiPromedio, color, titulo, razonSocial, esBo
 )
 
 // ─── PÁGINA 5: MODALIDAD 40 ───────────────────────────────────────────────────
-const PaginaMod40 = ({ escenarios, escSelIdx, color, titulo, razonSocial, esBorrador }: PDFProps & { color: string; titulo: string }) => {
+const PaginaMod40Mod10 = ({ escenarios, escSelIdx, color, titulo, razonSocial, esBorrador }: PDFProps & { color: string; titulo: string }) => {
   const escSel = escenarios[escSelIdx] ?? escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
-  if (!escSel || !escSel.mod40_meses) return null
+  const escM10 = escenarios.find(e => e.id === 'e_m10')
+  const tieneMod40 = !!(escSel && escSel.mod40_meses)
+  if (!tieneMod40 && !escM10) return null
 
-  const costoM  = escSel.costo_mensual_mod40 || 0
-  const sdiM40  = (escSel.mod40_umas || 0) * 113.14
-  const meses   = escSel.mod40_meses || 0
+  const costoM  = escSel?.costo_mensual_mod40 || 0
+  const sdiM40  = (escSel?.mod40_umas || 0) * 113.14
+  const meses   = escSel?.mod40_meses || 0
   const showMs  = meses <= 24
     ? Array.from({ length: meses }, (_, i) => i + 1)
     : [1, 3, 6, 12, Math.floor(meses / 2), meses].filter((m, i, a) => m <= meses && a.indexOf(m) === i).sort((a, b) => a - b)
 
-  return (
-    <Page size="LETTER" style={s.page}>
-      {esBorrador && <Watermark />}
-      <PageHeader razonSocial={razonSocial} titulo={titulo} color={color} esBorrador={esBorrador} />
-      <SectionTitle title="MODALIDAD 40 — ESTRATEGIA DE OPTIMIZACIÓN" sub="Art. 218 Ley del Seguro Social 1973" color={color} />
-      <Text style={[s.body, { marginBottom: 8 }]}>
-        La Modalidad 40 permite al trabajador continuar cotizando voluntariamente al IMSS sobre un salario mayor al histórico, incrementando el SDI promedio de las últimas 250 semanas y con ello la pensión final.
-      </Text>
-      <KpiRow color={color} items={[
-        { label: 'Salario base (UMAs)', value: (escSel.mod40_umas || 0).toFixed(1) + ' UMAs', color },
-        { label: 'Período de cotización', value: meses + ' meses', color },
-        { label: 'Costo mensual', value: mxn(costoM), color: C.naranja },
-        { label: 'Inversión total', value: mxn(escSel.inversion_total || 0), color: C.naranja },
-      ]} />
-      <KpiRow color={color} items={[
-        { label: 'Pensión estimada', value: mxn(escSel.pension_mensual || 0) + '/mes', color: C.verde },
-        { label: 'Incremento vs base', value: '+' + mxn(escSel.incremento_vs_base || 0) + '/mes', color: C.verde },
-        { label: 'Recuperación de inversión', value: (escSel.roi_meses || 0) + ' meses', color },
-        { label: 'Cuota Mod 40 (% SBC)', value: '14.438% sobre SBC', color: C.gris },
-      ]} />
-
-      <Text style={s.h2}>Proyección de cotización mensual</Text>
-      <DataTable
-        headers={['Mes', 'SDI cotizado/día', 'Cuota mensual', 'Acumulado', 'Sem. adicionales', '% del plazo']}
-        widths={['8%', '18%', '18%', '20%', '20%', '16%']}
-        aligns={['center', 'right', 'right', 'right', 'right', 'right']}
-        rows={showMs.map((mes, i) => [
-          mes.toString(),
-          mxn2(sdiM40),
-          mxn(costoM),
-          mxn(costoM * mes),
-          Math.round(mes * 4.33).toString(),
-          Math.round(mes / meses * 100) + '%',
-        ])}
-        totalRow={['TOTALES', '—', mxn(costoM) + '/mes', mxn(escSel.inversion_total || 0), Math.round(meses * 4.33).toString() + ' sem', '100%']}
-      />
-    </Page>
-  )
-}
-
-// ─── PÁGINA 6: MODALIDAD 10 (opcional) ───────────────────────────────────────
-const PaginaMod10 = ({ escenarios, escSelIdx, color, titulo, razonSocial, esBorrador }: PDFProps & { color: string; titulo: string }) => {
-  const escM10 = escenarios.find(e => e.id === 'e_m10')
-  const escSel = escenarios[escSelIdx] ?? escenarios.find(e => e.recomendado)
-  if (!escM10) return null
-
   const cuotaM40 = escSel?.costo_mensual_mod40 || 0
-  const dif = escM10.costo_mensual_mod40 - cuotaM40
+  const dif = (escM10?.costo_mensual_mod40 || 0) - cuotaM40
 
   return (
     <Page size="LETTER" style={s.page}>
       {esBorrador && <Watermark />}
       <PageHeader razonSocial={razonSocial} titulo={titulo} color={color} esBorrador={esBorrador} />
-      <SectionTitle title="MODALIDAD 10 — INCORPORACIÓN VOLUNTARIA" sub="Art. 240 Ley del Seguro Social" color={color} />
-      <Text style={[s.body, { marginBottom: 8 }]}>
-        La Modalidad 10 permite a trabajadores independientes afiliarse al IMSS con cobertura integral: servicio médico, guarderías e Infonavit. Es más cara que Mod 40 pero ofrece beneficios adicionales significativos.
-      </Text>
-      <KpiRow color={color} items={[
-        { label: 'Cuota mensual (22%)', value: mxn(escM10.costo_mensual_mod40), color: C.verde },
-        { label: 'Inversión total', value: mxn(escM10.inversion_total), color: C.naranja },
-        { label: 'Pensión estimada', value: mxn(escM10.pension_mensual) + '/mes', color: C.verde },
-        { label: 'Costo extra vs Mod 40', value: mxn(dif) + '/mes más que Mod 40', color: '#f97316' },
-      ]} />
-      <Text style={s.h2}>Comparativa Modalidad 10 vs Modalidad 40</Text>
-      <DataTable
-        headers={['Concepto', 'Mod 10', 'Mod 40', 'Diferencia', 'Extra']}
-        widths={['30%', '17%', '17%', '22%', '14%']}
-        aligns={['left', 'right', 'right', 'right', 'center']}
-        rows={[
-          ['Cuota mensual', mxn(escM10.costo_mensual_mod40), mxn(cuotaM40), '+' + mxn(dif) + ' más', ''],
-          ['Inversión total', mxn(escM10.inversion_total), mxn(escSel?.inversion_total || 0), mxn(escM10.inversion_total - (escSel?.inversion_total || 0)) + ' más', ''],
-          ['Pensión estimada', mxn(escM10.pension_mensual) + '/mes', mxn(escSel?.pension_mensual || 0) + '/mes', 'mismo monto', ''],
-          ['Servicio médico IMSS', 'Sí', 'No', '', '✓'],
-          ['Guarderías', 'Sí', 'No', '', '✓'],
-          ['Aportaciones Infonavit', 'Sí', 'No', '', '✓'],
-          ['Requiere historial IMSS', 'No', 'Sí', '', ''],
-        ]}
-      />
-      <Text style={{ fontSize: 7.5, color: C.textoSm, fontFamily: 'Helvetica-Oblique', marginTop: 6, paddingTop: 6, borderTopWidth: 0.5, borderTopColor: C.borde }}>
-        Nota: La tasa del 22% es un estimado. El monto exacto varía por actividad y zona geográfica. Verificar en imss.gob.mx
-      </Text>
+
+      {tieneMod40 && (
+        <>
+          <SectionTitle title="MODALIDAD 40 — ESTRATEGIA DE OPTIMIZACIÓN" sub="Art. 218 Ley del Seguro Social 1973" color={color} />
+          <Text style={[s.body, { marginBottom: 8 }]}>
+            La Modalidad 40 permite al trabajador continuar cotizando voluntariamente al IMSS sobre un salario mayor al histórico, incrementando el SDI promedio de las últimas 250 semanas y con ello la pensión final.
+          </Text>
+          <KpiRow color={color} items={[
+            { label: 'Salario base (UMAs)', value: (escSel.mod40_umas || 0).toFixed(1) + ' UMAs', color },
+            { label: 'Período de cotización', value: meses + ' meses', color },
+            { label: 'Costo mensual', value: mxn(costoM), color: C.naranja },
+            { label: 'Inversión total', value: mxn(escSel.inversion_total || 0), color: C.naranja },
+          ]} />
+          <KpiRow color={color} items={[
+            { label: 'Pensión estimada', value: mxn(escSel.pension_mensual || 0) + '/mes', color: C.verde },
+            { label: 'Incremento vs base', value: '+' + mxn(escSel.incremento_vs_base || 0) + '/mes', color: C.verde },
+            { label: 'Recuperación de inversión', value: (escSel.roi_meses || 0) + ' meses', color },
+            { label: 'Cuota Mod 40 (% SBC)', value: '14.438% sobre SBC', color: C.gris },
+          ]} />
+
+          <Text style={s.h2}>Proyección de cotización mensual</Text>
+          <DataTable
+            headers={['Mes', 'SDI cotizado/día', 'Cuota mensual', 'Acumulado', 'Sem. adicionales', '% del plazo']}
+            widths={['8%', '18%', '18%', '20%', '20%', '16%']}
+            aligns={['center', 'right', 'right', 'right', 'right', 'right']}
+            rows={showMs.map((mes, i) => [
+              mes.toString(),
+              mxn2(sdiM40),
+              mxn(costoM),
+              mxn(costoM * mes),
+              Math.round(mes * 4.33).toString(),
+              Math.round(mes / meses * 100) + '%',
+            ])}
+            totalRow={['TOTALES', '—', mxn(costoM) + '/mes', mxn(escSel.inversion_total || 0), Math.round(meses * 4.33).toString() + ' sem', '100%']}
+          />
+        </>
+      )}
+
+      {escM10 && (
+        <View style={{ marginTop: tieneMod40 ? 14 : 0 }}>
+          <SectionTitle title="MODALIDAD 10 — INCORPORACIÓN VOLUNTARIA" sub="Art. 240 Ley del Seguro Social" color={color} />
+          <Text style={[s.body, { marginBottom: 8 }]}>
+            La Modalidad 10 permite a trabajadores independientes afiliarse al IMSS con cobertura integral: servicio médico, guarderías e Infonavit. Es más cara que Mod 40 pero ofrece beneficios adicionales significativos.
+          </Text>
+          <KpiRow color={color} items={[
+            { label: 'Cuota mensual (22%)', value: mxn(escM10.costo_mensual_mod40), color: C.verde },
+            { label: 'Inversión total', value: mxn(escM10.inversion_total), color: C.naranja },
+            { label: 'Pensión estimada', value: mxn(escM10.pension_mensual) + '/mes', color: C.verde },
+            { label: 'Costo extra vs Mod 40', value: mxn(dif) + '/mes más que Mod 40', color: '#f97316' },
+          ]} />
+          <Text style={s.h2}>Comparativa Modalidad 10 vs Modalidad 40</Text>
+          <DataTable
+            headers={['Concepto', 'Mod 10', 'Mod 40', 'Diferencia', 'Extra']}
+            widths={['30%', '17%', '17%', '22%', '14%']}
+            aligns={['left', 'right', 'right', 'right', 'center']}
+            rows={[
+              ['Cuota mensual', mxn(escM10.costo_mensual_mod40), mxn(cuotaM40), '+' + mxn(dif) + ' más', ''],
+              ['Inversión total', mxn(escM10.inversion_total), mxn(escSel?.inversion_total || 0), mxn(escM10.inversion_total - (escSel?.inversion_total || 0)) + ' más', ''],
+              ['Pensión estimada', mxn(escM10.pension_mensual) + '/mes', mxn(escSel?.pension_mensual || 0) + '/mes', 'mismo monto', ''],
+              ['Servicio médico IMSS', 'Sí', 'No', '', '✓'],
+              ['Guarderías', 'Sí', 'No', '', '✓'],
+              ['Aportaciones Infonavit', 'Sí', 'No', '', '✓'],
+              ['Requiere historial IMSS', 'No', 'Sí', '', ''],
+            ]}
+          />
+          <Text style={{ fontSize: 7.5, color: C.textoSm, fontFamily: 'Helvetica-Oblique', marginTop: 6, paddingTop: 6, borderTopWidth: 0.5, borderTopColor: C.borde }}>
+            Nota: La tasa del 22% es un estimado. El monto exacto varía por actividad y zona geográfica. Verificar en imss.gob.mx
+          </Text>
+        </View>
+      )}
     </Page>
   )
 }
@@ -818,29 +830,9 @@ const PaginaEscenarios = ({ escenarios, escSelIdx, ingresoObjetivo, color, titul
 }
 
 // ─── PÁGINA 8: ANÁLISIS EJECUTIVO ────────────────────────────────────────────
-const PaginaAnalisis = ({ analisis, color, titulo, razonSocial, esBorrador }: PDFProps & { color: string; titulo: string }) => {
-  if (!analisis || analisis.length === 0) return null
-  const secciones = analisis.filter(s => !s.titulo?.toLowerCase().includes('paso') && !s.titulo?.toLowerCase().includes('siguiente'))
+const PaginaAnalisisPasos = ({ datos, escenarios, escSelIdx, analisis, color, titulo, razonSocial, esBorrador }: PDFProps & { color: string; titulo: string }) => {
+  const secciones = (analisis || []).filter(s => !s.titulo?.toLowerCase().includes('paso') && !s.titulo?.toLowerCase().includes('siguiente'))
 
-  return (
-    <Page size="LETTER" style={s.page}>
-      {esBorrador && <Watermark />}
-      <PageHeader razonSocial={razonSocial} titulo={titulo} color={color} esBorrador={esBorrador} />
-      <SectionTitle title="ANÁLISIS EJECUTIVO DEL PROYECTO DE PENSIÓN" color={color} />
-      {secciones.map((sec, i) => (
-        <View key={i} style={{ marginBottom: 10 }}>
-          <View style={{ backgroundColor: '#EEF2F8', borderLeftWidth: 3, borderLeftColor: color, paddingVertical: 4, paddingHorizontal: 8, marginBottom: 5, borderRadius: 3 }}>
-            <Text style={{ fontSize: 11, fontFamily: 'Helvetica-Bold', color }}>{String(sec?.titulo || '')}</Text>
-          </View>
-          <Text style={[s.body, { lineHeight: 1.8, paddingHorizontal: 4 }]}>{String(sec?.contenido || '')}</Text>
-        </View>
-      ))}
-    </Page>
-  )
-}
-
-// ─── PÁGINA 9: PRÓXIMOS PASOS ─────────────────────────────────────────────────
-const PaginaPasos = ({ datos, escenarios, escSelIdx, analisis, color, titulo, razonSocial, esBorrador }: PDFProps & { color: string; titulo: string }) => {
   const escSel = escenarios[escSelIdx] ?? escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
   const edadA  = datos.edad_actual || 60
   const mMod   = escSel?.mod40_meses || 0
@@ -854,35 +846,52 @@ const PaginaPasos = ({ datos, escenarios, escSelIdx, analisis, color, titulo, ra
   if (edadFin < 60) hitos.splice(2, 0, { label: '60 años', desc: 'Solicitar cesantía IMSS', color, age: 60 })
   const steps = hitos.sort((a, b) => a.age - b.age).filter((s, i, arr) => i === 0 || s.age > arr[i-1].age)
 
-  const pasosSec = analisis.find(s => s.titulo?.toLowerCase().includes('paso') || s.titulo?.toLowerCase().includes('siguiente'))
+  const pasosSec = (analisis || []).find(s => s.titulo?.toLowerCase().includes('paso') || s.titulo?.toLowerCase().includes('siguiente'))
 
   return (
     <Page size="LETTER" style={s.page}>
       {esBorrador && <Watermark />}
       <PageHeader razonSocial={razonSocial} titulo={titulo} color={color} esBorrador={esBorrador} />
-      <SectionTitle title="PRÓXIMOS PASOS" color={color} />
 
-      <Timeline steps={steps.map(s => ({ label: s.label, desc: s.desc, color: s.color }))} />
+      {secciones.length > 0 && (
+        <>
+          <SectionTitle title="ANÁLISIS EJECUTIVO DEL PROYECTO DE PENSIÓN" color={color} />
+          {secciones.map((sec, i) => (
+            <View key={i} style={{ marginBottom: 10 }}>
+              <View style={{ backgroundColor: '#EEF2F8', borderLeftWidth: 3, borderLeftColor: color, paddingVertical: 4, paddingHorizontal: 8, marginBottom: 5, borderRadius: 3 }}>
+                <Text style={{ fontSize: 11, fontFamily: 'Helvetica-Bold', color }}>{String(sec?.titulo || '')}</Text>
+              </View>
+              <Text style={[s.body, { lineHeight: 1.8, paddingHorizontal: 4 }]}>{String(sec?.contenido || '')}</Text>
+            </View>
+          ))}
+        </>
+      )}
 
-      {(() => {
-        const defaultSteps = [
-          'Confirmar los datos de este diagnóstico con el asesor antes de cualquier acción.',
-          `Tramitar el alta en Modalidad 40 ante el IMSS. Llevar: CURP, NSS, identificación oficial y comprobante de domicilio. Portal: imss.gob.mx`,
-          `Iniciar pagos mensuales de ${mxn(escSel?.costo_mensual_mod40 || 0)} durante ${mMod} meses consecutivos sin interrupción.`,
-          'Al completar el período de cotización, reunir documentación y solicitar la pensión en la subdelegación IMSS correspondiente.',
-          'Verificar periódicamente el historial de semanas en el portal del IMSS: imss.gob.mx · Tel: 800 623 2323',
-        ]
-        const rawContent = pasosSec ? String(pasosSec.contenido || '') : ''
-        const steps = pasosSec && rawContent.length > 10
-          ? rawContent.split(/\n|\r\n/).map((s: string) => s.replace(/^[\d]+\.\s*|^[-•]\s*/, '').trim()).filter((s: string) => s.length > 0)
-          : defaultSteps
-        return steps.map((paso: string, i: number) => (
-          <View key={i} style={{ flexDirection: 'row', marginBottom: 8, alignItems: 'flex-start' }}>
-            <Text style={{ fontSize: 9, color, width: 14, marginTop: 1 }}>-</Text>
-            <Text style={[s.body, { flex: 1, lineHeight: 1.8 }]}>{paso.replace(/^\d+\.\s*/, '')}</Text>
-          </View>
-        ))
-      })()}
+      <View style={{ marginTop: secciones.length > 0 ? 14 : 0 }}>
+        <SectionTitle title="PRÓXIMOS PASOS" color={color} />
+
+        <Timeline steps={steps.map(s => ({ label: s.label, desc: s.desc, color: s.color }))} />
+
+        {(() => {
+          const defaultSteps = [
+            'Confirmar los datos de este diagnóstico con el asesor antes de cualquier acción.',
+            `Tramitar el alta en Modalidad 40 ante el IMSS. Llevar: CURP, NSS, identificación oficial y comprobante de domicilio. Portal: imss.gob.mx`,
+            `Iniciar pagos mensuales de ${mxn(escSel?.costo_mensual_mod40 || 0)} durante ${mMod} meses consecutivos sin interrupción.`,
+            'Al completar el período de cotización, reunir documentación y solicitar la pensión en la subdelegación IMSS correspondiente.',
+            'Verificar periódicamente el historial de semanas en el portal del IMSS: imss.gob.mx · Tel: 800 623 2323',
+          ]
+          const rawContent = pasosSec ? String(pasosSec.contenido || '') : ''
+          const steps = pasosSec && rawContent.length > 10
+            ? rawContent.split(/\n|\r\n/).map((s: string) => s.replace(/^[\d]+\.\s*|^[-•]\s*/, '').trim()).filter((s: string) => s.length > 0)
+            : defaultSteps
+          return steps.map((paso: string, i: number) => (
+            <View key={i} style={{ flexDirection: 'row', marginBottom: 8, alignItems: 'flex-start' }}>
+              <Text style={{ fontSize: 9, color, width: 14, marginTop: 1 }}>-</Text>
+              <Text style={[s.body, { flex: 1, lineHeight: 1.8 }]}>{paso.replace(/^\d+\.\s*/, '')}</Text>
+            </View>
+          ))
+        })()}
+      </View>
     </Page>
   )
 }
@@ -935,14 +944,11 @@ export const DiagnosticoPDF = (props: PDFProps) => {
       subject="Diagnóstico de Pensión IMSS"
     >
       <PaginaPortada {...shared} />
-      <PaginaResumen {...shared} />
       <PaginaDatosConservacion {...shared} />
       <PaginaSalario {...shared} />
-      <PaginaMod40 {...shared} />
-      <PaginaMod10 {...shared} />
+      <PaginaMod40Mod10 {...shared} />
       <PaginaEscenarios {...shared} />
-      <PaginaAnalisis {...shared} />
-      <PaginaPasos {...shared} />
+      <PaginaAnalisisPasos {...shared} />
       <PaginaAviso {...shared} />
     </Document>
   )
