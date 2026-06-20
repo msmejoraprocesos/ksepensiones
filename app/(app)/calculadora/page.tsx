@@ -64,6 +64,7 @@ interface Escenario {
   incremento_vs_base: number
   roi_meses: number
   recomendado: boolean
+  pmg_aplica?: boolean
 }
 
 interface AnalisisSeccion {
@@ -72,8 +73,8 @@ interface AnalisisSeccion {
 }
 
 // ── FÓRMULAS OFICIALES ─────────────────────────────────────────────
-function calcPensionLey73(semanas: number, sdi: number, edadRetiro: number, sys: SysVars, tieneConyuge: boolean, numHijos: number, numPadres: number, anioRetiro?: number): number {
-  if (semanas < 500) return 0
+function calcPensionLey73(semanas: number, sdi: number, edadRetiro: number, sys: SysVars, tieneConyuge: boolean, numHijos: number, numPadres: number, anioRetiro?: number): { monto: number; pmg_aplica: boolean } {
+  if (semanas < 500) return { monto: 0, pmg_aplica: false }
   const semanasExtra = Math.max(0, semanas - 500)
   const incrementos = Math.floor(semanasExtra / 52)
   const pct = Math.min(1.0, 0.35 + incrementos * 0.0125)
@@ -84,13 +85,14 @@ function calcPensionLey73(semanas: number, sdi: number, edadRetiro: number, sys:
   const factorEdad = FACTOR_EDAD_RETIRO[edadRetiro] ?? 1.0
   const pmgConFactor = pmgBase * factorEdad
   const pensionConFactor = pensionMensual * factorEdad
+  const pmg_aplica = pmgConFactor > pensionConFactor
   const base = Math.max(pmgConFactor, pensionConFactor)
   // Asignaciones familiares
   const asignConyuge = tieneConyuge ? 0.15 : 0
   const asignHijos = Math.min(numHijos, 2) * 0.10
   const asignPadres = Math.min(numPadres, 2) * 0.10
   const totalAsign = 1 + asignConyuge + asignHijos + asignPadres
-  return base * totalAsign
+  return { monto: base * totalAsign, pmg_aplica }
 }
 
 // Edad exacta desglosada en años, meses, días, horas, minutos y segundos a partir de la fecha de nacimiento
@@ -540,10 +542,10 @@ function CalculadoraInner() {
       ? (sdiBase * semEfectivo + sdiMod40 * semMod40) / (semEfectivo + semMod40)
       : sdiBase
     const semTotal = sem + meses * 4.33
-    const pension = calcPensionLey73(semTotal, sdiNuevo, edadR, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, anioR)
+    const { monto: pension, pmg_aplica } = calcPensionLey73(semTotal, sdiNuevo, edadR, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, anioR)
     const incr = pension - pensionBase
     const roi = incr > 0 ? Math.ceil(invTotal / incr) : 0
-    return { costoMensual, invTotal, sdiNuevo, semTotal, pension, incr, roi, umaProyectada, tasaProyectada, sdiMod40 }
+    return { costoMensual, invTotal, sdiNuevo, semTotal, pension, pmg_aplica, incr, roi, umaProyectada, tasaProyectada, sdiMod40 }
   }
 
   function recalcEscenarios() {
@@ -554,14 +556,14 @@ function CalculadoraInner() {
     const anioBase = new Date().getFullYear()
     const anioR = anioBase + (edadRetiro - (datos.edad_actual || 60))
 
-    const pensionBase = calcPensionLey73(sem, sdiBase, edadRetiro, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, anioR)
+    const { monto: pensionBase, pmg_aplica: pmgAplicaBase } = calcPensionLey73(sem, sdiBase, edadRetiro, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, anioR)
 
     // E0: Sin ninguna modalidad
     const escs: Escenario[] = [{
       id: 'e0', label: 'Sin modalidad', descripcion: 'Pensión base con semanas y SDI actuales',
       mod40_meses: 0, mod40_umas: 0, sdi_base: sdiBase,
       pension_mensual: pensionBase, inversion_total: 0, costo_mensual_mod40: 0,
-      incremento_vs_base: 0, roi_meses: 0, recomendado: false
+      incremento_vs_base: 0, roi_meses: 0, recomendado: false, pmg_aplica: pmgAplicaBase
     }]
 
     // E1: Modalidad 10 · 12 meses (~22% tasa, misma lógica de SDI ponderado)
@@ -571,12 +573,12 @@ function CalculadoraInner() {
     const semM10 = Math.min(12 * 4.33, 250)
     const semEfM10 = Math.min(sem, 250 - semM10)
     const sdiNuevoM10 = (sdiBase * semEfM10 + sdiM10 * semM10) / (semEfM10 + semM10)
-    const pensionM10 = calcPensionLey73(sem + 12 * 4.33, sdiNuevoM10, 65, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres)
+    const { monto: pensionM10, pmg_aplica: pmgAplicaM10 } = calcPensionLey73(sem + 12 * 4.33, sdiNuevoM10, 65, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres)
     escs.push({
       id: 'e_m10', label: 'Modalidad 10 · 12 meses', descripcion: 'Cobertura integral + semanas (independiente)',
       mod40_meses: 12, mod40_umas: mod40Umas, sdi_base: sdiNuevoM10,
       pension_mensual: pensionM10, inversion_total: costoM10 * 12, costo_mensual_mod40: costoM10,
-      incremento_vs_base: pensionM10 - pensionBase, roi_meses: 0, recomendado: false
+      incremento_vs_base: pensionM10 - pensionBase, roi_meses: 0, recomendado: false, pmg_aplica: pmgAplicaM10
     })
 
     // E2–E4: Modalidad 40 a distintos plazos con UMA proyectada
@@ -591,7 +593,7 @@ function CalculadoraInner() {
         id: `e_m40_${meses}`, label, descripcion: desc,
         mod40_meses: meses, mod40_umas: umas, sdi_base: r.sdiNuevo,
         pension_mensual: r.pension, inversion_total: r.invTotal, costo_mensual_mod40: r.costoMensual,
-        incremento_vs_base: r.incr, roi_meses: r.roi, recomendado: esOpt
+        incremento_vs_base: r.incr, roi_meses: r.roi, recomendado: esOpt, pmg_aplica: r.pmg_aplica
       })
     }
 
@@ -602,7 +604,7 @@ function CalculadoraInner() {
         id: 'e_sim', label: `Mi simulación · ${simMeses} meses · ${simUmas} UMAs`, descripcion: '🔧 Parámetros personalizados',
         mod40_meses: simMeses, mod40_umas: simUmas, sdi_base: r.sdiNuevo,
         pension_mensual: r.pension, inversion_total: r.invTotal, costo_mensual_mod40: r.costoMensual,
-        incremento_vs_base: r.incr, roi_meses: r.roi, recomendado: false
+        incremento_vs_base: r.incr, roi_meses: r.roi, recomendado: false, pmg_aplica: r.pmg_aplica
       })
     }
 
@@ -2035,6 +2037,11 @@ function CalculadoraInner() {
                         <div style={{ fontSize: '10px', color: '#94a3b8' }}>{esc.descripcion}</div>
                         <div style={{ fontSize: '20px', fontWeight: '700', color: i === 0 ? '#94a3b8' : isElegido ? VERDE : AZUL }}>{fmtMXN(esc.pension_mensual)}/mes</div>
                         <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '-4px' }}>{fmtMXN(esc.pension_mensual * 12)}/año</div>
+                        {esc.pmg_aplica && (
+                          <div style={{ fontSize: '9.5px', fontWeight: '700', color: '#0891b2', background: '#ECFEFF', padding: '2px 6px', borderRadius: '4px', display: 'inline-block' }}>
+                            🛡️ Aplica Pensión Mínima Garantizada
+                          </div>
+                        )}
                         {esc.incremento_vs_base > 0 && <div style={{ fontSize: '11px', color: VERDE, fontWeight: '600' }}>+{fmtMXN(esc.incremento_vs_base)}/mes vs base</div>}
                         {esc.inversion_total > 0 && <div style={{ fontSize: '10px' }}><span style={{ color: NARANJA, fontWeight: '600' }}>{fmtMXN(esc.costo_mensual_mod40)}/mes</span><span style={{ color: '#94a3b8' }}> · {fmtMXN(esc.inversion_total)} total</span></div>}
                         {pctObjetivo !== null && (
@@ -2210,6 +2217,11 @@ function CalculadoraInner() {
                   {sectionTitle('Pensión recomendada', escSel?.label)}
                   <div style={{ fontSize: '30px', fontWeight: '700', color: AZUL, marginBottom: '4px' }}>{fmtMXN(escSel?.pension_mensual || 0)}/mes</div>
                   <div style={{ fontSize: '13px', color: AZUL, fontWeight: '600', marginBottom: '4px' }}>{fmtMXN((escSel?.pension_mensual || 0) * 12)}/año</div>
+                  {escSel?.pmg_aplica && (
+                    <div style={{ fontSize: '10px', fontWeight: '700', color: '#0891b2', background: '#ECFEFF', padding: '3px 8px', borderRadius: '5px', display: 'inline-block', marginBottom: '6px' }}>
+                      🛡️ Este monto aplica la Pensión Mínima Garantizada — el cálculo convencional habría dado menos
+                    </div>
+                  )}
                   {escSel && escSel.incremento_vs_base > 0 && (
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '3px 10px', background: '#f0fdf4', borderRadius: '20px', fontSize: '12px', fontWeight: '700', color: VERDE, marginBottom: '10px' }}>
                       +{Math.round((escSel.incremento_vs_base / (escenarios[0]?.pension_mensual || 1)) * 100)}% sobre pensión base
