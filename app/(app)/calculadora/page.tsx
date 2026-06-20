@@ -21,6 +21,7 @@ interface SysVars {
   PMG_L97: number
   RENDIMIENTO_DEFAULT: number
   mod40_pct?: number
+  pct_afore_mod40?: number
 }
 
 interface Cliente { id: string; nombre: string; etapa_kanban?: string; telefono?: string; tipo_servicio?: string }
@@ -205,7 +206,7 @@ const DEFAULT_DATOS: DatosGenerales = {
 const SYS_DEFAULT: SysVars = {
   UMA_DIARIA: 117.31, SALARIO_MIN: 315.04,
   PMG_L73: 10636.54, PMG_L97: 4345.72,
-  RENDIMIENTO_DEFAULT: 6, mod40_pct: 14.438
+  RENDIMIENTO_DEFAULT: 6, mod40_pct: 14.438, pct_afore_mod40: 20
 }
 
 function CalculadoraInner() {
@@ -400,6 +401,7 @@ function CalculadoraInner() {
       PMG_L97: data.pmg_l97 ?? 4345.72,
       RENDIMIENTO_DEFAULT: data.rendimiento_afore_default ?? 6,
       mod40_pct: data.mod40_2026 ?? 14.438,
+      pct_afore_mod40: data.pct_afore_mod40 ?? 20,
     })
   }
 
@@ -1628,6 +1630,26 @@ function CalculadoraInner() {
                     {kpiBox('Fecha estimada de baja', fechaBaja.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }), 'Fin de Modalidad 40', '#7c3aed', 'azul')}
                     {kpiBox('Semanas cotizadas en ese momento', semanasEnBaja.toString(), `${datos.semanas_totales || 0} actuales + ${(mod40Meses * 4.33).toFixed(0)} de Mod 40`, VERDE, 'verde')}
                     {kpiBox('Salario (SDI) en ese momento', fmtMXN2(sdiEnBaja), `UMA proyectada a ${anioInicioTramite}`, AZUL, 'azul')}
+                  </div>
+                )
+              })()}
+
+              {(() => {
+                const inversionTotal = calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses
+                const PCT_AFORE = (sys.pct_afore_mod40 ?? 20) / 100
+                const teRegresaAfore = inversionTotal * PCT_AFORE
+                const costoReal = inversionTotal - teRegresaAfore
+                return (
+                  <div style={cardSt}>
+                    {sectionTitle('Costo real vs. lo que te regresa la AFORE', 'De cada cuota de Mod 40, una parte va a tu subcuenta de Retiro 97 y SÍ se te regresa al pensionarte')}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px' }}>
+                      {kpiBox('Inversión bruta total', fmtMXN(inversionTotal), `${mod40Meses} meses pagados al IMSS`, '#dc2626', 'rojo')}
+                      {kpiBox(`Te regresa AFORE (~${(PCT_AFORE * 100).toFixed(0)}%)`, fmtMXN(teRegresaAfore), 'Subcuenta Retiro 97, pago único', '#0891b2', 'azul')}
+                      {kpiBox('Costo real de Mod 40', fmtMXN(costoReal), 'Inversión bruta − lo que regresa AFORE', NARANJA, 'naranja', true)}
+                    </div>
+                    <p style={{ fontSize: '9px', color: '#94a3b8', marginTop: '8px' }}>
+                      Estimado de mercado (~20% va a Retiro 97, ~80% financia el seguro de Cesantía/Vejez que paga tu pensión mensual). El porcentaje exacto depende de tu historial — verifica en tu estado de cuenta AFORE al pensionarte.
+                    </p>
                   </div>
                 )
               })()}

@@ -24,6 +24,7 @@ interface Perfil {
   pmg_l97: number
   rendimiento_afore_default: number
   inflacion_uma: number
+  pct_afore_mod40: number
   mod40_2026: number
   mod40_2027: number
   mod40_2028: number
@@ -42,7 +43,7 @@ const DEFAULTS: Perfil = {
   nombre: '', razon_social: '', rfc: '', telefono: '', email_contacto: '',
   direccion: '', logo_url: null, banner_url: null, vigencia_propuesta: 30,
   uma_diaria: 117.31, salario_minimo: 315.04, pmg_mensual: 10636.54,
-  pmg_l97: 4345.72, rendimiento_afore_default: 6, inflacion_uma: 4.5,
+  pmg_l97: 4345.72, rendimiento_afore_default: 6, inflacion_uma: 4.5, pct_afore_mod40: 20,
   mod40_2026: 14.438, mod40_2027: 15.528, mod40_2028: 16.619,
   mod40_2029: 17.709, mod40_2030: 18.800,
   uma_actualizada_en: null, sm_actualizado_en: null, pmg_actualizado_en: null,
@@ -528,6 +529,12 @@ export default function ConfiguracionPage() {
                 placeholder: '4.5',
                 help: 'Tasa de inflación anual para convertir pensiones futuras a pesos de hoy (poder adquisitivo actual). Permite comparar de forma justa.',
                 badge: 'Para pesos de hoy', badgeColor: NARANJA
+              },
+              {
+                key: 'pct_afore_mod40', label: '% de Mod 40 que regresa AFORE', unit: '%',
+                placeholder: '20',
+                help: 'De cada cuota mensual de Modalidad 40, este porcentaje se deposita en la subcuenta de Retiro 97 y se regresa al trabajador en una sola exhibición al pensionarse (el resto financia el seguro de Cesantía/Vejez). Estimado de mercado ~20% — verifica periódicamente en CONSAR (gob.mx/consar), ya que no hay una tasa única oficial publicada y puede variar según el caso.',
+                badge: 'Validar periódicamente', badgeColor: '#0891b2'
               },
             ].map(f => (
               <div key={f.key} style={{ background: '#F8FAFC', borderRadius: '10px', padding: '14px', border: '1px solid #e2e8f0' }}>
