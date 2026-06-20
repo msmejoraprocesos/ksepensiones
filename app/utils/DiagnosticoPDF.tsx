@@ -212,7 +212,7 @@ const Watermark = () => (
 
 // Barra de sección
 const SectionTitle = ({ title, sub, color }: { title: string; sub?: string; color: string }) => (
-  <View style={[s.sectionBar, { backgroundColor: color }]}>
+  <View style={[s.sectionBar, { backgroundColor: color }]} wrap={false}>
     <Text style={s.sectionBarText}>{title}</Text>
     {sub && <Text style={s.sectionBarSub}>{sub}</Text>}
   </View>
@@ -220,7 +220,7 @@ const SectionTitle = ({ title, sub, color }: { title: string; sub?: string; colo
 
 // Fila de KPI cards
 const KpiRow = ({ items, color }: { items: { label: string; value: string; color?: string; sub?: string }[]; color: string }) => (
-  <View style={s.kpiRow}>
+  <View style={s.kpiRow} wrap={false}>
     {items.map((item, i) => (
       <View key={i} style={[s.kpiCard, i === 0 ? { marginLeft: 0 } : {}, i === items.length - 1 ? { marginRight: 0 } : {}]}>
         <Text style={s.kpiLabel}>{item.label}</Text>
@@ -361,7 +361,7 @@ const BarChart = ({ escenarios, escSelIdx, maxVal, objetivo }: {
 
 // Timeline horizontal — View based
 const Timeline = ({ steps }: { steps: { label: string; desc: string; color: string }[] }) => (
-  <View style={{ marginVertical: 10 }}>
+  <View style={{ marginVertical: 10 }} wrap={false}>
     <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
       {steps.map((step, i) => (
         <View key={i} style={{ flex: 1, alignItems: 'center' }}>
@@ -413,11 +413,9 @@ const PaginaPortada = ({ datos, escenarios, escSelIdx, ingresoObjetivo, logoUrl,
   const stepsOrd = tlSteps.sort((a, b) => a.age - b.age).filter((s, i, arr) => i === 0 || s.age > arr[i-1].age)
 
   return (
-    <Page size="LETTER" style={{ fontFamily: 'Helvetica', backgroundColor: C.blanco }}>
-      {esBorrador && <Watermark />}
-
-      {/* Franja del asesor */}
-      <View style={{ backgroundColor: color, height: 70, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24 }}>
+    <>
+      {/* Franja del asesor — contenido normal (no fixed), por eso solo aparece una vez al inicio del documento */}
+      <View style={{ backgroundColor: color, height: 70, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, marginHorizontal: -24, marginTop: -10, marginBottom: 18 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
           {logoUrl && (
             <Image src={logoUrl} style={{ height: 36, maxWidth: 60, objectFit: 'contain' }} />
@@ -436,7 +434,7 @@ const PaginaPortada = ({ datos, escenarios, escSelIdx, ingresoObjetivo, logoUrl,
         </View>
       </View>
 
-      <View style={{ paddingHorizontal: 28, paddingTop: 18 }}>
+      <View>
         {/* Título */}
         <Text style={{ fontSize: 22, fontFamily: 'Helvetica-Bold', color: color, textAlign: 'center' }}>DIAGNÓSTICO PENSIONAL</Text>
         <Text style={{ fontSize: 11, color: C.textoSm, textAlign: 'center', marginTop: 4 }}>Proyecto de optimización de pensión IMSS · Ley {datos.ley || '73'}</Text>
@@ -486,7 +484,7 @@ const PaginaPortada = ({ datos, escenarios, escSelIdx, ingresoObjetivo, logoUrl,
         </View>
 
         {/* Semanas info bar */}
-        <View style={{ flexDirection: 'row', backgroundColor: C.grisCl, borderRadius: 6, padding: 8, marginTop: 8, marginBottom: 6 }}>
+        <View style={{ flexDirection: 'row', backgroundColor: C.grisCl, borderRadius: 6, padding: 8, marginTop: 8, marginBottom: 6 }} wrap={false}>
           <View style={{ flex: 1, alignItems: 'center' }}>
             <Text style={{ fontSize: 7, color: C.textoSm, marginBottom: 2 }}>SEMANAS COTIZADAS</Text>
             <Text style={{ fontSize: 13, fontFamily: 'Helvetica-Bold', color: (datos.semanas_totales || 0) >= 500 ? C.verde : C.rojo }}>
@@ -547,55 +545,7 @@ const PaginaPortada = ({ datos, escenarios, escSelIdx, ingresoObjetivo, logoUrl,
           )}
         </View>
       </View>
-    </Page>
-  )
-}
-
-// ─── PÁGINA 2: RESUMEN EJECUTIVO ──────────────────────────────────────────────
-const PaginaResumen = ({ datos, escenarios, escSelIdx, analisis, ingresoObjetivo, color, titulo, razonSocial, esBorrador }: PDFProps & { color: string; titulo: string }) => {
-  const escBase = escenarios[0]
-  const escSel  = escenarios[escSelIdx] ?? escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
-  const trabajador = datos.nombre_trabajador || datos.nombre || 'El trabajador'
-
-  const cards = [
-    { icon: '', title: 'Situación actual', color: C.gris, bg: '#F8FAFC', body: `${trabajador} tiene ${datos.semanas_totales || 0} semanas cotizadas bajo Ley ${datos.ley || '73'}. Sin acción, la pensión estimada sería de ${mxn(escBase?.pension_mensual || 0)}/mes.` },
-    { icon: '', title: 'Oportunidad detectada', color: C.verde, bg: '#f0fdf4', body: `Con la estrategia ${escSel?.label}, la pensión puede llegar a ${mxn(escSel?.pension_mensual || 0)}/mes — un incremento de ${mxn(escSel?.incremento_vs_base || 0)}/mes. La inversión se recupera en ${escSel?.roi_meses || '—'} meses.` },
-    { icon: '', title: 'Recomendación', color: color, bg: '#EEF2F8', body: `Iniciar Modalidad 40 a ${(escSel?.mod40_umas || 0).toFixed(1)} UMAs por ${escSel?.mod40_meses || 0} meses. Costo: ${mxn(escSel?.costo_mensual_mod40 || 0)}/mes. Inversión total: ${mxn(escSel?.inversion_total || 0)}.` },
-  ]
-
-  // Conservación
-  const semC = Math.floor((datos.semanas_totales || 0) / 4)
-  const mesC = Math.round(semC / 4.33)
-  const mDes = datos.fecha_calculo ? Math.floor((Date.now() - new Date(datos.fecha_calculo).getTime()) / (30 * 86400000)) : -1
-  const mRest = mDes >= 0 ? Math.max(0, mesC - mDes) : null
-
-  return (
-    <Page size="LETTER" style={s.page}>
-      {esBorrador && <Watermark />}
-      <PageHeader razonSocial={razonSocial} titulo={titulo} color={color} esBorrador={esBorrador} />
-
-      <SectionTitle title="RESUMEN EJECUTIVO" color={color} />
-
-      {/* KPIs */}
-      <KpiRow color={color} items={[
-        { label: 'Pensión sin acción', value: mxn(escBase?.pension_mensual || 0) + '/mes', color: C.gris },
-        { label: 'Pensión con estrategia', value: mxn(escSel?.pension_mensual || 0) + '/mes', color: color },
-        { label: ingresoObjetivo && ingresoObjetivo > 0 ? `% de ${mxn(ingresoObjetivo)}/mes` : '% del objetivo', value: ingresoObjetivo && ingresoObjetivo > 0 ? Math.round((escSel?.pension_mensual || 0) / ingresoObjetivo * 100) + '%' : '—', color: C.verde },
-        { label: 'Recuperación inversión', value: (escSel?.roi_meses || 0) + ' meses', color: C.naranja },
-      ]} />
-
-      {/* Tarjetas situación/oportunidad/recomendación */}
-      {cards.map((card, i) => (
-        <View key={i} style={{ backgroundColor: card.bg, borderRadius: 7, padding: 10, marginBottom: 8, borderLeftWidth: 3, borderLeftColor: card.color }} wrap={false}>
-          <Text style={{ fontSize: 10, fontFamily: 'Helvetica-Bold', color: card.color, marginBottom: 4 }}>{card.title}</Text>
-          <Text style={{ fontSize: 8.5, color: C.texto, lineHeight: 1.6 }}>{card.body}</Text>
-        </View>
-      ))}
-
-      {/* Alerta conservación al final */}
-      {mRest !== null && mRest === 0 && <AlertChip msg="ATENCIÓN: Conservación de derechos VENCIDA — requiere reactivación antes de tramitar la pensión" type="danger" />}
-      {mRest !== null && mRest > 0 && mRest < 12 && <AlertChip msg={`Conservación vigente pero próxima a vencer — ${mRest} meses restantes`} type="warning" />}
-    </Page>
+    </>
   )
 }
 
@@ -608,10 +558,7 @@ const PaginaDatosConservacion = ({ datos, color, titulo, razonSocial, esBorrador
   const vigente = mRest !== null ? mRest > 0 : null
 
   return (
-    <Page size="LETTER" style={s.page}>
-      {esBorrador && <Watermark />}
-      <PageHeader razonSocial={razonSocial} titulo={titulo} color={color} esBorrador={esBorrador} />
-
+    <>
       {/* Sección 1 — Datos */}
       <SectionTitle title="DATOS DEL TRABAJADOR" color={color} />
       <KpiRow color={color} items={[
@@ -647,15 +594,13 @@ const PaginaDatosConservacion = ({ datos, color, titulo, razonSocial, esBorrador
       <Text style={[s.body, { marginTop: 4 }]}>
         La conservación de derechos equivale a 1/4 de las semanas cotizadas (Art. 183 LSS). Con {datos.semanas_totales} semanas, el período es de {semC} semanas (~{(semC / 4.33 / 12).toFixed(1)} años). Este cálculo es una estimación — el resultado definitivo lo determina el IMSS.
       </Text>
-    </Page>
+    </>
   )
 }
 
 // ─── PÁGINA 4: SALARIO PROMEDIO 250 SEMANAS ──────────────────────────────────
 const PaginaSalario = ({ periodos, sdiPromedio, color, titulo, razonSocial, esBorrador }: PDFProps & { color: string; titulo: string }) => (
-  <Page size="LETTER" style={s.page}>
-    {esBorrador && <Watermark />}
-    <PageHeader razonSocial={razonSocial} titulo={titulo} color={color} esBorrador={esBorrador} />
+  <View style={{ marginTop: 14 }}>
     <SectionTitle title="SALARIO PROMEDIO — ÚLTIMAS 250 SEMANAS COTIZADAS" sub="Art. 167 LSS 1973" color={color} />
     <Text style={[s.body, { marginBottom: 8 }]}>
       La pensión bajo Ley 73 se calcula sobre el promedio del Salario Diario Integrado (SDI) de las últimas 250 semanas cotizadas (~5 años). Este promedio es la base de todos los escenarios del diagnóstico.
@@ -683,7 +628,7 @@ const PaginaSalario = ({ periodos, sdiPromedio, color, titulo, razonSocial, esBo
         totalRow={['Promedio pond.', '', '', periodos.reduce((s, p) => s + (p.semanas || 0), 0).toString(), mxn2(sdiPromedio), mxn(sdiPromedio * 30.4), '100%']}
       />
     )}
-  </Page>
+  </View>
 )
 
 // ─── PÁGINA 5: MODALIDAD 40 ───────────────────────────────────────────────────
@@ -704,10 +649,7 @@ const PaginaMod40Mod10 = ({ escenarios, escSelIdx, color, titulo, razonSocial, e
   const dif = (escM10?.costo_mensual_mod40 || 0) - cuotaM40
 
   return (
-    <Page size="LETTER" style={s.page}>
-      {esBorrador && <Watermark />}
-      <PageHeader razonSocial={razonSocial} titulo={titulo} color={color} esBorrador={esBorrador} />
-
+    <View style={{ marginTop: 14 }}>
       {tieneMod40 && (
         <>
           <SectionTitle title="MODALIDAD 40 — ESTRATEGIA DE OPTIMIZACIÓN" sub="Art. 218 Ley del Seguro Social 1973" color={color} />
@@ -777,7 +719,7 @@ const PaginaMod40Mod10 = ({ escenarios, escSelIdx, color, titulo, razonSocial, e
           </Text>
         </View>
       )}
-    </Page>
+    </View>
   )
 }
 
@@ -787,9 +729,7 @@ const PaginaEscenarios = ({ escenarios, escSelIdx, ingresoObjetivo, color, titul
   const maxVal = Math.max(...escenarios.map(e => e.pension_mensual || 0), ingresoObjetivo || 0)
 
   return (
-    <Page size="LETTER" style={s.page}>
-      {esBorrador && <Watermark />}
-      <PageHeader razonSocial={razonSocial} titulo={titulo} color={color} esBorrador={esBorrador} />
+    <View style={{ marginTop: 14 }}>
       <SectionTitle title="COMPARATIVO DE ESCENARIOS DE PENSIÓN" color={color} />
 
       {/* Tabla comparativa */}
@@ -825,7 +765,7 @@ const PaginaEscenarios = ({ escenarios, escSelIdx, ingresoObjetivo, color, titul
           ? <AlertChip msg={`✓ El escenario elegido alcanza el objetivo de ${mxn(ingresoObjetivo)}/mes (${pct}%)`} type="success" />
           : <AlertChip msg={`⚠ El escenario elegido cubre el ${pct}% del objetivo — faltan ${mxn(ingresoObjetivo - (escSel?.pension_mensual || 0))}/mes`} type={pct >= 70 ? 'warning' : 'danger'} />
       })()}
-    </Page>
+    </View>
   )
 }
 
@@ -849,10 +789,7 @@ const PaginaAnalisisPasos = ({ datos, escenarios, escSelIdx, analisis, color, ti
   const pasosSec = (analisis || []).find(s => s.titulo?.toLowerCase().includes('paso') || s.titulo?.toLowerCase().includes('siguiente'))
 
   return (
-    <Page size="LETTER" style={s.page}>
-      {esBorrador && <Watermark />}
-      <PageHeader razonSocial={razonSocial} titulo={titulo} color={color} esBorrador={esBorrador} />
-
+    <View style={{ marginTop: 14 }}>
       {secciones.length > 0 && (
         <>
           <SectionTitle title="ANÁLISIS EJECUTIVO DEL PROYECTO DE PENSIÓN" color={color} />
@@ -892,15 +829,13 @@ const PaginaAnalisisPasos = ({ datos, escenarios, escSelIdx, analisis, color, ti
           ))
         })()}
       </View>
-    </Page>
+    </View>
   )
 }
 
 // ─── PÁGINA 10: AVISO LEGAL ───────────────────────────────────────────────────
 const PaginaAviso = ({ razonSocial, color, titulo, esBorrador }: Partial<PDFProps> & { color: string; titulo: string }) => (
-  <Page size="LETTER" style={s.page}>
-    {esBorrador && <Watermark />}
-    <PageHeader razonSocial={razonSocial} titulo={titulo} color={color} esBorrador={esBorrador} />
+  <View style={{ marginTop: 14 }}>
     <SectionTitle title="AVISO LEGAL Y LIMITACIONES" color={color} />
     {[
       'Este diagnóstico pensional fue elaborado con base en la información proporcionada por el trabajador y los datos registrados en la constancia de semanas cotizadas emitida por el Instituto Mexicano del Seguro Social (IMSS).',
@@ -922,7 +857,7 @@ const PaginaAviso = ({ razonSocial, color, titulo, esBorrador }: Partial<PDFProp
         imss.gob.mx · Tel. IMSS: <Text style={{ fontFamily: 'Helvetica-Bold', color: C.azul }}>800 623 2323</Text>
       </Text>
     </View>
-  </Page>
+  </View>
 )
 
 // ─── DOCUMENTO PRINCIPAL ──────────────────────────────────────────────────────
@@ -943,13 +878,20 @@ export const DiagnosticoPDF = (props: PDFProps) => {
       author={razonSocial || 'KSE Pensiones'}
       subject="Diagnóstico de Pensión IMSS"
     >
-      <PaginaPortada {...shared} />
-      <PaginaDatosConservacion {...shared} />
-      <PaginaSalario {...shared} />
-      <PaginaMod40Mod10 {...shared} />
-      <PaginaEscenarios {...shared} />
-      <PaginaAnalisisPasos {...shared} />
-      <PaginaAviso {...shared} />
+      {/* Documento continuo: una sola Page que se reparte sola en tantas páginas físicas como el contenido necesite.
+          El encabezado delgado y la marca de agua son `fixed` y se repiten automáticamente en cada página. */}
+      <Page size="LETTER" style={s.page} wrap>
+        {esBorrador && <Watermark />}
+        <PageHeader razonSocial={razonSocial} titulo={titulo} color={color} esBorrador={esBorrador} />
+
+        <PaginaPortada {...shared} />
+        <PaginaDatosConservacion {...shared} />
+        <PaginaSalario {...shared} />
+        <PaginaMod40Mod10 {...shared} />
+        <PaginaEscenarios {...shared} />
+        <PaginaAnalisisPasos {...shared} />
+        <PaginaAviso {...shared} />
+      </Page>
     </Document>
   )
 }
