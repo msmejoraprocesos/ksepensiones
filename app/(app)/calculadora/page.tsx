@@ -109,7 +109,7 @@ function calcPagoRetroactivo(mesesAdeudados: number, fechaBaja: Date, mod40Umas:
   return { costoBase, totalActualizacion, totalRecargos, costoTotal, pctIncremento, recuperaAfore, costoNeto }
 }
 
-
+const TABLA_CUANTIA_UMA: { min: number; max: number; basica: number; incremento: number }[] = [
   { min: 0,    max: 1.00, basica: 0.80,   incremento: 0.00563 },
   { min: 1.01, max: 1.25, basica: 0.7711, incremento: 0.00814 },
   { min: 1.26, max: 1.50, basica: 0.5818, incremento: 0.01178 },
