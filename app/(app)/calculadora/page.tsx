@@ -218,6 +218,18 @@ function CalculadoraInner() {
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [financieras, setFinancieras] = useState<Financiera[]>([])
   const [sys, setSys] = useState<SysVars>(SYS_DEFAULT)
+  const [mod40PctPorAnio, setMod40PctPorAnio] = useState<Record<number, number>>({ 2026: 14.438, 2027: 15.528, 2028: 16.619, 2029: 17.709, 2030: 18.800 })
+  // Tasa Mod 40 real para un año dado: usa la tabla configurada en Configuración (refleja el ajuste de enero/UMA cada año);
+  // si el año pedido es posterior al último configurado, extrapola +1%/año desde el último valor conocido (mismo criterio que antes).
+  function getMod40Pct(anio: number): number {
+    if (mod40PctPorAnio[anio] != null) return mod40PctPorAnio[anio]
+    const anios = Object.keys(mod40PctPorAnio).map(Number).sort((a, b) => a - b)
+    const ultimoAnio = anios[anios.length - 1]
+    const ultimoPct = mod40PctPorAnio[ultimoAnio] ?? (sys.mod40_pct ?? 14.438)
+    if (anio > ultimoAnio) return Math.min(18.8, ultimoPct + (anio - ultimoAnio) * 1)
+    const primerAnio = anios[0]
+    return mod40PctPorAnio[primerAnio] ?? (sys.mod40_pct ?? 14.438)
+  }
   const [clienteId, setClienteId] = useState('')
 
   // Tab state
@@ -394,15 +406,22 @@ function CalculadoraInner() {
 
   async function loadSysVars(uid: string) {
     const { data } = await supabase.from('perfiles_usuario').select('*').eq('id', uid).single()
-    if (data) setSys({
-      UMA_DIARIA: data.uma_diaria ?? 117.31,
-      SALARIO_MIN: data.salario_minimo ?? 315.04,
-      PMG_L73: data.pmg_mensual ?? 10636.54,
-      PMG_L97: data.pmg_l97 ?? 4345.72,
-      RENDIMIENTO_DEFAULT: data.rendimiento_afore_default ?? 6,
-      mod40_pct: data.mod40_2026 ?? 14.438,
-      pct_afore_mod40: data.pct_afore_mod40 ?? 20,
-    })
+    if (data) {
+      setMod40PctPorAnio({
+        2026: data.mod40_2026 ?? 14.438, 2027: data.mod40_2027 ?? 15.528,
+        2028: data.mod40_2028 ?? 16.619, 2029: data.mod40_2029 ?? 17.709,
+        2030: data.mod40_2030 ?? 18.800,
+      })
+      setSys({
+        UMA_DIARIA: data.uma_diaria ?? 117.31,
+        SALARIO_MIN: data.salario_minimo ?? 315.04,
+        PMG_L73: data.pmg_mensual ?? 10636.54,
+        PMG_L97: data.pmg_l97 ?? 4345.72,
+        RENDIMIENTO_DEFAULT: data.rendimiento_afore_default ?? 6,
+        mod40_pct: data.mod40_2026 ?? 14.438,
+        pct_afore_mod40: data.pct_afore_mod40 ?? 20,
+      })
+    }
   }
 
   // ── Extraer PDF
@@ -532,9 +551,8 @@ function CalculadoraInner() {
     const umaProyectada = proyectarValor(sys.UMA_DIARIA, anioBase, anioI)
     // SDI con UMA proyectada
     const sdiMod40 = umas * umaProyectada
-    // Tasa también sube año con año (estimado: +1% por año)
-    const aniosHastaInicio = Math.max(0, anioI - anioBase)
-    const tasaProyectada = Math.min(0.188, (sys.mod40_pct ?? 14.438) / 100 + aniosHastaInicio * 0.01)
+    // Tasa Mod 40 del año real de inicio del trámite (tabla configurada en Configuración, refleja el ajuste de enero)
+    const tasaProyectada = getMod40Pct(anioI) / 100
     const costoMensual = sdiMod40 * 30.4 * tasaProyectada
     const invTotal = costoMensual * meses
     // SDI ponderado 250 semanas (las más recientes desplazan las más antiguas)
@@ -1603,16 +1621,16 @@ function CalculadoraInner() {
                   <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>{(mod40Meses * 4.33).toFixed(0)} semanas adicionales</p>
                 </div>
                 <div>
-                  <label style={labelSt}>⚙️ Tasa Mod 40 {new Date().getFullYear()} (%)</label>
-                  <p style={{ fontSize: '10px', color: '#94a3b8', margin: '2px 0 5px', lineHeight: 1.4 }}>Porcentaje que el IMSS cobra mensualmente sobre el SDI elegido. Se actualiza cada año conforme a la UMA — no se edita aquí.</p>
-                  <input type="number" step="0.001" style={sysNumInputSt} value={sys.mod40_pct ?? 14.438} readOnly />
+                  <label style={labelSt}>⚙️ Tasa Mod 40 {anioInicioTramite} (%)</label>
+                  <p style={{ fontSize: '10px', color: '#94a3b8', margin: '2px 0 5px', lineHeight: 1.4 }}>Porcentaje que el IMSS cobra mensualmente sobre el SDI elegido. Cambia cada año (ajuste de enero) — se toma la tasa configurada para el año real en que iniciaría el trámite.</p>
+                  <input type="number" step="0.001" style={sysNumInputSt} value={getMod40Pct(anioInicioTramite)} readOnly />
                   <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>Configurable en Configuración</p>
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', marginBottom: '14px' }}>
-                {kpiBox('Costo mensual', fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys)), 'Pago mensual al IMSS', NARANJA, 'naranja', true)}
-                {kpiBox('Inversión total', fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses), `${mod40Meses} meses`, '#dc2626', 'rojo')}
+                {kpiBox('Costo mensual', fmtMXN(calcCostoMod40(mod40Umas, getMod40Pct(anioInicioTramite), sys)), 'Pago mensual al IMSS', NARANJA, 'naranja', true)}
+                {kpiBox('Inversión total', fmtMXN(calcCostoMod40(mod40Umas, getMod40Pct(anioInicioTramite), sys) * mod40Meses), `${mod40Meses} meses`, '#dc2626', 'rojo')}
                 {kpiBox('SDI con Mod 40', fmtMXN2(mod40Umas * sys.UMA_DIARIA), 'Salario cotizado', AZUL, 'azul')}
                 {kpiBox('Semanas que agrega', `${(mod40Meses * 4.33).toFixed(0)}`, 'al historial', VERDE, 'verde')}
               </div>
@@ -1635,7 +1653,7 @@ function CalculadoraInner() {
               })()}
 
               {(() => {
-                const inversionTotal = calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses
+                const inversionTotal = calcCostoMod40(mod40Umas, getMod40Pct(anioInicioTramite), sys) * mod40Meses
                 const PCT_AFORE = (sys.pct_afore_mod40 ?? 20) / 100
                 const teRegresaAfore = inversionTotal * PCT_AFORE
                 const costoReal = inversionTotal - teRegresaAfore
@@ -1658,7 +1676,7 @@ function CalculadoraInner() {
             {/* Tabla de cotización mensual */}
             <div style={cardSt}>
               {(() => {
-                const header = sectionTitle('Proyección de cotización mensual', `${mod40Meses} meses · ${fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys))}/mes`)
+                const header = sectionTitle('Proyección de cotización mensual', `${mod40Meses} meses · ${fmtMXN(calcCostoMod40(mod40Umas, getMod40Pct(anioInicioTramite), sys))}/mes`)
                 return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   {header}
                   <button onClick={() => setShowAllMonths(v => !v)}
@@ -1678,7 +1696,7 @@ function CalculadoraInner() {
                   </thead>
                   <tbody>
                     {(() => {
-                      const costoMensual = calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys)
+                      const costoMensual = calcCostoMod40(mod40Umas, getMod40Pct(anioInicioTramite), sys)
                       const sdiMod40 = mod40Umas * sys.UMA_DIARIA
                       const rows = []
                       const showMonths = showAllMonths ? Array.from({length: mod40Meses}, (_, i) => i + 1) : [1, 2, 3, Math.floor(mod40Meses/2), mod40Meses]
@@ -1703,8 +1721,8 @@ function CalculadoraInner() {
                     <tr style={{ background: '#EEF2F8', borderTop: '2px solid #e2e8f0' }}>
                       <td style={{ padding: '7px 10px', textAlign: 'center', fontWeight: '700', color: AZUL, borderRight: '1px solid #e2e8f0' }}>Total</td>
                       <td style={{ padding: '7px 10px', textAlign: 'right', color: '#64748b', borderRight: '1px solid #e2e8f0' }}>—</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: NARANJA, borderRight: '1px solid #e2e8f0' }}>{fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys))}/mes</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '800', color: AZUL, borderRight: '1px solid #e2e8f0' }}>{fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses)}</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: NARANJA, borderRight: '1px solid #e2e8f0' }}>{fmtMXN(calcCostoMod40(mod40Umas, getMod40Pct(anioInicioTramite), sys))}/mes</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '800', color: AZUL, borderRight: '1px solid #e2e8f0' }}>{fmtMXN(calcCostoMod40(mod40Umas, getMod40Pct(anioInicioTramite), sys) * mod40Meses)}</td>
                       <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: VERDE }}>{(mod40Meses * 4.33).toFixed(0)}</td>
                     </tr>
                   </tbody>
@@ -1727,13 +1745,12 @@ function CalculadoraInner() {
                   <tbody>
                     {(() => {
                       const anioBase = new Date().getFullYear()
-                      const tasaBase = (sys.mod40_pct ?? 14.438) / 100
                       const anioFin = anioInicioTramite + Math.ceil(mod40Meses / 12)
                       const rows = []
                       let costoTotal = 0
                       for (let anio = anioInicioTramite; anio <= anioFin; anio++) {
                         const uma = proyectarValor(sys.UMA_DIARIA, anioBase, anio)
-                        const tasa = Math.min(0.188, tasaBase + Math.max(0, anio - anioBase) * 0.01)
+                        const tasa = getMod40Pct(anio) / 100
                         const salario = mod40Umas * uma * 30.4
                         const mesInicio = anio === anioInicioTramite ? 1 : 1
                         const mesesEnAnio = anio === anioInicioTramite
@@ -1760,17 +1777,11 @@ function CalculadoraInner() {
                     })()}
                     <tr style={{ background: '#EEF2F8', borderTop: '2px solid #e2e8f0' }}>
                       <td colSpan={4} style={{ padding: '7px 10px', fontWeight: '700', color: AZUL }}>Costo total Mod 40</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: NARANJA }}>{fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys))}/mes aprox.</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '800', color: AZUL }}>{fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses)}</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: NARANJA }}>{fmtMXN(calcCostoMod40(mod40Umas, getMod40Pct(anioInicioTramite), sys))}/mes aprox.</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '800', color: AZUL }}>{fmtMXN(calcCostoMod40(mod40Umas, getMod40Pct(anioInicioTramite), sys) * mod40Meses)}</td>
                     </tr>
                   </tbody>
                 </table>
-              </div>
-              {/* Recuperación vía AFORE */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px' }}>
-                {kpiBox('Costo total Mod 40', fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses), 'inversión bruta', AZUL)}
-                {kpiBox('Recuperación vía AFORE', fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses * 0.20), '~20% regresa al trámite de pensión', VERDE)}
-                {kpiBox('Inversión real neta', fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses * 0.80), 'costo - recuperación AFORE', NARANJA)}
               </div>
             </div>
 
@@ -1879,7 +1890,7 @@ function CalculadoraInner() {
                       const UMA = sys.UMA_DIARIA || 113.14
                       const sbcMensual = mod40Umas * UMA * 30.4
                       const cuotaM10 = sbcMensual * 0.22
-                      const cuotaM40 = sbcMensual * ((sys.mod40_pct ?? 14.438) / 100)
+                      const cuotaM40 = sbcMensual * (getMod40Pct(anioInicioTramite) / 100)
                       const diff = cuotaM10 - cuotaM40
                       const showM10Months = showAllMonthsM10 ? Array.from({length: mod40Meses}, (_, i) => i + 1) : (mod40Meses <= 24 ? Array.from({length: mod40Meses}, (_, i) => i + 1) : [1, 2, 3, 6, 12, mod40Meses])
                       const m10rows: React.ReactNode[] = []
@@ -1906,8 +1917,8 @@ function CalculadoraInner() {
                       <td style={{ padding: '7px 10px', textAlign: 'center', fontWeight: '700', color: VERDE }}>Tot</td>
                       <td style={{ padding: '7px 10px', textAlign: 'right', color: '#64748b' }}>—</td>
                       <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '800', color: VERDE }}>{fmtMXN(mod40Umas * (sys.UMA_DIARIA || 113.14) * 30.4 * 0.22 * mod40Meses)}</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right', color: '#94a3b8' }}>{fmtMXN(calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys) * mod40Meses)}</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right', color: '#f97316', fontWeight: '700' }}>+{fmtMXN((mod40Umas * (sys.UMA_DIARIA || 113.14) * 30.4 * 0.22 - calcCostoMod40(mod40Umas, sys.mod40_pct ?? 14.438, sys)) * mod40Meses)}</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right', color: '#94a3b8' }}>{fmtMXN(calcCostoMod40(mod40Umas, getMod40Pct(anioInicioTramite), sys) * mod40Meses)}</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right', color: '#f97316', fontWeight: '700' }}>+{fmtMXN((mod40Umas * (sys.UMA_DIARIA || 113.14) * 30.4 * 0.22 - calcCostoMod40(mod40Umas, getMod40Pct(anioInicioTramite), sys)) * mod40Meses)}</td>
                       <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '800', color: VERDE }}>{fmtMXN(mod40Umas * (sys.UMA_DIARIA || 113.14) * 30.4 * 0.22 * mod40Meses)}</td>
                     </tr>
                   </tbody>
