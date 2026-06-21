@@ -228,18 +228,18 @@ function MiDiaInner() {
 
   const sTitle = (title: string, sub?: string) => (
     <div style={{ marginBottom: '10px' }}>
-      <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{title}</p>
-      {sub && <p style={{ fontSize: '10px', color: '#94a3b8', margin: '1px 0 0' }}>{sub}</p>}
+      <p style={{ fontSize: '12.5px', fontWeight: '700', color: '#374151', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{title}</p>
+      {sub && <p style={{ fontSize: '11.5px', color: '#94a3b8', margin: '1px 0 0' }}>{sub}</p>}
     </div>
   )
 
   const kpi = (label: string, value: string, sub?: string, color = '#374151', filled = false, delta?: number | null) => (
     <div style={{ background: filled ? color : '#FAFAFA', border: `1.5px solid ${filled ? color : '#e2e8f0'}`, borderRadius: '6px', padding: '7px 9px', textAlign: 'center' as const }}>
-      <div style={{ fontSize: '9.5px', color: filled ? 'rgba(255,255,255,0.8)' : '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '2px' }}>{label}</div>
-      <div style={{ fontSize: '16px', fontWeight: '700', color: filled ? 'white' : color }}>{value}</div>
-      {sub && <div style={{ fontSize: '9.5px', color: filled ? 'rgba(255,255,255,0.75)' : '#94a3b8', marginTop: '1px' }}>{sub}</div>}
+      <div style={{ fontSize: '12.5px', color: filled ? 'rgba(255,255,255,0.8)' : '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '2px' }}>{label}</div>
+      <div style={{ fontSize: '17.5px', fontWeight: '700', color: filled ? 'white' : color }}>{value}</div>
+      {sub && <div style={{ fontSize: '12.5px', color: filled ? 'rgba(255,255,255,0.75)' : '#94a3b8', marginTop: '1px' }}>{sub}</div>}
       {delta !== undefined && delta !== null && (
-        <div style={{ fontSize: '9px', fontWeight: '700', color: filled ? 'white' : (delta >= 0 ? VERDE : '#ef4444'), marginTop: '1px' }}>
+        <div style={{ fontSize: '10.5px', fontWeight: '700', color: filled ? 'white' : (delta >= 0 ? VERDE : '#ef4444'), marginTop: '1px' }}>
           {delta >= 0 ? '▲' : '▼'} {Math.abs(delta).toFixed(0)}% vs anterior
         </div>
       )}
@@ -248,12 +248,12 @@ function MiDiaInner() {
 
   // Insignia de comparativo vs periodo anterior (↑/↓ %). null = sin datos del periodo anterior para comparar.
   const deltaBadge = (delta: number | null) => {
-    if (delta === null) return <span style={{ fontSize: '10px', color: '#cbd5e1' }}>sin comparativo</span>
+    if (delta === null) return <span style={{ fontSize: '11.5px', color: '#cbd5e1' }}>sin comparativo</span>
     const subio = delta >= 0
     return (
-      <span style={{ fontSize: '11px', fontWeight: '700', color: subio ? VERDE : '#ef4444', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+      <span style={{ fontSize: '12.5px', fontWeight: '700', color: subio ? VERDE : '#ef4444', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
         {subio ? '▲' : '▼'} {Math.abs(delta).toFixed(0)}%
-        <span style={{ fontSize: '9px', fontWeight: '500', color: '#94a3b8', marginLeft: '2px' }}>vs periodo anterior</span>
+        <span style={{ fontSize: '10.5px', fontWeight: '500', color: '#94a3b8', marginLeft: '2px' }}>vs periodo anterior</span>
       </span>
     )
   }
@@ -272,14 +272,14 @@ function MiDiaInner() {
           <h1 style={{ fontSize: '15px', fontWeight: '700', color: '#1e293b', margin: 0 }}>
             Buenos días, <span style={{ color: NARANJA }}>{nombreAsesor}</span>
           </h1>
-          <p style={{ fontSize: '11px', color: '#94a3b8', margin: '1px 0 0', textTransform: 'capitalize' }}>{fechaStr}</p>
+          <p style={{ fontSize: '12.5px', color: '#94a3b8', margin: '1px 0 0', textTransform: 'capitalize' }}>{fechaStr}</p>
         </div>
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
           {/* Filtro período */}
           <div style={{ display: 'flex', gap: '3px', background: '#F4F6FB', borderRadius: '7px', padding: '3px' }}>
             {(['mes','trimestre','año'] as const).map(p => (
               <button key={p} onClick={() => setFiltroPeriodo(p)}
-                style={{ padding: '4px 10px', borderRadius: '5px', border: 'none', background: filtroPeriodo === p ? 'white' : 'transparent', color: filtroPeriodo === p ? NARANJA : '#64748b', fontSize: '11px', fontWeight: filtroPeriodo === p ? '700' : '400', cursor: 'pointer', boxShadow: filtroPeriodo === p ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>
+                style={{ padding: '4px 10px', borderRadius: '5px', border: 'none', background: filtroPeriodo === p ? 'white' : 'transparent', color: filtroPeriodo === p ? NARANJA : '#64748b', fontSize: '12.5px', fontWeight: filtroPeriodo === p ? '700' : '400', cursor: 'pointer', boxShadow: filtroPeriodo === p ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>
                 {p === 'mes' ? 'Mes' : p === 'trimestre' ? 'Trimestre' : 'Año'}
               </button>
             ))}
@@ -288,13 +288,13 @@ function MiDiaInner() {
           <div style={{ display: 'flex', gap: '3px', background: '#F4F6FB', borderRadius: '7px', padding: '3px' }}>
             {([['todos','Todos'],['mod10','Mod 10'],['mod40','Mod 40'],['combo','Combo']] as const).map(([val, label]) => (
               <button key={val} onClick={() => setFiltroTipo(val)}
-                style={{ padding: '4px 10px', borderRadius: '5px', border: 'none', background: filtroTipo === val ? 'white' : 'transparent', color: filtroTipo === val ? AZUL : '#64748b', fontSize: '11px', fontWeight: filtroTipo === val ? '700' : '400', cursor: 'pointer', boxShadow: filtroTipo === val ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>
+                style={{ padding: '4px 10px', borderRadius: '5px', border: 'none', background: filtroTipo === val ? 'white' : 'transparent', color: filtroTipo === val ? AZUL : '#64748b', fontSize: '12.5px', fontWeight: filtroTipo === val ? '700' : '400', cursor: 'pointer', boxShadow: filtroTipo === val ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>
                 {label}
               </button>
             ))}
           </div>
           <button onClick={() => router.push('/clientes?nuevo=true')}
-            style={{ padding: '6px 14px', borderRadius: '6px', border: 'none', background: NARANJA, color: 'white', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
+            style={{ padding: '6px 14px', borderRadius: '6px', border: 'none', background: NARANJA, color: 'white', fontSize: '13.5px', fontWeight: '600', cursor: 'pointer' }}>
             + Nuevo cliente
           </button>
         </div>
@@ -319,7 +319,7 @@ function MiDiaInner() {
           </div>
           <div style={{ width: '1px', background: '#1e40af', height: '100%' }} />
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <p style={{ fontSize: '12px', fontWeight: '700', color: '#374151', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Agenda</p>
+            <p style={{ fontSize: '13.5px', fontWeight: '700', color: '#374151', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Agenda</p>
           </div>
         </div>
 
@@ -356,12 +356,12 @@ function MiDiaInner() {
                       )
                     })}
                     {MESES_LABEL.map((label, i) => (i % 2 === 0) && (
-                      <text key={i} x={padL + i * stepX} y={H + 16} textAnchor="middle" fontSize="8" fill="#94a3b8">{label}</text>
+                      <text key={i} x={padL + i * stepX} y={H + 16} textAnchor="middle" fontSize="9.5" fill="#94a3b8">{label}</text>
                     ))}
                   </svg>
                   <div style={{ display: 'flex', gap: '10px', marginTop: '2px' }}>
                     {anios.map((a, i) => (
-                      <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '9.5px', color: '#64748b' }}>
+                      <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12.5px', color: '#64748b' }}>
                         <span style={{ width: '10px', height: '2px', background: coloresAnio[i], display: 'inline-block' }} />
                         {a}
                       </span>
@@ -389,11 +389,11 @@ function MiDiaInner() {
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly' }}>
                   {counts.map((c, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontSize: '10px', color: '#64748b', width: '70px', flexShrink: 0 }}>{c.label}</span>
+                      <span style={{ fontSize: '11.5px', color: '#64748b', width: '70px', flexShrink: 0 }}>{c.label}</span>
                       <div style={{ flex: 1, background: '#F4F6FB', borderRadius: '4px', height: '18px', position: 'relative' as const }}>
                         <div style={{ width: `${(c.n / max) * 100}%`, height: '100%', background: c.color, borderRadius: '4px', minWidth: c.n > 0 ? '4px' : 0 }} />
                       </div>
-                      <span style={{ fontSize: '11px', fontWeight: '700', color: '#374151', width: '18px', textAlign: 'right' as const, flexShrink: 0 }}>{c.n}</span>
+                      <span style={{ fontSize: '12.5px', fontWeight: '700', color: '#374151', width: '18px', textAlign: 'right' as const, flexShrink: 0 }}>{c.n}</span>
                     </div>
                   ))}
                 </div>
@@ -435,7 +435,7 @@ function MiDiaInner() {
                     {items.map((it, i) => (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                         <span style={{ width: '8px', height: '8px', borderRadius: '2px', background: it.color, flexShrink: 0, display: 'inline-block' }} />
-                        <span style={{ fontSize: '10px', color: '#64748b' }}>{it.label}</span>
+                        <span style={{ fontSize: '11.5px', color: '#64748b' }}>{it.label}</span>
                       </div>
                     ))}
                   </div>
@@ -451,31 +451,31 @@ function MiDiaInner() {
           {card(
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               {agendaHoy.length === 0 ? (
-                <p style={{ fontSize: '11px', color: '#94a3b8', textAlign: 'center', padding: '6px 0' }}>Día libre ✅</p>
+                <p style={{ fontSize: '12.5px', color: '#94a3b8', textAlign: 'center', padding: '6px 0' }}>Día libre ✅</p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   {agendaHoy.slice(0, 4).map(a => (
                     <div key={a.id} style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', textAlign: 'center' as const }}>
-                      <div style={{ fontSize: '11px', fontWeight: '600', color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.titulo}</div>
-                      <div style={{ fontSize: '9px', color: '#94a3b8' }}>{new Date(a.fecha_programada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</div>
+                      <div style={{ fontSize: '12.5px', fontWeight: '600', color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.titulo}</div>
+                      <div style={{ fontSize: '10.5px', color: '#94a3b8' }}>{new Date(a.fecha_programada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</div>
                     </div>
                   ))}
                 </div>
               )}
-              <a href="/seguimiento" style={{ display: 'block', textAlign: 'center', marginTop: '8px', fontSize: '10px', color: '#64748b', textDecoration: 'none' }}>
+              <a href="/seguimiento" style={{ display: 'block', textAlign: 'center', marginTop: '8px', fontSize: '11.5px', color: '#64748b', textDecoration: 'none' }}>
                 Ver agenda completa →
               </a>
 
               <div style={{ height: '3px', borderTop: '1.5px solid #1e293b', borderBottom: '1.5px solid #1e293b', margin: '14px 0' }} />
 
-              <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', margin: '0 0 8px', textAlign: 'center' as const, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Financieras</p>
+              <p style={{ fontSize: '12.5px', fontWeight: '700', color: '#374151', margin: '0 0 8px', textAlign: 'center' as const, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Financieras</p>
               {financieras.length === 0 ? (
-                <p style={{ fontSize: '11px', color: '#94a3b8', textAlign: 'center', padding: '6px 0' }}>Sin financieras</p>
+                <p style={{ fontSize: '12.5px', color: '#94a3b8', textAlign: 'center', padding: '6px 0' }}>Sin financieras</p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   {financieras.slice(0, 3).map((fin) => (
                     <div key={fin.id} style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', textAlign: 'center' as const }}>
-                      <span style={{ fontSize: '11px', fontWeight: '600', color: '#374151' }}>{fin.nombre}</span>
+                      <span style={{ fontSize: '12.5px', fontWeight: '600', color: '#374151' }}>{fin.nombre}</span>
                     </div>
                   ))}
                 </div>
@@ -483,7 +483,7 @@ function MiDiaInner() {
 
               <div style={{ height: '3px', borderTop: '1.5px solid #1e293b', borderBottom: '1.5px solid #1e293b', margin: '14px 0' }} />
 
-              <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', margin: '0 0 8px', textAlign: 'center' as const, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Servicios</p>
+              <p style={{ fontSize: '12.5px', fontWeight: '700', color: '#374151', margin: '0 0 8px', textAlign: 'center' as const, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Servicios</p>
               {(() => {
                 const W = 140, H = 70
                 const max = Math.max(totalL73, totalL97, 1)
@@ -496,8 +496,8 @@ function MiDiaInner() {
                       return (
                         <g key={i}>
                           <rect x={x} y={H - h} width={barW} height={h} rx={3} fill={i === 0 ? AZUL : VERDE} />
-                          <text x={x + barW / 2} y={H - h - 4} textAnchor="middle" fontSize="9" fontWeight="700" fill="#374151">{v}</text>
-                          <text x={x + barW / 2} y={H + 14} textAnchor="middle" fontSize="9" fill="#94a3b8">Ley {i === 0 ? '73' : '97'}</text>
+                          <text x={x + barW / 2} y={H - h - 4} textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#374151">{v}</text>
+                          <text x={x + barW / 2} y={H + 14} textAnchor="middle" fontSize="10.5" fill="#94a3b8">Ley {i === 0 ? '73' : '97'}</text>
                         </g>
                       )
                     })}
@@ -568,18 +568,18 @@ function MiDiaInner() {
                             return (
                               <g key={ei}>
                                 <rect x={x + 1} y={y} width={barW - 2} height={h} rx={2} fill={e.color} />
-                                {e.n > 0 && <text x={x + barW / 2} y={y - 3} textAnchor="middle" fontSize="8" fontWeight="700" fill="#374151">{e.n}</text>}
+                                {e.n > 0 && <text x={x + barW / 2} y={y - 3} textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#374151">{e.n}</text>}
                               </g>
                             )
                           })}
-                          <text x={gx + groupW / 2} y={H + 16} textAnchor="middle" fontSize="10" fontWeight="600" fill="#64748b">{g.label}</text>
+                          <text x={gx + groupW / 2} y={H + 16} textAnchor="middle" fontSize="11.5" fontWeight="600" fill="#64748b">{g.label}</text>
                         </g>
                       )
                     })}
                   </svg>
                   <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '10px', marginTop: '6px', paddingTop: '8px', borderTop: '1px solid #f1f5f9' }}>
                     {ETAPAS.map((e, i) => (
-                      <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px', color: '#64748b' }}>
+                      <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11.5px', color: '#64748b' }}>
                         <span style={{ width: '8px', height: '8px', borderRadius: '2px', background: e.color, display: 'inline-block' }} />
                         {e.label}
                       </span>
@@ -599,11 +599,11 @@ function MiDiaInner() {
                 const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
                 return (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '11px', color: '#64748b', width: '70px', flexShrink: 0 }}>{r.label}</span>
+                    <span style={{ fontSize: '12.5px', color: '#64748b', width: '70px', flexShrink: 0 }}>{r.label}</span>
                     <div style={{ flex: 1, height: '14px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
                       <div style={{ height: '100%', width: `${diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0}%`, background: r.color, borderRadius: '4px' }} />
                     </div>
-                    <span style={{ fontSize: '12px', fontWeight: '700', color: '#374151', minWidth: '20px', textAlign: 'right' as const }}>{count}</span>
+                    <span style={{ fontSize: '13.5px', fontWeight: '700', color: '#374151', minWidth: '20px', textAlign: 'right' as const }}>{count}</span>
                   </div>
                 )
               })}
