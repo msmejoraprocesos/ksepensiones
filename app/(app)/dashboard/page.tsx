@@ -390,7 +390,7 @@ function MiDiaInner() {
                 { id: 'diagnostico', label: 'Diagnóstico', color: '#3b82f6' },
                 { id: 'prospecto', label: 'Prospecto', color: AZUL },
               ]
-              const counts = etapas.map(e => ({ ...e, n: clientes.filter(c => (c.etapa_kanban || 'prospecto') === e.id).length }))
+              const counts = etapas.map(e => ({ ...e, n: clientesFiltrados.filter(c => (c.etapa_kanban || 'prospecto') === e.id).length }))
               const max = Math.max(...counts.map(c => c.n), 1)
               return (
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly' }}>
