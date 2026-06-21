@@ -572,10 +572,20 @@ function CalculadoraInner() {
           ley: leyDetectada ?? prev.ley,
         }))
         if (result.ultima_cotizacion) setFechaUltimaCot(result.ultima_cotizacion)
-        // Build periodos from PDF data
+        // Build periodos from PDF data — recalcula "semanas" de forma determinística a partir de
+        // fecha_inicio/fecha_fin en vez de confiar en el número que calculó la IA (las IA son
+        // imprecisas haciendo aritmética de fechas en texto libre; esto elimina esa imprecisión).
         if (result.periodos && Array.isArray(result.periodos)) {
-          setPeriodosCompletos(result.periodos)
-          buildPeriodos250(result.periodos, result.semanas || 0)
+          const periodosRecalculados = result.periodos.map((p: any) => {
+            if (p.fecha_inicio && p.fecha_fin) {
+              const dias = (new Date(p.fecha_fin).getTime() - new Date(p.fecha_inicio).getTime()) / 86400000
+              const semanasExactas = Math.max(0, Math.round((dias / 7) * 100) / 100)
+              return { ...p, semanas: semanasExactas }
+            }
+            return p
+          })
+          setPeriodosCompletos(periodosRecalculados)
+          buildPeriodos250(periodosRecalculados, result.semanas || 0)
         }
       }
     } catch (e) { console.error(e) }
