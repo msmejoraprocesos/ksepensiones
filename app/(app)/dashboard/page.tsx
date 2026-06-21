@@ -511,7 +511,7 @@ function MiDiaInner() {
                     etapas: ETAPAS.map(e => ({ ...e, n: clientesFiltrados.filter(c => c.tipo_servicio === s.id && (c.etapa_kanban || 'prospecto') === e.id).length }))
                   }))
                   const max = Math.max(...datos.flatMap(d => d.etapas.map(e => e.n)), 1)
-                  const W = 440, H = 160, padL = 24, padR = 10, groupGap = 20
+                  const W = 440, H = 110, padL = 24, padR = 10, groupGap = 20
                   const groupW = (W - padL - padR - groupGap * (datos.length - 1)) / datos.length
                   const barW = groupW / ETAPAS.length
                   return (
@@ -557,13 +557,13 @@ function MiDiaInner() {
 
               {card(<>
                 {sTitle('📐 Rangos de Pensión', 'Distribución de diagnósticos')}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {rangos.map((r, i) => {
                     const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
                     return (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <span style={{ fontSize: '13.5px', color: '#64748b', width: '76px', flexShrink: 0 }}>{r.label}</span>
-                        <div style={{ flex: 1, height: '20px', background: '#f1f5f9', borderRadius: '5px', overflow: 'hidden' }}>
+                        <div style={{ flex: 1, height: '16px', background: '#f1f5f9', borderRadius: '5px', overflow: 'hidden' }}>
                           <div style={{ height: '100%', width: `${diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0}%`, background: r.color, borderRadius: '5px' }} />
                         </div>
                         <span style={{ fontSize: '15px', fontWeight: '700', color: '#374151', minWidth: '24px', textAlign: 'right' as const }}>{count}</span>
@@ -649,25 +649,9 @@ function MiDiaInner() {
                 </div>
               </div>
 
-              <div style={{ height: '3px', borderTop: '1.5px solid #1e293b', borderBottom: '1.5px solid #1e293b', margin: '14px 0', flexShrink: 0 }} />
-
-              {/* Sección 4 — Resumen (llena el espacio que dejó Servicios al achicarse) */}
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-                <p style={{ fontSize: '12.5px', fontWeight: '700', color: '#374151', margin: '0 0 8px', textAlign: 'center' as const, textTransform: 'uppercase', letterSpacing: '0.5px', flexShrink: 0 }}>Resumen</p>
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly', gap: '6px' }}>
-                  <div style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', textAlign: 'center' as const }}>
-                    <div style={{ fontSize: '9.5px', color: '#94a3b8', textTransform: 'uppercase' }}>Total clientes</div>
-                    <div style={{ fontSize: '15px', fontWeight: '700', color: AZUL }}>{clientes.length}</div>
-                  </div>
-                  <div style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', textAlign: 'center' as const }}>
-                    <div style={{ fontSize: '9.5px', color: '#94a3b8', textTransform: 'uppercase' }}>Actividades hoy</div>
-                    <div style={{ fontSize: '15px', fontWeight: '700', color: NARANJA }}>{agendaHoy.length}</div>
-                  </div>
-                </div>
-                <p style={{ fontSize: '9px', color: '#cbd5e1', textAlign: 'right' as const, margin: '8px 0 0' }}>
-                  ⚡ Powered by KSE Pensiones
-                </p>
-              </div>
+              <p style={{ fontSize: '9px', color: '#cbd5e1', textAlign: 'right' as const, margin: '14px 0 0' }}>
+                ⚡ Powered by KSE Pensiones
+              </p>
             </div>
           )}
         </div>
