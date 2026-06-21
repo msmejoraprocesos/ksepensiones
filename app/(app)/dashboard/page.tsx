@@ -318,8 +318,8 @@ function MiDiaInner() {
             ].map((k: any, i) => kpi(k.label, k.value, k.sub, k.color, k.filled, k.delta))}
           </div>
           <div style={{ width: '1px', background: '#1e40af', height: '100%' }} />
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <p style={{ fontSize: '13.5px', fontWeight: '700', color: '#374151', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Agenda</p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F4F6FB', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+            <p style={{ fontSize: '13.5px', fontWeight: '700', color: AZUL, margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Agenda</p>
           </div>
         </div>
 
@@ -416,9 +416,9 @@ function MiDiaInner() {
               const R = 40, CIRC = 2 * Math.PI * R
               let acc = 0
               return (
-                <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ position: 'relative', flexShrink: 0 }}>
-                    <svg width="140" height="140" viewBox="0 0 100 100">
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{ position: 'relative', flexShrink: 0, height: '100%', display: 'flex', alignItems: 'center' }}>
+                    <svg style={{ height: '100%', width: 'auto', maxHeight: '160px' }} viewBox="0 0 100 100">
                       <circle cx="50" cy="50" r={R} fill="none" stroke="#f1f5f9" strokeWidth="18" />
                       {items.map((it, i) => {
                         const pct = total > 0 ? it.value / total : 0
@@ -431,11 +431,11 @@ function MiDiaInner() {
                       })}
                     </svg>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', justifyContent: 'center' }}>
                     {items.map((it, i) => (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                        <span style={{ width: '8px', height: '8px', borderRadius: '2px', background: it.color, flexShrink: 0, display: 'inline-block' }} />
-                        <span style={{ fontSize: '11.5px', color: '#64748b' }}>{it.label}</span>
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ width: '9px', height: '9px', borderRadius: '2px', background: it.color, flexShrink: 0, display: 'inline-block' }} />
+                        <span style={{ fontSize: '12px', color: '#64748b' }}>{it.label}</span>
                       </div>
                     ))}
                   </div>
