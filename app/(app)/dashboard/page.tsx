@@ -418,7 +418,7 @@ function MiDiaInner() {
               return (
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '16px' }}>
                   <div style={{ position: 'relative', flexShrink: 0, height: '100%', display: 'flex', alignItems: 'center' }}>
-                    <svg style={{ height: '100%', width: 'auto', maxHeight: '160px' }} viewBox="0 0 100 100">
+                    <svg style={{ height: '100%', width: 'auto' }} viewBox="0 0 100 100">
                       <circle cx="50" cy="50" r={R} fill="none" stroke="#f1f5f9" strokeWidth="18" />
                       {items.map((it, i) => {
                         const pct = total > 0 ? it.value / total : 0
