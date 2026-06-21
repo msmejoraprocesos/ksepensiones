@@ -341,7 +341,7 @@ function MiDiaInner() {
               const max = Math.max(...series.flatMap(s => s.map(m => m.total)), 1)
               const W = 320, H = 200, padL = 16, padR = 10
               const stepX = (W - padL - padR) / 11
-              const yFor = (v: number) => H - (max > 0 ? (v / max) * (H - 16) : 0)
+              const yFor = (v: number) => H - (max > 0 ? (v / max) * (H - 36) : 0) + 20
               return (
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   <svg viewBox={`0 0 ${W} ${H + 22}`} style={{ width: '100%', height: 'auto' }}>
@@ -433,7 +433,7 @@ function MiDiaInner() {
                 acc += pct
                 const midAngleDeg = -90 + (startAcc + pct / 2) * 360
                 const midAngleRad = (midAngleDeg * Math.PI) / 180
-                const labelR = R + 14
+                const labelR = R // dentro de la banda del anillo, nunca se sale del viewBox
                 return {
                   ...it, pct, dash: pct * CIRC, offset: -startAcc * CIRC,
                   labelX: 50 + labelR * Math.cos(midAngleRad),
@@ -442,20 +442,6 @@ function MiDiaInner() {
               })
               return (
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <div style={{ position: 'relative', flexShrink: 0, height: '100%', display: 'flex', alignItems: 'center' }}>
-                    <svg style={{ height: '100%', width: 'auto', overflow: 'visible' }} viewBox="0 0 100 100">
-                      <circle cx="50" cy="50" r={R} fill="none" stroke="#f1f5f9" strokeWidth="18" />
-                      {segmentos.map((it, i) => (
-                        <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="18"
-                          strokeDasharray={`${it.dash} ${CIRC}`} strokeDashoffset={it.offset} transform="rotate(-90 50 50)" />
-                      ))}
-                      {segmentos.filter(it => it.pct >= 0.06).map((it, i) => (
-                        <text key={i} x={it.labelX} y={it.labelY} textAnchor="middle" dominantBaseline="middle" fontSize="7" fontWeight="700" fill={it.color}>
-                          {Math.round(it.pct * 100)}%
-                        </text>
-                      ))}
-                    </svg>
-                  </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', justifyContent: 'center' }}>
                     {items.map((it, i) => (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -464,6 +450,20 @@ function MiDiaInner() {
                         <span style={{ fontSize: '11px', fontWeight: '700', color: '#374151', marginLeft: 'auto' }}>{fmtMXN(it.value)}</span>
                       </div>
                     ))}
+                  </div>
+                  <div style={{ position: 'relative', flexShrink: 0, height: '100%', display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
+                    <svg style={{ height: '100%', width: 'auto' }} viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r={R} fill="none" stroke="#f1f5f9" strokeWidth="18" />
+                      {segmentos.map((it, i) => (
+                        <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="18"
+                          strokeDasharray={`${it.dash} ${CIRC}`} strokeDashoffset={it.offset} transform="rotate(-90 50 50)" />
+                      ))}
+                      {segmentos.filter(it => it.pct >= 0.1).map((it, i) => (
+                        <text key={i} x={it.labelX} y={it.labelY} textAnchor="middle" dominantBaseline="middle" fontSize="5.2" fontWeight="700" fill="white">
+                          {it.value >= 1000 ? `${(it.value / 1000).toFixed(0)}k` : it.value.toFixed(0)}
+                        </text>
+                      ))}
+                    </svg>
                   </div>
                 </div>
               )
