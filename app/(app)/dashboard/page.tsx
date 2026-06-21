@@ -339,7 +339,7 @@ function MiDiaInner() {
                 total: pagos.filter(p => { const f = new Date(p.fecha_pago); return f.getFullYear() === anio && f.getMonth() === mi }).reduce((s, p) => s + (Number(p.monto) || 0), 0)
               })))
               const max = Math.max(...series.flatMap(s => s.map(m => m.total)), 1)
-              const W = 320, H = 100, padL = 16, padR = 10
+              const W = 320, H = 200, padL = 16, padR = 10
               const stepX = (W - padL - padR) / 11
               const yFor = (v: number) => H - (max > 0 ? (v / max) * (H - 16) : 0)
               return (
