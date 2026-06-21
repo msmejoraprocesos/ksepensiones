@@ -322,36 +322,46 @@ function MiDiaInner() {
 
           {/* Tendencias de ingresos */}
           {card(<>
-            {sTitle('📈 Tendencias de ingresos', 'Últimos 6 meses')}
+            {sTitle('📈 Tendencias de ingresos', 'Comparativo por año')}
             {(() => {
-              const hoyD = new Date()
-              const meses: { label: string; total: number }[] = []
-              for (let i = 5; i >= 0; i--) {
-                const d = new Date(hoyD.getFullYear(), hoyD.getMonth() - i, 1)
-                const total = pagos
-                  .filter(p => { const f = new Date(p.fecha_pago); return f.getFullYear() === d.getFullYear() && f.getMonth() === d.getMonth() })
-                  .reduce((s, p) => s + (Number(p.monto) || 0), 0)
-                meses.push({ label: d.toLocaleDateString('es-MX', { month: 'short' }), total })
-              }
-              const max = Math.max(...meses.map(m => m.total), 1)
+              const anioActual = new Date().getFullYear()
+              const anios = [anioActual - 2, anioActual - 1, anioActual]
+              const coloresAnio = ['#94a3b8', NARANJA, AZUL]
+              const MESES_LABEL = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
+              const series = anios.map(anio => MESES_LABEL.map((label, mi) => ({
+                label,
+                total: pagos.filter(p => { const f = new Date(p.fecha_pago); return f.getFullYear() === anio && f.getMonth() === mi }).reduce((s, p) => s + (Number(p.monto) || 0), 0)
+              })))
+              const max = Math.max(...series.flatMap(s => s.map(m => m.total)), 1)
               const W = 320, H = 100, padL = 16, padR = 10
-              const stepX = (W - padL - padR) / (meses.length - 1)
+              const stepX = (W - padL - padR) / 11
               const yFor = (v: number) => H - (max > 0 ? (v / max) * (H - 16) : 0)
-              const puntos = meses.map((m, i) => ({ x: padL + i * stepX, y: yFor(m.total), ...m }))
-              const pathLinea = puntos.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
-              const pathArea = `${pathLinea} L ${puntos[puntos.length - 1].x} ${H} L ${puntos[0].x} ${H} Z`
               return (
-                <svg viewBox={`0 0 ${W} ${H + 22}`} style={{ width: '100%', height: 'auto' }}>
-                  <path d={pathArea} fill={NARANJA} opacity={0.08} />
-                  <path d={pathLinea} fill="none" stroke={NARANJA} strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
-                  {puntos.map((p, i) => (
-                    <g key={i}>
-                      <circle cx={p.x} cy={p.y} r={i === puntos.length - 1 ? 5 : 3.5} fill="white" stroke={NARANJA} strokeWidth={2.5} />
-                      <text x={p.x} y={H + 16} textAnchor="middle" fontSize="9" fill="#94a3b8">{p.label}</text>
-                      {p.total > 0 && <text x={p.x} y={p.y - 9} textAnchor="middle" fontSize="8" fontWeight="700" fill="#374151">{p.total >= 1000 ? `${(p.total / 1000).toFixed(0)}k` : p.total.toFixed(0)}</text>}
-                    </g>
-                  ))}
-                </svg>
+                <>
+                  <svg viewBox={`0 0 ${W} ${H + 22}`} style={{ width: '100%', height: 'auto' }}>
+                    {series.map((serie, si) => {
+                      const puntos = serie.map((m, i) => ({ x: padL + i * stepX, y: yFor(m.total), ...m }))
+                      const pathLinea = puntos.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
+                      return (
+                        <g key={si}>
+                          <path d={pathLinea} fill="none" stroke={coloresAnio[si]} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+                          {puntos.map((p, i) => p.total > 0 && <circle key={i} cx={p.x} cy={p.y} r={2.5} fill={coloresAnio[si]} />)}
+                        </g>
+                      )
+                    })}
+                    {MESES_LABEL.map((label, i) => (i % 2 === 0) && (
+                      <text key={i} x={padL + i * stepX} y={H + 16} textAnchor="middle" fontSize="8" fill="#94a3b8">{label}</text>
+                    ))}
+                  </svg>
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '2px' }}>
+                    {anios.map((a, i) => (
+                      <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '9.5px', color: '#64748b' }}>
+                        <span style={{ width: '10px', height: '2px', background: coloresAnio[i], display: 'inline-block' }} />
+                        {a}
+                      </span>
+                    ))}
+                  </div>
+                </>
               )
             })()}
           </>)}
@@ -361,11 +371,11 @@ function MiDiaInner() {
             {sTitle('🔻 Embudo de Clientes', 'Por etapa del pipeline')}
             {(() => {
               const etapas = [
-                { id: 'prospecto', label: 'Prospecto', color: AZUL },
-                { id: 'diagnostico', label: 'Diagnóstico', color: '#3b82f6' },
-                { id: 'recopilacion', label: 'Recopilación', color: '#0d9488' },
-                { id: 'tramite', label: 'Trámite', color: '#f59e0b' },
                 { id: 'cierre', label: 'Cierre', color: VERDE },
+                { id: 'tramite', label: 'Trámite', color: '#f59e0b' },
+                { id: 'recopilacion', label: 'Recopilación', color: '#0d9488' },
+                { id: 'diagnostico', label: 'Diagnóstico', color: '#3b82f6' },
+                { id: 'prospecto', label: 'Prospecto', color: AZUL },
               ]
               const counts = etapas.map(e => ({ ...e, n: clientes.filter(c => (c.etapa_kanban || 'prospecto') === e.id).length }))
               const max = Math.max(...counts.map(c => c.n), 1)
