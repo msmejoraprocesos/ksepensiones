@@ -427,20 +427,33 @@ function MiDiaInner() {
               const total = items.reduce((s, it) => s + it.value, 0)
               const R = 40, CIRC = 2 * Math.PI * R
               let acc = 0
+              const segmentos = items.filter(it => it.value > 0).map(it => {
+                const pct = total > 0 ? it.value / total : 0
+                const startAcc = acc
+                acc += pct
+                const midAngleDeg = -90 + (startAcc + pct / 2) * 360
+                const midAngleRad = (midAngleDeg * Math.PI) / 180
+                const labelR = R + 14
+                return {
+                  ...it, pct, dash: pct * CIRC, offset: -startAcc * CIRC,
+                  labelX: 50 + labelR * Math.cos(midAngleRad),
+                  labelY: 50 + labelR * Math.sin(midAngleRad),
+                }
+              })
               return (
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '16px' }}>
                   <div style={{ position: 'relative', flexShrink: 0, height: '100%', display: 'flex', alignItems: 'center' }}>
-                    <svg style={{ height: '100%', width: 'auto' }} viewBox="0 0 100 100">
+                    <svg style={{ height: '100%', width: 'auto', overflow: 'visible' }} viewBox="0 0 100 100">
                       <circle cx="50" cy="50" r={R} fill="none" stroke="#f1f5f9" strokeWidth="18" />
-                      {items.map((it, i) => {
-                        const pct = total > 0 ? it.value / total : 0
-                        const dash = pct * CIRC
-                        const offset = -acc * CIRC
-                        acc += pct
-                        if (pct === 0) return null
-                        return <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="18"
-                          strokeDasharray={`${dash} ${CIRC}`} strokeDashoffset={offset} transform="rotate(-90 50 50)" />
-                      })}
+                      {segmentos.map((it, i) => (
+                        <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="18"
+                          strokeDasharray={`${it.dash} ${CIRC}`} strokeDashoffset={it.offset} transform="rotate(-90 50 50)" />
+                      ))}
+                      {segmentos.filter(it => it.pct >= 0.06).map((it, i) => (
+                        <text key={i} x={it.labelX} y={it.labelY} textAnchor="middle" dominantBaseline="middle" fontSize="7" fontWeight="700" fill={it.color}>
+                          {Math.round(it.pct * 100)}%
+                        </text>
+                      ))}
                     </svg>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', justifyContent: 'center' }}>
