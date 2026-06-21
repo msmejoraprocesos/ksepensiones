@@ -33,6 +33,7 @@ Responde ÚNICAMENTE con un objeto JSON válido, sin backticks ni texto adiciona
   "cotizo_despues_97": true o false (lo opuesto a cotizo_antes_97),
   "primer_empleo": "YYYY-MM-DD o null",
   "ultima_cotizacion": "YYYY-MM-DD o null",
+  "fecha_emision": "YYYY-MM-DD — la 'Fecha de emisión del reporte' que aparece en la constancia (NO la fecha de hoy, la que literalmente dice el documento)",
   "periodos": [
     {
       "fecha_inicio": "YYYY-MM-DD",
@@ -46,6 +47,12 @@ Responde ÚNICAMENTE con un objeto JSON válido, sin backticks ni texto adiciona
 
 Los períodos deben estar ordenados cronológicamente del más antiguo al más reciente.
 Es crítico extraer correctamente los períodos con sus fechas y salarios para calcular el promedio de las últimas 250 semanas cotizadas.
+
+REGLA CRÍTICA sobre fechas "Vigente" o sin fecha de baja — léela con cuidado:
+El último período (el patrón actual del trabajador) frecuentemente no tiene fecha de baja — dice "Vigente" o el campo simplemente está vacío, porque el trabajador sigue empleado ahí. Para ese período:
+- Usa como "fecha_fin" la "Fecha de emisión del reporte" que aparece en la constancia (el mismo valor que vas a poner en "fecha_emision"), NUNCA una fecha de hoy ni una fecha inventada.
+- Calcula "semanas" de ese período como los días entre la fecha de alta y la fecha de emisión del reporte, dividido entre 7.
+- Esto es crítico: si usas una fecha distinta a la de emisión del reporte, el cálculo de las últimas 250 semanas cotizadas sale mal, porque dos personas calculando el mismo documento en días distintos deben obtener el mismo resultado (el documento es una fotografía fija de una fecha, no algo que cambia día a día).
 
 REGLA CRÍTICA sobre los períodos — léela con cuidado:
 Las constancias del IMSS listan, para cada patrón, una tabla de "Tipo de movimiento" con eventos como ALTA, REINGRESO, MODIFICACION DE SALARIO y BAJA, cada uno con su propia fecha y Salario Base. Un mismo patrón/empleo puede tener VARIAS modificaciones de salario mientras el trabajador seguía empleado ahí — esto es muy común.
