@@ -441,18 +441,9 @@ function MiDiaInner() {
                 }
               })
               return (
-                <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', justifyContent: 'center' }}>
-                    {items.map((it, i) => (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span style={{ width: '9px', height: '9px', borderRadius: '2px', background: it.color, flexShrink: 0, display: 'inline-block' }} />
-                        <span style={{ fontSize: '12px', color: '#64748b' }}>{it.label}</span>
-                        <span style={{ fontSize: '11px', fontWeight: '700', color: '#374151', marginLeft: 'auto' }}>{fmtMXN(it.value)}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{ position: 'relative', flexShrink: 0, display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
-                    <svg style={{ width: '170px', height: '170px', maxWidth: '100%', maxHeight: '100%' }} viewBox="0 0 100 100">
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '14px' }}>
+                  <div style={{ position: 'relative', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                    <svg style={{ width: '220px', height: '220px', maxWidth: '100%' }} viewBox="0 0 100 100">
                       <circle cx="50" cy="50" r={R} fill="none" stroke="#f1f5f9" strokeWidth="18" />
                       {segmentos.map((it, i) => (
                         <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="18"
@@ -464,6 +455,15 @@ function MiDiaInner() {
                         </text>
                       ))}
                     </svg>
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap' as const, justifyContent: 'center', gap: '10px 18px' }}>
+                    {items.map((it, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ width: '9px', height: '9px', borderRadius: '2px', background: it.color, flexShrink: 0, display: 'inline-block' }} />
+                        <span style={{ fontSize: '12px', color: '#64748b' }}>{it.label}</span>
+                        <span style={{ fontSize: '11px', fontWeight: '700', color: '#374151' }}>{fmtMXN(it.value)}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )
