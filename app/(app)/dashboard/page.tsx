@@ -306,15 +306,15 @@ function MiDiaInner() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 12px 190px', gap: '12px', alignItems: 'stretch' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '8px' }}>
             {[
-              { label: 'Clientes activos', value: clientesActivos.length.toString(), color: AZUL },
+              { label: 'Clientes activos', value: clientesActivos.length.toString(), sub: 'en pipeline', color: AZUL },
               { label: 'Prospectos', value: prospectos.length.toString(), sub: `+${clientesNuevosPeriodo} en el periodo`, color: AZUL, filled: true, delta: deltaClientesNuevos },
-              { label: 'En diagnóstico', value: enDiagnostico.length.toString(), color: '#3b82f6', filled: true },
-              { label: 'En recopilación', value: enRecopilacion.length.toString(), color: '#0d9488', filled: true },
-              { label: 'En trámite', value: enTramite.length.toString(), color: '#f59e0b' },
+              { label: 'En diagnóstico', value: enDiagnostico.length.toString(), sub: 'propuesta enviada', color: '#3b82f6', filled: true },
+              { label: 'En recopilación', value: enRecopilacion.length.toString(), sub: 'armando expediente', color: '#0d9488', filled: true },
+              { label: 'En trámite', value: enTramite.length.toString(), sub: 'en proceso IMSS', color: '#f59e0b' },
               { label: 'Cierres Exitosos', value: pensionados.length.toString(), sub: `${cierresPeriodo} en el periodo`, color: VERDE, filled: true, delta: deltaCierres },
-              { label: 'Cobrado', value: fmtMXN(ingresosTotal), color: VERDE, delta: deltaIngresos },
-              { label: 'Por Cobrar', value: fmtMXN(porCobrar), color: '#f59e0b' },
-              { label: 'Ventas Totales', value: fmtMXN(ingresosConComisiones), color: AZUL },
+              { label: 'Cobrado', value: fmtMXN(ingresosTotal), sub: filtroPeriodo, color: VERDE, delta: deltaIngresos },
+              { label: 'Por Cobrar', value: fmtMXN(porCobrar), sub: 'saldo pendiente', color: '#f59e0b' },
+              { label: 'Ventas Totales', value: fmtMXN(ingresosConComisiones), sub: 'incl. comisiones', color: AZUL },
             ].map((k: any, i) => kpi(k.label, k.value, k.sub, k.color, k.filled, k.delta))}
           </div>
           <div style={{ width: '1px', background: '#1e40af', height: '100%' }} />
