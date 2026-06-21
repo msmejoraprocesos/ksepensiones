@@ -438,45 +438,44 @@ function MiDiaInner() {
             })()}
           </>)}
 
-          {/* Barra lateral: Agenda + Financieras + Servicios (Ley) */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {card(<>
-              {sTitle('📅 Agenda', agendaHoy.length === 0 ? 'Sin actividades' : `${agendaHoy.length} hoy`)}
+          {/* Barra lateral: Agenda + Financieras + Servicios (Ley), un solo panel con separadores de doble linea */}
+          {card(
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', margin: '0 0 8px', textAlign: 'center' as const, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Agenda</p>
               {agendaHoy.length === 0 ? (
-                <p style={{ fontSize: '11px', color: '#94a3b8', textAlign: 'center', padding: '10px 0' }}>Día libre ✅</p>
+                <p style={{ fontSize: '11px', color: '#94a3b8', textAlign: 'center', padding: '6px 0' }}>Día libre ✅</p>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   {agendaHoy.slice(0, 4).map(a => (
-                    <div key={a.id} style={{ padding: '6px 9px', background: '#FAFAFA', borderRadius: '6px', border: '1px solid #f1f5f9' }}>
+                    <div key={a.id} style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', textAlign: 'center' as const }}>
                       <div style={{ fontSize: '11px', fontWeight: '600', color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.titulo}</div>
                       <div style={{ fontSize: '9px', color: '#94a3b8' }}>{new Date(a.fecha_programada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</div>
                     </div>
                   ))}
                 </div>
               )}
-              <a href="/seguimiento" style={{ display: 'block', textAlign: 'center', marginTop: '8px', fontSize: '10px', color: NARANJA, textDecoration: 'none', fontWeight: '600' }}>
+              <a href="/seguimiento" style={{ display: 'block', textAlign: 'center', marginTop: '8px', fontSize: '10px', color: '#64748b', textDecoration: 'none' }}>
                 Ver agenda completa →
               </a>
-            </>)}
 
-            {card(<>
-              {sTitle('🏦 Financieras', financieras.length === 0 ? 'Sin configurar' : `${financieras.length} aliadas`)}
+              <div style={{ height: '3px', borderTop: '1.5px solid #1e293b', borderBottom: '1.5px solid #1e293b', margin: '14px 0' }} />
+
+              <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', margin: '0 0 8px', textAlign: 'center' as const, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Financieras</p>
               {financieras.length === 0 ? (
-                <p style={{ fontSize: '11px', color: '#94a3b8', textAlign: 'center', padding: '10px 0' }}>Sin financieras</p>
+                <p style={{ fontSize: '11px', color: '#94a3b8', textAlign: 'center', padding: '6px 0' }}>Sin financieras</p>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                  {financieras.slice(0, 3).map((fin, i) => (
-                    <div key={fin.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 9px', background: '#FAFAFA', borderRadius: '6px', border: '1px solid #f1f5f9' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {financieras.slice(0, 3).map((fin) => (
+                    <div key={fin.id} style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', textAlign: 'center' as const }}>
                       <span style={{ fontSize: '11px', fontWeight: '600', color: '#374151' }}>{fin.nombre}</span>
-                      <span style={{ fontSize: '10px', color: AZUL, fontWeight: '700' }}>{fin.tasa_anual}%</span>
                     </div>
                   ))}
                 </div>
               )}
-            </>)}
 
-            {card(<>
-              {sTitle('📊 Servicios', 'Por régimen')}
+              <div style={{ height: '3px', borderTop: '1.5px solid #1e293b', borderBottom: '1.5px solid #1e293b', margin: '14px 0' }} />
+
+              <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', margin: '0 0 8px', textAlign: 'center' as const, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Servicios</p>
               {(() => {
                 const W = 140, H = 70
                 const max = Math.max(totalL73, totalL97, 1)
@@ -497,8 +496,8 @@ function MiDiaInner() {
                   </svg>
                 )
               })()}
-            </>)}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* KPIs row 2 — igual a la imagen de referencia */}
