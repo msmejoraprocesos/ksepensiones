@@ -351,7 +351,14 @@ function MiDiaInner() {
                       return (
                         <g key={si}>
                           <path d={pathLinea} fill="none" stroke={coloresAnio[si]} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
-                          {puntos.map((p, i) => p.total > 0 && <circle key={i} cx={p.x} cy={p.y} r={2.5} fill={coloresAnio[si]} />)}
+                          {puntos.map((p, i) => p.total > 0 && (
+                            <g key={i}>
+                              <circle cx={p.x} cy={p.y} r={2.5} fill={coloresAnio[si]} />
+                              <text x={p.x} y={p.y - 6} textAnchor="middle" fontSize="8.5" fontWeight="700" fill={coloresAnio[si]}>
+                                {p.total >= 1000 ? `${(p.total / 1000).toFixed(1)}k` : p.total.toFixed(0)}
+                              </text>
+                            </g>
+                          ))}
                         </g>
                       )
                     })}
@@ -403,15 +410,20 @@ function MiDiaInner() {
 
           {/* Ventas — donut */}
           {card(<>
-            {sTitle('🍩 Ventas', filtroPeriodo)}
+            {sTitle('🍩 Ventas', 'Monto acordado por servicio')}
             {(() => {
-              const items = [
-                { label: 'Asesoría', value: ingresosAsesoria, color: AZUL },
-                { label: 'Trámite', value: ingresosGestoria, color: NARANJA },
-                { label: 'Financiamiento', value: ingresosFinanciamiento, color: VERDE },
-                { label: 'Gestoría Global', value: ingresosGestoriaGlobal, color: '#8b5cf6' },
-                { label: 'Sin clasificar', value: ingresosSinClasificar + comisionesFinancieras, color: '#94a3b8' },
+              const SERVICIOS_VENTAS = [
+                { id: 'asesoria', label: 'Asesoría', color: AZUL },
+                { id: 'gestion', label: 'Trámite', color: NARANJA },
+                { id: 'financiamiento', label: 'Financiamiento', color: VERDE },
+                { id: 'gestoria_global', label: 'Gestoría Global', color: '#8b5cf6' },
               ]
+              const items = SERVICIOS_VENTAS.map(s => ({
+                ...s,
+                value: clientesFiltrados.filter(c => c.tipo_servicio === s.id).reduce((sum, c) => sum + (c.monto_acordado || 0), 0)
+              }))
+              const sinClasificarVentas = clientesFiltrados.filter(c => !SERVICIOS_VENTAS.some(s => s.id === c.tipo_servicio)).reduce((sum, c) => sum + (c.monto_acordado || 0), 0)
+              if (sinClasificarVentas > 0) items.push({ id: 'sin_clasificar', label: 'Sin clasificar', color: '#94a3b8', value: sinClasificarVentas })
               const total = items.reduce((s, it) => s + it.value, 0)
               const R = 40, CIRC = 2 * Math.PI * R
               let acc = 0
@@ -436,6 +448,7 @@ function MiDiaInner() {
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <span style={{ width: '9px', height: '9px', borderRadius: '2px', background: it.color, flexShrink: 0, display: 'inline-block' }} />
                         <span style={{ fontSize: '12px', color: '#64748b' }}>{it.label}</span>
+                        <span style={{ fontSize: '11px', fontWeight: '700', color: '#374151', marginLeft: 'auto' }}>{fmtMXN(it.value)}</span>
                       </div>
                     ))}
                   </div>
