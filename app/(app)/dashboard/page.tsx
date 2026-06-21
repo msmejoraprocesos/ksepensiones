@@ -563,8 +563,8 @@ function MiDiaInner() {
                     return (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <span style={{ fontSize: '13.5px', color: '#64748b', width: '76px', flexShrink: 0 }}>{r.label}</span>
-                        <div style={{ flex: 1, height: '24px', background: '#f1f5f9', borderRadius: '6px', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: `${diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0}%`, background: r.color, borderRadius: '6px' }} />
+                        <div style={{ flex: 1, height: '48px', background: '#f1f5f9', borderRadius: '8px', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: `${diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0}%`, background: r.color, borderRadius: '8px' }} />
                         </div>
                         <span style={{ fontSize: '15px', fontWeight: '700', color: '#374151', minWidth: '24px', textAlign: 'right' as const }}>{count}</span>
                       </div>
