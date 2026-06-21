@@ -441,9 +441,9 @@ function MiDiaInner() {
                 }
               })
               return (
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '14px' }}>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '24px' }}>
                   <div style={{ position: 'relative', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
-                    <svg style={{ width: '220px', height: '220px', maxWidth: '100%' }} viewBox="0 0 100 100">
+                    <svg style={{ width: '260px', height: '260px', maxWidth: '100%' }} viewBox="0 0 100 100">
                       <circle cx="50" cy="50" r={R} fill="none" stroke="#f1f5f9" strokeWidth="18" />
                       {segmentos.map((it, i) => (
                         <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="18"
@@ -534,19 +534,23 @@ function MiDiaInner() {
           )}
         </div>
 
-        {/* KPIs row 2 — igual a la imagen de referencia */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '8px' }}>
-          {[
-            { label: '$ Servicio promedio', value: fmtMXN(ticketPromedio) },
-            { label: 'Conversión General', value: fmtPct(tasaConversion) },
-            { label: 'Éxitos gestiones', value: fmtPct(tasaExitoGestiones) },
-            { label: 'Bateo Diagnóstico', value: fmtPct(bateoDiag) },
-            { label: 'Bateo Gestoría', value: fmtPct(bateoTramite) },
-            { label: 'Cycle time prom.', value: fmtWeeks(cycleTime) },
-            { label: 'Activos este mes', value: diagMes.length.toString() },
-            { label: 'Promedio Pensión', value: pensionPromedio > 0 ? fmtMXN(pensionPromedio) : '—' },
-            { label: '$ Comisiones', value: fmtMXN(comisionesFinancieras) },
-          ].map((k, i) => kpi(k.label, k.value))}
+        {/* KPIs row 2 — mismo tamaño de caja que la fila 1 (misma estructura de 3 partes) */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 12px 190px', gap: '12px', alignItems: 'stretch' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '8px' }}>
+            {[
+              { label: '$ Servicio promedio', value: fmtMXN(ticketPromedio) },
+              { label: 'Conversión General', value: fmtPct(tasaConversion) },
+              { label: 'Éxitos gestiones', value: fmtPct(tasaExitoGestiones) },
+              { label: 'Bateo Diagnóstico', value: fmtPct(bateoDiag) },
+              { label: 'Bateo Gestoría', value: fmtPct(bateoTramite) },
+              { label: 'Cycle time prom.', value: fmtWeeks(cycleTime) },
+              { label: 'Activos este mes', value: diagMes.length.toString() },
+              { label: 'Promedio Pensión', value: pensionPromedio > 0 ? fmtMXN(pensionPromedio) : '—' },
+              { label: '$ Comisiones', value: fmtMXN(comisionesFinancieras) },
+            ].map((k, i) => kpi(k.label, k.value))}
+          </div>
+          <div />
+          <div />
         </div>
 
         {/* Fila inferior: Servicios activos (cruce servicio x etapa) + Rangos de Pensión */}
