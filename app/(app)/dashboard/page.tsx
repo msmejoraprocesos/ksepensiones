@@ -487,7 +487,7 @@ function MiDiaInner() {
             </div>
 
             {/* Fila 4: Servicios activos | Rangos de Pensión */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 12px 220px', gap: '12px', alignItems: 'start' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 12px 320px', gap: '12px', alignItems: 'start' }}>
 
               {card(<>
                 {sTitle('📦 Servicios activos', 'Por tipo de servicio y etapa')}
@@ -557,16 +557,16 @@ function MiDiaInner() {
 
               {card(<>
                 {sTitle('📐 Rangos de Pensión', 'Distribución de diagnósticos')}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   {rangos.map((r, i) => {
                     const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
                     return (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '12.5px', color: '#64748b', width: '70px', flexShrink: 0 }}>{r.label}</span>
-                        <div style={{ flex: 1, height: '14px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: `${diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0}%`, background: r.color, borderRadius: '4px' }} />
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '13.5px', color: '#64748b', width: '76px', flexShrink: 0 }}>{r.label}</span>
+                        <div style={{ flex: 1, height: '20px', background: '#f1f5f9', borderRadius: '5px', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: `${diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0}%`, background: r.color, borderRadius: '5px' }} />
                         </div>
-                        <span style={{ fontSize: '13.5px', fontWeight: '700', color: '#374151', minWidth: '20px', textAlign: 'right' as const }}>{count}</span>
+                        <span style={{ fontSize: '15px', fontWeight: '700', color: '#374151', minWidth: '24px', textAlign: 'right' as const }}>{count}</span>
                       </div>
                     )
                   })}
@@ -622,24 +622,24 @@ function MiDiaInner() {
 
               <div style={{ height: '3px', borderTop: '1.5px solid #1e293b', borderBottom: '1.5px solid #1e293b', margin: '14px 0', flexShrink: 0 }} />
 
-              {/* Sección 3/3 — Servicios (gráfica llena todo el alto de su sección) */}
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+              {/* Sección 3 — Servicios (mas chica, menos ancha) */}
+              <div style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
                 <p style={{ fontSize: '12.5px', fontWeight: '700', color: '#374151', margin: '0 0 8px', textAlign: 'center' as const, textTransform: 'uppercase', letterSpacing: '0.5px', flexShrink: 0 }}>Servicios</p>
-                <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
                   {(() => {
                     const max = Math.max(totalL73, totalL97, 1)
-                    const barW = 36
-                    const H = 100
+                    const barW = 26
+                    const H = 68
                     return (
-                      <svg viewBox={`0 0 140 ${H + 18}`} preserveAspectRatio="xMidYMid meet" style={{ width: '100%', height: '100%' }}>
+                      <svg viewBox={`0 0 100 ${H + 16}`} style={{ width: '110px', height: 'auto' }}>
                         {[totalL73, totalL97].map((v, i) => {
-                          const h = (v / max) * (H - 10)
-                          const x = i === 0 ? 24 : 80
+                          const h = (v / max) * (H - 8)
+                          const x = i === 0 ? 14 : 60
                           return (
                             <g key={i}>
                               <rect x={x} y={H - h} width={barW} height={h} rx={3} fill={i === 0 ? AZUL : VERDE} />
-                              <text x={x + barW / 2} y={H - h - 4} textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#374151">{v}</text>
-                              <text x={x + barW / 2} y={H + 14} textAnchor="middle" fontSize="10.5" fill="#94a3b8">Ley {i === 0 ? '73' : '97'}</text>
+                              <text x={x + barW / 2} y={H - h - 4} textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#374151">{v}</text>
+                              <text x={x + barW / 2} y={H + 12} textAnchor="middle" fontSize="9.5" fill="#94a3b8">Ley {i === 0 ? '73' : '97'}</text>
                             </g>
                           )
                         })}
@@ -647,6 +647,26 @@ function MiDiaInner() {
                     )
                   })()}
                 </div>
+              </div>
+
+              <div style={{ height: '3px', borderTop: '1.5px solid #1e293b', borderBottom: '1.5px solid #1e293b', margin: '14px 0', flexShrink: 0 }} />
+
+              {/* Sección 4 — Resumen (llena el espacio que dejó Servicios al achicarse) */}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                <p style={{ fontSize: '12.5px', fontWeight: '700', color: '#374151', margin: '0 0 8px', textAlign: 'center' as const, textTransform: 'uppercase', letterSpacing: '0.5px', flexShrink: 0 }}>Resumen</p>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly', gap: '6px' }}>
+                  <div style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', textAlign: 'center' as const }}>
+                    <div style={{ fontSize: '9.5px', color: '#94a3b8', textTransform: 'uppercase' }}>Total clientes</div>
+                    <div style={{ fontSize: '15px', fontWeight: '700', color: AZUL }}>{clientes.length}</div>
+                  </div>
+                  <div style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', textAlign: 'center' as const }}>
+                    <div style={{ fontSize: '9.5px', color: '#94a3b8', textTransform: 'uppercase' }}>Actividades hoy</div>
+                    <div style={{ fontSize: '15px', fontWeight: '700', color: NARANJA }}>{agendaHoy.length}</div>
+                  </div>
+                </div>
+                <p style={{ fontSize: '9px', color: '#cbd5e1', textAlign: 'right' as const, margin: '8px 0 0' }}>
+                  ⚡ Powered by KSE Pensiones
+                </p>
               </div>
             </div>
           )}
