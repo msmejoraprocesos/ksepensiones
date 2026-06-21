@@ -408,6 +408,8 @@ function MiDiaInner() {
             })()}
           </>, { gridColumn: 'span 3' })}
 
+          {/* Columna apilada: Ventas (arriba) + Rangos de Pensión (abajo) */}
+          <div style={{ gridColumn: 'span 3', display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {/* Ventas — donut */}
           {card(<>
             {sTitle('🍩 Ventas', 'Monto acordado por servicio')}
@@ -468,7 +470,27 @@ function MiDiaInner() {
                 </div>
               )
             })()}
-          </>, { gridColumn: 'span 3' })}
+          </>)}
+
+          {/* Rangos de Pensión — apilado debajo de Ventas, misma columna */}
+          {card(<>
+            {sTitle('📐 Rangos de Pensión', 'Distribución de diagnósticos')}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {rangos.map((r, i) => {
+                const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
+                return (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '12.5px', color: '#64748b', width: '70px', flexShrink: 0 }}>{r.label}</span>
+                    <div style={{ flex: 1, height: '14px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0}%`, background: r.color, borderRadius: '4px' }} />
+                    </div>
+                    <span style={{ fontSize: '13.5px', fontWeight: '700', color: '#374151', minWidth: '20px', textAlign: 'right' as const }}>{count}</span>
+                  </div>
+                )
+              })}
+            </div>
+          </>)}
+          </div>
 
           {/* Línea divisoria vertical entre el contenido principal y el sidebar */}
           <div style={{ width: '1px', background: '#cbd5e1', height: '100%', minHeight: '260px', justifySelf: 'center' }} />
@@ -553,8 +575,8 @@ function MiDiaInner() {
           <div />
         </div>
 
-        {/* Fila inferior: Servicios activos (cruce servicio x etapa) + Rangos de Pensión — alineada al mismo limite que las filas 1, 2 y 3 */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 12px 190px', gap: '12px', alignItems: 'start' }}>
+        {/* Fila inferior: Servicios activos (cruce servicio x etapa) — alineada al mismo limite que las filas 1, 2 y 3; Rangos de Pension ya vive apilado bajo Ventas */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr) 12px 190px', gap: '8px', alignItems: 'start' }}>
 
           {card(<>
             {sTitle('📦 Servicios activos', 'Por tipo de servicio y etapa')}
@@ -618,27 +640,7 @@ function MiDiaInner() {
                 </>
               )
             })()}
-          </>)}
-
-          <div style={{ width: '1px', background: '#cbd5e1', height: '100%', minHeight: '200px', justifySelf: 'center' }} />
-
-          {card(<>
-            {sTitle('📐 Rangos de Pensión', 'Distribución de diagnósticos')}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {rangos.map((r, i) => {
-                const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
-                return (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '12.5px', color: '#64748b', width: '70px', flexShrink: 0 }}>{r.label}</span>
-                    <div style={{ flex: 1, height: '14px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0}%`, background: r.color, borderRadius: '4px' }} />
-                    </div>
-                    <span style={{ fontSize: '13.5px', fontWeight: '700', color: '#374151', minWidth: '20px', textAlign: 'right' as const }}>{count}</span>
-                  </div>
-                )
-              })}
-            </div>
-          </>)}
+          </>, { gridColumn: 'span 6' })}
         </div>
 
       </div>
@@ -649,3 +651,4 @@ function MiDiaInner() {
 export default function MiDiaPage() {
   return <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 48px)', color: '#94a3b8' }}>Cargando...</div>}><MiDiaInner /></Suspense>
 }
+
