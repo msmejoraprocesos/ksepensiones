@@ -333,8 +333,8 @@ function MiDiaInner() {
           )
         })()}
 
-        {/* KPIs row — embudo completo */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px' }}>
+        {/* KPIs row — embudo + financieros, unidos en una sola tira */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '8px' }}>
           {[
             { label: 'Clientes activos', value: clientesActivos.length.toString(), color: AZUL },
             { label: 'Prospectos', value: prospectos.length.toString(), sub: `+${clientesNuevosPeriodo} en el periodo`, color: AZUL, filled: true, delta: deltaClientesNuevos },
@@ -342,12 +342,6 @@ function MiDiaInner() {
             { label: 'En recopilación', value: enRecopilacion.length.toString(), sub: 'armando expediente', color: '#0d9488', filled: true },
             { label: 'En trámite', value: enTramite.length.toString(), color: '#f59e0b' },
             { label: 'Cierres exitosos', value: pensionados.length.toString(), sub: `${cierresPeriodo} en el periodo`, color: VERDE, filled: true, delta: deltaCierres },
-          ].map((k, i) => kpi(k.label, k.value, k.sub, k.color, (k as any).filled, (k as any).delta))}
-        </div>
-
-        {/* KPIs row — financieros */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-          {[
             { label: 'Cobrado hoy', value: fmtMXN(ingresosTotal), color: VERDE, delta: deltaIngresos },
             { label: 'Por cobrar', value: fmtMXN(porCobrar), color: '#f59e0b' },
             { label: 'Ticket prom.', value: fmtMXN(ticketPromedio), color: AZUL, sub: `periodo: ${fmtMXN(ticketPeriodo)}`, delta: deltaTicket },
@@ -754,6 +748,76 @@ function MiDiaInner() {
                 )
               })}
             </div>
+          </>)}
+        </div>
+
+        {/* ═══ SECCIÓN: SERVICIOS ACTIVOS POR ETAPA ═══ */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+          <span style={{ fontSize: '12px', fontWeight: '800', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px' }}>📦 Servicios activos por etapa</span>
+          <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }}>
+          {card(<>
+            {(() => {
+              const SERVICIOS = [
+                { id: 'asesoria', label: 'Asesoría' },
+                { id: 'gestion', label: 'Trámite' },
+                { id: 'financiamiento', label: 'Financiamiento' },
+                { id: 'gestoria_global', label: 'Gestión Global' },
+              ]
+              const ETAPAS = [
+                { id: 'prospecto', label: 'Prospecto', color: AZUL },
+                { id: 'diagnostico', label: 'Diagnóstico', color: '#f59e0b' },
+                { id: 'recopilacion', label: 'Recopilación', color: '#0d9488' },
+                { id: 'tramite', label: 'Trámite', color: '#38bdf8' },
+                { id: 'cierre', label: 'Cierre', color: '#a855f7' },
+                { id: 'cancelado', label: 'Cancelado', color: '#94a3b8' },
+              ]
+              const datos = SERVICIOS.map(s => ({
+                ...s,
+                etapas: ETAPAS.map(e => ({ ...e, n: clientesFiltrados.filter(c => c.tipo_servicio === s.id && (c.etapa_kanban || 'prospecto') === e.id).length }))
+              }))
+              const max = Math.max(...datos.flatMap(d => d.etapas.map(e => e.n)), 1)
+              const W = 760, H = 160, padL = 30, padR = 10, groupGap = 28
+              const groupW = (W - padL - padR - groupGap * (datos.length - 1)) / datos.length
+              const barW = groupW / ETAPAS.length
+              return (
+                <>
+                  <svg viewBox={`0 0 ${W} ${H + 24}`} style={{ width: '100%', height: 'auto' }}>
+                    {[0, 0.5, 1].map((f, i) => (
+                      <line key={i} x1={padL} x2={W - padR} y1={H - f * (H - 20)} y2={H - f * (H - 20)} stroke="#f1f5f9" strokeWidth="1" />
+                    ))}
+                    {datos.map((g, gi) => {
+                      const gx = padL + gi * (groupW + groupGap)
+                      return (
+                        <g key={gi}>
+                          {g.etapas.map((e, ei) => {
+                            const h = (e.n / max) * (H - 20)
+                            const x = gx + ei * barW
+                            const y = H - h
+                            return (
+                              <g key={ei}>
+                                <rect x={x + 1} y={y} width={barW - 2} height={h} rx={2} fill={e.color} />
+                                {e.n > 0 && <text x={x + barW / 2} y={y - 3} textAnchor="middle" fontSize="8" fontWeight="700" fill="#374151">{e.n}</text>}
+                              </g>
+                            )
+                          })}
+                          <text x={gx + groupW / 2} y={H + 16} textAnchor="middle" fontSize="10" fontWeight="600" fill="#64748b">{g.label}</text>
+                        </g>
+                      )
+                    })}
+                  </svg>
+                  <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '10px', marginTop: '6px', paddingTop: '8px', borderTop: '1px solid #f1f5f9' }}>
+                    {ETAPAS.map((e, i) => (
+                      <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px', color: '#64748b' }}>
+                        <span style={{ width: '8px', height: '8px', borderRadius: '2px', background: e.color, display: 'inline-block' }} />
+                        {e.label}
+                      </span>
+                    ))}
+                  </div>
+                </>
+              )
+            })()}
           </>)}
         </div>
 
