@@ -302,44 +302,39 @@ function MiDiaInner() {
 
       <div style={{ padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
 
-        {/* KPIs row — embudo + financieros, unidos en una sola tira */}
+        {/* KPIs row 1 — igual a la imagen de referencia */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '8px' }}>
           {[
             { label: 'Clientes activos', value: clientesActivos.length.toString(), color: AZUL },
             { label: 'Prospectos', value: prospectos.length.toString(), sub: `+${clientesNuevosPeriodo} en el periodo`, color: AZUL, filled: true, delta: deltaClientesNuevos },
-            { label: 'En diagnóstico', value: enDiagnostico.length.toString(), sub: 'propuesta enviada', color: '#3b82f6', filled: true },
-            { label: 'En recopilación', value: enRecopilacion.length.toString(), sub: 'armando expediente', color: '#0d9488', filled: true },
+            { label: 'En diagnóstico', value: enDiagnostico.length.toString(), color: '#3b82f6', filled: true },
+            { label: 'En recopilación', value: enRecopilacion.length.toString(), color: '#0d9488', filled: true },
             { label: 'En trámite', value: enTramite.length.toString(), color: '#f59e0b' },
-            { label: 'Cierres exitosos', value: pensionados.length.toString(), sub: `${cierresPeriodo} en el periodo`, color: VERDE, filled: true, delta: deltaCierres },
-            { label: 'Cobrado hoy', value: fmtMXN(ingresosTotal), color: VERDE, delta: deltaIngresos },
-            { label: 'Por cobrar', value: fmtMXN(porCobrar), color: '#f59e0b' },
-            { label: 'Ticket prom.', value: fmtMXN(ticketPromedio), color: AZUL, sub: `periodo: ${fmtMXN(ticketPeriodo)}`, delta: deltaTicket },
+            { label: 'Cierres Exitosos', value: pensionados.length.toString(), sub: `${cierresPeriodo} en el periodo`, color: VERDE, filled: true, delta: deltaCierres },
+            { label: 'Cobrado', value: fmtMXN(ingresosTotal), color: VERDE, delta: deltaIngresos },
+            { label: 'Por Cobrar', value: fmtMXN(porCobrar), color: '#f59e0b' },
+            { label: 'Ventas Totales', value: fmtMXN(ingresosConComisiones), color: AZUL },
           ].map((k: any, i) => kpi(k.label, k.value, k.sub, k.color, k.filled, k.delta))}
         </div>
 
-        {/* ═══ SECCIÓN: TENDENCIAS (vista rápida) ═══ */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-          <span style={{ fontSize: '12px', fontWeight: '800', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px' }}>📈 Tendencias — vista rápida</span>
-          <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '12px', alignItems: 'start' }}>
+        {/* Fila principal: Tendencias | Embudo | Ventas + barra lateral (Agenda / Financieras / Servicios) */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr 1fr 240px', gap: '12px', alignItems: 'start' }}>
+
+          {/* Tendencias de ingresos */}
           {card(<>
-            {sTitle('📈 Tendencia de ingresos', 'Últimos 6 meses')}
+            {sTitle('📈 Tendencias de ingresos', 'Últimos 6 meses')}
             {(() => {
-              const hoy = new Date()
+              const hoyD = new Date()
               const meses: { label: string; total: number }[] = []
               for (let i = 5; i >= 0; i--) {
-                const d = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1)
+                const d = new Date(hoyD.getFullYear(), hoyD.getMonth() - i, 1)
                 const total = pagos
-                  .filter(p => {
-                    const f = new Date(p.fecha_pago)
-                    return f.getFullYear() === d.getFullYear() && f.getMonth() === d.getMonth()
-                  })
+                  .filter(p => { const f = new Date(p.fecha_pago); return f.getFullYear() === d.getFullYear() && f.getMonth() === d.getMonth() })
                   .reduce((s, p) => s + (Number(p.monto) || 0), 0)
                 meses.push({ label: d.toLocaleDateString('es-MX', { month: 'short' }), total })
               }
               const max = Math.max(...meses.map(m => m.total), 1)
-              const W = 560, H = 90, padL = 16, padR = 16
+              const W = 320, H = 100, padL = 16, padR = 10
               const stepX = (W - padL - padR) / (meses.length - 1)
               const yFor = (v: number) => H - (max > 0 ? (v / max) * (H - 16) : 0)
               const puntos = meses.map((m, i) => ({ x: padL + i * stepX, y: yFor(m.total), ...m }))
@@ -353,11 +348,7 @@ function MiDiaInner() {
                     <g key={i}>
                       <circle cx={p.x} cy={p.y} r={i === puntos.length - 1 ? 5 : 3.5} fill="white" stroke={NARANJA} strokeWidth={2.5} />
                       <text x={p.x} y={H + 16} textAnchor="middle" fontSize="9" fill="#94a3b8">{p.label}</text>
-                      {p.total > 0 && (
-                        <text x={p.x} y={p.y - 9} textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#374151">
-                          {p.total >= 1000 ? `${(p.total / 1000).toFixed(0)}k` : p.total.toFixed(0)}
-                        </text>
-                      )}
+                      {p.total > 0 && <text x={p.x} y={p.y - 9} textAnchor="middle" fontSize="8" fontWeight="700" fill="#374151">{p.total >= 1000 ? `${(p.total / 1000).toFixed(0)}k` : p.total.toFixed(0)}</text>}
                     </g>
                   ))}
                 </svg>
@@ -365,8 +356,9 @@ function MiDiaInner() {
             })()}
           </>)}
 
+          {/* Embudo de clientes */}
           {card(<>
-            {sTitle('🔻 Embudo de clientes', 'Por etapa del pipeline')}
+            {sTitle('🔻 Embudo de Clientes', 'Por etapa del pipeline')}
             {(() => {
               const etapas = [
                 { id: 'prospecto', label: 'Prospecto', color: AZUL },
@@ -378,354 +370,147 @@ function MiDiaInner() {
               const counts = etapas.map(e => ({ ...e, n: clientes.filter(c => (c.etapa_kanban || 'prospecto') === e.id).length }))
               const max = Math.max(...counts.map(c => c.n), 1)
               return (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '9px' }}>
                   {counts.map((c, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontSize: '10px', color: '#64748b', width: '78px', flexShrink: 0 }}>{c.label}</span>
+                      <span style={{ fontSize: '10px', color: '#64748b', width: '70px', flexShrink: 0 }}>{c.label}</span>
                       <div style={{ flex: 1, background: '#F4F6FB', borderRadius: '4px', height: '18px', position: 'relative' as const }}>
-                        <div style={{ width: `${(c.n / max) * 100}%`, height: '100%', background: c.color, borderRadius: '4px', minWidth: c.n > 0 ? '4px' : 0, transition: 'width 0.3s' }} />
+                        <div style={{ width: `${(c.n / max) * 100}%`, height: '100%', background: c.color, borderRadius: '4px', minWidth: c.n > 0 ? '4px' : 0 }} />
                       </div>
-                      <span style={{ fontSize: '11px', fontWeight: '700', color: '#374151', width: '20px', textAlign: 'right' as const, flexShrink: 0 }}>{c.n}</span>
+                      <span style={{ fontSize: '11px', fontWeight: '700', color: '#374151', width: '18px', textAlign: 'right' as const, flexShrink: 0 }}>{c.n}</span>
                     </div>
                   ))}
                 </div>
               )
             })()}
           </>)}
-        </div>
 
-        {/* ═══ SECCIÓN: FINANZAS Y COMERCIAL ═══ */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-          <span style={{ fontSize: '12px', fontWeight: '800', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px' }}>💰 Finanzas y comercial</span>
-          <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-
-          {/* Bloque Financiero — dona */}
+          {/* Ventas — donut */}
           {card(<>
-            {sTitle('💰 Ingresos reales', filtroPeriodo)}
-            <div style={{ marginBottom: '6px' }}>{deltaBadge(deltaIngresos)}</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '8px' }}>
-              {/* Donut grande */}
-              {(() => {
-                const items = [
-                  { label: 'Asesoría', value: ingresosAsesoria, color: AZUL },
-                  { label: 'Trámite de Pensión', value: ingresosGestoria, color: VERDE },
-                  { label: 'Financiamiento', value: ingresosFinanciamiento, color: '#eab308' },
-                  { label: 'Gestoría Global', value: ingresosGestoriaGlobal, color: '#8b5cf6' },
-                  { label: 'Comisiones Financieras', value: comisionesFinancieras, color: NARANJA },
-                  { label: 'Sin clasificar', value: ingresosSinClasificar, color: '#94a3b8' },
-                ]
-                const total = items.reduce((s, it) => s + it.value, 0)
-                const R = 40, CIRC = 2 * Math.PI * R
-                let acc = 0
-                return (
+            {sTitle('🍩 Ventas', filtroPeriodo)}
+            {(() => {
+              const items = [
+                { label: 'Asesoría', value: ingresosAsesoria, color: AZUL },
+                { label: 'Trámite', value: ingresosGestoria, color: NARANJA },
+                { label: 'Financiamiento', value: ingresosFinanciamiento, color: VERDE },
+                { label: 'Gestoría Global', value: ingresosGestoriaGlobal, color: '#8b5cf6' },
+                { label: 'Sin clasificar', value: ingresosSinClasificar + comisionesFinancieras, color: '#94a3b8' },
+              ]
+              const total = items.reduce((s, it) => s + it.value, 0)
+              const R = 40, CIRC = 2 * Math.PI * R
+              let acc = 0
+              return (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div style={{ position: 'relative', flexShrink: 0 }}>
-                    <svg width="180" height="180" viewBox="0 0 100 100">
-                      <circle cx="50" cy="50" r={R} fill="none" stroke="#f1f5f9" strokeWidth="20" />
+                    <svg width="120" height="120" viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r={R} fill="none" stroke="#f1f5f9" strokeWidth="18" />
                       {items.map((it, i) => {
                         const pct = total > 0 ? it.value / total : 0
                         const dash = pct * CIRC
                         const offset = -acc * CIRC
                         acc += pct
                         if (pct === 0) return null
-                        return <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="20"
+                        return <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="18"
                           strokeDasharray={`${dash} ${CIRC}`} strokeDashoffset={offset} transform="rotate(-90 50 50)" />
                       })}
                     </svg>
-                    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-                      <div style={{ fontSize: '16px', fontWeight: '800', color: '#1e293b' }}>{fmtMXN(total)}</div>
-                      <div style={{ fontSize: '9px', color: '#94a3b8' }}>total bruto</div>
-                    </div>
                   </div>
-                )
-              })()}
-              {/* Leyenda en 2x2 */}
-              <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 10px' }}>
-                {[
-                  { label: 'Asesoría', value: ingresosAsesoria, color: AZUL },
-                  { label: 'Trámite de Pensión', value: ingresosGestoria, color: VERDE },
-                  { label: 'Financiamiento', value: ingresosFinanciamiento, color: '#eab308' },
-                  { label: 'Gestoría Global', value: ingresosGestoriaGlobal, color: '#8b5cf6' },
-                  { label: 'Comisiones Financieras', value: comisionesFinancieras, color: NARANJA },
-                  { label: 'Sin clasificar', value: ingresosSinClasificar, color: '#94a3b8' },
-                ].map((item, i) => (
-                  <div key={i}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '1px' }}>
-                      <div style={{ width: '7px', height: '7px', borderRadius: '2px', background: item.color, flexShrink: 0 }} />
-                      <span style={{ fontSize: '9.5px', color: '#64748b' }}>{item.label}</span>
-                    </div>
-                    <span style={{ fontSize: '12px', fontWeight: '800', color: '#374151' }}>{fmtMXN(item.value)}</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    {items.map((it, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <span style={{ width: '8px', height: '8px', borderRadius: '2px', background: it.color, flexShrink: 0, display: 'inline-block' }} />
+                        <span style={{ fontSize: '10px', color: '#64748b' }}>{it.label}</span>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '6px' }}>
-              {kpi('$ Servicio promedio', fmtMXN(ticketPromedio), 'por cliente')}
-            </div>
+                </div>
+              )
+            })()}
           </>)}
 
-          {/* Bloque Comercial */}
-          {card(<>
-            {sTitle('📊 Efectividad comercial')}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '10px' }}>
-              {kpi('Conv. general', fmtPct(tasaConversion), 'prospecto → cliente')}
-              {kpi('Éxito gestiones', fmtPct(tasaExitoGestiones), 'trámites resueltos')}
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
-                  <span style={{ color: '#64748b' }}>Bateo Diagnóstico</span>
-                  <span style={{ fontWeight: '700', color: AZUL }}>{fmtPct(bateoDiag)}</span>
-                </div>
-                {bar(bateoDiag, 100, AZUL)}
-              </div>
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
-                  <span style={{ color: '#64748b' }}>Bateo Gestoría</span>
-                  <span style={{ fontWeight: '700', color: VERDE }}>{fmtPct(bateoTramite)}</span>
-                </div>
-                {bar(bateoTramite, 100, VERDE)}
-              </div>
-              <div style={{ marginTop: '4px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '6px' }}>
-                  <span style={{ color: '#64748b' }}>Pipeline por etapa (embudo)</span>
-                </div>
-                {(() => {
-                  const etapas = [
-                    { label: 'Prospecto', val: clientes.filter(c => c.etapa_kanban === 'prospecto').length, color: AZUL, text: 'white' },
-                    { label: 'Diagnóstico', val: clientes.filter(c => c.etapa_kanban === 'diagnostico').length, color: '#639922', text: 'white' },
-                    { label: 'Recopilación', val: clientes.filter(c => c.etapa_kanban === 'recopilacion').length, color: '#eab308', text: 'white' },
-                    { label: 'Trámite', val: enTramite.length, color: '#f97316', text: 'white' },
-                    { label: 'Cierre', val: pensionados.length, color: VERDE, text: 'white' },
-                  ]
-                  const maxVal = Math.max(...etapas.map(e => e.val), 1)
-                  const cancelados = clientes.filter(c => c.etapa_kanban === 'cancelado').length
-                  return (
-                    <>
-                      {etapas.map((e, i) => {
-                        const widthPct = 35 + (e.val / maxVal) * 65
-                        return (
-                          <div key={i} style={{ display: 'flex', justifyContent: 'center', marginBottom: '2px' }}>
-                            <div style={{ width: `${widthPct}%`, minWidth: '60px', background: e.color, borderRadius: '6px', padding: '4px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <span style={{ fontSize: '11px', fontWeight: '600', color: e.text }}>{e.label}</span>
-                              <span style={{ fontSize: '12px', fontWeight: '800', color: e.text }}>{e.val}</span>
-                            </div>
-                          </div>
-                        )
-                      })}
-                      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '6px' }}>
-                        <div style={{ width: '50%', minWidth: '60px', background: '#f1f5f9', borderRadius: '6px', padding: '4px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: '11px', fontWeight: '600', color: '#64748b' }}>Cancelado</span>
-                          <span style={{ fontSize: '12px', fontWeight: '800', color: '#64748b' }}>{cancelados}</span>
-                        </div>
-                      </div>
-                    </>
-                  )
-                })()}
-              </div>
-            </div>
-          </>)}
-        </div>
-
-        {/* ═══ SECCIÓN: OPERACIÓN ═══ */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-          <span style={{ fontSize: '12px', fontWeight: '800', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px' }}>⚙️ Operación</span>
-          <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-
-          {/* Bloque Operación */}
-          {card(<>
-            {sTitle('⚙️ Operación y volumen')}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '10px' }}>
-              {kpi('Cycle time prom.', fmtWeeks(cycleTime), 'firma → pensión', AZUL)}
-              {kpi('Activos este mes', diagMes.length.toString(), 'diagnósticos', '#8b5cf6')}
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-              <p style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Servicios activos por fase</p>
-              {[
-                { label: 'En diagnóstico', val: clientes.filter(c => c.etapa_kanban === 'diagnostico').length, color: '#3b82f6' },
-                { label: 'En trámite', val: enTramite.length, color: NARANJA },
-                { label: 'Cierre exitoso ✓', val: pensionados.length, color: VERDE },
-                { label: 'Cancelados', val: clientes.filter(c => c.etapa_kanban === 'cancelado').length, color: '#ef4444' },
-              ].map((e, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '5px 8px', background: '#FAFAFA', borderRadius: '5px', border: '1px solid #f1f5f9' }}>
-                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: e.color, flexShrink: 0 }} />
-                  <span style={{ fontSize: '11px', color: '#64748b', flex: 1 }}>{e.label}</span>
-                  <span style={{ fontSize: '12px', fontWeight: '700', color: '#374151' }}>{e.val}</span>
-                </div>
-              ))}
-            </div>
-          </>)}
-
-          {/* Agenda hoy */}
-          {card(<>
-            {sTitle('📅 Agenda de hoy', agendaHoy.length === 0 ? 'Sin actividades' : `${agendaHoy.length} actividad${agendaHoy.length !== 1 ? 'es' : ''}`)}
-            {agendaHoy.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '20px 0', color: '#94a3b8', fontSize: '12px' }}>
-                <div style={{ fontSize: '22px', marginBottom: '6px' }}>✅</div>
-                Día libre
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                {agendaHoy.map(a => (
-                  <div key={a.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', padding: '7px 9px', background: '#FAFAFA', borderRadius: '6px', border: '1px solid #f1f5f9' }}>
-                    <div style={{ width: '2px', minHeight: '28px', background: a.estatus === 'completado' ? VERDE : NARANJA, borderRadius: '1px', flexShrink: 0, marginTop: '2px' }} />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '12px', fontWeight: '600', color: '#374151' }}>{a.titulo}</div>
-                      <div style={{ fontSize: '10px', color: '#94a3b8' }}>
-                        {new Date(a.fecha_programada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
-                        {a.clientes?.nombre && ` · ${a.clientes.nombre}`}
-                      </div>
+          {/* Barra lateral: Agenda + Financieras + Servicios (Ley) */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {card(<>
+              {sTitle('📅 Agenda', agendaHoy.length === 0 ? 'Sin actividades' : `${agendaHoy.length} hoy`)}
+              {agendaHoy.length === 0 ? (
+                <p style={{ fontSize: '11px', color: '#94a3b8', textAlign: 'center', padding: '10px 0' }}>Día libre ✅</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                  {agendaHoy.slice(0, 4).map(a => (
+                    <div key={a.id} style={{ padding: '6px 9px', background: '#FAFAFA', borderRadius: '6px', border: '1px solid #f1f5f9' }}>
+                      <div style={{ fontSize: '11px', fontWeight: '600', color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.titulo}</div>
+                      <div style={{ fontSize: '9px', color: '#94a3b8' }}>{new Date(a.fecha_programada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</div>
                     </div>
-                    <span style={{ fontSize: '10px', padding: '1px 5px', borderRadius: '4px', background: a.estatus === 'completado' ? '#f0fdf4' : '#fff5f2', color: a.estatus === 'completado' ? VERDE : NARANJA, fontWeight: '600' }}>
-                      {a.estatus === 'completado' ? '✓' : '⏳'}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-            <a href="/seguimiento" style={{ display: 'block', textAlign: 'center', marginTop: '8px', fontSize: '11px', color: NARANJA, textDecoration: 'none', fontWeight: '600' }}>
-              Ver agenda completa →
-            </a>
-          </>)}
+                  ))}
+                </div>
+              )}
+              <a href="/seguimiento" style={{ display: 'block', textAlign: 'center', marginTop: '8px', fontSize: '10px', color: NARANJA, textDecoration: 'none', fontWeight: '600' }}>
+                Ver agenda completa →
+              </a>
+            </>)}
 
-          {/* Bloque Financieras */}
-          {card(<>
-            {sTitle('🏦 Financieras aliadas', financieras.length === 0 ? 'Sin financieras configuradas' : `${financieras.length} aliadas`)}
-            {financieras.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '20px 0', color: '#94a3b8', fontSize: '11px' }}>
-                <div style={{ fontSize: '22px', marginBottom: '6px' }}>🏦</div>
-                Configura tus financieras aliadas<br />en el panel de administración
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {financieras.map((fin, i) => {
-                  const solFin = solicitudes.filter(s => s.financiera_id === fin.id)
-                  const aprobadas = solFin.filter(s => s.aprobada === true).length
-                  const rechazadas = solFin.filter(s => s.aprobada === false).length
-                  const pendientes = solFin.filter(s => s.aprobada === null).length
-                  const efectividad = solFin.length > 0 ? Math.round((aprobadas / solFin.length) * 100) : 0
-                  const comisionTotal = solFin.reduce((s, sol) => s + (sol.comision_cobrada || 0), 0)
-                  return (
-                    <div key={fin.id} style={{ padding: '8px 10px', background: '#FAFAFA', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                        <span style={{ fontSize: '12px', fontWeight: '700', color: '#374151' }}>{fin.nombre}</span>
-                        <span style={{ fontSize: '11px', color: AZUL, fontWeight: '700' }}>{fin.tasa_anual}%</span>
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '4px', marginBottom: '4px' }}>
-                        <div style={{ textAlign: 'center', fontSize: '10px' }}>
-                          <div style={{ fontWeight: '700', color: VERDE }}>{aprobadas}</div>
-                          <div style={{ color: '#94a3b8' }}>Aprobadas</div>
-                        </div>
-                        <div style={{ textAlign: 'center', fontSize: '10px' }}>
-                          <div style={{ fontWeight: '700', color: '#ef4444' }}>{rechazadas}</div>
-                          <div style={{ color: '#94a3b8' }}>Rechazadas</div>
-                        </div>
-                        <div style={{ textAlign: 'center', fontSize: '10px' }}>
-                          <div style={{ fontWeight: '700', color: '#f59e0b' }}>{efectividad}%</div>
-                          <div style={{ color: '#94a3b8' }}>Efectividad</div>
-                        </div>
-                      </div>
-                      {comisionTotal > 0 && (
-                        <div style={{ fontSize: '10px', color: VERDE, fontWeight: '600' }}>
-                          💰 {fmtMXN(comisionTotal)} en comisiones
-                        </div>
-                      )}
-                      <div style={{ fontSize: '9px', color: '#94a3b8', marginTop: '2px' }}>
-                        {solFin.length} solicitudes · {pendientes} pendientes
-                      </div>
+            {card(<>
+              {sTitle('🏦 Financieras', financieras.length === 0 ? 'Sin configurar' : `${financieras.length} aliadas`)}
+              {financieras.length === 0 ? (
+                <p style={{ fontSize: '11px', color: '#94a3b8', textAlign: 'center', padding: '10px 0' }}>Sin financieras</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                  {financieras.slice(0, 3).map((fin, i) => (
+                    <div key={fin.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 9px', background: '#FAFAFA', borderRadius: '6px', border: '1px solid #f1f5f9' }}>
+                      <span style={{ fontSize: '11px', fontWeight: '600', color: '#374151' }}>{fin.nombre}</span>
+                      <span style={{ fontSize: '10px', color: AZUL, fontWeight: '700' }}>{fin.tasa_anual}%</span>
                     </div>
-                  )
-                })}
-              </div>
-            )}
-          </>)}
-        </div>
+                  ))}
+                </div>
+              )}
+            </>)}
 
-        {/* ═══ SECCIÓN: COMERCIAL AVANZADO ═══ */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-          <span style={{ fontSize: '12px', fontWeight: '800', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px' }}>📊 Comercial avanzado</span>
-          <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }}>
-
-          {/* Bloque Mercado */}
-          {card(<>
-            {sTitle('🎯 Inteligencia de mercado')}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '12px' }}>
-              {kpi('Pensión prom.', pensionPromedio > 0 ? fmtMXN(pensionPromedio) : '—', 'E4 óptimo', VERDE)}
-              {kpi('$ Comisiones', fmtMXN(comisionesFinancieras), filtroPeriodo, NARANJA)}
-            </div>
-
-            {/* Pastel Ley 73/97 grande + leyenda */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '14px' }}>
+            {card(<>
+              {sTitle('📊 Servicios', 'Por régimen')}
               {(() => {
-                const l73 = totalL73
-                const l97 = totalL97
-                const total = l73 + l97
-                const R = 42, CIRC = 2 * Math.PI * R
-                const pct73 = total > 0 ? l73 / total : 0
+                const W = 140, H = 70
+                const max = Math.max(totalL73, totalL97, 1)
+                const barW = 36
                 return (
-                  <div style={{ position: 'relative', flexShrink: 0 }}>
-                    <svg width="116" height="116" viewBox="0 0 100 100">
-                      <circle cx="50" cy="50" r={R} fill="none" stroke={AZUL} strokeWidth="15"
-                        strokeDasharray={`${pct73 * CIRC} ${CIRC}`} transform="rotate(-90 50 50)" />
-                      <circle cx="50" cy="50" r={R} fill="none" stroke={VERDE} strokeWidth="15"
-                        strokeDasharray={`${(1-pct73) * CIRC} ${CIRC}`} strokeDashoffset={-pct73 * CIRC} transform="rotate(-90 50 50)" />
-                    </svg>
-                    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-                      <div style={{ fontSize: '15px', fontWeight: '800', color: '#1e293b' }}>{total}</div>
-                      <div style={{ fontSize: '9px', color: '#94a3b8' }}>clientes</div>
-                    </div>
-                  </div>
+                  <svg viewBox={`0 0 ${W} ${H + 18}`} style={{ width: '100%', height: 'auto' }}>
+                    {[totalL73, totalL97].map((v, i) => {
+                      const h = (v / max) * (H - 10)
+                      const x = i === 0 ? 24 : 80
+                      return (
+                        <g key={i}>
+                          <rect x={x} y={H - h} width={barW} height={h} rx={3} fill={i === 0 ? AZUL : VERDE} />
+                          <text x={x + barW / 2} y={H - h - 4} textAnchor="middle" fontSize="9" fontWeight="700" fill="#374151">{v}</text>
+                          <text x={x + barW / 2} y={H + 14} textAnchor="middle" fontSize="9" fill="#94a3b8">Ley {i === 0 ? '73' : '97'}</text>
+                        </g>
+                      )
+                    })}
+                  </svg>
                 )
               })()}
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: AZUL, flexShrink: 0 }} />
-                    <span style={{ fontSize: '11px', color: '#64748b' }}>Ley 73 (pre-1997)</span>
-                  </div>
-                  <span style={{ fontSize: '15px', fontWeight: '800', color: '#374151' }}>{totalL73}</span>
-                </div>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: VERDE, flexShrink: 0 }} />
-                    <span style={{ fontSize: '11px', color: '#64748b' }}>Ley 97 (post-1997)</span>
-                  </div>
-                  <span style={{ fontSize: '15px', fontWeight: '800', color: '#374151' }}>{totalL97}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Rangos de pensión */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <p style={{ fontSize: '10px', fontWeight: '700', color: '#94a3b8', margin: '0 0 2px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Distribución por rangos de pensión</p>
-              {rangos.map((r, i) => {
-                const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
-                return (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '11px', color: '#64748b', width: '78px', flexShrink: 0 }}>{r.label}</span>
-                    <div style={{ flex: 1, height: '8px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${diagConResultado.length > 0 ? (count/diagConResultado.length)*100 : 0}%`, background: r.color, borderRadius: '4px' }} />
-                    </div>
-                    <span style={{ fontSize: '12px', fontWeight: '700', color: '#374151', minWidth: '20px', textAlign: 'right' }}>{count}</span>
-                  </div>
-                )
-              })}
-            </div>
-          </>)}
+            </>)}
+          </div>
         </div>
 
-        {/* ═══ SECCIÓN: SERVICIOS ACTIVOS POR ETAPA ═══ */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-          <span style={{ fontSize: '12px', fontWeight: '800', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px' }}>📦 Servicios activos por etapa</span>
-          <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
+        {/* KPIs row 2 — igual a la imagen de referencia */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '8px' }}>
+          {[
+            { label: '$ Servicio promedio', value: fmtMXN(ticketPromedio) },
+            { label: 'Conversión General', value: fmtPct(tasaConversion) },
+            { label: 'Éxitos gestiones', value: fmtPct(tasaExitoGestiones) },
+            { label: 'Bateo Diagnóstico', value: fmtPct(bateoDiag) },
+            { label: 'Bateo Gestoría', value: fmtPct(bateoTramite) },
+            { label: 'Cycle time prom.', value: fmtWeeks(cycleTime) },
+            { label: 'Activos este mes', value: diagMes.length.toString() },
+            { label: 'Promedio Pensión', value: pensionPromedio > 0 ? fmtMXN(pensionPromedio) : '—' },
+            { label: '$ Comisiones', value: fmtMXN(comisionesFinancieras) },
+          ].map((k, i) => kpi(k.label, k.value))}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }}>
+
+        {/* Fila inferior: Servicios activos (cruce servicio x etapa) + Rangos de Pensión */}
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px', alignItems: 'start' }}>
+
           {card(<>
+            {sTitle('📦 Servicios activos', 'Por tipo de servicio y etapa')}
             {(() => {
               const SERVICIOS = [
                 { id: 'asesoria', label: 'Asesoría' },
@@ -746,7 +531,7 @@ function MiDiaInner() {
                 etapas: ETAPAS.map(e => ({ ...e, n: clientesFiltrados.filter(c => c.tipo_servicio === s.id && (c.etapa_kanban || 'prospecto') === e.id).length }))
               }))
               const max = Math.max(...datos.flatMap(d => d.etapas.map(e => e.n)), 1)
-              const W = 760, H = 160, padL = 30, padR = 10, groupGap = 28
+              const W = 560, H = 160, padL = 24, padR = 10, groupGap = 24
               const groupW = (W - padL - padR - groupGap * (datos.length - 1)) / datos.length
               const barW = groupW / ETAPAS.length
               return (
@@ -786,6 +571,24 @@ function MiDiaInner() {
                 </>
               )
             })()}
+          </>)}
+
+          {card(<>
+            {sTitle('📐 Rangos de Pensión', 'Distribución de diagnósticos')}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {rangos.map((r, i) => {
+                const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
+                return (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '11px', color: '#64748b', width: '70px', flexShrink: 0 }}>{r.label}</span>
+                    <div style={{ flex: 1, height: '14px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0}%`, background: r.color, borderRadius: '4px' }} />
+                    </div>
+                    <span style={{ fontSize: '12px', fontWeight: '700', color: '#374151', minWidth: '20px', textAlign: 'right' as const }}>{count}</span>
+                  </div>
+                )
+              })}
+            </div>
           </>)}
         </div>
 
