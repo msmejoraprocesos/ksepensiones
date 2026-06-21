@@ -302,19 +302,25 @@ function MiDiaInner() {
 
       <div style={{ padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
 
-        {/* KPIs row 1 — igual a la imagen de referencia */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '8px' }}>
-          {[
-            { label: 'Clientes activos', value: clientesActivos.length.toString(), color: AZUL },
-            { label: 'Prospectos', value: prospectos.length.toString(), sub: `+${clientesNuevosPeriodo} en el periodo`, color: AZUL, filled: true, delta: deltaClientesNuevos },
-            { label: 'En diagnóstico', value: enDiagnostico.length.toString(), color: '#3b82f6', filled: true },
-            { label: 'En recopilación', value: enRecopilacion.length.toString(), color: '#0d9488', filled: true },
-            { label: 'En trámite', value: enTramite.length.toString(), color: '#f59e0b' },
-            { label: 'Cierres Exitosos', value: pensionados.length.toString(), sub: `${cierresPeriodo} en el periodo`, color: VERDE, filled: true, delta: deltaCierres },
-            { label: 'Cobrado', value: fmtMXN(ingresosTotal), color: VERDE, delta: deltaIngresos },
-            { label: 'Por Cobrar', value: fmtMXN(porCobrar), color: '#f59e0b' },
-            { label: 'Ventas Totales', value: fmtMXN(ingresosConComisiones), color: AZUL },
-          ].map((k: any, i) => kpi(k.label, k.value, k.sub, k.color, k.filled, k.delta))}
+        {/* KPIs row 1 — igual a la imagen de referencia, con el encabezado "Agenda" alineado a la misma fila */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 12px 190px', gap: '12px', alignItems: 'stretch' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '8px' }}>
+            {[
+              { label: 'Clientes activos', value: clientesActivos.length.toString(), color: AZUL },
+              { label: 'Prospectos', value: prospectos.length.toString(), sub: `+${clientesNuevosPeriodo} en el periodo`, color: AZUL, filled: true, delta: deltaClientesNuevos },
+              { label: 'En diagnóstico', value: enDiagnostico.length.toString(), color: '#3b82f6', filled: true },
+              { label: 'En recopilación', value: enRecopilacion.length.toString(), color: '#0d9488', filled: true },
+              { label: 'En trámite', value: enTramite.length.toString(), color: '#f59e0b' },
+              { label: 'Cierres Exitosos', value: pensionados.length.toString(), sub: `${cierresPeriodo} en el periodo`, color: VERDE, filled: true, delta: deltaCierres },
+              { label: 'Cobrado', value: fmtMXN(ingresosTotal), color: VERDE, delta: deltaIngresos },
+              { label: 'Por Cobrar', value: fmtMXN(porCobrar), color: '#f59e0b' },
+              { label: 'Ventas Totales', value: fmtMXN(ingresosConComisiones), color: AZUL },
+            ].map((k: any, i) => kpi(k.label, k.value, k.sub, k.color, k.filled, k.delta))}
+          </div>
+          <div style={{ width: '1px', background: '#1e40af', height: '100%' }} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <p style={{ fontSize: '12px', fontWeight: '700', color: '#374151', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Agenda</p>
+          </div>
         </div>
 
         {/* Fila principal: Tendencias | Embudo | Ventas + barra lateral (Agenda / Financieras / Servicios) */}
@@ -444,7 +450,6 @@ function MiDiaInner() {
           {/* Barra lateral: Agenda + Financieras + Servicios (Ley), un solo panel con separadores de doble linea */}
           {card(
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', margin: '0 0 8px', textAlign: 'center' as const, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Agenda</p>
               {agendaHoy.length === 0 ? (
                 <p style={{ fontSize: '11px', color: '#94a3b8', textAlign: 'center', padding: '6px 0' }}>Día libre ✅</p>
               ) : (
