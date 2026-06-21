@@ -221,7 +221,7 @@ function MiDiaInner() {
   )
 
   const card = (content: React.ReactNode, style?: React.CSSProperties) => (
-    <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px 14px', ...style }}>
+    <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px 14px', display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' as const, ...style }}>
       {content}
     </div>
   )
@@ -343,7 +343,7 @@ function MiDiaInner() {
               const stepX = (W - padL - padR) / 11
               const yFor = (v: number) => H - (max > 0 ? (v / max) * (H - 16) : 0)
               return (
-                <>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   <svg viewBox={`0 0 ${W} ${H + 22}`} style={{ width: '100%', height: 'auto' }}>
                     {series.map((serie, si) => {
                       const puntos = serie.map((m, i) => ({ x: padL + i * stepX, y: yFor(m.total), ...m }))
@@ -367,7 +367,7 @@ function MiDiaInner() {
                       </span>
                     ))}
                   </div>
-                </>
+                </div>
               )
             })()}
           </>, { gridColumn: 'span 3' })}
@@ -386,7 +386,7 @@ function MiDiaInner() {
               const counts = etapas.map(e => ({ ...e, n: clientes.filter(c => (c.etapa_kanban || 'prospecto') === e.id).length }))
               const max = Math.max(...counts.map(c => c.n), 1)
               return (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '9px' }}>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly' }}>
                   {counts.map((c, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span style={{ fontSize: '10px', color: '#64748b', width: '70px', flexShrink: 0 }}>{c.label}</span>
@@ -416,9 +416,9 @@ function MiDiaInner() {
               const R = 40, CIRC = 2 * Math.PI * R
               let acc = 0
               return (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div style={{ position: 'relative', flexShrink: 0 }}>
-                    <svg width="120" height="120" viewBox="0 0 100 100">
+                    <svg width="140" height="140" viewBox="0 0 100 100">
                       <circle cx="50" cy="50" r={R} fill="none" stroke="#f1f5f9" strokeWidth="18" />
                       {items.map((it, i) => {
                         const pct = total > 0 ? it.value / total : 0
