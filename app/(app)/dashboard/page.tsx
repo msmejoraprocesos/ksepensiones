@@ -622,10 +622,10 @@ function MiDiaInner() {
 
               <div style={{ height: '3px', borderTop: '1.5px solid #1e293b', borderBottom: '1.5px solid #1e293b', margin: '14px 0', flexShrink: 0 }} />
 
-              {/* Sección 3 — Servicios (mas chica, menos ancha) */}
-              <div style={{ flex: '0 0 auto', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+              {/* Sección 3/3 — Servicios */}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
                 <p style={{ fontSize: '12.5px', fontWeight: '700', color: '#374151', margin: '0 0 8px', textAlign: 'center' as const, textTransform: 'uppercase', letterSpacing: '0.5px', flexShrink: 0 }}>Servicios</p>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {(() => {
                     const max = Math.max(totalL73, totalL97, 1)
                     const barW = 26
