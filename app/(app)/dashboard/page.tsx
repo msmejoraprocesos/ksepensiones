@@ -443,7 +443,7 @@ function MiDiaInner() {
                   return (
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '18px' }}>
                       <div style={{ position: 'relative', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
-                        <svg style={{ width: '180px', height: '180px', maxWidth: '100%' }} viewBox="0 0 100 100">
+                        <svg style={{ width: '210px', height: '210px', maxWidth: '100%' }} viewBox="0 0 100 100">
                           <circle cx="50" cy="50" r={R} fill="none" stroke="#f1f5f9" strokeWidth="18" />
                           {segmentos.map((it, i) => (
                             <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="18"
@@ -578,64 +578,76 @@ function MiDiaInner() {
           {/* Divisor vertical continuo, a lo largo de las 4 filas */}
           <div style={{ width: '1px', background: '#1e40af' }} />
 
-          {/* Barra lateral: Agenda + Financieras + Servicios (Ley) — un solo panel continuo, corre a lo largo de TODAS las filas */}
+          {/* Barra lateral: Agenda + Financieras + Servicios (Ley) — un solo panel continuo, 3 secciones de tamaño fijo (1/3 cada una) */}
           {card(
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <p style={{ fontSize: '13.5px', fontWeight: '700', color: AZUL, margin: '0 0 10px', textAlign: 'center' as const, textTransform: 'uppercase', letterSpacing: '0.5px', background: '#F4F6FB', borderRadius: '6px', border: '1px solid #e2e8f0', padding: '8px 0' }}>Agenda</p>
-              {agendaHoy.length === 0 ? (
-                <p style={{ fontSize: '12.5px', color: '#94a3b8', textAlign: 'center', padding: '6px 0' }}>Día libre ✅</p>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {agendaHoy.slice(0, 4).map(a => (
-                    <div key={a.id} style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', textAlign: 'center' as const }}>
-                      <div style={{ fontSize: '12.5px', fontWeight: '600', color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.titulo}</div>
-                      <div style={{ fontSize: '10.5px', color: '#94a3b8' }}>{new Date(a.fecha_programada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</div>
-                    </div>
-                  ))}
+            <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+
+              {/* Sección 1/3 — Agenda */}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                <p style={{ fontSize: '13.5px', fontWeight: '700', color: AZUL, margin: '0 0 10px', textAlign: 'center' as const, textTransform: 'uppercase', letterSpacing: '0.5px', background: '#F4F6FB', borderRadius: '6px', border: '1px solid #e2e8f0', padding: '8px 0', flexShrink: 0 }}>Agenda</p>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: agendaHoy.length === 0 ? 'center' : 'space-evenly', overflow: 'hidden' }}>
+                  {agendaHoy.length === 0 ? (
+                    <p style={{ fontSize: '12.5px', color: '#94a3b8', textAlign: 'center' }}>Día libre ✅</p>
+                  ) : (
+                    agendaHoy.slice(0, 4).map(a => (
+                      <div key={a.id} style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', textAlign: 'center' as const }}>
+                        <div style={{ fontSize: '12.5px', fontWeight: '600', color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.titulo}</div>
+                        <div style={{ fontSize: '10.5px', color: '#94a3b8' }}>{new Date(a.fecha_programada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</div>
+                      </div>
+                    ))
+                  )}
                 </div>
-              )}
-              <a href="/seguimiento" style={{ display: 'block', textAlign: 'center', marginTop: '8px', fontSize: '11.5px', color: '#64748b', textDecoration: 'none' }}>
-                Ver agenda completa →
-              </a>
+                <a href="/seguimiento" style={{ display: 'block', textAlign: 'center', marginTop: '8px', fontSize: '11.5px', color: '#64748b', textDecoration: 'none', flexShrink: 0 }}>
+                  Ver agenda completa →
+                </a>
+              </div>
 
-              <div style={{ height: '3px', borderTop: '1.5px solid #1e293b', borderBottom: '1.5px solid #1e293b', margin: '14px 0' }} />
+              <div style={{ height: '3px', borderTop: '1.5px solid #1e293b', borderBottom: '1.5px solid #1e293b', margin: '14px 0', flexShrink: 0 }} />
 
-              <p style={{ fontSize: '12.5px', fontWeight: '700', color: '#374151', margin: '0 0 8px', textAlign: 'center' as const, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Financieras</p>
-              {financieras.length === 0 ? (
-                <p style={{ fontSize: '12.5px', color: '#94a3b8', textAlign: 'center', padding: '6px 0' }}>Sin financieras</p>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {financieras.slice(0, 3).map((fin) => (
-                    <div key={fin.id} style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', textAlign: 'center' as const }}>
-                      <span style={{ fontSize: '12.5px', fontWeight: '600', color: '#374151' }}>{fin.nombre}</span>
-                    </div>
-                  ))}
+              {/* Sección 2/3 — Financieras */}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                <p style={{ fontSize: '12.5px', fontWeight: '700', color: '#374151', margin: '0 0 8px', textAlign: 'center' as const, textTransform: 'uppercase', letterSpacing: '0.5px', flexShrink: 0 }}>Financieras</p>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: financieras.length === 0 ? 'center' : 'space-evenly' }}>
+                  {financieras.length === 0 ? (
+                    <p style={{ fontSize: '12.5px', color: '#94a3b8', textAlign: 'center' }}>Sin financieras</p>
+                  ) : (
+                    financieras.slice(0, 5).map((fin) => (
+                      <div key={fin.id} style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', textAlign: 'center' as const }}>
+                        <span style={{ fontSize: '12.5px', fontWeight: '600', color: '#374151' }}>{fin.nombre}</span>
+                      </div>
+                    ))
+                  )}
                 </div>
-              )}
+              </div>
 
-              <div style={{ height: '3px', borderTop: '1.5px solid #1e293b', borderBottom: '1.5px solid #1e293b', margin: '14px 0' }} />
+              <div style={{ height: '3px', borderTop: '1.5px solid #1e293b', borderBottom: '1.5px solid #1e293b', margin: '14px 0', flexShrink: 0 }} />
 
-              <p style={{ fontSize: '12.5px', fontWeight: '700', color: '#374151', margin: '0 0 8px', textAlign: 'center' as const, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Servicios</p>
-              {(() => {
-                const W = 140, H = 70
-                const max = Math.max(totalL73, totalL97, 1)
-                const barW = 36
-                return (
-                  <svg viewBox={`0 0 ${W} ${H + 18}`} style={{ width: '100%', height: 'auto' }}>
-                    {[totalL73, totalL97].map((v, i) => {
-                      const h = (v / max) * (H - 10)
-                      const x = i === 0 ? 24 : 80
-                      return (
-                        <g key={i}>
-                          <rect x={x} y={H - h} width={barW} height={h} rx={3} fill={i === 0 ? AZUL : VERDE} />
-                          <text x={x + barW / 2} y={H - h - 4} textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#374151">{v}</text>
-                          <text x={x + barW / 2} y={H + 14} textAnchor="middle" fontSize="10.5" fill="#94a3b8">Ley {i === 0 ? '73' : '97'}</text>
-                        </g>
-                      )
-                    })}
-                  </svg>
-                )
-              })()}
+              {/* Sección 3/3 — Servicios (gráfica llena todo el alto de su sección) */}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                <p style={{ fontSize: '12.5px', fontWeight: '700', color: '#374151', margin: '0 0 8px', textAlign: 'center' as const, textTransform: 'uppercase', letterSpacing: '0.5px', flexShrink: 0 }}>Servicios</p>
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+                  {(() => {
+                    const max = Math.max(totalL73, totalL97, 1)
+                    const barW = 36
+                    const H = 100
+                    return (
+                      <svg viewBox={`0 0 140 ${H + 18}`} preserveAspectRatio="xMidYMid meet" style={{ width: '100%', height: '100%' }}>
+                        {[totalL73, totalL97].map((v, i) => {
+                          const h = (v / max) * (H - 10)
+                          const x = i === 0 ? 24 : 80
+                          return (
+                            <g key={i}>
+                              <rect x={x} y={H - h} width={barW} height={h} rx={3} fill={i === 0 ? AZUL : VERDE} />
+                              <text x={x + barW / 2} y={H - h - 4} textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#374151">{v}</text>
+                              <text x={x + barW / 2} y={H + 14} textAnchor="middle" fontSize="10.5" fill="#94a3b8">Ley {i === 0 ? '73' : '97'}</text>
+                            </g>
+                          )
+                        })}
+                      </svg>
+                    )
+                  })()}
+                </div>
+              </div>
             </div>
           )}
         </div>
