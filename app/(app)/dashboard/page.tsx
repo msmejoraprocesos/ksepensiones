@@ -460,9 +460,8 @@ function MiDiaInner() {
                 ))}
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
-              {kpi('Total bruto', fmtMXN(ingresosConComisiones), 'incl. comisiones')}
-              {kpi('Ticket promedio', fmtMXN(ticketPromedio), 'por cliente')}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '6px' }}>
+              {kpi('$ Servicio promedio', fmtMXN(ticketPromedio), 'por cliente')}
             </div>
           </>)}
 
@@ -657,7 +656,7 @@ function MiDiaInner() {
             {sTitle('🎯 Inteligencia de mercado')}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '12px' }}>
               {kpi('Pensión prom.', pensionPromedio > 0 ? fmtMXN(pensionPromedio) : '—', 'E4 óptimo', VERDE)}
-              {kpi('Diagnósticos', diagConResultado.length.toString(), 'con resultado', '#8b5cf6')}
+              {kpi('$ Comisiones', fmtMXN(comisionesFinancieras), filtroPeriodo, NARANJA)}
             </div>
 
             {/* Pastel Ley 73/97 grande + leyenda */}
