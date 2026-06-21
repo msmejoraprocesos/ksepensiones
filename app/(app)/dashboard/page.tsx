@@ -318,7 +318,7 @@ function MiDiaInner() {
         </div>
 
         {/* Fila principal: Tendencias | Embudo | Ventas + barra lateral (Agenda / Financieras / Servicios) */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr 1fr 240px', gap: '12px', alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 12px 190px', gap: '12px', alignItems: 'start' }}>
 
           {/* Tendencias de ingresos */}
           {card(<>
@@ -438,6 +438,9 @@ function MiDiaInner() {
             })()}
           </>)}
 
+          {/* Línea divisoria vertical entre el contenido principal y el sidebar */}
+          <div style={{ width: '1px', background: '#cbd5e1', height: '100%', minHeight: '260px', justifySelf: 'center' }} />
+
           {/* Barra lateral: Agenda + Financieras + Servicios (Ley), un solo panel con separadores de doble linea */}
           {card(
             <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -516,7 +519,7 @@ function MiDiaInner() {
         </div>
 
         {/* Fila inferior: Servicios activos (cruce servicio x etapa) + Rangos de Pensión */}
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px', alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '3.4fr 12px 1fr', gap: '12px', alignItems: 'start' }}>
 
           {card(<>
             {sTitle('📦 Servicios activos', 'Por tipo de servicio y etapa')}
@@ -581,6 +584,8 @@ function MiDiaInner() {
               )
             })()}
           </>)}
+
+          <div style={{ width: '1px', background: '#cbd5e1', height: '100%', minHeight: '200px', justifySelf: 'center' }} />
 
           {card(<>
             {sTitle('📐 Rangos de Pensión', 'Distribución de diagnósticos')}
