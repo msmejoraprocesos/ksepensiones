@@ -324,7 +324,7 @@ function MiDiaInner() {
         </div>
 
         {/* Fila principal: Tendencias | Embudo | Ventas + barra lateral (Agenda / Financieras / Servicios) — misma rejilla de 9 columnas que la fila de KPIs para que los bordes alineen exacto */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr) 12px 190px', gap: '8px', alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr) 12px 190px', gap: '8px', alignItems: 'stretch' }}>
 
           {/* Tendencias de ingresos */}
           {card(<>
