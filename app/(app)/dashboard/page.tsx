@@ -451,8 +451,8 @@ function MiDiaInner() {
                       </div>
                     ))}
                   </div>
-                  <div style={{ position: 'relative', flexShrink: 0, height: '100%', display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
-                    <svg style={{ height: '100%', width: 'auto' }} viewBox="0 0 100 100">
+                  <div style={{ position: 'relative', flexShrink: 0, display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
+                    <svg style={{ width: '170px', height: '170px', maxWidth: '100%', maxHeight: '100%' }} viewBox="0 0 100 100">
                       <circle cx="50" cy="50" r={R} fill="none" stroke="#f1f5f9" strokeWidth="18" />
                       {segmentos.map((it, i) => (
                         <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="18"
