@@ -163,20 +163,20 @@ function MiDiaInner() {
   const tasaExitoGestiones = enTramite.length > 0
     ? (pensionados.length / (pensionados.length + enTramite.length)) * 100 : 0
 
-  // Bateo por tipo de servicio
-  const clientesDiag = clientes.filter(c => c.servicio_contratado === 'Diagnóstico')
-  const clientesTramite = clientes.filter(c => c.servicio_contratado === 'Trámite')
+  // Bateo por tipo de servicio — usa tipo_servicio (campo actual), antes usaba servicio_contratado (campo legado que ya no se llena)
+  const clientesDiag = clientesFiltrados.filter(c => c.tipo_servicio === 'asesoria')
+  const clientesTramite = clientesFiltrados.filter(c => c.tipo_servicio === 'gestion')
   const bateoDiag = clientesDiag.length > 0
     ? (clientesDiag.filter(c => c.etapa_kanban !== 'prospecto').length / clientesDiag.length) * 100 : 0
   const bateoTramite = clientesTramite.length > 0
     ? (clientesTramite.filter(c => ['tramite','cierre'].includes(c.etapa_kanban || '')).length / clientesTramite.length) * 100 : 0
 
-  // ── CYCLE TIME ──
-  const clientesPensionados = clientes.filter(c => c.etapa_kanban === 'cierre' && c.created_at)
+  // ── CYCLE TIME ── Duración firma -> cierre, usando fecha_etapa real del cierre (no "hoy", que seguiria creciendo para clientes ya cerrados)
+  const clientesPensionados = clientesFiltrados.filter(c => c.etapa_kanban === 'cierre' && c.created_at && c.fecha_etapa)
   const cycleTime = clientesPensionados.length > 0
     ? clientesPensionados.reduce((s, c) => {
-        const weeks = (new Date().getTime() - new Date(c.created_at).getTime()) / (7 * 86400000)
-        return s + weeks
+        const weeks = (new Date(c.fecha_etapa).getTime() - new Date(c.created_at).getTime()) / (7 * 86400000)
+        return s + Math.max(0, weeks)
       }, 0) / clientesPensionados.length : 0
 
   // ── PENSIONES LOGRADAS ──
