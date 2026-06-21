@@ -302,37 +302,6 @@ function MiDiaInner() {
 
       <div style={{ padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
 
-        {(() => {
-          const HOY = new Date()
-          const diasDesde = (fecha: string) => Math.floor((HOY.getTime() - new Date(fecha).getTime()) / 86400000)
-          const tramiteEstancado = clientes.filter(c => c.etapa_kanban === 'tramite' && diasDesde(c.fecha_etapa || c.created_at) > 60)
-          const saldoAltoSinPago = clientesFiltrados.filter(c => Math.max(0, (c.monto_acordado || 0) - (c.total_pagado || 0)) >= 5000)
-          const diagSinResultado = diagnosticos.filter(d => d.resultado_e4 == null)
-          const alertas = [
-            tramiteEstancado.length > 0 && { icon: '⏰', texto: `${tramiteEstancado.length} cliente${tramiteEstancado.length !== 1 ? 's' : ''} en trámite con más de 60 días desde su alta sin cerrar`, color: '#ef4444', link: '/clientes' },
-            saldoAltoSinPago.length > 0 && { icon: '💸', texto: `${saldoAltoSinPago.length} cliente${saldoAltoSinPago.length !== 1 ? 's' : ''} con saldo pendiente ≥ ${fmtMXN(5000)}`, color: '#f59e0b', link: '/clientes' },
-            diagSinResultado.length > 0 && { icon: '📋', texto: `${diagSinResultado.length} diagnóstico${diagSinResultado.length !== 1 ? 's' : ''} sin resultado capturado`, color: '#8b5cf6', link: '/clientes' },
-          ].filter(Boolean) as { icon: string; texto: string; color: string; link: string }[]
-          if (alertas.length === 0) return null
-          return (
-            <div style={{ background: '#FFFBEB', border: '1px solid #fde68a', borderRadius: '8px', padding: '10px 14px' }}>
-              <div style={{ fontSize: '11px', fontWeight: '800', color: '#92400e', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '6px' }}>🚨 Necesita tu atención</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                {alertas.map((a, i) => (
-                  <a key={i} href={a.link} style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', padding: '4px 6px', borderRadius: '5px' }}>
-                    <span style={{ fontSize: '13px' }}>{a.icon}</span>
-                    <span style={{ fontSize: '12px', color: '#374151' }}>{a.texto}</span>
-                    <span style={{ marginLeft: 'auto', fontSize: '11px', color: a.color, fontWeight: '600' }}>Ver →</span>
-                  </a>
-                ))}
-              </div>
-              <p style={{ fontSize: '9px', color: '#a16207', marginTop: '6px' }}>
-                "Estancado" se mide desde la fecha del último cambio de etapa. Para clientes movidos antes de este cambio, se usa su fecha de alta como respaldo.
-              </p>
-            </div>
-          )
-        })()}
-
         {/* KPIs row — embudo + financieros, unidos en una sola tira */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '8px' }}>
           {[
@@ -818,56 +787,6 @@ function MiDiaInner() {
                 </>
               )
             })()}
-          </>)}
-        </div>
-
-        {/* ═══ SECCIÓN: PAGOS Y RESUMEN ═══ */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-          <span style={{ fontSize: '12px', fontWeight: '800', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px' }}>📋 Pagos y resumen</span>
-          <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
-
-          {/* Tubería de dinero */}
-          {card(<>
-            {sTitle('💳 Pagos pendientes', `${fmtMXN(porCobrar)} en camino`)}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', marginBottom: '10px' }}>
-              {kpi('Trámites activos', enTramite.length.toString(), 'clientes', NARANJA)}
-              {kpi('Por cobrar', fmtMXN(porCobrar), 'honorarios pend.', '#f59e0b')}
-              {kpi('Cobrado', fmtMXN(ingresosTotal), filtroPeriodo, VERDE)}
-            </div>
-            {enTramite.length === 0 ? (
-              <p style={{ fontSize: '12px', color: '#94a3b8', textAlign: 'center', padding: '8px 0' }}>Sin clientes en trámite activo</p>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px' }}>
-                {enTramite.slice(0, 6).map(c => (
-                  <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 9px', background: '#FAFAFA', borderRadius: '5px', border: '1px solid #f1f5f9', cursor: 'pointer' }}
-                    onClick={() => router.push('/clientes')}>
-                    <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: NARANJA, flexShrink: 0 }} />
-                    <span style={{ flex: 1, fontSize: '11px', color: '#374151', fontWeight: '500', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.nombre}</span>
-                    <span style={{ fontSize: '10px', color: '#94a3b8', flexShrink: 0 }}>{fmtMXN(Math.max(0, (c.monto_acordado||0)-(c.total_pagado||0)))}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </>)}
-
-          {/* Resumen rápido */}
-          {card(<>
-            {sTitle('📋 Resumen')}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-              {[
-                { label: 'Total clientes', val: clientes.length, color: AZUL },
-                { label: 'Diagnósticos total', val: diagnosticos.length, color: '#8b5cf6' },
-                { label: 'Actividades hoy', val: agendaHoy.length, color: NARANJA },
-                { label: 'Completadas hoy', val: agendaHoy.filter(a => a.estatus === 'completado').length, color: VERDE },
-                                              ].map((e, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 8px', borderRadius: '5px', background: i % 2 === 0 ? '#FAFAFA' : 'white' }}>
-                  <span style={{ fontSize: '11px', color: '#64748b' }}>{e.label}</span>
-                  <span style={{ fontSize: '13px', fontWeight: '700', color: e.color }}>{e.val}</span>
-                </div>
-              ))}
-            </div>
           </>)}
         </div>
 
