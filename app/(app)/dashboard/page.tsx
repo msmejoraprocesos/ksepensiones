@@ -538,23 +538,23 @@ function MiDiaInner() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 12px 190px', gap: '12px', alignItems: 'stretch' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '8px' }}>
             {[
-              { label: '$ Servicio promedio', value: fmtMXN(ticketPromedio) },
-              { label: 'Conversión General', value: fmtPct(tasaConversion) },
-              { label: 'Éxitos gestiones', value: fmtPct(tasaExitoGestiones) },
-              { label: 'Bateo Diagnóstico', value: fmtPct(bateoDiag) },
-              { label: 'Bateo Gestoría', value: fmtPct(bateoTramite) },
-              { label: 'Cycle time prom.', value: fmtWeeks(cycleTime) },
-              { label: 'Activos este mes', value: diagMes.length.toString() },
-              { label: 'Promedio Pensión', value: pensionPromedio > 0 ? fmtMXN(pensionPromedio) : '—' },
-              { label: '$ Comisiones', value: fmtMXN(comisionesFinancieras) },
-            ].map((k, i) => kpi(k.label, k.value))}
+              { label: '$ Servicio promedio', value: fmtMXN(ticketPromedio), color: AZUL },
+              { label: 'Conversión General', value: fmtPct(tasaConversion), color: VERDE },
+              { label: 'Éxitos gestiones', value: fmtPct(tasaExitoGestiones), color: VERDE },
+              { label: 'Bateo Diagnóstico', value: fmtPct(bateoDiag), color: '#3b82f6' },
+              { label: 'Bateo Gestoría', value: fmtPct(bateoTramite), color: '#0d9488' },
+              { label: 'Cycle time prom.', value: fmtWeeks(cycleTime), color: '#f59e0b' },
+              { label: 'Activos este mes', value: diagMes.length.toString(), color: '#8b5cf6' },
+              { label: 'Promedio Pensión', value: pensionPromedio > 0 ? fmtMXN(pensionPromedio) : '—', color: AZUL },
+              { label: '$ Comisiones', value: fmtMXN(comisionesFinancieras), color: NARANJA },
+            ].map((k, i) => kpi(k.label, k.value, undefined, k.color))}
           </div>
           <div />
           <div />
         </div>
 
-        {/* Fila inferior: Servicios activos (cruce servicio x etapa) + Rangos de Pensión */}
-        <div style={{ display: 'grid', gridTemplateColumns: '3.4fr 12px 1fr', gap: '12px', alignItems: 'start' }}>
+        {/* Fila inferior: Servicios activos (cruce servicio x etapa) + Rangos de Pensión — alineada al mismo limite que las filas 1, 2 y 3 */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 12px 190px', gap: '12px', alignItems: 'start' }}>
 
           {card(<>
             {sTitle('📦 Servicios activos', 'Por tipo de servicio y etapa')}
