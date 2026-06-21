@@ -323,8 +323,8 @@ function MiDiaInner() {
           </div>
         </div>
 
-        {/* Fila principal: Tendencias | Embudo | Ventas + barra lateral (Agenda / Financieras / Servicios) */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 12px 190px', gap: '12px', alignItems: 'start' }}>
+        {/* Fila principal: Tendencias | Embudo | Ventas + barra lateral (Agenda / Financieras / Servicios) — misma rejilla de 9 columnas que la fila de KPIs para que los bordes alineen exacto */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr) 12px 190px', gap: '8px', alignItems: 'start' }}>
 
           {/* Tendencias de ingresos */}
           {card(<>
@@ -370,7 +370,7 @@ function MiDiaInner() {
                 </>
               )
             })()}
-          </>)}
+          </>, { gridColumn: 'span 3' })}
 
           {/* Embudo de clientes */}
           {card(<>
@@ -399,7 +399,7 @@ function MiDiaInner() {
                 </div>
               )
             })()}
-          </>)}
+          </>, { gridColumn: 'span 3' })}
 
           {/* Ventas — donut */}
           {card(<>
@@ -442,7 +442,7 @@ function MiDiaInner() {
                 </div>
               )
             })()}
-          </>)}
+          </>, { gridColumn: 'span 3' })}
 
           {/* Línea divisoria vertical entre el contenido principal y el sidebar */}
           <div style={{ width: '1px', background: '#cbd5e1', height: '100%', minHeight: '260px', justifySelf: 'center' }} />
