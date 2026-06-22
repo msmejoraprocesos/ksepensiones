@@ -2172,17 +2172,21 @@ function CalculadoraInner() {
               {/* Recomendaciones automáticas */}
               {escenarios.length > 1 && (() => {
                 const sorted = [...escenarios]
-                const mayorPension = sorted.reduce((a, b) => (a.pension ?? 0) > (b.pension ?? 0) ? a : b)
-                const menorCosto = sorted.reduce((a, b) => (a.invTotal ?? 0) < (b.invTotal ?? 0) ? a : b)
-                const mayorRendimiento = sorted.reduce((a, b) => (a.tasaRendimiento ?? 0) > (b.tasaRendimiento ?? 0) ? a : b)
+                const mayorPension = sorted.reduce((a, b) => a.pension_mensual > b.pension_mensual ? a : b)
+                const menorCosto = sorted.reduce((a, b) => a.inversion_total < b.inversion_total ? a : b)
+                const mayorRendimiento = sorted.reduce((a, b) => {
+                  const rA = a.incremento_vs_base > 0 ? a.inversion_total / a.incremento_vs_base : 999
+                  const rB = b.incremento_vs_base > 0 ? b.inversion_total / b.incremento_vs_base : 999
+                  return rA < rB ? a : b
+                })
                 return (
                   <div style={cardSt}>
                     {sectionTitle('Recomendaciones automáticas', 'Hoja "PROYECTO DE PENSIÓN"!B47-B51 del Excel')}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
                       {[
-                        { icon: '🏆', label: 'Mayor Pensión', desc: `Escenario ${escenarios.indexOf(mayorPension) + 1}`, value: fmtMXN(mayorPension.pension ?? 0) + '/mes', color: AZUL },
-                        { icon: '💰', label: 'Menor Costo', desc: `Escenario ${escenarios.indexOf(menorCosto) + 1}`, value: fmtMXN(menorCosto.invTotal ?? 0) + ' total', color: VERDE },
-                        { icon: '📈', label: 'Mejor Inversión', desc: `Escenario ${escenarios.indexOf(mayorRendimiento) + 1}`, value: `${(mayorRendimiento.tasaRendimiento ?? 0).toFixed(2)}% rendimiento`, color: NARANJA },
+                        { icon: '🏆', label: 'Mayor Pensión', desc: `Escenario ${escenarios.indexOf(mayorPension) + 1}`, value: fmtMXN(mayorPension.pension_mensual) + '/mes', color: AZUL },
+                        { icon: '💰', label: 'Menor Costo', desc: `Escenario ${escenarios.indexOf(menorCosto) + 1}`, value: fmtMXN(menorCosto.inversion_total) + ' total', color: VERDE },
+                        { icon: '📈', label: 'Mejor Inversión', desc: `Escenario ${escenarios.indexOf(mayorRendimiento) + 1}`, value: `${mayorRendimiento.roi_meses.toFixed(1)} meses ROI`, color: NARANJA },
                       ].map((r, i) => (
                         <div key={i} style={{ padding: '14px 16px', background: '#f8fafc', borderRadius: '10px', border: `1.5px solid ${r.color}30` }}>
                           <div style={{ fontSize: '20px', marginBottom: '6px' }}>{r.icon}</div>
