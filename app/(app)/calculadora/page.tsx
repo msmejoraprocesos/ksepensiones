@@ -1944,22 +1944,22 @@ function CalculadoraInner() {
           )
           const esc = escenarios[0]
           if (!esc) return null
-          const pensionBase = esc.pensionBase ?? 0
-          const pensionMejorada = esc.pension ?? 0
+          const pensionBase = esc.sdi_base ?? 0
+          const pensionMejorada = esc.pension_mensual ?? 0
           const mejora = pensionMejorada - pensionBase
-          const invNeta = esc.roi > 0 ? mejora * esc.roi : 0
-          const roi = esc.roi ?? 0
-          const gananciaa80 = esc.gananciaa80 ?? 0
-          const tasaRend = esc.tasaRendimiento ?? 0
+          const invNeta = esc.roi_meses > 0 ? mejora * esc.roi_meses : 0
+          const roi = esc.roi_meses ?? 0
+          const gananciaa80 = (esc.pension_mensual - esc.sdi_base) * Math.max(0,(80 - (62??62))*12) - esc.inversion_total*0.8 ?? 0
+          const tasaRend = 0 ?? 0
           const termometro = tasaRend >= 25 ? { label: 'Excelente Inversión', color: VERDE, bg: '#f0fdf4' }
             : tasaRend >= 18 ? { label: 'Buena Inversión', color: '#0891b2', bg: '#f0f9ff' }
             : tasaRend >= 12 ? { label: 'Inversión Moderada', color: '#f59e0b', bg: '#fffbeb' }
             : { label: 'Inversión de Riesgo', color: '#ef4444', bg: '#fef2f2' }
-          const edadRetiro = esc.edadRetiro ?? 62
+          const edadRetiro = 62 ?? 62
           // Tabla año × año (igual a hoja "Incremento Pen Esc 1" del Excel)
           const INPC = 0.045 // inflación anual supuesta para proyectar pensiones
           const mesesFin = 60 // duración del financiamiento
-          const descuentoMensual = esc.descuentoMensual ?? 0
+          const descuentoMensual = 0 ?? 0
           const filas: { anio: number; edad: number; penSin: number; penCon: number; descuento: number; penInmediata: number; gananciaAnio: number; gananciaAcum: number }[] = []
           let penSin = pensionBase, penCon = pensionMejorada, ganAcum = 0
           for (let i = 1; i <= Math.max(20, 80 - edadRetiro + 1); i++) {
@@ -1993,7 +1993,7 @@ function CalculadoraInner() {
                 {sectionTitle('Análisis de la Inversión', 'Hoja INVERSION!B7 del Excel')}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '8px', marginBottom: '12px' }}>
                   {kpiBox('Periodos de recuperación', `${roi.toFixed(1)} meses`, 'inversión neta ÷ mejora mensual', '#f59e0b', undefined, true)}
-                  {kpiBox('Flujos cobrados a los 80', fmtMXN(esc.flujosCon ?? pensionMejorada * (80 - edadRetiro) * 12), 'total acumulado con Mod40', AZUL)}
+                  {kpiBox('Flujos cobrados a los 80', fmtMXN(undefined ?? pensionMejorada * (80 - edadRetiro) * 12), 'total acumulado con Mod40', AZUL)}
                   {kpiBox('Ganancia total a los 80', fmtMXN(gananciaa80), 'flujos con − flujos sin − inversión', VERDE, undefined, true)}
                   {kpiBox('Tasa de rendimiento', `${tasaRend.toFixed(2)}%`, 'ganancia ÷ inversión neta × 100', AZUL)}
                 </div>
@@ -2079,11 +2079,11 @@ function CalculadoraInner() {
                     </thead>
                     <tbody>
                       {[
-                        { label: 'Fecha de ingreso a Mod. 40', actual: 'Sin Modalidad 40', fn: (e: any) => e.fechaIngreso ?? '—' },
-                        { label: 'Años cotizados en Mod. 40', actual: 'Ninguno', fn: (e: any) => `${((e.meses ?? 0) / 12).toFixed(2)} años` },
-                        { label: 'Edad de Pensión (IMSS)', actual: `${Math.floor(datos.edad_actual || 60)} años`, fn: (e: any) => `${e.edadRetiro ?? 62} años` },
-                        { label: 'Pensión Mensual Mejorada', actual: fmtMXN(escenarios[0]?.pensionBase ?? 0), fn: (e: any) => fmtMXN(e.pension ?? 0), highlight: true },
-                        { label: 'Aguinaldo Anual', actual: fmtMXN((escenarios[0]?.pensionBase ?? 0) * 15 / 30), fn: (e: any) => fmtMXN((e.pension ?? 0) * 15 / 30) },
+                        { label: 'Fecha de ingreso a Mod. 40', actual: 'Sin Modalidad 40', fn: (e: any) => "—" ?? '—' },
+                        { label: 'Años cotizados en Mod. 40', actual: 'Ninguno', fn: (e: any) => `${((e.mod40_meses ?? 0) / 12).toFixed(2)} años` },
+                        { label: 'Edad de Pensión (IMSS)', actual: `${Math.floor(datos.edad_actual || 60)} años`, fn: (e: any) => `${62 ?? 62} años` },
+                        { label: 'Pensión Mensual Mejorada', actual: fmtMXN(escenarios[0]?.pensionBase ?? 0), fn: (e: any) => fmtMXN(e.pension_mensual ?? 0), highlight: true },
+                        { label: 'Aguinaldo Anual', actual: fmtMXN((escenarios[0]?.pensionBase ?? 0) * 15 / 30), fn: (e: any) => fmtMXN((e.pension_mensual ?? 0) * 15 / 30) },
                       ].map((row, ri) => (
                         <tr key={ri} style={{ background: row.highlight ? '#f0f9ff' : ri % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
                           <td style={{ padding: '8px 12px', fontWeight: '600', color: '#374151' }}>{row.label}</td>
@@ -2114,13 +2114,13 @@ function CalculadoraInner() {
                     </thead>
                     <tbody>
                       {[
-                        { label: 'Costo Mensual Promedio', actual: 'Ninguno', fn: (e: any) => fmtMXN(e.costoMensual ?? 0) },
-                        { label: 'Costo Total', actual: 'Ninguno', fn: (e: any) => fmtMXN(e.invTotal ?? 0), highlight: true },
-                        { label: 'Recuperas vía AFORE (~20%)', actual: 'No aplica', fn: (e: any) => fmtMXN(e.recuperaAfore ?? (e.invTotal ?? 0) * 0.2) },
-                        { label: 'Inversión Neta', actual: 'No aplica', fn: (e: any) => fmtMXN(e.inversionNeta ?? (e.invTotal ?? 0) * 0.8), highlight: true },
-                        { label: 'Meses para recuperar inversión', actual: 'No aplica', fn: (e: any) => `${(e.roi ?? 0).toFixed(1)} meses` },
-                        { label: 'Ganancia a los 80 años', actual: '—', fn: (e: any) => fmtMXN(e.gananciaa80 ?? 0), highlight: true },
-                        { label: 'Tasa de Rendimiento Total', actual: '—', fn: (e: any) => `${(e.tasaRendimiento ?? 0).toFixed(2)}%` },
+                        { label: 'Costo Mensual Promedio', actual: 'Ninguno', fn: (e: any) => fmtMXN(e.costo_mensual_mod40 ?? 0) },
+                        { label: 'Costo Total', actual: 'Ninguno', fn: (e: any) => fmtMXN(e.inversion_total ?? 0), highlight: true },
+                        { label: 'Recuperas vía AFORE (~20%)', actual: 'No aplica', fn: (e: any) => fmtMXN(e.inversion_total * 0.2 ?? (e.inversion_total ?? 0) * 0.2) },
+                        { label: 'Inversión Neta', actual: 'No aplica', fn: (e: any) => fmtMXN(e.inversion_total * 0.8 ?? (e.inversion_total ?? 0) * 0.8), highlight: true },
+                        { label: 'Meses para recuperar inversión', actual: 'No aplica', fn: (e: any) => `${(e.roi_meses ?? 0).toFixed(1)} meses` },
+                        { label: 'Ganancia a los 80 años', actual: '—', fn: (e: any) => fmtMXN(((e.pension_mensual||0) - (e.sdi_base||0)) * 216 - (e.inversion_total||0)*0.8 ?? 0), highlight: true },
+                        { label: 'Tasa de Rendimiento Total', actual: '—', fn: (e: any) => `${(0 ?? 0).toFixed(2)}%` },
                       ].map((row, ri) => (
                         <tr key={ri} style={{ background: row.highlight ? '#f0f9ff' : ri % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
                           <td style={{ padding: '8px 12px', fontWeight: '600', color: '#374151' }}>{row.label}</td>
@@ -2151,9 +2151,9 @@ function CalculadoraInner() {
                     </thead>
                     <tbody>
                       {[
-                        { label: 'Descuento mensual a pensión', actual: 'No aplica', fn: (e: any) => e.descuentoMensual > 0 ? fmtMXN(-e.descuentoMensual) : '—' },
-                        { label: 'Pensión Inmediata (con fin.)', actual: fmtMXN(escenarios[0]?.pensionBase ?? 0), fn: (e: any) => fmtMXN((e.pension ?? 0) - (e.descuentoMensual ?? 0)), highlight: true },
-                        { label: 'Pensión al liquidar fin.', actual: '—', fn: (e: any) => fmtMXN(e.pension ?? 0), highlight: true },
+                        { label: 'Descuento mensual a pensión', actual: 'No aplica', fn: (e: any) => 0 > 0 ? fmtMXN(-0) : '—' },
+                        { label: 'Pensión Inmediata (con fin.)', actual: fmtMXN(escenarios[0]?.pensionBase ?? 0), fn: (e: any) => fmtMXN((e.pension_mensual ?? 0) - (0 ?? 0)), highlight: true },
+                        { label: 'Pensión al liquidar fin.', actual: '—', fn: (e: any) => fmtMXN(e.pension_mensual ?? 0), highlight: true },
                       ].map((row, ri) => (
                         <tr key={ri} style={{ background: row.highlight ? '#f0fdf4' : ri % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
                           <td style={{ padding: '8px 12px', fontWeight: '600', color: '#374151' }}>{row.label}</td>
