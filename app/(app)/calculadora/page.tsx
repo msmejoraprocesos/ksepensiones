@@ -141,10 +141,12 @@ function buscarCuantiaPorUMA(vecesUMA: number) {
 // cuantía básica, incrementos, asignaciones y pensión mínima garantizada. No hay nota que
 // explique su origen exacto en el archivo, pero se replica tal cual por ser la metodología validada.
 const FACTOR_111 = 1.11
+// Días de aguinaldo (Art. 171 LSS 1973)
+const DIAS_AGUINALDO = 15
 
 // ── FÓRMULAS OFICIALES (Art. 167-171 LSS) — replica fiel del Excel de referencia ──────────
-function calcPensionLey73(semanas: number, sdi: number, edadRetiro: number, sys: SysVars, tieneConyuge: boolean, numHijos: number, numPadres: number, anioRetiro?: number): { monto: number; pmg_aplica: boolean } {
-  if (semanas < 500) return { monto: 0, pmg_aplica: false }
+function calcPensionLey73(semanas: number, sdi: number, edadRetiro: number, sys: SysVars, tieneConyuge: boolean, numHijos: number, numPadres: number, anioRetiro?: number): { monto: number; pmg_aplica: boolean; pensionMensual: number; pensionAnual: number; cuantiaBasicaAnual: number; incrementosAnual: number; asignacionesAnual: number; ayudaAsistencialAnual: number; aguinaldoAnual: number; factorEdad: number; vecesUMA: number; pctBasica: number; pctIncremento: number; numIncrementos: number } {
+  if (semanas < 500) return { monto: 0, pmg_aplica: false, pensionMensual: 0, pensionAnual: 0, cuantiaBasicaAnual: 0, incrementosAnual: 0, asignacionesAnual: 0, ayudaAsistencialAnual: 0, aguinaldoAnual: 0, factorEdad: 0, vecesUMA: 0, pctBasica: 0, pctIncremento: 0, numIncrementos: 0 }
 
   const vecesUMA = sdi / sys.UMA_DIARIA
   const { basica: pctBasica, incremento: pctIncremento } = buscarCuantiaPorUMA(vecesUMA)
@@ -191,7 +193,26 @@ function calcPensionLey73(semanas: number, sdi: number, edadRetiro: number, sys:
   const pmg_aplica = pmgBase > pensionMensual
   const montoFinal = Math.max(pmgBase, pensionMensual)
 
-  return { monto: montoFinal, pmg_aplica }
+  const cuantiaBasicaAnualFinal = cuantiaBasicaAnual * FACTOR_111 * factorEdad
+  const incrementosAnualFinal = incrementosTotalAnual * FACTOR_111 * factorEdad
+  const aguinaldoAnual = montoFinal * DIAS_AGUINALDO / 30
+
+  return {
+    monto: montoFinal,
+    pmg_aplica,
+    pensionMensual: montoFinal,
+    pensionAnual: montoFinal * 12,
+    cuantiaBasicaAnual: cuantiaBasicaAnualFinal,
+    incrementosAnual: incrementosAnualFinal,
+    asignacionesAnual: asignaciones,
+    ayudaAsistencialAnual: ayudaAsistencial,
+    aguinaldoAnual,
+    factorEdad,
+    vecesUMA: sdi / sys.UMA_DIARIA,
+    pctBasica,
+    pctIncremento,
+    numIncrementos
+  }
 }
 
 // Edad exacta desglosada en años, meses, días, horas, minutos y segundos a partir de la fecha de nacimiento
@@ -1588,29 +1609,18 @@ function CalculadoraInner() {
             )}
             {sdiPromedio > 0 && (() => {
               const sem = datos.semanas_totales - datos.semanas_descontadas
-              const { monto: pensionActualAnual, pmg_aplica } = calcPensionLey73(sdiPromedio, sem, datos.edad_actual || 60, datos.edad_actual || 60, sys)
-              const pensionMensual = pensionActualAnual / 12
-              const aguinaldo = pensionMensual * 15 / 30
+              const sem = datos.semanas_totales - datos.semanas_descontadas
+              // Usa la función canónica de formulas.ts para el desglose completo
+              // IMPORTANTE: en tab 3 mostramos la pensión con factor de edad REAL (no ×100%)
+              // La función ya aplica FACTOR_111, factorEdad y PMG correctamente
+              const edadPension = datos.edad_actual || 60
+              const resActual = calcPensionLey73(sem, sdiPromedio, edadPension, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres)
+              const pensionMensual = resActual.pensionMensual
+              const pensionActualAnual = resActual.pensionAnual
+              const aguinaldo = resActual.aguinaldoAnual
               const vecesUMA = sdiPromedio / sys.UMA_DIARIA
               const { basica, incremento } = buscarCuantiaPorUMA(vecesUMA)
-              const cuantiaBasicaAnual = sdiPromedio * basica * 365
-              const incrementosAnual = (() => {
-                const semsBase = 500
-                const semsExtra = Math.max(0, sem - semsBase)
-                const aniosExtra = semsExtra / 52
-                const incr13 = Math.floor(aniosExtra) * (incremento * 365 * sdiPromedio)
-                const fraccion = aniosExtra - Math.floor(aniosExtra)
-                const incrFrac = fraccion >= 13/52 ? (fraccion >= 27/52 ? Math.floor(fraccion / (13/52)) * (incremento * 365 * sdiPromedio / 2) : incremento * 365 * sdiPromedio / 4) : 0
-                return incr13 + incrFrac
-              })()
-              const asigFamiliar = (() => {
-                let total = 0
-                if (datos.conyuge) total += 0.15 * cuantiaBasicaAnual
-                const nhijos = Math.min(datos.num_hijos || 0, datos.conyuge ? 2 : 3)
-                total += nhijos * 0.10 * cuantiaBasicaAnual
-                if (!datos.conyuge && !nhijos && datos.num_padres > 0) total += 0.10 * cuantiaBasicaAnual
-                return total
-              })()
+              const pmg_aplica = resActual.pmg_aplica
               const semanasRestantes = Math.max(0, 500 - sem)
               const mesesDesde = fechaUltimaCot ? Math.floor((Date.now() - new Date(fechaUltimaCot).getTime()) / (30 * 86400000)) : 0
               const cons = calcConservacion(datos.semanas_totales, mesesDesde)
@@ -1631,20 +1641,21 @@ function CalculadoraInner() {
                 <div style={cardSt}>
                   {sectionTitle('Diagnóstico de Pensión Actual (sin Modalidad 40)', `Salario promedio: ${fmtMXN2(sdiPromedio)} | ${sem.toFixed(0)} semanas | ${vecesUMA.toFixed(2)} veces UMA`)}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', marginBottom: '14px' }}>
-                    {kpiBox('Cuantía básica anual', fmtMXN(cuantiaBasicaAnual), `${(basica * 100).toFixed(1)}% × SDI × 365`, AZUL, true)}
-                    {kpiBox('Incrementos anuales', fmtMXN(incrementosAnual), `${(incremento * 100).toFixed(2)}% por año extra >500 sem`, '#3b82f6', true)}
-                    {kpiBox('Asignaciones familiares', fmtMXN(asigFamiliar), datos.conyuge ? 'Cónyuge + hijos' : datos.num_hijos > 0 ? `${datos.num_hijos} hijo(s)` : 'Sin dependientes', '#0d9488', true)}
-                    {kpiBox('Pensión anual (100% vejez)', fmtMXN(cuantiaBasicaAnual + incrementosAnual + asigFamiliar), 'antes del factor de edad', AZUL)}
+                    {kpiBox('Cuantía básica anual', fmtMXN(resActual.cuantiaBasicaAnual), `${(basica * 100).toFixed(1)}% × SDI × 365 × ×1.11 × ${(resActual.factorEdad * 100).toFixed(0)}%`, AZUL, true)}
+                    {kpiBox('Incrementos anuales', fmtMXN(resActual.incrementosAnual), `${resActual.numIncrementos.toFixed(1)} incrementos × ${(incremento * 100).toFixed(4)}%`, '#3b82f6', true)}
+                    {kpiBox('Asignaciones familiares', fmtMXN(resActual.asignacionesAnual), datos.tiene_conyuge ? 'Cónyuge + hijos' : datos.num_hijos > 0 ? `${datos.num_hijos} hijo(s)` : 'Sin dependientes', '#0d9488', true)}
+                    {resActual.ayudaAsistencialAnual > 0 && kpiBox('Ayuda asistencial', fmtMXN(resActual.ayudaAsistencialAnual), 'Sin beneficiarios (Art. 165 LSS)', '#8b5cf6', true)}
+                    {kpiBox('Pensión total anual', fmtMXN(pensionActualAnual), 'cuantía + incrementos + asignaciones', AZUL)}
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', marginBottom: '14px' }}>
-                    {kpiBox('Factor de edad (60 años)', '75%', 'Cesantía en edad avanzada', '#f59e0b')}
-                    {pmg_aplica && kpiBox('🛡️ PMG aplica', fmtMXN(sys.PENSION_MIN_GARANTIZADA / 12) + '/mes', 'La PMG es mayor a la calculada', VERDE, true)}
-                    {kpiBox('Pensión mensual actual', fmtMXN(pensionMensual), 'con factor 75%', VERDE, true)}
-                    {kpiBox('Pensión anual actual', fmtMXN(pensionActualAnual / 1), 'total anual', VERDE)}
-                    {kpiBox('Aguinaldo anual', fmtMXN(aguinaldo), '15 días de pensión (IMSS)', '#8b5cf6')}
+                    {kpiBox('Factor de edad', `${(resActual.factorEdad * 100).toFixed(0)}%`, `${edadPension.toFixed(0)} años — Art. 167 LSS`, '#f59e0b')}
+                    {pmg_aplica && kpiBox('🛡️ PMG aplica', fmtMXN(sys.PMG_L73) + '/mes', 'La PMG es mayor a la calculada', VERDE, true)}
+                    {kpiBox('Pensión mensual', fmtMXN(pensionMensual), 'monto final (con PMG si aplica)', VERDE, true)}
+                    {kpiBox('Pensión anual', fmtMXN(pensionActualAnual), 'total anual', VERDE)}
+                    {kpiBox('Aguinaldo anual', fmtMXN(aguinaldo), '15 días de pensión (Art. 171 LSS)', '#8b5cf6')}
                   </div>
                   <div style={{ padding: '10px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', fontSize: '11px', color: '#166534' }}>
-                    💡 Esta es la pensión que recibiría el cliente hoy si se pensionara sin hacer ningún trámite adicional. Sirve como línea base para comparar contra los escenarios con Modalidad 40.
+                    💡 Esta es la pensión que recibiría el cliente hoy si se pensionara sin Modalidad 40. Es la línea base para comparar los escenarios.
                   </div>
                 </div>
               </>)
