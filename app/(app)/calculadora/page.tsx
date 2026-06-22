@@ -1640,16 +1640,16 @@ function CalculadoraInner() {
                 <div style={cardSt}>
                   {sectionTitle('Diagnóstico de Pensión Actual (sin Modalidad 40)', `Salario promedio: ${fmtMXN2(sdiPromedio)} | ${sem.toFixed(0)} semanas | ${vecesUMA.toFixed(2)} veces UMA`)}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', marginBottom: '14px' }}>
-                    {kpiBox('Cuantía básica anual', fmtMXN(resActual.cuantiaBasicaAnual), `${(basica * 100).toFixed(1)}% × SDI × 365 × ×1.11 × ${(resActual.factorEdad * 100).toFixed(0)}%`, AZUL, true)}
-                    {kpiBox('Incrementos anuales', fmtMXN(resActual.incrementosAnual), `${resActual.numIncrementos.toFixed(1)} incrementos × ${(incremento * 100).toFixed(4)}%`, '#3b82f6', true)}
-                    {kpiBox('Asignaciones familiares', fmtMXN(resActual.asignacionesAnual), datos.tiene_conyuge ? 'Cónyuge + hijos' : datos.num_hijos > 0 ? `${datos.num_hijos} hijo(s)` : 'Sin dependientes', '#0d9488', true)}
-                    {resActual.ayudaAsistencialAnual > 0 && kpiBox('Ayuda asistencial', fmtMXN(resActual.ayudaAsistencialAnual), 'Sin beneficiarios (Art. 165 LSS)', '#8b5cf6', true)}
+                    {kpiBox('Cuantía básica anual', fmtMXN(resActual.cuantiaBasicaAnual), `${(basica * 100).toFixed(1)}% × SDI × 365 × ×1.11 × ${(resActual.factorEdad * 100).toFixed(0)}%`, AZUL, undefined, true)}
+                    {kpiBox('Incrementos anuales', fmtMXN(resActual.incrementosAnual), `${resActual.numIncrementos.toFixed(1)} incrementos × ${(incremento * 100).toFixed(4)}%`, '#3b82f6', undefined, true)}
+                    {kpiBox('Asignaciones familiares', fmtMXN(resActual.asignacionesAnual), datos.tiene_conyuge ? 'Cónyuge + hijos' : datos.num_hijos > 0 ? `${datos.num_hijos} hijo(s)` : 'Sin dependientes', '#0d9488', undefined, true)}
+                    {resActual.ayudaAsistencialAnual > 0 && kpiBox('Ayuda asistencial', fmtMXN(resActual.ayudaAsistencialAnual), 'Sin beneficiarios (Art. 165 LSS)', '#8b5cf6', undefined, true)}
                     {kpiBox('Pensión total anual', fmtMXN(pensionActualAnual), 'cuantía + incrementos + asignaciones', AZUL)}
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', marginBottom: '14px' }}>
                     {kpiBox('Factor de edad', `${(resActual.factorEdad * 100).toFixed(0)}%`, `${edadPension.toFixed(0)} años — Art. 167 LSS`, '#f59e0b')}
-                    {pmg_aplica && kpiBox('🛡️ PMG aplica', fmtMXN(sys.PMG_L73) + '/mes', 'La PMG es mayor a la calculada', VERDE, true)}
-                    {kpiBox('Pensión mensual', fmtMXN(pensionMensual), 'monto final (con PMG si aplica)', VERDE, true)}
+                    {pmg_aplica && kpiBox('🛡️ PMG aplica', fmtMXN(sys.PMG_L73) + '/mes', 'La PMG es mayor a la calculada', VERDE, undefined, true)}
+                    {kpiBox('Pensión mensual', fmtMXN(pensionMensual), 'monto final (con PMG si aplica)', VERDE, undefined, true)}
                     {kpiBox('Pensión anual', fmtMXN(pensionActualAnual), 'total anual', VERDE)}
                     {kpiBox('Aguinaldo anual', fmtMXN(aguinaldo), '15 días de pensión (Art. 171 LSS)', '#8b5cf6')}
                   </div>
