@@ -2080,11 +2080,11 @@ function CalculadoraInner() {
                     </thead>
                     <tbody>
                       {[
-                        { label: 'Fecha de ingreso a Mod. 40', actual: 'Sin Modalidad 40', fn: (e: any) => "—" ?? '—' },
+                        { label: 'Fecha de ingreso a Mod. 40', actual: 'Sin Modalidad 40', fn: (e: any) => "—" },
                         { label: 'Años cotizados en Mod. 40', actual: 'Ninguno', fn: (e: any) => `${((e.mod40_meses ?? 0) / 12).toFixed(2)} años` },
                         { label: 'Edad de Pensión (IMSS)', actual: `${Math.floor(datos.edad_actual || 60)} años`, fn: (e: any) => `62 años` },
-                        { label: 'Pensión Mensual Mejorada', actual: fmtMXN(escenarios[0]?.pensionBase ?? 0), fn: (e: any) => fmtMXN(e.pension_mensual ?? 0), highlight: true },
-                        { label: 'Aguinaldo Anual', actual: fmtMXN((escenarios[0]?.pensionBase ?? 0) * 15 / 30), fn: (e: any) => fmtMXN((e.pension_mensual ?? 0) * 15 / 30) },
+                        { label: 'Pensión Mensual Mejorada', actual: fmtMXN(escenarios[0]?.sdi_base ?? 0), fn: (e: any) => fmtMXN(e.pension_mensual ?? 0), highlight: true },
+                        { label: 'Aguinaldo Anual', actual: fmtMXN((escenarios[0]?.sdi_base ?? 0) * 15 / 30), fn: (e: any) => fmtMXN((e.pension_mensual ?? 0) * 15 / 30) },
                       ].map((row, ri) => (
                         <tr key={ri} style={{ background: row.highlight ? '#f0f9ff' : ri % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
                           <td style={{ padding: '8px 12px', fontWeight: '600', color: '#374151' }}>{row.label}</td>
@@ -2153,7 +2153,7 @@ function CalculadoraInner() {
                     <tbody>
                       {[
                         { label: 'Descuento mensual a pensión', actual: 'No aplica', fn: (e: any) => 0 > 0 ? fmtMXN(-0) : '—' },
-                        { label: 'Pensión Inmediata (con fin.)', actual: fmtMXN(escenarios[0]?.pensionBase ?? 0), fn: (e: any) => fmtMXN((e.pension_mensual ?? 0) - (0)), highlight: true },
+                        { label: 'Pensión Inmediata (con fin.)', actual: fmtMXN(escenarios[0]?.sdi_base ?? 0), fn: (e: any) => fmtMXN((e.pension_mensual ?? 0) - (0)), highlight: true },
                         { label: 'Pensión al liquidar fin.', actual: '—', fn: (e: any) => fmtMXN(e.pension_mensual ?? 0), highlight: true },
                       ].map((row, ri) => (
                         <tr key={ri} style={{ background: row.highlight ? '#f0fdf4' : ri % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
