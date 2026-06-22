@@ -14,7 +14,7 @@
  */
 
 import { Suspense, useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 import {
   TABLA_CUANTIA_UMA, FACTOR_EDAD_RETIRO, ASIGNACIONES,
