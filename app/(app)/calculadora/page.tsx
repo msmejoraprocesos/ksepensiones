@@ -1994,7 +1994,7 @@ function CalculadoraInner() {
                 {sectionTitle('Análisis de la Inversión', 'Hoja INVERSION!B7 del Excel')}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '8px', marginBottom: '12px' }}>
                   {kpiBox('Periodos de recuperación', `${roi.toFixed(1)} meses`, 'inversión neta ÷ mejora mensual', '#f59e0b', undefined, true)}
-                  {kpiBox('Flujos cobrados a los 80', fmtMXN(undefined ?? pensionMejorada * (80 - edadRetiro) * 12), 'total acumulado con Mod40', AZUL)}
+                  {kpiBox('Flujos cobrados a los 80', fmtMXN(pensionMejorada * mesesHasta80), 'total acumulado con Mod40', AZUL)}
                   {kpiBox('Ganancia total a los 80', fmtMXN(gananciaa80), 'flujos con − flujos sin − inversión', VERDE, undefined, true)}
                   {kpiBox('Tasa de rendimiento', `${tasaRend.toFixed(2)}%`, 'ganancia ÷ inversión neta × 100', AZUL)}
                 </div>
