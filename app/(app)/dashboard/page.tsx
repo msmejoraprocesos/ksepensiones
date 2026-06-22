@@ -266,6 +266,23 @@ function MiDiaInner() {
 
   return (
     <div style={{ height: 'calc(100vh - 48px)', overflow: 'auto', background: '#FAFAFA' }}>
+      <style>{`
+        .db-outer { display: grid; grid-template-columns: 1fr 12px 190px; gap: 12px; align-items: stretch; }
+        .db-kpis  { display: grid; grid-template-columns: repeat(9, 1fr); gap: 8px; }
+        .db-charts{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; align-items: stretch; }
+        .db-bottom{ display: grid; grid-template-columns: 1fr 12px 320px; gap: 12px; align-items: start; }
+        @media (max-width: 1100px) {
+          .db-outer  { grid-template-columns: 1fr; }
+          .db-kpis   { grid-template-columns: repeat(3, 1fr); }
+          .db-charts { grid-template-columns: 1fr; }
+          .db-bottom { grid-template-columns: 1fr; }
+          .db-sidebar{ display: none; }
+          .db-divider{ display: none; }
+        }
+        @media (max-width: 700px) {
+          .db-kpis   { grid-template-columns: repeat(2, 1fr); }
+        }
+      `}</style>
       {/* Header */}
       <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '10px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
         <div>
@@ -303,13 +320,13 @@ function MiDiaInner() {
       <div style={{ padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
 
         {/* Layout general: contenido principal (todas las filas apiladas) | divisor | barra lateral continua de extremo a extremo */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 12px 190px', gap: '12px', alignItems: 'stretch' }}>
+        <div className="db-outer" style={{ display: 'grid', gridTemplateColumns: '1fr 12px 190px', gap: '12px', alignItems: 'stretch' }}>
 
           {/* Columna principal: las 4 filas de contenido, apiladas */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
 
             {/* Fila 1: KPIs */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '8px' }}>
+            <div className="db-kpis" style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '8px' }}>
               {[
                 { label: 'Clientes activos', value: clientesActivos.length.toString(), sub: 'en pipeline', color: AZUL },
                 { label: 'Prospectos', value: prospectos.length.toString(), sub: `+${clientesNuevosPeriodo} en el periodo`, color: AZUL, filled: true, delta: deltaClientesNuevos },
@@ -324,7 +341,7 @@ function MiDiaInner() {
             </div>
 
             {/* Fila 2: Tendencias | Embudo | Ventas */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', alignItems: 'stretch' }}>
+            <div className="db-charts" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', alignItems: 'stretch' }}>
 
               {/* Tendencias de ingresos */}
               {card(<>
@@ -472,7 +489,7 @@ function MiDiaInner() {
             </div>
 
             {/* Fila 3: KPIs */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '8px' }}>
+            <div className="db-kpis" style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '8px' }}>
               {[
                 { label: '$ Servicio promedio', value: fmtMXN(ticketPromedio), color: AZUL },
                 { label: 'Conversión General', value: fmtPct(tasaConversion), color: VERDE },
@@ -487,7 +504,7 @@ function MiDiaInner() {
             </div>
 
             {/* Fila 4: Servicios activos | Rangos de Pensión */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 12px 320px', gap: '12px', alignItems: 'start' }}>
+            <div className="db-bottom" style={{ display: 'grid', gridTemplateColumns: '1fr 12px 320px', gap: '12px', alignItems: 'start' }}>
 
               {card(<>
                 {sTitle('📦 Servicios activos', 'Por tipo de servicio y etapa')}
@@ -576,9 +593,10 @@ function MiDiaInner() {
           </div>
 
           {/* Divisor vertical continuo, a lo largo de las 4 filas */}
-          <div style={{ width: '1px', background: '#1e40af' }} />
+          <div className="db-divider" style={{ width: '1px', background: '#1e40af' }} />
 
           {/* Barra lateral: Agenda + Financieras + Servicios (Ley) — un solo panel continuo, 3 secciones de tamaño fijo (1/3 cada una) */}
+          <div className="db-sidebar">
           {card(
             <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
 
@@ -654,6 +672,7 @@ function MiDiaInner() {
               </p>
             </div>
           )}
+          </div>
         </div>
 
       </div>
