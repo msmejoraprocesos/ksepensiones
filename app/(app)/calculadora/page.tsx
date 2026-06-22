@@ -2573,7 +2573,7 @@ function CalculadoraInner() {
                     </tr>
                   </thead>
                   <tbody>
-                    {periodosCompletos.map((p: any, i: number) => {
+                    {[...periodosCompletos].reverse().map((p: any, i: number) => {
                       const enUltimas250 = periodos.some(pp => pp.fecha_fin === p.fecha_fin && pp.sdi === p.sdi)
                       return (
                         <tr key={i} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #f1f5f9' }}>
