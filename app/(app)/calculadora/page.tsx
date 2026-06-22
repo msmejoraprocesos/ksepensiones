@@ -332,7 +332,7 @@ function CalculadoraInner() {
 
   // Tab state
   const [tab, setTab] = useState(0)
-  const TABS = ['Datos generales','Salario 250 sem.','Conservación','Modalidad 40','Modalidad 10','Escenarios','Resumen']
+  const TABS = ['Datos generales','Salario 250 sem.','Pensión actual','Modalidad 40','Inversión','Financiamiento','Resumen / Proyecto']
 
   // Tab 1 state
   const [datos, setDatos] = useState<DatosGenerales>(DEFAULT_DATOS)
@@ -1576,127 +1576,80 @@ function CalculadoraInner() {
           </div>
         )}
 
-        {/* ══ TAB 3: CONSERVACIÓN DE DERECHOS ════════════════════ */}
+        {/* ══ TAB 3: PENSIÓN ACTUAL (sin Mod 40) ══════════════════ */}
         {tab === 2 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            {datos.semanas_totales === 0 && (
-              <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94a3b8', fontSize: '13px' }}>
+            {sdiPromedio <= 0 && (
+              <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94a3b8' }}>
                 <div style={{ fontSize: '32px', marginBottom: '10px' }}>📋</div>
-                <p style={{ margin: '0 0 14px' }}>Carga primero la constancia IMSS en la pestaña <strong>Datos generales</strong> para calcular la conservación de derechos.</p>
+                <p style={{ margin: '0 0 14px' }}>Carga la constancia IMSS en <strong>Datos generales</strong> para calcular la pensión actual.</p>
                 <button onClick={() => setTab(0)} className="btn-primary" style={{ ...btnPrimary, fontSize: '12px' }}>← Ir a Datos generales</button>
               </div>
             )}
-            {datos.semanas_totales > 0 && <>
-            <div style={{ padding: '12px 16px', background: '#EEF2F8', border: '1px solid #bfdbfe', borderRadius: '10px', fontSize: '12px', color: AZUL, lineHeight: 1.6 }}>
-              <strong>Art. 182 Ley del Seguro Social 1973:</strong> Cuando un trabajador deja de cotizar, sus derechos pensionarios se conservan por un período proporcional. Es crítico saber si el cliente puede iniciar el trámite ahora o si ya perdió sus derechos.
-            </div>
-
-            {guiaCampos(true)}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
-              <div style={cardSt}>
-                <label style={labelSt}>⚡ Fecha de última cotización</label>
-                <input type="date" style={autoInputSt} value={fechaUltimaCot} onChange={e => setFechaUltimaCot(e.target.value)} />
-              </div>
-              <div style={cardSt}>
-                <label style={labelSt}>⚡ Semanas cotizadas totales</label>
-                <input type="number" style={autoNumInputSt} value={datos.semanas_totales || ''} readOnly />
-              </div>
-            </div>
-
-            {(() => {
+            {sdiPromedio > 0 && (() => {
+              const sem = datos.semanas_totales - datos.semanas_descontadas
+              const { monto: pensionActualAnual, pmg_aplica } = calcPensionLey73(sdiPromedio, sem, datos.edad_actual || 60, datos.edad_actual || 60, sys)
+              const pensionMensual = pensionActualAnual / 12
+              const aguinaldo = pensionMensual * 15 / 30
+              const vecesUMA = sdiPromedio / sys.UMA_DIARIA
+              const { basica, incremento } = buscarCuantiaPorUMA(vecesUMA)
+              const cuantiaBasicaAnual = sdiPromedio * basica * 365
+              const incrementosAnual = (() => {
+                const semsBase = 500
+                const semsExtra = Math.max(0, sem - semsBase)
+                const aniosExtra = semsExtra / 52
+                const incr13 = Math.floor(aniosExtra) * (incremento * 365 * sdiPromedio)
+                const fraccion = aniosExtra - Math.floor(aniosExtra)
+                const incrFrac = fraccion >= 13/52 ? (fraccion >= 27/52 ? Math.floor(fraccion / (13/52)) * (incremento * 365 * sdiPromedio / 2) : incremento * 365 * sdiPromedio / 4) : 0
+                return incr13 + incrFrac
+              })()
+              const asigFamiliar = (() => {
+                let total = 0
+                if (datos.conyuge) total += 0.15 * cuantiaBasicaAnual
+                const nhijos = Math.min(datos.num_hijos || 0, datos.conyuge ? 2 : 3)
+                total += nhijos * 0.10 * cuantiaBasicaAnual
+                if (!datos.conyuge && !nhijos && datos.num_padres > 0) total += 0.10 * cuantiaBasicaAnual
+                return total
+              })()
+              const semanasRestantes = Math.max(0, 500 - sem)
               const mesesDesde = fechaUltimaCot ? Math.floor((Date.now() - new Date(fechaUltimaCot).getTime()) / (30 * 86400000)) : 0
               const cons = calcConservacion(datos.semanas_totales, mesesDesde)
-              const color = cons.vigente ? VERDE : '#ef4444'
-              return (
-                <div style={{ ...cardSt, borderLeft: `3px solid ${color}` }}>
-                  {sectionTitle('Estado de conservación de derechos')}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', marginBottom: '14px' }}>
-                    {kpiBox('Estado', cons.vigente ? 'Vigente' : 'Vencido', cons.venceEn ? `${cons.venceEn} meses restantes (${cons.semanasConservacion} sem de conservación)` : 'Período vencido', color, undefined, true)}
-                    {kpiBox('Semanas cotizadas', datos.semanas_totales.toLocaleString(), 'total histórico', datos.semanas_totales >= 500 ? VERDE : '#f59e0b')}
-                    {kpiBox('Plazo de conservación', cons.indefinida ? 'Indefinido' : cons.venceEn !== null ? `${cons.venceEn} meses` : 'Sin conservación', cons.semanasConservacion ? `${cons.semanasConservacion} semanas = semanas ÷ 4` : 'Art. 183 LSS')}
-                    {kpiBox('Meses desde última cot.', mesesDesde.toString(), fechaUltimaCot ? new Date(fechaUltimaCot).toLocaleDateString('es-MX', { month: 'short', year: 'numeric' }) : '—')}
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    {semaforo(cons.vigente, cons.indefinida ? 'Derechos conservados indefinidamente — puede tramitar en cualquier momento' : cons.vigente ? `Derechos vigentes — le quedan ${cons.venceEn} meses para iniciar el trámite` : 'Derechos vencidos — no puede pensionarse bajo este régimen')}
-                    {semaforo(datos.semanas_totales >= 500, datos.semanas_totales >= 500 ? 'Cumple semanas mínimas (500)' : `Faltan ${Math.max(0, 500 - datos.semanas_totales)} semanas`)}
+              return (<>
+                {/* Bloque conservación de derechos */}
+                <div style={{ ...cardSt, borderLeft: `3px solid ${cons.vigente ? VERDE : '#ef4444'}` }}>
+                  {sectionTitle('Estado de derechos')}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px' }}>
+                    {kpiBox('Estado', cons.vigente ? 'Vigente' : 'Vencido', cons.venceEn ? `${cons.venceEn} meses restantes` : 'Período vencido', cons.vigente ? VERDE : '#ef4444', undefined, true)}
+                    {kpiBox('Semanas cotizadas', sem.toLocaleString(), 'netas', sem >= 500 ? VERDE : '#f59e0b')}
+                    {kpiBox('Semanas restantes', semanasRestantes === 0 ? '✓ 0' : semanasRestantes.toString(), semanasRestantes === 0 ? 'Ya cumplió las 500' : 'para llegar a 500', semanasRestantes === 0 ? VERDE : '#ef4444')}
+                    {kpiBox('Edad actual', `${(datos.edad_actual || 0).toFixed(1)} años`, 'Pensión mínima a los 60', AZUL)}
+                    {kpiBox('Años para pensión', Math.max(0, 60 - (datos.edad_actual || 0)).toFixed(1), 'sin Mod 40', '#8b5cf6')}
                   </div>
                 </div>
-              )
-            })()}
 
-            {/* ── NIVEL 1: Estimación rápida ── */}
-            <div style={cardSt}>
-              {sectionTitle('Nivel 1 — Estimación rápida (Art. 183 LSS 1973)')}
-              <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 10px', lineHeight: 1.7 }}>
-                La conservación de derechos equivale a <strong>la cuarta parte (÷ 4) del total de semanas cotizadas</strong>, contada a partir de la última baja. Con {datos.semanas_totales} semanas cotizadas, el período de conservación estimado es de <strong>{Math.round(datos.semanas_totales / 4)} semanas (~{(Math.round(datos.semanas_totales / 4) / 4.33 / 12).toFixed(1)} años)</strong>.
-              </p>
-              <div style={{ padding: '8px 14px', background: '#F4F6FB', borderRadius: '8px', fontFamily: 'monospace', fontSize: '13px', color: '#374151' }}>
-                {datos.semanas_totales} semanas ÷ 4 = {Math.round(datos.semanas_totales / 4)} semanas de conservación
-              </div>
-              <p style={{ fontSize: '10px', color: '#94a3b8', margin: '8px 0 0', lineHeight: 1.6 }}>
-                ⚠️ Estimación basada en Art. 183 LSS. El resultado definitivo está sujeto a validación con el historial oficial del IMSS.
-              </p>
-            </div>
-
-            {/* ── NIVEL 2: Recuperación de derechos (Arts. 150, 151 y 152) ── */}
-            {(() => {
-              const mesesDesde = fechaUltimaCot ? Math.floor((Date.now() - new Date(fechaUltimaCot).getTime()) / (30 * 86400000)) : 0
-              const aniosSinCotizan = mesesDesde / 12
-              let recuperacion: { tipo: string; color: string; bg: string; descripcion: string; accion: string }
-              if (mesesDesde === 0) {
-                recuperacion = { tipo: 'Cotizando actualmente', color: VERDE, bg: '#f0fdf4', descripcion: 'El trabajador sigue activo. No aplica recuperación.', accion: '' }
-              } else if (aniosSinCotizan <= 3) {
-                recuperacion = { tipo: '≤ 3 años sin cotizar', color: VERDE, bg: '#f0fdf4', descripcion: 'Las semanas anteriores se reconocen de inmediato al reingresar.', accion: 'No requiere semanas adicionales para el reconocimiento (Art. 151 LSS).' }
-              } else if (aniosSinCotizan <= 6) {
-                recuperacion = { tipo: 'Entre 3 y 6 años sin cotizar', color: '#f59e0b', bg: '#fffbeb', descripcion: 'Para que el IMSS reconozca las semanas anteriores, el trabajador debe cotizar 26 semanas nuevas.', accion: 'Acción recomendada: cotizar 26 semanas (~6 meses) para recuperar el reconocimiento (Art. 151 LSS).' }
-              } else {
-                recuperacion = { tipo: 'Más de 6 años sin cotizar', color: '#ef4444', bg: '#fef2f2', descripcion: 'Para que el IMSS reconozca las semanas anteriores, el trabajador debe cotizar 52 semanas nuevas.', accion: 'Acción recomendada: cotizar 52 semanas (~12 meses) para recuperar el reconocimiento (Art. 151 LSS). Considerar Modalidad 10 primero, luego Modalidad 40.' }
-              }
-              return (
+                {/* Desglose pensión actual — igual que PENSIÓN ACTUAL del Excel */}
                 <div style={cardSt}>
-                  {sectionTitle('Nivel 2 — Recuperación de derechos (Arts. 150, 151 y 152 LSS)')}
-                  <div style={{ padding: '14px 16px', background: recuperacion.bg, borderRadius: '10px', border: `1px solid ${recuperacion.color}30`, marginBottom: '12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                      <span style={{ fontSize: '11px', fontWeight: '700', padding: '2px 10px', borderRadius: '10px', background: `${recuperacion.color}20`, color: recuperacion.color }}>{recuperacion.tipo}</span>
-                      <span style={{ fontSize: '12px', color: '#64748b' }}>{mesesDesde > 0 ? `${mesesDesde} meses sin cotizar` : ''}</span>
-                    </div>
-                    <p style={{ fontSize: '13px', color: '#374151', margin: '0 0 6px', lineHeight: 1.7 }}>{recuperacion.descripcion}</p>
-                    {recuperacion.accion && <p style={{ fontSize: '12px', color: recuperacion.color, fontWeight: '600', margin: 0, lineHeight: 1.6 }}>{recuperacion.accion}</p>}
+                  {sectionTitle('Diagnóstico de Pensión Actual (sin Modalidad 40)', `Salario promedio: ${fmtMXN2(sdiPromedio)} | ${sem.toFixed(0)} semanas | ${vecesUMA.toFixed(2)} veces UMA`)}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', marginBottom: '14px' }}>
+                    {kpiBox('Cuantía básica anual', fmtMXN(cuantiaBasicaAnual), `${(basica * 100).toFixed(1)}% × SDI × 365`, AZUL, true)}
+                    {kpiBox('Incrementos anuales', fmtMXN(incrementosAnual), `${(incremento * 100).toFixed(2)}% por año extra >500 sem`, '#3b82f6', true)}
+                    {kpiBox('Asignaciones familiares', fmtMXN(asigFamiliar), datos.conyuge ? 'Cónyuge + hijos' : datos.num_hijos > 0 ? `${datos.num_hijos} hijo(s)` : 'Sin dependientes', '#0d9488', true)}
+                    {kpiBox('Pensión anual (100% vejez)', fmtMXN(cuantiaBasicaAnual + incrementosAnual + asigFamiliar), 'antes del factor de edad', AZUL)}
                   </div>
-                  <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-                      <thead>
-                        <tr style={{ background: '#F4F6FB' }}>
-                          {['Tiempo sin cotizar','Requisito para recuperar reconocimiento','Art. LSS'].map((h, i) => (
-                            <th key={i} style={{ padding: '7px 12px', textAlign: 'left', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[
-                          ['Hasta 3 años', 'Reconocimiento inmediato al reingresar', 'Art. 150', aniosSinCotizan <= 3 ? VERDE : '#94a3b8'],
-                          ['3 a 6 años', '26 semanas nuevas de cotización (~6 meses)', 'Art. 151', aniosSinCotizan > 3 && aniosSinCotizan <= 6 ? '#f59e0b' : '#94a3b8'],
-                          ['Más de 6 años', '52 semanas nuevas de cotización (~12 meses)', 'Art. 152', aniosSinCotizan > 6 ? '#ef4444' : '#94a3b8'],
-                        ].map(([tiempo, requisito, art, color], i) => (
-                          <tr key={i} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #f1f5f9' }}>
-                            <td style={{ padding: '8px 12px', fontWeight: '600', color }}>{tiempo}</td>
-                            <td style={{ padding: '8px 12px', color: '#374151' }}>{requisito}</td>
-                            <td style={{ padding: '8px 12px', color: '#64748b', fontSize: '11px' }}>{art}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', marginBottom: '14px' }}>
+                    {kpiBox('Factor de edad (60 años)', '75%', 'Cesantía en edad avanzada', '#f59e0b')}
+                    {pmg_aplica && kpiBox('🛡️ PMG aplica', fmtMXN(sys.PENSION_MIN_GARANTIZADA / 12) + '/mes', 'La PMG es mayor a la calculada', VERDE, true)}
+                    {kpiBox('Pensión mensual actual', fmtMXN(pensionMensual), 'con factor 75%', VERDE, true)}
+                    {kpiBox('Pensión anual actual', fmtMXN(pensionActualAnual / 1), 'total anual', VERDE)}
+                    {kpiBox('Aguinaldo anual', fmtMXN(aguinaldo), '15 días de pensión (IMSS)', '#8b5cf6')}
                   </div>
-                  <p style={{ fontSize: '10px', color: '#94a3b8', margin: '8px 0 0', lineHeight: 1.6 }}>
-                    Nota: Las semanas cotizadas nunca desaparecen. Lo que se regula es su reconocimiento formal al reingresar. Para casos con duplicidad de NSS o semanas no reconocidas, se requiere trámite de aclaración en la subdelegación IMSS correspondiente.
-                  </p>
+                  <div style={{ padding: '10px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', fontSize: '11px', color: '#166534' }}>
+                    💡 Esta es la pensión que recibiría el cliente hoy si se pensionara sin hacer ningún trámite adicional. Sirve como línea base para comparar contra los escenarios con Modalidad 40.
+                  </div>
                 </div>
-              )
+              </>)
             })()}
-
             {navButtons(() => setTab(1), () => setTab(3), 'Siguiente: Modalidad 40 →')}
-            </>}
-
           </div>
         )}
 
@@ -2573,7 +2526,11 @@ function CalculadoraInner() {
                     </tr>
                   </thead>
                   <tbody>
-                    {[...periodosCompletos].reverse().map((p: any, i: number) => {
+                    {[...periodosCompletos].sort((a: any, b: any) => {
+                      if (!a.fecha_inicio) return 1
+                      if (!b.fecha_inicio) return -1
+                      return new Date(a.fecha_inicio).getTime() - new Date(b.fecha_inicio).getTime()
+                    }).map((p: any, i: number) => {
                       const enUltimas250 = periodos.some(pp => pp.fecha_fin === p.fecha_fin && pp.sdi === p.sdi)
                       return (
                         <tr key={i} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #f1f5f9' }}>
