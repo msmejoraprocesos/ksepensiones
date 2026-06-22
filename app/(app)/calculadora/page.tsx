@@ -1942,7 +1942,7 @@ function CalculadoraInner() {
               <button onClick={() => setTab(3)} className="btn-primary" style={{ ...btnPrimary, fontSize: '12px' }}>← Ir a Modalidad 40</button>
             </div>
           )
-          const esc = escenarios[escenarioSeleccionado] ?? escenarios[0]
+          const esc = escenarios[0]
           if (!esc) return null
           const pensionBase = esc.pensionBase ?? 0
           const pensionMejorada = esc.pension ?? 0
