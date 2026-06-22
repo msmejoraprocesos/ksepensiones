@@ -1572,7 +1572,7 @@ function CalculadoraInner() {
               )}
             </div>
 
-            {navButtons(() => setTab(0), () => setTab(2), 'Siguiente: Conservación de derechos →')}
+            {navButtons(() => setTab(0), () => setTab(2), 'Siguiente: Pensión actual →')}
           </div>
         )}
 
@@ -1916,14 +1916,14 @@ function CalculadoraInner() {
               <strong>¿Tu cliente es trabajador independiente o no califica para Mod 40?</strong> La <strong>Modalidad 10</strong> permite afiliarse al IMSS con cobertura completa (médica + pensión + Infonavit) y puede usarse como paso previo para habilitar Mod 40.{' '}
               <button onClick={() => setTab(4)} style={{ background: 'none', border: 'none', color: '#15803d', fontWeight: '700', cursor: 'pointer', textDecoration: 'underline', fontFamily: 'inherit', fontSize: '12px', padding: 0 }}>Ver Modalidad 10 →</button>
             </div>
-            {navButtons(() => setTab(2), () => setTab(4), 'Siguiente: Modalidad 10 →')}
+            {navButtons(() => setTab(2), () => setTab(4), 'Siguiente: Inversión →')}
             </>}
 
           </div>
         )}
 
 
-        {/* ══ TAB 4: MODALIDAD 10 ══════════════════════════════════ */}
+        {/* ══ TAB 5: INVERSIÓN ══════════════════════════════════ */}
         {tab === 4 && datos.semanas_totales === 0 && (
           <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94a3b8', fontSize: '13px' }}>
             <div style={{ fontSize: '32px', marginBottom: '10px' }}>📋</div>
@@ -2110,12 +2110,12 @@ function CalculadoraInner() {
               <a href="https://serviciosdigitales.imss.gob.mx/gestionAsegurados-web/asegurados/incorporacionVoluntaria" target="_blank" rel="noopener noreferrer" style={{ color: AZUL, fontWeight: '700' }}>Calcular cuota exacta en el portal oficial del IMSS →</a>
             </div>
 
-            {navButtons(() => setTab(3), () => setTab(5), 'Siguiente: Escenarios de pensión →')}
+            {navButtons(() => setTab(3), () => setTab(5), 'Siguiente: Financiamiento →')}
           </div>
           )
         })()}
 
-        {/* ══ TAB 5: ESCENARIOS ═══════════════════════════════════ */}
+        {/* ══ TAB 6: FINANCIAMIENTO ═══════════════════════════════════ */}
         {tab === 5 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div style={{ padding: '12px 16px', background: '#F4F6FB', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '12px', color: '#374151', lineHeight: 1.7 }}>
@@ -2283,11 +2283,11 @@ function CalculadoraInner() {
                 })()}
               </>
             )}
-            {navButtons(() => setTab(4), () => setTab(6), 'Siguiente: Resumen →')}
+            {navButtons(() => setTab(4), () => setTab(6), 'Siguiente: Resumen / Proyecto →')}
           </div>
         )}
 
-                {/* ══ TAB 7: RESUMEN EJECUTIVO ════════════════════════════ */}
+        {/* ══ TAB 7: RESUMEN / PROYECTO ════════════════════════════ */}
         {tab === 6 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {mensaje && <div style={{ padding: '10px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', fontSize: '12px', fontWeight: '600', color: VERDE }}>{mensaje}</div>}
