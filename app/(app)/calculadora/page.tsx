@@ -2117,10 +2117,10 @@ function CalculadoraInner() {
                       {[
                         { label: 'Costo Mensual Promedio', actual: 'Ninguno', fn: (e: any) => fmtMXN(e.costo_mensual_mod40) },
                         { label: 'Costo Total', actual: 'Ninguno', fn: (e: any) => fmtMXN(e.inversion_total ?? 0), highlight: true },
-                        { label: 'Recuperas vía AFORE (~20%)', actual: 'No aplica', fn: (e: any) => fmtMXN(e.inversion_total * 0.2 ?? (e.inversion_total ?? 0) * 0.2) },
-                        { label: 'Inversión Neta', actual: 'No aplica', fn: (e: any) => fmtMXN(e.inversion_total * 0.8 ?? (e.inversion_total ?? 0) * 0.8), highlight: true },
+                        { label: 'Recuperas vía AFORE (~20%)', actual: 'No aplica', fn: (e: any) => fmtMXN((e.inversion_total || 0) * 0.2) },
+                        { label: 'Inversión Neta', actual: 'No aplica', fn: (e: any) => fmtMXN((e.inversion_total || 0) * 0.8), highlight: true },
                         { label: 'Meses para recuperar inversión', actual: 'No aplica', fn: (e: any) => `${(e.roi_meses ?? 0).toFixed(1)} meses` },
-                        { label: 'Ganancia a los 80 años', actual: '—', fn: (e: any) => fmtMXN(((e.pension_mensual||0) - (e.sdi_base||0)) * 216 - (e.inversion_total||0)*0.8 ?? 0), highlight: true },
+                        { label: 'Ganancia a los 80 años', actual: '—', fn: (e: any) => fmtMXN(((e.pension_mensual||0) - (e.sdi_base||0)) * 216 - (e.inversion_total||0)*0.8), highlight: true },
                         { label: 'Tasa de Rendimiento Total', actual: '—', fn: (e: any) => `${(0).toFixed(2)}%` },
                       ].map((row, ri) => (
                         <tr key={ri} style={{ background: row.highlight ? '#f0f9ff' : ri % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
