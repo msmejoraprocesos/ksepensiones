@@ -8,7 +8,7 @@ import Link from 'next/link'
 const NARANJA = '#F05B21'
 const AZUL = '#1B3A6B'
 
-type NavItem = { href: string; label: string; icon: string }
+type NavItem = { href: string; label: string; icon: string; adminOnly?: boolean }
 
 const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard',      label: 'Mi día',        icon: '◈' },
