@@ -17,6 +17,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/calculadora',    label: 'Calculadora',    icon: '⊞' },
   { href: '/financiamiento', label: 'Financiamiento', icon: '◐' },
   { href: '/configuracion',  label: 'Configuración',  icon: '⚙' },
+  { href: '/admin',          label: 'Admin Fórmulas', icon: '🔬', adminOnly: true },
 ]
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
