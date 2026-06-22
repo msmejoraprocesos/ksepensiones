@@ -1609,7 +1609,6 @@ function CalculadoraInner() {
             )}
             {sdiPromedio > 0 && (() => {
               const sem = datos.semanas_totales - datos.semanas_descontadas
-              const sem = datos.semanas_totales - datos.semanas_descontadas
               // Usa la función canónica de formulas.ts para el desglose completo
               // IMPORTANTE: en tab 3 mostramos la pensión con factor de edad REAL (no ×100%)
               // La función ya aplica FACTOR_111, factorEdad y PMG correctamente
