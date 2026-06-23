@@ -1640,12 +1640,20 @@ function CalculadoraInner() {
               const cumple = sem >= 500
               const edadMin = 65
               const asignaciones = (datos.tiene_conyuge ? 15 : 0) + datos.num_hijos * 10 + datos.num_padres * 10
+              // Fecha calculada para el trámite (DATOS GEN.!E16) — fecha de nacimiento + edad mínima de pensión
+              const fechaTramite = datos.fecha_nacimiento ? (() => {
+                const d = new Date(datos.fecha_nacimiento)
+                d.setFullYear(d.getFullYear() + (datos.edad_min_pension || 60))
+                return d.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' })
+              })() : '—'
+              const semanasRestantesTab1 = Math.max(0, Math.ceil(500 - sem))
               return (
                 <div style={{ ...cardSt, borderLeft: `3px solid ${cumple ? VERDE : '#ef4444'}` }}>
                   {sectionTitle('Resumen automático')}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '8px', marginBottom: '12px' }}>
                     {kpiBox('Semanas válidas', sem.toLocaleString(), 'descontadas AFORE', cumple ? VERDE : '#ef4444', cumple ? 'verde' : 'rojo')}
-                    {kpiBox('Edad mín. pensión', `${edadMin} años`, 'Vejez (sin Mod 40)', AZUL, 'azul')}
+                    {kpiBox('Semanas restantes', semanasRestantesTab1 === 0 ? '✓ 0' : semanasRestantesTab1.toString(), semanasRestantesTab1 === 0 ? 'Ya cumplió las 500' : 'para llegar a 500 mínimas', semanasRestantesTab1 === 0 ? VERDE : '#ef4444')}
+                    {kpiBox('Fecha calculada trámite', fechaTramite, `a los ${datos.edad_min_pension || 60} años — DATOS GEN.!E16`, AZUL, 'azul')}
                     {kpiBox('Asignaciones familiares', `+${asignaciones}%`, `cónyuge + ${datos.num_hijos} hijo(s)`, '#8b5cf6')}
                     {kpiBox('Régimen', datos.ley === '73' ? 'Ley 73' : datos.ley === '97' ? 'Ley 97' : 'Por detectar', datos.ley ? 'Detectado del PDF' : 'Carga la constancia', AZUL)}
                     {kpiBox('Estado', cumple ? 'Apto' : 'Insuficiente', `${Math.max(0, 500 - sem)} sem. faltan`, cumple ? VERDE : '#ef4444', cumple ? 'verde' : 'rojo')}
@@ -2071,6 +2079,51 @@ function CalculadoraInner() {
               <strong>¿Tu cliente es trabajador independiente o no califica para Mod 40?</strong> La <strong>Modalidad 10</strong> permite afiliarse al IMSS con cobertura completa (médica + pensión + Infonavit) y puede usarse como paso previo para habilitar Mod 40.{' '}
               <button onClick={() => setTab(4)} style={{ background: 'none', border: 'none', color: '#15803d', fontWeight: '700', cursor: 'pointer', textDecoration: 'underline', fontFamily: 'inherit', fontSize: '12px', padding: 0 }}>Ver Modalidad 10 →</button>
             </div>
+
+            {/* MOD 40 REC. VS RETRO. — comparativo igual a la hoja del Excel */}
+            {escenarios.filter(e => e.mod40_meses > 0).length > 0 && (() => {
+              const esc = escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
+              if (!esc || esc.mod40_meses === 0) return null
+              return (
+                <div style={cardSt}>
+                  {sectionTitle('Recurrente vs Retroactivo', 'Hoja MOD 40 REC. VS RETRO. del Excel')}
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11.5px' }}>
+                      <thead>
+                        <tr style={{ background: '#F4F6FB' }}>
+                          <th style={{ padding: '8px 12px', textAlign: 'left', color: '#64748b', fontSize: '10px', textTransform: 'uppercase', borderBottom: '2px solid #e2e8f0', minWidth: '200px' }}>Concepto</th>
+                          <th style={{ padding: '8px 12px', textAlign: 'center', color: AZUL, fontSize: '10px', textTransform: 'uppercase', borderBottom: `2px solid ${AZUL}` }}>Pago Recurrente (Mes a Mes)</th>
+                          <th style={{ padding: '8px 12px', textAlign: 'center', color: NARANJA, fontSize: '10px', textTransform: 'uppercase', borderBottom: `2px solid ${NARANJA}` }}>Pago Retroactivo</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[
+                          { label: 'Pensión sin Mod. 40', rec: fmtMXN(esc.pension_base), ret: fmtMXN(esc.pension_base) },
+                          { label: 'Pensión mejorada', rec: fmtMXN(esc.pension_mensual), ret: fmtMXN(esc.pension_mensual), highlight: true },
+                          { label: 'Inversión total', rec: fmtMXN(esc.costo_total), ret: fmtMXN(esc.costo_retroactivo) },
+                          { label: 'Recuperación AFORE (~20%)', rec: fmtMXN(esc.recuperacion_afore), ret: fmtMXN(esc.recuperacion_afore_retro) },
+                          { label: 'Inversión neta', rec: fmtMXN(esc.inversion_neta), ret: fmtMXN(esc.inversion_neta_retro), highlight: true },
+                          { label: 'Meses para recuperar', rec: `${esc.roi_meses.toFixed(1)} meses`, ret: `${esc.roi_retro.toFixed(1)} meses` },
+                          { label: 'Ganancia a los 80 años', rec: fmtMXN(esc.ganancia_a80), ret: fmtMXN(esc.ganancia_a80_retro), highlight: true },
+                          { label: 'Tasa de rendimiento', rec: `${esc.tasa_rendimiento.toFixed(2)}%`, ret: `${esc.tasa_rendimiento_retro.toFixed(2)}%` },
+                          { label: 'Termómetro de inversión',
+                            rec: esc.tasa_rendimiento >= 25 ? '🟢 Excelente' : esc.tasa_rendimiento >= 18 ? '🔵 Buena' : esc.tasa_rendimiento >= 12 ? '🟡 Moderada' : '🔴 Riesgo',
+                            ret: esc.tasa_rendimiento_retro >= 25 ? '🟢 Excelente' : esc.tasa_rendimiento_retro >= 18 ? '🔵 Buena' : esc.tasa_rendimiento_retro >= 12 ? '🟡 Moderada' : '🔴 Riesgo'
+                          },
+                        ].map((row, i) => (
+                          <tr key={i} style={{ background: row.highlight ? '#f0f9ff' : i % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
+                            <td style={{ padding: '8px 12px', fontWeight: '600', color: '#374151' }}>{row.label}</td>
+                            <td style={{ padding: '8px 12px', textAlign: 'center', fontWeight: row.highlight ? '700' : 'normal', color: row.highlight ? AZUL : '#374151' }}>{row.rec}</td>
+                            <td style={{ padding: '8px 12px', textAlign: 'center', fontWeight: row.highlight ? '700' : 'normal', color: row.highlight ? NARANJA : '#374151' }}>{row.ret}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )
+            })()}
+
             {navButtons(() => setTab(2), () => setTab(4), 'Siguiente: Inversión →')}
             </>}
 
@@ -2087,7 +2140,7 @@ function CalculadoraInner() {
               <button onClick={() => setTab(3)} className="btn-primary" style={{ ...btnPrimary, fontSize: '12px' }}>← Ir a Modalidad 40</button>
             </div>
           )
-          const esc = escenarios[0]
+          const esc = escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
           if (!esc) return null
           const pensionBase = esc.pension_base
           const pensionMejorada = esc.pension_mensual

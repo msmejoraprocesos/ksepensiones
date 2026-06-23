@@ -710,8 +710,22 @@ const PaginaMod40Mod10 = ({ escenarios, escSelIdx, color, titulo, razonSocial, e
             { label: 'Pensión estimada', value: mxn(escSel.pension_mensual || 0) + '/mes', color: C.verde },
             { label: 'Incremento vs base', value: '+' + mxn(escSel.incremento_vs_base || 0) + '/mes', color: C.verde },
             { label: 'Recuperación de inversión', value: (escSel.roi_meses || 0) + ' meses', color },
-            { label: 'Cuota Mod 40 (% SBC)', value: '14.438% sobre SBC', color: C.gris },
+            { label: 'Recuperación AFORE (~20%)', value: mxn(escSel.recuperacion_afore || 0), color: C.gris },
           ]} />
+          <KpiRow color={color} items={[
+            { label: 'Inversión neta', value: mxn(escSel.inversion_neta || 0), color: C.naranja },
+            { label: 'Ganancia a los 80 años', value: mxn(escSel.ganancia_a80 || 0), color: C.verde },
+            { label: 'Tasa de rendimiento', value: (escSel.tasa_rendimiento || 0).toFixed(2) + '%', color: C.verde },
+            { label: 'Aguinaldo anual', value: mxn(escSel.aguinaldo_anual || 0), color },
+          ]} />
+          {(escSel.pension_inmediata || 0) > 0 && (
+            <KpiRow color={color} items={[
+              { label: 'Pensión inmediata (financiada)', value: mxn(escSel.pension_inmediata || 0) + '/mes', color: C.naranja },
+              { label: 'Pensión al liquidar crédito', value: mxn(escSel.pension_al_liquidar || 0) + '/mes', color: C.verde },
+              { label: 'Descuento mensual', value: mxn(escSel.descuento_mensual || 0), color: C.gris },
+              { label: 'ROI financiado', value: (escSel.roi_financiado || 0).toFixed(1) + ' meses', color },
+            ]} />
+          )}
 
           <Text style={s.h2}>Proyección de cotización mensual</Text>
           <DataTable
