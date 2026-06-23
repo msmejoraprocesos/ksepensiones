@@ -26,14 +26,26 @@ interface Escenario {
   id: string
   label: string
   descripcion?: string
+  pension_base?: number
   pension_mensual: number
-  inversion_total: number
+  costo_total: number
+  inversion_neta?: number
+  recuperacion_afore?: number
   costo_mensual_mod40: number
   incremento_vs_base: number
   roi_meses: number
   mod40_meses: number
   mod40_umas: number
   recomendado?: boolean
+  ganancia_a80?: number
+  tasa_rendimiento?: number
+  aguinaldo_anual?: number
+  fecha_ingreso_mod40?: string
+  fecha_baja_mod40?: string
+  edad_retiro?: number
+  pension_inmediata?: number
+  pension_al_liquidar?: number
+  descuento_mensual?: number
 }
 
 interface Periodo {
@@ -486,7 +498,7 @@ const PaginaPortada = ({ datos, escenarios, escSelIdx, ingresoObjetivo, logoUrl,
             { label: 'Pensión sin acción', value: mxn(escBase?.pension_mensual || 0) + '/mes', color: C.gris, bg: '#F8FAFC' },
             { label: 'Pensión con estrategia', value: mxn(escSel?.pension_mensual || 0) + '/mes', color: color, bg: '#EEF7F4' },
             { label: 'Incremento mensual', value: escSel?.incremento_vs_base > 0 ? '+' + mxn(escSel.incremento_vs_base) : '—', color: C.verde, bg: '#f0fdf4' },
-            { label: 'Inversión requerida', value: mxn(escSel?.inversion_total || 0), color: C.gris, bg: '#F8FAFC' },
+            { label: 'Inversión requerida', value: mxn(escSel?.costo_total || 0), color: C.gris, bg: '#F8FAFC' },
           ].map((k, i) => (
             <View key={i} style={{ flex: 1, backgroundColor: k.bg, borderRadius: 7, padding: 10, alignItems: 'center' }}>
               <Text style={{ fontSize: 7, color: C.textoSm, textTransform: 'uppercase', textAlign: 'center', marginBottom: 5 }}>{k.label}</Text>
@@ -561,7 +573,7 @@ const PaginaPortada = ({ datos, escenarios, escSelIdx, ingresoObjetivo, logoUrl,
           {[
             { title: 'Situación actual', color: C.gris, bg: '#F8FAFC', body: `${trabajador} tiene ${datos.semanas_totales || 0} semanas cotizadas bajo Ley ${datos.ley || '73'}. Sin acción, la pensión estimada sería de ${mxn(escBase?.pension_mensual || 0)}/mes.` },
             { title: 'Oportunidad detectada', color: C.verde, bg: '#f0fdf4', body: `Con la estrategia ${escSel?.label}, la pensión puede llegar a ${mxn(escSel?.pension_mensual || 0)}/mes — un incremento de ${mxn(escSel?.incremento_vs_base || 0)}/mes. La inversión se recupera en ${escSel?.roi_meses || '—'} meses.` },
-            { title: 'Recomendación', color: color, bg: '#EEF2F8', body: `Iniciar Modalidad 40 a ${(escSel?.mod40_umas || 0).toFixed(1)} UMAs por ${escSel?.mod40_meses || 0} meses. Costo: ${mxn(escSel?.costo_mensual_mod40 || 0)}/mes. Inversión total: ${mxn(escSel?.inversion_total || 0)}.` },
+            { title: 'Recomendación', color: color, bg: '#EEF2F8', body: `Iniciar Modalidad 40 a ${(escSel?.mod40_umas || 0).toFixed(1)} UMAs por ${escSel?.mod40_meses || 0} meses. Costo: ${mxn(escSel?.costo_mensual_mod40 || 0)}/mes. Inversión total: ${mxn(escSel?.costo_total || 0)}.` },
           ].map((card, i) => (
             <View key={i} style={{ backgroundColor: card.bg, borderRadius: 7, padding: 8, marginBottom: 6, borderLeftWidth: 3, borderLeftColor: card.color }} wrap={false}>
               <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color: card.color, marginBottom: 3 }}>{card.title}</Text>
@@ -691,7 +703,7 @@ const PaginaMod40Mod10 = ({ escenarios, escSelIdx, color, titulo, razonSocial, e
               { label: 'Salario base (UMAs)', value: (escSel.mod40_umas || 0).toFixed(1) + ' UMAs', color },
               { label: 'Período de cotización', value: meses + ' meses', color },
               { label: 'Costo mensual', value: mxn(costoM), color: C.naranja },
-              { label: 'Inversión total', value: mxn(escSel.inversion_total || 0), color: C.naranja },
+              { label: 'Inversión total', value: mxn(escSel.costo_total || 0), color: C.naranja },
             ]} />
           </View>
           <KpiRow color={color} items={[
@@ -714,7 +726,7 @@ const PaginaMod40Mod10 = ({ escenarios, escSelIdx, color, titulo, razonSocial, e
               Math.round(mes * 4.33).toString(),
               Math.round(mes / meses * 100) + '%',
             ])}
-            totalRow={['TOTALES', '—', mxn(costoM) + '/mes', mxn(escSel.inversion_total || 0), Math.round(meses * 4.33).toString() + ' sem', '100%']}
+            totalRow={['TOTALES', '—', mxn(costoM) + '/mes', mxn(escSel.costo_total || 0), Math.round(meses * 4.33).toString() + ' sem', '100%']}
           />
         </>
       )}
@@ -728,7 +740,7 @@ const PaginaMod40Mod10 = ({ escenarios, escSelIdx, color, titulo, razonSocial, e
             </Text>
             <KpiRow color={color} items={[
               { label: 'Cuota mensual (22%)', value: mxn(escM10.costo_mensual_mod40), color: C.verde },
-              { label: 'Inversión total', value: mxn(escM10.inversion_total), color: C.naranja },
+              { label: 'Inversión total', value: mxn(escM10.costo_total), color: C.naranja },
               { label: 'Pensión estimada', value: mxn(escM10.pension_mensual) + '/mes', color: C.verde },
               { label: 'Costo extra vs Mod 40', value: mxn(dif) + '/mes más que Mod 40', color: '#f97316' },
             ]} />
@@ -740,7 +752,7 @@ const PaginaMod40Mod10 = ({ escenarios, escSelIdx, color, titulo, razonSocial, e
             aligns={['left', 'right', 'right', 'right', 'center']}
             rows={[
               ['Cuota mensual', mxn(escM10.costo_mensual_mod40), mxn(cuotaM40), '+' + mxn(dif) + ' más', ''],
-              ['Inversión total', mxn(escM10.inversion_total), mxn(escSel?.inversion_total || 0), mxn(escM10.inversion_total - (escSel?.inversion_total || 0)) + ' más', ''],
+              ['Inversión total', mxn(escM10.costo_total), mxn(escSel?.costo_total || 0), mxn(escM10.costo_total - (escSel?.costo_total || 0)) + ' más', ''],
               ['Pensión estimada', mxn(escM10.pension_mensual) + '/mes', mxn(escSel?.pension_mensual || 0) + '/mes', 'mismo monto', ''],
               ['Servicio médico IMSS', 'Sí', 'No', '', '✓'],
               ['Guarderías', 'Sí', 'No', '', '✓'],
@@ -778,7 +790,7 @@ const PaginaEscenarios = ({ escenarios, escSelIdx, ingresoObjetivo, color, titul
               (isEl ? '' : '') + esc.label,
               mxn(esc.pension_mensual),
               i === 0 ? '—' : '+' + mxn(esc.incremento_vs_base),
-              i === 0 ? '$0' : mxn(esc.inversion_total),
+              i === 0 ? '$0' : mxn(esc.costo_total),
               i === 0 ? '—' : String(esc.roi_meses || '—'),
               isEl ? 'SI' : '',
             ]
