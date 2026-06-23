@@ -138,7 +138,17 @@ function AdminFormulasInner() {
   )
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1100px', margin: '0 auto' }}>
+    <div style={{ height: 'calc(100vh - 48px)', overflow: 'auto', background: '#FAFAFA' }}>
+      <style>{`
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+        .admin-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .admin-table th { padding: 8px 12px; text-align: left; font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.4px; }
+        .admin-table td { padding: 8px 12px; }
+        @media (max-width: 700px) {
+          .admin-col-hide { display: none; }
+        }
+      `}</style>
+      <div style={{ padding: '20px', maxWidth: '1100px', margin: '0 auto' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
@@ -156,6 +166,21 @@ function AdminFormulasInner() {
             {saving ? 'Guardando...' : saved ? '✓ Guardado' : 'Guardar cambios'}
           </button>
         </div>
+      </div>
+
+
+      {/* Guía de uso */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px', marginBottom: '20px' }}>
+        {[
+          { icon: '📝', title: 'Parámetros editables', desc: 'Actualízalos cada año cuando el IMSS o CONASAMI publiquen nuevos valores (UMA, PMG, tasas). Guardado en Supabase — la calculadora los lee en tiempo real.', color: '#fef3c7', border: '#f59e0b' },
+          { icon: '⚖️', title: 'Constantes legales', desc: 'Solo cambian si el Congreso modifica la Ley del Seguro Social 1973. Documentadas con artículo de ley y celda del Excel de referencia. Para cambiarlas, editar formulas.ts.', color: '#f0f9ff', border: '#3b82f6' },
+          { icon: '🔄', title: 'Cómo actualizar', desc: '1. Edita el valor en "Parámetros editables". 2. Haz clic en "Guardar cambios". 3. La calculadora usará los nuevos valores inmediatamente en todos los diagnósticos.', color: '#f0fdf4', border: '#22c55e' },
+        ].map((g, i) => (
+          <div key={i} style={{ padding: '12px 14px', background: g.color, border: `1px solid ${g.border}`, borderRadius: '10px' }}>
+            <p style={{ margin: '0 0 4px', fontSize: '12px', fontWeight: '700', color: '#374151' }}>{g.icon} {g.title}</p>
+            <p style={{ margin: 0, fontSize: '11px', color: '#64748b', lineHeight: 1.6 }}>{g.desc}</p>
+          </div>
+        ))}
       </div>
 
       {/* Tabs */}
@@ -326,6 +351,7 @@ function AdminFormulasInner() {
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }
