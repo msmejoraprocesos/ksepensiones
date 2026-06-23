@@ -178,7 +178,7 @@ const FACTOR_111 = 1.11
 const DIAS_AGUINALDO = 15
 
 // ── FÓRMULAS OFICIALES (Art. 167-171 LSS) — replica fiel del Excel de referencia ──────────
-function calcPensionLey73(semanas: number, sdi: number, edadRetiro: number, sys: SysVars, tieneConyuge: boolean, numHijos: number, numPadres: number, anioRetiro?: number): { monto: number; pmg_aplica: boolean; pensionMensual: number; pensionAnual: number; cuantiaBasicaAnual: number; incrementosAnual: number; asignacionesAnual: number; ayudaAsistencialAnual: number; aguinaldoAnual: number; factorEdad: number; vecesUMA: number; pctBasica: number; pctIncremento: number; numIncrementos: number } {
+function calcPensionLey73(semanas: number, sdi: number, edadRetiro: number, sys: SysVars, tieneConyuge: boolean, numHijos: number, numPadres: number, anioRetiro?: number, tieneAyudaAsistencial = false): { monto: number; pmg_aplica: boolean; pensionMensual: number; pensionAnual: number; cuantiaBasicaAnual: number; incrementosAnual: number; asignacionesAnual: number; ayudaAsistencialAnual: number; aguinaldoAnual: number; factorEdad: number; vecesUMA: number; pctBasica: number; pctIncremento: number; numIncrementos: number } {
   if (semanas < 500) return { monto: 0, pmg_aplica: false, pensionMensual: 0, pensionAnual: 0, cuantiaBasicaAnual: 0, incrementosAnual: 0, asignacionesAnual: 0, ayudaAsistencialAnual: 0, aguinaldoAnual: 0, factorEdad: 0, vecesUMA: 0, pctBasica: 0, pctIncremento: 0, numIncrementos: 0 }
 
   const vecesUMA = sdi / sys.UMA_DIARIA
@@ -205,10 +205,10 @@ function calcPensionLey73(semanas: number, sdi: number, edadRetiro: number, sys:
   const asignPadres = (!hayBeneficiarios && numPadres > 0) ? cuantiaTotalRaw * 0.10 * numPadres : 0
   const asignaciones = (asignConyuge + asignHijos + asignPadres) * FACTOR_111 * factorEdad
 
-  // Ayuda asistencial (solo si no hay cónyuge, hijos, ni padres dependientes — o solo 1 padre)
+  // Ayuda asistencial (Art. 165 LSS — solo si no hay cónyuge, hijos, ni padres, Y el campo fue marcado por el asesor)
   const sinBeneficiarios = !tieneConyuge && numHijos === 0 && numPadres === 0
   const soloUnPadre = !tieneConyuge && numHijos === 0 && numPadres === 1
-  const pctAyuda = sinBeneficiarios ? 0.15 : soloUnPadre ? 0.10 : 0
+  const pctAyuda = tieneAyudaAsistencial && sinBeneficiarios ? 0.15 : tieneAyudaAsistencial && soloUnPadre ? 0.10 : 0
   const ayudaAsistencial = pctAyuda > 0
     ? Math.max(0, Math.min(
         cuantiaTotalRaw * pctAyuda * FACTOR_111 * factorEdad,
@@ -728,7 +728,7 @@ function CalculadoraInner() {
       ? (sdiBase * semEfectivo + sdiMod40 * semMod40) / (semEfectivo + semMod40)
       : sdiBase
     const semTotal = sem + meses * 4.33
-    const { monto: pension, pmg_aplica } = calcPensionLey73(semTotal, sdiNuevo, edadR, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, anioR)
+    const { monto: pension, pmg_aplica } = calcPensionLey73(semTotal, sdiNuevo, edadR, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, anioR, datos.tiene_ayuda_asistencial)
     const incr = pension - pensionBase
     // Inversión neta y ROI — Datos-proyecto!C20, C21
     const pctAfore = (sys.pct_afore_mod40 ?? 20) / 100
@@ -798,7 +798,7 @@ function CalculadoraInner() {
     const anioBase = new Date().getFullYear()
     const anioR = anioBase + (edadRetiro - (datos.edad_actual || 60))
 
-    const { monto: pensionBase, pmg_aplica: pmgAplicaBase } = calcPensionLey73(sem, sdiBase, edadRetiro, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, anioR)
+    const { monto: pensionBase, pmg_aplica: pmgAplicaBase } = calcPensionLey73(sem, sdiBase, datos.edad_min_pension || edadRetiro, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, anioR, datos.tiene_ayuda_asistencial)
 
     // Helper para construir un escenario completo con todos los campos del interface
     const makeEsc = (
@@ -866,7 +866,7 @@ function CalculadoraInner() {
     const semM10 = Math.min(12 * 4.33, 250)
     const semEfM10 = Math.min(sem, 250 - semM10)
     const sdiNuevoM10 = (sdiBase * semEfM10 + sdiM10 * semM10) / (semEfM10 + semM10)
-    const { monto: pensionM10, pmg_aplica: pmgAplicaM10 } = calcPensionLey73(sem + 12 * 4.33, sdiNuevoM10, 65, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres)
+    const { monto: pensionM10, pmg_aplica: pmgAplicaM10 } = calcPensionLey73(sem + 12 * 4.33, sdiNuevoM10, 65, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, undefined, datos.tiene_ayuda_asistencial)
     const costoM10 = sdiM10 * 30.4 * TASA_M10
     const r0: ReturnType<typeof calcEscenarioMod40> = {
       costoMensual: costoM10, costo_total: costoM10 * 12, sdiNuevo: sdiNuevoM10,
@@ -1757,8 +1757,8 @@ function CalculadoraInner() {
               // Usa la función canónica de formulas.ts para el desglose completo
               // IMPORTANTE: en tab 3 mostramos la pensión con factor de edad REAL (no ×100%)
               // La función ya aplica FACTOR_111, factorEdad y PMG correctamente
-              const edadPension = datos.edad_actual || 60
-              const resActual = calcPensionLey73(sem, sdiPromedio, edadPension, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres)
+              const edadPension = datos.edad_min_pension || datos.edad_actual || 60
+              const resActual = calcPensionLey73(sem, sdiPromedio, edadPension, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, undefined, datos.tiene_ayuda_asistencial)
               const pensionMensual = resActual.pensionMensual
               const pensionActualAnual = resActual.pensionAnual
               const aguinaldo = resActual.aguinaldoAnual
@@ -2192,6 +2192,89 @@ function CalculadoraInner() {
         })()}
 
         {/* ══ TAB 6: FINANCIAMIENTO ═══════════════════════════════════ */}
+        {tab === 5 && (() => {
+          const esc = escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
+          if (!esc || esc.mod40_meses === 0) return (
+            <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94a3b8' }}>
+              <div style={{ fontSize: '32px', marginBottom: '10px' }}>🏦</div>
+              <p style={{ margin: '0 0 14px' }}>Configura primero un escenario en <strong>Modalidad 40</strong> para ver las opciones de financiamiento.</p>
+              <button onClick={() => setTab(3)} className="btn-primary" style={{ ...btnPrimary, fontSize: '12px' }}>← Ir a Modalidad 40</button>
+            </div>
+          )
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {sectionTitle('Financiamiento del Pago Retroactivo', `Hoja FINANCIAMIENTO del Excel — ${esc.label}`)}
+
+              {/* Participaciones */}
+              <div style={cardSt}>
+                {sectionTitle('Distribución del Pago Retroactivo', 'FINANCIAMIENTO!B5-B11')}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', marginBottom: '12px' }}>
+                  {kpiBox('Pago Retroactivo Total', fmtMXN(esc.costo_retroactivo), 'con recargos y actualizaciones', AZUL, undefined, true)}
+                  {kpiBox('Recuperas vía AFORE', fmtMXN(esc.recuperacion_afore_retro), `~${sys.pct_afore_mod40 ?? 20}% del retroactivo`, VERDE)}
+                  {kpiBox('Aportación Banco Regulado', fmtMXN(esc.aportacion_banco), '~35.6% del retroactivo', '#3b82f6', undefined, true)}
+                  {kpiBox('Aportación Segundo Fondeo', fmtMXN(esc.aportacion_segundo_fondeo), 'ahorros propios o segundo fondeador', '#f59e0b')}
+                  {kpiBox('Cantidad mínima en AFORE', fmtMXN(esc.cantidad_minima_afore), 'debes tener en tu AFORE — SEGUNDO FONDEADOR!C9', '#ef4444', undefined, true)}
+                </div>
+              </div>
+
+              {/* Impacto en la pensión */}
+              <div style={cardSt}>
+                {sectionTitle('Impacto en la Pensión', 'FINANCIAMIENTO!E15-F17 — durante y después del crédito')}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px', marginBottom: '12px' }}>
+                  {kpiBox('Pensión sin financiar', fmtMXN(esc.pension_base), 'situación actual', '#94a3b8')}
+                  {kpiBox('Pensión mejorada', fmtMXN(esc.pension_mensual), `edad de retiro ${esc.edad_retiro} años`, AZUL)}
+                  {kpiBox('Descuento mensual (60 meses)', fmtMXN(esc.descuento_mensual), 'cuota del crédito bancario', '#ef4444')}
+                  {kpiBox('🚀 Pensión inmediata', fmtMXN(esc.pension_inmediata), 'durante los 60 meses del crédito', NARANJA, undefined, true)}
+                  {kpiBox('🏆 Pensión al liquidar', fmtMXN(esc.pension_al_liquidar), 'después de pagar el crédito (mes 61+)', VERDE, undefined, true)}
+                </div>
+                {/* Comparativo visual */}
+                <div style={{ background: '#F4F6FB', borderRadius: '10px', padding: '14px', display: 'grid', gridTemplateColumns: '1fr auto 1fr auto 1fr', gap: '8px', alignItems: 'center', textAlign: 'center' as const }}>
+                  {[
+                    { label: 'Sin hacer nada', val: esc.pension_base, color: '#94a3b8' },
+                    { label: '→', val: null, color: '#94a3b8' },
+                    { label: 'Pensión inmediata', val: esc.pension_inmediata, color: NARANJA },
+                    { label: '→', val: null, color: '#94a3b8' },
+                    { label: 'Pensión al liquidar', val: esc.pension_al_liquidar, color: VERDE },
+                  ].map((it, i) => it.val === null
+                    ? <span key={i} style={{ fontSize: '20px', color: it.color }}>→</span>
+                    : <div key={i}>
+                        <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '4px' }}>{it.label}</div>
+                        <div style={{ fontSize: '16px', fontWeight: '800', color: it.color }}>{fmtMXN(it.val)}</div>
+                      </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Análisis de inversión financiado */}
+              <div style={cardSt}>
+                {sectionTitle('Análisis de Inversión — Con Financiamiento', 'PENSIÓN SIN-CON FIN. del Excel')}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', marginBottom: '12px' }}>
+                  {kpiBox('ROI', `${esc.roi_financiado.toFixed(1)} meses`, 'meses para recuperar la inversión', '#f59e0b', undefined, true)}
+                  {kpiBox('Flujos a los 80 años', fmtMXN(esc.ganancia_a80_financiado + esc.inversion_neta_retro), 'total cobrado con financiamiento', AZUL)}
+                  {kpiBox('Ganancia total a los 80', fmtMXN(esc.ganancia_a80_financiado), 'flujos - inversión neta', VERDE, undefined, true)}
+                  {kpiBox('Tasa de rendimiento', `${esc.tasa_rendimiento_financiado.toFixed(2)}%`, 'ganancia ÷ inversión neta', AZUL)}
+                </div>
+                {/* Termómetro */}
+                {(() => {
+                  const t = esc.tasa_rendimiento_financiado >= 25 ? { label: 'Excelente Inversión', color: VERDE, bg: '#f0fdf4' }
+                    : esc.tasa_rendimiento_financiado >= 18 ? { label: 'Buena Inversión', color: '#0891b2', bg: '#f0f9ff' }
+                    : esc.tasa_rendimiento_financiado >= 12 ? { label: 'Inversión Moderada', color: '#f59e0b', bg: '#fffbeb' }
+                    : { label: 'Inversión de Riesgo', color: '#ef4444', bg: '#fef2f2' }
+                  return (
+                    <div style={{ padding: '12px 16px', background: t.bg, border: `1.5px solid ${t.color}`, borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span style={{ fontSize: '28px' }}>🌡️</span>
+                      <div>
+                        <p style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: t.color }}>{t.label}</p>
+                        <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#64748b' }}>Tasa de rendimiento: {esc.tasa_rendimiento_financiado.toFixed(2)}% — con financiamiento bancario regulado (60 meses)</p>
+                      </div>
+                    </div>
+                  )
+                })()}
+              </div>
+              {navButtons(() => setTab(4), () => setTab(6), 'Siguiente: Resumen / Proyecto →')}
+            </div>
+          )
+        })()}
 
         {/* ══ TAB 7: RESUMEN / PROYECTO ════════════════════════════ */}
         {tab === 6 && (
@@ -2262,11 +2345,11 @@ function CalculadoraInner() {
                       {[
                         { label: 'Costo Mensual Promedio', actual: 'Ninguno', fn: (e: any) => fmtMXN(e.costo_mensual_mod40) },
                         { label: 'Costo Total', actual: 'Ninguno', fn: (e: any) => fmtMXN(e.costo_total), highlight: true },
-                        { label: 'Recuperas vía AFORE (~20%)', actual: 'No aplica', fn: (e: any) => fmtMXN(e.recuperacion_afore) },
+                        { label: 'Recuperas vía AFORE', actual: 'No aplica', fn: (e: any) => fmtMXN(e.recuperacion_afore) },
                         { label: 'Inversión Neta', actual: 'No aplica', fn: (e: any) => fmtMXN(e.inversion_neta), highlight: true },
                         { label: 'Meses para recuperar inversión', actual: 'No aplica', fn: (e: any) => `${(e.roi_meses ?? 0).toFixed(1)} meses` },
                         { label: 'Ganancia a los 80 años', actual: '—', fn: (e: any) => fmtMXN(e.ganancia_a80), highlight: true },
-                        { label: 'Tasa de Rendimiento Total', actual: '—', fn: (e: any) => `${(0).toFixed(2)}%` },
+                        { label: 'Tasa de Rendimiento Total', actual: '—', fn: (e: any) => `${(e.tasa_rendimiento ?? 0).toFixed(2)}%` },
                       ].map((row, ri) => (
                         <tr key={ri} style={{ background: row.highlight ? '#f0f9ff' : ri % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
                           <td style={{ padding: '8px 12px', fontWeight: '600', color: '#374151' }}>{row.label}</td>
@@ -2297,9 +2380,11 @@ function CalculadoraInner() {
                     </thead>
                     <tbody>
                       {[
-                        { label: 'Descuento mensual a pensión', actual: 'No aplica', fn: (e: any) => 0 > 0 ? fmtMXN(-0) : '—' },
+                        { label: 'Descuento mensual a pensión', actual: 'No aplica', fn: (e: any) => e.descuento_mensual > 0 ? fmtMXN(-e.descuento_mensual) : '—' },
                         { label: 'Pensión Inmediata (con fin.)', actual: fmtMXN(escenarios[0]?.pension_base ?? 0), fn: (e: any) => fmtMXN(e.pension_inmediata), highlight: true },
-                        { label: 'Pensión al liquidar fin.', actual: '—', fn: (e: any) => fmtMXN(e.pension_mensual ?? 0), highlight: true },
+                        { label: 'Pensión al liquidar fin.', actual: '—', fn: (e: any) => fmtMXN(e.pension_al_liquidar), highlight: true },
+                        { label: 'Ganancia 80 años financiado', actual: '—', fn: (e: any) => fmtMXN(e.ganancia_a80_financiado), highlight: true },
+                        { label: 'Tasa de rendimiento financiado', actual: '—', fn: (e: any) => `${(e.tasa_rendimiento_financiado ?? 0).toFixed(2)}%` },
                       ].map((row, ri) => (
                         <tr key={ri} style={{ background: row.highlight ? '#f0fdf4' : ri % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
                           <td style={{ padding: '8px 12px', fontWeight: '600', color: '#374151' }}>{row.label}</td>
@@ -2319,11 +2404,7 @@ function CalculadoraInner() {
                 const sorted = [...escenarios]
                 const mayorPension = sorted.reduce((a, b) => a.pension_mensual > b.pension_mensual ? a : b)
                 const menorCosto = sorted.reduce((a, b) => a.costo_total < b.costo_total ? a : b)
-                const mayorRendimiento = sorted.reduce((a, b) => {
-                  const rA = a.incremento_vs_base > 0 ? a.costo_total / a.incremento_vs_base : 999
-                  const rB = b.incremento_vs_base > 0 ? b.costo_total / b.incremento_vs_base : 999
-                  return rA < rB ? a : b
-                })
+                const mayorRendimiento = sorted.reduce((a, b) => (a.tasa_rendimiento ?? 0) > (b.tasa_rendimiento ?? 0) ? a : b)
                 return (
                   <div style={cardSt}>
                     {sectionTitle('Recomendaciones automáticas', 'Hoja "PROYECTO DE PENSIÓN"!B47-B51 del Excel')}
