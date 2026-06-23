@@ -937,18 +937,21 @@ function CalculadoraInner() {
     const costoM10 = sdiM10 * 30.4 * TASA_M10
     const r0: ReturnType<typeof calcEscenarioMod40> = {
       costoMensual: costoM10, costo_total: costoM10 * 12, sdiNuevo: sdiNuevoM10,
-      semTotal: sem + 12 * 4.33, pension: pensionM10, pmg_aplica: pmgAplicaM10,
+      semTotal: sem + 12 * 4.33, semMod40: 12 * (52 / 12), pension: pensionM10, pmg_aplica: pmgAplicaM10,
       incr: pensionM10 - pensionBase, roi: 0, umaProyectada: sys.UMA_DIARIA,
       tasaProyectada: TASA_M10, sdiMod40: sdiM10,
       recuperacion_afore: costoM10 * 12 * (sys.pct_afore_mod40 ?? 20) / 100,
       inversion_neta: costoM10 * 12 * (1 - (sys.pct_afore_mod40 ?? 20) / 100),
       ganancia_a80: 0, tasa_rendimiento: 0, aguinaldo_anual: (pensionM10 * 15) / 30,
       fecha_ingreso_mod40: '', fecha_baja_mod40: '',
+      actualizaciones: 0, recargos: 0,
       costo_retroactivo: 0, recuperacion_afore_retro: 0, inversion_neta_retro: 0,
       roi_retro: 0, ganancia_a80_retro: 0, tasa_rendimiento_retro: 0,
       aportacion_banco: 0, aportacion_segundo_fondeo: 0, cantidad_minima_afore: 0,
       descuento_mensual: 0, pension_inmediata: pensionM10, pension_al_liquidar: pensionM10,
       roi_financiado: 0, ganancia_a80_financiado: 0, tasa_rendimiento_financiado: 0,
+      duracion_tramite_meses: 60, plazo_segundo_fondeo: 12,
+      costo_financiamiento_banco: 0, costo_financiamiento_segundo: 0, monto_maximo_pago: 0,
     }
     escs.push(makeEsc('e_m10', 'Modalidad 10 · 12 meses', 'Cobertura integral + semanas (independiente)', 12, mod40Umas, r0))
 
