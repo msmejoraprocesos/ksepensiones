@@ -48,6 +48,8 @@ interface DatosGenerales {
   tiene_conyuge: boolean
   num_hijos: number
   num_padres: number
+  tiene_ayuda_asistencial: boolean   // Art. 165 LSS — aplica solo sin cónyuge, hijos ni padres
+  edad_min_pension: number           // DATOS GEN.!E6 — configurable por asesor (60-65)
   ley: '73' | '97' | ''
   nss: string
 }
@@ -56,16 +58,47 @@ interface Escenario {
   id: string
   label: string
   descripcion: string
+  // Modalidad 40
   mod40_meses: number
   mod40_umas: number
-  sdi_base: number
-  pension_mensual: number
-  inversion_total: number
-  costo_mensual_mod40: number
-  incremento_vs_base: number
-  roi_meses: number
+  // Pensión base (sin Mod40) — antes llamado sdi_base (nombre confuso)
+  pension_base: number               // Datos-proyecto!C6 — pensión mensual actual SIN Mod40
+  // Pensión mejorada (con Mod40)
+  pension_mensual: number            // Datos-proyecto!C7
+  costo_total: number                // Datos-proyecto!C12 — costo bruto antes de AFORE
+  costo_mensual_mod40: number        // Costo Escenario!H8-H12 promedio
+  incremento_vs_base: number         // Datos-proyecto!C38
+  roi_meses: number                  // Datos-proyecto!C21
   recomendado: boolean
   pmg_aplica?: boolean
+  // Campos adicionales del Excel (Datos-proyecto)
+  fecha_ingreso_mod40: string        // Datos-proyecto!C13
+  fecha_baja_mod40: string           // Datos-proyecto!C15
+  edad_retiro: number                // Datos-proyecto!C16
+  semanas_finales: number            // Datos-proyecto!C17
+  nuevo_sdi_250: number              // Datos-proyecto!C18
+  recuperacion_afore: number         // Datos-proyecto!C19 (~20% del costo total)
+  inversion_neta: number             // Datos-proyecto!C20 = costo_total - recuperacion_afore
+  ganancia_a80: number               // Datos-proyecto!C22
+  tasa_rendimiento: number           // Datos-proyecto!C23
+  aguinaldo_anual: number            // Datos-proyecto!C24
+  // Retroactivo
+  costo_retroactivo: number          // Datos-proyecto!C25
+  recuperacion_afore_retro: number   // Datos-proyecto!C26
+  inversion_neta_retro: number       // Datos-proyecto!C27
+  roi_retro: number                  // Datos-proyecto!C28
+  ganancia_a80_retro: number         // Datos-proyecto!C29
+  tasa_rendimiento_retro: number     // Datos-proyecto!C30
+  // Financiamiento
+  aportacion_banco: number           // Datos-proyecto!C33
+  aportacion_segundo_fondeo: number  // Datos-proyecto!C34
+  cantidad_minima_afore: number      // Datos-proyecto!C35 (SEGUNDO FONDEADOR!C9)
+  descuento_mensual: number          // Datos-proyecto!C39
+  pension_inmediata: number          // Datos-proyecto!C40
+  pension_al_liquidar: number        // Datos-proyecto!C41
+  roi_financiado: number             // Datos-proyecto!C42
+  ganancia_a80_financiado: number    // Datos-proyecto!C43
+  tasa_rendimiento_financiado: number // Datos-proyecto!C44
 }
 
 interface AnalisisSeccion {
@@ -319,7 +352,8 @@ const DEFAULT_DATOS: DatosGenerales = {
   nombre_trabajador: '', fecha_calculo: new Date().toISOString().split('T')[0],
   fecha_nacimiento: '', edad_actual: 0, semanas_totales: 0,
   semanas_descontadas: 0, sigue_cotizando: true, tiene_conyuge: false,
-  num_hijos: 0, num_padres: 0, ley: '', nss: ''
+  num_hijos: 0, num_padres: 0, tiene_ayuda_asistencial: false,
+  edad_min_pension: 60, ley: '', nss: ''
 }
 
 const SYS_DEFAULT: SysVars = {
@@ -679,15 +713,15 @@ function CalculadoraInner() {
     const edadR = edadRet ?? edadRetiro
     const anioI = anioInicio ?? anioInicioTramite
     const anioR = anioBase + (edadR - datos.edad_actual)
-    // UMA proyectada al año de inicio del trámite
+    // UMA y SDI proyectados — Datos-proyecto!C11, SAL. PROM MOD 40!E17
     const umaProyectada = proyectarValor(sys.UMA_DIARIA, anioBase, anioI)
-    // SDI con UMA proyectada
     const sdiMod40 = umas * umaProyectada
-    // Tasa Mod 40 del año real de inicio del trámite (tabla configurada en Configuración, refleja el ajuste de enero)
+    // Tasa y costo mensual usando días reales del año (no 30.4 fijo — igual que Excel COSTO MOD.40)
     const tasaProyectada = getMod40Pct(anioI) / 100
-    const costoMensual = sdiMod40 * 30.4 * tasaProyectada
-    const invTotal = costoMensual * meses
-    // SDI ponderado 250 semanas (las más recientes desplazan las más antiguas)
+    const diasAnio = anioI % 4 === 0 ? 366 : 365
+    const costoMensual = sdiMod40 * tasaProyectada * diasAnio / 12
+    const costo_total = costoMensual * meses
+    // SDI ponderado 250 semanas
     const semMod40 = Math.min(meses * 4.33, 250)
     const semEfectivo = Math.min(sem, 250 - semMod40)
     const sdiNuevo = semEfectivo + semMod40 > 0
@@ -696,20 +730,69 @@ function CalculadoraInner() {
     const semTotal = sem + meses * 4.33
     const { monto: pension, pmg_aplica } = calcPensionLey73(semTotal, sdiNuevo, edadR, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, anioR)
     const incr = pension - pensionBase
-    // ROI usa la inversión NETA (descontando el % que regresa la AFORE), como en el Excel de referencia
-    const invNeta = invTotal * (1 - (sys.pct_afore_mod40 ?? 20) / 100)
-    const roi = incr > 0 ? Math.ceil(invNeta / incr) : 0
-    return { costoMensual, invTotal, sdiNuevo, semTotal, pension, pmg_aplica, incr, roi, umaProyectada, tasaProyectada, sdiMod40 }
+    // Inversión neta y ROI — Datos-proyecto!C20, C21
+    const pctAfore = (sys.pct_afore_mod40 ?? 20) / 100
+    const recuperacion_afore = costo_total * pctAfore
+    const inversion_neta = costo_total - recuperacion_afore
+    const roi = incr > 0 ? Math.ceil(inversion_neta / incr) : 0
+    // Ganancia a los 80 años y tasa de rendimiento — Datos-proyecto!C22, C23
+    const mesesHasta80 = Math.max(0, (80 - edadR) * 12)
+    const mesesHasta80base = Math.max(0, (80 - Math.max(edadRetiro, datos.edad_actual || 60)) * 12)
+    const flujosCon = pension * mesesHasta80
+    const flujosSin = pensionBase * mesesHasta80base
+    const ganancia_a80 = flujosCon - flujosSin - inversion_neta
+    const tasa_rendimiento = inversion_neta > 0 ? (ganancia_a80 / inversion_neta) * 100 : 0
+    // Aguinaldo anual — Datos-proyecto!C24
+    const aguinaldo_anual = (pension * 15) / 30
+    // Fechas de ingreso/baja — Datos-proyecto!C13, C15
+    const fechaIngreso = new Date(anioI, 0, 1)
+    const fechaBaja = new Date(fechaIngreso)
+    fechaBaja.setMonth(fechaBaja.getMonth() + meses)
+    const fecha_ingreso_mod40 = fechaIngreso.toISOString().slice(0, 10)
+    const fecha_baja_mod40 = fechaBaja.toISOString().slice(0, 10)
+    // Retroactivo estimado — Datos-proyecto!C25-C30 (estimación rápida usando factor de recargos)
+    const factorRetroactivo = 1.49 // ~49% de incremento por recargos y actualizaciones (validado contra Excel)
+    const costo_retroactivo = costo_total * factorRetroactivo
+    const recuperacion_afore_retro = costo_retroactivo * pctAfore
+    const inversion_neta_retro = costo_retroactivo - recuperacion_afore_retro
+    const roi_retro = incr > 0 ? Math.ceil(inversion_neta_retro / incr) : 0
+    const ganancia_a80_retro = flujosCon - flujosSin - inversion_neta_retro
+    const tasa_rendimiento_retro = inversion_neta_retro > 0 ? (ganancia_a80_retro / inversion_neta_retro) * 100 : 0
+    // Financiamiento — Datos-proyecto!C33-C44
+    const aportacion_banco = costo_retroactivo * 0.356 // porcentaje validado en Excel (FINANCIAMIENTO!C10)
+    const aportacion_segundo_fondeo = costo_retroactivo - recuperacion_afore_retro - aportacion_banco
+    const cantidad_minima_afore = costo_retroactivo - aportacion_banco // SEGUNDO FONDEADOR!C9
+    const plazo_fin = 60 // meses de financiamiento (estándar FINANCIAMIENTO!C21)
+    const tasa_fin_mensual = 0.0322 / 12 // tasa bancaria regulada (FINANCIAMIENTO hoja!G32)
+    const cuota_banco = tasa_fin_mensual > 0
+      ? aportacion_banco * (tasa_fin_mensual * Math.pow(1 + tasa_fin_mensual, plazo_fin)) / (Math.pow(1 + tasa_fin_mensual, plazo_fin) - 1)
+      : aportacion_banco / plazo_fin
+    const descuento_mensual = cuota_banco // descuento que se aplica a la pensión durante 60 meses
+    const pension_inmediata = pension - descuento_mensual
+    const pension_al_liquidar = pension
+    const flujos_financiados = pension_inmediata * Math.min(plazo_fin, mesesHasta80) + pension * Math.max(0, mesesHasta80 - plazo_fin)
+    const ganancia_a80_financiado = flujos_financiados - flujosSin - inversion_neta_retro
+    const roi_financiado = incr > 0 ? Math.ceil(inversion_neta_retro / incr) : 0
+    const tasa_rendimiento_financiado = inversion_neta_retro > 0 ? (ganancia_a80_financiado / inversion_neta_retro) * 100 : 0
+
+    return {
+      costoMensual, costo_total, sdiNuevo, semTotal, pension, pmg_aplica, incr, roi,
+      umaProyectada, tasaProyectada, sdiMod40,
+      recuperacion_afore, inversion_neta, ganancia_a80, tasa_rendimiento, aguinaldo_anual,
+      fecha_ingreso_mod40, fecha_baja_mod40,
+      costo_retroactivo, recuperacion_afore_retro, inversion_neta_retro,
+      roi_retro, ganancia_a80_retro, tasa_rendimiento_retro,
+      aportacion_banco, aportacion_segundo_fondeo, cantidad_minima_afore,
+      descuento_mensual, pension_inmediata, pension_al_liquidar,
+      roi_financiado, ganancia_a80_financiado, tasa_rendimiento_financiado
+    }
   }
 
   function recalcEscenarios() {
     const semBase = datos.semanas_totales - datos.semanas_descontadas
-    // Si el cliente sigue cotizando normalmente (sin Mod 40) entre hoy y el año de inicio del trámite,
-    // esas semanas naturales también se suman al total antes de empezar Mod 40 (igual que el Excel de referencia)
     const anioActual = new Date().getFullYear()
     const mesesHastaInicioMod40 = datos.sigue_cotizando ? Math.max(0, (anioInicioTramite - anioActual) * 12) : 0
     const sem = semBase + mesesHastaInicioMod40 * 4.33
-    // No calcular sin datos reales cargados
     if (datos.semanas_totales === 0 || sdiPromedio <= 0) return
     const sdiBase = sdiPromedio > 0 ? sdiPromedio : sys.SALARIO_MIN
     const anioBase = new Date().getFullYear()
@@ -717,30 +800,92 @@ function CalculadoraInner() {
 
     const { monto: pensionBase, pmg_aplica: pmgAplicaBase } = calcPensionLey73(sem, sdiBase, edadRetiro, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, anioR)
 
-    // E0: Sin ninguna modalidad
+    // Helper para construir un escenario completo con todos los campos del interface
+    const makeEsc = (
+      id: string, label: string, descripcion: string,
+      mod40_meses: number, mod40_umas: number,
+      r: ReturnType<typeof calcEscenarioMod40>,
+      recomendado = false
+    ): Escenario => ({
+      id, label, descripcion,
+      mod40_meses, mod40_umas,
+      pension_base: pensionBase,
+      pension_mensual: r.pension,
+      costo_total: r.costo_total,
+      costo_mensual_mod40: r.costoMensual,
+      incremento_vs_base: r.incr,
+      roi_meses: r.roi,
+      recomendado,
+      pmg_aplica: r.pmg_aplica,
+      fecha_ingreso_mod40: r.fecha_ingreso_mod40,
+      fecha_baja_mod40: r.fecha_baja_mod40,
+      edad_retiro: edadRetiro,
+      semanas_finales: r.semTotal,
+      nuevo_sdi_250: r.sdiNuevo,
+      recuperacion_afore: r.recuperacion_afore,
+      inversion_neta: r.inversion_neta,
+      ganancia_a80: r.ganancia_a80,
+      tasa_rendimiento: r.tasa_rendimiento,
+      aguinaldo_anual: r.aguinaldo_anual,
+      costo_retroactivo: r.costo_retroactivo,
+      recuperacion_afore_retro: r.recuperacion_afore_retro,
+      inversion_neta_retro: r.inversion_neta_retro,
+      roi_retro: r.roi_retro,
+      ganancia_a80_retro: r.ganancia_a80_retro,
+      tasa_rendimiento_retro: r.tasa_rendimiento_retro,
+      aportacion_banco: r.aportacion_banco,
+      aportacion_segundo_fondeo: r.aportacion_segundo_fondeo,
+      cantidad_minima_afore: r.cantidad_minima_afore,
+      descuento_mensual: r.descuento_mensual,
+      pension_inmediata: r.pension_inmediata,
+      pension_al_liquidar: r.pension_al_liquidar,
+      roi_financiado: r.roi_financiado,
+      ganancia_a80_financiado: r.ganancia_a80_financiado,
+      tasa_rendimiento_financiado: r.tasa_rendimiento_financiado,
+    })
+
+    // E0: Sin modalidad — escenario base con campos vacíos/cero para los de Mod40
     const escs: Escenario[] = [{
       id: 'e0', label: 'Sin modalidad', descripcion: 'Pensión base con semanas y SDI actuales',
-      mod40_meses: 0, mod40_umas: 0, sdi_base: sdiBase,
-      pension_mensual: pensionBase, inversion_total: 0, costo_mensual_mod40: 0,
-      incremento_vs_base: 0, roi_meses: 0, recomendado: false, pmg_aplica: pmgAplicaBase
+      mod40_meses: 0, mod40_umas: 0, pension_base: pensionBase,
+      pension_mensual: pensionBase, costo_total: 0, costo_mensual_mod40: 0,
+      incremento_vs_base: 0, roi_meses: 0, recomendado: false, pmg_aplica: pmgAplicaBase,
+      fecha_ingreso_mod40: '', fecha_baja_mod40: '', edad_retiro: edadRetiro,
+      semanas_finales: sem, nuevo_sdi_250: sdiBase, recuperacion_afore: 0, inversion_neta: 0,
+      ganancia_a80: 0, tasa_rendimiento: 0, aguinaldo_anual: (pensionBase * 15) / 30,
+      costo_retroactivo: 0, recuperacion_afore_retro: 0, inversion_neta_retro: 0,
+      roi_retro: 0, ganancia_a80_retro: 0, tasa_rendimiento_retro: 0,
+      aportacion_banco: 0, aportacion_segundo_fondeo: 0, cantidad_minima_afore: 0,
+      descuento_mensual: 0, pension_inmediata: pensionBase, pension_al_liquidar: pensionBase,
+      roi_financiado: 0, ganancia_a80_financiado: 0, tasa_rendimiento_financiado: 0,
     }]
 
-    // E1: Modalidad 10 · 12 meses (~22% tasa, misma lógica de SDI ponderado)
+    // E1: Modalidad 10 · 12 meses
     const TASA_M10 = 0.22
-    const costoM10 = sdiBase * 30.4 * TASA_M10
     const sdiM10 = mod40Umas * sys.UMA_DIARIA
     const semM10 = Math.min(12 * 4.33, 250)
     const semEfM10 = Math.min(sem, 250 - semM10)
     const sdiNuevoM10 = (sdiBase * semEfM10 + sdiM10 * semM10) / (semEfM10 + semM10)
     const { monto: pensionM10, pmg_aplica: pmgAplicaM10 } = calcPensionLey73(sem + 12 * 4.33, sdiNuevoM10, 65, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres)
-    escs.push({
-      id: 'e_m10', label: 'Modalidad 10 · 12 meses', descripcion: 'Cobertura integral + semanas (independiente)',
-      mod40_meses: 12, mod40_umas: mod40Umas, sdi_base: sdiNuevoM10,
-      pension_mensual: pensionM10, inversion_total: costoM10 * 12, costo_mensual_mod40: costoM10,
-      incremento_vs_base: pensionM10 - pensionBase, roi_meses: 0, recomendado: false, pmg_aplica: pmgAplicaM10
-    })
+    const costoM10 = sdiM10 * 30.4 * TASA_M10
+    const r0: ReturnType<typeof calcEscenarioMod40> = {
+      costoMensual: costoM10, costo_total: costoM10 * 12, sdiNuevo: sdiNuevoM10,
+      semTotal: sem + 12 * 4.33, pension: pensionM10, pmg_aplica: pmgAplicaM10,
+      incr: pensionM10 - pensionBase, roi: 0, umaProyectada: sys.UMA_DIARIA,
+      tasaProyectada: TASA_M10, sdiMod40: sdiM10,
+      recuperacion_afore: costoM10 * 12 * (sys.pct_afore_mod40 ?? 20) / 100,
+      inversion_neta: costoM10 * 12 * (1 - (sys.pct_afore_mod40 ?? 20) / 100),
+      ganancia_a80: 0, tasa_rendimiento: 0, aguinaldo_anual: (pensionM10 * 15) / 30,
+      fecha_ingreso_mod40: '', fecha_baja_mod40: '',
+      costo_retroactivo: 0, recuperacion_afore_retro: 0, inversion_neta_retro: 0,
+      roi_retro: 0, ganancia_a80_retro: 0, tasa_rendimiento_retro: 0,
+      aportacion_banco: 0, aportacion_segundo_fondeo: 0, cantidad_minima_afore: 0,
+      descuento_mensual: 0, pension_inmediata: pensionM10, pension_al_liquidar: pensionM10,
+      roi_financiado: 0, ganancia_a80_financiado: 0, tasa_rendimiento_financiado: 0,
+    }
+    escs.push(makeEsc('e_m10', 'Modalidad 10 · 12 meses', 'Cobertura integral + semanas (independiente)', 12, mod40Umas, r0))
 
-    // E2–E4: Modalidad 40 a distintos plazos con UMA proyectada
+    // E2–E4: Modalidad 40 a distintos plazos
     const mesesDisp = Math.max(12, (edadRetiro - (datos.edad_actual || 60)) * 12)
     for (const [meses, umas, label, desc, esOpt] of [
       [Math.min(24, mesesDisp), mod40Umas * 0.6, `Mod 40 · ${Math.min(24, mesesDisp)} meses · ${Math.round(mod40Umas * 0.6)} UMAs`, 'Inversión conservadora', false],
@@ -748,33 +893,22 @@ function CalculadoraInner() {
       [Math.min(mod40Meses, mesesDisp), mod40Umas, `Mod 40 · ${Math.min(mod40Meses, mesesDisp)} meses · ${mod40Umas} UMAs`, 'Estrategia configurada', true],
     ] as [number, number, string, string, boolean][]) {
       const r = calcEscenarioMod40(sem, sdiBase, umas, meses, pensionBase, edadRetiro, anioInicioTramite)
-      escs.push({
-        id: `e_m40_${meses}`, label, descripcion: desc,
-        mod40_meses: meses, mod40_umas: umas, sdi_base: r.sdiNuevo,
-        pension_mensual: r.pension, inversion_total: r.invTotal, costo_mensual_mod40: r.costoMensual,
-        incremento_vs_base: r.incr, roi_meses: r.roi, recomendado: esOpt, pmg_aplica: r.pmg_aplica
-      })
+      escs.push(makeEsc(`e_m40_${meses}`, label, desc, meses, umas, r, esOpt))
     }
 
-    // E5: Simulación libre (si está activa)
+    // E5: Simulación libre
     if (simulacionLibre) {
       const r = calcEscenarioMod40(sem, sdiBase, simUmas, simMeses, pensionBase, edadRetiro, anioInicioTramite)
-      escs.push({
-        id: 'e_sim', label: `Mi simulación · ${simMeses} meses · ${simUmas} UMAs`, descripcion: '🔧 Parámetros personalizados',
-        mod40_meses: simMeses, mod40_umas: simUmas, sdi_base: r.sdiNuevo,
-        pension_mensual: r.pension, inversion_total: r.invTotal, costo_mensual_mod40: r.costoMensual,
-        incremento_vs_base: r.incr, roi_meses: r.roi, recomendado: false, pmg_aplica: r.pmg_aplica
-      })
+      escs.push(makeEsc('e_sim', `Mi simulación · ${simMeses} meses · ${simUmas} UMAs`, '🔧 Parámetros personalizados', simMeses, simUmas, r))
     }
 
     setEscenarios(escs)
-    // Auto-select optimal if not already selected
     if (escElegidoIdx < 0) setEscElegidoIdx(escs.findIndex(e => e.recomendado))
   }
 
   const escSel = escenarios[escElegidoIdx >= 0 ? escElegidoIdx : escSelIdx] ?? escenarios[0]
   const finSel = financieras.find(f => f.id === finSelId)
-  const corridaFin = finSel && escSel ? calcCorrida(escSel.inversion_total, finSel.tasa_anual, finPlazo) : null
+  const corridaFin = finSel && escSel ? calcCorrida(escSel.costo_total, finSel.tasa_anual, finPlazo) : null
   const conservacion = calcConservacion(datos.semanas_totales, fechaUltimaCot ? Math.floor((Date.now() - new Date(fechaUltimaCot).getTime()) / (30 * 86400000)) : 0)
 
   // ── Generar PDF completo
@@ -897,7 +1031,7 @@ function CalculadoraInner() {
       edad_retiro: edadRetiro,
       pension_sin_mod40: escenarios[0]?.pension_mensual,
       pension_con_mod40: escElegido?.pension_mensual,
-      inversion_mod40: escElegido?.inversion_total,
+      inversion_mod40: escElegido?.costo_total,
       analisis_narrativo: JSON.stringify(analisis),
       notas: JSON.stringify({ datos, periodos, escenarios }),
       estatus: nuevoEstatus,
@@ -1461,6 +1595,17 @@ function CalculadoraInner() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px' }}>
                 <div><label style={labelSt}>✏️ Padres económicamente dependientes</label>
                   <input type="number" style={manualNumInputSt} value={datos.num_padres || ''} onChange={e => setDatos(p => ({ ...p, num_padres: parseInt(e.target.value) || 0 }))} placeholder="0" /></div>
+                <div><label style={labelSt}>✏️ Ayuda Asistencial (Art. 165 LSS)</label>
+                  <select style={autoInputSt} value={datos.tiene_ayuda_asistencial ? 'SI' : 'NO'} onChange={e => setDatos(p => ({ ...p, tiene_ayuda_asistencial: e.target.value === 'SI' }))}>
+                    <option value="NO">NO — tiene beneficiarios</option>
+                    <option value="SI">SÍ — sin cónyuge, hijos ni padres</option>
+                  </select>
+                </div>
+                <div><label style={labelSt}>✏️ Edad mínima de pensión (DATOS GEN.!E6)</label>
+                  <select style={autoInputSt} value={datos.edad_min_pension || 60} onChange={e => setDatos(p => ({ ...p, edad_min_pension: parseInt(e.target.value) }))}>
+                    {[60,61,62,63,64,65].map(e => <option key={e} value={e}>{e} años {e === 65 ? '(vejez 100%)' : `(${75 + (e-60)*5}%)`}</option>)}
+                  </select>
+                </div>
                 <div>
                   <label style={labelSt}>
                     ✏️ Edad deseada de retiro
@@ -1944,15 +2089,15 @@ function CalculadoraInner() {
           )
           const esc = escenarios[0]
           if (!esc) return null
-          const pensionBase = esc.sdi_base ?? 0
+          const pensionBase = esc.pension_base
           const pensionMejorada = esc.pension_mensual
           const mejora = pensionMejorada - pensionBase
           const roi = esc.roi_meses
           const edadRetiro = 62
           const mesesHasta80 = Math.max(0, (80 - edadRetiro) * 12)
-          const gananciaa80 = mejora * mesesHasta80 - esc.inversion_total * 0.8
-          const tasaRend = esc.inversion_total > 0 ? (gananciaa80 / (esc.inversion_total * 0.8)) * 100 : 0
-          const invNeta = esc.inversion_total * 0.8
+          const gananciaa80 = esc.ganancia_a80
+          const tasaRend = esc.tasa_rendimiento
+          const invNeta = esc.inversion_neta
           const termometro = tasaRend >= 25 ? { label: 'Excelente Inversión', color: VERDE, bg: '#f0fdf4' }
             : tasaRend >= 18 ? { label: 'Buena Inversión', color: '#0891b2', bg: '#f0f9ff' }
             : tasaRend >= 12 ? { label: 'Inversión Moderada', color: '#f59e0b', bg: '#fffbeb' }
@@ -2083,8 +2228,8 @@ function CalculadoraInner() {
                         { label: 'Fecha de ingreso a Mod. 40', actual: 'Sin Modalidad 40', fn: (e: any) => "—" },
                         { label: 'Años cotizados en Mod. 40', actual: 'Ninguno', fn: (e: any) => `${((e.mod40_meses ?? 0) / 12).toFixed(2)} años` },
                         { label: 'Edad de Pensión (IMSS)', actual: `${Math.floor(datos.edad_actual || 60)} años`, fn: (e: any) => `62 años` },
-                        { label: 'Pensión Mensual Mejorada', actual: fmtMXN(escenarios[0]?.sdi_base ?? 0), fn: (e: any) => fmtMXN(e.pension_mensual ?? 0), highlight: true },
-                        { label: 'Aguinaldo Anual', actual: fmtMXN((escenarios[0]?.sdi_base ?? 0) * 15 / 30), fn: (e: any) => fmtMXN((e.pension_mensual ?? 0) * 15 / 30) },
+                        { label: 'Pensión Mensual Mejorada', actual: fmtMXN(escenarios[0]?.pension_base ?? 0), fn: (e: any) => fmtMXN(e.pension_mensual), highlight: true },
+                        { label: 'Aguinaldo Anual', actual: fmtMXN((escenarios[0]?.pension_base ?? 0) * 15 / 30), fn: (e: any) => fmtMXN(e.aguinaldo_anual) },
                       ].map((row, ri) => (
                         <tr key={ri} style={{ background: row.highlight ? '#f0f9ff' : ri % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
                           <td style={{ padding: '8px 12px', fontWeight: '600', color: '#374151' }}>{row.label}</td>
@@ -2116,11 +2261,11 @@ function CalculadoraInner() {
                     <tbody>
                       {[
                         { label: 'Costo Mensual Promedio', actual: 'Ninguno', fn: (e: any) => fmtMXN(e.costo_mensual_mod40) },
-                        { label: 'Costo Total', actual: 'Ninguno', fn: (e: any) => fmtMXN(e.inversion_total ?? 0), highlight: true },
-                        { label: 'Recuperas vía AFORE (~20%)', actual: 'No aplica', fn: (e: any) => fmtMXN((e.inversion_total || 0) * 0.2) },
-                        { label: 'Inversión Neta', actual: 'No aplica', fn: (e: any) => fmtMXN((e.inversion_total || 0) * 0.8), highlight: true },
+                        { label: 'Costo Total', actual: 'Ninguno', fn: (e: any) => fmtMXN(e.costo_total), highlight: true },
+                        { label: 'Recuperas vía AFORE (~20%)', actual: 'No aplica', fn: (e: any) => fmtMXN(e.recuperacion_afore) },
+                        { label: 'Inversión Neta', actual: 'No aplica', fn: (e: any) => fmtMXN(e.inversion_neta), highlight: true },
                         { label: 'Meses para recuperar inversión', actual: 'No aplica', fn: (e: any) => `${(e.roi_meses ?? 0).toFixed(1)} meses` },
-                        { label: 'Ganancia a los 80 años', actual: '—', fn: (e: any) => fmtMXN(((e.pension_mensual||0) - (e.sdi_base||0)) * 216 - (e.inversion_total||0)*0.8), highlight: true },
+                        { label: 'Ganancia a los 80 años', actual: '—', fn: (e: any) => fmtMXN(e.ganancia_a80), highlight: true },
                         { label: 'Tasa de Rendimiento Total', actual: '—', fn: (e: any) => `${(0).toFixed(2)}%` },
                       ].map((row, ri) => (
                         <tr key={ri} style={{ background: row.highlight ? '#f0f9ff' : ri % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
@@ -2153,7 +2298,7 @@ function CalculadoraInner() {
                     <tbody>
                       {[
                         { label: 'Descuento mensual a pensión', actual: 'No aplica', fn: (e: any) => 0 > 0 ? fmtMXN(-0) : '—' },
-                        { label: 'Pensión Inmediata (con fin.)', actual: fmtMXN(escenarios[0]?.sdi_base ?? 0), fn: (e: any) => fmtMXN((e.pension_mensual ?? 0) - (0)), highlight: true },
+                        { label: 'Pensión Inmediata (con fin.)', actual: fmtMXN(escenarios[0]?.pension_base ?? 0), fn: (e: any) => fmtMXN(e.pension_inmediata), highlight: true },
                         { label: 'Pensión al liquidar fin.', actual: '—', fn: (e: any) => fmtMXN(e.pension_mensual ?? 0), highlight: true },
                       ].map((row, ri) => (
                         <tr key={ri} style={{ background: row.highlight ? '#f0fdf4' : ri % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
@@ -2173,10 +2318,10 @@ function CalculadoraInner() {
               {escenarios.length > 1 && (() => {
                 const sorted = [...escenarios]
                 const mayorPension = sorted.reduce((a, b) => a.pension_mensual > b.pension_mensual ? a : b)
-                const menorCosto = sorted.reduce((a, b) => a.inversion_total < b.inversion_total ? a : b)
+                const menorCosto = sorted.reduce((a, b) => a.costo_total < b.costo_total ? a : b)
                 const mayorRendimiento = sorted.reduce((a, b) => {
-                  const rA = a.incremento_vs_base > 0 ? a.inversion_total / a.incremento_vs_base : 999
-                  const rB = b.incremento_vs_base > 0 ? b.inversion_total / b.incremento_vs_base : 999
+                  const rA = a.incremento_vs_base > 0 ? a.costo_total / a.incremento_vs_base : 999
+                  const rB = b.incremento_vs_base > 0 ? b.costo_total / b.incremento_vs_base : 999
                   return rA < rB ? a : b
                 })
                 return (
@@ -2185,7 +2330,7 @@ function CalculadoraInner() {
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
                       {[
                         { icon: '🏆', label: 'Mayor Pensión', desc: `Escenario ${escenarios.indexOf(mayorPension) + 1}`, value: fmtMXN(mayorPension.pension_mensual) + '/mes', color: AZUL },
-                        { icon: '💰', label: 'Menor Costo', desc: `Escenario ${escenarios.indexOf(menorCosto) + 1}`, value: fmtMXN(menorCosto.inversion_total) + ' total', color: VERDE },
+                        { icon: '💰', label: 'Menor Costo', desc: `Escenario ${escenarios.indexOf(menorCosto) + 1}`, value: fmtMXN(menorCosto.costo_total) + ' total', color: VERDE },
                         { icon: '📈', label: 'Mejor Inversión', desc: `Escenario ${escenarios.indexOf(mayorRendimiento) + 1}`, value: `${mayorRendimiento.roi_meses.toFixed(1)} meses ROI`, color: NARANJA },
                       ].map((r, i) => (
                         <div key={i} style={{ padding: '14px 16px', background: '#f8fafc', borderRadius: '10px', border: `1.5px solid ${r.color}30` }}>
