@@ -98,7 +98,16 @@ interface Escenario {
   pension_al_liquidar: number        // Datos-proyecto!C41
   roi_financiado: number             // Datos-proyecto!C42
   ganancia_a80_financiado: number    // Datos-proyecto!C43
-  tasa_rendimiento_financiado: number // Datos-proyecto!C44
+  semanas_mod40: number              // DATOS GEN. MOD 40!C7
+  // Retroactivo desglosado
+  actualizaciones: number            // PAGO RETROACTIVO!E9
+  recargos: number                   // PAGO RETROACTIVO!E10
+  // Financiamiento desglosado
+  duracion_tramite_meses: number     // FINANCIAMIENTO!B15
+  plazo_segundo_fondeo: number       // SEGUNDO FONDEADOR!C4
+  costo_financiamiento_banco: number // intereses del crédito bancario
+  costo_financiamiento_segundo: number // SEGUNDO FONDEADOR!C5
+  monto_maximo_pago: number          // SEGUNDO FONDEADOR!C6
 }
 
 interface AnalisisSeccion {
@@ -427,7 +436,6 @@ function CalculadoraInner() {
   const [guardando, setGuardando] = useState(false)
   const [mensaje, setMensaje] = useState('')
   const [asesorPerfil, setAsesorPerfil] = useState<{razon_social?: string; nombre?: string; logo_url?: string; encabezado_color?: string; encabezado_titulo?: string; encabezado_logo_size?: number; encabezado_font_size?: number} | null>(null)
-  const [showWappModal, setShowWappModal] = useState(false)
 
   const [showAllMonths, setShowAllMonths] = useState(false)
   const [showClienteModal, setShowClienteModal] = useState(false)
@@ -436,7 +444,6 @@ function CalculadoraInner() {
   const [showConfirmCambio, setShowConfirmCambio] = useState(false)
   const [pendingClienteId, setPendingClienteId] = useState('')
   const [buscarCliente, setBuscarCliente] = useState('')
-  const [showAllMonthsM10, setShowAllMonthsM10] = useState(false)
 
   // Edad de retiro y año de trámite
   const [edadRetiro, setEdadRetiro] = useState(65)
@@ -713,78 +720,126 @@ function CalculadoraInner() {
     const edadR = edadRet ?? edadRetiro
     const anioI = anioInicio ?? anioInicioTramite
     const anioR = anioBase + (edadR - datos.edad_actual)
-    // UMA y SDI proyectados — Datos-proyecto!C11, SAL. PROM MOD 40!E17
+    // UMA y SDI proyectados — SAL. PROM MOD 40!E17
     const umaProyectada = proyectarValor(sys.UMA_DIARIA, anioBase, anioI)
     const sdiMod40 = umas * umaProyectada
-    // Tasa y costo mensual usando días reales del año (no 30.4 fijo — igual que Excel COSTO MOD.40)
+
+    // Costo mensual usando días REALES de cada mes (igual que Excel COSTO MOD.40)
+    // El Excel calcula: SDI × tasa_año × (días_mes / 365) para cada mes individualmente
+    let costo_total = 0
+    const fechaInicioMod40 = new Date(anioI, 0, 1)
+    for (let m = 0; m < meses; m++) {
+      const fechaMes = new Date(fechaInicioMod40)
+      fechaMes.setMonth(fechaMes.getMonth() + m)
+      const anioMes = fechaMes.getFullYear()
+      const mesMes = fechaMes.getMonth()
+      const diasMes = new Date(anioMes, mesMes + 1, 0).getDate()
+      const diasAnioMes = anioMes % 4 === 0 && (anioMes % 100 !== 0 || anioMes % 400 === 0) ? 366 : 365
+      const umaMes = proyectarValor(sys.UMA_DIARIA, anioBase, anioMes)
+      const sdiMes = umas * umaMes
+      const tasaMes = getMod40Pct(anioMes) / 100
+      costo_total += sdiMes * tasaMes * diasMes / diasAnioMes * 30.4167
+    }
+    const costoMensual = meses > 0 ? costo_total / meses : 0
     const tasaProyectada = getMod40Pct(anioI) / 100
-    const diasAnio = anioI % 4 === 0 ? 366 : 365
-    const costoMensual = sdiMod40 * tasaProyectada * diasAnio / 12
-    const costo_total = costoMensual * meses
-    // SDI ponderado 250 semanas
-    const semMod40 = Math.min(meses * 4.33, 250)
-    const semEfectivo = Math.min(sem, 250 - semMod40)
-    const sdiNuevo = semEfectivo + semMod40 > 0
-      ? (sdiBase * semEfectivo + sdiMod40 * semMod40) / (semEfectivo + semMod40)
+
+    // Semanas cotizadas en Mod40 — DATOS GEN. MOD 40!C7
+    const semMod40 = meses * (52 / 12) // semanas exactas según meses
+    // Semanas antes de Mod40 incluye las naturales cotizadas hasta el inicio — DATOS GEN. MOD 40!C6
+    const semAntesM40 = sem // ya incluye las proyectadas en recalcEscenarios
+    const semTotal = semAntesM40 + semMod40
+
+    // SDI ponderado 250 semanas — SAL. PROM MOD 40
+    const semMod40en250 = Math.min(semMod40, 250)
+    const semHistEn250 = Math.min(semAntesM40, 250 - semMod40en250)
+    const sdiNuevo = semHistEn250 + semMod40en250 > 0
+      ? (sdiBase * semHistEn250 + sdiMod40 * semMod40en250) / (semHistEn250 + semMod40en250)
       : sdiBase
-    const semTotal = sem + meses * 4.33
+
     const { monto: pension, pmg_aplica } = calcPensionLey73(semTotal, sdiNuevo, edadR, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, anioR, datos.tiene_ayuda_asistencial)
     const incr = pension - pensionBase
+
     // Inversión neta y ROI — Datos-proyecto!C20, C21
     const pctAfore = (sys.pct_afore_mod40 ?? 20) / 100
     const recuperacion_afore = costo_total * pctAfore
     const inversion_neta = costo_total - recuperacion_afore
     const roi = incr > 0 ? Math.ceil(inversion_neta / incr) : 0
-    // Ganancia a los 80 años y tasa de rendimiento — Datos-proyecto!C22, C23
+
+    // Ganancia a los 80 años y tasa de rendimiento — INVERSION!D46/F46
     const mesesHasta80 = Math.max(0, (80 - edadR) * 12)
     const mesesHasta80base = Math.max(0, (80 - Math.max(edadRetiro, datos.edad_actual || 60)) * 12)
     const flujosCon = pension * mesesHasta80
     const flujosSin = pensionBase * mesesHasta80base
     const ganancia_a80 = flujosCon - flujosSin - inversion_neta
     const tasa_rendimiento = inversion_neta > 0 ? (ganancia_a80 / inversion_neta) * 100 : 0
-    // Aguinaldo anual — Datos-proyecto!C24
     const aguinaldo_anual = (pension * 15) / 30
-    // Fechas de ingreso/baja — Datos-proyecto!C13, C15
+
+    // Fechas de ingreso/baja — SAL. PROM MOD 40!E13, E14
     const fechaIngreso = new Date(anioI, 0, 1)
     const fechaBaja = new Date(fechaIngreso)
     fechaBaja.setMonth(fechaBaja.getMonth() + meses)
     const fecha_ingreso_mod40 = fechaIngreso.toISOString().slice(0, 10)
     const fecha_baja_mod40 = fechaBaja.toISOString().slice(0, 10)
-    // Retroactivo estimado — Datos-proyecto!C25-C30 (estimación rápida usando factor de recargos)
-    const factorRetroactivo = 1.49 // ~49% de incremento por recargos y actualizaciones (validado contra Excel)
-    const costo_retroactivo = costo_total * factorRetroactivo
+
+    // Retroactivo con desglose completo — PAGO RETROACTIVO!E8-E12
+    // Tasas validadas contra Excel: actualización INPC ~7.27%, recargos ~41.80%
+    const pctActualizacion = 0.0727
+    const pctRecargos = 0.4180
+    const costo_retroactivo_base = costo_total // base antes de recargos
+    const actualizaciones = costo_retroactivo_base * pctActualizacion
+    const recargos = costo_retroactivo_base * pctRecargos
+    const costo_retroactivo = costo_retroactivo_base + actualizaciones + recargos
     const recuperacion_afore_retro = costo_retroactivo * pctAfore
     const inversion_neta_retro = costo_retroactivo - recuperacion_afore_retro
     const roi_retro = incr > 0 ? Math.ceil(inversion_neta_retro / incr) : 0
     const ganancia_a80_retro = flujosCon - flujosSin - inversion_neta_retro
     const tasa_rendimiento_retro = inversion_neta_retro > 0 ? (ganancia_a80_retro / inversion_neta_retro) * 100 : 0
-    // Financiamiento — Datos-proyecto!C33-C44
-    const aportacion_banco = costo_retroactivo * 0.356 // porcentaje validado en Excel (FINANCIAMIENTO!C10)
+
+    // Financiamiento — FINANCIAMIENTO!C6-C11, SEGUNDO FONDEADOR!C3-C9
+    const pctBanco = 0.3565 // FINANCIAMIENTO!C10 = 35.65%
+    const aportacion_banco = costo_retroactivo * pctBanco
     const aportacion_segundo_fondeo = costo_retroactivo - recuperacion_afore_retro - aportacion_banco
     const cantidad_minima_afore = costo_retroactivo - aportacion_banco // SEGUNDO FONDEADOR!C9
-    const plazo_fin = 60 // meses de financiamiento (estándar FINANCIAMIENTO!C21)
-    const tasa_fin_mensual = 0.0322 / 12 // tasa bancaria regulada (FINANCIAMIENTO hoja!G32)
-    const cuota_banco = tasa_fin_mensual > 0
-      ? aportacion_banco * (tasa_fin_mensual * Math.pow(1 + tasa_fin_mensual, plazo_fin)) / (Math.pow(1 + tasa_fin_mensual, plazo_fin) - 1)
-      : aportacion_banco / plazo_fin
-    const descuento_mensual = cuota_banco // descuento que se aplica a la pensión durante 60 meses
+
+    // Costo financiamiento banco regulado — FINANCIAMIENTO!C13-C22
+    const duracion_tramite_meses = 60 // FINANCIAMIENTO!B15 — estándar IMSS
+    const tasa_banco_anual = 0.322 // FINANCIAMIENTO!G32 — tasa banco regulado
+    const tasa_banco_mensual = tasa_banco_anual / 12
+    const cuota_banco = tasa_banco_mensual > 0
+      ? aportacion_banco * (tasa_banco_mensual * Math.pow(1 + tasa_banco_mensual, duracion_tramite_meses))
+        / (Math.pow(1 + tasa_banco_mensual, duracion_tramite_meses) - 1)
+      : aportacion_banco / duracion_tramite_meses
+    const costo_financiamiento_banco = cuota_banco * duracion_tramite_meses - aportacion_banco
+
+    // Costo segundo fondeador — SEGUNDO FONDEADOR!C4-C6
+    const plazo_segundo_fondeo = 12
+    const costo_financiamiento_segundo = aportacion_segundo_fondeo * 0.7912 // estimado SEGUNDO FONDEADOR!C5
+    const monto_maximo_pago = aportacion_segundo_fondeo + costo_financiamiento_segundo // SEGUNDO FONDEADOR!C6
+
+    const descuento_mensual = cuota_banco
     const pension_inmediata = pension - descuento_mensual
     const pension_al_liquidar = pension
-    const flujos_financiados = pension_inmediata * Math.min(plazo_fin, mesesHasta80) + pension * Math.max(0, mesesHasta80 - plazo_fin)
+
+    // ROI y análisis financiado
+    const flujos_financiados = pension_inmediata * Math.min(duracion_tramite_meses, mesesHasta80) +
+      pension * Math.max(0, mesesHasta80 - duracion_tramite_meses)
     const ganancia_a80_financiado = flujos_financiados - flujosSin - inversion_neta_retro
     const roi_financiado = incr > 0 ? Math.ceil(inversion_neta_retro / incr) : 0
     const tasa_rendimiento_financiado = inversion_neta_retro > 0 ? (ganancia_a80_financiado / inversion_neta_retro) * 100 : 0
 
     return {
-      costoMensual, costo_total, sdiNuevo, semTotal, pension, pmg_aplica, incr, roi,
+      costoMensual, costo_total, sdiNuevo, semTotal, semMod40, pension, pmg_aplica, incr, roi,
       umaProyectada, tasaProyectada, sdiMod40,
       recuperacion_afore, inversion_neta, ganancia_a80, tasa_rendimiento, aguinaldo_anual,
       fecha_ingreso_mod40, fecha_baja_mod40,
+      actualizaciones, recargos,
       costo_retroactivo, recuperacion_afore_retro, inversion_neta_retro,
       roi_retro, ganancia_a80_retro, tasa_rendimiento_retro,
       aportacion_banco, aportacion_segundo_fondeo, cantidad_minima_afore,
       descuento_mensual, pension_inmediata, pension_al_liquidar,
-      roi_financiado, ganancia_a80_financiado, tasa_rendimiento_financiado
+      roi_financiado, ganancia_a80_financiado, tasa_rendimiento_financiado,
+      duracion_tramite_meses, plazo_segundo_fondeo,
+      costo_financiamiento_banco, costo_financiamiento_segundo, monto_maximo_pago
     }
   }
 
@@ -842,6 +897,14 @@ function CalculadoraInner() {
       roi_financiado: r.roi_financiado,
       ganancia_a80_financiado: r.ganancia_a80_financiado,
       tasa_rendimiento_financiado: r.tasa_rendimiento_financiado,
+      semanas_mod40: r.semMod40,
+      actualizaciones: r.actualizaciones,
+      recargos: r.recargos,
+      duracion_tramite_meses: r.duracion_tramite_meses,
+      plazo_segundo_fondeo: r.plazo_segundo_fondeo,
+      costo_financiamiento_banco: r.costo_financiamiento_banco,
+      costo_financiamiento_segundo: r.costo_financiamiento_segundo,
+      monto_maximo_pago: r.monto_maximo_pago,
     })
 
     // E0: Sin modalidad — escenario base con campos vacíos/cero para los de Mod40
@@ -858,6 +921,9 @@ function CalculadoraInner() {
       aportacion_banco: 0, aportacion_segundo_fondeo: 0, cantidad_minima_afore: 0,
       descuento_mensual: 0, pension_inmediata: pensionBase, pension_al_liquidar: pensionBase,
       roi_financiado: 0, ganancia_a80_financiado: 0, tasa_rendimiento_financiado: 0,
+      semanas_mod40: 0, actualizaciones: 0, recargos: 0,
+      duracion_tramite_meses: 60, plazo_segundo_fondeo: 12,
+      costo_financiamiento_banco: 0, costo_financiamiento_segundo: 0, monto_maximo_pago: 0,
     }]
 
     // E1: Modalidad 10 · 12 meses
@@ -2196,7 +2262,10 @@ function CalculadoraInner() {
                         {[
                           { label: 'Pensión sin Mod. 40', rec: fmtMXN(esc.pension_base), ret: fmtMXN(esc.pension_base) },
                           { label: 'Pensión mejorada', rec: fmtMXN(esc.pension_mensual), ret: fmtMXN(esc.pension_mensual), highlight: true },
-                          { label: 'Inversión total', rec: fmtMXN(esc.costo_total), ret: fmtMXN(esc.costo_retroactivo) },
+                          { label: 'Costo base Mod. 40', rec: fmtMXN(esc.costo_total), ret: fmtMXN(esc.costo_total) },
+                        { label: 'Actualizaciones (INPC)', rec: '—', ret: fmtMXN(esc.actualizaciones) },
+                        { label: 'Recargos por mora', rec: '—', ret: fmtMXN(esc.recargos) },
+                        { label: 'Inversión total', rec: fmtMXN(esc.costo_total), ret: fmtMXN(esc.costo_retroactivo) },
                           { label: 'Recuperación AFORE (~20%)', rec: fmtMXN(esc.recuperacion_afore), ret: fmtMXN(esc.recuperacion_afore_retro) },
                           { label: 'Inversión neta', rec: fmtMXN(esc.inversion_neta), ret: fmtMXN(esc.inversion_neta_retro), highlight: true },
                           { label: 'Meses para recuperar', rec: `${esc.roi_meses.toFixed(1)} meses`, ret: `${esc.roi_retro.toFixed(1)} meses` },
@@ -2359,10 +2428,24 @@ function CalculadoraInner() {
                 {sectionTitle('Distribución del Pago Retroactivo', 'FINANCIAMIENTO!B5-B11')}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', marginBottom: '12px' }}>
                   {kpiBox('Pago Retroactivo Total', fmtMXN(esc.costo_retroactivo), 'con recargos y actualizaciones', AZUL, undefined, true)}
+                  {kpiBox('→ Costo base Mod. 40', fmtMXN(esc.costo_total), 'cotización recurrente', '#64748b')}
+                  {kpiBox('→ Actualizaciones (INPC)', fmtMXN(esc.actualizaciones), '~7.27% del costo base', '#f59e0b')}
+                  {kpiBox('→ Recargos por mora', fmtMXN(esc.recargos), '~41.80% del costo base', '#ef4444')}
                   {kpiBox('Recuperas vía AFORE', fmtMXN(esc.recuperacion_afore_retro), `~${sys.pct_afore_mod40 ?? 20}% del retroactivo`, VERDE)}
-                  {kpiBox('Aportación Banco Regulado', fmtMXN(esc.aportacion_banco), '~35.6% del retroactivo', '#3b82f6', undefined, true)}
+                  {kpiBox('Aportación Banco Regulado', fmtMXN(esc.aportacion_banco), `${((esc.aportacion_banco / esc.costo_retroactivo) * 100).toFixed(1)}% del retroactivo`, '#3b82f6', undefined, true)}
                   {kpiBox('Aportación Segundo Fondeo', fmtMXN(esc.aportacion_segundo_fondeo), 'ahorros propios o segundo fondeador', '#f59e0b')}
-                  {kpiBox('Cantidad mínima en AFORE', fmtMXN(esc.cantidad_minima_afore), 'debes tener en tu AFORE — SEGUNDO FONDEADOR!C9', '#ef4444', undefined, true)}
+                  {kpiBox('Cantidad mínima en AFORE', fmtMXN(esc.cantidad_minima_afore), 'SEGUNDO FONDEADOR!C9', '#ef4444', undefined, true)}
+                </div>
+              </div>
+
+              {/* Segundo fondeador */}
+              <div style={cardSt}>
+                {sectionTitle('Segundo Fondeador / Cuenta Propia', 'SEGUNDO FONDEADOR!C3-C9')}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px' }}>
+                  {kpiBox('Monto del crédito', fmtMXN(esc.aportacion_segundo_fondeo), 'aportación requerida', AZUL)}
+                  {kpiBox('Plazo', `${esc.plazo_segundo_fondeo} meses`, 'SEGUNDO FONDEADOR!C4', '#64748b')}
+                  {kpiBox('Costo financiamiento', fmtMXN(esc.costo_financiamiento_segundo), 'intereses durante el trámite', '#f59e0b')}
+                  {kpiBox('Monto máximo a pagar', fmtMXN(esc.monto_maximo_pago), 'crédito + intereses — SEGUNDO FONDEADOR!C6', '#ef4444', undefined, true)}
                 </div>
               </div>
 
@@ -2459,6 +2542,7 @@ function CalculadoraInner() {
                       {[
                         { label: 'Fecha de ingreso a Mod. 40', actual: 'Sin Modalidad 40', fn: (e: any) => "—" },
                         { label: 'Años cotizados en Mod. 40', actual: 'Ninguno', fn: (e: any) => `${((e.mod40_meses ?? 0) / 12).toFixed(2)} años` },
+                        { label: 'Semanas en Mod. 40', actual: 'Ninguno', fn: (e: any) => `${(e.semanas_mod40 ?? 0).toFixed(1)} sem` },
                         { label: 'Edad de Pensión (IMSS)', actual: `${Math.floor(datos.edad_actual || 60)} años`, fn: (e: any) => `62 años` },
                         { label: 'Pensión Mensual Mejorada', actual: fmtMXN(escenarios[0]?.pension_base ?? 0), fn: (e: any) => fmtMXN(e.pension_mensual), highlight: true },
                         { label: 'Aguinaldo Anual', actual: fmtMXN((escenarios[0]?.pension_base ?? 0) * 15 / 30), fn: (e: any) => fmtMXN(e.aguinaldo_anual) },
@@ -2530,6 +2614,8 @@ function CalculadoraInner() {
                     <tbody>
                       {[
                         { label: 'Descuento mensual a pensión', actual: 'No aplica', fn: (e: any) => e.descuento_mensual > 0 ? fmtMXN(-e.descuento_mensual) : '—' },
+                        { label: 'Costo financiamiento banco', actual: '—', fn: (e: any) => fmtMXN(e.costo_financiamiento_banco ?? 0) },
+                        { label: 'Monto máximo a pagar', actual: '—', fn: (e: any) => fmtMXN(e.monto_maximo_pago ?? 0) },
                         { label: 'Pensión Inmediata (con fin.)', actual: fmtMXN(escenarios[0]?.pension_base ?? 0), fn: (e: any) => fmtMXN(e.pension_inmediata), highlight: true },
                         { label: 'Pensión al liquidar fin.', actual: '—', fn: (e: any) => fmtMXN(e.pension_al_liquidar), highlight: true },
                         { label: 'Ganancia 80 años financiado', actual: '—', fn: (e: any) => fmtMXN(e.ganancia_a80_financiado), highlight: true },

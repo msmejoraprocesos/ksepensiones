@@ -49,6 +49,14 @@ interface Escenario {
   roi_financiado?: number
   ganancia_a80_financiado?: number
   tasa_rendimiento_financiado?: number
+  semanas_mod40?: number
+  actualizaciones?: number
+  recargos?: number
+  duracion_tramite_meses?: number
+  plazo_segundo_fondeo?: number
+  costo_financiamiento_banco?: number
+  costo_financiamiento_segundo?: number
+  monto_maximo_pago?: number
 }
 
 interface Periodo {
