@@ -41,17 +41,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('resize', checkWidth)
   }, [])
 
+  const [isAdmin, setIsAdmin] = useState(false)
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) { router.push('/login'); return }
       setChecking(false)
       setUserEmail(session.user.email ?? '')
-      supabase.from('perfiles_usuario').select('nombre, razon_social, logo_url').eq('id', session.user.id).single()
+      supabase.from('perfiles_usuario').select('nombre, razon_social, logo_url, is_admin').eq('id', session.user.id).single()
         .then(({ data }) => {
           if (data) {
             setUserName(data.nombre || session.user.email || '')
             setRazonSocial(data.razon_social || data.nombre || '')
             setAsesorLogo(data.logo_url || null)
+            setIsAdmin(!!data.is_admin)
             if (!data.nombre && !data.razon_social && !window.location.pathname.includes('configuracion')) {
               router.push('/configuracion')
             }
@@ -150,7 +153,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         }}>
           {/* Nav items */}
           <div style={{ flex: 1, padding: '8px 0' }}>
-            {NAV_ITEMS.map(item => {
+            {NAV_ITEMS.filter(item => !item.adminOnly || isAdmin).map(item => {
               const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
               return (
                 <Link key={item.href} href={item.href} style={{ textDecoration: 'none', display: 'block' }}>

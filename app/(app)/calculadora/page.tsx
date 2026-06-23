@@ -908,7 +908,7 @@ function CalculadoraInner() {
 
   const escSel = escenarios[escElegidoIdx >= 0 ? escElegidoIdx : escSelIdx] ?? escenarios[0]
   const finSel = financieras.find(f => f.id === finSelId)
-  const corridaFin = finSel && escSel ? calcCorrida(escSel.costo_total, finSel.tasa_anual, finPlazo) : null
+  const corridaFin = finSel && escSel ? calcCorrida(escSel.costo_retroactivo || escSel.costo_total, finSel.tasa_anual, finPlazo) : null
   const conservacion = calcConservacion(datos.semanas_totales, fechaUltimaCot ? Math.floor((Date.now() - new Date(fechaUltimaCot).getTime()) / (30 * 86400000)) : 0)
 
   // ── Generar PDF completo
