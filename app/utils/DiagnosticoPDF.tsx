@@ -46,6 +46,9 @@ interface Escenario {
   pension_inmediata?: number
   pension_al_liquidar?: number
   descuento_mensual?: number
+  roi_financiado?: number
+  ganancia_a80_financiado?: number
+  tasa_rendimiento_financiado?: number
 }
 
 interface Periodo {
