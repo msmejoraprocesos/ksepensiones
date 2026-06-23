@@ -1602,7 +1602,11 @@ function CalculadoraInner() {
                   </select>
                 </div>
                 <div><label style={labelSt}>✏️ Edad mínima de pensión (DATOS GEN.!E6)</label>
-                  <select style={autoInputSt} value={datos.edad_min_pension || 60} onChange={e => setDatos(p => ({ ...p, edad_min_pension: parseInt(e.target.value) }))}>
+                  <select style={autoInputSt} value={datos.edad_min_pension || 60} onChange={e => {
+                    const v = parseInt(e.target.value)
+                    setDatos(p => ({ ...p, edad_min_pension: v }))
+                    setEdadRetiro(v)
+                  }}>
                     {[60,61,62,63,64,65].map(e => <option key={e} value={e}>{e} años {e === 65 ? '(vejez 100%)' : `(${75 + (e-60)*5}%)`}</option>)}
                   </select>
                 </div>
@@ -1611,7 +1615,11 @@ function CalculadoraInner() {
                     ✏️ Edad deseada de retiro
                     <button onClick={() => setShowTooltipCuantia(v => !v)} style={{ marginLeft: '6px', background: AZUL, color: 'white', border: 'none', borderRadius: '50%', width: '14px', height: '14px', fontSize: '9px', cursor: 'pointer', fontWeight: '700', lineHeight: '14px', padding: 0 }}>?</button>
                   </label>
-                  <select style={manualInputSt} value={edadRetiro} onChange={e => setEdadRetiro(parseInt(e.target.value))}>
+                  <select style={manualInputSt} value={edadRetiro} onChange={e => {
+                    const v = parseInt(e.target.value)
+                    setEdadRetiro(v)
+                    setDatos(p => ({ ...p, edad_min_pension: v }))
+                  }}>
                     <option value={60}>60 años — Cesantía (75%)</option>
                     <option value={61}>61 años — Cesantía (80%)</option>
                     <option value={62}>62 años — Cesantía (85%)</option>

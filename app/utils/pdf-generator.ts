@@ -389,7 +389,7 @@ export async function generarPDFProyecto(params: {
     { label: 'Pensión sin acción', value: fmtMXN(escBase?.pension_mensual || 0) + '/mes', color: GRIS },
     { label: 'Pensión con estrategia', value: fmtMXN(escSel?.pension_mensual || 0) + '/mes', color: HC },
     { label: 'Incremento mensual', value: escSel?.incremento_vs_base > 0 ? '+' + fmtMXN(escSel.incremento_vs_base) : '—', color: VERDE },
-    { label: 'Inversión requerida', value: fmtMXN(escSel?.inversion_total || 0), color: NARANJA },
+    { label: 'Inversión requerida', value: fmtMXN(escSel?.costo_total || 0), color: NARANJA },
   ]
   const kW = (W - ML - MR) / 4
   kpiPortada.forEach((k, i) => {
@@ -485,7 +485,7 @@ export async function generarPDFProyecto(params: {
     { icon: '▲', title: 'Oportunidad detectada', color: VERDE, bg: '#f0fdf4',
       body: `Con la estrategia recomendada (${escSel.label}), la pensión puede llegar a ${fmtMXN(escSel.pension_mensual || 0)}/mes — un incremento de ${fmtMXN(escSel.incremento_vs_base || 0)}/mes. La inversión se recupera en ${escSel.roi_meses || '—'} meses de pensión.` },
     { icon: '✓', title: 'Recomendación', color: HC, bg: '#EEF2F8',
-      body: `Iniciar Modalidad 40 a ${(escSel.mod40_umas || 0).toFixed(1)} UMAs por ${escSel.mod40_meses || 0} meses. Costo: ${fmtMXN(escSel.costo_mensual_mod40 || 0)}/mes. Inversión total: ${fmtMXN(escSel.inversion_total || 0)}.` },
+      body: `Iniciar Modalidad 40 a ${(escSel.mod40_umas || 0).toFixed(1)} UMAs por ${escSel.mod40_meses || 0} meses. Costo: ${fmtMXN(escSel.costo_mensual_mod40 || 0)}/mes. Inversión total: ${fmtMXN(escSel.costo_total || 0)}.` },
   ]
   // KPI row above bullets
   kpiRow([
@@ -598,7 +598,7 @@ export async function generarPDFProyecto(params: {
       { label: 'Salario base (UMAs)', value: (escSel.mod40_umas || 0).toFixed(1) + ' UMAs', color: HC },
       { label: 'Período de cotización', value: (escSel.mod40_meses || 0) + ' meses', color: HC },
       { label: 'Costo mensual', value: fmtMXN(escSel.costo_mensual_mod40 || 0), color: NARANJA },
-      { label: 'Inversión total', value: fmtMXN(escSel.inversion_total || 0), color: NARANJA },
+      { label: 'Inversión total', value: fmtMXN(escSel.costo_total || 0), color: NARANJA },
     ])
     kpiRow([
       { label: 'Pensión estimada', value: fmtMXN(escSel.pension_mensual || 0) + '/mes', color: VERDE },
@@ -620,7 +620,7 @@ export async function generarPDFProyecto(params: {
         t('· · · meses intermedios · · ·', ML + 60, y + 4); y += 7
       }
     })
-    tFoot(['Total', '—', fmtMXN(costoM) + '/mes', fmtMXN(escSel.inversion_total || 0), (escSel.mod40_meses * 4.33).toFixed(0), '100%'], wsMod, ML, ['left','center','right','right','right','right'])
+    tFoot(['Total', '—', fmtMXN(costoM) + '/mes', fmtMXN(escSel.costo_total || 0), (escSel.mod40_meses * 4.33).toFixed(0), '100%'], wsMod, ML, ['left','center','right','right','right','right'])
   }
 
   // ══════════════════════════════════════════════════
@@ -635,7 +635,7 @@ export async function generarPDFProyecto(params: {
     const difM = escM10.costo_mensual_mod40 - cuotaM40ref
     kpiRow([
       { label: 'Cuota mensual (22%)', value: fmtMXN(escM10.costo_mensual_mod40), color: VERDE },
-      { label: 'Inversión total', value: fmtMXN(escM10.inversion_total), color: NARANJA },
+      { label: 'Inversión total', value: fmtMXN(escM10.costo_total), color: NARANJA },
       { label: 'Pensión estimada', value: fmtMXN(escM10.pension_mensual) + '/mes', color: VERDE },
       { label: 'Costo extra vs Mod 40', value: fmtMXN(difM) + '/mes mas cara', color: '#f97316', sub: 'por servicio médico + Infonavit + guarderías' },
     ])
@@ -644,7 +644,7 @@ export async function generarPDFProyecto(params: {
     tHead(['Concepto', 'Modalidad 10', 'Modalidad 40', 'Diferencia', 'Extra'], wsM10)
     const compRows = [
       ['Cuota mensual', fmtMXN(escM10.costo_mensual_mod40), fmtMXN(cuotaM40ref), fmtMXN(difM) + ' mas cara', ''],
-      ['Inversión total', fmtMXN(escM10.inversion_total), fmtMXN(escSel?.inversion_total || 0), '+' + fmtMXN(escM10.inversion_total - (escSel?.inversion_total || 0)), ''],
+      ['Inversión total', fmtMXN(escM10.costo_total), fmtMXN(escSel?.costo_total || 0), '+' + fmtMXN(escM10.costo_total - (escSel?.costo_total || 0)), ''],
       ['Pensión estimada', fmtMXN(escM10.pension_mensual) + '/mes', fmtMXN(escSel?.pension_mensual || 0) + '/mes', '= mismo monto', ''],
       ['Servicio médico IMSS', 'Sí ✓', 'No ✗', '', '✓'],
       ['Guarderías', 'Sí ✓', 'No ✗', '', '✓'],
@@ -670,7 +670,7 @@ export async function generarPDFProyecto(params: {
   tHead(['Escenario', 'Pensión/mes', 'Incremento', 'Inversión', 'ROI meses', 'Elegido'], wsEsc)
   escenarios.forEach((esc: any, i: number) => {
     const isElegido = i === escSelIdx || (escSelIdx < 0 && esc.recomendado)
-    tRow([esc.label, fmtMXN(esc.pension_mensual), i === 0 ? '—' : '+' + fmtMXN(esc.incremento_vs_base), i === 0 ? '$0' : fmtMXN(esc.inversion_total), i === 0 ? '—' : (esc.roi_meses || '—') + ' m', isElegido ? '⭐' : ''], wsEsc, i % 2 === 0, ML, ['left','right','right','right','right','center'], isElegido)
+    tRow([esc.label, fmtMXN(esc.pension_mensual), i === 0 ? '—' : '+' + fmtMXN(esc.incremento_vs_base), i === 0 ? '$0' : fmtMXN(esc.costo_total), i === 0 ? '—' : (esc.roi_meses || '—') + ' m', isElegido ? '⭐' : ''], wsEsc, i % 2 === 0, ML, ['left','right','right','right','right','center'], isElegido)
   })
   y += 8
 
