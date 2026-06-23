@@ -43,6 +43,8 @@ function AdminFormulasInner() {
   const [pmgL97, setPmgL97] = useState(4345.72)
   const [pctAfore, setPctAfore] = useState(20)
   const [rendDefault, setRendDefault] = useState(6)
+  const [pctBanco, setPctBanco] = useState(35.65)
+  const [tasaBanco, setTasaBanco] = useState(32.2)
   const [tasasMod40, setTasasMod40] = useState<Record<number, number>>({ ...TASAS_MOD40_POR_ANIO })
   const [activeTab, setActiveTab] = useState<'configurables' | 'legales'>('configurables')
 
@@ -71,6 +73,8 @@ function AdminFormulasInner() {
         if (conf.PMG_L97) setPmgL97(conf.PMG_L97)
         if (conf.pct_afore_mod40) setPctAfore(conf.pct_afore_mod40)
         if (conf.RENDIMIENTO_DEFAULT) setRendDefault(conf.RENDIMIENTO_DEFAULT)
+        if (conf.pct_banco_regulado) setPctBanco(conf.pct_banco_regulado)
+        if (conf.tasa_banco_anual) setTasaBanco(conf.tasa_banco_anual)
         const t: Record<number, number> = { ...TASAS_MOD40_POR_ANIO }
         for (let y = 2026; y <= 2030; y++) {
           const k = `mod40_${y}`
@@ -88,6 +92,7 @@ function AdminFormulasInner() {
       UMA_DIARIA: uma, SALARIO_MIN: salMin,
       PMG_L73: pmgL73, PMG_L97: pmgL97,
       pct_afore_mod40: pctAfore, RENDIMIENTO_DEFAULT: rendDefault,
+      pct_banco_regulado: pctBanco, tasa_banco_anual: tasaBanco,
     }
     for (let y = 2026; y <= 2030; y++) payload[`mod40_${y}`] = tasasMod40[y] ?? TASAS_MOD40_POR_ANIO[y]
     await supabase.from('configuracion_sistema').upsert({ id: 1, ...payload })
@@ -213,6 +218,8 @@ function AdminFormulasInner() {
                 {fieldRow('PMG Ley 97 (mensual)', 'CONSAR — Pensión Garantizada Ley 97', 'Configuración', numInput(pmgL97, setPmgL97, 1), true)}
                 {fieldRow('% Recuperación AFORE', 'Estimado de mercado (~20% va a subcuenta Retiro 97)', 'COSTO MOD. 40!G17', numInput(pctAfore, setPctAfore, 0.1), true)}
                 {fieldRow('Rendimiento AFORE %', 'Estimado para proyecciones de Ley 97', 'Configuración', numInput(rendDefault, setRendDefault, 0.1), true)}
+                {fieldRow('% Banco Regulado', 'Porcentaje del retroactivo que financia el banco — FINANCIAMIENTO!C10', 'FINANCIAMIENTO!C10', numInput(pctBanco, setPctBanco, 0.01), true)}
+                {fieldRow('Tasa Banco Anual %', 'Tasa de interés anual del crédito bancario regulado — FINANCIAMIENTO!G32', 'FINANCIAMIENTO!G32', numInput(tasaBanco, setTasaBanco, 0.1), true)}
               </tbody>
             </table>
           </div>

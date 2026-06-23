@@ -22,6 +22,8 @@ interface SysVars {
   RENDIMIENTO_DEFAULT: number
   mod40_pct?: number
   pct_afore_mod40?: number
+  pct_banco_regulado?: number   // FINANCIAMIENTO!C10
+  tasa_banco_anual?: number     // FINANCIAMIENTO!G32
 }
 
 interface Cliente { id: string; nombre: string; etapa_kanban?: string; telefono?: string; tipo_servicio?: string }
@@ -584,6 +586,8 @@ function CalculadoraInner() {
         RENDIMIENTO_DEFAULT: data.rendimiento_afore_default ?? 6,
         mod40_pct: data.mod40_2026 ?? 14.438,
         pct_afore_mod40: data.pct_afore_mod40 ?? 20,
+        pct_banco_regulado: data.pct_banco_regulado ?? 35.65,
+        tasa_banco_anual: data.tasa_banco_anual ?? 32.2,
       })
     }
   }
@@ -797,15 +801,15 @@ function CalculadoraInner() {
     const tasa_rendimiento_retro = inversion_neta_retro > 0 ? (ganancia_a80_retro / inversion_neta_retro) * 100 : 0
 
     // Financiamiento — FINANCIAMIENTO!C6-C11, SEGUNDO FONDEADOR!C3-C9
-    const pctBanco = 0.3565 // FINANCIAMIENTO!C10 = 35.65%
+    const pctBanco = (sys.pct_banco_regulado ?? 35.65) / 100  // configurable desde Admin
     const aportacion_banco = costo_retroactivo * pctBanco
     const aportacion_segundo_fondeo = costo_retroactivo - recuperacion_afore_retro - aportacion_banco
     const cantidad_minima_afore = costo_retroactivo - aportacion_banco // SEGUNDO FONDEADOR!C9
 
     // Costo financiamiento banco regulado — FINANCIAMIENTO!C13-C22
     const duracion_tramite_meses = 60 // FINANCIAMIENTO!B15 — estándar IMSS
-    const tasa_banco_anual = 0.322 // FINANCIAMIENTO!G32 — tasa banco regulado
-    const tasa_banco_mensual = tasa_banco_anual / 12
+    const tasa_banco_anual_val = (sys.tasa_banco_anual ?? 32.2) / 100  // configurable desde Admin
+    const tasa_banco_mensual = tasa_banco_anual_val / 12
     const cuota_banco = tasa_banco_mensual > 0
       ? aportacion_banco * (tasa_banco_mensual * Math.pow(1 + tasa_banco_mensual, duracion_tramite_meses))
         / (Math.pow(1 + tasa_banco_mensual, duracion_tramite_meses) - 1)
@@ -2481,7 +2485,50 @@ function CalculadoraInner() {
                 </div>
               </div>
 
-              {/* Análisis de inversión financiado */}
+              {/* Pensión Sin-Con Financiamiento — comparativo multi-escenario */}
+              {escenarios.filter(e => e.mod40_meses > 0).length > 1 && (
+                <div style={cardSt}>
+                  {sectionTitle('PENSIÓN SIN-CON FIN. — Comparativo por Escenario', 'Hoja PENSIÓN SIN-CON FIN. del Excel')}
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
+                      <thead>
+                        <tr style={{ background: '#F4F6FB' }}>
+                          <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', borderBottom: '2px solid #e2e8f0', minWidth: '180px' }}>Concepto</th>
+                          <th style={{ padding: '8px 12px', textAlign: 'center', fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', borderBottom: '2px solid #e2e8f0' }}>Sin Mod. 40</th>
+                          {escenarios.filter(e => e.mod40_meses > 0).slice(0, 4).map((e, i) => (
+                            <th key={i} style={{ padding: '8px 12px', textAlign: 'center', fontSize: '10px', color: AZUL, textTransform: 'uppercase', borderBottom: `2px solid ${AZUL}` }}>
+                              {e.label.split('·')[0]}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[
+                          { label: 'Inversión Total', fn: (e: any) => fmtMXN(e.costo_retroactivo) },
+                          { label: 'Recuperación AFORE', fn: (e: any) => fmtMXN(e.recuperacion_afore_retro) },
+                          { label: 'Inversión Neta', fn: (e: any) => fmtMXN(e.inversion_neta_retro), highlight: true },
+                          { label: 'Pensión sin Mod. 40', fn: () => fmtMXN(escenarios[0]?.pension_base ?? 0) },
+                          { label: 'Pensión Inmediata', fn: (e: any) => fmtMXN(e.pension_inmediata), highlight: true },
+                          { label: 'Pensión al Liquidar', fn: (e: any) => fmtMXN(e.pension_al_liquidar), highlight: true },
+                          { label: 'ROI (meses)', fn: (e: any) => `${e.roi_financiado.toFixed(1)} meses` },
+                          { label: 'Ganancia a los 80', fn: (e: any) => fmtMXN(e.ganancia_a80_financiado), highlight: true },
+                          { label: 'Tasa de rendimiento', fn: (e: any) => `${e.tasa_rendimiento_financiado.toFixed(2)}%` },
+                        ].map((row, ri) => (
+                          <tr key={ri} style={{ background: row.highlight ? '#f0f9ff' : ri % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
+                            <td style={{ padding: '8px 12px', fontWeight: '600', color: '#374151' }}>{row.label}</td>
+                            <td style={{ padding: '8px 12px', textAlign: 'center', color: '#94a3b8' }}>—</td>
+                            {escenarios.filter(e => e.mod40_meses > 0).slice(0, 4).map((e, i) => (
+                              <td key={i} style={{ padding: '8px 12px', textAlign: 'center', fontWeight: row.highlight ? '700' : 'normal', color: row.highlight ? VERDE : '#374151' }}>
+                                {row.fn(e)}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
               <div style={cardSt}>
                 {sectionTitle('Análisis de Inversión — Con Financiamiento', 'PENSIÓN SIN-CON FIN. del Excel')}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', marginBottom: '12px' }}>
