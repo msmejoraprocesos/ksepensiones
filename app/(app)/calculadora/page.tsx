@@ -1493,6 +1493,94 @@ function CalculadoraInner() {
         </div>
       )}
 
+      {/* ── Modal: Desglose completo 250 semanas ── */}
+      {showDetalle250 && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+          onClick={() => setShowDetalle250(false)}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '100%', maxWidth: '640px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
+            onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div>
+                <h3 style={{ fontSize: '16px', fontWeight: '700', color: AZUL, margin: 0 }}>Desglose completo — 250 semanas cotizadas</h3>
+                <p style={{ fontSize: '12px', color: '#94a3b8', margin: '4px 0 0' }}>SDI promedio ponderado: <strong style={{ color: NARANJA }}>{fmtMXN2(sdiPromedio)}</strong></p>
+              </div>
+              <button onClick={() => setShowDetalle250(false)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
+            </div>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+              <thead>
+                <tr style={{ background: '#F4F6FB' }}>
+                  {['#', 'Fecha inicio', 'Fecha fin', 'Semanas', 'SDI diario', 'SDI mensual', 'Peso'].map((h, i) => (
+                    <th key={i} style={{ padding: '8px 10px', textAlign: i > 0 ? 'right' : 'center', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', borderBottom: '2px solid #e2e8f0' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {periodos.map((p, i) => (
+                  <tr key={p.id} style={{ background: i % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '7px 10px', textAlign: 'center', color: '#94a3b8' }}>{i + 1}</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right', color: '#374151' }}>{p.fecha_inicio?.slice(0, 10)}</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right', color: '#374151' }}>{p.fecha_fin?.slice(0, 10)}</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '600', color: '#374151' }}>{p.semanas}</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: NARANJA }}>{fmtMXN2(p.sdi)}</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right', color: '#374151' }}>{fmtMXN(p.sdi * 30.4)}</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right', color: '#64748b' }}>{p.peso.toFixed(1)}%</td>
+                  </tr>
+                ))}
+                <tr style={{ background: '#EEF2F8', borderTop: '2px solid #e2e8f0' }}>
+                  <td colSpan={3} style={{ padding: '8px 10px', fontWeight: '700', color: AZUL }}>Promedio ponderado</td>
+                  <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: '700', color: AZUL }}>{periodos.reduce((s, p) => s + p.semanas, 0)}</td>
+                  <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: '800', color: NARANJA, fontSize: '14px' }}>{fmtMXN2(sdiPromedio)}</td>
+                  <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: '700', color: AZUL }}>{fmtMXN(sdiPromedio * 30.4)}</td>
+                  <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: '700', color: AZUL }}>100%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal: Historial laboral completo ── */}
+      {showHistorialCompleto && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+          onClick={() => setShowHistorialCompleto(false)}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '100%', maxWidth: '760px', maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
+            onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div>
+                <h3 style={{ fontSize: '16px', fontWeight: '700', color: AZUL, margin: 0 }}>Historial laboral completo</h3>
+                <p style={{ fontSize: '12px', color: '#94a3b8', margin: '4px 0 0' }}>{periodosCompletos.length} períodos · {Math.round(periodosCompletos.reduce((s: number, p: any) => s + (p.semanas || 0), 0))} semanas totales · ordenado del más antiguo al más reciente</p>
+              </div>
+              <button onClick={() => setShowHistorialCompleto(false)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
+            </div>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+              <thead>
+                <tr style={{ background: '#F4F6FB' }}>
+                  {['#', 'Fecha inicio', 'Fecha fin', 'Semanas', 'SDI diario', 'Patrón'].map((h, i) => (
+                    <th key={i} style={{ padding: '8px 10px', textAlign: i > 0 ? 'right' : 'center', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', borderBottom: '2px solid #e2e8f0' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[...periodosCompletos].sort((a: any, b: any) => {
+                  if (!a.fecha_inicio) return 1
+                  if (!b.fecha_inicio) return -1
+                  return new Date(a.fecha_inicio).getTime() - new Date(b.fecha_inicio).getTime()
+                }).map((p: any, i: number) => (
+                  <tr key={i} style={{ background: i % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '7px 10px', textAlign: 'center', color: '#94a3b8' }}>{i + 1}</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right', color: '#374151' }}>{p.fecha_inicio?.slice(0, 10) || '—'}</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right', color: '#374151' }}>{p.fecha_fin?.slice(0, 10) || 'Vigente'}</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '600', color: '#374151' }}>{(p.semanas || 0).toFixed(2)}</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: NARANJA }}>{fmtMXN2(p.sdi || 0)}</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right', color: '#64748b', fontSize: '11px' }}>{p.patron || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {navBar}
       {tabBar}
 
