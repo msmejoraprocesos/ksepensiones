@@ -98,6 +98,7 @@ interface Escenario {
   pension_al_liquidar: number        // Datos-proyecto!C41
   roi_financiado: number             // Datos-proyecto!C42
   ganancia_a80_financiado: number    // Datos-proyecto!C43
+  tasa_rendimiento_financiado: number // Datos-proyecto!C44
   semanas_mod40: number              // DATOS GEN. MOD 40!C7
   // Retroactivo desglosado
   actualizaciones: number            // PAGO RETROACTIVO!E9
