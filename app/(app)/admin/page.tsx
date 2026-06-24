@@ -62,9 +62,9 @@ function AdminFormulasInner() {
       setIsAdmin(true)
       // Cargar valores desde configuracion_sistema
       const { data: conf } = await supabase
-        .from('configuracion_sistema')
+        .from('perfiles_usuario')
         .select('*')
-        .limit(1)
+        .eq('id', session.user.id)
         .single()
       if (conf) {
         if (conf.UMA_DIARIA) setUma(conf.UMA_DIARIA)
@@ -95,7 +95,7 @@ function AdminFormulasInner() {
       pct_banco_regulado: pctBanco, tasa_banco_anual: tasaBanco,
     }
     for (let y = 2026; y <= 2030; y++) payload[`mod40_${y}`] = tasasMod40[y] ?? TASAS_MOD40_POR_ANIO[y]
-    await supabase.from('configuracion_sistema').upsert({ id: 1, ...payload })
+    await supabase.from('perfiles_usuario').upsert({ id: 1, ...payload })
     setSaving(false)
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
