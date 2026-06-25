@@ -102,6 +102,7 @@ interface Escenario {
   ganancia_a80_financiado: number    // Datos-proyecto!C43
   tasa_rendimiento_financiado: number // Datos-proyecto!C44
   semanas_mod40: number              // DATOS GEN. MOD 40!C7
+  sdi_mod40: number                  // SDI en UMAs proyectado al año de inicio
   // Retroactivo desglosado
   actualizaciones: number            // PAGO RETROACTIVO!E9
   recargos: number                   // PAGO RETROACTIVO!E10
@@ -914,6 +915,7 @@ function CalculadoraInner() {
       ganancia_a80_financiado: r.ganancia_a80_financiado,
       tasa_rendimiento_financiado: r.tasa_rendimiento_financiado,
       semanas_mod40: r.semMod40,
+      sdi_mod40: r.sdi_mod40,
       actualizaciones: r.actualizaciones,
       recargos: r.recargos,
       duracion_tramite_meses: r.duracion_tramite_meses,
@@ -937,7 +939,7 @@ function CalculadoraInner() {
       aportacion_banco: 0, aportacion_segundo_fondeo: 0, cantidad_minima_afore: 0,
       descuento_mensual: 0, pension_inmediata: pensionBase, pension_al_liquidar: pensionBase,
       roi_financiado: 0, ganancia_a80_financiado: 0, tasa_rendimiento_financiado: 0,
-      semanas_mod40: 0, actualizaciones: 0, recargos: 0,
+      semanas_mod40: 0, sdi_mod40: 0, actualizaciones: 0, recargos: 0,
       duracion_tramite_meses: 60, plazo_segundo_fondeo: 12,
       costo_financiamiento_banco: 0, costo_financiamiento_segundo: 0, monto_maximo_pago: 0,
     }]
@@ -952,7 +954,7 @@ function CalculadoraInner() {
     const costoM10 = sdiM10 * 30.4 * TASA_M10
     const r0: ReturnType<typeof calcEscenarioMod40> = {
       costoMensual: costoM10, costo_total: costoM10 * 12, sdiNuevo: sdiNuevoM10,
-      semTotal: sem + 12 * 4.33, semMod40: 12 * (52 / 12), pension: pensionM10, pmg_aplica: pmgAplicaM10,
+      semTotal: sem + 12 * 4.33, semMod40: 12 * (52 / 12), sdiMod40: sdiM10, pension: pensionM10, pmg_aplica: pmgAplicaM10,
       incr: pensionM10 - pensionBase, roi: 0, umaProyectada: sys.UMA_DIARIA,
       tasaProyectada: TASA_M10, sdiMod40: sdiM10,
       recuperacion_afore: costoM10 * 12 * (sys.pct_afore_mod40 ?? 20) / 100,
@@ -1886,1062 +1888,739 @@ function CalculadoraInner() {
             {/* Contenido de la pestaña actual */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '16px', background: '#FAFAFA' }}>
 
-        {/* ══ TAB 1: DATOS GENERALES ══════════════════════════════ */}
-        {tab === 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            {guiaCampos()}
-            {datos.semanas_totales === 0 && (
-              <div style={{ padding: '12px 16px', background: '#EEF2F8', border: '1px solid #bfdbfe', borderRadius: '10px', fontSize: '12px', color: AZUL }}>
-                📄 Carga la constancia de semanas cotizadas del IMSS en PDF y los datos se completarán automáticamente.
-              </div>
-            )}
-
-            <div style={cardSt}>
-              {sectionTitle('Identificación del trabajador')}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px', marginBottom: '10px' }}>
-                <div><label style={labelSt}>✏️ Nombre del cliente / asesorado</label>
-                  <input style={manualInputSt} value={datos.nombre} onChange={e => setDatos(p => ({ ...p, nombre: e.target.value }))} placeholder="Nombre del cliente (quien contrata)" /></div>
-                <div><label style={labelSt}>⚡ Nombre del trabajador (constancia IMSS)</label>
-                  <input style={autoInputSt} value={datos.nombre_trabajador} onChange={e => setDatos(p => ({ ...p, nombre_trabajador: e.target.value }))} placeholder="Nombre como aparece en la constancia" /></div>
-                <div><label style={labelSt}>⚡ NSS</label>
-                  <input style={autoInputSt} value={datos.nss} onChange={e => setDatos(p => ({ ...p, nss: e.target.value }))} placeholder="NSS" /></div>
-                <div><label style={labelSt}>{datos.ley ? '⚡' : '✏️'} Régimen{!datos.ley && ' — confírmalo'}</label>
-                  <select style={datos.ley ? autoInputSt : manualInputSt} value={datos.ley} onChange={e => setDatos(p => ({ ...p, ley: e.target.value as '73' | '97' }))}>
-                    <option value="">Detectar automáticamente</option>
-                    <option value="73">Ley 73 (cotizó antes de Jul 1997)</option>
-                    <option value="97">Ley 97 (solo cotizó después de Jul 1997)</option>
-                  </select>
-                </div>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px' }}>
-                <div><label style={labelSt}>⚡ Fecha de nacimiento</label>
-                  <input type="date" style={autoInputSt} value={datos.fecha_nacimiento} onChange={e => {
-                    const edad = e.target.value ? Math.floor((Date.now() - new Date(e.target.value).getTime()) / (365.25 * 86400000)) : 0
-                    setDatos(p => ({ ...p, fecha_nacimiento: e.target.value, edad_actual: edad }))
-                  }} /></div>
-                <div><label style={labelSt}>⚡ Edad actual</label>
-                  <input type="number" style={autoNumInputSt} value={datos.edad_actual || ''} onChange={e => setDatos(p => ({ ...p, edad_actual: parseInt(e.target.value) || 0 }))} />
-                  {(() => {
-                    const ed = edadDetallada(datos.fecha_nacimiento, nowTick)
-                    if (!ed) return null
-                    return (
-                      <p style={{ fontSize: '10px', color: '#94a3b8', margin: '4px 0 0', lineHeight: '1.5' }}>
-                        {ed.anios} años, {ed.meses} meses, {ed.dias} días, {ed.horas} h, {ed.minutos} min, {ed.segundos} s
-                      </p>
-                    )
-                  })()}
-                </div>
-                <div><label style={labelSt}>⚡ Fecha de cálculo / baja IMSS</label>
-                  <input type="date" style={autoInputSt} value={datos.fecha_calculo} onChange={e => setDatos(p => ({ ...p, fecha_calculo: e.target.value }))} /></div>
-                <div><label style={labelSt}>⚡ Semanas cotizadas</label>
-                  <input type="number" style={autoNumInputSt} value={datos.semanas_totales || ''} onChange={e => setDatos(p => ({ ...p, semanas_totales: parseInt(e.target.value) || 0 }))} /></div>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '10px', marginTop: '10px' }}>
-                <div><label style={labelSt}>
-                    ✏️ ¿A qué edad quieres iniciar Mod 40? — años
-                    <button onClick={() => setShowGuiaEdadMod40(true)} style={{ marginLeft: '6px', background: AZUL, color: 'white', border: 'none', borderRadius: '50%', width: '14px', height: '14px', fontSize: '9px', cursor: 'pointer', fontWeight: '700', lineHeight: '14px', padding: 0 }}>?</button>
-                  </label>
-                  <input type="number" min={0} style={manualNumInputSt} value={edadInicioMod40Anios} placeholder="ej. 61"
-                    onChange={e => setEdadInicioMod40Anios(e.target.value === '' ? '' : parseInt(e.target.value) || 0)} /></div>
-                <div><label style={labelSt}>✏️ ...y meses</label>
-                  <input type="number" min={0} max={11} style={manualNumInputSt} value={edadInicioMod40Meses} placeholder="0-11"
-                    onChange={e => setEdadInicioMod40Meses(e.target.value === '' ? '' : parseInt(e.target.value) || 0)} /></div>
-                <div>
-                  <label style={labelSt}>⚡ Año de inicio del trámite Mod 40 (automático)</label>
-                  <div style={{ ...autoInputSt, display: 'flex', alignItems: 'center', fontWeight: '700', color: AZUL }}>
-                    {edadInicioMod40Anios !== '' || edadInicioMod40Meses !== '' ? anioInicioTramite : '— define la edad de inicio —'}
+        {/* ══ TAB 0: DATOS GENERALES — Slide 2 ══════════════════════ */}
+        {tab === 0 && (() => {
+          const sem = datos.semanas_totales - datos.semanas_descontadas
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {/* Ficha técnica de retiro */}
+              <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px' }}>
+                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 14px', borderBottom: '2px solid #e2e8f0', paddingBottom: '8px' }}>Ficha técnica de retiro:</p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                  <div>
+                    <label style={{ fontSize: '11px', fontWeight: '600', color: '#64748b', display: 'block', marginBottom: '4px' }}>Fecha de cálculo del proyecto:</label>
+                    <input type="date" value={datos.fecha_calculo} onChange={e => setDatos(p => ({ ...p, fecha_calculo: e.target.value }))} style={{ width: '100%', padding: '7px 10px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '12px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
                   </div>
-                  <p style={{ fontSize: '9px', color: '#94a3b8', margin: '2px 0 0' }}>Calculado a partir de tu edad actual y la edad de inicio que indiques</p>
-                </div>
-              </div>
-            </div>
-
-            <div style={cardSt}>
-              {sectionTitle('Situación laboral y familiar')}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px', marginBottom: '10px' }}>
-                <div>
-                  <label style={labelSt}>{datos.fecha_calculo ? '⚡' : '✏️'} ¿Sigue cotizando al IMSS?{datos.fecha_calculo && <span style={{ color: AZUL, fontWeight: '600', textTransform: 'none' }}> · sugerido</span>}</label>
-                  <select style={datos.fecha_calculo ? autoInputSt : manualInputSt} value={datos.sigue_cotizando ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, sigue_cotizando: e.target.value === 'si' }))}>
-                    <option value="si">Sí</option><option value="no">No</option>
-                  </select>
-                  {datos.fecha_calculo && <p style={{ fontSize: '9px', color: '#94a3b8', margin: '2px 0 0' }}>Basado en la última cotización registrada. Verifica con el cliente.</p>}
-                </div>
-                <div>
-                  <label style={labelSt}>{datos.semanas_descontadas > 0 ? '⚡' : '✏️'} Semanas descontadas AFORE/ISSSTE
-                    <span style={{ fontSize: '9px', fontWeight: '400', color: '#94a3b8', marginLeft: '4px' }}>auto desde constancia · editable</span>
-                  </label>
-                  <input type="number" style={datos.semanas_descontadas > 0 ? autoNumInputSt : manualNumInputSt} value={datos.semanas_descontadas || ''} onChange={e => setDatos(p => ({ ...p, semanas_descontadas: parseInt(e.target.value) || 0 }))} placeholder="0" />
-                  <p style={{ fontSize: '9px', color: '#94a3b8', margin: '2px 0 0' }}>Art. 150 LSS — semanas que se descuentan por haber retirado AFORE</p>
-                </div>
-                <div><label style={labelSt}>✏️ ¿Tiene esposa(o)/concubina(o)?</label>
-                  <select style={manualInputSt} value={datos.tiene_conyuge ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, tiene_conyuge: e.target.value === 'si' }))}>
-                    <option value="si">Sí (+15%)</option><option value="no">No</option>
-                  </select></div>
-                <div><label style={labelSt}>✏️ Hijos menores de 16 / est. hasta 25</label>
-                  <input type="number" style={manualNumInputSt} value={datos.num_hijos || ''} onChange={e => setDatos(p => ({ ...p, num_hijos: parseInt(e.target.value) || 0 }))} placeholder="0" /></div>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px' }}>
-                <div><label style={labelSt}>✏️ Padres económicamente dependientes</label>
-                  <input type="number" style={manualNumInputSt} value={datos.num_padres || ''} onChange={e => setDatos(p => ({ ...p, num_padres: parseInt(e.target.value) || 0 }))} placeholder="0" /></div>
-                <div><label style={labelSt}>✏️ Ayuda Asistencial (Art. 165 LSS)</label>
-                  <select style={autoInputSt} value={datos.tiene_ayuda_asistencial ? 'SI' : 'NO'} onChange={e => setDatos(p => ({ ...p, tiene_ayuda_asistencial: e.target.value === 'SI' }))}>
-                    <option value="NO">NO — tiene beneficiarios</option>
-                    <option value="SI">SÍ — sin cónyuge, hijos ni padres</option>
-                  </select>
-                </div>
-                <div><label style={labelSt}>✏️ Edad mínima de pensión (DATOS GEN.!E6)</label>
-                  <select style={autoInputSt} value={datos.edad_min_pension || 60} onChange={e => {
-                    const v = parseInt(e.target.value)
-                    setDatos(p => ({ ...p, edad_min_pension: v }))
-                    setEdadRetiro(v)
-                  }}>
-                    {[60,61,62,63,64,65].map(e => <option key={e} value={e}>{e} años {e === 65 ? '(vejez 100%)' : `(${75 + (e-60)*5}%)`}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label style={labelSt}>
-                    ✏️ Edad deseada de retiro
-                    <button onClick={() => setShowTooltipCuantia(v => !v)} style={{ marginLeft: '6px', background: AZUL, color: 'white', border: 'none', borderRadius: '50%', width: '14px', height: '14px', fontSize: '9px', cursor: 'pointer', fontWeight: '700', lineHeight: '14px', padding: 0 }}>?</button>
-                  </label>
-                  <select style={manualInputSt} value={edadRetiro} onChange={e => {
-                    const v = parseInt(e.target.value)
-                    setEdadRetiro(v)
-                    setDatos(p => ({ ...p, edad_min_pension: v }))
-                  }}>
-                    <option value={60}>60 años — Cesantía (75%)</option>
-                    <option value={61}>61 años — Cesantía (80%)</option>
-                    <option value={62}>62 años — Cesantía (85%)</option>
-                    <option value={63}>63 años — Cesantía (90%)</option>
-                    <option value={64}>64 años — Cesantía (95%)</option>
-                    <option value={65}>65 años — Vejez (100%) ★</option>
-                    <option value={66}>66 años — Vejez (100%)</option>
-                    <option value={67}>67 años — Vejez (100%)</option>
-                    <option value={68}>68 años — Vejez (100%)</option>
-                  </select>
-                  <p style={{ fontSize: '9px', color: '#94a3b8', margin: '2px 0 0' }}>Factor Cesantía aplica 60-64 años · Vejez 65+</p>
-                </div>
-                <div>
-                  <label style={labelSt}>✏️ Año de inicio del trámite Mod 40 (ajuste manual)</label>
-                  <select style={manualInputSt} value={anioInicioTramite} onChange={e => setAnioInicioTramite(parseInt(e.target.value))}>
-                    {[2026,2027,2028,2029,2030].map(a => <option key={a} value={a}>{a} — UMA: {new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN',maximumFractionDigits:2}).format(proyectarValor(117.31, 2026, a))}/día</option>)}
-                  </select>
-                  <p style={{ fontSize: '9px', color: '#94a3b8', margin: '2px 0 0' }}>Se llena solo si llenaste "¿A qué edad iniciar Mod 40?" arriba — cámbialo aquí solo si quieres forzar un año distinto</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Cálculos automáticos */}
-            {datos.semanas_totales > 0 && (() => {
-              const sem = datos.semanas_totales - datos.semanas_descontadas
-              const cumple = sem >= 500
-              const edadMin = 65
-              const asignaciones = (datos.tiene_conyuge ? 15 : 0) + datos.num_hijos * 10 + datos.num_padres * 10
-              // Fecha calculada para el trámite (DATOS GEN.!E16) — fecha de nacimiento + edad mínima de pensión
-              const fechaTramite = datos.fecha_nacimiento ? (() => {
-                const d = new Date(datos.fecha_nacimiento)
-                d.setFullYear(d.getFullYear() + (datos.edad_min_pension || 60))
-                return d.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' })
-              })() : '—'
-              const semanasRestantesTab1 = Math.max(0, Math.ceil(500 - sem))
-              return (
-                <div style={{ ...cardSt, borderLeft: `3px solid ${cumple ? VERDE : '#ef4444'}` }}>
-                  {sectionTitle('Resumen automático')}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '8px', marginBottom: '12px' }}>
-                    {kpiBox('Semanas válidas', sem.toLocaleString(), 'descontadas AFORE', cumple ? VERDE : '#ef4444', cumple ? 'verde' : 'rojo')}
-                    {kpiBox('Semanas restantes', semanasRestantesTab1 === 0 ? '✓ 0' : semanasRestantesTab1.toString(), semanasRestantesTab1 === 0 ? 'Ya cumplió las 500' : 'para llegar a 500 mínimas', semanasRestantesTab1 === 0 ? VERDE : '#ef4444')}
-                    {kpiBox('Fecha calculada trámite', fechaTramite, `a los ${datos.edad_min_pension || 60} años — DATOS GEN.!E16`, AZUL, 'azul')}
-                    {kpiBox('Asignaciones familiares', `+${asignaciones}%`, `cónyuge + ${datos.num_hijos} hijo(s)`, '#8b5cf6')}
-                    {kpiBox('Régimen', datos.ley === '73' ? 'Ley 73' : datos.ley === '97' ? 'Ley 97' : 'Por detectar', datos.ley ? 'Detectado del PDF' : 'Carga la constancia', AZUL)}
-                    {kpiBox('Estado', cumple ? 'Apto' : 'Insuficiente', `${Math.max(0, 500 - sem)} sem. faltan`, cumple ? VERDE : '#ef4444', cumple ? 'verde' : 'rojo')}
+                  <div>
+                    <label style={{ fontSize: '11px', fontWeight: '600', color: '#64748b', display: 'block', marginBottom: '4px' }}>¿Seguirás cotizando ante el IMSS?</label>
+                    <select value={datos.sigue_cotizando ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, sigue_cotizando: e.target.value === 'si' }))} style={{ width: '100%', padding: '7px 10px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '12px', fontFamily: 'inherit', background: 'white' }}>
+                      <option value="si">Sí</option><option value="no">No</option>
+                    </select>
                   </div>
-                  {semaforo(cumple, cumple ? `Cumple semanas mínimas — ${sem} de 500 requeridas` : `Faltan ${500 - sem} semanas para poder pensionarse`)}
+                  <div>
+                    <label style={{ fontSize: '11px', fontWeight: '600', color: '#64748b', display: 'block', marginBottom: '4px' }}>¿A qué edad te quieres pensionar?</label>
+                    <select value={datos.edad_min_pension || 60} onChange={e => { const v = parseInt(e.target.value); setDatos(p => ({ ...p, edad_min_pension: v })); setEdadRetiro(v) }} style={{ width: '100%', padding: '7px 10px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '12px', fontFamily: 'inherit', background: 'white' }}>
+                      {[60,61,62,63,64,65].map(a => <option key={a} value={a}>{a} años ({75+(a-60)*5}%{a===65?' — Vejez':' — Cesantía'})</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '11px', fontWeight: '600', color: '#64748b', display: 'block', marginBottom: '4px' }}>Esposa (o) ó concubina (o)</label>
+                    <select value={datos.tiene_conyuge ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, tiene_conyuge: e.target.value === 'si' }))} style={{ width: '100%', padding: '7px 10px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '12px', fontFamily: 'inherit', background: 'white' }}>
+                      <option value="no">No</option><option value="si">Sí</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '11px', fontWeight: '600', color: '#64748b', display: 'block', marginBottom: '4px' }}># de Hijos &lt; de 16 años:</label>
+                    <select value={datos.num_hijos} onChange={e => setDatos(p => ({ ...p, num_hijos: parseInt(e.target.value) }))} style={{ width: '100%', padding: '7px 10px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '12px', fontFamily: 'inherit', background: 'white' }}>
+                      {[0,1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '11px', fontWeight: '600', color: '#64748b', display: 'block', marginBottom: '4px' }}>Semanas restantes por cotizar:</label>
+                    <input readOnly value={Math.max(0, 500 - sem).toFixed(0)} style={{ width: '100%', padding: '7px 10px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '12px', background: '#F8FAFC', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '11px', fontWeight: '600', color: '#64748b', display: 'block', marginBottom: '4px' }}># de padres econ.</label>
+                    <select value={datos.num_padres} onChange={e => setDatos(p => ({ ...p, num_padres: parseInt(e.target.value) }))} style={{ width: '100%', padding: '7px 10px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '12px', fontFamily: 'inherit', background: 'white' }}>
+                      {[0,1,2].map(n => <option key={n} value={n}>{n}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '11px', fontWeight: '600', color: '#64748b', display: 'block', marginBottom: '4px' }}>Fecha del trámite de pensión:</label>
+                    <input readOnly value={datos.fecha_nacimiento ? (() => { const d = new Date(datos.fecha_nacimiento); d.setFullYear(d.getFullYear() + (datos.edad_min_pension || 60)); return d.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' }) })() : 'Fecha automática'} style={{ width: '100%', padding: '7px 10px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '12px', background: '#F8FAFC', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '11px', fontWeight: '600', color: '#64748b', display: 'block', marginBottom: '4px' }}>Total de semanas cotización:</label>
+                    <input readOnly value={escenarios.find(e => e.recomendado)?.semanas_finales?.toFixed(0) ?? sem.toFixed(0)} style={{ width: '100%', padding: '7px 10px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '12px', background: '#F8FAFC', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
+                  </div>
                 </div>
-              )
-            })()}
-
-            {navButtons(undefined, () => setTab(1), 'Siguiente: Pensión Actual →')}
-          </div>
-        )}
-
-        {/* ══ TAB 2: SALARIO PROMEDIO 250 SEMANAS ════════════════ */}
-        {tab === 1 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <div style={{ padding: '12px 16px', background: '#EEF2F8', border: '1px solid #bfdbfe', borderRadius: '10px', fontSize: '12px', color: AZUL, lineHeight: 1.6 }}>
-              <strong>¿Por qué calculamos esto?</strong> La Ley del IMSS 1973 (Art. 167) establece que la pensión se calcula sobre el promedio del SDI de las <strong>últimas 250 semanas cotizadas</strong> (~5 años), no sobre el SDI actual. Este promedio es la base real de la pensión. Si se usa el SDI actual, el cálculo puede estar sobreestimado o subestimado.
-            </div>
-
-            {/* Resumen */}
-            <div style={{ ...cardSt, borderLeft: `3px solid ${NARANJA}` }}>
-              {sectionTitle('Resumen del cálculo', periodos.length > 0 ? `${periodos.length} períodos analizados · ${periodos.reduce((s,p) => s+p.semanas, 0)} semanas` : 'Carga la constancia IMSS para calcular automáticamente')}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', marginBottom: '12px' }}>
-                {kpiBox('SDI promedio 250 sem.', sdiPromedio > 0 ? fmtMXN2(sdiPromedio) : '—', 'Base oficial de pensión', AZUL, 'azul', true)}
-                {kpiBox('SDI mensual equivalente', sdiPromedio > 0 ? fmtMXN(sdiPromedio * 30.4) : '—', '× 30.4 días', '#1e293b', 'gris')}
-                {kpiBox('Diferencia vs SDI actual', periodos.length > 0 && sdiPromedio > 0 ? fmtMXN2(periodos[periodos.length-1]?.sdi - sdiPromedio) : '—', 'SDI actual vs promedio', periodos.length > 0 && periodos[periodos.length-1]?.sdi > sdiPromedio ? '#ef4444' : VERDE)}
-                {kpiBox('Período cubierto', periodos.length > 0 ? `${periodos[0]?.fecha_inicio?.slice(0,7) || '—'} → ${periodos[periodos.length-1]?.fecha_fin?.slice(0,7) || '—'}` : '—', '250 semanas hacia atrás')}
               </div>
 
-              {periodos.length > 0 && (
-                <>
-                  {/* Tabla condensada — top 5 períodos por peso */}
-                  <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px', marginBottom: '10px' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+              {/* Explicación + tabla 250 semanas */}
+              <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px' }}>
+                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 6px' }}>Cálculo del Salario Promedio de las Últimas 250 Semanas Cotizadas:</p>
+                <p style={{ fontSize: '11.5px', color: '#64748b', margin: '0 0 12px', lineHeight: 1.6 }}>
+                  ¿Por qué calculamos esto?. La Ley del IMSS 1973 (Art. 167) establece que la pensión se calcula sobre el promedio del Salario Diario Integrado (SDI) de las últimas 250 semanas cotizadas (aproximadamente 5 años), no sobre el salario actual. <strong>Resumen del cálculo:</strong>
+                </p>
+                <div style={{ overflowX: 'auto', marginBottom: '12px' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                    <thead>
+                      <tr style={{ background: '#1B3A6B', color: 'white' }}>
+                        {['PERÍODO', 'SEMANAS', 'SDI DIARIO', 'SDI MENSUAL', 'PESO'].map((h, i) => (
+                          <th key={i} style={{ padding: '8px 12px', textAlign: i === 0 ? 'left' : 'right', fontWeight: '700', fontSize: '11px' }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {periodos.map((p, i) => (
+                        <tr key={i} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #f1f5f9' }}>
+                          <td style={{ padding: '7px 12px', color: '#374151' }}>{p.fecha_inicio?.slice(0,7)} → {p.fecha_fin?.slice(0,7)}</td>
+                          <td style={{ padding: '7px 12px', textAlign: 'right', fontWeight: '600', color: '#374151' }}>{p.semanas}</td>
+                          <td style={{ padding: '7px 12px', textAlign: 'right', fontWeight: '700', color: '#F05B21' }}>{fmtMXN2(p.sdi)}</td>
+                          <td style={{ padding: '7px 12px', textAlign: 'right', color: '#374151' }}>{fmtMXN(p.sdi * 30.4167)}</td>
+                          <td style={{ padding: '7px 12px', textAlign: 'right', color: '#64748b' }}>{p.peso.toFixed(1)}%</td>
+                        </tr>
+                      ))}
+                      <tr style={{ background: '#EEF2F8', borderTop: '2px solid #1B3A6B' }}>
+                        <td style={{ padding: '8px 12px', fontWeight: '700', color: '#1B3A6B' }}>Promedio ponderado</td>
+                        <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: '700', color: '#1B3A6B' }}>{periodos.reduce((s, p) => s + p.semanas, 0)}</td>
+                        <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: '800', color: '#F05B21', fontSize: '14px' }}>{fmtMXN2(sdiPromedio)}</td>
+                        <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: '700', color: '#1B3A6B' }}>{fmtMXN(sdiPromedio * 30.4167)}</td>
+                        <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: '700', color: '#1B3A6B' }}>100%</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '14px' }}>
+                  <button onClick={() => setShowDetalle250(true)} style={{ padding: '7px 14px', background: '#EEF2F8', color: '#1B3A6B', border: '1px solid #bfdbfe', borderRadius: '6px', fontSize: '11.5px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
+                    📊 Ver desglose completo de las 250 semanas
+                  </button>
+                  <button onClick={() => setShowHistorialCompleto(true)} style={{ padding: '7px 14px', background: '#EEF7F1', color: '#2E8B57', border: '1px solid #bbf7d0', borderRadius: '6px', fontSize: '11.5px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
+                    🗂️ Ver historial laboral completo ({periodosCompletos.length} períodos)
+                  </button>
+                </div>
+                {/* Bottom KPIs — igual al mockup */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+                  {[
+                    { label: 'PERÍODO CUBIERTO', sub: periodos.length > 0 ? `${periodos[0]?.fecha_inicio?.slice(0,7)} → ${periodos[periodos.length-1]?.fecha_fin?.slice(0,7)}\n250 semanas hacia atrás` : '—', big: false },
+                    { label: 'SDI PROMEDIO 250 SEM.', sub: 'Base oficial de pensión', big: fmtMXN2(sdiPromedio), color: '#F05B21' },
+                    { label: 'SDI MENSUAL EQUIVALENTE', sub: `× 30.4 días`, big: sdiPromedio > 0 ? fmtMXN(sdiPromedio * 30.4167) : '—', color: '#1B3A6B' },
+                  ].map((k, i) => (
+                    <div key={i} style={{ padding: '12px 14px', background: '#F8FAFC', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                      <p style={{ fontSize: '9.5px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', margin: '0 0 4px', letterSpacing: '0.3px' }}>{k.label}</p>
+                      {k.big ? <p style={{ fontSize: '18px', fontWeight: '800', color: k.color, margin: '0 0 2px' }}>{k.big}</p> : null}
+                      <p style={{ fontSize: '11px', color: '#64748b', margin: 0, whiteSpace: 'pre-line' }}>{k.sub}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )
+        })()}
+
+        {/* ══ TAB 1: PENSIÓN ACTUAL — Slide 3 ═══════════════════════════ */}
+        {tab === 1 && (() => {
+          const sem = datos.semanas_totales - datos.semanas_descontadas
+          if (sdiPromedio <= 0) return (
+            <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94a3b8' }}>
+              <div style={{ fontSize: '40px', marginBottom: '12px' }}>📋</div>
+              <p>Carga la constancia IMSS para ver la pensión actual</p>
+            </div>
+          )
+          const res = calcPensionLey73(sem, sdiPromedio, datos.edad_min_pension || 60, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, undefined, datos.tiene_ayuda_asistencial)
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {/* Cuantías anuales */}
+              <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px' }}>
+                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 14px', borderBottom: '2px solid #e2e8f0', paddingBottom: '8px' }}>Cuantías anuales de Pensión:</p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 40px' }}>
+                  {[
+                    { label: 'Cuantía Básica de Pensión', value: fmtMXN2(res.cuantiaBasicaAnual) },
+                    { label: 'Total de Pensión por Vejez', value: fmtMXN2(res.pensionAnual / (res.factorEdad || 0.75)) },
+                    { label: 'Incrementos Anuales', value: fmtMXN2(res.incrementosAnual) },
+                    { label: 'Porcentaje por Edad', value: `${((res.factorEdad || 0.75) * 100).toFixed(0)}%` },
+                    { label: 'Asignaciones Familiares', value: fmtMXN2(res.asignacionesAnual) },
+                    { label: 'Total de Pensión', value: fmtMXN2(res.pensionAnual), bold: true },
+                    { label: 'Ayuda Asistencial', value: fmtMXN2(res.ayudaAsistencialAnual) },
+                    { label: '¿Aplica Pensión Mínima?', value: res.pmg_aplica ? 'SÍ' : 'NO', color: res.pmg_aplica ? '#2E8B57' : '#374151' },
+                    { label: 'Pensión Mínima del Año', value: fmtMXN2(sys.PMG_L73 * 12) },
+                  ].map((r, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0', borderBottom: '1px solid #f1f5f9' }}>
+                      <span style={{ fontSize: '12px', color: '#64748b' }}>{r.label}</span>
+                      <span style={{ fontSize: '12px', fontWeight: r.bold ? '700' : '600', color: r.color || '#374151' }}>{r.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 3 KPIs grandes */}
+              {[
+                { label: 'Importe de Pensión Anual', sub: 'Monto Anual de Pensión calculado con base a lo estipulado en la Ley de 1973 de Seguro Social.', value: fmtMXN2(res.pensionAnual) },
+                { label: 'Importe de Pensión Mensual', sub: 'Monto Mensual de Pensión calculado con base a lo estipulado en la Ley de 1973 de Seguro Social.', value: fmtMXN2(res.pensionMensual) },
+                { label: 'Aguinaldo', sub: 'El pago del aguinaldo se hace una vez al año y es equivalente a una mensualidad de la pensión del beneficiario, sin contar el importe por asignaciones familiares ni ayudas asistenciales.', value: fmtMXN2(res.aguinaldoAnual) },
+              ].map((k, i) => (
+                <div key={i} style={{ background: '#1B3A6B', borderRadius: '10px', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px' }}>
+                  <div>
+                    <p style={{ fontSize: '15px', fontWeight: '700', color: 'white', margin: '0 0 4px' }}>{k.label}</p>
+                    <p style={{ fontSize: '10.5px', color: '#93c5fd', margin: 0, lineHeight: 1.5, maxWidth: '400px' }}>{k.sub}</p>
+                  </div>
+                  <span style={{ fontSize: '24px', fontWeight: '900', color: 'white', whiteSpace: 'nowrap' }}>{k.value}</span>
+                </div>
+              ))}
+
+              {/* INPC */}
+              <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px' }}>
+                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 10px' }}>Pensión Actualizada en el mismo año conforme al INPC</p>
+                <div style={{ background: '#1B3A6B', borderRadius: '8px', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '20px', marginBottom: '10px' }}>
+                  <p style={{ fontSize: '14px', fontWeight: '700', color: 'white', margin: 0 }}>Importe de Pensión Mensual Actualizada por INPC</p>
+                  <span style={{ fontSize: '22px', fontWeight: '900', color: 'white', background: '#2E8B57', padding: '6px 16px', borderRadius: '6px' }}>NO APLICA</span>
+                </div>
+                <p style={{ fontSize: '11px', color: '#64748b', margin: 0, lineHeight: 1.6 }}>
+                  El importe de una pensión otorgada se actualiza cada año durante el mes de febrero, conforme al Índice Nacional de Precios al Consumidor (INPC). Si la fecha de baja utilizada para el cálculo de la pensión corresponde al mes de enero, el pensionado recibirá la actualización por inflación dentro del mismo año, reflejándose automáticamente en su pago mensual a partir de febrero.
+                </p>
+              </div>
+            </div>
+          )
+        })()}
+
+        {/* ══ TAB 2: SALARIO PROM MOD 40 — Slide 4 ══════════════════════ */}
+        {tab === 2 && (() => {
+          const sem = datos.semanas_totales - datos.semanas_descontadas
+          const escRec = escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px' }}>
+                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 14px', borderBottom: '2px solid #e2e8f0', paddingBottom: '8px' }}>
+                  Calculadora de Nuevo Salario Promedio Diario de las Últimas 250 semanas cotizadas con mod 40:
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  {/* Input datos */}
+                  <div>
+                    <div style={{ background: '#1B3A6B', color: 'white', padding: '8px 12px', borderRadius: '6px 6px 0 0', fontSize: '11.5px', fontWeight: '700', marginBottom: '0' }}>
+                      INGRESAR DATOS DE LA COTIZACIÓN EN LA MODALIDAD 40
+                    </div>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', border: '1px solid #e2e8f0', borderTop: 'none' }}>
+                      <tbody>
+                        <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                          <td style={{ padding: '10px 12px', color: '#374151', fontWeight: '600', width: '60%' }}>¿A QUÉ EDAD DESEAS INGRESAR A MODALIDAD 40?</td>
+                          <td style={{ padding: '10px 12px', display: 'flex', gap: '6px', alignItems: 'center' }}>
+                            <div style={{ textAlign: 'center' as const }}>
+                              <div style={{ fontSize: '9px', color: '#94a3b8', marginBottom: '2px' }}>AÑOS</div>
+                              <input type="number" min={50} max={70} value={Math.floor(datos.edad_actual || 58)} readOnly style={{ width: '50px', padding: '4px', border: '1px solid #e2e8f0', borderRadius: '4px', textAlign: 'center' as const, fontSize: '13px', fontWeight: '700' }} />
+                            </div>
+                            <div style={{ textAlign: 'center' as const }}>
+                              <div style={{ fontSize: '9px', color: '#94a3b8', marginBottom: '2px' }}>MESES</div>
+                              <input type="number" min={0} max={11} value={Math.round((datos.edad_actual || 58) % 1 * 12)} readOnly style={{ width: '50px', padding: '4px', border: '1px solid #e2e8f0', borderRadius: '4px', textAlign: 'center' as const, fontSize: '13px', fontWeight: '700' }} />
+                            </div>
+                          </td>
+                        </tr>
+                        <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                          <td style={{ padding: '10px 12px', color: '#374151', fontWeight: '600' }}>TIEMPO A COTIZAR EN MODALIDAD 40</td>
+                          <td style={{ padding: '10px 12px', display: 'flex', gap: '6px', alignItems: 'center' }}>
+                            <div style={{ textAlign: 'center' as const }}>
+                              <div style={{ fontSize: '9px', color: '#94a3b8', marginBottom: '2px' }}>AÑOS</div>
+                              <input type="number" min={1} max={10} value={Math.floor(mod40Meses / 12)} onChange={e => setMod40Meses(parseInt(e.target.value) * 12 + (mod40Meses % 12))} style={{ width: '50px', padding: '4px', border: '1px solid #1B3A6B', borderRadius: '4px', textAlign: 'center' as const, fontSize: '13px', fontWeight: '700', color: '#1B3A6B' }} />
+                            </div>
+                            <div style={{ textAlign: 'center' as const }}>
+                              <div style={{ fontSize: '9px', color: '#94a3b8', marginBottom: '2px' }}>MESES</div>
+                              <input type="number" min={0} max={11} value={mod40Meses % 12} onChange={e => setMod40Meses(Math.floor(mod40Meses / 12) * 12 + parseInt(e.target.value))} style={{ width: '50px', padding: '4px', border: '1px solid #1B3A6B', borderRadius: '4px', textAlign: 'center' as const, fontSize: '13px', fontWeight: '700', color: '#1B3A6B' }} />
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style={{ padding: '10px 12px', color: '#374151', fontWeight: '600' }}>SALARIO DIARIO REGISTRADO EN UMA'S</td>
+                          <td style={{ padding: '10px 12px' }}>
+                            <input type="number" min={1} max={100} step={0.5} value={mod40Umas} onChange={e => setMod40Umas(parseFloat(e.target.value) || 25)} style={{ width: '80px', padding: '4px', border: '1px solid #1B3A6B', borderRadius: '4px', textAlign: 'center' as const, fontSize: '13px', fontWeight: '700', color: '#1B3A6B' }} />
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <div style={{ marginTop: '10px', padding: '8px 12px', background: '#FFF3CD', borderRadius: '6px', fontSize: '11px', color: '#856404' }}>
+                      <strong>MODALIDAD 40 TOPADA:</strong> 250 SEMANAS = 4 AÑOS + 9.6 MESES<br/>
+                      Nota: el IMSS redondea tu edad al siguiente año cumplido después de 6 meses + 1 día.
+                    </div>
+                  </div>
+                  {/* Salida de datos */}
+                  <div>
+                    <div style={{ background: '#374151', color: 'white', padding: '8px 12px', borderRadius: '6px 6px 0 0', fontSize: '11.5px', fontWeight: '700' }}>SALIDA DE DATOS</div>
+                    {escRec && escRec.mod40_meses > 0 ? (
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11.5px', border: '1px solid #e2e8f0', borderTop: 'none' }}>
+                        <tbody>
+                          {[
+                            { label: 'FECHA DE INGRESO A MODALIDAD 40 (APROX.)', value: escRec.fecha_ingreso_mod40 || '—', bold: false, big: false },
+                            { label: 'FECHA DE BAJA DE MODALIDAD 40 (APROX.)', value: escRec.fecha_baja_mod40 || '—', bold: false, big: false },
+                            { label: 'EDAD AL CONCLUIR MODALIDAD 40 (PARA EL IMSS)', value: escRec.edad_retiro?.toFixed(3) || '—', bold: false, big: false },
+                            { label: 'VALOR DE LA UMA DIARIA', value: fmtMXN2(sys.UMA_DIARIA), bold: false, big: false },
+                            { label: 'EQUIVALENCIA DEL SALARIO REGISTRADO (MXN)', value: fmtMXN2(escRec.sdi_mod40 ?? (mod40Umas * sys.UMA_DIARIA)), bold: false, big: false },
+                            { label: 'ANTERIOR SALARIO PROMEDIO DE 250 SEMANAS', value: fmtMXN2(sdiPromedio), bold: false, big: false },
+                            { label: 'NUEVO SALARIO PROMEDIO DE 250 SEMANAS', value: fmtMXN2(escRec.nuevo_sdi_250), bold: true, big: true },
+                          ].map((r, i) => (
+                            <tr key={i} style={{ background: r.big ? '#1B3A6B' : i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #f1f5f9' }}>
+                              <td style={{ padding: r.big ? '10px 12px' : '7px 12px', fontWeight: r.bold ? '700' : '500', color: r.big ? 'white' : '#374151', fontSize: r.big ? '12px' : '11px' }}>{r.label}</td>
+                              <td style={{ padding: r.big ? '10px 12px' : '7px 12px', textAlign: 'right' as const, fontWeight: r.bold ? '800' : '600', color: r.big ? 'white' : '#374151', fontSize: r.big ? '18px' : '12px' }}>{r.value}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <div style={{ padding: '20px', textAlign: 'center' as const, color: '#94a3b8', fontSize: '12px', border: '1px solid #e2e8f0', borderTop: 'none' }}>
+                        Configura los datos de Modalidad 40 para ver la salida
+                      </div>
+                    )}
+                    <div style={{ marginTop: '10px', padding: '10px 14px', background: '#EEF2F8', borderRadius: '6px', fontSize: '11.5px', color: '#1B3A6B', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span><strong>Imprimir Escenario</strong></span>
+                      <span style={{ fontSize: '10px', color: '#64748b' }}>Al presionar este botón podrás agregar este escenario a tu proyecto de pensión. Puedes comparar hasta 10</span>
+                    </div>
+                  </div>
+                </div>
+                {/* Mini tabla 250 sem con Mod40 */}
+                {escRec && escRec.mod40_meses > 0 && (
+                  <div style={{ marginTop: '14px', overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11.5px' }}>
                       <thead>
                         <tr style={{ background: '#F4F6FB' }}>
-                          {['Período','Semanas','SDI diario','SDI mensual','Peso'].map((h, i) => (
-                            <th key={i} style={{ padding: '7px 10px', textAlign: i > 0 ? 'right' : 'left', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
+                          {['PERÍODO', 'SEMANAS', 'SDI DIARIO', 'SDI MENSUAL', 'PESO'].map((h, i) => (
+                            <th key={i} style={{ padding: '7px 12px', textAlign: i === 0 ? 'left' : 'right', color: '#64748b', fontWeight: '700', fontSize: '10px', borderBottom: '2px solid #e2e8f0', textTransform: 'uppercase' }}>{h}</th>
                           ))}
                         </tr>
                       </thead>
                       <tbody>
-                        {periodos.slice(0, 5).map((p, i) => (
-                          <tr key={p.id} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #f1f5f9' }}>
-                            <td style={{ padding: '6px 10px', color: '#374151' }}>{p.fecha_inicio?.slice(0,7)} → {p.fecha_fin?.slice(0,7)}</td>
-                            <td style={{ padding: '6px 10px', textAlign: 'right', color: '#374151' }}>{p.semanas}</td>
-                            <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: '600', color: NARANJA }}>{fmtMXN2(p.sdi)}</td>
-                            <td style={{ padding: '6px 10px', textAlign: 'right', color: '#374151' }}>{fmtMXN(p.sdi * 30.4)}</td>
-                            <td style={{ padding: '6px 10px', textAlign: 'right', color: '#94a3b8' }}>{p.peso.toFixed(1)}%</td>
+                        {periodos.map((p, i) => (
+                          <tr key={i} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #f1f5f9' }}>
+                            <td style={{ padding: '6px 12px', color: '#374151' }}>{p.fecha_inicio?.slice(0,7)} → {p.fecha_fin?.slice(0,7)}</td>
+                            <td style={{ padding: '6px 12px', textAlign: 'right', color: '#374151' }}>{p.semanas}</td>
+                            <td style={{ padding: '6px 12px', textAlign: 'right', fontWeight: '700', color: '#F05B21' }}>{fmtMXN2(p.sdi)}</td>
+                            <td style={{ padding: '6px 12px', textAlign: 'right', color: '#374151' }}>{fmtMXN(p.sdi * 30.4167)}</td>
+                            <td style={{ padding: '6px 12px', textAlign: 'right', color: '#64748b' }}>{p.peso.toFixed(1)}%</td>
                           </tr>
                         ))}
-                        {periodos.length > 5 && (
-                          <tr style={{ background: '#F4F6FB' }}>
-                            <td colSpan={5} style={{ padding: '6px 10px', textAlign: 'center', fontSize: '11px', color: '#94a3b8' }}>
-                              … {periodos.length - 5} períodos más — ver detalle completo
-                            </td>
-                          </tr>
-                        )}
-                        <tr style={{ background: '#EEF2F8', borderTop: '2px solid #e2e8f0' }}>
-                          <td style={{ padding: '7px 10px', fontWeight: '700', color: AZUL }}>Promedio ponderado</td>
-                          <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: AZUL }}>{periodos.reduce((s,p) => s+p.semanas, 0)}</td>
-                          <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '800', color: NARANJA, fontSize: '14px' }}>{fmtMXN2(sdiPromedio)}</td>
-                          <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: AZUL }}>{fmtMXN(sdiPromedio * 30.4)}</td>
-                          <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: AZUL }}>100%</td>
+                        <tr style={{ background: '#EEF2F8', borderTop: '2px solid #1B3A6B', fontWeight: '700' }}>
+                          <td style={{ padding: '7px 12px', color: '#1B3A6B' }}>Promedio ponderado</td>
+                          <td style={{ padding: '7px 12px', textAlign: 'right', color: '#1B3A6B' }}>250</td>
+                          <td style={{ padding: '7px 12px', textAlign: 'right', color: '#F05B21', fontSize: '14px' }}>{fmtMXN2(escRec.nuevo_sdi_250)}</td>
+                          <td style={{ padding: '7px 12px', textAlign: 'right', color: '#1B3A6B' }}>{fmtMXN(escRec.nuevo_sdi_250 * 30.4167)}</td>
+                          <td style={{ padding: '7px 12px', textAlign: 'right', color: '#1B3A6B' }}>100%</td>
                         </tr>
                       </tbody>
                     </table>
                   </div>
-
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <button onClick={() => setShowDetalle250(true)} className="btn-secondary" style={{ ...btnSecondary, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      📊 Ver desglose completo de las 250 semanas
-                    </button>
-                    {periodosCompletos.length > 0 && (
-                      <button onClick={() => setShowHistorialCompleto(true)} className="btn-secondary" style={{ ...btnSecondary, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        🗂️ Ver historial laboral completo ({periodosCompletos.reduce((s: number, p: any) => s + (p.semanas || 0), 0)} semanas, {periodosCompletos.length} períodos)
-                      </button>
-                    )}
-                  </div>
-                </>
-              )}
-
-              {periodos.length === 0 && (
-                <div style={{ textAlign: 'center', padding: '24px', background: '#F4F6FB', borderRadius: '8px', color: '#94a3b8', fontSize: '12px' }}>
-                  <div style={{ fontSize: '28px', marginBottom: '8px' }}>📄</div>
-                  Carga la constancia IMSS en PDF (botón en la parte superior) para calcular automáticamente el promedio de las 250 semanas.<br />
-                  También puedes ingresar los períodos manualmente.
-                </div>
-              )}
-            </div>
-
-            {navButtons(() => setTab(0), () => setTab(2), 'Siguiente: Salario Prom Mod 40 →')}
-          </div>
-        )}
-
-        {/* ══ TAB 3: PENSIÓN ACTUAL (sin Mod 40) ══════════════════ */}
-        {tab === 2 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            {sdiPromedio <= 0 && (
-              <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94a3b8' }}>
-                <div style={{ fontSize: '32px', marginBottom: '10px' }}>📋</div>
-                <p style={{ margin: '0 0 14px' }}>Carga la constancia IMSS en <strong>Datos generales</strong> para calcular la pensión actual.</p>
-                <button onClick={() => setTab(0)} className="btn-primary" style={{ ...btnPrimary, fontSize: '12px' }}>← Ir a Datos generales</button>
+                )}
               </div>
-            )}
-            {sdiPromedio > 0 && (() => {
-              const sem = datos.semanas_totales - datos.semanas_descontadas
-              // Usa la función canónica de formulas.ts para el desglose completo
-              // IMPORTANTE: en tab 3 mostramos la pensión con factor de edad REAL (no ×100%)
-              // La función ya aplica FACTOR_111, factorEdad y PMG correctamente
-              const edadPension = datos.edad_min_pension || datos.edad_actual || 60
-              const resActual = calcPensionLey73(sem, sdiPromedio, edadPension, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, undefined, datos.tiene_ayuda_asistencial)
-              const pensionMensual = resActual.pensionMensual
-              const pensionActualAnual = resActual.pensionAnual
-              const aguinaldo = resActual.aguinaldoAnual
-              const vecesUMA = sdiPromedio / sys.UMA_DIARIA
-              const { basica, incremento } = buscarCuantiaPorUMA(vecesUMA)
-              const pmg_aplica = resActual.pmg_aplica
-              const semanasRestantes = Math.max(0, 500 - sem)
-              const mesesDesde = fechaUltimaCot ? Math.floor((Date.now() - new Date(fechaUltimaCot).getTime()) / (30 * 86400000)) : 0
-              const cons = calcConservacion(datos.semanas_totales, mesesDesde)
-              return (<>
-                {/* Bloque conservación de derechos */}
-                <div style={{ ...cardSt, borderLeft: `3px solid ${cons.vigente ? VERDE : '#ef4444'}` }}>
-                  {sectionTitle('Estado de derechos')}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px' }}>
-                    {kpiBox('Estado', cons.vigente ? 'Vigente' : 'Vencido', cons.venceEn ? `${cons.venceEn} meses restantes` : 'Período vencido', cons.vigente ? VERDE : '#ef4444', undefined, true)}
-                    {kpiBox('Semanas cotizadas', sem.toLocaleString(), 'netas', sem >= 500 ? VERDE : '#f59e0b')}
-                    {kpiBox('Semanas restantes', semanasRestantes === 0 ? '✓ 0' : semanasRestantes.toString(), semanasRestantes === 0 ? 'Ya cumplió las 500' : 'para llegar a 500', semanasRestantes === 0 ? VERDE : '#ef4444')}
-                    {kpiBox('Edad actual', `${(datos.edad_actual || 0).toFixed(1)} años`, 'Pensión mínima a los 60', AZUL)}
-                    {kpiBox('Años para pensión', Math.max(0, 60 - (datos.edad_actual || 0)).toFixed(1), 'sin Mod 40', '#8b5cf6')}
-                  </div>
-                </div>
-
-                {/* Desglose pensión actual — igual que PENSIÓN ACTUAL del Excel */}
-                <div style={cardSt}>
-                  {sectionTitle('Diagnóstico de Pensión Actual (sin Modalidad 40)', `Salario promedio: ${fmtMXN2(sdiPromedio)} | ${sem.toFixed(0)} semanas | ${vecesUMA.toFixed(2)} veces UMA`)}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', marginBottom: '14px' }}>
-                    {kpiBox('Cuantía básica anual', fmtMXN(resActual.cuantiaBasicaAnual), `${(basica * 100).toFixed(1)}% × SDI × 365 × ×1.11 × ${(resActual.factorEdad * 100).toFixed(0)}%`, AZUL, undefined, true)}
-                    {kpiBox('Incrementos anuales', fmtMXN(resActual.incrementosAnual), `${resActual.numIncrementos.toFixed(1)} incrementos × ${(incremento * 100).toFixed(4)}%`, '#3b82f6', undefined, true)}
-                    {kpiBox('Asignaciones familiares', fmtMXN(resActual.asignacionesAnual), datos.tiene_conyuge ? 'Cónyuge + hijos' : datos.num_hijos > 0 ? `${datos.num_hijos} hijo(s)` : 'Sin dependientes', '#0d9488', undefined, true)}
-                    {resActual.ayudaAsistencialAnual > 0 && kpiBox('Ayuda asistencial', fmtMXN(resActual.ayudaAsistencialAnual), 'Sin beneficiarios (Art. 165 LSS)', '#8b5cf6', undefined, true)}
-                    {kpiBox('Pensión total anual', fmtMXN(pensionActualAnual), 'cuantía + incrementos + asignaciones', AZUL)}
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', marginBottom: '14px' }}>
-                    {kpiBox('Factor de edad', `${(resActual.factorEdad * 100).toFixed(0)}%`, `${edadPension.toFixed(0)} años — Art. 167 LSS`, '#f59e0b')}
-                    {pmg_aplica && kpiBox('🛡️ PMG aplica', fmtMXN(sys.PMG_L73) + '/mes', 'La PMG es mayor a la calculada', VERDE, undefined, true)}
-                    {kpiBox('Pensión mensual', fmtMXN(pensionMensual), 'monto final (con PMG si aplica)', VERDE, undefined, true)}
-                    {kpiBox('Pensión anual', fmtMXN(pensionActualAnual), 'total anual', VERDE)}
-                    {kpiBox('Aguinaldo anual', fmtMXN(aguinaldo), '15 días de pensión (Art. 171 LSS)', '#8b5cf6')}
-                  </div>
-                  <div style={{ padding: '10px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', fontSize: '11px', color: '#166534' }}>
-                    💡 Esta es la pensión que recibiría el cliente hoy si se pensionara sin Modalidad 40. Es la línea base para comparar los escenarios.
-                  </div>
-                </div>
-              </>)
-            })()}
-            {navButtons(() => setTab(1), () => setTab(3), 'Siguiente: Costo Mod 40 →')}
-          </div>
-        )}
-
-        {/* ══ TAB 4: MODALIDAD 40 ═════════════════════════════════ */}
-        {tab === 3 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            {datos.semanas_totales === 0 && (
-              <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94a3b8', fontSize: '13px' }}>
-                <div style={{ fontSize: '32px', marginBottom: '10px' }}>📋</div>
-                <p style={{ margin: '0 0 14px' }}>Carga primero la constancia IMSS en <strong>Datos generales</strong> para configurar la Modalidad 40.</p>
-                <button onClick={() => setTab(0)} className="btn-primary" style={{ ...btnPrimary, fontSize: '12px' }}>← Ir a Datos generales</button>
-              </div>
-            )}
-            {datos.semanas_totales > 0 && <>
-            <div style={{ padding: '12px 16px', background: '#EEF2F8', border: '1px solid #bfdbfe', borderRadius: '10px', fontSize: '12px', color: AZUL, lineHeight: 1.6 }}>
-              <strong>Modalidad 40 (Art. 218 LSS 1973):</strong> Permite al trabajador cotizar voluntariamente sobre un salario superior al actual, incrementando la base de cálculo de su pensión. Es la estrategia de optimización pensional más poderosa disponible en México.
-            </div>
-
-            {guiaCampos(true)}
-            <div style={cardSt}>
-              {sectionTitle('Configuración de la Modalidad 40')}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '10px', marginBottom: '14px' }}>
-                <div>
-                  <label style={labelSt}>✏️ Salario base Mod 40 (veces UMA)</label>
-                  <p style={{ fontSize: '10px', color: '#94a3b8', margin: '2px 0 5px', lineHeight: 1.4 }}>El salario sobre el que el cliente quiere cotizar voluntariamente. A mayor UMA, mayor pensión final pero mayor costo mensual. Rango típico: 10–25 UMAs.</p>
-                  <input type="number" step="0.5" style={manualNumInputSt} value={mod40Umas} onChange={e => setMod40Umas(parseFloat(e.target.value) || 1)} />
-                  <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>SDI: {fmtMXN2(mod40Umas * sys.UMA_DIARIA)}/día</p>
-                </div>
-                <div>
-                  <label style={labelSt}>✏️ Período de cotización (meses)</label>
-                  <p style={{ fontSize: '10px', color: '#94a3b8', margin: '2px 0 5px', lineHeight: 1.4 }}>Cuántos meses pagará Modalidad 40 antes de tramitar la pensión. Solo cuentan los <strong>últimos 60 meses</strong> (5 años) para el promedio del SDI — periodos más largos no incrementan más la pensión pero sí el costo total.</p>
-                  <input type="number" style={manualNumInputSt} value={mod40Meses} onChange={e => setMod40Meses(parseInt(e.target.value) || 1)} />
-                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginTop: '5px' }}>
-                    <span style={{ fontSize: '10px', color: '#94a3b8' }}>= </span>
-                    <input type="number" min={0} style={{ ...manualNumInputSt, padding: '4px 6px', fontSize: '11px', width: '50px' }}
-                      value={Math.floor(mod40Meses / 12)}
-                      onChange={e => { const a = parseInt(e.target.value) || 0; const m = mod40Meses % 12; setMod40Meses(a * 12 + m) }} />
-                    <span style={{ fontSize: '10px', color: '#94a3b8' }}>años</span>
-                    <input type="number" min={0} max={11} style={{ ...manualNumInputSt, padding: '4px 6px', fontSize: '11px', width: '50px' }}
-                      value={mod40Meses % 12}
-                      onChange={e => { const m = Math.min(11, parseInt(e.target.value) || 0); const a = Math.floor(mod40Meses / 12); setMod40Meses(a * 12 + m) }} />
-                    <span style={{ fontSize: '10px', color: '#94a3b8' }}>meses</span>
-                  </div>
-                  <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>{(mod40Meses * 4.33).toFixed(0)} semanas adicionales</p>
-                </div>
-                <div>
-                  <label style={labelSt}>⚙️ Tasa Mod 40 {anioInicioTramite} (%)</label>
-                  <p style={{ fontSize: '10px', color: '#94a3b8', margin: '2px 0 5px', lineHeight: 1.4 }}>Porcentaje que el IMSS cobra mensualmente sobre el SDI elegido. Cambia cada año (ajuste de enero) — se toma la tasa configurada para el año real en que iniciaría el trámite.</p>
-                  <input type="number" step="0.001" style={sysNumInputSt} value={getMod40Pct(anioInicioTramite)} readOnly />
-                  <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>Configurable en Configuración</p>
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', marginBottom: '14px' }}>
-                {kpiBox('Costo mensual', fmtMXN(calcCostoMod40(mod40Umas, getMod40Pct(anioInicioTramite), sys)), 'Pago mensual al IMSS', NARANJA, 'naranja', true)}
-                {kpiBox('Inversión total', fmtMXN(calcCostoMod40(mod40Umas, getMod40Pct(anioInicioTramite), sys) * mod40Meses), `${mod40Meses} meses`, '#dc2626', 'rojo')}
-                {kpiBox('SDI con Mod 40', fmtMXN2(mod40Umas * sys.UMA_DIARIA), 'Salario cotizado', AZUL, 'azul')}
-                {kpiBox('Semanas que agrega', `${(mod40Meses * 4.33).toFixed(0)}`, 'al historial', VERDE, 'verde')}
-              </div>
-
-              <button onClick={() => setShowDetallesMod40(v => !v)}
-                style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '600', color: AZUL, padding: '4px 0', marginBottom: showDetallesMod40 ? '10px' : '14px' }}>
-                {showDetallesMod40 ? '▾' : '▸'} {showDetallesMod40 ? 'Ocultar' : 'Ver'} detalles adicionales (fecha de baja, semanas, costo real con AFORE)
-              </button>
-
-              {showDetallesMod40 && (() => {
-                // Fecha estimada de baja (fin de Mod 40), semanas cotizadas y SDI en ese momento
-                const fechaInicioMod40 = new Date(anioInicioTramite, 0, 1)
-                const fechaBaja = new Date(fechaInicioMod40)
-                fechaBaja.setMonth(fechaBaja.getMonth() + mod40Meses)
-                const semanasEnBaja = Math.round((datos.semanas_totales || 0) + mod40Meses * 4.33)
-                const umaEnInicio = proyectarValor(sys.UMA_DIARIA, new Date().getFullYear(), anioInicioTramite)
-                const sdiEnBaja = mod40Umas * umaEnInicio
-                return (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px', marginBottom: '14px' }}>
-                    {kpiBox('Fecha estimada de baja', fechaBaja.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }), 'Fin de Modalidad 40', '#7c3aed', 'azul')}
-                    {kpiBox('Semanas cotizadas en ese momento', semanasEnBaja.toString(), `${datos.semanas_totales || 0} actuales + ${(mod40Meses * 4.33).toFixed(0)} de Mod 40`, VERDE, 'verde')}
-                    {kpiBox('Salario (SDI) en ese momento', fmtMXN2(sdiEnBaja), `UMA proyectada a ${anioInicioTramite}`, AZUL, 'azul')}
-                  </div>
-                )
-              })()}
-
-              {showDetallesMod40 && (() => {
-                const inversionTotal = calcCostoMod40(mod40Umas, getMod40Pct(anioInicioTramite), sys) * mod40Meses
-                const PCT_AFORE = (sys.pct_afore_mod40 ?? 20) / 100
-                const teRegresaAfore = inversionTotal * PCT_AFORE
-                const costoReal = inversionTotal - teRegresaAfore
-                return (
-                  <div style={cardSt}>
-                    {sectionTitle('Costo real vs. lo que te regresa la AFORE', 'De cada cuota de Mod 40, una parte va a tu subcuenta de Retiro 97 y SÍ se te regresa al pensionarte')}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px' }}>
-                      {kpiBox('Inversión bruta total', fmtMXN(inversionTotal), `${mod40Meses} meses pagados al IMSS`, '#dc2626', 'rojo')}
-                      {kpiBox(`Te regresa AFORE (~${(PCT_AFORE * 100).toFixed(0)}%)`, fmtMXN(teRegresaAfore), 'Subcuenta Retiro 97, pago único', '#0891b2', 'azul')}
-                      {kpiBox('Costo real de Mod 40', fmtMXN(costoReal), 'Inversión bruta − lo que regresa AFORE', NARANJA, 'naranja', true)}
-                    </div>
-                    <p style={{ fontSize: '9px', color: '#94a3b8', marginTop: '8px' }}>
-                      Estimado de mercado (~20% va a Retiro 97, ~80% financia el seguro de Cesantía/Vejez que paga tu pensión mensual). El porcentaje exacto depende de tu historial — verifica en tu estado de cuenta AFORE al pensionarte.
-                    </p>
-                  </div>
-                )
-              })()}
-
-              {/* Pago retroactivo — solo si el cliente ya debería estar pagando Mod 40 y no lo ha hecho */}
-              <div style={cardSt}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: tieneAtraso ? '14px' : 0 }}>
-                  <input type="checkbox" checked={tieneAtraso} onChange={e => setTieneAtraso(e.target.checked)} />
-                  <span style={{ fontSize: '13px', fontWeight: '700', color: '#1e293b' }}>✏️ ¿El cliente ya debería haber iniciado Mod 40 y no lo ha hecho? (pago retroactivo)</span>
-                </label>
-                {tieneAtraso && (() => {
-                  const fechaDebioIniciar = fechaAtrasoMod40 ? new Date(fechaAtrasoMod40 + 'T00:00:00') : null
-                  const mesesAtraso = fechaDebioIniciar
-                    ? Math.max(0, Math.round((Date.now() - fechaDebioIniciar.getTime()) / (30.4 * 86400000)))
-                    : 0
-                  const retro = mesesAtraso > 0 ? calcPagoRetroactivo(Math.min(mesesAtraso, 60), new Date(), mod40Umas, sys, getMod40Pct) : null
-                  return (
-                    <>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '10px', marginBottom: '12px' }}>
-                        <div>
-                          <label style={labelSt}>✏️ ¿Desde cuándo debió iniciar?</label>
-                          <input type="date" style={manualInputSt} value={fechaAtrasoMod40} onChange={e => setFechaAtrasoMod40(e.target.value)} />
-                          <p style={{ fontSize: '9px', color: '#94a3b8', margin: '2px 0 0' }}>Máximo 5 años (60 meses) de retroactivo permitido por el IMSS</p>
-                        </div>
-                        <div>
-                          <label style={labelSt}>⚡ Meses de atraso</label>
-                          <div style={{ ...autoInputSt, display: 'flex', alignItems: 'center', fontWeight: '700' }}>{Math.min(mesesAtraso, 60)} meses{mesesAtraso > 60 ? ' (limitado a 60)' : ''}</div>
-                        </div>
-                      </div>
-                      {retro && (
-                        <>
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px', marginBottom: '8px' }}>
-                            {kpiBox('Costo base (cuotas atrasadas)', fmtMXN(retro.costoBase), `${Math.min(mesesAtraso, 60)} meses sin pagar`, '#64748b')}
-                            {kpiBox('+ Actualización (INPC)', fmtMXN(retro.totalActualizacion), 'por inflación acumulada', '#0891b2')}
-                            {kpiBox('+ Recargos', fmtMXN(retro.totalRecargos), '1.47-2.07% mensual', '#dc2626')}
-                            {kpiBox('Costo total retroactivo', fmtMXN(retro.costoTotal), `+${(retro.pctIncremento * 100).toFixed(1)}% vs pagar a tiempo`, NARANJA, 'naranja', true)}
-                          </div>
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px' }}>
-                            {kpiBox(`Te regresa AFORE (~${(sys.pct_afore_mod40 ?? 20).toFixed(0)}%)`, fmtMXN(retro.recuperaAfore), 'Subcuenta Retiro 97', '#0891b2', 'azul')}
-                            {kpiBox('Costo neto del retroactivo', fmtMXN(retro.costoNeto), 'costo total − AFORE', VERDE, 'verde', true)}
-                          </div>
-                          <p style={{ fontSize: '9px', color: '#94a3b8', marginTop: '8px' }}>
-                            Estimado — usa actualización por INPC histórico y una tasa de recargos de referencia (1.47% mensual antes de 2026, 2.07% desde 2026). El monto exacto lo determina el IMSS al emitir la línea de captura; puede variar hasta ~10%.
-                          </p>
-                        </>
-                      )}
-                    </>
-                  )
-                })()}
-              </div>
-            </div>
-
-            {/* Tabla de cotización mensual */}
-            <div style={cardSt}>
-              {(() => {
-                const header = sectionTitle('Proyección de cotización mensual', `${mod40Meses} meses · ${fmtMXN(calcCostoMod40(mod40Umas, getMod40Pct(anioInicioTramite), sys))}/mes`)
-                return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  {header}
-                  <button onClick={() => setShowAllMonths(v => !v)}
-                    style={{ fontSize: '11px', padding: '4px 10px', border: '1px solid #e2e8f0', borderRadius: '6px', background: '#F4F6FB', cursor: 'pointer', color: '#64748b', fontFamily: 'inherit', flexShrink: 0 }}>
-                    {showAllMonths ? '↩️ Ver resumen' : '📋 Ver todos los meses'}
-                  </button>
-                </div>
-              })()}
-              <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-                  <thead>
-                    <tr style={{ background: '#F4F6FB' }}>
-                      {['Mes','SDI cotizado','Cuota mensual','Acumulado','Semanas Mod 40'].map((h, i) => (
-                        <th key={i} style={{ padding: '7px 10px', textAlign: i === 0 ? 'center' : 'right', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0', borderRight: i < 4 ? '1px solid #f1f5f9' : 'none' }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(() => {
-                      const costoMensual = calcCostoMod40(mod40Umas, getMod40Pct(anioInicioTramite), sys)
-                      const sdiMod40 = mod40Umas * sys.UMA_DIARIA
-                      const rows = []
-                      const showMonths = showAllMonths ? Array.from({length: mod40Meses}, (_, i) => i + 1) : [1, 2, 3, Math.floor(mod40Meses/2), mod40Meses]
-                      for (const mes of [...new Set(showMonths)].filter(m => m >= 1 && m <= mod40Meses)) {
-                        rows.push(
-                          <tr key={mes} style={{ background: mes % 2 === 0 ? '#F8FAFC' : 'white', borderBottom: '1px solid #f1f5f9' }}>
-                            <td style={{ padding: '6px 10px', textAlign: 'center', color: '#94a3b8', fontWeight: '600', borderRight: '1px solid #f1f5f9' }}>{mes}</td>
-                            <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: '600', color: AZUL, borderRight: '1px solid #f1f5f9' }}>{fmtMXN2(sdiMod40)}</td>
-                            <td style={{ padding: '6px 10px', textAlign: 'right', color: NARANJA, fontWeight: '600', borderRight: '1px solid #f1f5f9' }}>{fmtMXN(costoMensual)}</td>
-                            <td style={{ padding: '6px 10px', textAlign: 'right', color: VERDE, fontWeight: '600', borderRight: '1px solid #f1f5f9' }}>{fmtMXN(costoMensual * mes)}</td>
-                            <td style={{ padding: '6px 10px', textAlign: 'right', color: '#374151' }}>{(mes * 4.33).toFixed(1)}</td>
-                          </tr>
-                        )
-                        if (!showAllMonths && mes === 3 && mod40Meses > 5) rows.push(
-                          <tr key="dots" style={{ background: '#F8FAFC' }}>
-                            <td colSpan={5} style={{ padding: '5px 10px', textAlign: 'center', color: '#94a3b8', fontSize: '11px' }}>⋯ {mod40Meses - 4} meses intermedios — presiona "Ver todos los meses" para expandir ⋯</td>
-                          </tr>
-                        )
-                      }
-                      return rows
-                    })()}
-                    <tr style={{ background: '#EEF2F8', borderTop: '2px solid #e2e8f0' }}>
-                      <td style={{ padding: '7px 10px', textAlign: 'center', fontWeight: '700', color: AZUL, borderRight: '1px solid #e2e8f0' }}>Total</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right', color: '#64748b', borderRight: '1px solid #e2e8f0' }}>—</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: NARANJA, borderRight: '1px solid #e2e8f0' }}>{fmtMXN(calcCostoMod40(mod40Umas, getMod40Pct(anioInicioTramite), sys))}/mes</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '800', color: AZUL, borderRight: '1px solid #e2e8f0' }}>{fmtMXN(calcCostoMod40(mod40Umas, getMod40Pct(anioInicioTramite), sys) * mod40Meses)}</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: VERDE }}>{(mod40Meses * 4.33).toFixed(0)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Tabla costo año por año con tasa incremental */}
-            <div style={cardSt}>
-              {sectionTitle('Costo Modalidad 40 por año (con UMA proyectada)', `Inicio: ${anioInicioTramite} · UMA proyectada: ${fmtMXN2(proyectarValor(sys.UMA_DIARIA, new Date().getFullYear(), anioInicioTramite))}/día`)}
-              <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px', marginBottom: '12px' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-                  <thead>
-                    <tr style={{ background: AZUL }}>
-                      {['Año', 'UMA diaria', 'Tasa Mod 40', 'Salario registrado', 'Cuota mensual', 'Cuota anual'].map((h, i) => (
-                        <th key={i} style={{ padding: '7px 10px', color: 'white', textAlign: i > 0 ? 'right' : 'left', fontSize: '10px', fontWeight: '700', borderRight: i < 5 ? '1px solid rgba(255,255,255,0.2)' : 'none' }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(() => {
-                      const anioBase = new Date().getFullYear()
-                      const anioFin = anioInicioTramite + Math.ceil(mod40Meses / 12)
-                      const rows = []
-                      let costoTotal = 0
-                      for (let anio = anioInicioTramite; anio <= anioFin; anio++) {
-                        const uma = proyectarValor(sys.UMA_DIARIA, anioBase, anio)
-                        const tasa = getMod40Pct(anio) / 100
-                        const salario = mod40Umas * uma * 30.4
-                        const mesInicio = anio === anioInicioTramite ? 1 : 1
-                        const mesesEnAnio = anio === anioInicioTramite
-                          ? Math.min(12, mod40Meses)
-                          : anio === anioFin
-                          ? mod40Meses % 12 || 12
-                          : 12
-                        const cuotaMes = salario * tasa
-                        const cuotaAnual = cuotaMes * mesesEnAnio
-                        costoTotal += cuotaAnual
-                        const isActive = mesesEnAnio > 0
-                        rows.push(
-                          <tr key={anio} style={{ background: isActive ? (rows.length % 2 === 0 ? 'white' : '#F8FAFC') : '#F8FAFC', borderBottom: '1px solid #f1f5f9', opacity: isActive ? 1 : 0.4 }}>
-                            <td style={{ padding: '6px 10px', fontWeight: '600', color: isActive ? AZUL : '#94a3b8' }}>{anio}{anio === anioBase ? ' (hoy)' : ''}</td>
-                            <td style={{ padding: '6px 10px', textAlign: 'right', color: '#374151' }}>{fmtMXN2(uma)}</td>
-                            <td style={{ padding: '6px 10px', textAlign: 'right', color: '#374151' }}>{(tasa * 100).toFixed(3)}%</td>
-                            <td style={{ padding: '6px 10px', textAlign: 'right', color: '#374151' }}>{fmtMXN(salario)}</td>
-                            <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: '600', color: isActive ? NARANJA : '#94a3b8' }}>{isActive ? fmtMXN(cuotaMes) : '—'}</td>
-                            <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: '600', color: isActive ? VERDE : '#94a3b8' }}>{isActive ? fmtMXN(cuotaAnual) : '—'}</td>
-                          </tr>
-                        )
-                      }
-                      return rows
-                    })()}
-                    <tr style={{ background: '#EEF2F8', borderTop: '2px solid #e2e8f0' }}>
-                      <td colSpan={4} style={{ padding: '7px 10px', fontWeight: '700', color: AZUL }}>Costo total Mod 40</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '700', color: NARANJA }}>{fmtMXN(calcCostoMod40(mod40Umas, getMod40Pct(anioInicioTramite), sys))}/mes aprox.</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: '800', color: AZUL }}>{fmtMXN(calcCostoMod40(mod40Umas, getMod40Pct(anioInicioTramite), sys) * mod40Meses)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div style={{ padding: '12px 16px', background: '#F0FDF4', border: '1px solid #bbf7d0', borderRadius: '10px', fontSize: '12px', color: '#15803d', lineHeight: 1.6 }}>
-              <strong>¿Tu cliente es trabajador independiente o no califica para Mod 40?</strong> La <strong>Modalidad 10</strong> permite afiliarse al IMSS con cobertura completa (médica + pensión + Infonavit) y puede usarse como paso previo para habilitar Mod 40.{' '}
-              <button onClick={() => setTab(4)} style={{ background: 'none', border: 'none', color: '#15803d', fontWeight: '700', cursor: 'pointer', textDecoration: 'underline', fontFamily: 'inherit', fontSize: '12px', padding: 0 }}>Ver Modalidad 10 →</button>
-            </div>
-
-            {/* MOD 40 REC. VS RETRO. — comparativo igual a la hoja del Excel */}
-            {escenarios.filter(e => e.mod40_meses > 0).length > 0 && (() => {
-              const esc = escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
-              if (!esc || esc.mod40_meses === 0) return null
-              return (
-                <div style={cardSt}>
-                  {sectionTitle('Recurrente vs Retroactivo', 'Hoja MOD 40 REC. VS RETRO. del Excel')}
-                  <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11.5px' }}>
-                      <thead>
-                        <tr style={{ background: '#F4F6FB' }}>
-                          <th style={{ padding: '8px 12px', textAlign: 'left', color: '#64748b', fontSize: '10px', textTransform: 'uppercase', borderBottom: '2px solid #e2e8f0', minWidth: '200px' }}>Concepto</th>
-                          <th style={{ padding: '8px 12px', textAlign: 'center', color: AZUL, fontSize: '10px', textTransform: 'uppercase', borderBottom: `2px solid ${AZUL}` }}>Pago Recurrente (Mes a Mes)</th>
-                          <th style={{ padding: '8px 12px', textAlign: 'center', color: NARANJA, fontSize: '10px', textTransform: 'uppercase', borderBottom: `2px solid ${NARANJA}` }}>Pago Retroactivo</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[
-                          { label: 'Pensión sin Mod. 40', rec: fmtMXN(esc.pension_base), ret: fmtMXN(esc.pension_base) },
-                          { label: 'Pensión mejorada', rec: fmtMXN(esc.pension_mensual), ret: fmtMXN(esc.pension_mensual), highlight: true },
-                          { label: 'Costo base Mod. 40', rec: fmtMXN(esc.costo_total), ret: fmtMXN(esc.costo_total) },
-                        { label: 'Actualizaciones (INPC)', rec: '—', ret: fmtMXN(esc.actualizaciones) },
-                        { label: 'Recargos por mora', rec: '—', ret: fmtMXN(esc.recargos) },
-                        { label: 'Inversión total', rec: fmtMXN(esc.costo_total), ret: fmtMXN(esc.costo_retroactivo) },
-                          { label: 'Recuperación AFORE (~20%)', rec: fmtMXN(esc.recuperacion_afore), ret: fmtMXN(esc.recuperacion_afore_retro) },
-                          { label: 'Inversión neta', rec: fmtMXN(esc.inversion_neta), ret: fmtMXN(esc.inversion_neta_retro), highlight: true },
-                          { label: 'Meses para recuperar', rec: `${esc.roi_meses.toFixed(1)} meses`, ret: `${esc.roi_retro.toFixed(1)} meses` },
-                          { label: 'Ganancia a los 80 años', rec: fmtMXN(esc.ganancia_a80), ret: fmtMXN(esc.ganancia_a80_retro), highlight: true },
-                          { label: 'Tasa de rendimiento', rec: `${esc.tasa_rendimiento.toFixed(2)}%`, ret: `${esc.tasa_rendimiento_retro.toFixed(2)}%` },
-                          { label: 'Termómetro de inversión',
-                            rec: esc.tasa_rendimiento >= 25 ? '🟢 Excelente' : esc.tasa_rendimiento >= 18 ? '🔵 Buena' : esc.tasa_rendimiento >= 12 ? '🟡 Moderada' : '🔴 Riesgo',
-                            ret: esc.tasa_rendimiento_retro >= 25 ? '🟢 Excelente' : esc.tasa_rendimiento_retro >= 18 ? '🔵 Buena' : esc.tasa_rendimiento_retro >= 12 ? '🟡 Moderada' : '🔴 Riesgo'
-                          },
-                        ].map((row, i) => (
-                          <tr key={i} style={{ background: row.highlight ? '#f0f9ff' : i % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
-                            <td style={{ padding: '8px 12px', fontWeight: '600', color: '#374151' }}>{row.label}</td>
-                            <td style={{ padding: '8px 12px', textAlign: 'center', fontWeight: row.highlight ? '700' : 'normal', color: row.highlight ? AZUL : '#374151' }}>{row.rec}</td>
-                            <td style={{ padding: '8px 12px', textAlign: 'center', fontWeight: row.highlight ? '700' : 'normal', color: row.highlight ? NARANJA : '#374151' }}>{row.ret}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )
-            })()}
-
-            {navButtons(() => setTab(2), () => setTab(4), 'Siguiente: Pensión Mod 40 →')}
-            </>}
-
-          </div>
-        )}
-
-
-        {/* ══ TAB 5: INVERSIÓN ══════════════════════════════════ */}
-        {tab === 4 && (() => {
-          if (datos.semanas_totales === 0 || escenarios.length === 0) return (
-            <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94a3b8' }}>
-              <div style={{ fontSize: '32px', marginBottom: '10px' }}>📊</div>
-              <p style={{ margin: '0 0 14px' }}>Calcula primero los escenarios en <strong>Modalidad 40</strong>.</p>
-              <button onClick={() => setTab(3)} className="btn-primary" style={{ ...btnPrimary, fontSize: '12px' }}>← Ir a Modalidad 40</button>
             </div>
           )
-          const esc = escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
-          if (!esc) return null
-          const pensionBase = esc.pension_base
-          const pensionMejorada = esc.pension_mensual
-          const mejora = pensionMejorada - pensionBase
-          const roi = esc.roi_meses
-          const edadRetiro = 62
-          const mesesHasta80 = Math.max(0, (80 - edadRetiro) * 12)
-          const gananciaa80 = esc.ganancia_a80
-          const tasaRend = esc.tasa_rendimiento
-          const invNeta = esc.inversion_neta
-          const termometro = tasaRend >= 25 ? { label: 'Excelente Inversión', color: VERDE, bg: '#f0fdf4' }
-            : tasaRend >= 18 ? { label: 'Buena Inversión', color: '#0891b2', bg: '#f0f9ff' }
-            : tasaRend >= 12 ? { label: 'Inversión Moderada', color: '#f59e0b', bg: '#fffbeb' }
-            : { label: 'Inversión de Riesgo', color: '#ef4444', bg: '#fef2f2' }
-          // Tabla año × año (igual a hoja "Incremento Pen Esc 1" del Excel)
-          const INPC = 0.045 // inflación anual supuesta para proyectar pensiones
-          const mesesFin = 60 // duración del financiamiento
-          const descuentoMensual = 0
-          const filas: { anio: number; edad: number; penSin: number; penCon: number; descuento: number; penInmediata: number; gananciaAnio: number; gananciaAcum: number }[] = []
-          let penSin = pensionBase, penCon = pensionMejorada, ganAcum = 0
-          for (let i = 1; i <= Math.max(20, 80 - edadRetiro + 1); i++) {
-            penSin *= (1 + INPC)
-            penCon *= (1 + INPC)
-            const edad = edadRetiro + i
-            const desc = i <= (mesesFin / 12) && descuentoMensual > 0 ? -descuentoMensual : 0
-            const penInmediata = penCon + desc
-            const ganAnio = (penInmediata - penSin) * 12
+        })()}
+
+        {/* ══ TAB 3: COSTO MOD 40 — Slide 5 ══════════════════════════════ */}
+        {tab === 3 && (() => {
+          const escRec = escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
+          if (!escRec || escRec.mod40_meses === 0) return (
+            <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8' }}>
+              <div style={{ fontSize: '40px', marginBottom: '12px' }}>💰</div>
+              <p>Configura los datos de Modalidad 40 en la pestaña anterior</p>
+            </div>
+          )
+          const anioInicio = parseInt(escRec.fecha_ingreso_mod40?.slice(0,4) || '2027')
+          const anioFin = parseInt(escRec.fecha_baja_mod40?.slice(0,4) || '2030')
+          const mesesFin = parseInt(escRec.fecha_baja_mod40?.slice(5,7) || '07')
+          const anos = []
+          for (let a = 2019; a <= 2031; a++) {
+            const tasaPct = a >= anioInicio && a <= anioFin ? getMod40Pct(a) : 0
+            let diasPagados = 0
+            if (a > anioInicio && a < anioFin) diasPagados = a % 4 === 0 ? 366 : 365
+            else if (a === anioInicio) diasPagados = Math.round((anioFin - anioInicio) * 365 * 0.3)
+            else if (a === anioFin) diasPagados = Math.round(mesesFin / 12 * (a % 4 === 0 ? 366 : 365))
+            const sdi = tasaPct > 0 ? escRec.sdi_mod40 ?? 0 : 0
+            const cuotaMensual = tasaPct > 0 ? sdi * (tasaPct / 100) * (a % 4 === 0 ? 366 : 365) / 12 : 0
+            const cuotaAnual = cuotaMensual * (diasPagados / (a % 4 === 0 ? 366 : 365) * 12)
+            anos.push({ a, tasaPct, sdi, diasPagados, cuotaMensual, cuotaAnual })
+          }
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px' }}>
+                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 14px', borderBottom: '2px solid #e2e8f0', paddingBottom: '8px' }}>
+                  Costo de la Modalidad 40 (2019 a +2030):
+                </p>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11.5px' }}>
+                    <thead>
+                      <tr style={{ background: '#1B3A6B' }}>
+                        {['CONCEPTO','SALARIO REGISTRADO','COSTO SOBRE EL SALARIO (%)','DÍAS PAGADOS','CUOTA MENSUAL PROMEDIO','CUOTA ANUAL'].map((h, i) => (
+                          <th key={i} style={{ padding: '8px 10px', color: 'white', textAlign: i === 0 ? 'left' : 'right', fontWeight: '700', fontSize: '10px', whiteSpace: 'nowrap' }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {anos.map((r, i) => (
+                        <tr key={i} style={{ background: r.tasaPct > 0 ? (i % 2 === 0 ? 'white' : '#F8FAFC') : '#F0F0F0', borderBottom: '1px solid #f1f5f9' }}>
+                          <td style={{ padding: '7px 10px', color: '#374151', fontWeight: r.tasaPct > 0 ? '600' : '400' }}>COSTO MODALIDAD 40 {r.a}{r.a < 2022 ? '-2021' : ''}</td>
+                          <td style={{ padding: '7px 10px', textAlign: 'right', color: r.sdi > 0 ? '#374151' : '#94a3b8' }}>{r.sdi > 0 ? fmtMXN2(r.sdi) : '$0.00'}</td>
+                          <td style={{ padding: '7px 10px', textAlign: 'right', color: r.tasaPct > 0 ? '#374151' : '#94a3b8' }}>{r.tasaPct.toFixed(3)}%</td>
+                          <td style={{ padding: '7px 10px', textAlign: 'right', color: r.diasPagados > 0 ? '#374151' : '#94a3b8' }}>{r.diasPagados}</td>
+                          <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: r.cuotaMensual > 0 ? '600' : '400', color: r.cuotaMensual > 0 ? '#374151' : '#94a3b8' }}>{r.cuotaMensual > 0 ? fmtMXN2(r.cuotaMensual) : '$0.00'}</td>
+                          <td style={{ padding: '7px 10px', textAlign: 'right', fontWeight: r.cuotaAnual > 0 ? '600' : '400', color: r.cuotaAnual > 0 ? '#374151' : '#94a3b8' }}>{r.cuotaAnual > 0 ? fmtMXN2(r.cuotaAnual) : '$0.00'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div style={{ marginTop: '14px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+                  {[
+                    { label: 'INVERSIÓN TOTAL EN MODALIDAD 40', value: fmtMXN(escRec.costo_total), color: '#1B3A6B' },
+                    { label: 'MONTO APROXIMADO DE RECUPERACIÓN POR "AFORE"', value: fmtMXN(escRec.recuperacion_afore), color: '#2E8B57' },
+                    { label: 'INVERSIÓN EN MODALIDAD 40 - RECUPERACION DE LA AFORE', value: fmtMXN(escRec.inversion_neta), color: '#F05B21' },
+                  ].map((k, i) => (
+                    <div key={i} style={{ background: '#F8FAFC', border: `1.5px solid ${k.color}30`, borderRadius: '8px', padding: '12px 16px', textAlign: 'center' as const }}>
+                      <p style={{ fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', margin: '0 0 6px', lineHeight: 1.4 }}>{k.label}</p>
+                      <p style={{ fontSize: '20px', fontWeight: '800', color: k.color, margin: 0 }}>{k.value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )
+        })()}
+
+        {/* ══ TAB 4: GENERALES MOD 40 — Slide 6 ═════════════════════════ */}
+        {tab === 4 && (() => {
+          const escRec = escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
+          const sem = datos.semanas_totales - datos.semanas_descontadas
+          if (!escRec || escRec.mod40_meses === 0) return (
+            <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8' }}>
+              <div style={{ fontSize: '40px', marginBottom: '12px' }}>📋</div>
+              <p>Configura los datos de Modalidad 40 primero</p>
+            </div>
+          )
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px' }}>
+                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 14px', borderBottom: '2px solid #e2e8f0', paddingBottom: '8px' }}>Datos generales mod 40:</p>
+                {/* Header azul */}
+                <div style={{ background: '#1B3A6B', color: 'white', padding: '10px 16px', borderRadius: '6px', marginBottom: '14px', textAlign: 'center' as const }}>
+                  <p style={{ fontSize: '12px', fontWeight: '800', margin: '0 0 2px', letterSpacing: '0.5px' }}>1. INFORMACIÓN GENERAL DEL (LA) PENSIONADO (A)</p>
+                  <p style={{ fontSize: '11px', margin: 0, color: '#93c5fd', fontWeight: '700', letterSpacing: '1px' }}>PROYECTO DE PLAN DE RETIRO</p>
+                </div>
+                {/* Tabla de datos */}
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', marginBottom: '14px' }}>
+                  <tbody>
+                    {[
+                      { label: 'NOMBRE', value: datos.nombre_trabajador || datos.nombre || '—' },
+                      { label: 'EDAD DE RETIRO (EDAD DE INICIO DE MOD 40 + AÑOS EN MOD 40)', value: escRec.edad_retiro?.toFixed(3) || '—' },
+                      { label: 'NUEVA FECHA CALCULADA PARA EL TRÁMITE DE PENSIÓN (DD/MM/AAAA)*', value: escRec.fecha_baja_mod40 || '—' },
+                      { label: 'SEMANAS COTIZADAS ANTES DE MODALIDAD 40', value: Math.round(sem).toLocaleString() },
+                      { label: 'SEMANAS COTIZADAS EN MODALIDAD 40', value: Math.round(escRec.semanas_mod40 || 0).toLocaleString() },
+                      { label: '¿ESPOSA (O) O CONCUMBINO (A)?', value: datos.tiene_conyuge ? 'SÍ' : 'NO' },
+                      { label: 'HIJOS MENORES DE 16 AÑOS O ESTUDIANTES HASTA LOS 25 AÑOS', value: datos.num_hijos.toString() },
+                      { label: 'PADRES QUE DEPENDAN ECONÓMICAMENTE DE USTED', value: datos.num_padres.toString() },
+                    ].map((r, i) => (
+                      <tr key={i} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '8px 12px', color: '#374151', fontSize: '11.5px', width: '65%' }}>{r.label}</td>
+                        <td style={{ padding: '8px 12px', fontWeight: '700', color: '#1B3A6B', textAlign: 'right' as const }}>{r.value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {/* 3 KPIs grandes */}
+                {[
+                  { label: 'EDAD DE RETIRO EN AÑOS ENTEROS (PARA EL IMSS)', value: Math.floor(escRec.edad_retiro || 62).toString() },
+                  { label: 'SALARIO PROMEDIO DIARIO DE LAS ÚLTIMAS 250 SEMANAS COTIZADAS', value: fmtMXN2(escRec.nuevo_sdi_250) },
+                  { label: 'TOTAL DE SEMANAS COTIZADAS PARA EL CÁLCULO DE PENSIÓN (3)', value: Math.round(escRec.semanas_finales || 0).toLocaleString() },
+                ].map((k, i) => (
+                  <div key={i} style={{ background: '#1B3A6B', borderRadius: '8px', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '12px', fontWeight: '700', color: 'white', maxWidth: '60%' }}>{k.label}</span>
+                    <span style={{ fontSize: '20px', fontWeight: '900', color: 'white' }}>{k.value}</span>
+                  </div>
+                ))}
+                <p style={{ fontSize: '10.5px', color: '#94a3b8', margin: '8px 0 0', lineHeight: 1.6 }}>
+                  (1) Semanas no cotizadas en períodos de desempleo que se podrían recuperar al pagarlas al IMSS de manera retroactiva (es opcional hacerlo).<br/>
+                  (2) Semanas que, considerando la fecha de cálculo del proyecto y la fecha de retiro, se pueden calcular. Multiplicando las 52 semanas de un año natural por el número de años restantes hasta la fecha de retiro.<br/>
+                  (3) Total de semanas utilizadas para el cálculo de pensión: Semanas cotizadas actuales + Semanas por cotizar.
+                </p>
+              </div>
+            </div>
+          )
+        })()}
+
+        {/* ══ TAB 5: PENSIÓN MOD 40 — Slide 7 ════════════════════════════ */}
+        {tab === 5 && (() => {
+          const escRec = escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
+          if (!escRec || escRec.mod40_meses === 0 || escRec.pension_mensual <= 0) return (
+            <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8' }}>
+              <div style={{ fontSize: '40px', marginBottom: '12px' }}>📊</div>
+              <p>Configura los datos de Modalidad 40 primero</p>
+            </div>
+          )
+          const pensionAnualVejez = escRec.pension_mensual * 12 / (escRec.edad_retiro && escRec.edad_retiro < 65 ? 0.85 : 1)
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px' }}>
+                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 14px', borderBottom: '2px solid #e2e8f0', paddingBottom: '8px' }}>Pensión Mod 40:</p>
+                {/* 2 columnas */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                  <div style={{ background: '#1B3A6B', borderRadius: '8px', padding: '14px', textAlign: 'center' as const }}>
+                    <p style={{ fontSize: '11px', fontWeight: '700', color: '#93c5fd', margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>IMPORTE DE PENSIÓN ANUAL</p>
+                    <p style={{ fontSize: '26px', fontWeight: '900', color: 'white', margin: 0 }}>{fmtMXN2(escRec.pension_mensual * 12)}</p>
+                  </div>
+                  <div>
+                    <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', margin: '0 0 10px', textTransform: 'uppercase' }}>5. Calculadora de Pensión</p>
+                    {[
+                      { label: 'TOTAL DE PENSIÓN ANUAL POR VEJEZ (100%)', value: fmtMXN2(pensionAnualVejez) },
+                      { label: 'EDAD DE RETIRO EN AÑOS ENTEROS (PARA EL IMSS)', value: Math.floor(escRec.edad_retiro || 62).toString() },
+                      { label: 'PORCENTAJE ASIGNADO POR EDAD DEL TRABAJADOR', value: `${((escRec.edad_retiro || 62) >= 65 ? 100 : 75 + (Math.floor(escRec.edad_retiro || 62) - 60) * 5).toFixed(2)}%` },
+                      { label: 'PENSIÓN ANUAL MÍNIMA GARANTIZADA', value: fmtMXN2(sys.PMG_L73 * 12) },
+                      { label: '¿APLICA LA PENSIÓN MÍNIMA GARANTIZADA? (1)', value: escRec.pmg_aplica ? 'SÍ' : 'NO' },
+                    ].map((r, i) => (
+                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', borderBottom: '1px solid #f1f5f9' }}>
+                        <span style={{ fontSize: '10.5px', color: '#64748b', maxWidth: '60%', lineHeight: 1.4 }}>{r.label}</span>
+                        <span style={{ fontSize: '11.5px', fontWeight: '700', color: '#374151' }}>{r.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* KPI grande Pensión Mensual */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div style={{ background: '#1B3A6B', borderRadius: '8px', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <p style={{ fontSize: '12px', fontWeight: '700', color: 'white', margin: 0 }}>IMPORTE DE PENSIÓN POR MES DE 30 DÍAS</p>
+                    <p style={{ fontSize: '22px', fontWeight: '900', color: 'white', margin: 0, whiteSpace: 'nowrap' }}>{fmtMXN2(escRec.pension_mensual)}</p>
+                  </div>
+                  <div style={{ background: '#2E8B57', borderRadius: '8px', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <p style={{ fontSize: '12px', fontWeight: '700', color: 'white', margin: 0 }}>AGUINALDO ANUAL</p>
+                    <p style={{ fontSize: '22px', fontWeight: '900', color: 'white', margin: 0, whiteSpace: 'nowrap' }}>{fmtMXN2(escRec.aguinaldo_anual)}</p>
+                  </div>
+                </div>
+                {/* Tabla factor por edad */}
+                <div style={{ marginTop: '14px', overflowX: 'auto' }}>
+                  <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', margin: '0 0 8px', textAlign: 'center' as const }}>CALCULADORA DE PENSIÓN POR CESANTÍA EN EDAD AVANZADA Y VEJEZ</p>
+                  <p style={{ fontSize: '10.5px', color: '#64748b', margin: '0 0 8px', textAlign: 'center' as const }}>Tabla de porcentaje de cuantía que corresponde respecto a la cuantía por vejez</p>
+                  <table style={{ width: '100%', maxWidth: '500px', margin: '0 auto', borderCollapse: 'collapse', fontSize: '11.5px' }}>
+                    <thead>
+                      <tr style={{ background: '#F4F6FB' }}>
+                        <th style={{ padding: '6px 12px', color: '#64748b', fontWeight: '700', fontSize: '10px', textTransform: 'uppercase' }}>Tipo de Pensión</th>
+                        <th style={{ padding: '6px 12px', color: '#64748b', fontWeight: '700', fontSize: '10px', textTransform: 'uppercase' }}>Edad</th>
+                        <th style={{ padding: '6px 12px', color: '#64748b', fontWeight: '700', fontSize: '10px', textTransform: 'uppercase' }}>Porcentaje de Pensión por Vejez</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td rowSpan={2} style={{ padding: '6px 12px', color: '#374151', textAlign: 'center' as const }}>Por vejez</td>
+                        <td style={{ padding: '6px 12px', textAlign: 'center' as const }}>65</td>
+                        <td style={{ padding: '6px 12px', textAlign: 'center' as const, fontWeight: '700' }}>100%</td>
+                      </tr>
+                      <tr style={{ borderBottom: '1px solid #f1f5f9' }}><td style={{ padding: '6px 12px', textAlign: 'center' as const }}>64</td><td style={{ padding: '6px 12px', textAlign: 'center' as const }}>95%</td></tr>
+                      {[63,62,61,60].map((edad, i) => (
+                        <tr key={edad} style={{ background: Math.floor(escRec.edad_retiro || 62) === edad ? '#EEF2F8' : i % 2 === 0 ? '#F8FAFC' : 'white', borderBottom: '1px solid #f1f5f9' }}>
+                          {i === 0 && <td rowSpan={4} style={{ padding: '6px 12px', color: '#374151', textAlign: 'center' as const }}>Por cesantía en edad avanzada</td>}
+                          <td style={{ padding: '6px 12px', textAlign: 'center' as const, fontWeight: Math.floor(escRec.edad_retiro || 62) === edad ? '800' : 'normal', color: Math.floor(escRec.edad_retiro || 62) === edad ? '#1B3A6B' : '#374151' }}>{edad}</td>
+                          <td style={{ padding: '6px 12px', textAlign: 'center' as const, fontWeight: Math.floor(escRec.edad_retiro || 62) === edad ? '800' : 'normal', color: Math.floor(escRec.edad_retiro || 62) === edad ? '#1B3A6B' : '#374151' }}>{75 + (edad - 60) * 5}%</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )
+        })()}
+
+        {/* ══ TAB 6: INVERSIÓN — Slide 8 ══════════════════════════════════ */}
+        {tab === 6 && (() => {
+          const escRec = escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
+          const sem = datos.semanas_totales - datos.semanas_descontadas
+          if (!escRec || escRec.mod40_meses === 0) return (
+            <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8' }}>
+              <div style={{ fontSize: '40px', marginBottom: '12px' }}>📈</div>
+              <p>Configura los datos de Modalidad 40 primero</p>
+            </div>
+          )
+          const termometro = escRec.tasa_rendimiento_financiado >= 25 ? { label: 'Excelente Inversión', color: '#2E8B57', bg: '#f0fdf4' }
+            : escRec.tasa_rendimiento_financiado >= 18 ? { label: 'Buena Inversión', color: '#0891b2', bg: '#f0f9ff' }
+            : escRec.tasa_rendimiento_financiado >= 12 ? { label: 'Inversión Moderada', color: '#f59e0b', bg: '#fffbeb' }
+            : { label: 'Riesgo Moderado', color: '#ef4444', bg: '#fef2f2' }
+          const termRec = escRec.tasa_rendimiento >= 25 ? { label: 'Excelente Inversión', color: '#2E8B57', bg: '#f0fdf4' }
+            : escRec.tasa_rendimiento >= 18 ? { label: 'Buena Inversión', color: '#0891b2', bg: '#f0f9ff' }
+            : escRec.tasa_rendimiento >= 12 ? { label: 'Inversión Moderada', color: '#f59e0b', bg: '#fffbeb' }
+            : { label: 'Riesgo Moderado', color: '#ef4444', bg: '#fef2f2' }
+          // Tabla año×año
+          const filas: any[] = []
+          let ganAcum = 0
+          for (let i = 1; i <= Math.max(20, 80 - Math.floor(escRec.edad_retiro || 62) + 1); i++) {
+            const edad = Math.floor(escRec.edad_retiro || 62) + i
+            const penSin = escRec.pension_base * Math.pow(1.045, i)
+            const penCon = escRec.pension_mensual * Math.pow(1.045, i)
+            const desc = i <= 5 && escRec.descuento_mensual > 0 ? -escRec.descuento_mensual : 0
+            const penInm = penCon + desc
+            const ganAnio = (penInm - penSin) * 12
             ganAcum += ganAnio
-            filas.push({ anio: i, edad, penSin, penCon, descuento: desc, penInmediata, gananciaAnio: ganAnio, gananciaAcum: ganAcum })
+            filas.push({ anio: i, edad, penSin, penCon, desc, penInm, ganAnio, ganAcum })
             if (edad >= 81) break
           }
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              {sectionTitle('Análisis de Inversión', 'Hoja INVERSION del Excel — compara escenario actual vs con Modalidad 40')}
-
-              {/* KPIs principales — MEJORA DE PENSIÓN */}
-              <div style={cardSt}>
-                {sectionTitle('Mejora de Pensión', 'Sin Modalidad 40 vs. Con Modalidad 40')}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '8px' }}>
-                  {kpiBox('Sin Modalidad 40', fmtMXN(pensionBase), 'pensión mensual actual', '#ef4444')}
-                  {kpiBox('Con Modalidad 40', fmtMXN(pensionMejorada), `Edad de retiro: ${edadRetiro} años`, VERDE, undefined, true)}
-                  {kpiBox('Mejora mensual', fmtMXN(mejora), `+${((mejora / pensionBase) * 100).toFixed(0)}% más pensión`, AZUL, undefined, true)}
-                  {kpiBox('Aguinaldo anual', fmtMXN((pensionMejorada * 15) / 30), '15 días de pensión (Art. 171 LSS)', '#8b5cf6')}
-                </div>
-              </div>
-
-              {/* KPIs de inversión */}
-              <div style={cardSt}>
-                {sectionTitle('Análisis de la Inversión', 'Hoja INVERSION!B7 del Excel')}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '8px', marginBottom: '12px' }}>
-                  {kpiBox('Periodos de recuperación', `${roi.toFixed(1)} meses`, 'inversión neta ÷ mejora mensual', '#f59e0b', undefined, true)}
-                  {kpiBox('Flujos cobrados a los 80', fmtMXN(pensionMejorada * mesesHasta80), 'total acumulado con Mod40', AZUL)}
-                  {kpiBox('Ganancia total a los 80', fmtMXN(gananciaa80), 'flujos con − flujos sin − inversión', VERDE, undefined, true)}
-                  {kpiBox('Tasa de rendimiento', `${tasaRend.toFixed(2)}%`, 'ganancia ÷ inversión neta × 100', AZUL)}
-                </div>
-                {/* Termómetro de inversión */}
-                <div style={{ padding: '12px 16px', background: termometro.bg, border: `1.5px solid ${termometro.color}`, borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span style={{ fontSize: '28px' }}>🌡️</span>
-                  <div>
-                    <p style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: termometro.color }}>{termometro.label}</p>
-                    <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#64748b' }}>Tasa de rendimiento total: {tasaRend.toFixed(2)}% — {tasaRend >= 25 ? 'Inversión excepcional: el cliente recupera su dinero y gana mucho más.' : tasaRend >= 18 ? 'Buena inversión con retorno sólido.' : 'Evaluar con el cliente si es viable.'}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Tabla año × año */}
-              <div style={cardSt}>
-                {sectionTitle('Detalle de Ganancia por Mejora de Pensión año × año', 'Hoja "Incremento Pen Esc 1" del Excel — pensiones proyectadas con inflación 4.5% anual')}
-                <div style={{ overflowX: 'auto' }}>
+              <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: 0 }}>Inversión:</p>
+              {/* 3 columnas */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                {/* Col 1: Mejora de pensión */}
+                <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ background: '#1B3A6B', color: 'white', padding: '6px 10px', borderRadius: '6px', textAlign: 'center' as const, fontSize: '11px', fontWeight: '700' }}>MEJORA DE PENSIÓN</div>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
-                    <thead>
-                      <tr style={{ background: '#F4F6FB' }}>
-                        {['Año', 'Edad', 'Escenario Actual', 'Pensión Mejorada', 'Descuento Fin.', 'Pensión Inmediata', 'Ganancia en el Año', 'Ganancia Acumulada'].map((h, i) => (
-                          <th key={i} style={{ padding: '7px 10px', textAlign: 'right' as const, fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
+                    <thead><tr>{['','SIN MODALIDAD 40','CON MODALIDAD 40'].map((h,i) => <th key={i} style={{ padding: '5px', textAlign: 'center' as const, color: '#64748b', fontSize: '9.5px', textTransform: 'uppercase', fontWeight: '700', borderBottom: '1px solid #e2e8f0' }}>{h}</th>)}</tr></thead>
                     <tbody>
-                      {filas.map((f, i) => (
-                        <tr key={i} style={{ background: f.edad === 80 ? '#f0fdf4' : i % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #f1f5f9', fontWeight: f.edad === 80 ? '700' : 'normal' }}>
-                          <td style={{ padding: '6px 10px', textAlign: 'right', color: '#64748b' }}>{f.anio}</td>
-                          <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: '600', color: f.edad === 80 ? VERDE : '#374151' }}>{f.edad}</td>
-                          <td style={{ padding: '6px 10px', textAlign: 'right', color: '#94a3b8' }}>{fmtMXN(f.penSin)}</td>
-                          <td style={{ padding: '6px 10px', textAlign: 'right', color: AZUL }}>{fmtMXN(f.penCon)}</td>
-                          <td style={{ padding: '6px 10px', textAlign: 'right', color: f.descuento < 0 ? '#ef4444' : '#94a3b8' }}>{f.descuento < 0 ? fmtMXN(f.descuento) : '—'}</td>
-                          <td style={{ padding: '6px 10px', textAlign: 'right', color: VERDE, fontWeight: '600' }}>{fmtMXN(f.penInmediata)}</td>
-                          <td style={{ padding: '6px 10px', textAlign: 'right', color: f.gananciaAnio > 0 ? VERDE : '#ef4444' }}>{fmtMXN(f.gananciaAnio)}</td>
-                          <td style={{ padding: '6px 10px', textAlign: 'right', color: f.gananciaAcum > 0 ? VERDE : '#ef4444', fontWeight: '600' }}>{fmtMXN(f.gananciaAcum)}</td>
-                        </tr>
-                      ))}
+                      <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '5px 4px', fontSize: '10px', color: '#64748b' }}>EDAD DE RETIRO</td>
+                        <td style={{ padding: '5px', textAlign: 'center' as const, fontWeight: '700' }}>{Math.floor(datos.edad_actual || 60)}</td>
+                        <td style={{ padding: '5px', textAlign: 'center' as const, fontWeight: '700', color: '#1B3A6B' }}>{Math.floor(escRec.edad_retiro || 62)}</td>
+                      </tr>
+                      <tr style={{ borderBottom: '1px solid #f1f5f9', background: '#F8FAFC' }}>
+                        <td style={{ padding: '5px 4px', fontSize: '10px', color: '#64748b' }}>MONTO DE MEJORA</td>
+                        <td style={{ padding: '5px', textAlign: 'center' as const, color: '#94a3b8' }}>—</td>
+                        <td style={{ padding: '5px', textAlign: 'center' as const, fontWeight: '800', color: '#2E8B57' }}>{fmtMXN(escRec.incremento_vs_base)}</td>
+                      </tr>
                     </tbody>
                   </table>
+                  <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '8px' }}>
+                    <p style={{ fontSize: '10px', color: '#64748b', margin: '0 0 6px', fontWeight: '700', textTransform: 'uppercase' }}>ANÁLISIS DE LA INVERSIÓN</p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                      <span style={{ fontSize: '10px', color: '#64748b' }}>PERÍODOS DE RECUPERACIÓN DE LA INVERSIÓN (MESES)</span>
+                      <span style={{ fontSize: '12px', fontWeight: '800', color: '#1B3A6B' }}>{escRec.roi_meses.toFixed(2)}</span>
+                    </div>
+                  </div>
+                  <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '8px' }}>
+                    <p style={{ fontSize: '10px', color: '#64748b', margin: '0 0 4px', fontWeight: '700', textTransform: 'uppercase' }}>ANÁLISIS DE FLUJOS DE PENSIÓN RECIBIDOS</p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+                      <span style={{ fontSize: '10px', color: '#64748b' }}>PENSIÓN MENSUAL POR MES DE 30 DÍAS</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', padding: '2px 0' }}>
+                      <span style={{ fontSize: '10px', color: '#374151' }}>Sin Mod 40</span>
+                      <span style={{ fontSize: '11px', fontWeight: '700', color: '#374151' }}>{fmtMXN(escRec.pension_base)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', padding: '2px 0' }}>
+                      <span style={{ fontSize: '10px', color: '#374151' }}>Con Mod 40</span>
+                      <span style={{ fontSize: '11px', fontWeight: '700', color: '#2E8B57' }}>{fmtMXN(escRec.pension_mensual)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
+                      <span style={{ fontSize: '10px', color: '#64748b' }}>FLUJOS COBRADOS HASTA LOS 80</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', padding: '2px 0' }}>
+                      <span style={{ fontSize: '10px', color: '#374151' }}>Sin Mod 40</span>
+                      <span style={{ fontSize: '11px', fontWeight: '700' }}>{fmtMXN(escRec.pension_base * Math.max(0,(80-Math.floor(datos.edad_actual||60))*12))}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '2px 0' }}>
+                      <span style={{ fontSize: '10px', color: '#374151' }}>Con Mod 40</span>
+                      <span style={{ fontSize: '11px', fontWeight: '700', color: '#2E8B57' }}>{fmtMXN(escRec.pension_mensual * Math.max(0,(80-Math.floor(escRec.edad_retiro||62))*12))}</span>
+                    </div>
+                  </div>
+                  <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                      <span style={{ fontSize: '10px', color: '#64748b', fontWeight: '700' }}>GANANCIA TOTAL GRACIAS A MODALIDAD 40</span>
+                      <span style={{ fontSize: '13px', fontWeight: '800', color: '#2E8B57' }}>{fmtMXN(escRec.ganancia_a80)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                      <span style={{ fontSize: '10px', color: '#64748b' }}>Tasa de Rendimiento Total</span>
+                      <span style={{ fontSize: '12px', fontWeight: '700', color: '#1B3A6B' }}>{escRec.tasa_rendimiento.toFixed(2)}%</span>
+                    </div>
+                    <div style={{ background: termRec.bg, border: `1px solid ${termRec.color}`, borderRadius: '6px', padding: '8px', textAlign: 'center' as const }}>
+                      <p style={{ fontSize: '10px', color: '#64748b', margin: '0 0 2px' }}>NUESTRO TERMÓMETRO DE INVERSIÓN</p>
+                      <p style={{ fontSize: '13px', fontWeight: '800', color: termRec.color, margin: 0 }}>{termRec.label}</p>
+                    </div>
+                  </div>
                 </div>
-                <p style={{ fontSize: '10px', color: '#94a3b8', marginTop: '8px' }}>
-                  Pensiones proyectadas con inflación anual del 4.5% (supuesto estándar). La fila en verde corresponde a los 80 años (edad de análisis de referencia del Excel).
-                </p>
-              </div>
 
-              {navButtons(() => setTab(3), () => setTab(5), 'Siguiente: Inversión →')}
-            </div>
-          )
-        })()}
-
-        {/* ══ TAB 6: FINANCIAMIENTO ═══════════════════════════════════ */}
-        {tab === 5 && (() => {
-          const esc = escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
-          if (!esc || esc.mod40_meses === 0) return (
-            <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94a3b8' }}>
-              <div style={{ fontSize: '32px', marginBottom: '10px' }}>🏦</div>
-              <p style={{ margin: '0 0 14px' }}>Configura primero un escenario en <strong>Modalidad 40</strong> para ver las opciones de financiamiento.</p>
-              <button onClick={() => setTab(3)} className="btn-primary" style={{ ...btnPrimary, fontSize: '12px' }}>← Ir a Modalidad 40</button>
-            </div>
-          )
-          return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              {sectionTitle('Financiamiento del Pago Retroactivo', `Hoja FINANCIAMIENTO del Excel — ${esc.label}`)}
-
-              {/* Participaciones */}
-              <div style={cardSt}>
-                {sectionTitle('Distribución del Pago Retroactivo', 'FINANCIAMIENTO!B5-B11')}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', marginBottom: '12px' }}>
-                  {kpiBox('Pago Retroactivo Total', fmtMXN(esc.costo_retroactivo), 'con recargos y actualizaciones', AZUL, undefined, true)}
-                  {kpiBox('→ Costo base Mod. 40', fmtMXN(esc.costo_total), 'cotización recurrente', '#64748b')}
-                  {kpiBox('→ Actualizaciones (INPC)', fmtMXN(esc.actualizaciones), '~7.27% del costo base', '#f59e0b')}
-                  {kpiBox('→ Recargos por mora', fmtMXN(esc.recargos), '~41.80% del costo base', '#ef4444')}
-                  {kpiBox('Recuperas vía AFORE', fmtMXN(esc.recuperacion_afore_retro), `~${sys.pct_afore_mod40 ?? 20}% del retroactivo`, VERDE)}
-                  {kpiBox('Aportación Banco Regulado', fmtMXN(esc.aportacion_banco), `${((esc.aportacion_banco / esc.costo_retroactivo) * 100).toFixed(1)}% del retroactivo`, '#3b82f6', undefined, true)}
-                  {kpiBox('Aportación Segundo Fondeo', fmtMXN(esc.aportacion_segundo_fondeo), 'ahorros propios o segundo fondeador', '#f59e0b')}
-                  {kpiBox('Cantidad mínima en AFORE', fmtMXN(esc.cantidad_minima_afore), 'SEGUNDO FONDEADOR!C9', '#ef4444', undefined, true)}
-                </div>
-              </div>
-
-              {/* Segundo fondeador */}
-              <div style={cardSt}>
-                {sectionTitle('Segundo Fondeador / Cuenta Propia', 'SEGUNDO FONDEADOR!C3-C9')}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px' }}>
-                  {kpiBox('Monto del crédito', fmtMXN(esc.aportacion_segundo_fondeo), 'aportación requerida', AZUL)}
-                  {kpiBox('Plazo', `${esc.plazo_segundo_fondeo} meses`, 'SEGUNDO FONDEADOR!C4', '#64748b')}
-                  {kpiBox('Costo financiamiento', fmtMXN(esc.costo_financiamiento_segundo), 'intereses durante el trámite', '#f59e0b')}
-                  {kpiBox('Monto máximo a pagar', fmtMXN(esc.monto_maximo_pago), 'crédito + intereses — SEGUNDO FONDEADOR!C6', '#ef4444', undefined, true)}
-                </div>
-              </div>
-
-              {/* Impacto en la pensión */}
-              <div style={cardSt}>
-                {sectionTitle('Impacto en la Pensión', 'FINANCIAMIENTO!E15-F17 — durante y después del crédito')}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '8px', marginBottom: '12px' }}>
-                  {kpiBox('Pensión sin financiar', fmtMXN(esc.pension_base), 'situación actual', '#94a3b8')}
-                  {kpiBox('Pensión mejorada', fmtMXN(esc.pension_mensual), `edad de retiro ${esc.edad_retiro} años`, AZUL)}
-                  {kpiBox('Descuento mensual (60 meses)', fmtMXN(esc.descuento_mensual), 'cuota del crédito bancario', '#ef4444')}
-                  {kpiBox('🚀 Pensión inmediata', fmtMXN(esc.pension_inmediata), 'durante los 60 meses del crédito', NARANJA, undefined, true)}
-                  {kpiBox('🏆 Pensión al liquidar', fmtMXN(esc.pension_al_liquidar), 'después de pagar el crédito (mes 61+)', VERDE, undefined, true)}
-                </div>
-                {/* Comparativo visual */}
-                <div style={{ background: '#F4F6FB', borderRadius: '10px', padding: '14px', display: 'grid', gridTemplateColumns: '1fr auto 1fr auto 1fr', gap: '8px', alignItems: 'center', textAlign: 'center' as const }}>
+                {/* Col 2: Financiamiento */}
+                <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '11px' }}>
+                  <div style={{ background: '#374151', color: 'white', padding: '6px 10px', borderRadius: '6px', textAlign: 'center' as const, fontSize: '11px', fontWeight: '700' }}>FINANCIAMIENTO — PAGO RETROACTIVO</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', background: '#F8FAFC', padding: '6px 10px', borderRadius: '6px', borderBottom: '2px solid #1B3A6B' }}>
+                    <span style={{ fontWeight: '700', color: '#374151' }}>INVERSIÓN TOTAL</span>
+                    <span style={{ fontWeight: '800', color: '#1B3A6B', fontSize: '13px' }}>{fmtMXN(escRec.costo_retroactivo)}</span>
+                  </div>
+                  <p style={{ fontSize: '10px', fontWeight: '700', color: '#374151', margin: '4px 0 2px', textTransform: 'uppercase' }}>PARTICIPACIONES</p>
                   {[
-                    { label: 'Sin hacer nada', val: esc.pension_base, color: '#94a3b8' },
-                    { label: '→', val: null, color: '#94a3b8' },
-                    { label: 'Pensión inmediata', val: esc.pension_inmediata, color: NARANJA },
-                    { label: '→', val: null, color: '#94a3b8' },
-                    { label: 'Pensión al liquidar', val: esc.pension_al_liquidar, color: VERDE },
-                  ].map((it, i) => it.val === null
-                    ? <span key={i} style={{ fontSize: '20px', color: it.color }}>→</span>
-                    : <div key={i}>
-                        <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '4px' }}>{it.label}</div>
-                        <div style={{ fontSize: '16px', fontWeight: '800', color: it.color }}>{fmtMXN(it.val)}</div>
-                      </div>
-                  )}
+                    { label: 'BANCO', value: fmtMXN(escRec.aportacion_banco) },
+                    { label: 'CUENTA PROPIA O SEGUNDO FONDEADOR', value: fmtMXN(escRec.aportacion_segundo_fondeo) },
+                  ].map((r, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid #f1f5f9' }}>
+                      <span style={{ color: '#64748b' }}>{r.label}</span>
+                      <span style={{ fontWeight: '700', color: '#374151' }}>{r.value}</span>
+                    </div>
+                  ))}
+                  <div style={{ background: '#EEF2F8', borderRadius: '6px', padding: '6px 10px', marginBottom: '4px' }}>
+                    <p style={{ fontSize: '9.5px', color: '#64748b', margin: '0 0 3px', fontWeight: '700' }}>PORCENTAJES DE PARTICIPACIÓN</p>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: '#374151' }}>BANCO REGULADO</span>
+                      <span style={{ fontWeight: '700', color: '#1B3A6B' }}>{((escRec.aportacion_banco / escRec.costo_retroactivo) * 100).toFixed(2)}%</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: '#374151' }}>CUENTA PROPIA O SEGUNDO FONDEADOR</span>
+                      <span style={{ fontWeight: '700', color: '#374151' }}>{((escRec.aportacion_segundo_fondeo / escRec.costo_retroactivo) * 100).toFixed(2)}%</span>
+                    </div>
+                  </div>
+                  <p style={{ fontSize: '10px', fontWeight: '700', color: '#374151', margin: '4px 0 2px', textTransform: 'uppercase' }}>COSTO DEL FINANCIAMIENTO (BANCO REGULADO)</p>
+                  {[
+                    { label: 'MONTO DEL CRÉDITO', value: fmtMXN(escRec.aportacion_banco) },
+                    { label: 'DURACIÓN DEL TRÁMITE (MESES)', value: `${escRec.duracion_tramite_meses || 12}` },
+                    { label: 'COSTO DE FINANCIAMIENTO DURANTE EL TRÁMITE', value: fmtMXN(escRec.costo_financiamiento_banco) },
+                    { label: 'MONTO MÁXIMO A PAGAR', value: fmtMXN(escRec.monto_maximo_pago) },
+                  ].map((r, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0', borderBottom: '1px solid #f1f5f9' }}>
+                      <span style={{ color: '#64748b', maxWidth: '60%', lineHeight: 1.3 }}>{r.label}</span>
+                      <span style={{ fontWeight: '700', color: '#374151' }}>{r.value}</span>
+                    </div>
+                  ))}
+                  <p style={{ fontSize: '10px', fontWeight: '700', color: '#374151', margin: '4px 0 2px', textTransform: 'uppercase' }}>¿CÓMO VOY A PAGAR EL FINANCIAMIENTO DEL BANCO?</p>
+                  {[
+                    { label: 'MONTO DEL CRÉDITO', value: fmtMXN(escRec.aportacion_banco) },
+                    { label: 'PLAZO (MESES)', value: '60' },
+                    { label: 'DESCUENTO MENSUAL A LA PENSIÓN MEJORADA', value: fmtMXN(escRec.descuento_mensual) },
+                  ].map((r, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0', borderBottom: '1px solid #f1f5f9' }}>
+                      <span style={{ color: '#64748b' }}>{r.label}</span>
+                      <span style={{ fontWeight: '700', color: '#374151' }}>{r.value}</span>
+                    </div>
+                  ))}
                 </div>
-              </div>
 
-              {/* Pensión Sin-Con Financiamiento — comparativo multi-escenario */}
-              {escenarios.filter(e => e.mod40_meses > 0).length > 1 && (
-                <div style={cardSt}>
-                  {sectionTitle('PENSIÓN SIN-CON FIN. — Comparativo por Escenario', 'Hoja PENSIÓN SIN-CON FIN. del Excel')}
-                  <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
-                      <thead>
-                        <tr style={{ background: '#F4F6FB' }}>
-                          <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', borderBottom: '2px solid #e2e8f0', minWidth: '180px' }}>Concepto</th>
-                          <th style={{ padding: '8px 12px', textAlign: 'center', fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', borderBottom: '2px solid #e2e8f0' }}>Sin Mod. 40</th>
-                          {escenarios.filter(e => e.mod40_meses > 0).slice(0, 4).map((e, i) => (
-                            <th key={i} style={{ padding: '8px 12px', textAlign: 'center', fontSize: '10px', color: AZUL, textTransform: 'uppercase', borderBottom: `2px solid ${AZUL}` }}>
-                              {e.label.split('·')[0]}
-                            </th>
+                {/* Col 3: Análisis */}
+                <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '11px' }}>
+                  <div style={{ background: '#2E8B57', color: 'white', padding: '6px 10px', borderRadius: '6px', textAlign: 'center' as const, fontSize: '11px', fontWeight: '700' }}>ANÁLISIS DE LA INVERSIÓN</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', background: '#F8FAFC', padding: '5px 8px', borderRadius: '4px' }}>
+                    <span style={{ color: '#64748b', fontSize: '10px' }}>PERÍODOS DE RECUPERACIÓN DE LA INVERSIÓN (MESES)</span>
+                    <span style={{ fontWeight: '800', color: '#1B3A6B', fontSize: '14px' }}>{escRec.roi_financiado.toFixed(2)}</span>
+                  </div>
+                  {/* Tabla año×año compacta */}
+                  <div style={{ overflowY: 'auto', maxHeight: '180px' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px' }}>
+                      <thead style={{ position: 'sticky', top: 0, background: '#F4F6FB' }}>
+                        <tr>
+                          {['Año Cobr.', 'Edad', 'Esc. Actual', 'Pen. Mejorada', 'Desc. Fin.', 'Pen. Mensual Inmediata', 'Ganancia en el año', 'Ganancia Acumulada'].map((h,i) => (
+                            <th key={i} style={{ padding: '3px 5px', color: '#64748b', fontWeight: '700', fontSize: '9px', textAlign: 'right' as const, borderBottom: '1px solid #e2e8f0', whiteSpace: 'nowrap' }}>{h}</th>
                           ))}
                         </tr>
                       </thead>
                       <tbody>
-                        {[
-                          { label: 'Inversión Total', fn: (e: any) => fmtMXN(e.costo_retroactivo) },
-                          { label: 'Recuperación AFORE', fn: (e: any) => fmtMXN(e.recuperacion_afore_retro) },
-                          { label: 'Inversión Neta', fn: (e: any) => fmtMXN(e.inversion_neta_retro), highlight: true },
-                          { label: 'Pensión sin Mod. 40', fn: () => fmtMXN(escenarios[0]?.pension_base ?? 0) },
-                          { label: 'Pensión Inmediata', fn: (e: any) => fmtMXN(e.pension_inmediata), highlight: true },
-                          { label: 'Pensión al Liquidar', fn: (e: any) => fmtMXN(e.pension_al_liquidar), highlight: true },
-                          { label: 'ROI (meses)', fn: (e: any) => `${e.roi_financiado.toFixed(1)} meses` },
-                          { label: 'Ganancia a los 80', fn: (e: any) => fmtMXN(e.ganancia_a80_financiado), highlight: true },
-                          { label: 'Tasa de rendimiento', fn: (e: any) => `${e.tasa_rendimiento_financiado.toFixed(2)}%` },
-                        ].map((row, ri) => (
-                          <tr key={ri} style={{ background: row.highlight ? '#f0f9ff' : ri % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
-                            <td style={{ padding: '8px 12px', fontWeight: '600', color: '#374151' }}>{row.label}</td>
-                            <td style={{ padding: '8px 12px', textAlign: 'center', color: '#94a3b8' }}>—</td>
-                            {escenarios.filter(e => e.mod40_meses > 0).slice(0, 4).map((e, i) => (
-                              <td key={i} style={{ padding: '8px 12px', textAlign: 'center', fontWeight: row.highlight ? '700' : 'normal', color: row.highlight ? VERDE : '#374151' }}>
-                                {row.fn(e)}
-                              </td>
-                            ))}
+                        {filas.map((f, i) => (
+                          <tr key={i} style={{ background: f.edad === 80 ? '#f0fdf4' : i % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #f8f8f8' }}>
+                            <td style={{ padding: '2px 5px', textAlign: 'right', color: '#94a3b8' }}>{f.anio}</td>
+                            <td style={{ padding: '2px 5px', textAlign: 'right', fontWeight: f.edad === 80 ? '800' : '600', color: f.edad === 80 ? '#2E8B57' : '#374151' }}>{f.edad}</td>
+                            <td style={{ padding: '2px 5px', textAlign: 'right', color: '#94a3b8' }}>{fmtMXN(f.penSin)}</td>
+                            <td style={{ padding: '2px 5px', textAlign: 'right', color: '#1B3A6B' }}>{fmtMXN(f.penCon)}</td>
+                            <td style={{ padding: '2px 5px', textAlign: 'right', color: f.desc < 0 ? '#ef4444' : '#94a3b8' }}>{f.desc < 0 ? fmtMXN(f.desc) : '—'}</td>
+                            <td style={{ padding: '2px 5px', textAlign: 'right', fontWeight: '600', color: '#2E8B57' }}>{fmtMXN(f.penInm)}</td>
+                            <td style={{ padding: '2px 5px', textAlign: 'right', color: f.ganAnio > 0 ? '#2E8B57' : '#ef4444' }}>{fmtMXN(f.ganAnio)}</td>
+                            <td style={{ padding: '2px 5px', textAlign: 'right', fontWeight: '600', color: f.ganAcum > 0 ? '#2E8B57' : '#ef4444' }}>{fmtMXN(f.ganAcum)}</td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
-                </div>
-              )}
-              <div style={cardSt}>
-                {sectionTitle('Análisis de Inversión — Con Financiamiento', 'PENSIÓN SIN-CON FIN. del Excel')}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', marginBottom: '12px' }}>
-                  {kpiBox('ROI', `${esc.roi_financiado.toFixed(1)} meses`, 'meses para recuperar la inversión', '#f59e0b', undefined, true)}
-                  {kpiBox('Flujos a los 80 años', fmtMXN(esc.ganancia_a80_financiado + esc.inversion_neta_retro), 'total cobrado con financiamiento', AZUL)}
-                  {kpiBox('Ganancia total a los 80', fmtMXN(esc.ganancia_a80_financiado), 'flujos - inversión neta', VERDE, undefined, true)}
-                  {kpiBox('Tasa de rendimiento', `${esc.tasa_rendimiento_financiado.toFixed(2)}%`, 'ganancia ÷ inversión neta', AZUL)}
-                </div>
-                {/* Termómetro */}
-                {(() => {
-                  const t = esc.tasa_rendimiento_financiado >= 25 ? { label: 'Excelente Inversión', color: VERDE, bg: '#f0fdf4' }
-                    : esc.tasa_rendimiento_financiado >= 18 ? { label: 'Buena Inversión', color: '#0891b2', bg: '#f0f9ff' }
-                    : esc.tasa_rendimiento_financiado >= 12 ? { label: 'Inversión Moderada', color: '#f59e0b', bg: '#fffbeb' }
-                    : { label: 'Inversión de Riesgo', color: '#ef4444', bg: '#fef2f2' }
-                  return (
-                    <div style={{ padding: '12px 16px', background: t.bg, border: `1.5px solid ${t.color}`, borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <span style={{ fontSize: '28px' }}>🌡️</span>
-                      <div>
-                        <p style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: t.color }}>{t.label}</p>
-                        <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#64748b' }}>Tasa de rendimiento: {esc.tasa_rendimiento_financiado.toFixed(2)}% — con financiamiento bancario regulado (60 meses)</p>
-                      </div>
+                  {[
+                    { label: 'PENSIÓN MENSUAL INMEDIATA (DURANTE 60 MESES)', value: fmtMXN(escRec.pension_inmediata), color: '#F05B21', big: true },
+                    { label: 'PENSIÓN MENSUAL AL LIQUIDAR FINANCIAMIENTO (60 MESES)', value: fmtMXN(escRec.pension_al_liquidar), color: '#2E8B57', big: true },
+                    { label: 'FLUJOS DE PENSIÓN COBRADOS HASTA LOS 80 AÑOS', value: fmtMXN(escRec.ganancia_a80_financiado + escRec.inversion_neta_retro), color: '#1B3A6B', big: false },
+                  ].map((k, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 8px', background: '#F8FAFC', borderRadius: '5px' }}>
+                      <span style={{ fontSize: '9.5px', color: '#64748b', maxWidth: '55%', lineHeight: 1.3 }}>{k.label}</span>
+                      <span style={{ fontSize: k.big ? '14px' : '12px', fontWeight: '800', color: k.color }}>{k.value}</span>
                     </div>
-                  )
-                })()}
+                  ))}
+                  <div style={{ background: termometro.bg, border: `1px solid ${termometro.color}`, borderRadius: '6px', padding: '8px', textAlign: 'center' as const, marginTop: '4px' }}>
+                    <p style={{ fontSize: '9.5px', color: '#64748b', margin: '0 0 2px' }}>NUESTRO TERMÓMETRO DE INVERSIÓN</p>
+                    <p style={{ fontSize: '14px', fontWeight: '800', color: termometro.color, margin: 0 }}>{termometro.label}</p>
+                  </div>
+                </div>
               </div>
-              {navButtons(() => setTab(4), () => setTab(6), 'Siguiente: Ver Resumen →')}
             </div>
           )
         })()}
 
-        {/* ══ TAB 7: RESUMEN / PROYECTO ════════════════════════════ */}
-        {tab === 6 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            {mensaje && <div style={{ padding: '10px 14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', fontSize: '12px', fontWeight: '600', color: VERDE }}>{mensaje}</div>}
 
-            {escenarios.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94a3b8' }}>
-                <div style={{ fontSize: '32px', marginBottom: '10px' }}>📋</div>
-                <p style={{ margin: '0 0 14px' }}>Calcula primero los escenarios en <strong>Modalidad 40</strong>.</p>
-                <button onClick={() => setTab(3)} className="btn-primary" style={{ ...btnPrimary, fontSize: '12px' }}>← Ir a Modalidad 40</button>
-              </div>
-            ) : (<>
-
-              {/* Resumen Ejecutivo del Proyecto de Pensión — igual a hoja "Resumen" del Excel */}
-              {sectionTitle('Resumen Ejecutivo del Proyecto de Pensión con Modalidad 40', 'Comparativo de escenarios — igual a la hoja "Resumen" del Excel')}
-
-              {/* BLOQUE 1: Edad de Pensión y Monto Mensual */}
-              <div style={cardSt}>
-                {sectionTitle('1. Edad de Pensión y Monto Mensual', 'Hoja Resumen!B3 del Excel')}
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
-                    <thead>
-                      <tr style={{ background: '#F4F6FB' }}>
-                        <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', borderBottom: '2px solid #e2e8f0', minWidth: '180px' }}>Concepto</th>
-                        <th style={{ padding: '8px 12px', textAlign: 'center', fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', borderBottom: '2px solid #e2e8f0' }}>Situación Actual</th>
-                        {escenarios.slice(0, 6).map((_, i) => (
-                          <th key={i} style={{ padding: '8px 12px', textAlign: 'center', fontSize: '10px', color: AZUL, textTransform: 'uppercase', borderBottom: `2px solid ${AZUL}` }}>Escenario {i + 1}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[
-                        { label: 'Fecha de ingreso a Mod. 40', actual: 'Sin Modalidad 40', fn: (e: any) => "—" },
-                        { label: 'Años cotizados en Mod. 40', actual: 'Ninguno', fn: (e: any) => `${((e.mod40_meses ?? 0) / 12).toFixed(2)} años` },
-                        { label: 'Semanas en Mod. 40', actual: 'Ninguno', fn: (e: any) => `${(e.semanas_mod40 ?? 0).toFixed(1)} sem` },
-                        { label: 'Edad de Pensión (IMSS)', actual: `${Math.floor(datos.edad_actual || 60)} años`, fn: (e: any) => `62 años` },
-                        { label: 'Pensión Mensual Mejorada', actual: fmtMXN(escenarios[0]?.pension_base ?? 0), fn: (e: any) => fmtMXN(e.pension_mensual), highlight: true },
-                        { label: 'Aguinaldo Anual', actual: fmtMXN((escenarios[0]?.pension_base ?? 0) * 15 / 30), fn: (e: any) => fmtMXN(e.aguinaldo_anual) },
-                      ].map((row, ri) => (
-                        <tr key={ri} style={{ background: row.highlight ? '#f0f9ff' : ri % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
-                          <td style={{ padding: '8px 12px', fontWeight: '600', color: '#374151' }}>{row.label}</td>
-                          <td style={{ padding: '8px 12px', textAlign: 'center', color: '#94a3b8' }}>{row.actual}</td>
-                          {escenarios.slice(0, 6).map((e, i) => (
-                            <td key={i} style={{ padding: '8px 12px', textAlign: 'center', fontWeight: row.highlight ? '700' : 'normal', color: row.highlight ? VERDE : '#374151' }}>{row.fn(e)}</td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* BLOQUE 2: Costo de Modalidad 40 */}
-              <div style={cardSt}>
-                {sectionTitle('2. Costo de la Modalidad 40 — Pago Mes a Mes', 'Hoja Resumen!B11 del Excel')}
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
-                    <thead>
-                      <tr style={{ background: '#F4F6FB' }}>
-                        <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', borderBottom: '2px solid #e2e8f0', minWidth: '180px' }}>Concepto</th>
-                        <th style={{ padding: '8px 12px', textAlign: 'center', fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', borderBottom: '2px solid #e2e8f0' }}>Situación Actual</th>
-                        {escenarios.slice(0, 6).map((_, i) => (
-                          <th key={i} style={{ padding: '8px 12px', textAlign: 'center', fontSize: '10px', color: AZUL, textTransform: 'uppercase', borderBottom: `2px solid ${AZUL}` }}>Escenario {i + 1}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[
-                        { label: 'Costo Mensual Promedio', actual: 'Ninguno', fn: (e: any) => fmtMXN(e.costo_mensual_mod40) },
-                        { label: 'Costo Total', actual: 'Ninguno', fn: (e: any) => fmtMXN(e.costo_total), highlight: true },
-                        { label: 'Recuperas vía AFORE', actual: 'No aplica', fn: (e: any) => fmtMXN(e.recuperacion_afore) },
-                        { label: 'Inversión Neta', actual: 'No aplica', fn: (e: any) => fmtMXN(e.inversion_neta), highlight: true },
-                        { label: 'Meses para recuperar inversión', actual: 'No aplica', fn: (e: any) => `${(e.roi_meses ?? 0).toFixed(1)} meses` },
-                        { label: 'Ganancia a los 80 años', actual: '—', fn: (e: any) => fmtMXN(e.ganancia_a80), highlight: true },
-                        { label: 'Tasa de Rendimiento Total', actual: '—', fn: (e: any) => `${(e.tasa_rendimiento ?? 0).toFixed(2)}%` },
-                      ].map((row, ri) => (
-                        <tr key={ri} style={{ background: row.highlight ? '#f0f9ff' : ri % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
-                          <td style={{ padding: '8px 12px', fontWeight: '600', color: '#374151' }}>{row.label}</td>
-                          <td style={{ padding: '8px 12px', textAlign: 'center', color: '#94a3b8' }}>{row.actual}</td>
-                          {escenarios.slice(0, 6).map((e, i) => (
-                            <td key={i} style={{ padding: '8px 12px', textAlign: 'center', fontWeight: row.highlight ? '700' : 'normal', color: row.highlight ? AZUL : '#374151' }}>{row.fn(e)}</td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* BLOQUE 3: Financiamiento */}
-              <div style={cardSt}>
-                {sectionTitle('3. Financiamiento', 'Hoja Resumen!B23 del Excel')}
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
-                    <thead>
-                      <tr style={{ background: '#F4F6FB' }}>
-                        <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', borderBottom: '2px solid #e2e8f0', minWidth: '180px' }}>Concepto</th>
-                        <th style={{ padding: '8px 12px', textAlign: 'center', fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', borderBottom: '2px solid #e2e8f0' }}>Situación Actual</th>
-                        {escenarios.slice(0, 6).map((_, i) => (
-                          <th key={i} style={{ padding: '8px 12px', textAlign: 'center', fontSize: '10px', color: AZUL, textTransform: 'uppercase', borderBottom: `2px solid ${AZUL}` }}>Escenario {i + 1}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[
-                        { label: 'Descuento mensual a pensión', actual: 'No aplica', fn: (e: any) => e.descuento_mensual > 0 ? fmtMXN(-e.descuento_mensual) : '—' },
-                        { label: 'Costo financiamiento banco', actual: '—', fn: (e: any) => fmtMXN(e.costo_financiamiento_banco ?? 0) },
-                        { label: 'Monto máximo a pagar', actual: '—', fn: (e: any) => fmtMXN(e.monto_maximo_pago ?? 0) },
-                        { label: 'Pensión Inmediata (con fin.)', actual: fmtMXN(escenarios[0]?.pension_base ?? 0), fn: (e: any) => fmtMXN(e.pension_inmediata), highlight: true },
-                        { label: 'Pensión al liquidar fin.', actual: '—', fn: (e: any) => fmtMXN(e.pension_al_liquidar), highlight: true },
-                        { label: 'Ganancia 80 años financiado', actual: '—', fn: (e: any) => fmtMXN(e.ganancia_a80_financiado), highlight: true },
-                        { label: 'Tasa de rendimiento financiado', actual: '—', fn: (e: any) => `${(e.tasa_rendimiento_financiado ?? 0).toFixed(2)}%` },
-                      ].map((row, ri) => (
-                        <tr key={ri} style={{ background: row.highlight ? '#f0fdf4' : ri % 2 === 0 ? 'white' : '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
-                          <td style={{ padding: '8px 12px', fontWeight: '600', color: '#374151' }}>{row.label}</td>
-                          <td style={{ padding: '8px 12px', textAlign: 'center', color: '#94a3b8' }}>{row.actual}</td>
-                          {escenarios.slice(0, 6).map((e, i) => (
-                            <td key={i} style={{ padding: '8px 12px', textAlign: 'center', fontWeight: row.highlight ? '700' : 'normal', color: row.highlight ? VERDE : '#374151' }}>{row.fn(e)}</td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Recomendaciones automáticas */}
-              {escenarios.length > 1 && (() => {
-                const sorted = [...escenarios]
-                const mayorPension = sorted.reduce((a, b) => a.pension_mensual > b.pension_mensual ? a : b)
-                const menorCosto = sorted.reduce((a, b) => a.costo_total < b.costo_total ? a : b)
-                const mayorRendimiento = sorted.reduce((a, b) => (a.tasa_rendimiento ?? 0) > (b.tasa_rendimiento ?? 0) ? a : b)
-                return (
-                  <div style={cardSt}>
-                    {sectionTitle('Recomendaciones automáticas', 'Hoja "PROYECTO DE PENSIÓN"!B47-B51 del Excel')}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
-                      {[
-                        { icon: '🏆', label: 'Mayor Pensión', desc: `Escenario ${escenarios.indexOf(mayorPension) + 1}`, value: fmtMXN(mayorPension.pension_mensual) + '/mes', color: AZUL },
-                        { icon: '💰', label: 'Menor Costo', desc: `Escenario ${escenarios.indexOf(menorCosto) + 1}`, value: fmtMXN(menorCosto.costo_total) + ' total', color: VERDE },
-                        { icon: '📈', label: 'Mejor Inversión', desc: `Escenario ${escenarios.indexOf(mayorRendimiento) + 1}`, value: `${mayorRendimiento.roi_meses.toFixed(1)} meses ROI`, color: NARANJA },
-                      ].map((r, i) => (
-                        <div key={i} style={{ padding: '14px 16px', background: '#f8fafc', borderRadius: '10px', border: `1.5px solid ${r.color}30` }}>
-                          <div style={{ fontSize: '20px', marginBottom: '6px' }}>{r.icon}</div>
-                          <p style={{ margin: 0, fontSize: '11px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.4px' }}>{r.label}</p>
-                          <p style={{ margin: '4px 0', fontSize: '14px', fontWeight: '800', color: r.color }}>{r.desc}</p>
-                          <p style={{ margin: 0, fontSize: '11px', color: '#374151' }}>{r.value}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )
-              })()}
-
-              {navButtons(() => setTab(5))}
-            </>)}
-          </div>
-        )}
 
             </div>{/* fin overflowY */}
 
