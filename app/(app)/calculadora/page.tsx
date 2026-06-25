@@ -399,7 +399,17 @@ function CalculadoraInner() {
 
   // Tab state
   const [tab, setTab] = useState(0)
-  const TABS = ['Datos generales','Salario 250 sem.','Pensión actual','Modalidad 40','Inversión','Financiamiento','Resumen / Proyecto']
+  const TABS = [
+    'Datos generales',
+    'Pensión Actual',
+    'Salario Prom Mod 40',
+    'Costo Mod 40',
+    'Generales Mod 40',
+    'Pensión Mod 40',
+    'Inversión',
+  ]
+  // Carátula: se muestra solo cuando no hay datos cargados y no hay cliente pre-seleccionado
+  const [mostrarCaratula, setMostrarCaratula] = useState(true)
 
   // Tab 1 state
   const [datos, setDatos] = useState<DatosGenerales>(DEFAULT_DATOS)
@@ -501,6 +511,7 @@ function CalculadoraInner() {
       if (clienteParam) {
         setClienteId(clienteParam)
         setShowClienteModal(false)
+        setMostrarCaratula(false)
       }
 
       if (diagParam) {
@@ -1338,6 +1349,178 @@ function CalculadoraInner() {
   // ══════════════════════════════════════════════════════════════════
   // RENDER
   // ══════════════════════════════════════════════════════════════════
+
+  // Panel izquierdo fijo — visible en todas las pestañas
+  const panelIzquierdo = (
+    <div style={{ width: '280px', flexShrink: 0, background: 'white', borderRight: '1px solid #e2e8f0', overflowY: 'auto', padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <h2 style={{ fontSize: '15px', fontWeight: '800', color: AZUL, margin: 0, paddingBottom: '10px', borderBottom: `2px solid ${AZUL}` }}>Calculadora de Pensión</h2>
+
+      {/* Generales del trabajador */}
+      <div>
+        <p style={{ fontSize: '10px', fontWeight: '800', color: AZUL, textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 8px' }}>Generales del trabajador:</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          {[
+            { label: 'Nombre del cliente / asesorado:', value: clientes.find(c => c.id === clienteId)?.nombre || 'Campo prellenado al seleccionar el cliente', color: '#64748b', italic: !clienteId },
+            { label: 'Nombre del trabajador (constancia IMSS)', value: datos.nombre_trabajador || 'Se llena con la constancia', italic: !datos.nombre_trabajador },
+          ].map((f, i) => (
+            <div key={i}>
+              <div style={{ fontSize: '9.5px', fontWeight: '600', color: '#94a3b8', marginBottom: '1px' }}>{f.label}</div>
+              <div style={{ fontSize: '11px', color: f.italic ? '#cbd5e1' : '#374151', fontStyle: f.italic ? 'italic' : 'normal', padding: '4px 7px', background: '#F8FAFC', borderRadius: '5px', border: '1px solid #e2e8f0' }}>{f.value}</div>
+            </div>
+          ))}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+            {[
+              { label: 'NSS:', value: datos.nss || 'Se llena con la constancia' },
+              { label: 'Régimen:', value: datos.ley ? `Ley ${datos.ley}` : 'Se llena con la constancia', editable: true },
+              { label: 'Fecha de Nacimiento:', value: datos.fecha_nacimiento || 'Se llena con la constancia' },
+              { label: 'CURP:', value: '—' },
+            ].map((f, i) => (
+              <div key={i}>
+                <div style={{ fontSize: '9px', fontWeight: '600', color: '#94a3b8', marginBottom: '1px' }}>{f.label}</div>
+                <div style={{ fontSize: '10.5px', color: f.value.includes('Se llena') ? '#cbd5e1' : '#374151', fontStyle: f.value.includes('Se llena') ? 'italic' : 'normal', padding: '3px 6px', background: '#F8FAFC', borderRadius: '5px', border: '1px solid #e2e8f0' }}>{f.value}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+            <div>
+              <div style={{ fontSize: '9px', fontWeight: '600', color: '#94a3b8', marginBottom: '1px' }}>Edad Actual:</div>
+              <div style={{ fontSize: '10.5px', color: datos.edad_actual ? '#374151' : '#cbd5e1', fontStyle: datos.edad_actual ? 'normal' : 'italic', padding: '3px 6px', background: '#F8FAFC', borderRadius: '5px', border: '1px solid #e2e8f0' }}>
+                {datos.edad_actual ? `${datos.edad_actual.toFixed(2)} años` : 'Se calcula automáticamente'}
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '9px', fontWeight: '600', color: '#94a3b8', marginBottom: '1px' }}>Fecha de:</div>
+              <div style={{ fontSize: '10.5px', color: datos.fecha_calculo ? '#374151' : '#cbd5e1', fontStyle: datos.fecha_calculo ? 'normal' : 'italic', padding: '3px 6px', background: '#F8FAFC', borderRadius: '5px', border: '1px solid #e2e8f0' }}>
+                {datos.fecha_calculo || 'De la constancia'}
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+            <div>
+              <div style={{ fontSize: '9px', fontWeight: '600', color: '#94a3b8', marginBottom: '1px' }}>Semanas cotizadas:</div>
+              <div style={{ fontSize: '10.5px', color: datos.semanas_totales ? '#374151' : '#cbd5e1', fontStyle: datos.semanas_totales ? 'normal' : 'italic', padding: '3px 6px', background: '#F8FAFC', borderRadius: '5px', border: '1px solid #e2e8f0' }}>
+                {datos.semanas_totales || 'Se calcula con constancia'}
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: '9px', fontWeight: '600', color: '#94a3b8', marginBottom: '1px' }}>Vigencia de derechos:</div>
+              {(() => {
+                const mesesDesde = fechaUltimaCot ? Math.floor((Date.now() - new Date(fechaUltimaCot).getTime()) / (30 * 86400000)) : 0
+                const cons = calcConservacion(datos.semanas_totales, mesesDesde)
+                return (
+                  <div style={{ fontSize: '10.5px', color: cons.vigente ? VERDE : datos.semanas_totales ? '#ef4444' : '#cbd5e1', fontStyle: datos.semanas_totales ? 'normal' : 'italic', padding: '3px 6px', background: '#F8FAFC', borderRadius: '5px', border: '1px solid #e2e8f0' }}>
+                    {datos.semanas_totales ? (cons.vigente ? 'Vigente' : 'Vencido') : 'Calculado "Vigente"/"Vencido"'}
+                  </div>
+                )
+              })()}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ borderTop: '1px dashed #e2e8f0' }} />
+
+      {/* Sección 2: más generales */}
+      <div>
+        <p style={{ fontSize: '10px', fontWeight: '800', color: AZUL, textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 8px' }}>Generales del trabajador:</p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+          {[
+            { label: 'Sigue cotizando al IMSS:', value: datos.sigue_cotizando ? 'Sí' : 'No' },
+            { label: 'Semanas descontadas del:', value: datos.semanas_descontadas > 0 ? datos.semanas_descontadas.toString() : 'Se llena con la constancia' },
+            { label: 'Ayuda asistencial (art 165 LSS):', value: datos.tiene_ayuda_asistencial ? 'Sí' : 'No' },
+            { label: 'Edad mínima de Pensión sin:', value: `${datos.edad_min_pension || 60} años (predefinido)` },
+          ].map((f, i) => (
+            <div key={i}>
+              <div style={{ fontSize: '9px', fontWeight: '600', color: '#94a3b8', marginBottom: '1px' }}>{f.label}</div>
+              <div style={{ fontSize: '10.5px', color: f.value.includes('Se llena') ? '#cbd5e1' : '#374151', fontStyle: f.value.includes('Se llena') ? 'italic' : 'normal', padding: '3px 6px', background: '#F8FAFC', borderRadius: '5px', border: '1px solid #e2e8f0' }}>{f.value}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ borderTop: '1px dashed #e2e8f0' }} />
+
+      {/* Tabla de factores por edad */}
+      <div>
+        <p style={{ fontSize: '9px', fontWeight: '800', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 6px', textAlign: 'center' }}>PENSIONES LSS 1973: PORCENTAJE SEGÚN EDAD DE RETIRO</p>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px' }}>
+          <thead>
+            <tr style={{ background: AZUL }}>
+              <th style={{ padding: '4px 6px', color: 'white', textAlign: 'center', fontWeight: '700' }}>Edad del Asegurado</th>
+              <th style={{ padding: '4px 6px', color: 'white', textAlign: 'center', fontWeight: '700' }}>% de la Cuantía</th>
+              <th style={{ padding: '4px 6px', color: 'white', textAlign: 'center', fontWeight: '700' }}>Tipo de Pensión</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              [60, '75%', 'Cesantía en Edad Avanzada'],
+              [61, '80%', 'Cesantía en Edad Avanzada'],
+              [62, '85%', 'Cesantía en Edad Avanzada'],
+              [63, '90%', 'Cesantía en Edad Avanzada'],
+              [64, '95%', 'Cesantía en Edad Avanzada'],
+            ].map(([edad, pct, tipo], i) => (
+              <tr key={i} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC' }}>
+                <td style={{ padding: '3px 6px', textAlign: 'center', color: '#374151' }}>{edad} Años</td>
+                <td style={{ padding: '3px 6px', textAlign: 'center', fontWeight: '700', color: '#374151' }}>{pct}</td>
+                <td style={{ padding: '3px 6px', color: '#64748b', fontSize: '9px' }}>{tipo}</td>
+              </tr>
+            ))}
+            <tr style={{ background: VERDE }}>
+              <td style={{ padding: '4px 6px', textAlign: 'center', fontWeight: '800', color: 'white' }}>65 Años o más</td>
+              <td style={{ padding: '4px 6px', textAlign: 'center', fontWeight: '800', color: 'white' }}>100%</td>
+              <td style={{ padding: '4px 6px', color: 'white', fontSize: '9px', fontWeight: '700' }}>VEJEZ (IDEL)</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style={{ fontSize: '8.5px', color: '#94a3b8', textAlign: 'center', margin: '4px 0 0' }}>Basado en la Ley del Seguro Social de 1973</p>
+      </div>
+    </div>
+  )
+
+  // Barra de KPIs superior derecha
+  const kpiBar = (() => {
+    const sem = datos.semanas_totales - datos.semanas_descontadas
+    const semanasRestantes = Math.max(0, Math.ceil(500 - sem))
+    const totalSemCot = escenarios.find(e => e.recomendado)?.semanas_finales ?? sem
+    const fechaTramite = datos.fecha_nacimiento ? (() => {
+      const d = new Date(datos.fecha_nacimiento)
+      d.setFullYear(d.getFullYear() + (datos.edad_min_pension || 60))
+      return d.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    })() : '—'
+    return (
+      <div style={{ display: 'flex', gap: '4px', background: 'white', borderBottom: '1px solid #e2e8f0', padding: '6px 12px', flexShrink: 0, overflowX: 'auto' }}>
+        {[
+          { label: 'Semanas cotizadas', value: sem > 0 ? sem.toLocaleString() : '—', color: sem >= 500 ? VERDE : AZUL },
+          { label: 'Régimen Ley:', value: datos.ley ? `"${datos.ley}"` : '—', color: AZUL },
+          { label: 'Edad de Pensión', value: `${datos.edad_min_pension || 60} años`, color: AZUL },
+          { label: 'Salario 250 semanas', value: sdiPromedio > 0 ? fmtMXN2(sdiPromedio) : '—', color: NARANJA },
+          { label: 'Semanas restantes', value: semanasRestantes === 0 ? '✓ 0' : semanasRestantes.toString(), color: semanasRestantes === 0 ? VERDE : '#ef4444' },
+          { label: 'Total Semanas Cotización', value: totalSemCot > 0 ? Math.round(totalSemCot).toLocaleString() : '—', color: AZUL },
+          { label: 'Fecha del Trámite', value: fechaTramite, color: '#8b5cf6' },
+        ].map((k, i) => (
+          <div key={i} style={{ flex: '0 0 auto', padding: '4px 10px', borderRadius: '6px', border: `1px solid ${k.color}30`, background: `${k.color}08`, textAlign: 'center', minWidth: '100px' }}>
+            <div style={{ fontSize: '8.5px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>{k.label}</div>
+            <div style={{ fontSize: '12px', fontWeight: '800', color: k.color, whiteSpace: 'nowrap' }}>{k.value}</div>
+          </div>
+        ))}
+      </div>
+    )
+  })()
+
+  // Tab bar — radio buttons como en el mockup
+  const tabBarNuevo = (
+    <div style={{ display: 'flex', gap: '0', borderTop: '1px solid #e2e8f0', background: '#F8FAFC', flexShrink: 0, padding: '8px 12px', overflowX: 'auto', alignItems: 'center', justifyContent: 'center' }}>
+      {TABS.map((t, i) => (
+        <button key={i} onClick={() => setTab(i)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', border: 'none', cursor: 'pointer', background: 'transparent', fontFamily: 'inherit' }}>
+          <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: `2px solid ${tab === i ? NARANJA : '#94a3b8'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: tab === i ? NARANJA : 'white' }}>
+            {tab === i && <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'white' }} />}
+          </div>
+          <span style={{ fontSize: '11px', fontWeight: tab === i ? '700' : '500', color: tab === i ? NARANJA : '#64748b', whiteSpace: 'nowrap' }}>{t}</span>
+        </button>
+      ))}
+    </div>
+  )
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 48px)', overflow: 'hidden' }}>
 
@@ -1367,7 +1550,7 @@ function CalculadoraInner() {
                 <div style={{ padding: '16px', textAlign: 'center', color: '#94a3b8', fontSize: '13px' }}>Sin resultados</div>
               ) : (
                 clientes.filter(c => c.nombre.toLowerCase().includes(buscarCliente.toLowerCase())).map(c => (
-                  <button key={c.id} onClick={() => { setClienteId(c.id); setShowClienteModal(false); setBuscarCliente('') }}
+                  <button key={c.id} onClick={() => { setClienteId(c.id); setShowClienteModal(false); setBuscarCliente(''); setMostrarCaratula(false) }}
                     style={{ width: '100%', padding: '10px 14px', background: 'none', border: 'none', borderBottom: '1px solid #f1f5f9', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <div style={{ width: '28px', height: '28px', background: '#EEF2F8', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '700', color: '#1B3A6B', flexShrink: 0 }}>
                       {c.nombre.charAt(0).toUpperCase()}
@@ -1655,10 +1838,53 @@ function CalculadoraInner() {
         </div>
       )}
 
-      {navBar}
-      {tabBar}
+      {/* ══ CARÁTULA DE BIENVENIDA ══ */}
+      {mostrarCaratula && !clienteId && (
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F0F2F5' }}>
+          <div style={{ background: 'white', borderRadius: '20px', padding: '40px 36px', width: '360px', boxShadow: '0 8px 40px rgba(0,0,0,0.12)', textAlign: 'center' }}>
+            {/* Logo KSE */}
+            <div style={{ background: '#F8FAFC', borderRadius: '12px', padding: '20px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: '42px', fontWeight: '900', color: AZUL, letterSpacing: '-2px', fontFamily: 'Arial Black, sans-serif' }}>KSE<sup style={{ fontSize: '14px', verticalAlign: 'super' }}>®</sup></span>
+            </div>
+            <p style={{ fontSize: '14px', color: '#374151', lineHeight: 1.6, margin: '0 0 24px' }}>
+              Bienvenido a la calculadora de pensiones, para iniciar por favor adjunta la constancia de semanas cotizadas.
+            </p>
+            <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '14px 20px', background: AZUL, color: 'white', borderRadius: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: '700' }}>
+              📎 Constancia Semanas Cotizadas
+              <input type="file" accept=".pdf" style={{ display: 'none' }} onChange={e => {
+                const f = e.target.files?.[0]
+                if (f) { setMostrarCaratula(false); extraerPDF(f) }
+              }} />
+            </label>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+              <button onClick={() => { setMostrarCaratula(false); setShowClienteModal(true) }} style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>
+                Seleccionar cliente
+              </button>
+              <a href="/" style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#94a3b8', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', fontWeight: '600', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                ← Mi día
+              </a>
+            </div>
+            <p style={{ fontSize: '10px', color: '#cbd5e1', margin: '20px 0 0' }}>Powered by KSE Pensiones</p>
+          </div>
+        </div>
+      )}
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '20px', background: '#FAFAFA' }}>
+      {/* ══ LAYOUT PRINCIPAL: 2 columnas ══ */}
+      {(!mostrarCaratula || clienteId) && (
+        <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+
+          {/* ── Panel izquierdo fijo ── */}
+          {panelIzquierdo}
+
+          {/* ── Panel derecho dinámico ── */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+
+            {/* Barra de KPIs + acciones superior */}
+            {navBar}
+            {kpiBar}
+
+            {/* Contenido de la pestaña actual */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '16px', background: '#FAFAFA' }}>
 
         {/* ══ TAB 1: DATOS GENERALES ══════════════════════════════ */}
         {tab === 0 && (
@@ -1833,7 +2059,7 @@ function CalculadoraInner() {
               )
             })()}
 
-            {navButtons(undefined, () => setTab(1), 'Siguiente: Salario promedio 250 sem. →')}
+            {navButtons(undefined, () => setTab(1), 'Siguiente: Pensión Actual →')}
           </div>
         )}
 
@@ -1916,7 +2142,7 @@ function CalculadoraInner() {
               )}
             </div>
 
-            {navButtons(() => setTab(0), () => setTab(2), 'Siguiente: Pensión actual →')}
+            {navButtons(() => setTab(0), () => setTab(2), 'Siguiente: Salario Prom Mod 40 →')}
           </div>
         )}
 
@@ -1982,7 +2208,7 @@ function CalculadoraInner() {
                 </div>
               </>)
             })()}
-            {navButtons(() => setTab(1), () => setTab(3), 'Siguiente: Modalidad 40 →')}
+            {navButtons(() => setTab(1), () => setTab(3), 'Siguiente: Costo Mod 40 →')}
           </div>
         )}
 
@@ -2297,7 +2523,7 @@ function CalculadoraInner() {
               )
             })()}
 
-            {navButtons(() => setTab(2), () => setTab(4), 'Siguiente: Inversión →')}
+            {navButtons(() => setTab(2), () => setTab(4), 'Siguiente: Pensión Mod 40 →')}
             </>}
 
           </div>
@@ -2412,7 +2638,7 @@ function CalculadoraInner() {
                 </p>
               </div>
 
-              {navButtons(() => setTab(3), () => setTab(5), 'Siguiente: Financiamiento →')}
+              {navButtons(() => setTab(3), () => setTab(5), 'Siguiente: Inversión →')}
             </div>
           )
         })()}
@@ -2554,7 +2780,7 @@ function CalculadoraInner() {
                   )
                 })()}
               </div>
-              {navButtons(() => setTab(4), () => setTab(6), 'Siguiente: Resumen / Proyecto →')}
+              {navButtons(() => setTab(4), () => setTab(6), 'Siguiente: Ver Resumen →')}
             </div>
           )
         })()}
@@ -2717,7 +2943,15 @@ function CalculadoraInner() {
           </div>
         )}
 
-      </div>
+            </div>{/* fin overflowY */}
+
+            {/* Tab bar en la parte inferior */}
+            {tabBarNuevo}
+
+          </div>{/* fin panel derecho */}
+        </div>
+      )}{/* fin layout principal */}
+
     </div>
   )
 }
