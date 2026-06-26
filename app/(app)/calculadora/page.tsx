@@ -1271,7 +1271,8 @@ function CalculadoraInner() {
   )
 
   const clienteSeleccionado = clientes.find(c => c.id === clienteId)
-  const navBar = (
+  function renderNavBar() {
+    return (
     <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e2e8f0', background: 'white', flexShrink: 0 }}>
       {!clienteId && (
         <div style={{ padding: '10px 20px', background: '#FFF7ED', borderBottom: '1px solid #fed7aa', display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -1311,7 +1312,8 @@ function CalculadoraInner() {
         </div>
       </div>
     </div>
-  )
+    )
+  }
 
 
   // ══════════════════════════════════════════════════════════════════
@@ -1852,7 +1854,7 @@ function CalculadoraInner() {
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
             {/* Barra de KPIs + acciones superior */}
-            {navBar}
+            {renderNavBar()}
             {renderKpiBar()}
 
             {/* Contenido de la pestaña actual */}
