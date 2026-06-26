@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef, Suspense } from 'react'
+import { useEffect, useState, useRef, Suspense, Fragment } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { pdf } from '@react-pdf/renderer'
@@ -2046,7 +2046,7 @@ function CalculadoraInner() {
                     ['Ayuda Asistencial', fmtMXN2(res.ayudaAsistencialAnual), '¿Aplica Pensión Mínima?', res.pmg_aplica ? 'SÍ' : 'NO'],
                     ['Pensión Mínima del Año', fmtMXN2(sys.PMG_L73 * 12), '', ''],
                   ].map(([l1, v1, l2, v2], i) => (
-                    <> key={i}>
+                    <Fragment key={i}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 10px', borderBottom: '1px solid #e5e7eb', borderRight: '1px solid #d1d5db', background: i % 2 === 0 ? 'white' : '#FAFAFA' }}>
                         <span style={{ fontSize: '11.5px', color: '#374151' }}>{l1}</span>
                         <span style={{ fontSize: '11.5px', fontWeight: '700', color: '#374151' }}>{v1}</span>
@@ -2493,7 +2493,7 @@ function CalculadoraInner() {
                       ['PENSIÓN MENSUAL POR MES DE 30 DÍAS', fmtMXN(escRec.pension_base), fmtMXN(escRec.pension_mensual)],
                       ['FLUJOS DE PENSIÓN COBRADOS HASTA LOS 80 AÑOS', fmtMXN(escRec.pension_base * Math.max(0, (80 - edadRetBase) * 12)), fmtMXN(escRec.pension_mensual * Math.max(0, (80 - Math.floor(escRec.edad_retiro || 62)) * 12))],
                     ].map(([l, v1, v2], i) => (
-                      <> key={i}>
+                      <Fragment key={i}>
                         <p style={{ fontSize: '9.5px', color: '#6B7280', margin: '4px 0 2px' }}>{l}</p>
                         <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', paddingBottom: '3px' }}>
                           <span style={{ fontSize: '10.5px', color: '#374151' }}>{v1}</span>
