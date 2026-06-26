@@ -1273,7 +1273,7 @@ function CalculadoraInner() {
   const clienteSeleccionado = clientes.find(c => c.id === clienteId)
   function renderNavBar() {
     return (
-    <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e2e8f0', background: 'white', flexShrink: 0 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e2e8f0', background: 'white', flexShrink: 0 }}>
       {!clienteId && (
         <div style={{ padding: '10px 20px', background: '#FFF7ED', borderBottom: '1px solid #fed7aa', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span style={{ fontSize: '13px', color: '#92400e', fontWeight: '600' }}>⚠️ Selecciona un cliente para iniciar el diagnóstico</span>
@@ -1323,7 +1323,7 @@ function CalculadoraInner() {
   // Panel izquierdo fijo — visible en todas las pestañas
   function renderPanelIzquierdo() {
     return (
-    <div style={{ width: '280px', flexShrink: 0, background: 'white', borderRight: '1px solid #e2e8f0', overflowY: 'auto', padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <div style={{ width: '280px', flexShrink: 0, background: 'white', borderRight: '1px solid #e2e8f0', overflowY: 'auto', padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
       <h2 style={{ fontSize: '15px', fontWeight: '800', color: AZUL, margin: 0, paddingBottom: '10px', borderBottom: `2px solid ${AZUL}` }}>Calculadora de Pensión</h2>
 
       {/* Generales del trabajador */}
@@ -1482,7 +1482,7 @@ function CalculadoraInner() {
   // Tab bar — radio buttons como en el mockup
   function renderTabBar() {
     return (
-    <div style={{ display: 'flex', gap: '0', borderTop: '1px solid #e2e8f0', background: '#F8FAFC', flexShrink: 0, padding: '8px 12px', overflowX: 'auto', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', gap: '0', borderTop: '1px solid #e2e8f0', background: '#F8FAFC', flexShrink: 0, padding: '8px 12px', overflowX: 'auto', alignItems: 'center', justifyContent: 'center' }}>
       {TABS.map((t, i) => (
         <button key={i} onClick={() => setTab(i)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', border: 'none', cursor: 'pointer', background: 'transparent', fontFamily: 'inherit' }}>
           <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: `2px solid ${tab === i ? NARANJA : '#94a3b8'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: tab === i ? NARANJA : 'white' }}>
