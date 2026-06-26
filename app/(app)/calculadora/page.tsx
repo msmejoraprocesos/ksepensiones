@@ -12,6 +12,31 @@ const NARANJA = '#F05B21'
 const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n || 0)
 const fmtMXN2 = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n || 0)
 
+// ── Design System ──────────────────────────────────────────────────
+const DS = {
+  // Typography scale
+  txt: { xs: '10px', sm: '11px', base: '12px', md: '13px', lg: '14px', xl: '16px', h: '18px' },
+  // Colors
+  col: { azul: '#1B3A6B', verde: '#2E8B57', naranja: '#F05B21', gris: '#6B7280', borde: '#D1D5DB', bg: '#F9FAFB', bgAlt: '#F4F6FB' },
+  // Spacing
+  sp: { xs: '4px', sm: '6px', md: '10px', lg: '14px', xl: '20px' },
+  // Shared styles as objects
+  card: { background: 'white', border: '1px solid #D1D5DB', padding: '16px', marginBottom: '12px' } as React.CSSProperties,
+  tHead: { background: '#1B3A6B', color: 'white', padding: '8px 10px', fontSize: '11px', fontWeight: '700' as const, textAlign: 'left' as const, whiteSpace: 'nowrap' as const },
+  tHeadR: { background: '#1B3A6B', color: 'white', padding: '8px 10px', fontSize: '11px', fontWeight: '700' as const, textAlign: 'right' as const, whiteSpace: 'nowrap' as const },
+  tCell: { padding: '7px 10px', fontSize: '12px', color: '#374151', borderBottom: '1px solid #E5E7EB' } as React.CSSProperties,
+  tCellR: { padding: '7px 10px', fontSize: '12px', color: '#374151', borderBottom: '1px solid #E5E7EB', textAlign: 'right' as const } as React.CSSProperties,
+  tCellBold: { padding: '7px 10px', fontSize: '12px', color: '#1B3A6B', fontWeight: '700' as const, borderBottom: '1px solid #E5E7EB', textAlign: 'right' as const } as React.CSSProperties,
+  tRowAlt: (i: number) => ({ background: i % 2 === 0 ? 'white' : '#F9FAFB' }) as React.CSSProperties,
+  secTitle: { fontSize: '13px', fontWeight: '700' as const, color: '#374151', margin: '0 0 12px', paddingBottom: '8px', borderBottom: '2px solid #E5E7EB' } as React.CSSProperties,
+  kpiBlock: { background: '#1B3A6B', padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' } as React.CSSProperties,
+  label: { fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', marginBottom: '3px', display: 'block' as const, textDecoration: 'underline', textDecorationColor: '#D1D5DB' },
+  input: { width: '100%', border: '1px solid #9CA3AF', padding: '6px 8px', fontSize: '12px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: 'white', color: '#374151' } as React.CSSProperties,
+  inputReadonly: { width: '100%', border: '1px solid #D1D5DB', padding: '6px 8px', fontSize: '12px', background: '#F5F5F5', color: '#6B7280', fontFamily: 'inherit', boxSizing: 'border-box' as const } as React.CSSProperties,
+  select: { width: '100%', border: '1px solid #9CA3AF', padding: '6px 8px', fontSize: '12px', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const } as React.CSSProperties,
+}
+// ──────────────────────────────────────────────────────────────────
+
 const FACTOR_CESANTIA: Record<number, number> = { 60: 0.75, 61: 0.80, 62: 0.85, 63: 0.90, 64: 0.95 }
 
 interface SysVars {
@@ -1663,26 +1688,25 @@ function CalculadoraInner() {
                 </div>
               </div>
             </div>
-            {/* KPI bar */}
-            <div style={{ display: 'flex', gap: '4px', background: 'white', borderBottom: '1px solid #e2e8f0', padding: '5px 10px', flexShrink: 0, overflowX: 'auto' }}>
+                        {/* KPI bar */}
+            <div style={{ display: 'flex', gap: '0', background: 'white', borderBottom: '2px solid #E5E7EB', flexShrink: 0, overflowX: 'auto' }}>
               {[
                 { label: 'Semanas cotizadas', value: datos.semanas_totales > 0 ? (datos.semanas_totales - datos.semanas_descontadas).toLocaleString() : '—', color: (datos.semanas_totales - datos.semanas_descontadas) >= 500 ? VERDE : AZUL },
-                { label: 'Régimen Ley:', value: datos.ley ? `"${datos.ley}"` : '—', color: AZUL },
-                { label: 'Edad de Pensión', value: `${datos.edad_min_pension || 60} años`, color: AZUL },
-                { label: 'Salario 250 sem.', value: sdiPromedio > 0 ? fmtMXN2(sdiPromedio) : '—', color: NARANJA },
-                { label: 'Sem. restantes', value: datos.semanas_totales > 0 ? Math.max(0, 500 - (datos.semanas_totales - datos.semanas_descontadas)).toString() : '—', color: Math.max(0, 500 - (datos.semanas_totales - datos.semanas_descontadas)) === 0 ? VERDE : '#ef4444' },
-                { label: 'Total Sem. Cot.', value: escenarios.find(e => e.recomendado)?.semanas_finales ? Math.round(escenarios.find(e => e.recomendado)!.semanas_finales).toLocaleString() : '—', color: AZUL },
-                { label: 'Fecha del Trámite', value: datos.fecha_nacimiento ? (() => { const d = new Date(datos.fecha_nacimiento); d.setFullYear(d.getFullYear() + (datos.edad_min_pension || 60)); return d.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' }) })() : '—', color: '#8b5cf6' },
+                { label: 'Régimen', value: datos.ley ? 'Ley ' + datos.ley : '—', color: AZUL },
+                { label: 'Edad pensión', value: (datos.edad_min_pension || 60) + ' años', color: AZUL },
+                { label: 'SDI 250 sem.', value: sdiPromedio > 0 ? fmtMXN2(sdiPromedio) : '—', color: NARANJA },
+                { label: 'Sem. faltantes', value: datos.semanas_totales > 0 ? String(Math.max(0, 500 - (datos.semanas_totales - datos.semanas_descontadas))) : '—', color: Math.max(0, 500 - (datos.semanas_totales - datos.semanas_descontadas)) === 0 ? VERDE : '#DC2626' },
+                { label: 'Total sem. cot.', value: escenarios.find(e => e.recomendado)?.semanas_finales ? String(Math.round(escenarios.find(e => e.recomendado)!.semanas_finales)) : '—', color: AZUL },
+                { label: 'Fecha del trámite', value: datos.fecha_nacimiento ? (() => { const d = new Date(datos.fecha_nacimiento); d.setFullYear(d.getFullYear() + (datos.edad_min_pension || 60)); return d.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' }) })() : '—', color: '#7C3AED' },
               ].map((k, i) => (
-                <div key={i} style={{ flex: '0 0 auto', padding: '3px 8px', border: `1px solid ${k.color}30`, background: `${k.color}08`, textAlign: 'center' as const, minWidth: '90px' }}>
-                  <div style={{ fontSize: '8px', color: '#94a3b8', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{k.label}</div>
-                  <div style={{ fontSize: '12.5px', fontWeight: '800', color: k.color, whiteSpace: 'nowrap' }}>{k.value}</div>
+                <div key={i} style={{ flex: '1 0 auto', padding: '8px 14px', borderLeft: i > 0 ? '1px solid #E5E7EB' : 'none', borderRight: 'none' }}>
+                  <div style={{ fontSize: '9px', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap', marginBottom: '2px', fontWeight: '600' }}>{k.label}</div>
+                  <div style={{ fontSize: '13px', fontWeight: '800', color: k.color, whiteSpace: 'nowrap' }}>{k.value}</div>
                 </div>
               ))}
             </div>
-
-            {/* Contenido de la pestaña actual */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '18px 20px', background: '#FAFAFA', fontSize: '13px' }}>
+{/* Contenido de la pestaña actual */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', background: '#F4F6FB', fontSize: '13px', minWidth: 0 }}>
 
         {/* ══ TAB 0: DATOS GENERALES — Slide 2 ══════════════════════ */}
         {tab === 0 && (() => {
@@ -1700,10 +1724,10 @@ function CalculadoraInner() {
             <div style={{ border: '1px solid #9ca3af', padding: '5px 8px', background: readOnly ? '#F5F5F5' : 'white', fontSize: '12px', color: '#374151', minHeight: '28px', display: 'flex', alignItems: 'center' }}>{val}</div>
           )
           return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {/* Ficha técnica de retiro */}
-              <div style={{ background: 'white', border: '1px solid #d1d5db', padding: '14px' }}>
-                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 12px' }}>Ficha técnica de retiro:</p>
+              <div style={DS.card}>
+                <p style={DS.secTitle}>Ficha técnica de retiro:</p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px 20px' }}>
                   <div>
                     {lbl('Fecha de cálculo del proyecto:')}
@@ -1755,7 +1779,7 @@ function CalculadoraInner() {
               </div>
 
               {/* Cálculo SDI 250 semanas */}
-              <div style={{ background: 'white', border: '1px solid #d1d5db', padding: '14px' }}>
+              <div style={DS.card}>
                 <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 6px' }}>Cálculo del Salario Promedio de las Últimas 250 Semanas Cotizadas:</p>
                 <p style={{ fontSize: '11.5px', color: '#374151', margin: '0 0 12px', lineHeight: 1.6 }}>
                   ¿Por qué calculamos esto?. La Ley del IMSS 1973 (Art. 167) establece que la pensión se calcula sobre el promedio del Salario Diario Integrado (SDI) de las últimas 250 semanas cotizadas (aproximadamente 5 años), no sobre el salario actual. Este promedio es la base real de tu pensión; si usaras el SDI actual, el cálculo podría estar sobreestimado o subestimado, dándote una falsa expectativa.<br/>
@@ -1858,9 +1882,9 @@ function CalculadoraInner() {
           )
           const res = calcPensionLey73(sem, sdiPromedio, datos.edad_min_pension || 60, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, undefined, datos.tiene_ayuda_asistencial)
           return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ background: 'white', border: '1px solid #d1d5db', padding: '14px' }}>
-                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 12px' }}>Cuantías anuales de Pensión:</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={DS.card}>
+                <p style={DS.secTitle}>Cuantías anuales de Pensión:</p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0', border: '1px solid #d1d5db' }}>
                   {[
                     ['Cuantía Básica de Pensión', fmtMXN2(res.cuantiaBasicaAnual), 'Total de Pensión por Vejez', fmtMXN2(res.pensionAnual / (res.factorEdad || 0.75))],
@@ -1897,7 +1921,7 @@ function CalculadoraInner() {
                 </div>
               ))}
               {/* INPC */}
-              <div style={{ background: 'white', border: '1px solid #d1d5db', padding: '14px' }}>
+              <div style={DS.card}>
                 <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 8px' }}>Pensión Actualizada en el mismo año conforme al INPC</p>
                 <div style={{ background: '#1B3A6B', padding: '12px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                   <p style={{ fontSize: '13px', fontWeight: '700', color: 'white', margin: 0 }}>Importe de Pensión Mensual Actualizada por INPC</p>
@@ -1916,9 +1940,9 @@ function CalculadoraInner() {
           const lbl = (text: string) => <div style={{ fontSize: '12.5px', fontWeight: '700', color: '#374151', padding: '6px 10px', background: '#F0F0F0', border: '1px solid #d1d5db', borderBottom: 'none' }}>{text}</div>
           const val = (text: string | number, orange = false) => <div style={{ padding: '6px 10px', border: '1px solid #d1d5db', fontSize: '12px', fontWeight: orange ? '800' : '600', color: orange ? '#D95B00' : '#374151', background: 'white' }}>{text}</div>
           return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ background: 'white', border: '1px solid #d1d5db', padding: '14px' }}>
-                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={DS.card}>
+                <p style={DS.secTitle}>
                   Calculadora de Nuevo Salario Promedio Diario de las Últimas 250 semanas cotizadas con mod 40:
                 </p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -2054,9 +2078,9 @@ function CalculadoraInner() {
             rows.push({ a, tasaPct, sdi, diasPagados, cuotaMensual, cuotaAnual })
           }
           return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ background: 'white', border: '1px solid #d1d5db', padding: '14px' }}>
-                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 12px' }}>Costo de la Modalidad 40 (2019 a +2030):</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={DS.card}>
+                <p style={DS.secTitle}>Costo de la Modalidad 40 (2019 a +2030):</p>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11.5px' }}>
                   <thead>
                     <tr>
@@ -2108,9 +2132,9 @@ function CalculadoraInner() {
             </div>
           )
           return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ background: 'white', border: '1px solid #d1d5db', padding: '14px' }}>
-                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 12px' }}>Datos generales mod 40:</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={DS.card}>
+                <p style={DS.secTitle}>Datos generales mod 40:</p>
                 <div style={{ background: '#1B3A6B', padding: '10px 16px', textAlign: 'center' as const, marginBottom: '12px' }}>
                   <p style={{ fontSize: '12px', fontWeight: '800', color: 'white', margin: '0 0 2px', letterSpacing: '0.5px' }}>1. INFORMACIÓN GENERAL DEL (LA) PENSIONADO (A)</p>
                   <p style={{ fontSize: '12.5px', fontWeight: '700', color: '#93C5FD', margin: 0, letterSpacing: '1px' }}>PROYECTO DE PLAN DE RETIRO</p>
@@ -2139,7 +2163,7 @@ function CalculadoraInner() {
                   ['SALARIO PROMEDIO DIARIO DE LAS ÚLTIMAS 250 SEMANAS COTIZADAS', fmtMXN2(escRec.nuevo_sdi_250)],
                   ['TOTAL DE SEMANAS COTIZADAS PARA EL CÁLCULO DE PENSIÓN (3)', Math.round(escRec.semanas_finales || 0).toLocaleString()],
                 ].map(([label, value], i) => (
-                  <div key={i} style={{ background: '#1B3A6B', padding: '12px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                  <div key={i} style={DS.kpiBlock}>
                     <span style={{ fontSize: '12px', fontWeight: '700', color: 'white', maxWidth: '65%', lineHeight: 1.4 }}>{label}</span>
                     <span style={{ fontSize: '22px', fontWeight: '900', color: 'white' }}>{value}</span>
                   </div>
@@ -2164,11 +2188,11 @@ function CalculadoraInner() {
           )
           const pensionVejez100 = escRec.pension_mensual / ((escRec.edad_retiro || 62) < 65 ? (75 + (Math.floor(escRec.edad_retiro || 62) - 60) * 5) / 100 : 1)
           return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ background: 'white', border: '1px solid #d1d5db', padding: '14px' }}>
-                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 12px' }}>Pensión Mod 40:</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={DS.card}>
+                <p style={DS.secTitle}>Pensión Mod 40:</p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '12px' }}>
-                  <div style={{ background: '#1B3A6B', padding: '14px', textAlign: 'center' as const }}>
+                  <div style={{ ...DS.kpiBlock, justifyContent: 'center', flexDirection: 'column' as const }}>
                     <p style={{ fontSize: '12.5px', fontWeight: '700', color: '#93C5FD', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>IMPORTE DE PENSIÓN ANUAL</p>
                     <p style={{ fontSize: '28px', fontWeight: '900', color: 'white', margin: 0 }}>{fmtMXN2(escRec.pension_mensual * 12)}</p>
                   </div>
@@ -2193,7 +2217,7 @@ function CalculadoraInner() {
                   </div>
                 </div>
                 {/* KPI grande mensual */}
-                <div style={{ background: '#1B3A6B', padding: '12px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                <div style={DS.kpiBlock}>
                   <div>
                     <p style={{ fontSize: '13px', fontWeight: '700', color: 'white', margin: 0 }}>IMPORTE DE PENSIÓN POR MES DE 30 DÍAS</p>
                     <p style={{ fontSize: '11.5px', color: '#93C5FD', margin: '2px 0 0' }}>Monto de pensión calculado con base a lo estipulado en la Ley de 1973 de Seguro Social.</p>
@@ -2267,7 +2291,7 @@ function CalculadoraInner() {
             if (edad >= 81) break
           }
           return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: 0 }}>Inversión:</p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
                 {/* Col 1: Mejora de pensión */}
