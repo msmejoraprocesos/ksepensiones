@@ -1446,7 +1446,7 @@ function CalculadoraInner() {
   )
 
   // Barra de KPIs superior derecha
-  const kpiBar = (() => {
+  function renderKpiBar() {
     const sem = datos.semanas_totales - datos.semanas_descontadas
     const semanasRestantes = Math.max(0, Math.ceil(500 - sem))
     const totalSemCot = escenarios.find(e => e.recomendado)?.semanas_finales ?? sem
@@ -1466,14 +1466,14 @@ function CalculadoraInner() {
           { label: 'Total Semanas Cotización', value: totalSemCot > 0 ? Math.round(totalSemCot).toLocaleString() : '—', color: AZUL },
           { label: 'Fecha del Trámite', value: fechaTramite, color: '#8b5cf6' },
         ].map((k, i) => (
-          <div key={i} style={{ flex: '0 0 auto', padding: '4px 10px', borderRadius: '6px', border: `1px solid ${k.color}30`, background: `${k.color}08`, textAlign: 'center', minWidth: '100px' }}>
+          <div key={i} style={{ flex: '0 0 auto', padding: '4px 10px', borderRadius: '6px', border: `1px solid ${k.color}30`, background: `${k.color}08`, textAlign: 'center' as const, minWidth: '100px' }}>
             <div style={{ fontSize: '8.5px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>{k.label}</div>
             <div style={{ fontSize: '12px', fontWeight: '800', color: k.color, whiteSpace: 'nowrap' }}>{k.value}</div>
           </div>
         ))}
       </div>
     )
-  })()
+  }
 
   // Tab bar — radio buttons como en el mockup
   const tabBarNuevo = (
@@ -1849,7 +1849,7 @@ function CalculadoraInner() {
 
             {/* Barra de KPIs + acciones superior */}
             {navBar}
-            {kpiBar}
+            {renderKpiBar()}
 
             {/* Contenido de la pestaña actual */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '16px', background: '#FAFAFA' }}>
