@@ -1271,222 +1271,7 @@ function CalculadoraInner() {
   )
 
   const clienteSeleccionado = clientes.find(c => c.id === clienteId)
-  function renderNavBar() {
-    return (<div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e2e8f0', background: 'white', flexShrink: 0 }}>
-      {!clienteId && (
-        <div style={{ padding: '10px 20px', background: '#FFF7ED', borderBottom: '1px solid #fed7aa', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '13px', color: '#92400e', fontWeight: '600' }}>⚠️ Selecciona un cliente para iniciar el diagnóstico</span>
-          <span style={{ fontSize: '12px', color: '#92400e' }}>No se puede guardar ni generar PDF sin un cliente vinculado.</span>
-        </div>
-      )}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', flexWrap: 'nowrap', gap: '14px', overflowX: 'auto' }}>
-        <div style={{ flexShrink: 0 }}>
-          <p style={{ fontSize: '14px', fontWeight: '700', color: '#1e293b', margin: 0, whiteSpace: 'nowrap' }}>Calculadora de pensión</p>
-          <p style={{ fontSize: '11px', color: '#94a3b8', margin: '1px 0 0', whiteSpace: 'nowrap' }}>
-            {tab + 1} de {TABS.length} — {TABS[tab]}
-            {clienteSeleccionado && <span style={{ color: AZUL, fontWeight: '600' }}> · {clienteSeleccionado.nombre}</span>}
-            {diagGuardadoId && <span style={{ color: estatus === 'autorizado' ? VERDE : '#f59e0b', fontWeight: '600' }}> · {estatus === 'autorizado' ? '✅ Autorizado' : '📝 Borrador'}</span>}
-          </p>
-        </div>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'nowrap', flexShrink: 0 }}>
-          <select value={clienteId} onChange={e => {
-              if (analisis.length > 0 || diagGuardadoId) {
-                setPendingClienteId(e.target.value)
-                setShowConfirmCambio(true)
-              } else {
-                setClienteId(e.target.value)
-                setDiagGuardadoId(null)
-                setEstatus('borrador')
-              }
-            }}
-            style={{ ...inputSt, minWidth: '160px', maxWidth: '220px', fontSize: '12px', padding: '6px 10px', height: '34px', borderColor: !clienteId ? '#f97316' : '#e2e8f0' }}>
-            <option value="">— Seleccionar cliente —</option>
-            {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
-          </select>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '0 14px', height: '34px', boxSizing: 'border-box', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: extracting ? 'not-allowed' : 'pointer', fontSize: '12px', fontWeight: '600', color: AZUL, background: '#EEF2F8', whiteSpace: 'nowrap' }}>
-            {extracting ? '⏳ Extrayendo...' : '📄 Cargar constancia IMSS'}
-            <input ref={fileRef} type="file" accept=".pdf" style={{ display: 'none' }} disabled={extracting}
-              onChange={e => { const f = e.target.files?.[0]; if (f) extraerPDF(f) }} />
-          </label>
-        </div>
-      </div>
-    </div>)
-  }
 
-
-  // ══════════════════════════════════════════════════════════════════
-  // RENDER
-  // ══════════════════════════════════════════════════════════════════
-
-  // Panel izquierdo fijo — visible en todas las pestañas
-  function renderPanelIzquierdo() {
-    return (<div style={{ width: '280px', flexShrink: 0, background: 'white', borderRight: '1px solid #e2e8f0', overflowY: 'auto', padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-      <h2 style={{ fontSize: '15px', fontWeight: '800', color: AZUL, margin: 0, paddingBottom: '10px', borderBottom: `2px solid ${AZUL}` }}>Calculadora de Pensión</h2>
-
-      {/* Generales del trabajador */}
-      <div>
-        <p style={{ fontSize: '10px', fontWeight: '800', color: AZUL, textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 8px' }}>Generales del trabajador:</p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          {[
-            { label: 'Nombre del cliente / asesorado:', value: clientes.find(c => c.id === clienteId)?.nombre || 'Campo prellenado al seleccionar el cliente', color: '#64748b', italic: !clienteId },
-            { label: 'Nombre del trabajador (constancia IMSS)', value: datos.nombre_trabajador || 'Se llena con la constancia', italic: !datos.nombre_trabajador },
-          ].map((f, i) => (
-            <div key={i}>
-              <div style={{ fontSize: '9.5px', fontWeight: '600', color: '#94a3b8', marginBottom: '1px' }}>{f.label}</div>
-              <div style={{ fontSize: '11px', color: f.italic ? '#cbd5e1' : '#374151', fontStyle: f.italic ? 'italic' : 'normal', padding: '4px 7px', background: '#F8FAFC', borderRadius: '5px', border: '1px solid #e2e8f0' }}>{f.value}</div>
-            </div>
-          ))}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
-            {[
-              { label: 'NSS:', value: datos.nss || 'Se llena con la constancia' },
-              { label: 'Régimen:', value: datos.ley ? `Ley ${datos.ley}` : 'Se llena con la constancia', editable: true },
-              { label: 'Fecha de Nacimiento:', value: datos.fecha_nacimiento || 'Se llena con la constancia' },
-              { label: 'CURP:', value: '—' },
-            ].map((f, i) => (
-              <div key={i}>
-                <div style={{ fontSize: '9px', fontWeight: '600', color: '#94a3b8', marginBottom: '1px' }}>{f.label}</div>
-                <div style={{ fontSize: '10.5px', color: f.value.includes('Se llena') ? '#cbd5e1' : '#374151', fontStyle: f.value.includes('Se llena') ? 'italic' : 'normal', padding: '3px 6px', background: '#F8FAFC', borderRadius: '5px', border: '1px solid #e2e8f0' }}>{f.value}</div>
-              </div>
-            ))}
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
-            <div>
-              <div style={{ fontSize: '9px', fontWeight: '600', color: '#94a3b8', marginBottom: '1px' }}>Edad Actual:</div>
-              <div style={{ fontSize: '10.5px', color: datos.edad_actual ? '#374151' : '#cbd5e1', fontStyle: datos.edad_actual ? 'normal' : 'italic', padding: '3px 6px', background: '#F8FAFC', borderRadius: '5px', border: '1px solid #e2e8f0' }}>
-                {datos.edad_actual ? `${datos.edad_actual.toFixed(2)} años` : 'Se calcula automáticamente'}
-              </div>
-            </div>
-            <div>
-              <div style={{ fontSize: '9px', fontWeight: '600', color: '#94a3b8', marginBottom: '1px' }}>Fecha de:</div>
-              <div style={{ fontSize: '10.5px', color: datos.fecha_calculo ? '#374151' : '#cbd5e1', fontStyle: datos.fecha_calculo ? 'normal' : 'italic', padding: '3px 6px', background: '#F8FAFC', borderRadius: '5px', border: '1px solid #e2e8f0' }}>
-                {datos.fecha_calculo || 'De la constancia'}
-              </div>
-            </div>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
-            <div>
-              <div style={{ fontSize: '9px', fontWeight: '600', color: '#94a3b8', marginBottom: '1px' }}>Semanas cotizadas:</div>
-              <div style={{ fontSize: '10.5px', color: datos.semanas_totales ? '#374151' : '#cbd5e1', fontStyle: datos.semanas_totales ? 'normal' : 'italic', padding: '3px 6px', background: '#F8FAFC', borderRadius: '5px', border: '1px solid #e2e8f0' }}>
-                {datos.semanas_totales || 'Se calcula con constancia'}
-              </div>
-            </div>
-            <div>
-              <div style={{ fontSize: '9px', fontWeight: '600', color: '#94a3b8', marginBottom: '1px' }}>Vigencia de derechos:</div>
-              {(() => {
-                const mesesDesde = fechaUltimaCot ? Math.floor((Date.now() - new Date(fechaUltimaCot).getTime()) / (30 * 86400000)) : 0
-                const cons = calcConservacion(datos.semanas_totales, mesesDesde)
-                return (
-                  <div style={{ fontSize: '10.5px', color: cons.vigente ? VERDE : datos.semanas_totales ? '#ef4444' : '#cbd5e1', fontStyle: datos.semanas_totales ? 'normal' : 'italic', padding: '3px 6px', background: '#F8FAFC', borderRadius: '5px', border: '1px solid #e2e8f0' }}>
-                    {datos.semanas_totales ? (cons.vigente ? 'Vigente' : 'Vencido') : 'Calculado "Vigente"/"Vencido"'}
-                  </div>
-                )
-              })()}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div style={{ borderTop: '1px dashed #e2e8f0' }} />
-
-      {/* Sección 2: más generales */}
-      <div>
-        <p style={{ fontSize: '10px', fontWeight: '800', color: AZUL, textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 8px' }}>Generales del trabajador:</p>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
-          {[
-            { label: 'Sigue cotizando al IMSS:', value: datos.sigue_cotizando ? 'Sí' : 'No' },
-            { label: 'Semanas descontadas del:', value: datos.semanas_descontadas > 0 ? datos.semanas_descontadas.toString() : 'Se llena con la constancia' },
-            { label: 'Ayuda asistencial (art 165 LSS):', value: datos.tiene_ayuda_asistencial ? 'Sí' : 'No' },
-            { label: 'Edad mínima de Pensión sin:', value: `${datos.edad_min_pension || 60} años (predefinido)` },
-          ].map((f, i) => (
-            <div key={i}>
-              <div style={{ fontSize: '9px', fontWeight: '600', color: '#94a3b8', marginBottom: '1px' }}>{f.label}</div>
-              <div style={{ fontSize: '10.5px', color: f.value.includes('Se llena') ? '#cbd5e1' : '#374151', fontStyle: f.value.includes('Se llena') ? 'italic' : 'normal', padding: '3px 6px', background: '#F8FAFC', borderRadius: '5px', border: '1px solid #e2e8f0' }}>{f.value}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ borderTop: '1px dashed #e2e8f0' }} />
-
-      {/* Tabla de factores por edad */}
-      <div>
-        <p style={{ fontSize: '9px', fontWeight: '800', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 6px', textAlign: 'center' }}>PENSIONES LSS 1973: PORCENTAJE SEGÚN EDAD DE RETIRO</p>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px' }}>
-          <thead>
-            <tr style={{ background: AZUL }}>
-              <th style={{ padding: '4px 6px', color: 'white', textAlign: 'center', fontWeight: '700' }}>Edad del Asegurado</th>
-              <th style={{ padding: '4px 6px', color: 'white', textAlign: 'center', fontWeight: '700' }}>% de la Cuantía</th>
-              <th style={{ padding: '4px 6px', color: 'white', textAlign: 'center', fontWeight: '700' }}>Tipo de Pensión</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[
-              [60, '75%', 'Cesantía en Edad Avanzada'],
-              [61, '80%', 'Cesantía en Edad Avanzada'],
-              [62, '85%', 'Cesantía en Edad Avanzada'],
-              [63, '90%', 'Cesantía en Edad Avanzada'],
-              [64, '95%', 'Cesantía en Edad Avanzada'],
-            ].map(([edad, pct, tipo], i) => (
-              <tr key={i} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC' }}>
-                <td style={{ padding: '3px 6px', textAlign: 'center', color: '#374151' }}>{edad} Años</td>
-                <td style={{ padding: '3px 6px', textAlign: 'center', fontWeight: '700', color: '#374151' }}>{pct}</td>
-                <td style={{ padding: '3px 6px', color: '#64748b', fontSize: '9px' }}>{tipo}</td>
-              </tr>
-            ))}
-            <tr style={{ background: VERDE }}>
-              <td style={{ padding: '4px 6px', textAlign: 'center', fontWeight: '800', color: 'white' }}>65 Años o más</td>
-              <td style={{ padding: '4px 6px', textAlign: 'center', fontWeight: '800', color: 'white' }}>100%</td>
-              <td style={{ padding: '4px 6px', color: 'white', fontSize: '9px', fontWeight: '700' }}>VEJEZ (IDEL)</td>
-            </tr>
-          </tbody>
-        </table>
-        <p style={{ fontSize: '8.5px', color: '#94a3b8', textAlign: 'center', margin: '4px 0 0' }}>Basado en la Ley del Seguro Social de 1973</p>
-      </div>
-    </div>
-  )
-  }
-
-  // Barra de KPIs superior derecha
-  function renderKpiBar() {
-    const sem = datos.semanas_totales - datos.semanas_descontadas
-    const semanasRestantes = Math.max(0, Math.ceil(500 - sem))
-    const totalSemCot = escenarios.find(e => e.recomendado)?.semanas_finales ?? sem
-    const fechaTramite = datos.fecha_nacimiento ? (() => {
-      const d = new Date(datos.fecha_nacimiento)
-      d.setFullYear(d.getFullYear() + (datos.edad_min_pension || 60))
-      return d.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })
-    })() : '—'
-    return (<div style={{ display: 'flex', gap: '4px', background: 'white', borderBottom: '1px solid #e2e8f0', padding: '6px 12px', flexShrink: 0, overflowX: 'auto' }}>
-        {[
-          { label: 'Semanas cotizadas', value: sem > 0 ? sem.toLocaleString() : '—', color: sem >= 500 ? VERDE : AZUL },
-          { label: 'Régimen Ley:', value: datos.ley ? `"${datos.ley}"` : '—', color: AZUL },
-          { label: 'Edad de Pensión', value: `${datos.edad_min_pension || 60} años`, color: AZUL },
-          { label: 'Salario 250 semanas', value: sdiPromedio > 0 ? fmtMXN2(sdiPromedio) : '—', color: NARANJA },
-          { label: 'Semanas restantes', value: semanasRestantes === 0 ? '✓ 0' : semanasRestantes.toString(), color: semanasRestantes === 0 ? VERDE : '#ef4444' },
-          { label: 'Total Semanas Cotización', value: totalSemCot > 0 ? Math.round(totalSemCot).toLocaleString() : '—', color: AZUL },
-          { label: 'Fecha del Trámite', value: fechaTramite, color: '#8b5cf6' },
-        ].map((k, i) => (
-          <div key={i} style={{ flex: '0 0 auto', padding: '4px 10px', borderRadius: '6px', border: `1px solid ${k.color}30`, background: `${k.color}08`, textAlign: 'center' as const, minWidth: '100px' }}>
-            <div style={{ fontSize: '8.5px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.3px', whiteSpace: 'nowrap' }}>{k.label}</div>
-            <div style={{ fontSize: '12px', fontWeight: '800', color: k.color, whiteSpace: 'nowrap' }}>{k.value}</div>
-          </div>
-        ))}
-      </div>)
-  }
-
-  // Tab bar — radio buttons como en el mockup
-  function renderTabBar() {
-    return (<div style={{ display: 'flex', gap: '0', borderTop: '1px solid #e2e8f0', background: '#F8FAFC', flexShrink: 0, padding: '8px 12px', overflowX: 'auto', alignItems: 'center', justifyContent: 'center' }}>
-      {TABS.map((t, i) => (
-        <button key={i} onClick={() => setTab(i)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', border: 'none', cursor: 'pointer', background: 'transparent', fontFamily: 'inherit' }}>
-          <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: `2px solid ${tab === i ? NARANJA : '#94a3b8'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: tab === i ? NARANJA : 'white' }}>
-            {tab === i && <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'white' }} />}
-          </div>
-          <span style={{ fontSize: '11px', fontWeight: tab === i ? '700' : '500', color: tab === i ? NARANJA : '#64748b', whiteSpace: 'nowrap' }}>{t}</span>
-        </button>
-      ))}
-    </div>)
-  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 48px)', overflow: 'hidden' }}>
@@ -1841,14 +1626,133 @@ function CalculadoraInner() {
         <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
 
           {/* ── Panel izquierdo fijo ── */}
-          {renderPanelIzquierdo()}
+          <div style={{ width: '280px', flexShrink: 0, background: 'white', borderRight: '1px solid #e2e8f0', overflowY: 'auto', padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <h2 style={{ fontSize: '15px', fontWeight: '800', color: AZUL, margin: 0, paddingBottom: '10px', borderBottom: `2px solid ${AZUL}` }}>Calculadora de Pensión</h2>
+            <div>
+              <p style={{ fontSize: '10px', fontWeight: '800', color: AZUL, textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 8px' }}>Generales del trabajador:</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                <div style={{ fontSize: '9.5px', color: '#94a3b8', marginBottom: '1px', textDecoration: 'underline' }}>Nombre del cliente / asesorado:</div>
+                <div style={{ fontSize: '11px', color: clienteId ? '#374151' : '#cbd5e1', fontStyle: clienteId ? 'normal' : 'italic', padding: '4px 7px', background: '#F8FAFC', border: '1px solid #e2e8f0' }}>{clientes.find(c => c.id === clienteId)?.nombre || 'Campo prellenado al seleccionar el cliente'}</div>
+                <div style={{ fontSize: '9.5px', color: '#94a3b8', marginBottom: '1px', textDecoration: 'underline' }}>Nombre del trabajador (constancia IMSS)</div>
+                <div style={{ fontSize: '11px', color: datos.nombre_trabajador ? '#374151' : '#cbd5e1', fontStyle: datos.nombre_trabajador ? 'normal' : 'italic', padding: '4px 7px', background: '#F8FAFC', border: '1px solid #e2e8f0' }}>{datos.nombre_trabajador || 'Se llena con la constancia'}</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
+                  {[
+                    ['NSS:', datos.nss || 'Se llena con la constancia'],
+                    ['Régimen:', datos.ley ? `Ley ${datos.ley}` : 'Se llena con la constancia'],
+                    ['Fecha de Nacimiento:', datos.fecha_nacimiento || 'Se llena con la constancia'],
+                    ['CURP:', '—'],
+                  ].map(([l, v], i) => (
+                    <div key={i}>
+                      <div style={{ fontSize: '9px', color: '#94a3b8', marginBottom: '1px', textDecoration: 'underline' }}>{l}</div>
+                      <div style={{ fontSize: '10.5px', color: String(v).includes('Se llena') ? '#cbd5e1' : '#374151', padding: '3px 5px', background: '#F8FAFC', border: '1px solid #e2e8f0', fontStyle: String(v).includes('Se llena') ? 'italic' : 'normal' }}>{v}</div>
+                    </div>
+                  ))}
+                  <div>
+                    <div style={{ fontSize: '9px', color: '#94a3b8', marginBottom: '1px', textDecoration: 'underline' }}>Edad Actual:</div>
+                    <div style={{ fontSize: '10.5px', color: datos.edad_actual ? '#374151' : '#cbd5e1', padding: '3px 5px', background: '#F8FAFC', border: '1px solid #e2e8f0', fontStyle: datos.edad_actual ? 'normal' : 'italic' }}>{datos.edad_actual ? `${datos.edad_actual.toFixed(2)} años` : 'Se calcula automáticamente'}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '9px', color: '#94a3b8', marginBottom: '1px', textDecoration: 'underline' }}>Semanas cotizadas:</div>
+                    <div style={{ fontSize: '10.5px', color: datos.semanas_totales ? '#374151' : '#cbd5e1', padding: '3px 5px', background: '#F8FAFC', border: '1px solid #e2e8f0', fontStyle: datos.semanas_totales ? 'normal' : 'italic' }}>{datos.semanas_totales || 'Se calcula con constancia'}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '9px', color: '#94a3b8', marginBottom: '1px', textDecoration: 'underline' }}>Vigencia de derechos:</div>
+                    <div style={{ fontSize: '10.5px', padding: '3px 5px', background: '#F8FAFC', border: '1px solid #e2e8f0', color: conservacion.vigente ? VERDE : datos.semanas_totales ? '#ef4444' : '#cbd5e1', fontStyle: datos.semanas_totales ? 'normal' : 'italic' }}>{datos.semanas_totales ? (conservacion.vigente ? 'Vigente' : 'Vencido') : 'Calculado automáticamente'}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style={{ borderTop: '1px dashed #e2e8f0' }} />
+            <div>
+              <p style={{ fontSize: '10px', fontWeight: '800', color: AZUL, textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 6px' }}>Generales del trabajador:</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
+                {[
+                  ['Sigue cotizando al IMSS:', datos.sigue_cotizando ? 'Sí' : 'No'],
+                  ['Semanas descontadas:', datos.semanas_descontadas > 0 ? String(datos.semanas_descontadas) : 'Se llena con la constancia'],
+                  ['Ayuda asistencial (art 165 LSS):', datos.tiene_ayuda_asistencial ? 'Sí' : 'No'],
+                  ['Edad mínima de Pensión sin:', `${datos.edad_min_pension || 60} años (predefinido)`],
+                ].map(([l, v], i) => (
+                  <div key={i}>
+                    <div style={{ fontSize: '9px', color: '#94a3b8', marginBottom: '1px', textDecoration: 'underline' }}>{l}</div>
+                    <div style={{ fontSize: '10.5px', color: String(v).includes('Se llena') ? '#cbd5e1' : '#374151', padding: '3px 5px', background: '#F8FAFC', border: '1px solid #e2e8f0', fontStyle: String(v).includes('Se llena') ? 'italic' : 'normal' }}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{ borderTop: '1px dashed #e2e8f0' }} />
+            <div>
+              <p style={{ fontSize: '9px', fontWeight: '800', color: '#374151', textTransform: 'uppercase', textAlign: 'center' as const, margin: '0 0 4px', letterSpacing: '0.3px' }}>PENSIONES LSS 1973: PORCENTAJE SEGÚN EDAD DE RETIRO</p>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px' }}>
+                <thead>
+                  <tr style={{ background: AZUL }}>
+                    <th style={{ padding: '3px 5px', color: 'white', textAlign: 'center' as const, fontWeight: '700', fontSize: '9px' }}>Edad</th>
+                    <th style={{ padding: '3px 5px', color: 'white', textAlign: 'center' as const, fontWeight: '700', fontSize: '9px' }}>% Cuantía</th>
+                    <th style={{ padding: '3px 5px', color: 'white', textAlign: 'center' as const, fontWeight: '700', fontSize: '9px' }}>Tipo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[[60,'75%','Cesantía E.A.'],[61,'80%','Cesantía E.A.'],[62,'85%','Cesantía E.A.'],[63,'90%','Cesantía E.A.'],[64,'95%','Cesantía E.A.']].map(([edad, pct, tipo], i) => (
+                    <tr key={i} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC' }}>
+                      <td style={{ padding: '2px 5px', textAlign: 'center' as const }}>{edad} Años</td>
+                      <td style={{ padding: '2px 5px', textAlign: 'center' as const, fontWeight: '700' }}>{pct}</td>
+                      <td style={{ padding: '2px 5px', fontSize: '9px', color: '#64748b' }}>{tipo}</td>
+                    </tr>
+                  ))}
+                  <tr style={{ background: VERDE }}>
+                    <td style={{ padding: '3px 5px', textAlign: 'center' as const, fontWeight: '800', color: 'white' }}>65+ Años</td>
+                    <td style={{ padding: '3px 5px', textAlign: 'center' as const, fontWeight: '800', color: 'white' }}>100%</td>
+                    <td style={{ padding: '3px 5px', color: 'white', fontSize: '9px', fontWeight: '700' }}>VEJEZ (IDEL)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
 
           {/* ── Panel derecho dinámico ── */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
             {/* Barra de KPIs + acciones superior */}
-            {renderNavBar()}
-            {renderKpiBar()}
+            {/* Nav bar */}
+            <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e2e8f0', background: 'white', flexShrink: 0 }}>
+              {!clienteId && (
+                <div style={{ padding: '8px 16px', background: '#FFF7ED', borderBottom: '1px solid #fed7aa', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '12px', color: '#92400e', fontWeight: '600' }}>⚠️ Selecciona un cliente para iniciar el diagnóstico</span>
+                </div>
+              )}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 14px', gap: '10px', overflowX: 'auto' }}>
+                <p style={{ fontSize: '13px', fontWeight: '700', color: '#1e293b', margin: 0, whiteSpace: 'nowrap' }}>
+                  {TABS[tab]}
+                  {clienteSeleccionado && <span style={{ color: AZUL, fontWeight: '600', fontSize: '11px' }}> · {clienteSeleccionado.nombre}</span>}
+                </p>
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
+                  <select value={clienteId} onChange={e => { if (analisis.length > 0 || diagGuardadoId) { setPendingClienteId(e.target.value); setShowConfirmCambio(true) } else { setClienteId(e.target.value); setDiagGuardadoId(null); setEstatus('borrador') } }} style={{ ...inputSt, minWidth: '140px', fontSize: '11px', padding: '5px 8px', height: '30px', borderColor: !clienteId ? '#f97316' : '#e2e8f0' }}>
+                    <option value="">— Seleccionar cliente —</option>
+                    {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
+                  </select>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '0 10px', height: '30px', border: '1px solid #e2e8f0', cursor: extracting ? 'not-allowed' : 'pointer', fontSize: '11px', fontWeight: '600', color: AZUL, background: '#EEF2F8', whiteSpace: 'nowrap', boxSizing: 'border-box' as const }}>
+                    {extracting ? '⏳ Extrayendo...' : '📄 Cargar constancia'}
+                    <input ref={fileRef} type="file" accept=".pdf" style={{ display: 'none' }} disabled={extracting} onChange={e => { const f = e.target.files?.[0]; if (f) extraerPDF(f) }} />
+                  </label>
+                </div>
+              </div>
+            </div>
+            {/* KPI bar */}
+            <div style={{ display: 'flex', gap: '4px', background: 'white', borderBottom: '1px solid #e2e8f0', padding: '5px 10px', flexShrink: 0, overflowX: 'auto' }}>
+              {[
+                { label: 'Semanas cotizadas', value: datos.semanas_totales > 0 ? (datos.semanas_totales - datos.semanas_descontadas).toLocaleString() : '—', color: (datos.semanas_totales - datos.semanas_descontadas) >= 500 ? VERDE : AZUL },
+                { label: 'Régimen Ley:', value: datos.ley ? `"${datos.ley}"` : '—', color: AZUL },
+                { label: 'Edad de Pensión', value: `${datos.edad_min_pension || 60} años`, color: AZUL },
+                { label: 'Salario 250 sem.', value: sdiPromedio > 0 ? fmtMXN2(sdiPromedio) : '—', color: NARANJA },
+                { label: 'Sem. restantes', value: datos.semanas_totales > 0 ? Math.max(0, 500 - (datos.semanas_totales - datos.semanas_descontadas)).toString() : '—', color: Math.max(0, 500 - (datos.semanas_totales - datos.semanas_descontadas)) === 0 ? VERDE : '#ef4444' },
+                { label: 'Total Sem. Cot.', value: escenarios.find(e => e.recomendado)?.semanas_finales ? Math.round(escenarios.find(e => e.recomendado)!.semanas_finales).toLocaleString() : '—', color: AZUL },
+                { label: 'Fecha del Trámite', value: datos.fecha_nacimiento ? (() => { const d = new Date(datos.fecha_nacimiento); d.setFullYear(d.getFullYear() + (datos.edad_min_pension || 60)); return d.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' }) })() : '—', color: '#8b5cf6' },
+              ].map((k, i) => (
+                <div key={i} style={{ flex: '0 0 auto', padding: '3px 8px', border: `1px solid ${k.color}30`, background: `${k.color}08`, textAlign: 'center' as const, minWidth: '90px' }}>
+                  <div style={{ fontSize: '8px', color: '#94a3b8', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{k.label}</div>
+                  <div style={{ fontSize: '11px', fontWeight: '800', color: k.color, whiteSpace: 'nowrap' }}>{k.value}</div>
+                </div>
+              ))}
+            </div>
 
             {/* Contenido de la pestaña actual */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '16px', background: '#FAFAFA' }}>
@@ -2604,7 +2508,17 @@ function CalculadoraInner() {
             </div>{/* fin overflowY */}
 
             {/* Tab bar en la parte inferior */}
-            {renderTabBar()}
+            {/* Tab bar — radio buttons */}
+            <div style={{ display: 'flex', borderTop: '1px solid #e2e8f0', background: '#F8FAFC', flexShrink: 0, padding: '6px 10px', overflowX: 'auto', alignItems: 'center', justifyContent: 'center' }}>
+              {TABS.map((t, i) => (
+                <button key={i} onClick={() => setTab(i)} style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 10px', border: 'none', cursor: 'pointer', background: 'transparent', fontFamily: 'inherit' }}>
+                  <div style={{ width: '14px', height: '14px', borderRadius: '50%', border: `2px solid ${tab === i ? NARANJA : '#94a3b8'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: tab === i ? NARANJA : 'white' }}>
+                    {tab === i && <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'white' }} />}
+                  </div>
+                  <span style={{ fontSize: '10.5px', fontWeight: tab === i ? '700' : '500', color: tab === i ? NARANJA : '#64748b', whiteSpace: 'nowrap' }}>{t}</span>
+                </button>
+              ))}
+            </div>
 
           </div>{/* fin panel derecho */}
         </div>
