@@ -1847,7 +1847,7 @@ function CalculadoraInner() {
                         <span style={{ fontSize: '11.5px', color: '#374151' }}>{l2}</span>
                         <span style={{ fontSize: '11.5px', fontWeight: '700', color: '#374151' }}>{v2}</span>
                       </div>
-                    </>
+                    </Fragment>
                   ))}
                 </div>
               </div>
@@ -2291,7 +2291,7 @@ function CalculadoraInner() {
                           <span style={{ fontSize: '10.5px', color: '#374151' }}>{v1}</span>
                           <span style={{ fontSize: '10.5px', fontWeight: '700', color: '#15803D' }}>{v2}</span>
                         </div>
-                      </>
+                      </Fragment>
                     ))}
                     <div style={{ borderTop: '2px solid #d1d5db', marginTop: '6px', paddingTop: '6px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
