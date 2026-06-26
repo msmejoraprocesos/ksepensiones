@@ -1516,29 +1516,27 @@ function CalculadoraInner() {
       {/* ══ CARÁTULA DE BIENVENIDA ══ */}
       {mostrarCaratula && !clienteId && (
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F0F2F5' }}>
-          <div style={{ background: 'white', borderRadius: '20px', padding: '40px 36px', width: '360px', boxShadow: '0 8px 40px rgba(0,0,0,0.12)', textAlign: 'center' }}>
-            {/* Logo KSE */}
+          <div style={{ background: 'white', borderRadius: '20px', padding: '40px 36px', width: '400px', boxShadow: '0 8px 40px rgba(0,0,0,0.12)', textAlign: 'center' as const }}>
             <div style={{ background: '#F8FAFC', borderRadius: '12px', padding: '20px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ fontSize: '42px', fontWeight: '900', color: AZUL, letterSpacing: '-2px', fontFamily: 'Arial Black, sans-serif' }}>KSE<sup style={{ fontSize: '14px', verticalAlign: 'super' }}>®</sup></span>
             </div>
-            <p style={{ fontSize: '14px', color: '#374151', lineHeight: 1.6, margin: '0 0 24px' }}>
+            <p style={{ fontSize: '14px', color: '#374151', lineHeight: 1.6, margin: '0 0 20px' }}>
               Bienvenido a la calculadora de pensiones, para iniciar por favor adjunta la constancia de semanas cotizadas.
             </p>
-            <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '14px 20px', background: AZUL, color: 'white', borderRadius: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: '700' }}>
+            <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '14px 20px', background: AZUL, color: 'white', borderRadius: '10px', cursor: 'pointer', fontSize: '14px', fontWeight: '700', marginBottom: '10px' }}>
               📎 Constancia Semanas Cotizadas
               <input type="file" accept=".pdf" style={{ display: 'none' }} onChange={e => {
                 const f = e.target.files?.[0]
                 if (f) { setMostrarCaratula(false); extraerPDF(f) }
               }} />
             </label>
-            <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-              <button onClick={() => { setMostrarCaratula(false); setShowClienteModal(true) }} style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>
-                Seleccionar cliente
-              </button>
-              <a href="/" style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#94a3b8', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', fontWeight: '600', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                ← Mi día
-              </a>
-            </div>
+            <button onClick={() => { setMostrarCaratula(false); setShowClienteModal(true) }}
+              style={{ width: '100%', padding: '12px', background: '#F8FAFC', color: '#374151', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: '600', fontFamily: 'inherit', marginBottom: '8px' }}>
+              👤 Seleccionar cliente existente
+            </button>
+            <a href="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px', color: '#94a3b8', fontSize: '12px', textDecoration: 'none' }}>
+              ← Salir — ir a mi día
+            </a>
             <p style={{ fontSize: '10px', color: '#cbd5e1', margin: '20px 0 0' }}>Powered by KSE Pensiones</p>
           </div>
         </div>
@@ -1549,7 +1547,7 @@ function CalculadoraInner() {
         <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
 
           {/* ── Panel izquierdo fijo ── */}
-          <div style={{ width: '280px', flexShrink: 0, background: 'white', borderRight: '1px solid #e2e8f0', overflowY: 'auto', padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ width: '320px', flexShrink: 0, background: 'white', borderRight: '1px solid #e2e8f0', overflowY: 'auto', padding: '16px 16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <h2 style={{ fontSize: '15px', fontWeight: '800', color: AZUL, margin: 0, paddingBottom: '10px', borderBottom: `2px solid ${AZUL}` }}>Calculadora de Pensión</h2>
             <div>
               <p style={{ fontSize: '10px', fontWeight: '800', color: AZUL, textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 8px' }}>Generales del trabajador:</p>
@@ -1642,20 +1640,26 @@ function CalculadoraInner() {
                   <span style={{ fontSize: '12px', color: '#92400e', fontWeight: '600' }}>⚠️ Selecciona un cliente para iniciar el diagnóstico</span>
                 </div>
               )}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 14px', gap: '10px', overflowX: 'auto' }}>
-                <p style={{ fontSize: '13px', fontWeight: '700', color: '#1e293b', margin: 0, whiteSpace: 'nowrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', gap: '10px', overflowX: 'auto' }}>
+                <p style={{ fontSize: '14px', fontWeight: '700', color: '#1e293b', margin: 0, whiteSpace: 'nowrap' }}>
                   {TABS[tab]}
-                  {clienteSeleccionado && <span style={{ color: AZUL, fontWeight: '600', fontSize: '11px' }}> · {clienteSeleccionado.nombre}</span>}
+                  {clienteSeleccionado && <span style={{ color: AZUL, fontWeight: '600', fontSize: '12px' }}> · {clienteSeleccionado.nombre}</span>}
+                  {diagGuardadoId && <span style={{ color: estatus === 'autorizado' ? VERDE : '#f59e0b', fontWeight: '600', fontSize: '11px' }}> · {estatus === 'autorizado' ? '✅ Autorizado' : '📝 Borrador'}</span>}
                 </p>
                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
-                  <select value={clienteId} onChange={e => { if (analisis.length > 0 || diagGuardadoId) { setPendingClienteId(e.target.value); setShowConfirmCambio(true) } else { setClienteId(e.target.value); setDiagGuardadoId(null); setEstatus('borrador') } }} style={{ ...inputSt, minWidth: '140px', fontSize: '11px', padding: '5px 8px', height: '30px', borderColor: !clienteId ? '#f97316' : '#e2e8f0' }}>
+                  <select value={clienteId} onChange={e => { if (analisis.length > 0 || diagGuardadoId) { setPendingClienteId(e.target.value); setShowConfirmCambio(true) } else { setClienteId(e.target.value); setDiagGuardadoId(null); setEstatus('borrador') } }} style={{ ...inputSt, minWidth: '150px', fontSize: '12px', padding: '6px 10px', height: '32px', borderColor: !clienteId ? '#f97316' : '#e2e8f0' }}>
                     <option value="">— Seleccionar cliente —</option>
                     {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
                   </select>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '0 10px', height: '30px', border: '1px solid #e2e8f0', cursor: extracting ? 'not-allowed' : 'pointer', fontSize: '11px', fontWeight: '600', color: AZUL, background: '#EEF2F8', whiteSpace: 'nowrap', boxSizing: 'border-box' as const }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '0 12px', height: '32px', border: '1px solid #e2e8f0', cursor: extracting ? 'not-allowed' : 'pointer', fontSize: '12px', fontWeight: '600', color: AZUL, background: '#EEF2F8', whiteSpace: 'nowrap', boxSizing: 'border-box' as const }}>
                     {extracting ? '⏳ Extrayendo...' : '📄 Cargar constancia'}
                     <input ref={fileRef} type="file" accept=".pdf" style={{ display: 'none' }} disabled={extracting} onChange={e => { const f = e.target.files?.[0]; if (f) extraerPDF(f) }} />
                   </label>
+                  {sdiPromedio > 0 && (
+                    <button onClick={generarAnalisisIA} disabled={!clienteId} style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '0 12px', height: '32px', border: '1px solid #8b5cf6', cursor: clienteId ? 'pointer' : 'not-allowed', fontSize: '12px', fontWeight: '600', color: 'white', background: '#7c3aed', whiteSpace: 'nowrap', opacity: clienteId ? 1 : 0.5, fontFamily: 'inherit' }}>
+                      ✨ Análisis IA
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -1678,7 +1682,7 @@ function CalculadoraInner() {
             </div>
 
             {/* Contenido de la pestaña actual */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '16px', background: '#FAFAFA' }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '18px 20px', background: '#FAFAFA', fontSize: '13px' }}>
 
         {/* ══ TAB 0: DATOS GENERALES — Slide 2 ══════════════════════ */}
         {tab === 0 && (() => {
