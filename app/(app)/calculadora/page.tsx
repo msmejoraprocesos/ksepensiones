@@ -1319,7 +1319,8 @@ function CalculadoraInner() {
   // ══════════════════════════════════════════════════════════════════
 
   // Panel izquierdo fijo — visible en todas las pestañas
-  const panelIzquierdo = (
+  function renderPanelIzquierdo() {
+    return (
     <div style={{ width: '280px', flexShrink: 0, background: 'white', borderRight: '1px solid #e2e8f0', overflowY: 'auto', padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
       <h2 style={{ fontSize: '15px', fontWeight: '800', color: AZUL, margin: 0, paddingBottom: '10px', borderBottom: `2px solid ${AZUL}` }}>Calculadora de Pensión</h2>
 
@@ -1444,6 +1445,7 @@ function CalculadoraInner() {
       </div>
     </div>
   )
+  }
 
   // Barra de KPIs superior derecha
   function renderKpiBar() {
@@ -1476,7 +1478,8 @@ function CalculadoraInner() {
   }
 
   // Tab bar — radio buttons como en el mockup
-  const tabBarNuevo = (
+  function renderTabBar() {
+    return (
     <div style={{ display: 'flex', gap: '0', borderTop: '1px solid #e2e8f0', background: '#F8FAFC', flexShrink: 0, padding: '8px 12px', overflowX: 'auto', alignItems: 'center', justifyContent: 'center' }}>
       {TABS.map((t, i) => (
         <button key={i} onClick={() => setTab(i)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', border: 'none', cursor: 'pointer', background: 'transparent', fontFamily: 'inherit' }}>
@@ -1488,6 +1491,7 @@ function CalculadoraInner() {
       ))}
     </div>
   )
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 48px)', overflow: 'hidden' }}>
@@ -1842,7 +1846,7 @@ function CalculadoraInner() {
         <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
 
           {/* ── Panel izquierdo fijo ── */}
-          {panelIzquierdo}
+          {renderPanelIzquierdo()}
 
           {/* ── Panel derecho dinámico ── */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -2605,7 +2609,7 @@ function CalculadoraInner() {
             </div>{/* fin overflowY */}
 
             {/* Tab bar en la parte inferior */}
-            {tabBarNuevo}
+            {renderTabBar()}
 
           </div>{/* fin panel derecho */}
         </div>
