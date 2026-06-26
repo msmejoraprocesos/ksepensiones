@@ -1313,40 +1313,6 @@ function CalculadoraInner() {
     </div>
   )
 
-  const tabBar = (
-    <div style={{ display: 'flex', gap: '4px', borderBottom: '1px solid #e2e8f0', overflowX: 'auto', background: 'white', flexShrink: 0, padding: '8px 20px', alignItems: 'center' }}>
-      {TABS.map((t, i) => (
-        <button key={i} onClick={() => setTab(i)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '7px', padding: '6px 12px 6px 8px',
-            borderRadius: '20px', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap',
-            background: tab === i ? '#FFF1EC' : 'transparent',
-            transition: 'background 0.15s',
-          }}>
-          <span style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            width: '20px', height: '20px', borderRadius: '50%', fontSize: '10px', fontWeight: '700',
-            background: i < tab ? VERDE : tab === i ? NARANJA : '#e2e8f0',
-            color: i <= tab ? 'white' : '#94a3b8',
-            flexShrink: 0,
-          }}>
-            {i < tab ? '✓' : i + 1}
-          </span>
-          <span style={{ fontSize: '12px', fontWeight: tab === i ? '700' : '500', color: tab === i ? NARANJA : i < tab ? '#374151' : '#94a3b8' }}>
-            {t}
-          </span>
-        </button>
-      ))}
-    </div>
-  )
-
-  const navButtons = (prev?: () => void, next?: () => void, nextLabel = 'Siguiente →') => (
-    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px' }}>
-      {prev ? <button onClick={prev} className="btn-secondary" style={btnSecondary}>← Anterior</button> : <div />}
-      {next && <button onClick={next} className="btn-primary" style={btnPrimary}>{nextLabel}</button>}
-    </div>
-  )
-
 
   // ══════════════════════════════════════════════════════════════════
   // RENDER
