@@ -435,7 +435,7 @@ function CalculadoraInner() {
     'Inversión',
   ]
   // Carátula: se muestra solo cuando no hay datos cargados y no hay cliente pre-seleccionado
-  const [mostrarCaratula, setMostrarCaratula] = useState(false)
+  const [mostrarCaratula, setMostrarCaratula] = useState(true)
 
   // Tab 1 state
   const [datos, setDatos] = useState<DatosGenerales>(DEFAULT_DATOS)
@@ -1483,75 +1483,80 @@ function CalculadoraInner() {
       )}
 
       {/* ══ CARÁTULA DE BIENVENIDA ══ */}
-      {mostrarCaratula && !clienteId && (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F0F2F5' }}>
-          <div style={{ background: 'white', borderRadius: '16px', padding: '36px 32px', width: '440px', boxShadow: '0 8px 40px rgba(0,0,0,0.12)' }}>
-            {/* Logo */}
-            <div style={{ background: '#F8FAFC', borderRadius: '10px', padding: '16px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: '38px', fontWeight: '900', color: AZUL, letterSpacing: '-2px', fontFamily: 'Arial Black, sans-serif' }}>KSE<sup style={{ fontSize: '13px', verticalAlign: 'super' }}>®</sup></span>
-            </div>
-            <h2 style={{ fontSize: '18px', fontWeight: '800', color: AZUL, textAlign: 'center' as const, margin: '0 0 4px' }}>Calculadora de pensión</h2>
-            <p style={{ fontSize: '12px', color: '#9CA3AF', textAlign: 'center' as const, margin: '0 0 24px' }}>
-              Selecciona un <strong>Prospecto</strong> o cliente en <strong>Diagnóstico</strong>, o registra uno nuevo.
-            </p>
-
-            {/* Selector de cliente */}
-            <div style={{ marginBottom: '10px' }}>
-              <label style={{ fontSize: '11px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Cliente</label>
-              <input
-                value={buscarCliente}
-                onChange={e => setBuscarCliente(e.target.value)}
-                placeholder="🔍 Buscar cliente..."
-                style={{ width: '100%', padding: '9px 12px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', outline: 'none' }}
-              />
-            </div>
-            {buscarCliente.length > 0 && (
-              <div style={{ border: '1px solid #D1D5DB', borderTop: 'none', maxHeight: '180px', overflowY: 'auto', marginBottom: '12px' }}>
-                {clientes.filter(c => c.nombre.toLowerCase().includes(buscarCliente.toLowerCase())).length === 0
-                  ? <div style={{ padding: '12px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: '12px' }}>Sin resultados</div>
-                  : clientes.filter(c => c.nombre.toLowerCase().includes(buscarCliente.toLowerCase())).map(c => (
-                    <button key={c.id} onClick={() => { setClienteId(c.id); setBuscarCliente(c.nombre); setMostrarCaratula(false) }}
-                      style={{ width: '100%', padding: '10px 14px', background: 'white', border: 'none', borderBottom: '1px solid #F3F4F6', cursor: 'pointer', textAlign: 'left' as const, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <div style={{ width: '30px', height: '30px', background: '#EEF2F8', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '700', color: AZUL, flexShrink: 0 }}>
-                        {c.nombre.charAt(0).toUpperCase()}
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: '13px', fontWeight: '600', color: '#1e293b' }}>{c.nombre}</div>
-                        <div style={{ fontSize: '11px', color: '#9CA3AF' }}>{c.telefono ?? ''}</div>
-                      </div>
-                      <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 8px', background: c.etapa_kanban === 'diagnostico' ? '#EEF7F1' : '#EEF2F8', color: c.etapa_kanban === 'diagnostico' ? '#2E8B57' : AZUL }}>
-                        {c.etapa_kanban === 'diagnostico' ? 'Diagnóstico' : 'Prospecto'}
-                      </span>
-                    </button>
-                  ))
-                }
+      {/* ══ MODAL BLOQUEANTE: Selección de cliente / carga constancia ══ */}
+      {mostrarCaratula && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(2px)' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: '460px', boxShadow: '0 24px 64px rgba(0,0,0,0.25)', overflow: 'hidden' }}>
+            {/* Header */}
+            <div style={{ background: AZUL, padding: '24px 28px 20px', textAlign: 'center' as const }}>
+              <div style={{ fontSize: '32px', fontWeight: '900', color: 'white', letterSpacing: '-1px', fontFamily: 'Arial Black, sans-serif', marginBottom: '6px' }}>
+                KSE<sup style={{ fontSize: '13px', verticalAlign: 'super' }}>®</sup>
               </div>
-            )}
-
-            {/* Separador */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '4px 0 14px' }}>
-              <div style={{ flex: 1, borderTop: '1px solid #E5E7EB' }} />
-              <span style={{ fontSize: '11px', color: '#9CA3AF' }}>o sube la constancia directamente</span>
-              <div style={{ flex: 1, borderTop: '1px solid #E5E7EB' }} />
+              <h2 style={{ fontSize: '16px', fontWeight: '700', color: 'white', margin: '0 0 4px' }}>Calculadora de Pensión</h2>
+              <p style={{ fontSize: '12px', color: '#93C5FD', margin: 0 }}>
+                Selecciona un <strong style={{ color: 'white' }}>Prospecto</strong> o cliente en <strong style={{ color: 'white' }}>Diagnóstico</strong>, o registra uno nuevo.
+              </p>
             </div>
 
-            {/* Cargar constancia */}
-            <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', padding: '13px 20px', background: AZUL, color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: '700', marginBottom: '10px', width: '100%', boxSizing: 'border-box' as const }}>
-              📎 Cargar Constancia Semanas Cotizadas
-              <input type="file" accept=".pdf" style={{ display: 'none' }} onChange={e => {
-                const f = e.target.files?.[0]
-                if (f) { setMostrarCaratula(false); extraerPDF(f) }
-              }} />
-            </label>
+            <div style={{ padding: '20px 24px 24px' }}>
+              {/* Buscador */}
+              <div style={{ position: 'relative', marginBottom: '4px' }}>
+                <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', fontSize: '14px' }}>🔍</span>
+                <input
+                  value={buscarCliente}
+                  onChange={e => setBuscarCliente(e.target.value)}
+                  placeholder="Buscar cliente..."
+                  autoFocus
+                  style={{ width: '100%', padding: '10px 12px 10px 32px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', outline: 'none' }}
+                />
+              </div>
 
-            {/* Registrar nuevo + Salir */}
-            <a href="/clientes?nuevo=1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '11px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', fontWeight: '600', textDecoration: 'none', marginBottom: '6px' }}>
-              ＋ Registrar nuevo cliente
-            </a>
-            <a href="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px', color: '#9CA3AF', fontSize: '12px', textDecoration: 'none' }}>
-              ← Salir — ir a mi día
-            </a>
-            <p style={{ fontSize: '10px', color: '#D1D5DB', textAlign: 'center' as const, margin: '16px 0 0' }}>Powered by KSE Pensiones</p>
+              {/* Lista */}
+              <div style={{ border: '1px solid #E5E7EB', borderTop: 'none', maxHeight: '220px', overflowY: 'auto', marginBottom: '16px' }}>
+                {clientes.filter(c => c.nombre.toLowerCase().includes(buscarCliente.toLowerCase())).map(c => (
+                  <button key={c.id} onClick={() => { setClienteId(c.id); setBuscarCliente(''); setMostrarCaratula(false) }}
+                    style={{ width: '100%', padding: '10px 14px', background: 'white', border: 'none', borderBottom: '1px solid #F3F4F6', cursor: 'pointer', textAlign: 'left' as const, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ width: '32px', height: '32px', background: '#EEF2F8', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '700', color: AZUL }}>
+                      {c.nombre.charAt(0).toUpperCase()}
+                    </div>
+                    <div style={{ flex: 1, textAlign: 'left' as const }}>
+                      <div style={{ fontSize: '13px', fontWeight: '600', color: '#1e293b' }}>{c.nombre}</div>
+                      <div style={{ fontSize: '11px', color: '#9CA3AF' }}>{c.telefono ?? ''}</div>
+                    </div>
+                    <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 10px', background: c.etapa_kanban === 'diagnostico' ? '#DCFCE7' : '#EEF2F8', color: c.etapa_kanban === 'diagnostico' ? '#15803D' : AZUL, flexShrink: 0 }}>
+                      {c.etapa_kanban === 'diagnostico' ? 'Diagnóstico' : 'Prospecto'}
+                    </span>
+                  </button>
+                ))}
+                {clientes.filter(c => c.nombre.toLowerCase().includes(buscarCliente.toLowerCase())).length === 0 && (
+                  <div style={{ padding: '16px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: '12px' }}>Sin resultados</div>
+                )}
+              </div>
+
+              {/* Separador */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                <div style={{ flex: 1, borderTop: '1px solid #E5E7EB' }} />
+                <span style={{ fontSize: '11px', color: '#9CA3AF', whiteSpace: 'nowrap' }}>o carga la constancia directamente</span>
+                <div style={{ flex: 1, borderTop: '1px solid #E5E7EB' }} />
+              </div>
+
+              {/* Cargar constancia */}
+              <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px', background: AZUL, color: 'white', cursor: 'pointer', fontSize: '13px', fontWeight: '700', marginBottom: '10px', width: '100%', boxSizing: 'border-box' as const }}>
+                📎 Constancia Semanas Cotizadas
+                <input type="file" accept=".pdf" style={{ display: 'none' }} onChange={e => {
+                  const f = e.target.files?.[0]
+                  if (f) { setMostrarCaratula(false); extraerPDF(f) }
+                }} />
+              </label>
+
+              {/* Registrar nuevo */}
+              <a href="/clientes?nuevo=1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '11px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', fontWeight: '600', textDecoration: 'none', marginBottom: '8px' }}>
+                ＋ Registrar nuevo cliente
+              </a>
+              <a href="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px', color: '#9CA3AF', fontSize: '12px', textDecoration: 'none' }}>
+                ← Salir — ir a mi día
+              </a>
+            </div>
           </div>
         </div>
       )}
