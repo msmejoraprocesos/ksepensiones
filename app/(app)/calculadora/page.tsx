@@ -1224,62 +1224,6 @@ function CalculadoraInner() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 48px)', overflow: 'hidden' }}>
 
-      {/* ── Modal selección de cliente (bloqueante) ── */}
-      {showClienteModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '480px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
-            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-              <div style={{ fontSize: '36px', marginBottom: '8px' }}>🧮</div>
-              <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#1B3A6B', margin: '0 0 6px' }}>Calculadora de pensión</h2>
-              <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>Selecciona un <strong>Prospecto</strong> o cliente en <strong>Diagnóstico</strong>, o registra uno nuevo.</p>
-            </div>
-
-            {/* Buscar cliente */}
-            <div style={{ marginBottom: '12px' }}>
-              <input
-                value={buscarCliente}
-                onChange={e => setBuscarCliente(e.target.value)}
-                placeholder="🔍 Buscar cliente..."
-                style={{ width: '100%', padding: '9px 12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box', fontFamily: 'inherit' }}
-              />
-            </div>
-
-            {/* Lista de clientes */}
-            <div style={{ maxHeight: '200px', overflowY: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px', marginBottom: '12px' }}>
-              {clientes.filter(c => c.nombre.toLowerCase().includes(buscarCliente.toLowerCase())).length === 0 ? (
-                <div style={{ padding: '16px', textAlign: 'center', color: '#94a3b8', fontSize: '13px' }}>Sin resultados</div>
-              ) : (
-                clientes.filter(c => c.nombre.toLowerCase().includes(buscarCliente.toLowerCase())).map(c => (
-                  <button key={c.id} onClick={() => { setClienteId(c.id); setShowClienteModal(false); setBuscarCliente(''); setMostrarCaratula(false) }}
-                    style={{ width: '100%', padding: '10px 14px', background: 'none', border: 'none', borderBottom: '1px solid #f1f5f9', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div style={{ width: '28px', height: '28px', background: '#EEF2F8', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '700', color: '#1B3A6B', flexShrink: 0 }}>
-                      {c.nombre.charAt(0).toUpperCase()}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '13px', fontWeight: '600', color: '#1e293b' }}>{c.nombre}</div>
-                      <div style={{ fontSize: '11px', color: '#94a3b8' }}>{c.telefono ?? ''}</div>
-                    </div>
-                    <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px', background: c.etapa_kanban === 'diagnostico' ? '#EEF7F1' : '#EEF2F8', color: c.etapa_kanban === 'diagnostico' ? '#2E8B57' : '#1B3A6B', flexShrink: 0 }}>
-                      {c.etapa_kanban === 'diagnostico' ? 'Diagnóstico' : 'Prospecto'}
-                    </span>
-                  </button>
-                ))
-              )}
-            </div>
-
-            {/* Registrar nuevo */}
-            <a href="/clientes?nuevo=1"
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '11px', background: '#1B3A6B', color: 'white', borderRadius: '10px', textDecoration: 'none', fontSize: '13px', fontWeight: '700' }}>
-              ＋ Registrar nuevo cliente
-            </a>
-            <a href="/"
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '9px', background: '#F8FAFC', color: '#64748b', borderRadius: '10px', textDecoration: 'none', fontSize: '12px', fontWeight: '600', border: '1px solid #e2e8f0' }}>
-              ← Salir — ir a mi día
-            </a>
-          </div>
-        </div>
-      )}
-
       {/* ── Modal sugerencia de avance de etapa ── */}
       {showSugerirEtapa && (() => {
         const clienteActual = clientes.find(c => c.id === clienteId)
