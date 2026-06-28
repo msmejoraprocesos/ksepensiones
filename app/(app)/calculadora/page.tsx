@@ -1478,52 +1478,88 @@ function CalculadoraInner() {
       )}
 
       {/* ══ CARÁTULA DE BIENVENIDA ══ */}
-      {/* ══ MODAL 1: Bienvenida — botones estáticos, abre instantáneo ══ */}
+      {/* ══ MODAL 1: Bienvenida — ambos campos obligatorios ══ */}
       {mostrarCaratula && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(2px)' }}>
           <div style={{ background: 'white', width: '100%', maxWidth: '400px', boxShadow: '0 24px 64px rgba(0,0,0,0.25)', overflow: 'hidden' }}>
+
             {/* Header azul */}
-            <div style={{ background: AZUL, padding: '28px 28px 22px', textAlign: 'center' as const }}>
-              <div style={{ fontSize: '34px', fontWeight: '900', color: 'white', letterSpacing: '-1px', fontFamily: 'Arial Black, sans-serif', marginBottom: '8px' }}>
-                KSE<sup style={{ fontSize: '13px', verticalAlign: 'super' }}>®</sup>
+            <div style={{ background: AZUL, padding: '26px 28px 20px', textAlign: 'center' as const }}>
+              <div style={{ fontSize: '32px', fontWeight: '900', color: 'white', letterSpacing: '-1px', fontFamily: 'Arial Black, sans-serif', marginBottom: '6px' }}>
+                KSE<sup style={{ fontSize: '12px', verticalAlign: 'super' }}>®</sup>
               </div>
-              <h2 style={{ fontSize: '16px', fontWeight: '700', color: 'white', margin: '0 0 6px' }}>Calculadora de Pensión</h2>
-              <p style={{ fontSize: '12px', color: '#93C5FD', margin: 0, lineHeight: 1.5 }}>
-                Bienvenido, para iniciar adjunta la constancia de semanas cotizadas o selecciona un cliente.
-              </p>
+              <h2 style={{ fontSize: '15px', fontWeight: '700', color: 'white', margin: '0 0 4px' }}>Calculadora de Pensión</h2>
+              <p style={{ fontSize: '11px', color: '#93C5FD', margin: 0 }}>Completa los dos pasos para continuar</p>
             </div>
 
-            {/* Botones */}
-            <div style={{ padding: '24px' }}>
-              {/* Seleccionar cliente */}
-              <button onClick={() => setShowClienteModal(true)}
-                style={{ width: '100%', padding: '13px', background: 'white', color: AZUL, border: `2px solid ${AZUL}`, cursor: 'pointer', fontSize: '14px', fontWeight: '700', fontFamily: 'inherit', marginBottom: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                👤 Seleccionar cliente existente
-              </button>
+            <div style={{ padding: '20px 24px 24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
-              {/* Separador */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                <div style={{ flex: 1, borderTop: '1px solid #E5E7EB' }} />
-                <span style={{ fontSize: '11px', color: '#9CA3AF' }}>o</span>
-                <div style={{ flex: 1, borderTop: '1px solid #E5E7EB' }} />
+              {/* Paso 1: Cliente */}
+              <div style={{ border: `2px solid ${clienteId ? VERDE : '#E5E7EB'}`, padding: '14px 16px', background: clienteId ? '#F0FDF4' : 'white', transition: 'all 0.2s' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: clienteId ? '0' : '10px' }}>
+                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: clienteId ? VERDE : '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '13px', fontWeight: '700', color: 'white' }}>
+                    {clienteId ? '✓' : '1'}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ margin: 0, fontSize: '13px', fontWeight: '700', color: clienteId ? VERDE : '#374151' }}>
+                      {clienteId ? `Cliente: ${clientes.find(c => c.id === clienteId)?.nombre ?? ''}` : 'Seleccionar cliente'}
+                    </p>
+                    {!clienteId && <p style={{ margin: '1px 0 0', fontSize: '11px', color: '#9CA3AF' }}>Requerido</p>}
+                  </div>
+                  {clienteId && (
+                    <button onClick={() => setClienteId('')}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', color: '#9CA3AF', padding: '0 2px' }}>✕</button>
+                  )}
+                </div>
+                {!clienteId && (
+                  <button onClick={() => setShowClienteModal(true)}
+                    style={{ width: '100%', padding: '9px', background: 'white', color: AZUL, border: `1.5px solid ${AZUL}`, cursor: 'pointer', fontSize: '13px', fontWeight: '600', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                    👤 Seleccionar cliente existente
+                  </button>
+                )}
               </div>
 
-              {/* Cargar constancia */}
-              <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '13px', background: AZUL, color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: '700', marginBottom: '12px', width: '100%', boxSizing: 'border-box' as const }}>
-                📎 Constancia Semanas Cotizadas
-                <input type="file" accept=".pdf" style={{ display: 'none' }} onChange={e => {
-                  const f = e.target.files?.[0]
-                  if (f) { setMostrarCaratula(false); extraerPDF(f) }
-                }} />
-              </label>
+              {/* Paso 2: Constancia */}
+              <div style={{ border: `2px solid ${datos.semanas_totales > 0 ? VERDE : '#E5E7EB'}`, padding: '14px 16px', background: datos.semanas_totales > 0 ? '#F0FDF4' : 'white', transition: 'all 0.2s' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: datos.semanas_totales > 0 ? '0' : '10px' }}>
+                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: datos.semanas_totales > 0 ? VERDE : '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '13px', fontWeight: '700', color: 'white' }}>
+                    {datos.semanas_totales > 0 ? '✓' : '2'}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ margin: 0, fontSize: '13px', fontWeight: '700', color: datos.semanas_totales > 0 ? VERDE : '#374151' }}>
+                      {datos.semanas_totales > 0 ? `Constancia cargada — ${datos.semanas_totales} semanas` : 'Cargar constancia IMSS'}
+                    </p>
+                    {datos.semanas_totales === 0 && <p style={{ margin: '1px 0 0', fontSize: '11px', color: '#9CA3AF' }}>Requerido — PDF de semanas cotizadas</p>}
+                  </div>
+                </div>
+                {datos.semanas_totales === 0 && (
+                  <label style={{ width: '100%', padding: '9px', background: AZUL, color: 'white', cursor: extracting ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxSizing: 'border-box' as const, opacity: extracting ? 0.7 : 1 }}>
+                    {extracting ? '⏳ Extrayendo...' : '📎 Cargar Constancia Semanas Cotizadas'}
+                    <input type="file" accept=".pdf" style={{ display: 'none' }} disabled={extracting} onChange={e => {
+                      const f = e.target.files?.[0]
+                      if (f) extraerPDF(f)
+                    }} />
+                  </label>
+                )}
+              </div>
 
-              {/* Registrar nuevo */}
-              <a href="/clientes?nuevo=1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '11px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', fontWeight: '600', textDecoration: 'none', marginBottom: '8px' }}>
-                ＋ Registrar nuevo cliente
-              </a>
-              <a href="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px', color: '#9CA3AF', fontSize: '12px', textDecoration: 'none' }}>
-                ← Salir — ir a mi día
-              </a>
+              {/* Botón continuar */}
+              <button
+                onClick={() => setMostrarCaratula(false)}
+                disabled={!clienteId || datos.semanas_totales === 0}
+                style={{ width: '100%', padding: '13px', background: clienteId && datos.semanas_totales > 0 ? AZUL : '#E5E7EB', color: clienteId && datos.semanas_totales > 0 ? 'white' : '#9CA3AF', border: 'none', cursor: clienteId && datos.semanas_totales > 0 ? 'pointer' : 'not-allowed', fontSize: '14px', fontWeight: '700', fontFamily: 'inherit', transition: 'all 0.2s' }}>
+                {clienteId && datos.semanas_totales > 0 ? '→ Continuar a la calculadora' : 'Completa los dos pasos para continuar'}
+              </button>
+
+              {/* Registrar nuevo + Salir */}
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <a href="/clientes?nuevo=1" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '9px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600', textDecoration: 'none' }}>
+                  ＋ Nuevo cliente
+                </a>
+                <a href="/" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '9px', color: '#9CA3AF', border: '1px solid #E5E7EB', fontSize: '12px', textDecoration: 'none' }}>
+                  ← Mi día
+                </a>
+              </div>
             </div>
           </div>
         </div>
