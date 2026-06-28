@@ -1597,7 +1597,7 @@ function CalculadoraInner() {
             <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
               {clientes.filter(c => c.nombre.toLowerCase().includes(buscarCliente.toLowerCase())).map(c => (
                 <button key={c.id}
-                  onClick={() => { setClienteId(c.id); setBuscarCliente(''); setShowClienteModal(false); setMostrarCaratula(false) }}
+                  onClick={() => { setClienteId(c.id); setBuscarCliente(''); setShowClienteModal(false) }}
                   style={{ width: '100%', padding: '11px 16px', background: 'white', border: 'none', borderBottom: '1px solid #F3F4F6', cursor: 'pointer', textAlign: 'left' as const, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div style={{ width: '34px', height: '34px', background: '#EEF2F8', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: '700', color: AZUL }}>
                     {c.nombre.charAt(0).toUpperCase()}
