@@ -1499,39 +1499,50 @@ function CalculadoraInner() {
             </div>
 
             <div style={{ padding: '20px 24px 24px' }}>
-              {/* Buscador */}
-              <div style={{ position: 'relative', marginBottom: '4px' }}>
-                <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', fontSize: '14px' }}>🔍</span>
-                <input
-                  value={buscarCliente}
-                  onChange={e => setBuscarCliente(e.target.value)}
-                  placeholder="Buscar cliente..."
-                  autoFocus
-                  style={{ width: '100%', padding: '10px 12px 10px 32px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', outline: 'none' }}
-                />
-              </div>
 
-              {/* Lista */}
-              <div style={{ border: '1px solid #E5E7EB', borderTop: 'none', maxHeight: '220px', overflowY: 'auto', marginBottom: '16px' }}>
-                {clientes.filter(c => c.nombre.toLowerCase().includes(buscarCliente.toLowerCase())).map(c => (
-                  <button key={c.id} onClick={() => { setClienteId(c.id); setBuscarCliente(''); setMostrarCaratula(false) }}
-                    style={{ width: '100%', padding: '10px 14px', background: 'white', border: 'none', borderBottom: '1px solid #F3F4F6', cursor: 'pointer', textAlign: 'left' as const, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div style={{ width: '32px', height: '32px', background: '#EEF2F8', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '700', color: AZUL }}>
-                      {c.nombre.charAt(0).toUpperCase()}
-                    </div>
-                    <div style={{ flex: 1, textAlign: 'left' as const }}>
-                      <div style={{ fontSize: '13px', fontWeight: '600', color: '#1e293b' }}>{c.nombre}</div>
-                      <div style={{ fontSize: '11px', color: '#9CA3AF' }}>{c.telefono ?? ''}</div>
-                    </div>
-                    <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 10px', background: c.etapa_kanban === 'diagnostico' ? '#DCFCE7' : '#EEF2F8', color: c.etapa_kanban === 'diagnostico' ? '#15803D' : AZUL, flexShrink: 0 }}>
-                      {c.etapa_kanban === 'diagnostico' ? 'Diagnóstico' : 'Prospecto'}
-                    </span>
-                  </button>
-                ))}
-                {clientes.filter(c => c.nombre.toLowerCase().includes(buscarCliente.toLowerCase())).length === 0 && (
-                  <div style={{ padding: '16px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: '12px' }}>Sin resultados</div>
-                )}
-              </div>
+              {/* Lista de clientes — solo visible al hacer clic en el botón */}
+              {showClienteModal && (
+                <div style={{ marginBottom: '16px' }}>
+                  <div style={{ position: 'relative', marginBottom: '0' }}>
+                    <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', fontSize: '14px' }}>🔍</span>
+                    <input
+                      value={buscarCliente}
+                      onChange={e => setBuscarCliente(e.target.value)}
+                      placeholder="Buscar cliente..."
+                      autoFocus
+                      style={{ width: '100%', padding: '10px 12px 10px 32px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', outline: 'none' }}
+                    />
+                  </div>
+                  <div style={{ border: '1px solid #E5E7EB', borderTop: 'none', maxHeight: '220px', overflowY: 'auto' }}>
+                    {clientes.filter(c => c.nombre.toLowerCase().includes(buscarCliente.toLowerCase())).map(c => (
+                      <button key={c.id} onClick={() => { setClienteId(c.id); setBuscarCliente(''); setMostrarCaratula(false); setShowClienteModal(false) }}
+                        style={{ width: '100%', padding: '10px 14px', background: 'white', border: 'none', borderBottom: '1px solid #F3F4F6', cursor: 'pointer', textAlign: 'left' as const, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ width: '32px', height: '32px', background: '#EEF2F8', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '700', color: AZUL }}>
+                          {c.nombre.charAt(0).toUpperCase()}
+                        </div>
+                        <div style={{ flex: 1, textAlign: 'left' as const }}>
+                          <div style={{ fontSize: '13px', fontWeight: '600', color: '#1e293b' }}>{c.nombre}</div>
+                          <div style={{ fontSize: '11px', color: '#9CA3AF' }}>{c.telefono ?? ''}</div>
+                        </div>
+                        <span style={{ fontSize: '10px', fontWeight: '700', padding: '2px 10px', background: c.etapa_kanban === 'diagnostico' ? '#DCFCE7' : '#EEF2F8', color: c.etapa_kanban === 'diagnostico' ? '#15803D' : AZUL, flexShrink: 0 }}>
+                          {c.etapa_kanban === 'diagnostico' ? 'Diagnóstico' : 'Prospecto'}
+                        </span>
+                      </button>
+                    ))}
+                    {clientes.filter(c => c.nombre.toLowerCase().includes(buscarCliente.toLowerCase())).length === 0 && (
+                      <div style={{ padding: '16px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: '12px' }}>Sin resultados</div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Botón seleccionar cliente */}
+              {!showClienteModal && (
+                <button onClick={() => setShowClienteModal(true)}
+                  style={{ width: '100%', padding: '12px', background: '#F8FAFC', color: AZUL, border: `2px solid ${AZUL}`, cursor: 'pointer', fontSize: '13px', fontWeight: '700', fontFamily: 'inherit', marginBottom: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  👤 Seleccionar cliente existente
+                </button>
+              )}
 
               {/* Separador */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
