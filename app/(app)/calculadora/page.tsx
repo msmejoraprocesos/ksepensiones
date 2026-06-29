@@ -2950,9 +2950,9 @@ function CalculadoraInner() {
                   {[
                     { label: 'Recuperación AFORE (20%)', value: fmtMXN2(escRec?.recuperacion_afore ?? 0) },
                     { label: 'Inversión neta', value: fmtMXN2(escRec?.inversion_neta ?? 0), critical: true },
-                    { label: 'Meses para recuperar inversión', value: escRec?.roi_meses?.toFixed(2) + ' meses' ?? '—' },
+                    { label: 'Meses para recuperar inversión', value: (escRec?.roi_meses != null ? escRec.roi_meses.toFixed(2) + ' meses' : '—') },
                     { label: 'Ganancia a los 80 años', value: fmtMXN2(escRec?.ganancia_a80 ?? 0), critical: true },
-                    { label: 'Tasa de rendimiento', value: (escRec?.tasa_rendimiento?.toFixed(2) ?? '—') + '%' },
+                    { label: 'Tasa de rendimiento', value: (escRec?.tasa_rendimiento != null ? escRec.tasa_rendimiento.toFixed(2) + '%' : '—') },
                   ].map(({ label, value, critical }, i) => (
                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #F3F4F6' }}>
                       <span style={{ fontSize: '12px', color: '#6B7280' }}>{label}</span>
@@ -2973,9 +2973,9 @@ function CalculadoraInner() {
                     { label: 'Recargos por mora (~41.80%)', value: fmtMXN2(escRec?.recargos ?? 0) },
                     { label: 'Recuperación AFORE retroactivo', value: fmtMXN2(escRec?.recuperacion_afore_retro ?? 0) },
                     { label: 'Inversión neta retroactiva', value: fmtMXN2(escRec?.inversion_neta_retro ?? 0), critical: true },
-                    { label: 'ROI retroactivo (meses)', value: escRec?.roi_retro?.toFixed(2) + ' meses' ?? '—' },
+                    { label: 'ROI retroactivo (meses)', value: (escRec?.roi_retro != null ? escRec.roi_retro.toFixed(2) + ' meses' : '—') },
                     { label: 'Ganancia retroactiva a 80 años', value: fmtMXN2(escRec?.ganancia_a80_retro ?? 0) },
-                    { label: 'Tasa retroactiva', value: (escRec?.tasa_rendimiento_retro?.toFixed(2) ?? '—') + '%' },
+                    { label: 'Tasa retroactiva', value: (escRec?.tasa_rendimiento_retro != null ? escRec.tasa_rendimiento_retro.toFixed(2) + '%' : '—') },
                   ].map(({ label, value, critical }, i) => (
                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #F3F4F6' }}>
                       <span style={{ fontSize: '12px', color: '#6B7280' }}>{label}</span>
@@ -3064,9 +3064,9 @@ function CalculadoraInner() {
                           { label: 'Costo total (MXN)', fn: (e: any) => fmtMXN2(e.costo_total) },
                           { label: 'Recuperación AFORE', fn: (e: any) => fmtMXN2(e.recuperacion_afore) },
                           { label: 'Inversión neta', fn: (e: any) => fmtMXN2(e.inversion_neta), highlight: true },
-                          { label: 'Récup. inversión (meses)', fn: (e: any) => e.roi_meses?.toFixed(2) ?? '—' },
+                          { label: 'Récup. inversión (meses)', fn: (e: any) => (e.roi_meses != null ? e.roi_meses.toFixed(2) : '—') },
                           { label: 'Ganancia a 80 años', fn: (e: any) => fmtMXN2(e.ganancia_a80), highlight: true },
-                          { label: 'Tasa de rendimiento', fn: (e: any) => (e.tasa_rendimiento?.toFixed(2) ?? '—') + '%' },
+                          { label: 'Tasa de rendimiento', fn: (e: any) => (e.tasa_rendimiento != null ? e.tasa_rendimiento.toFixed(2) + '%' : '—') },
                           { label: 'Aguinaldo anual', fn: (e: any) => fmtMXN2(e.aguinaldo_anual) },
                         ].map((row, ri) => (
                           <tr key={ri} style={{ background: row.highlight ? '#EEF2F8' : ri % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
@@ -3356,7 +3356,7 @@ function CalculadoraInner() {
                     {[
                       { label: 'ROI (meses)', value: escRec.roi_financiado?.toFixed(2) ?? '—' },
                       { label: 'Ganancia a 80 años', value: fmtMXN(escRec.ganancia_a80_financiado ?? 0) },
-                      { label: 'Tasa de rendimiento', value: (escRec.tasa_rendimiento_financiado?.toFixed(2) ?? '—') + '%' },
+                      { label: 'Tasa de rendimiento', value: (escRec.tasa_rendimiento_financiado != null ? escRec.tasa_rendimiento_financiado.toFixed(2) + '%' : '—') },
                     ].map(({ label, value }, i) => (
                       <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid #DBEAFE' }}>
                         <span style={{ fontSize: '11.5px', color: '#6B7280' }}>{label}</span>
@@ -3430,9 +3430,9 @@ function CalculadoraInner() {
                       { label: 'Costo total mes a mes', fn: (e: any) => fmtMXN2(e.costo_total), highlight: true },
                       { label: 'Recuperación AFORE (20%)', fn: (e: any) => fmtMXN2(e.recuperacion_afore) },
                       { label: 'Inversión real neta', fn: (e: any) => fmtMXN2(e.inversion_neta), highlight: true },
-                      { label: 'Meses para recuperar', fn: (e: any) => e.roi_meses?.toFixed(1) + ' meses' || '—' },
+                      { label: 'Meses para recuperar', fn: (e: any) => (e.roi_meses != null ? e.roi_meses.toFixed(1) + ' meses' : '—') },
                       { label: 'Ganancia a 80 años', fn: (e: any) => fmtMXN2(e.ganancia_a80), highlight: true },
-                      { label: 'Tasa de rendimiento', fn: (e: any) => e.tasa_rendimiento?.toFixed(2) + '%' || '—' },
+                      { label: 'Tasa de rendimiento', fn: (e: any) => (e.tasa_rendimiento != null ? e.tasa_rendimiento.toFixed(2) + '%' : '—') },
                     ]},
                     { section: '3. Costo Retroactivo', color: '#7C3AED', rows: [
                       { label: 'Costo retroactivo estimado', fn: (e: any) => fmtMXN2(e.costo_retroactivo), highlight: true },
