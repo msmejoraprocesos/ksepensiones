@@ -425,6 +425,47 @@ function CalculadoraInner() {
 
   // Tab state
   const [tab, setTab] = useState(0)
+  // ── Glosario de términos ─────────────────────────────────────
+  const GLOSARIO: Record<string, { titulo: string; desc: string; ejemplo?: string }> = {
+    sdi: { titulo: 'SDI — Salario Diario Integrado', desc: 'El salario real que considera IMSS para el cálculo de la pensión. Incluye sueldo base, partes proporcionales de aguinaldo, vacaciones y prima vacacional.', ejemplo: 'Si ganas $15,000/mes tu SDI diario es aprox. $547/día.' },
+    sdi250: { titulo: 'SDI Promedio 250 Semanas', desc: 'El IMSS calcula la pensión sobre el promedio del SDI de las últimas 250 semanas cotizadas (~5 años), no sobre el salario actual. Si en esos 5 años tu salario fue menor, tu pensión será menor.', ejemplo: 'Art. 167 LSS 1973.' },
+    mod40: { titulo: 'Modalidad 40', desc: 'Permite cotizar voluntariamente ante el IMSS con un salario mayor al actual para incrementar el promedio de las 250 semanas. Es el instrumento clave para mejorar la pensión.', ejemplo: 'Se puede cotizar entre 1 y 25 UMAs diarias.' },
+    uma: { titulo: 'UMA — Unidad de Medida y Actualización', desc: 'Es la referencia económica en pesos que actualiza el IMSS anualmente. En 2024 es $108.57/día. En Modalidad 40, cotizas en múltiplos de UMA.', ejemplo: 'Cotizar a 10 UMAs = $1,085.70/día de SDI registrado.' },
+    pmg: { titulo: 'PMG — Pensión Mínima Garantizada', desc: 'El Estado garantiza que ningún pensionado bajo Ley 73 reciba menos de cierta cantidad mensual, aunque el cálculo dé un monto menor.', ejemplo: `En 2024: $${(4345.72).toLocaleString('es-MX')}/mes aprox.` },
+    cuantia: { titulo: 'Cuantía Básica de Pensión', desc: 'Porcentaje del SDI promedio que corresponde por las primeras 500 semanas cotizadas. La base del cálculo de la pensión.', ejemplo: '500 sem. = 35% del SDI. Cada 52 sem. adicionales suman 1.25%.' },
+    incrementos: { titulo: 'Incrementos Anuales', desc: 'Por cada 52 semanas de cotización adicionales a las primeras 500, la pensión se incrementa en 1.25% del SDI promedio.', ejemplo: '600 semanas = 35% + (100/52 × 1.25%) = 37.4%' },
+    asignaciones: { titulo: 'Asignaciones Familiares', desc: 'Incremento a la pensión por dependientes económicos: cónyuge/concubino (15%), hijos < 16 años (10% c/u), padres (10% c/u, si no hay cónyuge).', ejemplo: 'Con cónyuge e 1 hijo: +25% sobre pensión.' },
+    ayuda165: { titulo: 'Ayuda Asistencial (Art. 165 LSS)', desc: 'Cuando el pensionado no tiene cónyuge ni hijos ni padres dependientes, tiene derecho a un incremento adicional del 15% sobre la pensión.', ejemplo: 'Pensión de $5,000 → recibe $5,750 con Art. 165.' },
+    conservacion: { titulo: 'Conservación de Derechos', desc: 'Derecho a pensionarse que se mantiene aunque el trabajador deje de cotizar. Requiere haber cotizado mínimo 250 semanas. El derecho se conserva por un tiempo equivalente a la mitad del período cotizado.', ejemplo: 'Con 500 sem., derechos vigentes por 250 semanas adicionales.' },
+    retroactivo: { titulo: 'Pago Retroactivo (Mod. 40)', desc: 'Permite pagar cuotas de períodos anteriores (hasta 5 años) para aumentar las semanas cotizadas. Incluye cuotas + actualizaciones INPC + recargos por mora.', ejemplo: 'Actualizaciones: ~7.27% anual. Recargos: ~41.80% acumulado.' },
+    roi: { titulo: 'ROI — Recuperación de Inversión', desc: 'Número de meses que tarda el pensionado en recuperar la inversión realizada en Modalidad 40 con la diferencia de pensión mensual adicional.', ejemplo: 'Inversión $300K ÷ Incremento $5K/mes = 60 meses de ROI.' },
+    factorEdad: { titulo: 'Factor por Edad de Retiro', desc: 'La pensión de cesantía en edad avanzada tiene un factor según la edad: 60 años=75%, 61=80%, 62=85%, 63=90%, 64=95%, 65+= 100% (pensión de vejez).', ejemplo: 'Retirarse a 62 en vez de 65 = 15% menos de pensión.' },
+  }
+
+  // ── Componente Tooltip ───────────────────────────────────────
+  const Tip = ({ id, children }: { id: string; children?: React.ReactNode }) => {
+    const g = GLOSARIO[id]
+    if (!g) return null
+    return (
+      <span style={{ position: 'relative' as const, display: 'inline-block' }}>
+        <button
+          onClick={() => setActiveTooltip(activeTooltip === id ? null : id)}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3B82F6', fontSize: '12px', padding: '0 2px', lineHeight: 1, fontFamily: 'inherit', verticalAlign: 'middle' }}
+          title={g.titulo}
+        >ⓘ</button>
+        {activeTooltip === id && (
+          <div style={{ position: 'absolute' as const, left: '50%', bottom: '120%', transform: 'translateX(-50%)', background: '#1e293b', color: 'white', padding: '10px 14px', fontSize: '11.5px', lineHeight: 1.6, width: '260px', zIndex: 999, boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}
+            onClick={e => e.stopPropagation()}>
+            <p style={{ fontWeight: '700' as const, margin: '0 0 6px', color: '#93C5FD', fontSize: '12px' }}>{g.titulo}</p>
+            <p style={{ margin: '0 0 4px', color: '#E2E8F0' }}>{g.desc}</p>
+            {g.ejemplo && <p style={{ margin: 0, color: '#94A3B8', fontStyle: 'italic' }}>Ejemplo: {g.ejemplo}</p>}
+            <div style={{ position: 'absolute' as const, bottom: '-6px', left: '50%', transform: 'translateX(-50%)', width: '12px', height: '12px', background: '#1e293b', clipPath: 'polygon(0 0, 100% 0, 50% 100%)' }} />
+          </div>
+        )}
+      </span>
+    )
+  }
+
   const TABS = [
     'Datos Generales',        // 0
     'Cuantías Anuales',       // 1
@@ -442,6 +483,8 @@ function CalculadoraInner() {
   // Carátula: se muestra solo cuando no hay datos cargados y no hay cliente pre-seleccionado
   const [mostrarCaratula, setMostrarCaratula] = useState(false)
   const [appInicializado, setAppInicializado] = useState(false)
+  const [activeTooltip, setActiveTooltip] = useState<string | null>(null)
+  const [showGuia, setShowGuia] = useState(false)
 
   // Tab 1 state
   const [datos, setDatos] = useState<DatosGenerales>(DEFAULT_DATOS)
@@ -1225,7 +1268,7 @@ function CalculadoraInner() {
 
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 48px)', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 48px)', overflow: 'hidden', position: 'relative' as const }} onClick={() => setActiveTooltip(null)}>
 
       {/* ── Modal sugerencia de avance de etapa ── */}
       {showSugerirEtapa && (() => {
@@ -1803,9 +1846,36 @@ function CalculadoraInner() {
                   {diagGuardadoId && <span style={{ color: estatus === 'autorizado' ? VERDE : '#f59e0b', fontWeight: '600' as const, fontSize: '12.5px' }}> · {estatus === 'autorizado' ? '✅ Autorizado' : '📝 Borrador'}</span>}
                 </p>
                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
+                  <button
+                    onClick={() => setShowGuia(!showGuia)}
+                    style={{ padding: '5px 10px', background: showGuia ? '#EEF2F8' : 'white', border: '1px solid #E5E7EB', cursor: 'pointer', fontSize: '11px', fontWeight: '600' as const, color: '#1B3A6B', fontFamily: 'inherit' }}
+                    title="Glosario de términos"
+                  >
+                    📖 Glosario
+                  </button>
                 </div>
               </div>
             </div>
+
+            {/* ── Panel glosario deslizable ── */}
+            {showGuia && (
+              <div style={{ position: 'absolute' as const, top: 0, right: 0, width: '300px', height: '100%', background: 'white', borderLeft: '2px solid #E5E7EB', zIndex: 50, overflowY: 'auto' as const, boxShadow: '-4px 0 20px rgba(0,0,0,0.1)' }}>
+                <div style={{ background: '#1B3A6B', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <p style={{ fontSize: '13px', fontWeight: '700' as const, color: 'white', margin: 0 }}>📖 Glosario de Términos</p>
+                  <button onClick={() => setShowGuia(false)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '18px', lineHeight: 1 }}>✕</button>
+                </div>
+                <div style={{ padding: '12px' }}>
+                  {Object.entries(GLOSARIO).map(([id, g]) => (
+                    <div key={id} style={{ padding: '10px 12px', marginBottom: '6px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderLeft: '3px solid #1B3A6B' }}>
+                      <p style={{ fontSize: '12px', fontWeight: '700' as const, color: '#1B3A6B', margin: '0 0 4px' }}>{g.titulo}</p>
+                      <p style={{ fontSize: '11.5px', color: '#374151', margin: '0 0 4px', lineHeight: 1.5 }}>{g.desc}</p>
+                      {g.ejemplo && <p style={{ fontSize: '10.5px', color: '#9CA3AF', margin: 0, fontStyle: 'italic' }}>Ej: {g.ejemplo}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* ── KPI bar — indicadores clave ── */}
             <div style={{ display: 'flex', background: 'white', borderBottom: '2px solid #E5E7EB', flexShrink: 0, overflowX: 'auto' }}>
               {[
@@ -1940,7 +2010,7 @@ function CalculadoraInner() {
                     {/* SDI destacado */}
                     {sdiPromedio > 0 && (
                       <div style={{ padding: '12px', background: '#FFFBEB', border: '2px solid #FCD34D', textAlign: 'center' as const }}>
-                        <div style={{ fontSize: '10px', color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' as const, marginBottom: '4px' }}>SDI Promedio — Base oficial de la pensión</div>
+                        <div style={{ fontSize: '10px', color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' as const, marginBottom: '4px' }}>SDI Promedio — Base oficial de la pensión <Tip id="sdi250" /></div>
                         <div style={{ fontSize: '26px', fontWeight: '900' as const, color: '#92400E', letterSpacing: '-1px' }}>{fmtMXN2(sdiPromedio)}</div>
                         <div style={{ fontSize: '11px', color: '#9CA3AF', marginTop: '2px' }}>Equivalente mensual: {fmtMXN(sdiPromedio * 30.4167)}</div>
                       </div>
@@ -2019,7 +2089,7 @@ function CalculadoraInner() {
                         <div style={{ fontSize: '10.5px', color: '#9CA3AF', marginTop: '2px' }}>250 semanas hacia atrás</div>
                       </div>
                       <div style={{ padding: '12px', background: '#FFFBEB', border: '2px solid #FCD34D', textAlign: 'center' as const }}>
-                        <div style={{ fontSize: '9.5px', color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' as const, marginBottom: '4px' }}>SDI Promedio 250 sem.</div>
+                        <div style={{ fontSize: '9.5px', color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' as const, marginBottom: '4px' }}>SDI Promedio 250 sem.<Tip id="sdi250" /></div>
                         <div style={{ fontSize: '22px', fontWeight: '900' as const, color: '#92400E', letterSpacing: '-1px' }}>{fmtMXN2(sdiPromedio)}</div>
                         <div style={{ fontSize: '10.5px', color: '#9CA3AF', marginTop: '2px' }}>Base oficial de la pensión</div>
                       </div>
@@ -2127,7 +2197,7 @@ function CalculadoraInner() {
                     ))}
                     {/* PMG badge */}
                     <div style={{ marginTop: '10px', padding: '10px 12px', background: res.pmg_aplica ? '#F0FDF4' : '#FEF2F2', border: '1px solid ' + (res.pmg_aplica ? '#86EFAC' : '#FCA5A5'), display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '12px', color: '#374151', fontWeight: '600' as const }}>¿Aplica Pensión Mínima Garantizada?</span>
+                      <span style={{ fontSize: '12px', color: '#374151', fontWeight: '600' as const }}>¿Aplica Pensión Mínima Garantizada (PMG)? <Tip id="pmg" /></span>
                       <span style={{ fontSize: '13px', fontWeight: '800' as const, color: res.pmg_aplica ? '#15803D' : '#DC2626', padding: '3px 10px', background: res.pmg_aplica ? '#DCFCE7' : '#FEE2E2' }}>
                         {res.pmg_aplica ? '✓ SÍ' : '✕ NO'}
                       </span>
@@ -2199,7 +2269,7 @@ function CalculadoraInner() {
                     </div>
 
                     <div>
-                      <label style={DS.label}>Salario a registrar en Mod. 40 (UMAs)</label>
+                      <label style={DS.label}>Salario a registrar en Mod. 40 (UMAs) <Tip id="uma" /></label>
                       <div style={{ position: 'relative' }}>
                         <select value={mod40Umas} onChange={e => setMod40Umas(Number(e.target.value))} style={{ ...DS.select, paddingRight: '32px', fontWeight: '700' as const, fontSize: '14px', borderWidth: '2px', borderColor: '#F05B21' }}>
                           {[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25].map(u => (
@@ -2531,7 +2601,7 @@ function CalculadoraInner() {
 
               {/* Tabla factor edad */}
               <div style={DS.card}>
-                <p style={DS.secTitle}>📋 Factor por Edad — ¿Cuánto recibe según la edad de retiro?</p>
+                <p style={DS.secTitle}>📋 Factor por Edad — ¿Cuánto recibe según la edad de retiro? <Tip id="factorEdad" /></p>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                   <thead>
                     <tr style={{ background: '#1B3A6B' }}>
