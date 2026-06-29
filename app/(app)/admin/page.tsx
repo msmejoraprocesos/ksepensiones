@@ -131,233 +131,257 @@ function AdminFormulasInner() {
     />
   )
 
-  if (isAdmin === null) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', color: '#94a3b8' }}>Verificando acceso...</div>
+  if (isAdmin === null) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', color: '#94a3b8', fontSize: '14px' }}>Verificando acceso...</div>
 
   if (isAdmin === false) return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: '12px' }}>
       <div style={{ fontSize: '40px' }}>🔒</div>
       <p style={{ fontSize: '16px', fontWeight: '700', color: '#374151' }}>Acceso restringido</p>
       <p style={{ fontSize: '13px', color: '#94a3b8' }}>Esta página solo es accesible para administradores del sistema.</p>
-      <button onClick={() => router.back()} style={{ padding: '8px 20px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}>← Regresar</button>
+      <button onClick={() => router.back()} style={{ padding: '8px 20px', background: AZUL, color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px' }}>← Regresar</button>
     </div>
   )
 
   return (
-    <div style={{ height: 'calc(100vh - 48px)', overflow: 'auto', background: '#FAFAFA' }}>
+    <div style={{ height: 'calc(100vh - 48px)', overflowY: 'auto', background: '#F4F6FB' }}>
       <style>{`
-        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
-        .admin-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        .admin-table th { padding: 8px 12px; text-align: left; font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.4px; }
-        .admin-table td { padding: 8px 12px; }
-        @media (max-width: 700px) {
-          .admin-col-hide { display: none; }
-        }
+        .af-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .af-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+        .af-wrap   { display: flex; flex-wrap: wrap; gap: 8px; }
+        .af-table  { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .af-table th { padding: 9px 12px; background: #1B3A6B; color: white; text-align: left; font-size: 10.5px; font-weight: 700; white-space: nowrap; }
+        .af-table th.r { text-align: right; }
+        .af-table td { padding: 8px 12px; border-bottom: 1px solid #F3F4F6; font-size: 12px; color: #374151; vertical-align: middle; }
+        .af-table td.r { text-align: right; }
+        .af-table tr:nth-child(even) td { background: #F9FAFB; }
+        .af-card { background: white; border: 1px solid #E5E7EB; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        .af-badge-fix  { display: inline-block; font-size: 9.5px; font-weight: 700; padding: 2px 8px; background: #EFF6FF; color: #1D4ED8; text-transform: uppercase; letter-spacing: 0.3px; }
+        .af-badge-edit { display: inline-block; font-size: 9.5px; font-weight: 700; padding: 2px 8px; background: #FFFBEB; color: #B45309; text-transform: uppercase; letter-spacing: 0.3px; }
+        @media (max-width: 900px) { .af-grid-3 { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 600px) { .af-grid-3, .af-grid-2 { grid-template-columns: 1fr; } .admin-col-hide { display: none; } }
       `}</style>
-      <div style={{ padding: '20px', maxWidth: '1100px', margin: '0 auto' }}>
+
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+      <div style={{ background: AZUL, padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <h1 style={{ fontSize: '18px', fontWeight: '800', color: AZUL, margin: 0 }}>⚙️ Fórmulas y Constantes del Sistema</h1>
-          <p style={{ fontSize: '12px', color: '#94a3b8', margin: '4px 0 0' }}>
-            Las constantes marcadas como <strong>FIJO POR LEY</strong> solo se modifican si cambia la Ley del Seguro Social 1973.<br/>
-            Las marcadas como <strong>EDITABLE</strong> se actualizan cada año (UMA, PMG, tasas IMSS).
+          <h1 style={{ fontSize: '16px', fontWeight: '800', color: 'white', margin: '0 0 4px' }}>⚙️ Fórmulas y Constantes del Sistema</h1>
+          <p style={{ fontSize: '11px', color: '#93C5FD', margin: 0 }}>
+            <span style={{ background: 'rgba(255,255,255,0.15)', padding: '1px 6px', marginRight: '8px' }}>FIJO POR LEY</span>
+            Solo cambia con la LSS 1973 ·
+            <span style={{ background: 'rgba(255,255,255,0.15)', padding: '1px 6px', margin: '0 8px' }}>EDITABLE</span>
+            Actualizar cada año
           </p>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
-          <button onClick={() => router.back()} style={{ padding: '8px 16px', background: 'white', color: '#374151', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer', fontSize: '12px' }}>
-            ← Regresar
-          </button>
-          <button onClick={handleSave} disabled={saving} style={{ padding: '8px 20px', background: saved ? VERDE : NARANJA, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '12px', fontWeight: '700' }}>
+          <button onClick={() => router.back()} style={{ padding: '7px 14px', background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontSize: '12px', fontFamily: 'inherit' }}>← Regresar</button>
+          <button onClick={handleSave} disabled={saving} style={{ padding: '7px 18px', background: saved ? VERDE : '#F05B21', color: 'white', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '700', fontFamily: 'inherit' }}>
             {saving ? 'Guardando...' : saved ? '✓ Guardado' : 'Guardar cambios'}
           </button>
         </div>
       </div>
 
-
-      {/* Guía de uso */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px', marginBottom: '20px' }}>
-        {[
-          { icon: '📝', title: 'Parámetros editables', desc: 'Actualízalos cada año cuando el IMSS o CONASAMI publiquen nuevos valores (UMA, PMG, tasas). Guardado en Supabase — la calculadora los lee en tiempo real.', color: '#fef3c7', border: '#f59e0b' },
-          { icon: '⚖️', title: 'Constantes legales', desc: 'Solo cambian si el Congreso modifica la Ley del Seguro Social 1973. Documentadas con artículo de ley y celda del Excel de referencia. Para cambiarlas, editar formulas.ts.', color: '#f0f9ff', border: '#3b82f6' },
-          { icon: '🔄', title: 'Cómo actualizar', desc: '1. Edita el valor en "Parámetros editables". 2. Haz clic en "Guardar cambios". 3. La calculadora usará los nuevos valores inmediatamente en todos los diagnósticos.', color: '#f0fdf4', border: '#22c55e' },
-        ].map((g, i) => (
-          <div key={i} style={{ padding: '12px 14px', background: g.color, border: `1px solid ${g.border}`, borderRadius: '10px' }}>
-            <p style={{ margin: '0 0 4px', fontSize: '12px', fontWeight: '700', color: '#374151' }}>{g.icon} {g.title}</p>
-            <p style={{ margin: 0, fontSize: '11px', color: '#64748b', lineHeight: 1.6 }}>{g.desc}</p>
-          </div>
-        ))}
+      {/* Guía rápida */}
+      <div style={{ padding: '16px 24px 0' }}>
+        <div className="af-grid-3">
+          {[
+            { icon: '📝', title: 'Parámetros editables', desc: 'Actualízalos cada año cuando el IMSS o CONASAMI publiquen nuevos valores. Se guardan en Supabase y la calculadora los lee en tiempo real.', bg: '#FFFBEB', border: '#FCD34D' },
+            { icon: '⚖️', title: 'Constantes legales', desc: 'Solo cambian si el Congreso modifica la Ley del Seguro Social 1973. Para cambiarlas, editar formulas.ts directamente.', bg: '#EFF6FF', border: '#93C5FD' },
+            { icon: '🔄', title: 'Cómo actualizar', desc: '1. Edita el valor · 2. Clic en Guardar cambios · 3. La calculadora usa los nuevos valores de inmediato en todos los diagnósticos.', bg: '#F0FDF4', border: '#86EFAC' },
+          ].map((g, i) => (
+            <div key={i} style={{ padding: '12px 14px', background: g.bg, border: '1px solid ' + g.border }}>
+              <p style={{ margin: '0 0 4px', fontSize: '12px', fontWeight: '700', color: '#374151' }}>{g.icon} {g.title}</p>
+              <p style={{ margin: 0, fontSize: '11px', color: '#6B7280', lineHeight: 1.6 }}>{g.desc}</p>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: '4px', marginBottom: '16px', background: '#f1f5f9', borderRadius: '8px', padding: '4px' }}>
-        {(['configurables', 'legales'] as const).map(t => (
-          <button key={t} onClick={() => setActiveTab(t)} style={{ flex: 1, padding: '8px', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: '700', background: activeTab === t ? 'white' : 'transparent', color: activeTab === t ? AZUL : '#64748b', boxShadow: activeTab === t ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>
-            {t === 'configurables' ? '📝 Parámetros editables (actualización anual)' : '⚖️ Constantes legales (solo cambian con la ley)'}
-          </button>
-        ))}
+      <div style={{ padding: '14px 24px 0' }}>
+        <div style={{ display: 'flex', borderBottom: '2px solid #E5E7EB', background: 'white' }}>
+          {(['configurables', 'legales'] as const).map(t => (
+            <button key={t} onClick={() => setActiveTab(t)}
+              style={{ padding: '10px 20px', border: 'none', borderBottom: '3px solid ' + (activeTab === t ? '#F05B21' : 'transparent'), cursor: 'pointer', fontSize: '12.5px', fontWeight: activeTab === t ? '700' : '500', background: 'white', color: activeTab === t ? '#F05B21' : '#6B7280', fontFamily: 'inherit', marginBottom: '-2px' }}>
+              {t === 'configurables' ? '📝 Parámetros editables' : '⚖️ Constantes legales'}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Tabla de parámetros editables */}
-      {activeTab === 'configurables' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {/* Contenido */}
+      <div style={{ padding: '16px 24px 32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
-          <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px' }}>
-            {sectionTitle('Valores CONASAMI / IMSS — actualizar cada enero/febrero', 'Fuente: DOF (Diario Oficial de la Federación)')}
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-              <thead>
-                <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                  {['Campo', 'Fundamento', 'Celda Excel', 'Valor actual', 'Tipo'].map(h => (
-                    <th key={h} style={{ padding: '8px 12px', textAlign: 'left', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.4px' }}>{h}</th>
+        {activeTab === 'configurables' && (
+          <>
+            <div className="af-card">
+              <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Valores CONASAMI / IMSS — actualizar cada enero/febrero</p>
+              <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '0 0 14px', lineHeight: 1.5 }}>Fuente: DOF (Diario Oficial de la Federación). Estos valores afectan directamente el cálculo de pensiones.</p>
+              <div style={{ overflowX: 'auto' }}>
+                <table className="af-table">
+                  <thead>
+                    <tr>
+                      <th>Campo</th>
+                      <th>Fundamento</th>
+                      <th className="admin-col-hide">Celda Excel</th>
+                      <th className="r">Valor actual</th>
+                      <th>Tipo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {fieldRow('UMA Diaria', 'CONASAMI — actualiza cada febrero', 'SAL. PROM MOD 40!E16', numInput(uma, setUma, 0.01), true)}
+                    {fieldRow('Salario Mínimo Diario', 'CONASAMI — actualiza cada enero', 'COSTO MOD. 40 (ref.)', numInput(salMin, setSalMin, 0.01), true)}
+                    {fieldRow('PMG Ley 73 (mensual)', 'IMSS — Pensión Mínima Garantizada Ley 73', 'PENSION MOD. 40!D18', numInput(pmgL73, setPmgL73, 1), true)}
+                    {fieldRow('PMG Ley 97 (mensual)', 'CONSAR — Pensión Garantizada Ley 97', 'Configuración', numInput(pmgL97, setPmgL97, 1), true)}
+                    {fieldRow('% Recuperación AFORE', '~20% va a subcuenta Retiro 97', 'COSTO MOD. 40!G17', numInput(pctAfore, setPctAfore, 0.1), true)}
+                    {fieldRow('Rendimiento AFORE %', 'Estimado para proyecciones Ley 97', 'Configuración', numInput(rendDefault, setRendDefault, 0.1), true)}
+                    {fieldRow('% Banco Regulado', 'Porcentaje del retroactivo que financia el banco', 'FINANCIAMIENTO!C10', numInput(pctBanco, setPctBanco, 0.01), true)}
+                    {fieldRow('Tasa Banco Anual %', 'Tasa de interés anual del crédito bancario regulado', 'FINANCIAMIENTO!G32', numInput(tasaBanco, setTasaBanco, 0.1), true)}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="af-card">
+              <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Tasas de cotización Modalidad 40 — por año</p>
+              <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '0 0 14px', lineHeight: 1.5 }}>Fuente: IMSS — sube ~1.091% anual hasta llegar al techo de 18.8% en 2030. Excel: COSTO MOD. 40!D4-D14</p>
+              <div style={{ overflowX: 'auto' }}>
+                <table className="af-table">
+                  <thead>
+                    <tr>
+                      <th>Año</th>
+                      <th className="r">Tasa %</th>
+                      <th className="r">Costo mensual (25 UMAs)</th>
+                      <th>Tipo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.entries(tasasMod40).sort(([a], [b]) => parseInt(a) - parseInt(b)).map(([yr, tasa]) => {
+                      const anio = parseInt(yr)
+                      const esFuturo = anio >= 2026
+                      const costoRef = uma * 25 * (tasa / 100) * 365 / 12
+                      return (
+                        <tr key={yr}>
+                          <td style={{ fontWeight: '700', color: esFuturo ? '#7C3AED' : '#374151' }}>
+                            {yr}
+                            {anio < new Date().getFullYear() && <span style={{ fontSize: '10px', color: '#9CA3AF', marginLeft: '6px' }}>(histórico)</span>}
+                            {anio === new Date().getFullYear() && <span style={{ fontSize: '10px', color: '#F05B21', fontWeight: '700', marginLeft: '6px' }}>← vigente</span>}
+                          </td>
+                          <td className="r">
+                            {esFuturo
+                              ? <input type="number" step={0.001} value={tasa} onChange={e => setTasasMod40(prev => ({ ...prev, [anio]: parseFloat(e.target.value) || tasa }))}
+                                  style={{ width: '80px', padding: '4px 6px', border: '1.5px solid #FCD34D', fontSize: '12px', fontWeight: '700', color: '#374151', background: '#FFFBEB', textAlign: 'right' }} />
+                              : <span style={{ fontWeight: '700', color: AZUL }}>{tasa.toFixed(3)}%</span>
+                            }
+                          </td>
+                          <td className="r" style={{ color: '#6B7280' }}>{fmtMXN(costoRef)}</td>
+                          <td><span className={esFuturo ? 'af-badge-edit' : 'af-badge-fix'}>{esFuturo ? 'Editable' : 'Fijo'}</span></td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
+
+        {activeTab === 'legales' && (
+          <>
+            <div className="af-card">
+              <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Parámetros generales — Art. 162-183 LSS 1973</p>
+              <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '0 0 14px', lineHeight: 1.5 }}>Solo se modifican si cambia la ley. Para cambiarlos, editar formulas.ts</p>
+              <div style={{ overflowX: 'auto' }}>
+                <table className="af-table">
+                  <thead>
+                    <tr>
+                      <th>Campo</th>
+                      <th>Fundamento legal</th>
+                      <th className="admin-col-hide">Celda Excel</th>
+                      <th className="r">Valor</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {fieldRow('Semanas mínimas para pensión', 'Art. 162 LSS 1973', 'Implícito en DATOS GEN.', <strong>{SEMANAS_MINIMAS_PENSION} semanas</strong>)}
+                    {fieldRow('Días de aguinaldo', 'Art. 171 LSS 1973', 'PENSIÓN ACTUAL!A25', <strong>{DIAS_AGUINALDO} días</strong>)}
+                    {fieldRow('Máximo retroactivo Mod40', 'Reglamento IMSS / criterio validado', 'PAGO RETROACTIVO', <strong>{MAX_MESES_RETROACTIVO} meses (5 años)</strong>)}
+                    {fieldRow('Factor actualización UMA', 'Metodología del Excel de referencia', 'PENSIÓN ACTUAL!×1.11', <strong>×{FACTOR_ACTUALIZACION_UMA}</strong>)}
+                    {fieldRow('Techo tasa Mod40', 'IMSS — a partir de 2031', 'COSTO MOD. 40!D14', <strong>{TASA_MOD40_TECHO}%</strong>)}
+                    {fieldRow('Edad análisis de flujos', 'Estándar de industria', 'INVERSION!D46/F46', <strong>{EDAD_ANALISIS_FLUJOS} años</strong>)}
+                    {fieldRow('Tasa actualización default', 'Estimado conservador (post-2024)', 'PAGO RETROACTIVO', <strong>{(TASA_ACTUALIZACION_DEFAULT * 100).toFixed(2)}% mensual</strong>)}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="af-grid-2">
+              <div className="af-card">
+                <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Factores de edad — Art. 167 LSS 1973</p>
+                <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '0 0 14px', lineHeight: 1.5 }}>100% a los 65 años. Reduce 5% por año antes, mínimo a los 60 (75%). Excel: DATOS GEN.!E27-E32</p>
+                <div className="af-wrap">
+                  {Object.entries(FACTOR_EDAD_RETIRO).filter(([e]) => parseInt(e) <= 65).map(([edad, factor]) => (
+                    <div key={edad} style={{ flex: '1 0 80px', padding: '12px', background: parseInt(edad) === 65 ? '#F0FDF4' : '#F9FAFB', border: '1px solid ' + (parseInt(edad) === 65 ? '#86EFAC' : '#E5E7EB'), textAlign: 'center' }}>
+                      <div style={{ fontSize: '10px', color: '#9CA3AF', fontWeight: '600', textTransform: 'uppercase', marginBottom: '4px' }}>{edad} años</div>
+                      <div style={{ fontSize: '22px', fontWeight: '900', color: parseInt(edad) === 65 ? '#065F46' : AZUL }}>{(factor * 100).toFixed(0)}%</div>
+                      <div style={{ fontSize: '9.5px', color: '#9CA3AF', marginTop: '2px' }}>{parseInt(edad) === 65 ? 'Vejez' : 'Cesantía'}</div>
+                    </div>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
-                {fieldRow('UMA Diaria', 'CONASAMI — actualiza cada febrero', 'SAL. PROM MOD 40!E16', numInput(uma, setUma, 0.01), true)}
-                {fieldRow('Salario Mínimo Diario', 'CONASAMI — actualiza cada enero', 'COSTO MOD. 40 (referencia)', numInput(salMin, setSalMin, 0.01), true)}
-                {fieldRow('PMG Ley 73 (mensual)', 'IMSS — Pensión Mínima Garantizada Ley 73', 'PENSION MOD. 40!D18', numInput(pmgL73, setPmgL73, 1), true)}
-                {fieldRow('PMG Ley 97 (mensual)', 'CONSAR — Pensión Garantizada Ley 97', 'Configuración', numInput(pmgL97, setPmgL97, 1), true)}
-                {fieldRow('% Recuperación AFORE', 'Estimado de mercado (~20% va a subcuenta Retiro 97)', 'COSTO MOD. 40!G17', numInput(pctAfore, setPctAfore, 0.1), true)}
-                {fieldRow('Rendimiento AFORE %', 'Estimado para proyecciones de Ley 97', 'Configuración', numInput(rendDefault, setRendDefault, 0.1), true)}
-                {fieldRow('% Banco Regulado', 'Porcentaje del retroactivo que financia el banco — FINANCIAMIENTO!C10', 'FINANCIAMIENTO!C10', numInput(pctBanco, setPctBanco, 0.01), true)}
-                {fieldRow('Tasa Banco Anual %', 'Tasa de interés anual del crédito bancario regulado — FINANCIAMIENTO!G32', 'FINANCIAMIENTO!G32', numInput(tasaBanco, setTasaBanco, 0.1), true)}
-              </tbody>
-            </table>
-          </div>
+                </div>
+              </div>
 
-          <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px' }}>
-            {sectionTitle('Tasas de cotización Modalidad 40 — por año', 'Fuente: IMSS — sube ~1.091% anual hasta llegar al techo de 18.8% en 2030. Excel: COSTO MOD. 40!D4-D14')}
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-                <thead>
-                  <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                    {['Año', 'Tasa %', 'Costo mensual (25 UMAs)', 'Tipo'].map(h => (
-                      <th key={h} style={{ padding: '8px 12px', textAlign: 'left', fontSize: '10px', color: '#64748b', textTransform: 'uppercase' }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {[2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030].map(y => {
-                    const tasa = tasasMod40[y] ?? TASAS_MOD40_POR_ANIO[y]
-                    const costoEjemplo = 25 * uma * (tasa / 100) * 365 / 12
-                    const editable = y >= 2026
-                    return (
-                      <tr key={y} style={{ borderBottom: '1px solid #f1f5f9', background: y === new Date().getFullYear() ? '#f0f9ff' : 'white' }}>
-                        <td style={{ padding: '8px 12px', fontWeight: '700', color: y === new Date().getFullYear() ? AZUL : '#374151' }}>{y} {y === new Date().getFullYear() && '← actual'}</td>
-                        <td style={{ padding: '8px 12px' }}>
-                          {editable
-                            ? numInput(tasa, v => setTasasMod40(prev => ({ ...prev, [y]: v })), 0.001)
-                            : <span style={{ fontWeight: '700', color: '#374151' }}>{tasa.toFixed(3)}%</span>
-                          }
+              <div className="af-card">
+                <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Asignaciones familiares — Art. 164-165 LSS 1973</p>
+                <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '0 0 14px', lineHeight: 1.5 }}>Se aplican sobre la cuantía total antes del factor de edad.</p>
+                <div className="af-wrap">
+                  {[
+                    { label: 'Cónyuge', pct: ASIGNACIONES.CONYUGE * 100, legal: 'Art. 164 fracc. I', color: AZUL },
+                    { label: 'Por hijo', pct: ASIGNACIONES.HIJO * 100, legal: 'Art. 164 fracc. II', color: VERDE },
+                    { label: 'Por padre dep.', pct: ASIGNACIONES.PADRE * 100, legal: 'Art. 164 fracc. III', color: '#7C3AED' },
+                    { label: 'Ayuda asistencial (sin beneficiarios)', pct: ASIGNACIONES.AYUDA_ASISTENCIAL_SIN_NADIE * 100, legal: 'Art. 165 LSS', color: '#F05B21' },
+                    { label: 'Ayuda asistencial (solo padres)', pct: ASIGNACIONES.AYUDA_ASISTENCIAL_SOLO_PADRES * 100, legal: 'Art. 165 LSS', color: '#0891B2' },
+                  ].map(a => (
+                    <div key={a.label} style={{ flex: '1 0 140px', padding: '12px 14px', background: '#F9FAFB', border: '1px solid #E5E7EB' }}>
+                      <div style={{ fontSize: '11px', fontWeight: '600', color: '#374151', marginBottom: '4px' }}>{a.label}</div>
+                      <div style={{ fontSize: '24px', fontWeight: '900', color: a.color }}>{a.pct.toFixed(0)}%</div>
+                      <div style={{ fontSize: '9.5px', color: '#9CA3AF', marginTop: '3px' }}>{a.legal}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="af-card">
+              <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Tabla de cuantía básica por veces UMA — Art. 167 LSS 1973</p>
+              <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '0 0 14px', lineHeight: 1.5 }}>22 rangos de salario relativo (SDI / UMA diaria). A menor salario → mayor % de cuantía. Excel: PENSIÓN ACTUAL y PENSION MOD. 40</p>
+              <div style={{ overflowX: 'auto' }}>
+                <table className="af-table">
+                  <thead>
+                    <tr>
+                      <th>Rango (veces UMA)</th>
+                      <th className="r">Cuantía básica %</th>
+                      <th className="r">Incremento anual %</th>
+                      <th>Nota</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {TABLA_CUANTIA_UMA.map((fila, i) => (
+                      <tr key={i}>
+                        <td style={{ fontFamily: 'monospace', fontSize: '11.5px' }}>
+                          {fila.min === 0 ? '0.00' : fila.min.toFixed(2)} – {fila.max === Infinity ? '∞' : fila.max.toFixed(2)}
                         </td>
-                        <td style={{ padding: '8px 12px', color: '#64748b' }}>{fmtMXN(costoEjemplo)}/mes</td>
-                        <td style={{ padding: '8px 12px' }}>
-                          {editable
-                            ? <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '4px', background: '#fef3c7', color: '#92400e', fontWeight: '700' }}>EDITABLE</span>
-                            : <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '4px', background: '#f0fdf4', color: '#166534', fontWeight: '700' }}>HISTÓRICO</span>
-                          }
+                        <td className="r" style={{ fontWeight: '700', color: AZUL }}>{(fila.basica * 100).toFixed(2)}%</td>
+                        <td className="r" style={{ fontWeight: '600', color: VERDE }}>{(fila.incremento * 100).toFixed(4)}%</td>
+                        <td style={{ fontSize: '11px', color: '#9CA3AF' }}>
+                          {i === 0 ? 'Salario ≤ UMA' : i === TABLA_CUANTIA_UMA.length - 1 ? 'Salario > 6 UMAs' : ''}
                         </td>
                       </tr>
-                    )
-                  })}
-                  <tr style={{ background: '#f8fafc', borderTop: '2px solid #e2e8f0' }}>
-                    <td style={{ padding: '8px 12px', fontWeight: '700', color: '#64748b' }}>2031+</td>
-                    <td style={{ padding: '8px 12px', fontWeight: '700', color: '#374151' }}>{TASA_MOD40_TECHO}% (techo)</td>
-                    <td colSpan={2} style={{ padding: '8px 12px', fontSize: '11px', color: '#94a3b8' }}>Tasa máxima establecida por ley — no cambia</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Tabla de constantes legales (solo lectura) */}
-      {activeTab === 'legales' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-
-          <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px' }}>
-            {sectionTitle('Parámetros generales — Art. 162-183 LSS 1973', 'Solo se modifican si cambia la ley. Para cambiarlos, editar formulas.ts')}
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-              <thead>
-                <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                  {['Campo', 'Fundamento legal', 'Celda Excel', 'Valor', ''].map(h => (
-                    <th key={h} style={{ padding: '8px 12px', textAlign: 'left', fontSize: '10px', color: '#64748b', textTransform: 'uppercase' }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {fieldRow('Semanas mínimas para pensión', 'Art. 162 LSS 1973', 'Implícito en DATOS GEN.', <span style={{ fontWeight: '700' }}>{SEMANAS_MINIMAS_PENSION} semanas</span>)}
-                {fieldRow('Días de aguinaldo', 'Art. 171 LSS 1973', 'PENSIÓN ACTUAL!A25', <span style={{ fontWeight: '700' }}>{DIAS_AGUINALDO} días</span>)}
-                {fieldRow('Máximo retroactivo Mod40', 'Reglamento IMSS / criterio validado', 'PAGO RETROACTIVO', <span style={{ fontWeight: '700' }}>{MAX_MESES_RETROACTIVO} meses (5 años)</span>)}
-                {fieldRow('Factor de actualización UMA', 'Metodología del Excel de referencia', 'PENSIÓN ACTUAL!×1.11', <span style={{ fontWeight: '700' }}>×{FACTOR_ACTUALIZACION_UMA}</span>)}
-                {fieldRow('Techo tasa Mod40', 'IMSS — a partir de 2031', 'COSTO MOD. 40!D14', <span style={{ fontWeight: '700' }}>{TASA_MOD40_TECHO}%</span>)}
-                {fieldRow('Edad de análisis de flujos', 'Estándar de industria', 'INVERSION!D46/F46', <span style={{ fontWeight: '700' }}>{EDAD_ANALISIS_FLUJOS} años</span>)}
-                {fieldRow('Tasa actualización default', 'Estimado conservador (post-2024)', 'PAGO RETROACTIVO', <span style={{ fontWeight: '700' }}>{(TASA_ACTUALIZACION_DEFAULT * 100).toFixed(2)}% mensual</span>)}
-              </tbody>
-            </table>
-          </div>
-
-          <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px' }}>
-            {sectionTitle('Factores de edad — Art. 167 LSS 1973', 'El 100% de vejez se otorga a los 65 años. Se reduce 5% por cada año antes, con mínimo a los 60 (75%). Excel: DATOS GEN.!E27-E32')}
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {Object.entries(FACTOR_EDAD_RETIRO).filter(([edad]) => parseInt(edad) <= 65).map(([edad, factor]) => (
-                <div key={edad} style={{ padding: '10px 16px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
-                  <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase' }}>Edad {edad}</div>
-                  <div style={{ fontSize: '18px', fontWeight: '800', color: AZUL }}>{(factor * 100).toFixed(0)}%</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px' }}>
-            {sectionTitle('Asignaciones familiares — Art. 164-165 LSS 1973', 'Se aplican sobre la cuantía total cruda (antes del factor de edad). Art. 164: cónyuge + hijos + padres. Art. 165: ayuda asistencial si no hay ningún beneficiario.')}
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {[
-                { label: 'Cónyuge', pct: ASIGNACIONES.CONYUGE * 100, legal: 'Art. 164 fracc. I' },
-                { label: 'Por hijo', pct: ASIGNACIONES.HIJO * 100, legal: 'Art. 164 fracc. II (máx. 2 con cónyuge, 3 sin)' },
-                { label: 'Por padre dep.', pct: ASIGNACIONES.PADRE * 100, legal: 'Art. 164 fracc. III (solo sin cónyuge ni hijos)' },
-                { label: 'Ayuda asistencial (sin nadie)', pct: ASIGNACIONES.AYUDA_ASISTENCIAL_SIN_NADIE * 100, legal: 'Art. 165 LSS' },
-                { label: 'Ayuda asistencial (solo padres)', pct: ASIGNACIONES.AYUDA_ASISTENCIAL_SOLO_PADRES * 100, legal: 'Art. 165 LSS' },
-              ].map(a => (
-                <div key={a.label} style={{ padding: '10px 14px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', minWidth: '150px' }}>
-                  <div style={{ fontSize: '10px', color: '#94a3b8' }}>{a.label}</div>
-                  <div style={{ fontSize: '18px', fontWeight: '800', color: VERDE }}>{a.pct.toFixed(0)}%</div>
-                  <div style={{ fontSize: '9px', color: '#94a3b8', marginTop: '2px' }}>{a.legal}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '16px' }}>
-            {sectionTitle('Tabla de cuantía básica por veces UMA — Art. 167 LSS 1973', '22 rangos de salario relativo (SDI / UMA diaria). A menor salario → mayor % de cuantía. Excel: hoja de cálculo implícita en PENSIÓN ACTUAL y PENSION MOD. 40')}
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
-                <thead>
-                  <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                    {['Rango (veces UMA)', 'Cuantía básica %', 'Incremento anual %', 'Nota'].map(h => (
-                      <th key={h} style={{ padding: '6px 10px', textAlign: 'left', fontSize: '10px', color: '#64748b', textTransform: 'uppercase' }}>{h}</th>
                     ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {TABLA_CUANTIA_UMA.map((fila, i) => (
-                    <tr key={i} style={{ borderBottom: '1px solid #f1f5f9', background: i % 2 === 0 ? 'white' : '#f8fafc' }}>
-                      <td style={{ padding: '6px 10px', fontFamily: 'monospace' }}>
-                        {fila.min === 0 ? '0' : fila.min.toFixed(2)} – {fila.max === Infinity ? '∞' : fila.max.toFixed(2)}
-                      </td>
-                      <td style={{ padding: '6px 10px', fontWeight: '700', color: AZUL }}>{(fila.basica * 100).toFixed(2)}%</td>
-                      <td style={{ padding: '6px 10px', fontWeight: '700', color: VERDE }}>{(fila.incremento * 100).toFixed(4)}%</td>
-                      <td style={{ padding: '6px 10px', color: '#94a3b8', fontSize: '10px' }}>
-                        {i === 0 ? 'Salario ≤ UMA' : i === TABLA_CUANTIA_UMA.length - 1 ? 'Salario > 6 UMAs' : ''}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
       </div>
     </div>
   )
