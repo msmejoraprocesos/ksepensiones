@@ -971,7 +971,6 @@ function ClientesInner() {
             </div>
           ))}
         </div>
-        </div>
         <div style={{ flex: 1 }} />
         <button onClick={() => { setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', tipo_servicio: '', esquema_pago: '', monto_acordado: '', monto_pension_mensual: '', numero_meses_cobro: '', porcentaje_recuperacion: '', tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } } }); setFormErrors({}); setShowNuevo(true) }}
           style={{ background: AZUL, color: 'white', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', flexShrink: 0 }}>
