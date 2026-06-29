@@ -1479,7 +1479,7 @@ function CalculadoraInner() {
 
       {/* ══ CARÁTULA DE BIENVENIDA ══ */}
       {/* ══ MODAL 1: Bienvenida — ambos campos obligatorios ══ */}
-      {mostrarCaratula && (
+      {mostrarCaratula && !clienteId && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(2px)' }}>
           <div style={{ background: 'white', width: '100%', maxWidth: '400px', boxShadow: '0 24px 64px rgba(0,0,0,0.25)', overflow: 'hidden' }}>
 
@@ -1624,85 +1624,161 @@ function CalculadoraInner() {
         <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
 
           {/* ── Panel izquierdo fijo ── */}
-          <div style={{ width: '585px', flexShrink: 0, background: 'white', borderRight: '1px solid #e2e8f0', overflowY: 'auto', padding: '16px 16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <h2 style={{ fontSize: '16px', fontWeight: '800', color: AZUL, margin: 0, paddingBottom: '10px', borderBottom: `2px solid ${AZUL}` }}>Calculadora de Pensión</h2>
-            <div>
-              <p style={{ fontSize: '11.5px', fontWeight: '800', color: AZUL, textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 8px' }}>Generales del trabajador:</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                <div style={{ fontSize: '12.5px', color: '#94a3b8', marginBottom: '1px', textDecoration: 'underline' }}>Nombre del cliente / asesorado:</div>
-                <div style={{ fontSize: '12.5px', color: clienteId ? '#374151' : '#cbd5e1', fontStyle: clienteId ? 'normal' : 'italic', padding: '4px 7px', background: '#F8FAFC', border: '1px solid #e2e8f0' }}>{clientes.find(c => c.id === clienteId)?.nombre || 'Campo prellenado al seleccionar el cliente'}</div>
-                <div style={{ fontSize: '12.5px', color: '#94a3b8', marginBottom: '1px', textDecoration: 'underline' }}>Nombre del trabajador (constancia IMSS)</div>
-                <div style={{ fontSize: '12.5px', color: datos.nombre_trabajador ? '#374151' : '#cbd5e1', fontStyle: datos.nombre_trabajador ? 'normal' : 'italic', padding: '4px 7px', background: '#F8FAFC', border: '1px solid #e2e8f0' }}>{datos.nombre_trabajador || 'Se llena con la constancia'}</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
-                  {[
-                    ['NSS:', datos.nss || 'Se llena con la constancia'],
-                    ['Régimen:', datos.ley ? `Ley ${datos.ley}` : 'Se llena con la constancia'],
-                    ['Fecha de Nacimiento:', datos.fecha_nacimiento || 'Se llena con la constancia'],
-                    ['CURP:', '—'],
-                  ].map(([l, v], i) => (
-                    <div key={i}>
-                      <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '1px', textDecoration: 'underline' }}>{l}</div>
-                      <div style={{ fontSize: '12px', color: String(v).includes('Se llena') ? '#cbd5e1' : '#374151', padding: '3px 5px', background: '#F8FAFC', border: '1px solid #e2e8f0', fontStyle: String(v).includes('Se llena') ? 'italic' : 'normal' }}>{v}</div>
+          <div style={{ width: '585px', flexShrink: 0, background: '#FAFBFC', borderRight: '2px solid #E5E7EB', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+
+            {/* Header */}
+            <div style={{ background: AZUL, padding: '14px 18px', flexShrink: 0 }}>
+              <h2 style={{ fontSize: '14px', fontWeight: '800', color: 'white', margin: '0 0 2px', letterSpacing: '0.3px' }}>CALCULADORA DE PENSIÓN</h2>
+              <p style={{ fontSize: '11px', color: '#93C5FD', margin: 0 }}>Ley del Seguro Social 1973</p>
+            </div>
+
+            <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '14px', flex: 1 }}>
+
+              {/* ── Identificación */}
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                  <div style={{ width: '3px', height: '14px', background: AZUL, flexShrink: 0 }} />
+                  <span style={{ fontSize: '10px', fontWeight: '700', color: AZUL, textTransform: 'uppercase' as const, letterSpacing: '0.8px' }}>Identificación</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div>
+                    <span style={{ fontSize: '9.5px', color: '#9CA3AF', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: '0.4px' }}>Cliente / Asesorado</span>
+                    <div style={{ padding: '7px 10px', background: clienteId ? '#EEF2F8' : '#F9FAFB', border: '1px solid ' + (clienteId ? '#BFDBFE' : '#E5E7EB'), fontSize: '13px', fontWeight: clienteId ? '600' : '400', color: clienteId ? AZUL : '#9CA3AF', fontStyle: clienteId ? 'normal' : 'italic' }}>
+                      {clientes.find(c => c.id === clienteId)?.nombre || 'Sin cliente seleccionado'}
                     </div>
-                  ))}
-                  <div>
-                    <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '1px', textDecoration: 'underline' }}>Edad Actual:</div>
-                    <div style={{ fontSize: '12px', color: datos.edad_actual ? '#374151' : '#cbd5e1', padding: '3px 5px', background: '#F8FAFC', border: '1px solid #e2e8f0', fontStyle: datos.edad_actual ? 'normal' : 'italic' }}>{datos.edad_actual ? `${datos.edad_actual.toFixed(2)} años` : 'Se calcula automáticamente'}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '1px', textDecoration: 'underline' }}>Semanas cotizadas:</div>
-                    <div style={{ fontSize: '12px', color: datos.semanas_totales ? '#374151' : '#cbd5e1', padding: '3px 5px', background: '#F8FAFC', border: '1px solid #e2e8f0', fontStyle: datos.semanas_totales ? 'normal' : 'italic' }}>{datos.semanas_totales || 'Se calcula con constancia'}</div>
+                    <span style={{ fontSize: '9.5px', color: '#9CA3AF', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: '0.4px' }}>Nombre del trabajador</span>
+                    <div style={{ padding: '7px 10px', background: datos.nombre_trabajador ? 'white' : '#F9FAFB', border: '1px solid ' + (datos.nombre_trabajador ? '#D1D5DB' : '#E5E7EB'), fontSize: '13px', fontWeight: datos.nombre_trabajador ? '500' : '400', color: datos.nombre_trabajador ? '#111827' : '#9CA3AF', fontStyle: datos.nombre_trabajador ? 'normal' : 'italic', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      {datos.nombre_trabajador ? (<><span style={{ fontSize: '9px', background: '#D1FAE5', color: '#065F46', padding: '1px 5px', fontWeight: '700', fontStyle: 'normal' }}>IMSS</span>{datos.nombre_trabajador}</>) : 'Se extrae de la constancia IMSS'}
+                    </div>
                   </div>
-                  <div>
-                    <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '1px', textDecoration: 'underline' }}>Vigencia de derechos:</div>
-                    <div style={{ fontSize: '12px', padding: '3px 5px', background: '#F8FAFC', border: '1px solid #e2e8f0', color: conservacion.vigente ? VERDE : datos.semanas_totales ? '#ef4444' : '#cbd5e1', fontStyle: datos.semanas_totales ? 'normal' : 'italic' }}>{datos.semanas_totales ? (conservacion.vigente ? 'Vigente' : 'Vencido') : 'Calculado automáticamente'}</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                    {[
+                      { label: 'NSS', value: datos.nss },
+                      { label: 'Régimen', value: datos.ley ? 'Ley ' + datos.ley : '' },
+                      { label: 'Fecha de nacimiento', value: datos.fecha_nacimiento },
+                      { label: 'Edad actual', value: datos.edad_actual ? datos.edad_actual.toFixed(1) + ' años' : '' },
+                    ].map(({ label, value }, i) => (
+                      <div key={i}>
+                        <span style={{ fontSize: '9.5px', color: '#9CA3AF', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: '0.3px' }}>{label}</span>
+                        <div style={{ padding: '6px 8px', background: value ? 'white' : '#F9FAFB', border: '1px solid ' + (value ? '#D1D5DB' : '#E5E7EB'), fontSize: '12px', color: value ? '#111827' : '#CBD5E1', fontStyle: value ? 'normal' : 'italic', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          {value ? (<><span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#10B981', flexShrink: 0, display: 'inline-block' as const }} />{value}</>) : '—'}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
-            </div>
-            <div style={{ borderTop: '1px dashed #e2e8f0' }} />
-            <div>
-              <p style={{ fontSize: '11.5px', fontWeight: '800', color: AZUL, textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 6px' }}>Generales del trabajador:</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
-                {[
-                  ['Sigue cotizando al IMSS:', datos.sigue_cotizando ? 'Sí' : 'No'],
-                  ['Semanas descontadas:', datos.semanas_descontadas > 0 ? String(datos.semanas_descontadas) : 'Se llena con la constancia'],
-                  ['Ayuda asistencial (art 165 LSS):', datos.tiene_ayuda_asistencial ? 'Sí' : 'No'],
-                  ['Edad mínima de Pensión sin:', `${datos.edad_min_pension || 60} años (predefinido)`],
-                ].map(([l, v], i) => (
-                  <div key={i}>
-                    <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '1px', textDecoration: 'underline' }}>{l}</div>
-                    <div style={{ fontSize: '12px', color: String(v).includes('Se llena') ? '#cbd5e1' : '#374151', padding: '3px 5px', background: '#F8FAFC', border: '1px solid #e2e8f0', fontStyle: String(v).includes('Se llena') ? 'italic' : 'normal' }}>{v}</div>
+
+              <div style={{ borderTop: '1px solid #E5E7EB' }} />
+
+              {/* ── Cotización */}
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                  <div style={{ width: '3px', height: '14px', background: NARANJA, flexShrink: 0 }} />
+                  <span style={{ fontSize: '10px', fontWeight: '700', color: '#374151', textTransform: 'uppercase' as const, letterSpacing: '0.8px' }}>Cotización</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px', marginBottom: '6px' }}>
+                  <div>
+                    <span style={{ fontSize: '9px', color: '#9CA3AF', fontWeight: '600', textTransform: 'uppercase' as const }}>Total semanas</span>
+                    <div style={{ padding: '8px', background: datos.semanas_totales ? '#FFFBEB' : '#F9FAFB', border: '1px solid ' + (datos.semanas_totales ? '#FCD34D' : '#E5E7EB'), fontSize: '18px', fontWeight: '900', color: datos.semanas_totales ? '#92400E' : '#CBD5E1', textAlign: 'center' as const }}>
+                      {datos.semanas_totales || '—'}
+                    </div>
                   </div>
-                ))}
+                  <div>
+                    <span style={{ fontSize: '9px', color: '#9CA3AF', fontWeight: '600', textTransform: 'uppercase' as const }}>Descontadas</span>
+                    <div style={{ padding: '8px', background: 'white', border: '1px solid #E5E7EB', fontSize: '18px', fontWeight: '900', color: datos.semanas_descontadas > 0 ? '#DC2626' : '#CBD5E1', textAlign: 'center' as const }}>
+                      {datos.semanas_descontadas > 0 ? datos.semanas_descontadas : '—'}
+                    </div>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '9px', color: '#9CA3AF', fontWeight: '600', textTransform: 'uppercase' as const }}>Netas</span>
+                    <div style={{ padding: '8px', background: datos.semanas_totales ? '#EEF2F8' : '#F9FAFB', border: '1px solid ' + (datos.semanas_totales ? AZUL : '#E5E7EB'), fontSize: '18px', fontWeight: '900', color: datos.semanas_totales ? AZUL : '#CBD5E1', textAlign: 'center' as const }}>
+                      {datos.semanas_totales ? (datos.semanas_totales - datos.semanas_descontadas) : '—'}
+                    </div>
+                  </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
+                  <div>
+                    <span style={{ fontSize: '9px', color: '#9CA3AF', fontWeight: '600', textTransform: 'uppercase' as const }}>Vigencia</span>
+                    <div style={{ padding: '6px 8px', background: conservacion.vigente ? '#F0FDF4' : datos.semanas_totales ? '#FEF2F2' : '#F9FAFB', border: '1px solid ' + (conservacion.vigente ? '#86EFAC' : datos.semanas_totales ? '#FCA5A5' : '#E5E7EB'), fontSize: '11.5px', fontWeight: '700', color: conservacion.vigente ? '#15803D' : datos.semanas_totales ? '#DC2626' : '#CBD5E1', textAlign: 'center' as const }}>
+                      {datos.semanas_totales ? (conservacion.vigente ? '✓ Vigente' : '✕ Vencida') : '—'}
+                    </div>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '9px', color: '#9CA3AF', fontWeight: '600', textTransform: 'uppercase' as const }}>Cotizando</span>
+                    <div style={{ padding: '6px 8px', background: 'white', border: '1px solid #E5E7EB', fontSize: '11.5px', fontWeight: '600', color: '#374151', textAlign: 'center' as const }}>
+                      {datos.sigue_cotizando ? '✓ Sí' : '✕ No'}
+                    </div>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '9px', color: '#9CA3AF', fontWeight: '600', textTransform: 'uppercase' as const }}>Art. 165</span>
+                    <div style={{ padding: '6px 8px', background: 'white', border: '1px solid #E5E7EB', fontSize: '11.5px', fontWeight: '600', color: '#374151', textAlign: 'center' as const }}>
+                      {datos.tiene_ayuda_asistencial ? '✓ Aplica' : 'No'}
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div style={{ borderTop: '1px dashed #e2e8f0' }} />
-            <div>
-              <p style={{ fontSize: '12px', fontWeight: '800', color: '#374151', textTransform: 'uppercase', textAlign: 'center' as const, margin: '0 0 4px', letterSpacing: '0.3px' }}>PENSIONES LSS 1973: PORCENTAJE SEGÚN EDAD DE RETIRO</p>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11.5px' }}>
-                <thead>
-                  <tr style={{ background: AZUL }}>
-                    <th style={{ padding: '3px 5px', color: 'white', textAlign: 'center' as const, fontWeight: '700', fontSize: '12px' }}>Edad</th>
-                    <th style={{ padding: '3px 5px', color: 'white', textAlign: 'center' as const, fontWeight: '700', fontSize: '12px' }}>% Cuantía</th>
-                    <th style={{ padding: '3px 5px', color: 'white', textAlign: 'center' as const, fontWeight: '700', fontSize: '12px' }}>Tipo</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[[60,'75%','Cesantía E.A.'],[61,'80%','Cesantía E.A.'],[62,'85%','Cesantía E.A.'],[63,'90%','Cesantía E.A.'],[64,'95%','Cesantía E.A.']].map(([edad, pct, tipo], i) => (
-                    <tr key={i} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC' }}>
-                      <td style={{ padding: '2px 5px', textAlign: 'center' as const }}>{edad} Años</td>
-                      <td style={{ padding: '2px 5px', textAlign: 'center' as const, fontWeight: '700' }}>{pct}</td>
-                      <td style={{ padding: '2px 5px', fontSize: '12px', color: '#64748b' }}>{tipo}</td>
-                    </tr>
+
+              <div style={{ borderTop: '1px solid #E5E7EB' }} />
+
+              {/* ── Familia */}
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <div style={{ width: '3px', height: '14px', background: VERDE, flexShrink: 0 }} />
+                  <span style={{ fontSize: '10px', fontWeight: '700', color: '#374151', textTransform: 'uppercase' as const, letterSpacing: '0.8px' }}>Familia y beneficiarios</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
+                  {[
+                    { label: 'Cónyuge', value: datos.tiene_conyuge ? 'Sí' : 'No', ok: datos.tiene_conyuge },
+                    { label: 'Hijos < 16', value: String(datos.num_hijos), ok: datos.num_hijos > 0 },
+                    { label: 'Padres dep.', value: String(datos.num_padres), ok: datos.num_padres > 0 },
+                  ].map(({ label, value, ok }, i) => (
+                    <div key={i} style={{ textAlign: 'center' as const, padding: '10px 6px', background: 'white', border: '1px solid #E5E7EB' }}>
+                      <div style={{ fontSize: '20px', fontWeight: '800', color: ok ? VERDE : '#9CA3AF' }}>{value}</div>
+                      <div style={{ fontSize: '9.5px', color: '#9CA3AF', marginTop: '2px', textTransform: 'uppercase' as const, letterSpacing: '0.3px' }}>{label}</div>
+                    </div>
                   ))}
-                  <tr style={{ background: VERDE }}>
-                    <td style={{ padding: '3px 5px', textAlign: 'center' as const, fontWeight: '800', color: 'white' }}>65+ Años</td>
-                    <td style={{ padding: '3px 5px', textAlign: 'center' as const, fontWeight: '800', color: 'white' }}>100%</td>
-                    <td style={{ padding: '3px 5px', color: 'white', fontSize: '12px', fontWeight: '700' }}>VEJEZ (IDEL)</td>
-                  </tr>
-                </tbody>
-              </table>
+                </div>
+              </div>
+
+              <div style={{ borderTop: '1px solid #E5E7EB' }} />
+
+              {/* ── Tabla factores edad */}
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <div style={{ width: '3px', height: '14px', background: '#7C3AED', flexShrink: 0 }} />
+                  <span style={{ fontSize: '10px', fontWeight: '700', color: '#374151', textTransform: 'uppercase' as const, letterSpacing: '0.8px' }}>% pensión por edad de retiro (Ley 73)</span>
+                </div>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ background: AZUL }}>
+                      {['Edad', '% Cuantía', 'Tipo de pensión'].map((h, i) => (
+                        <th key={i} style={{ padding: '7px 10px', color: 'white', fontSize: '10.5px', fontWeight: '700', textAlign: i === 0 ? 'center' as const : i === 1 ? 'center' as const : 'left' as const }}>{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[[60,'75%','Cesantía en Edad Avanzada'],[61,'80%','Cesantía en Edad Avanzada'],[62,'85%','Cesantía en Edad Avanzada'],[63,'90%','Cesantía en Edad Avanzada'],[64,'95%','Cesantía en Edad Avanzada']].map(([edad, pct, tipo], i) => {
+                      const isActive = datos.edad_actual && Math.floor(datos.edad_actual) === Number(edad)
+                      return (
+                        <tr key={i} style={{ background: isActive ? '#EEF2F8' : i % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
+                          <td style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: '12px', fontWeight: isActive ? '800' : '500', color: isActive ? AZUL : '#374151' }}>{edad} años</td>
+                          <td style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: '14px', fontWeight: '800', color: isActive ? AZUL : '#374151' }}>{pct}</td>
+                          <td style={{ padding: '7px 10px', fontSize: '11px', color: '#6B7280' }}>{tipo as string}</td>
+                        </tr>
+                      )
+                    })}
+                    <tr style={{ background: VERDE }}>
+                      <td style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: '12px', fontWeight: '800', color: 'white' }}>65+ años</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: '14px', fontWeight: '900', color: 'white' }}>100%</td>
+                      <td style={{ padding: '7px 10px', fontSize: '11px', color: 'white', fontWeight: '600' }}>Vejez (IDEL)</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
             </div>
           </div>
 
