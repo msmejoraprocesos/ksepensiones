@@ -14,26 +14,26 @@ const fmtMXN2 = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency
 
 // ── Design System ──────────────────────────────────────────────────
 const DS = {
-  // Typography scale
   txt: { xs: '10px', sm: '11px', base: '12px', md: '13px', lg: '14px', xl: '16px', h: '18px' },
-  // Colors
   col: { azul: '#1B3A6B', verde: '#2E8B57', naranja: '#F05B21', gris: '#6B7280', borde: '#D1D5DB', bg: '#F9FAFB', bgAlt: '#F4F6FB' },
-  // Spacing
   sp: { xs: '4px', sm: '6px', md: '10px', lg: '14px', xl: '20px' },
-  // Shared styles as objects
-  card: { background: 'white', border: '1px solid #D1D5DB', padding: '16px', marginBottom: '12px' } as React.CSSProperties,
-  tHead: { background: '#1B3A6B', color: 'white', padding: '8px 10px', fontSize: '11px', fontWeight: '700' as const, textAlign: 'left' as const, whiteSpace: 'nowrap' as const },
-  tHeadR: { background: '#1B3A6B', color: 'white', padding: '8px 10px', fontSize: '11px', fontWeight: '700' as const, textAlign: 'right' as const, whiteSpace: 'nowrap' as const },
-  tCell: { padding: '7px 10px', fontSize: '12px', color: '#374151', borderBottom: '1px solid #E5E7EB' } as React.CSSProperties,
-  tCellR: { padding: '7px 10px', fontSize: '12px', color: '#374151', borderBottom: '1px solid #E5E7EB', textAlign: 'right' as const } as React.CSSProperties,
-  tCellBold: { padding: '7px 10px', fontSize: '12px', color: '#1B3A6B', fontWeight: '700' as const, borderBottom: '1px solid #E5E7EB', textAlign: 'right' as const } as React.CSSProperties,
-  tRowAlt: (i: number) => ({ background: i % 2 === 0 ? 'white' : '#F9FAFB' }) as React.CSSProperties,
-  secTitle: { fontSize: '13px', fontWeight: '700' as const, color: '#374151', margin: '0 0 12px', paddingBottom: '8px', borderBottom: '2px solid #E5E7EB' } as React.CSSProperties,
-  kpiBlock: { background: '#1B3A6B', padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' } as React.CSSProperties,
-  label: { fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', marginBottom: '3px', display: 'block' as const, textDecoration: 'underline', textDecorationColor: '#D1D5DB' },
-  input: { width: '100%', border: '1px solid #9CA3AF', padding: '6px 8px', fontSize: '12px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: 'white', color: '#374151' } as React.CSSProperties,
-  inputReadonly: { width: '100%', border: '1px solid #D1D5DB', padding: '6px 8px', fontSize: '12px', background: '#F5F5F5', color: '#6B7280', fontFamily: 'inherit', boxSizing: 'border-box' as const } as React.CSSProperties,
-  select: { width: '100%', border: '1px solid #9CA3AF', padding: '6px 8px', fontSize: '12px', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const } as React.CSSProperties,
+  card: { background: 'white', border: '1px solid #E5E7EB', padding: '16px', marginBottom: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' } as React.CSSProperties,
+  cardHighlight: { background: 'white', border: '2px solid #1B3A6B', padding: '16px', marginBottom: '12px', boxShadow: '0 2px 8px rgba(27,58,107,0.08)' } as React.CSSProperties,
+  tHead: { background: '#1B3A6B', color: 'white', padding: '9px 12px', fontSize: '11px', fontWeight: '700' as const, textAlign: 'left' as const, whiteSpace: 'nowrap' as const },
+  tHeadR: { background: '#1B3A6B', color: 'white', padding: '9px 12px', fontSize: '11px', fontWeight: '700' as const, textAlign: 'right' as const, whiteSpace: 'nowrap' as const },
+  tCell: { padding: '8px 12px', fontSize: '12px', color: '#374151', borderBottom: '1px solid #F3F4F6' } as React.CSSProperties,
+  tCellR: { padding: '8px 12px', fontSize: '12px', color: '#374151', borderBottom: '1px solid #F3F4F6', textAlign: 'right' as const } as React.CSSProperties,
+  tCellBold: { padding: '8px 12px', fontSize: '13px', color: '#1B3A6B', fontWeight: '800' as const, borderBottom: '1px solid #F3F4F6', textAlign: 'right' as const } as React.CSSProperties,
+  tRowAlt: (i: number) => ({ background: i % 2 === 0 ? 'white' : '#F8FAFC' }) as React.CSSProperties,
+  secTitle: { fontSize: '13px', fontWeight: '700' as const, color: '#111827', margin: '0 0 14px', paddingBottom: '10px', borderBottom: '2px solid #E5E7EB' } as React.CSSProperties,
+  kpiBlock: { background: '#1B3A6B', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' } as React.CSSProperties,
+  kpiGreen: { background: '#065F46', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' } as React.CSSProperties,
+  label: { fontSize: '10px', fontWeight: '600' as const, color: '#9CA3AF', marginBottom: '4px', display: 'block' as const, textTransform: 'uppercase' as const, letterSpacing: '0.5px' },
+  input: { width: '100%', border: '1px solid #9CA3AF', padding: '7px 10px', fontSize: '13px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: 'white', color: '#374151', outline: 'none' } as React.CSSProperties,
+  inputReadonly: { width: '100%', border: '1px solid #E5E7EB', padding: '7px 10px', fontSize: '13px', background: '#F9FAFB', color: '#6B7280', fontFamily: 'inherit', boxSizing: 'border-box' as const } as React.CSSProperties,
+  select: { width: '100%', border: '1px solid #9CA3AF', padding: '7px 10px', fontSize: '13px', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const } as React.CSSProperties,
+  criticalNum: { fontSize: '28px', fontWeight: '900' as const, letterSpacing: '-1px', lineHeight: 1 } as React.CSSProperties,
+  bigNum: { fontSize: '22px', fontWeight: '800' as const, letterSpacing: '-0.5px' } as React.CSSProperties,
 }
 // ──────────────────────────────────────────────────────────────────
 
@@ -1976,71 +1976,112 @@ function CalculadoraInner() {
           const sem = datos.semanas_totales - datos.semanas_descontadas
           if (sdiPromedio <= 0) return (
             <div style={{ textAlign: 'center', padding: '60px 20px', color: '#9CA3AF' }}>
-              <div style={{ fontSize: '40px', marginBottom: '12px' }}>📋</div>
-              <p>Carga la constancia IMSS para ver la pensión actual</p>
+              <div style={{ fontSize: '48px', marginBottom: '12px' }}>📋</div>
+              <p style={{ fontSize: '14px' }}>Carga la constancia IMSS para ver la pensión actual</p>
             </div>
           )
           const res = calcPensionLey73(sem, sdiPromedio, datos.edad_min_pension || 60, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, undefined, datos.tiene_ayuda_asistencial)
+          // Chart data
+          const totalAnual = res.pensionAnual
+          const componentes = [
+            { label: 'Cuantía básica', val: res.cuantiaBasicaAnual, color: '#1B3A6B' },
+            { label: 'Incrementos anuales', val: res.incrementosAnual, color: '#2E8B57' },
+            { label: 'Asignaciones familiares', val: res.asignacionesAnual, color: '#F05B21' },
+            { label: 'Ayuda asistencial', val: res.ayudaAsistencialAnual, color: '#7C3AED' },
+          ].filter(c => c.val > 0)
+          const maxVal = Math.max(...componentes.map(c => c.val))
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <div style={DS.card}>
-                <p style={DS.secTitle}>Cuantías anuales de Pensión:</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0', border: '1px solid #d1d5db' }}>
-                  {[
-                    ['Cuantía Básica de Pensión', fmtMXN2(res.cuantiaBasicaAnual), 'Total de Pensión por Vejez', fmtMXN2(res.pensionAnual / (res.factorEdad || 0.75))],
-                    ['Incrementos Anuales', fmtMXN2(res.incrementosAnual), 'Porcentaje por Edad', `${((res.factorEdad || 0.75) * 100).toFixed(0)}%`],
-                    ['Asignaciones Familiares', fmtMXN2(res.asignacionesAnual), 'Total de Pensión', fmtMXN2(res.pensionAnual)],
-                    ['Ayuda Asistencial', fmtMXN2(res.ayudaAsistencialAnual), '¿Aplica Pensión Mínima?', res.pmg_aplica ? 'SÍ' : 'NO'],
-                    ['Pensión Mínima del Año', fmtMXN2(sys.PMG_L73 * 12), '', ''],
-                  ].map(([l1, v1, l2, v2], i) => (
-                    <Fragment key={i}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 10px', borderBottom: '1px solid #e5e7eb', borderRight: '1px solid #d1d5db', background: i % 2 === 0 ? 'white' : '#FAFAFA' }}>
-                        <span style={{ fontSize: '11.5px', color: '#374151' }}>{l1}</span>
-                        <span style={{ fontSize: '11.5px', fontWeight: '700', color: '#374151' }}>{v1}</span>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 10px', borderBottom: '1px solid #e5e7eb', background: i % 2 === 0 ? 'white' : '#FAFAFA' }}>
-                        <span style={{ fontSize: '11.5px', color: '#374151' }}>{l2}</span>
-                        <span style={{ fontSize: '11.5px', fontWeight: '700', color: '#374151' }}>{v2}</span>
-                      </div>
-                    </Fragment>
-                  ))}
-                </div>
-              </div>
-              {/* 3 bloques KPI azul marino */}
-              {[
-                { label: 'Importe de Pensión Anual', sub: 'Monto Anual de Pensión calculado con base a lo estipulado en la Ley de 1973 de Seguro Social.', value: fmtMXN2(res.pensionAnual) },
-                { label: 'Importe de Pensión Mensual', sub: 'Monto Mensual de Pensión calculado con base a lo estipulado en la Ley de 1973 de Seguro Social.', value: fmtMXN2(res.pensionMensual) },
-                { label: 'Aguinaldo', sub: 'El pago del aguinaldo se hace una vez al año y es equivalente a una mensualidad de la pensión del beneficiario, sin contar el importe por asignaciones familiares ni ayudas asistenciales.', value: fmtMXN2(res.aguinaldoAnual) },
-              ].map((k, i) => (
-                <div key={i} style={{ background: '#1B3A6B', padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '20px' }}>
-                  <div>
-                    <p style={{ fontSize: '14px', fontWeight: '700', color: 'white', margin: '0 0 4px' }}>{k.label}</p>
-                    <p style={{ fontSize: '12px', color: '#93C5FD', margin: 0, lineHeight: 1.5 }}>{k.sub}</p>
+
+              {/* 3 KPIs principales — destacados al frente */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+                {[
+                  { label: 'Pensión Mensual', value: fmtMXN2(res.pensionMensual), sub: 'Por mes de 30 días', color: '#1B3A6B', bg: '#EEF2F8', border: '#1B3A6B', critical: true },
+                  { label: 'Pensión Anual', value: fmtMXN2(res.pensionAnual), sub: 'Total año', color: '#065F46', bg: '#F0FDF4', border: '#2E8B57', critical: false },
+                  { label: 'Aguinaldo', value: fmtMXN2(res.aguinaldoAnual), sub: 'Pago anual equivalente', color: '#92400E', bg: '#FFFBEB', border: '#F59E0B', critical: false },
+                ].map((k, i) => (
+                  <div key={i} style={{ background: k.bg, border: '2px solid ' + k.border, padding: '16px', textAlign: 'center' as const }}>
+                    <div style={{ fontSize: '10px', color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginBottom: '8px', fontWeight: '600' }}>{k.label}</div>
+                    <div style={{ fontSize: k.critical ? '28px' : '22px', fontWeight: '900', color: k.color, letterSpacing: '-1px', marginBottom: '4px' }}>{k.value}</div>
+                    <div style={{ fontSize: '11px', color: '#9CA3AF' }}>{k.sub}</div>
                   </div>
-                  <span style={{ fontSize: '26px', fontWeight: '900', color: 'white', whiteSpace: 'nowrap' }}>{k.value}</span>
-                </div>
-              ))}
-              {/* INPC */}
-              <div style={DS.card}>
-                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 8px' }}>Pensión Actualizada en el mismo año conforme al INPC</p>
-                <div style={{ background: '#1B3A6B', padding: '12px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <p style={{ fontSize: '13px', fontWeight: '700', color: 'white', margin: 0 }}>Importe de Pensión Mensual Actualizada por INPC</p>
-                  <span style={{ fontSize: '20px', fontWeight: '900', color: 'white', background: '#15803D', padding: '4px 14px' }}>NO APLICA</span>
-                </div>
-                <p style={{ fontSize: '12.5px', color: '#6B7280', margin: 0, lineHeight: 1.6 }}>
-                  El importe de una pensión otorgada se actualiza cada año durante el mes de febrero, conforme al Índice Nacional de Precios al Consumidor (INPC). Si la fecha de baja utilizada para el cálculo de la pensión corresponde al mes de enero, el pensionado recibirá la actualización por inflación dentro del mismo año, reflejándose automáticamente en su pago mensual a partir de febrero.
-                </p>
+                ))}
               </div>
-            </div>
-          )
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                {/* Cuantías desglosadas */}
+                <div style={DS.card}>
+                  <p style={DS.secTitle}>Desglose de Cuantías Anuales</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+                    {[
+                      { label: 'Cuantía Básica de Pensión', value: fmtMXN2(res.cuantiaBasicaAnual), color: '#1B3A6B', pct: (res.cuantiaBasicaAnual / totalAnual * 100).toFixed(1) },
+                      { label: 'Incrementos Anuales', value: fmtMXN2(res.incrementosAnual), color: '#2E8B57', pct: (res.incrementosAnual / totalAnual * 100).toFixed(1) },
+                      { label: 'Asignaciones Familiares', value: fmtMXN2(res.asignacionesAnual), color: '#F05B21', pct: (res.asignacionesAnual / totalAnual * 100).toFixed(1) },
+                      { label: 'Ayuda Asistencial', value: fmtMXN2(res.ayudaAsistencialAnual), color: '#7C3AED', pct: (res.ayudaAsistencialAnual / totalAnual * 100).toFixed(1) },
+                    ].map(({ label, value, color, pct }, i) => (
+                      <div key={i} style={{ padding: '10px 0', borderBottom: '1px solid #F3F4F6' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                          <span style={{ fontSize: '12px', color: '#374151' }}>{label}</span>
+                          <span style={{ fontSize: '13px', fontWeight: '700', color }}>{value}</span>
+                        </div>
+                        <div style={{ height: '6px', background: '#F3F4F6', borderRadius: '3px', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', background: color, width: pct + '%', borderRadius: '3px', transition: 'width 0.4s' }} />
+                        </div>
+                        <div style={{ fontSize: '10px', color: '#9CA3AF', marginTop: '2px', textAlign: 'right' as const }}>{pct}% del total</div>
+                      </div>
+                    ))}
+                    <div style={{ padding: '10px 0', display: 'flex', justifyContent: 'space-between', borderTop: '2px solid #1B3A6B', marginTop: '4px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: '700', color: '#111827' }}>TOTAL PENSIÓN ANUAL</span>
+                      <span style={{ fontSize: '16px', fontWeight: '900', color: '#1B3A6B' }}>{fmtMXN2(res.pensionAnual)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Datos de cálculo + indicadores */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={DS.card}>
+                    <p style={DS.secTitle}>Factores del Cálculo</p>
+                    {[
+                      { label: 'Total Pensión por Vejez (100%)', value: fmtMXN2(res.pensionAnual / (res.factorEdad || 0.75)), important: false },
+                      { label: 'Porcentaje por edad de retiro', value: ((res.factorEdad || 0.75) * 100).toFixed(0) + '%', important: true },
+                      { label: 'Total de Pensión', value: fmtMXN2(res.pensionAnual), important: true },
+                      { label: 'Pensión Mínima Garantizada / año', value: fmtMXN2(sys.PMG_L73 * 12), important: false },
+                    ].map(({ label, value, important }, i) => (
+                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #F3F4F6' }}>
+                        <span style={{ fontSize: '12px', color: '#6B7280' }}>{label}</span>
+                        <span style={{ fontSize: important ? '14px' : '12px', fontWeight: important ? '800' : '600', color: important ? '#1B3A6B' : '#374151' }}>{value}</span>
+                      </div>
+                    ))}
+                    {/* PMG badge */}
+                    <div style={{ marginTop: '10px', padding: '10px 12px', background: res.pmg_aplica ? '#F0FDF4' : '#FEF2F2', border: '1px solid ' + (res.pmg_aplica ? '#86EFAC' : '#FCA5A5'), display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '12px', color: '#374151', fontWeight: '600' }}>¿Aplica Pensión Mínima Garantizada?</span>
+                      <span style={{ fontSize: '13px', fontWeight: '800', color: res.pmg_aplica ? '#15803D' : '#DC2626', padding: '3px 10px', background: res.pmg_aplica ? '#DCFCE7' : '#FEE2E2' }}>
+                        {res.pmg_aplica ? '✓ SÍ' : '✕ NO'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* INPC */}
+                  <div style={DS.card}>
+                    <p style={{ fontSize: '12px', fontWeight: '700', color: '#374151', margin: '0 0 8px' }}>Actualización INPC</p>
+                    <div style={{ padding: '10px 14px', background: '#F9FAFB', border: '1px solid #E5E7EB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '12px', color: '#6B7280' }}>Pensión mensual actualizada por INPC</span>
+                      <span style={{ fontSize: '13px', fontWeight: '800', color: '#6B7280', background: '#E5E7EB', padding: '3px 10px' }}>NO APLICA</span>
+                    </div>
+                    <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '8px 0 0', lineHeight: 1.5 }}>La pensión se actualiza anualmente en febrero conforme al INPC. Si la fecha de baja corresponde a enero, el pensionado recibe la actualización ese mismo año.</p>
+                  </div>
+                </div>
+              </div>
 
         {/* ── Siguiente sección ── */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
           <button onClick={() => setTab(2)}
             style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700', fontFamily: 'inherit' }}>
-            Salario Prom Mod 40 →
+            Salario Prom. Mod 40 →
           </button>
         </div>
+            </div>
+          )
         })()}
 
         {tab === 2 && (() => {
@@ -2432,7 +2473,85 @@ function CalculadoraInner() {
           }
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: 0 }}>Inversión:</p>
+
+              {/* KPIs críticos de inversión */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px' }}>
+                {[
+                  { label: 'Incremento en pensión', value: fmtMXN2(escRec.incremento_vs_base), sub: 'mensual adicional', color: '#065F46', bg: '#F0FDF4', border: '#86EFAC', critical: true },
+                  { label: 'Inversión neta', value: fmtMXN2(escRec.inversion_neta), sub: 'descontando AFORE', color: '#92400E', bg: '#FFFBEB', border: '#FCD34D', critical: false },
+                  { label: 'Recuperación', value: escRec.roi_meses?.toFixed(1) + ' meses', sub: 'para recuperar inversión', color: '#1B3A6B', bg: '#EEF2F8', border: '#1B3A6B', critical: false },
+                  { label: 'Tasa de rendimiento', value: escRec.tasa_rendimiento?.toFixed(1) + '%', sub: 'total a los 80 años', color: termRec.color, bg: termRec.bg, border: termRec.color, critical: true },
+                ].map((k, i) => (
+                  <div key={i} style={{ background: k.bg, border: '2px solid ' + k.border, padding: '14px', textAlign: 'center' as const }}>
+                    <div style={{ fontSize: '9.5px', color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginBottom: '6px', fontWeight: '600' }}>{k.label}</div>
+                    <div style={{ fontSize: k.critical ? '24px' : '20px', fontWeight: '900', color: k.color, letterSpacing: '-0.5px', marginBottom: '3px' }}>{k.value}</div>
+                    <div style={{ fontSize: '10.5px', color: '#9CA3AF' }}>{k.sub}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Gráfica SVG: Flujos acumulados Sin vs Con Mod40 */}
+              {filas.length > 0 && (() => {
+                const W = 560, H = 160, PAD = { t: 16, r: 16, b: 32, l: 60 }
+                const chartW = W - PAD.l - PAD.r, chartH = H - PAD.t - PAD.b
+                const maxAcum = Math.max(...filas.map(f => Math.max(f.ganAcum, 0)), escRec.inversion_neta * 2)
+                const minAcum = Math.min(...filas.map(f => f.ganAcum), 0)
+                const range = maxAcum - minAcum
+                const xScale = (i: number) => PAD.l + (i / (filas.length - 1)) * chartW
+                const yScale = (v: number) => PAD.t + chartH - ((v - minAcum) / range * chartH)
+                const zeroY = yScale(0)
+                // Build paths
+                const gainPath = filas.map((f, i) => (i === 0 ? 'M' : 'L') + xScale(i).toFixed(1) + ',' + yScale(f.ganAcum).toFixed(1)).join(' ')
+                // Area under gain line (above zero)
+                const gainArea = gainPath + ` L${xScale(filas.length-1)},${zeroY} L${xScale(0)},${zeroY} Z`
+                // Investment line (horizontal negative)
+                const invY = yScale(-escRec.inversion_neta)
+                return (
+                  <div style={DS.card}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                      <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: 0 }}>📈 Análisis de Flujos — Ganancia acumulada</p>
+                      <div style={{ display: 'flex', gap: '16px', fontSize: '10px', color: '#6B7280' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><span style={{ width: '12px', height: '3px', background: '#2E8B57', display: 'inline-block' }} />Ganancia acumulada</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><span style={{ width: '12px', height: '2px', background: '#EF4444', display: 'inline-block', borderTop: '2px dashed #EF4444' }} />Inversión inicial</span>
+                      </div>
+                    </div>
+                    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: H + 'px' }}>
+                      {/* Zero line */}
+                      <line x1={PAD.l} y1={zeroY} x2={W - PAD.r} y2={zeroY} stroke='#E5E7EB' strokeWidth='1' />
+                      {/* Investment negative zone */}
+                      <rect x={PAD.l} y={zeroY} width={chartW} height={Math.max(0, yScale(-escRec.inversion_neta) - zeroY)} fill='#FEF2F2' opacity='0.5' />
+                      {/* Gain area */}
+                      <path d={gainArea} fill='#F0FDF4' opacity='0.7' />
+                      {/* Gain line */}
+                      <path d={gainPath} fill='none' stroke='#2E8B57' strokeWidth='2.5' strokeLinejoin='round' />
+                      {/* Investment dashed line */}
+                      <line x1={PAD.l} y1={invY} x2={W - PAD.r} y2={invY} stroke='#EF4444' strokeWidth='1.5' strokeDasharray='6,4' />
+                      {/* Y axis labels */}
+                      {[0, maxAcum * 0.5, maxAcum].map((v, i) => (
+                        <text key={i} x={PAD.l - 4} y={yScale(v) + 4} textAnchor='end' fontSize='9' fill='#9CA3AF'>
+                          {v >= 1000000 ? '$' + (v/1000000).toFixed(1) + 'M' : v >= 1000 ? '$' + (v/1000).toFixed(0) + 'K' : '$0'}
+                        </text>
+                      ))}
+                      {/* X axis labels */}
+                      {filas.filter((_, i) => i % Math.ceil(filas.length / 5) === 0 || i === filas.length - 1).map((f, i) => (
+                        <text key={i} x={xScale(filas.indexOf(f))} y={H - 4} textAnchor='middle' fontSize='9' fill='#9CA3AF'>{f.edad}</text>
+                      ))}
+                      {/* Punto de break-even */}
+                      {filas.findIndex(f => f.ganAcum >= 0) > 0 && (() => {
+                        const beIdx = filas.findIndex(f => f.ganAcum >= 0)
+                        return <circle cx={xScale(beIdx)} cy={yScale(0)} r='4' fill='#F05B21' />
+                      })()}
+                    </svg>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10.5px', color: '#9CA3AF', marginTop: '4px' }}>
+                      <span>Edad {filas[0]?.edad} años</span>
+                      <span>Eje X: edad · Eje Y: ganancia acumulada (MXN)</span>
+                      <span>Edad {filas[filas.length - 1]?.edad} años</span>
+                    </div>
+                  </div>
+                )
+              })()}
+
+              <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: 0 }}>Detalle de la inversión:</p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
                 {/* Col 1: Mejora de pensión */}
                 <div style={{ border: '1px solid #d1d5db', background: 'white' }}>
@@ -2691,8 +2810,46 @@ function CalculadoraInner() {
           const escsConMod40 = escenarios.filter(e => e.mod40_meses > 0)
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+
+              {/* Visual bars comparison */}
+              {escsConMod40.length > 0 && (
+                <div style={DS.card}>
+                  <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 14px' }}>📊 Comparativo Visual — Pensión mensual por escenario</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {/* Sin Mod 40 baseline */}
+                    {(() => {
+                      const base = escenarios[0]?.pension_base ?? 0
+                      const maxPen = Math.max(...escsConMod40.map(e => e.pension_mensual), base)
+                      const allScenarios = [
+                        { label: 'Sin Mod. 40 (actual)', value: base, color: '#9CA3AF', isBase: true },
+                        ...escsConMod40.slice(0, 6).map((e, i) => ({
+                          label: 'Escenario ' + (i + 1) + ' — ' + e.mod40_umas + ' UMAs · ' + (e.mod40_meses / 12).toFixed(1) + ' años',
+                          value: e.pension_mensual,
+                          color: ['#1B3A6B', '#2E8B57', '#F05B21', '#7C3AED', '#0891B2', '#DC2626'][i],
+                          isBase: false,
+                          gain: e.pension_mensual - base,
+                        }))
+                      ]
+                      return allScenarios.map((sc, i) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{ width: '200px', fontSize: '11px', color: sc.isBase ? '#9CA3AF' : '#374151', fontWeight: sc.isBase ? '400' : '600', flexShrink: 0, textAlign: 'right' as const, paddingRight: '8px' }}>{sc.label}</div>
+                          <div style={{ flex: 1, height: '28px', background: '#F3F4F6', position: 'relative' as const, overflow: 'hidden' }}>
+                            <div style={{ height: '100%', width: (sc.value / maxPen * 100) + '%', background: sc.color, display: 'flex', alignItems: 'center', paddingLeft: '8px', transition: 'width 0.5s', minWidth: '2px' }}>
+                              <span style={{ fontSize: '11.5px', fontWeight: '800', color: 'white', whiteSpace: 'nowrap' }}>{fmtMXN2(sc.value)}</span>
+                            </div>
+                          </div>
+                          {!sc.isBase && (sc as any).gain > 0 && (
+                            <div style={{ width: '80px', fontSize: '11px', fontWeight: '700', color: '#2E8B57', textAlign: 'right' as const, flexShrink: 0 }}>+{fmtMXN2((sc as any).gain)}</div>
+                          )}
+                        </div>
+                      ))
+                    })()}
+                  </div>
+                </div>
+              )}
+
               <div style={DS.card}>
-                <p style={DS.secTitle}>Comparativo de Escenarios</p>
+                <p style={DS.secTitle}>Tabla comparativa completa</p>
                 {escsConMod40.length === 0 ? (
                   <div style={{ padding: '32px', textAlign: 'center' as const, color: '#9CA3AF' }}>
                     <p>Configura los datos de Modalidad 40 en la pestaña "Salario Prom. Mod 40" para ver los escenarios.</p>
@@ -2881,6 +3038,74 @@ function CalculadoraInner() {
           )
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+
+              {/* KPIs críticos */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px' }}>
+                {[
+                  { label: 'Inversión total retroactiva', value: fmtMXN(escRec.costo_retroactivo), color: '#1B3A6B', bg: '#EEF2F8', border: '#1B3A6B' },
+                  { label: 'Aportación banco (35.65%)', value: fmtMXN(escRec.aportacion_banco), color: '#1D4ED8', bg: '#EFF6FF', border: '#93C5FD' },
+                  { label: 'Cuenta propia / fondeador', value: fmtMXN(escRec.aportacion_segundo_fondeo), color: '#92400E', bg: '#FFFBEB', border: '#FCD34D' },
+                  { label: 'Descuento mensual a pensión', value: fmtMXN(escRec.descuento_mensual), color: '#B91C1C', bg: '#FEF2F2', border: '#FCA5A5' },
+                ].map((k, i) => (
+                  <div key={i} style={{ background: k.bg, border: '2px solid ' + k.border, padding: '14px', textAlign: 'center' as const }}>
+                    <div style={{ fontSize: '9.5px', color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginBottom: '6px', fontWeight: '600' }}>{k.label}</div>
+                    <div style={{ fontSize: '20px', fontWeight: '900', color: k.color, letterSpacing: '-0.5px' }}>{k.value}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Donut chart de participaciones */}
+              {escRec.costo_retroactivo > 0 && (() => {
+                const total = escRec.costo_retroactivo
+                const slices = [
+                  { label: 'Recuperación AFORE', val: escRec.recuperacion_afore_retro, color: '#2E8B57' },
+                  { label: 'Banco regulado', val: escRec.aportacion_banco, color: '#1D4ED8' },
+                  { label: 'Cuenta propia / segundo fondeador', val: escRec.aportacion_segundo_fondeo, color: '#F05B21' },
+                ]
+                const R = 60, r = 35, cx = 80, cy = 80
+                let startAngle = -90
+                const paths = slices.map(slice => {
+                  const pct = slice.val / total
+                  const angle = pct * 360
+                  const start = (startAngle * Math.PI) / 180
+                  const end = ((startAngle + angle) * Math.PI) / 180
+                  const x1 = cx + R * Math.cos(start), y1 = cy + R * Math.sin(start)
+                  const x2 = cx + R * Math.cos(end), y2 = cy + R * Math.sin(end)
+                  const xi1 = cx + r * Math.cos(start), yi1 = cy + r * Math.sin(start)
+                  const xi2 = cx + r * Math.cos(end), yi2 = cy + r * Math.sin(end)
+                  const large = angle > 180 ? 1 : 0
+                  const d = `M ${x1} ${y1} A ${R} ${R} 0 ${large} 1 ${x2} ${y2} L ${xi2} ${yi2} A ${r} ${r} 0 ${large} 0 ${xi1} ${yi1} Z`
+                  startAngle += angle
+                  return { ...slice, d, pct }
+                })
+                return (
+                  <div style={DS.card}>
+                    <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 12px' }}>🥧 Distribución del Pago Retroactivo</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+                      <svg viewBox='0 0 160 160' width='160' height='160'>
+                        {paths.map((p, i) => <path key={i} d={p.d} fill={p.color} stroke='white' strokeWidth='2' />)}
+                        <text x={cx} y={cy - 6} textAnchor='middle' fontSize='11' fontWeight='700' fill='#374151'>Total</text>
+                        <text x={cx} y={cy + 10} textAnchor='middle' fontSize='9' fill='#9CA3AF'>{fmtMXN(total / 1000)}K</text>
+                      </svg>
+                      <div style={{ flex: 1 }}>
+                        {paths.map((p, i) => (
+                          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0', borderBottom: i < paths.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
+                            <div style={{ width: '12px', height: '12px', background: p.color, flexShrink: 0 }} />
+                            <span style={{ flex: 1, fontSize: '12px', color: '#374151' }}>{p.label}</span>
+                            <span style={{ fontSize: '13px', fontWeight: '700', color: p.color }}>{(p.pct * 100).toFixed(1)}%</span>
+                            <span style={{ fontSize: '13px', fontWeight: '700', color: '#374151', minWidth: '80px', textAlign: 'right' as const }}>{fmtMXN(p.val)}</span>
+                          </div>
+                        ))}
+                        <div style={{ marginTop: '10px', padding: '8px 10px', background: '#EEF2F8', display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ fontSize: '12px', fontWeight: '700', color: '#1B3A6B' }}>TOTAL RETROACTIVO</span>
+                          <span style={{ fontSize: '14px', fontWeight: '900', color: '#1B3A6B' }}>{fmtMXN(total)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })()}
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
                 {/* Participaciones */}
                 <div style={DS.card}>
