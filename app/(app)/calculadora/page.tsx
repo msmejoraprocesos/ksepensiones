@@ -1826,150 +1826,223 @@ function CalculadoraInner() {
 {/* Contenido de la pestaña actual */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', background: '#F4F6FB', fontSize: '13px', minWidth: 0 }}>
 
-        {/* ══ TAB 0: DATOS GENERALES — Slide 2 ══════════════════════ */}
+        {/* ══ TAB 0: DATOS GENERALES ══════════════════════════════════ */}
         {tab === 0 && (() => {
           const sem = datos.semanas_totales - datos.semanas_descontadas
+          const semFaltantes = Math.max(0, 500 - sem)
           const fechaTramite = datos.fecha_nacimiento ? (() => {
             const d = new Date(datos.fecha_nacimiento)
             d.setFullYear(d.getFullYear() + (datos.edad_min_pension || 60))
             return d.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })
-          })() : 'Fecha automática'
+          })() : '—'
           const totalSemCot = escenarios.find(e => e.recomendado)?.semanas_finales?.toFixed(0) ?? sem.toFixed(0)
-          const lbl = (text: string) => (
-            <div style={{ fontSize: '12.5px', fontWeight: '600', color: '#374151', marginBottom: '3px', textDecoration: 'underline', textDecorationColor: '#94a3b8' }}>{text}</div>
-          )
-          const field = (val: string | number, readOnly = false) => (
-            <div style={{ border: '1px solid #9ca3af', padding: '5px 8px', background: readOnly ? '#F5F5F5' : 'white', fontSize: '12px', color: '#374151', minHeight: '28px', display: 'flex', alignItems: 'center' }}>{val}</div>
-          )
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              {/* Ficha técnica de retiro */}
-              <div style={DS.card}>
-                <p style={DS.secTitle}>Ficha técnica de retiro:</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px 20px' }}>
-                  <div>
-                    {lbl('Fecha de cálculo del proyecto:')}
-                    <input type="date" value={datos.fecha_calculo} onChange={e => setDatos(p => ({ ...p, fecha_calculo: e.target.value }))} style={{ width: '100%', border: '1px solid #9ca3af', padding: '5px 8px', fontSize: '12px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: 'white' }} />
+
+              {/* Indicadores rápidos — estado del expediente */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px' }}>
+                {[
+                  { label: 'Semanas netas', value: sem > 0 ? sem.toLocaleString() : '—', sub: 'cotizadas', color: sem >= 500 ? '#065F46' : '#1B3A6B', bg: sem >= 500 ? '#F0FDF4' : '#EEF2F8', border: sem >= 500 ? '#86EFAC' : '#1B3A6B' },
+                  { label: 'Semanas faltantes', value: semFaltantes === 0 ? '✓ 0' : semFaltantes.toLocaleString(), sub: 'para 500 sem.', color: semFaltantes === 0 ? '#065F46' : semFaltantes < 100 ? '#92400E' : '#DC2626', bg: semFaltantes === 0 ? '#F0FDF4' : '#FEF2F2', border: semFaltantes === 0 ? '#86EFAC' : '#FCA5A5' },
+                  { label: 'SDI promedio', value: sdiPromedio > 0 ? fmtMXN2(sdiPromedio) : '—', sub: '250 semanas', color: '#92400E', bg: '#FFFBEB', border: '#FCD34D' },
+                  { label: 'Fecha del trámite', value: fechaTramite, sub: 'estimada', color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
+                ].map((k, i) => (
+                  <div key={i} style={{ background: k.bg, border: '2px solid ' + k.border, padding: '12px 14px', textAlign: 'center' as const }}>
+                    <div style={{ fontSize: '9px', color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600', marginBottom: '5px' }}>{k.label}</div>
+                    <div style={{ fontSize: '18px', fontWeight: '800', color: k.color, letterSpacing: '-0.5px', marginBottom: '2px' }}>{k.value}</div>
+                    <div style={{ fontSize: '10px', color: '#9CA3AF' }}>{k.sub}</div>
                   </div>
-                  <div>
-                    {lbl('¿Seguirás cotizando ante el IMSS?')}
-                    <select value={datos.sigue_cotizando ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, sigue_cotizando: e.target.value === 'si' }))} style={{ width: '100%', border: '1px solid #9ca3af', padding: '5px 8px', fontSize: '12px', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const }}>
-                      <option value="si">Sí</option><option value="no">No</option>
-                    </select>
+                ))}
+              </div>
+
+              {/* Ficha técnica — layout 2 columnas */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+
+                {/* Columna 1: Datos de cotización */}
+                <div style={DS.card}>
+                  <p style={DS.secTitle}>📋 Parámetros de Retiro</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div>
+                      <label style={DS.label}>Fecha de cálculo del proyecto</label>
+                      <input type="date" value={datos.fecha_calculo} onChange={e => setDatos(p => ({ ...p, fecha_calculo: e.target.value }))} style={DS.input} />
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      <div>
+                        <label style={DS.label}>¿Seguirás cotizando?</label>
+                        <select value={datos.sigue_cotizando ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, sigue_cotizando: e.target.value === 'si' }))} style={DS.select}>
+                          <option value="si">✓ Sí</option>
+                          <option value="no">✕ No</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={DS.label}>Edad de pensión</label>
+                        <select value={datos.edad_min_pension || 60} onChange={e => { const v = parseInt(e.target.value); setDatos(p => ({ ...p, edad_min_pension: v })); setEdadRetiro(v) }} style={DS.select}>
+                          {[60,61,62,63,64,65].map(a => <option key={a} value={a}>{a} años — {75+(a-60)*5}%{a===65?' (Vejez)':''}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      <div>
+                        <label style={DS.label}>Cónyuge / concubino</label>
+                        <select value={datos.tiene_conyuge ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, tiene_conyuge: e.target.value === 'si' }))} style={DS.select}>
+                          <option value="no">✕ No</option>
+                          <option value="si">✓ Sí</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label style={DS.label}>Hijos menores 16 años</label>
+                        <select value={datos.num_hijos} onChange={e => setDatos(p => ({ ...p, num_hijos: parseInt(e.target.value) }))} style={DS.select}>
+                          {[0,1,2,3,4,5].map(n => <option key={n} value={n}>{n} {n === 0 ? '(ninguno)' : n === 1 ? 'hijo' : 'hijos'}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      <div>
+                        <label style={DS.label}>Padres dependientes</label>
+                        <select value={datos.num_padres} onChange={e => setDatos(p => ({ ...p, num_padres: parseInt(e.target.value) }))} style={DS.select}>
+                          {[0,1,2].map(n => <option key={n} value={n}>{n} {n === 0 ? '(ninguno)' : n === 1 ? 'padre' : 'padres'}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label style={DS.label}>Ayuda asistencial (Art. 165)</label>
+                        <select value={datos.tiene_ayuda_asistencial ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, tiene_ayuda_asistencial: e.target.value === 'si' }))} style={DS.select}>
+                          <option value="no">✕ No aplica</option>
+                          <option value="si">✓ Aplica</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    {lbl('¿A que edad te quieres pensionar?')}
-                    <select value={datos.edad_min_pension || 60} onChange={e => { const v = parseInt(e.target.value); setDatos(p => ({ ...p, edad_min_pension: v })); setEdadRetiro(v) }} style={{ width: '100%', border: '1px solid #9ca3af', padding: '5px 8px', fontSize: '12px', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const }}>
-                      {[60,61,62,63,64,65].map(a => <option key={a} value={a}>{a} años ({75+(a-60)*5}%)</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    {lbl('Esposa (o) ó concubina (o)')}
-                    <select value={datos.tiene_conyuge ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, tiene_conyuge: e.target.value === 'si' }))} style={{ width: '100%', border: '1px solid #9ca3af', padding: '5px 8px', fontSize: '12px', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const }}>
-                      <option value="no">No</option><option value="si">Sí</option>
-                    </select>
-                  </div>
-                  <div>
-                    {lbl('# de Hijos < de 16 años:')}
-                    <select value={datos.num_hijos} onChange={e => setDatos(p => ({ ...p, num_hijos: parseInt(e.target.value) }))} style={{ width: '100%', border: '1px solid #9ca3af', padding: '5px 8px', fontSize: '12px', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const }}>
-                      {[0,1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    {lbl('Semanas restantes por cotizar:')}
-                    {field(Math.max(0, 500 - sem).toFixed(0) + ' semanas', true)}
-                  </div>
-                  <div>
-                    {lbl('# de padres econ.')}
-                    <select value={datos.num_padres} onChange={e => setDatos(p => ({ ...p, num_padres: parseInt(e.target.value) }))} style={{ width: '100%', border: '1px solid #9ca3af', padding: '5px 8px', fontSize: '12px', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const }}>
-                      {[0,1,2].map(n => <option key={n} value={n}>{n}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    {lbl('Fecha del trámite de pensión:')}
-                    {field(fechaTramite + ' — Fecha automática', true)}
-                  </div>
-                  <div>
-                    {lbl('Total de semanas cotización:')}
-                    {field(totalSemCot , true)}
+                </div>
+
+                {/* Columna 2: Datos calculados automáticamente */}
+                <div style={DS.card}>
+                  <p style={DS.secTitle}>⚙️ Datos Calculados Automáticamente</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {[
+                      { label: 'Semanas restantes por cotizar', value: semFaltantes === 0 ? '✓ Completo (≥ 500)' : semFaltantes + ' semanas', highlight: semFaltantes === 0 },
+                      { label: 'Fecha estimada del trámite', value: fechaTramite, highlight: false },
+                      { label: 'Total semanas para el cálculo', value: totalSemCot + ' semanas', highlight: false },
+                    ].map(({ label, value, highlight }, i) => (
+                      <div key={i} style={{ padding: '10px 12px', background: highlight ? '#F0FDF4' : '#F9FAFB', border: '1px solid ' + (highlight ? '#86EFAC' : '#E5E7EB'), display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '12px', color: '#6B7280' }}>{label}</span>
+                        <span style={{ fontSize: '13px', fontWeight: '700', color: highlight ? '#065F46' : '#374151' }}>{value}</span>
+                      </div>
+                    ))}
+                    {/* Vigencia visual */}
+                    <div style={{ padding: '12px', background: conservacion.vigente ? '#F0FDF4' : '#FEF2F2', border: '2px solid ' + (conservacion.vigente ? '#86EFAC' : '#FCA5A5'), textAlign: 'center' as const }}>
+                      <div style={{ fontSize: '22px', fontWeight: '900', color: conservacion.vigente ? '#065F46' : '#DC2626', marginBottom: '2px' }}>
+                        {datos.semanas_totales > 0 ? (conservacion.vigente ? '✓ Derechos Vigentes' : '✕ Derechos Vencidos') : '—'}
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#9CA3AF' }}>
+                        {datos.semanas_totales > 0 ? (conservacion.vigente ? 'Puede tramitar su pensión' : 'Requiere verificación con IMSS') : 'Carga la constancia IMSS'}
+                      </div>
+                    </div>
+                    {/* SDI destacado */}
+                    {sdiPromedio > 0 && (
+                      <div style={{ padding: '12px', background: '#FFFBEB', border: '2px solid #FCD34D', textAlign: 'center' as const }}>
+                        <div style={{ fontSize: '10px', color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600', marginBottom: '4px' }}>SDI Promedio — Base oficial de la pensión</div>
+                        <div style={{ fontSize: '26px', fontWeight: '900', color: '#92400E', letterSpacing: '-1px' }}>{fmtMXN2(sdiPromedio)}</div>
+                        <div style={{ fontSize: '11px', color: '#9CA3AF', marginTop: '2px' }}>Equivalente mensual: {fmtMXN(sdiPromedio * 30.4167)}</div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
 
-              {/* Cálculo SDI 250 semanas */}
+              {/* Tabla 250 semanas */}
               <div style={DS.card}>
-                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 6px' }}>Cálculo del Salario Promedio de las Últimas 250 Semanas Cotizadas:</p>
-                <p style={{ fontSize: '11.5px', color: '#374151', margin: '0 0 12px', lineHeight: 1.6 }}>
-                  ¿Por qué calculamos esto?. La Ley del IMSS 1973 (Art. 167) establece que la pensión se calcula sobre el promedio del Salario Diario Integrado (SDI) de las últimas 250 semanas cotizadas (aproximadamente 5 años), no sobre el salario actual. Este promedio es la base real de tu pensión; si usaras el SDI actual, el cálculo podría estar sobreestimado o subestimado, dándote una falsa expectativa.<br/>
-                  <strong>Resumen del cálculo:</strong>
-                </p>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11.5px', marginBottom: '10px' }}>
-                  <thead>
-                    <tr>
-                      {['PERÍODO','SEMANAS','SDI DIARIO','SDI MENSUAL','PESO'].map((h, i) => (
-                        <th key={i} style={{ padding: '7px 10px', background: '#F0F0F0', textAlign: i === 0 ? 'left' : 'right', fontWeight: '700', fontSize: '12.5px', color: '#374151', border: '1px solid #d1d5db' }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {periodos.map((p, i) => (
-                      <tr key={i} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                        <td style={{ padding: '6px 10px', border: '1px solid #d1d5db' }}>{p.fecha_inicio?.slice(0,7)} → {p.fecha_fin?.slice(0,7)}</td>
-                        <td style={{ padding: '6px 10px', textAlign: 'right', border: '1px solid #d1d5db' }}>{p.semanas}</td>
-                        <td style={{ padding: '6px 10px', textAlign: 'right', color: '#D95B00', fontWeight: '700', border: '1px solid #d1d5db' }}>{fmtMXN2(p.sdi)}</td>
-                        <td style={{ padding: '6px 10px', textAlign: 'right', border: '1px solid #d1d5db' }}>{fmtMXN(p.sdi * 30.4167)}</td>
-                        <td style={{ padding: '6px 10px', textAlign: 'right', color: '#6B7280', border: '1px solid #d1d5db' }}>{p.peso.toFixed(1)}%</td>
-                      </tr>
-                    ))}
-                    <tr style={{ fontWeight: '700', background: '#FFFBE6' }}>
-                      <td style={{ padding: '7px 10px', border: '1px solid #d1d5db' }}>Promedio ponderado</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right', border: '1px solid #d1d5db' }}>{periodos.reduce((s, p) => s + p.semanas, 0)}</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right', color: '#D95B00', fontSize: '14px', border: '1px solid #d1d5db' }}>{fmtMXN2(sdiPromedio)}</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right', border: '1px solid #d1d5db' }}>{fmtMXN(sdiPromedio * 30.4167)}</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right', border: '1px solid #d1d5db' }}>100%</td>
-                    </tr>
-                  </tbody>
-                </table>
-                <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
-                  <button onClick={() => setShowDetalle250(true)} style={{ fontSize: '12.5px', color: '#1D4ED8', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', padding: '2px 0', fontFamily: 'inherit' }}>
-                    📊 Ver desglose completo de las 250 semanas
-                  </button>
-                  <button onClick={() => setShowHistorialCompleto(true)} style={{ fontSize: '12.5px', color: '#047857', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', padding: '2px 0', fontFamily: 'inherit' }}>
-                    🗂️ Ver historial laboral completo ({periodosCompletos.length} períodos)
-                  </button>
-                </div>
-                {/* 3 KPIs bottom */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', background: '#F9FAFB', border: '1px solid #d1d5db', padding: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
                   <div>
-                    <div style={{ fontSize: '12.5px', fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', marginBottom: '4px' }}>PERÍODO CUBIERTO</div>
-                    <div style={{ fontSize: '12px', fontWeight: '700', color: '#374151' }}>
-                      {periodos.length > 0 ? `${periodos[0]?.fecha_inicio?.slice(0,7)} → ${periodos[periodos.length-1]?.fecha_fin?.slice(0,7)}` : '—'}
+                    <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 3px' }}>📊 Salario Promedio de las Últimas 250 Semanas Cotizadas</p>
+                    <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>Art. 167 LSS 1973 — Base real del cálculo de pensión, no el salario actual</p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                    <button onClick={() => setShowDetalle250(true)} style={{ padding: '5px 10px', background: '#EEF2F8', color: '#1B3A6B', border: '1px solid #BFDBFE', fontSize: '11px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
+                      Ver 250 sem.
+                    </button>
+                    <button onClick={() => setShowHistorialCompleto(true)} style={{ padding: '5px 10px', background: '#F0FDF4', color: '#065F46', border: '1px solid #86EFAC', fontSize: '11px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
+                      Historial ({periodosCompletos.length})
+                    </button>
+                  </div>
+                </div>
+                {periodos.length === 0 ? (
+                  <div style={{ padding: '24px', textAlign: 'center' as const, color: '#9CA3AF', background: '#F9FAFB', border: '1px dashed #E5E7EB' }}>
+                    <div style={{ fontSize: '32px', marginBottom: '8px' }}>📄</div>
+                    <p style={{ fontSize: '13px', margin: 0 }}>Carga la constancia IMSS para ver el cálculo del SDI</p>
+                  </div>
+                ) : (
+                  <>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', marginBottom: '12px' }}>
+                      <thead>
+                        <tr style={{ background: '#1B3A6B' }}>
+                          {['PERÍODO', 'SEMANAS', 'SDI DIARIO', 'SDI MENSUAL', 'PESO'].map((h, i) => (
+                            <th key={i} style={{ ...DS.tHead, textAlign: i === 0 ? 'left' : 'right' as const, padding: '9px 12px' }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {periodos.map((p, i) => {
+                          const isRecent = i === 0
+                          return (
+                            <tr key={i} style={{ background: isRecent ? '#FFFBEB' : i % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
+                              <td style={{ padding: '8px 12px', color: '#374151', fontWeight: isRecent ? '600' : '400' }}>{p.fecha_inicio?.slice(0,7)} → {p.fecha_fin?.slice(0,7)}</td>
+                              <td style={{ padding: '8px 12px', textAlign: 'right' as const, fontWeight: '600' }}>{p.semanas}</td>
+                              <td style={{ padding: '8px 12px', textAlign: 'right' as const, fontWeight: '800', color: '#D95B00', fontSize: '13px' }}>{fmtMXN2(p.sdi)}</td>
+                              <td style={{ padding: '8px 12px', textAlign: 'right' as const, color: '#374151' }}>{fmtMXN(p.sdi * 30.4167)}</td>
+                              <td style={{ padding: '8px 12px', textAlign: 'right' as const }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
+                                  <div style={{ width: '40px', height: '6px', background: '#F3F4F6', borderRadius: '3px', overflow: 'hidden' }}>
+                                    <div style={{ height: '100%', width: p.peso + '%', background: '#1B3A6B', borderRadius: '3px' }} />
+                                  </div>
+                                  <span style={{ fontSize: '11px', color: '#9CA3AF', minWidth: '32px' }}>{p.peso.toFixed(1)}%</span>
+                                </div>
+                              </td>
+                            </tr>
+                          )
+                        })}
+                        <tr style={{ background: '#1B3A6B' }}>
+                          <td style={{ padding: '10px 12px', color: 'white', fontWeight: '700' }}>Promedio ponderado</td>
+                          <td style={{ padding: '10px 12px', textAlign: 'right' as const, color: 'white', fontWeight: '700' }}>{periodos.reduce((s, p) => s + p.semanas, 0)}</td>
+                          <td style={{ padding: '10px 12px', textAlign: 'right' as const, color: '#FCD34D', fontWeight: '900', fontSize: '16px' }}>{fmtMXN2(sdiPromedio)}</td>
+                          <td style={{ padding: '10px 12px', textAlign: 'right' as const, color: 'white', fontWeight: '700' }}>{fmtMXN(sdiPromedio * 30.4167)}</td>
+                          <td style={{ padding: '10px 12px', textAlign: 'right' as const, color: 'white', fontWeight: '700' }}>100%</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    {/* 3 KPIs resumen */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+                      <div style={{ padding: '12px', background: '#F9FAFB', border: '1px solid #E5E7EB', textAlign: 'center' as const }}>
+                        <div style={{ fontSize: '9.5px', color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600', marginBottom: '4px' }}>Período cubierto</div>
+                        <div style={{ fontSize: '13px', fontWeight: '700', color: '#374151' }}>
+                          {periodos.length > 0 ? periodos[0]?.fecha_inicio?.slice(0,7) + ' → ' + periodos[periodos.length-1]?.fecha_fin?.slice(0,7) : '—'}
+                        </div>
+                        <div style={{ fontSize: '10.5px', color: '#9CA3AF', marginTop: '2px' }}>250 semanas hacia atrás</div>
+                      </div>
+                      <div style={{ padding: '12px', background: '#FFFBEB', border: '2px solid #FCD34D', textAlign: 'center' as const }}>
+                        <div style={{ fontSize: '9.5px', color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600', marginBottom: '4px' }}>SDI Promedio 250 sem.</div>
+                        <div style={{ fontSize: '22px', fontWeight: '900', color: '#92400E', letterSpacing: '-1px' }}>{fmtMXN2(sdiPromedio)}</div>
+                        <div style={{ fontSize: '10.5px', color: '#9CA3AF', marginTop: '2px' }}>Base oficial de la pensión</div>
+                      </div>
+                      <div style={{ padding: '12px', background: '#EEF2F8', border: '1px solid #BFDBFE', textAlign: 'center' as const }}>
+                        <div style={{ fontSize: '9.5px', color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600', marginBottom: '4px' }}>SDI Mensual equivalente</div>
+                        <div style={{ fontSize: '20px', fontWeight: '900', color: '#1B3A6B', letterSpacing: '-0.5px' }}>{fmtMXN(sdiPromedio * 30.4167)}</div>
+                        <div style={{ fontSize: '10.5px', color: '#9CA3AF', marginTop: '2px' }}>× 30.4 días</div>
+                      </div>
                     </div>
-                    <div style={{ fontSize: '11.5px', color: '#9CA3AF' }}>250 semanas hacia atrás</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '12.5px', fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', marginBottom: '4px' }}>SDI PROMEDIO 250 SEM.</div>
-                    <div style={{ fontSize: '20px', fontWeight: '800', color: '#D95B00' }}>{fmtMXN2(sdiPromedio)}</div>
-                    <div style={{ fontSize: '11.5px', color: '#9CA3AF' }}>Base oficial de pensión</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '12.5px', fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', marginBottom: '4px' }}>SDI MENSUAL EQUIVALENTE</div>
-                    <div style={{ fontSize: '18px', fontWeight: '800', color: '#1B3A6B' }}>{fmtMXN(sdiPromedio * 30.4167)}</div>
-                    <div style={{ fontSize: '11.5px', color: '#9CA3AF' }}>× 30.4 días</div>
-                  </div>
-                </div>
+                  </>
+                )}
+              </div>
+
+              {/* Siguiente */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
+                <button onClick={() => setTab(1)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700', fontFamily: 'inherit' }}>
+                  Cuantías Anuales →
+                </button>
               </div>
             </div>
           )
-
-        {/* ── Siguiente sección ── */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
-          <button onClick={() => setTab(1)}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700', fontFamily: 'inherit' }}>
-            Pensión Actual →
-          </button>
-        </div>
         })()}
+
 
         {/* Análisis de IA — visible en tab 0 */}
         {tab === 1 && (() => {
