@@ -1630,7 +1630,7 @@ function CalculadoraInner() {
               <p style={{ fontSize: '11px', color: '#93C5FD', margin: 0 }}>Ley del Seguro Social 1973</p>
             </div>
 
-            <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '14px', flex: 1 }}>
+            <div style={{ padding: '10px 16px', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
 
               {/* ── Identificación */}
               <div>
@@ -1798,10 +1798,6 @@ function CalculadoraInner() {
                   {diagGuardadoId && <span style={{ color: estatus === 'autorizado' ? VERDE : '#f59e0b', fontWeight: '600', fontSize: '12.5px' }}> · {estatus === 'autorizado' ? '✅ Autorizado' : '📝 Borrador'}</span>}
                 </p>
                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
-                  <select value={clienteId} onChange={e => { if (analisis.length > 0 || diagGuardadoId) { setPendingClienteId(e.target.value); setShowConfirmCambio(true) } else { setClienteId(e.target.value); setDiagGuardadoId(null); setEstatus('borrador') } }} style={{ ...inputSt, minWidth: '160px', fontSize: '12px', padding: '6px 10px', height: '32px', borderColor: !clienteId ? '#f97316' : '#e2e8f0' }}>
-                    <option value="">— Seleccionar cliente —</option>
-                    {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
-                  </select>
                 </div>
               </div>
             </div>
@@ -1816,7 +1812,7 @@ function CalculadoraInner() {
                 { label: 'Total sem. cot.', value: escenarios.find(e => e.recomendado)?.semanas_finales ? String(Math.round(escenarios.find(e => e.recomendado)!.semanas_finales)) : '—', color: AZUL },
                 { label: 'Fecha del trámite', value: datos.fecha_nacimiento ? (() => { const d = new Date(datos.fecha_nacimiento); d.setFullYear(d.getFullYear() + (datos.edad_min_pension || 60)); return d.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' }) })() : '—', color: '#7C3AED' },
               ].map((k, i) => (
-                <div key={i} style={{ flex: '1 0 auto', padding: '10px 12px', borderRight: '1px solid #F3F4F6', borderBottom: '2px solid ' + k.color, background: 'white', minWidth: '90px' }}>
+                <div key={i} style={{ flex: '1 1 0', padding: '10px 12px', borderRight: '1px solid #F3F4F6', borderBottom: '3px solid ' + k.color, background: 'white', minWidth: '100px', maxWidth: '160px' }}>
                   <div style={{ fontSize: '9px', color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.5px', whiteSpace: 'nowrap', marginBottom: '4px', fontWeight: '600' }}>{k.label}</div>
                   <div style={{ fontSize: '14px', fontWeight: '800', color: k.color, whiteSpace: 'nowrap', letterSpacing: '-0.3px' }}>{k.value}</div>
                 </div>
@@ -1853,7 +1849,7 @@ function CalculadoraInner() {
                   <div>
                     {lbl('¿Seguirás cotizando ante el IMSS?')}
                     <select value={datos.sigue_cotizando ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, sigue_cotizando: e.target.value === 'si' }))} style={{ width: '100%', border: '1px solid #9ca3af', padding: '5px 8px', fontSize: '12px', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const }}>
-                      <option value="si">Combo Box, Sí / No — Sí</option><option value="no">Combo Box, Sí / No — No</option>
+                      <option value="si">Sí</option><option value="no">No</option>
                     </select>
                   </div>
                   <div>
@@ -1865,13 +1861,13 @@ function CalculadoraInner() {
                   <div>
                     {lbl('Esposa (o) ó concubina (o)')}
                     <select value={datos.tiene_conyuge ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, tiene_conyuge: e.target.value === 'si' }))} style={{ width: '100%', border: '1px solid #9ca3af', padding: '5px 8px', fontSize: '12px', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const }}>
-                      <option value="no">Combo Box, Sí / No — No</option><option value="si">Combo Box, Sí / No — Sí</option>
+                      <option value="no">No</option><option value="si">Sí</option>
                     </select>
                   </div>
                   <div>
                     {lbl('# de Hijos < de 16 años:')}
                     <select value={datos.num_hijos} onChange={e => setDatos(p => ({ ...p, num_hijos: parseInt(e.target.value) }))} style={{ width: '100%', border: '1px solid #9ca3af', padding: '5px 8px', fontSize: '12px', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const }}>
-                      {[0,1,2,3,4,5].map(n => <option key={n} value={n}>{n} — Número</option>)}
+                      {[0,1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
                     </select>
                   </div>
                   <div>
@@ -1881,7 +1877,7 @@ function CalculadoraInner() {
                   <div>
                     {lbl('# de padres econ.')}
                     <select value={datos.num_padres} onChange={e => setDatos(p => ({ ...p, num_padres: parseInt(e.target.value) }))} style={{ width: '100%', border: '1px solid #9ca3af', padding: '5px 8px', fontSize: '12px', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const }}>
-                      {[0,1,2].map(n => <option key={n} value={n}>{n} — Número</option>)}
+                      {[0,1,2].map(n => <option key={n} value={n}>{n}</option>)}
                     </select>
                   </div>
                   <div>
@@ -1890,7 +1886,7 @@ function CalculadoraInner() {
                   </div>
                   <div>
                     {lbl('Total de semanas cotización:')}
-                    {field(totalSemCot + ' — Número calculado', true)}
+                    {field(totalSemCot , true)}
                   </div>
                 </div>
               </div>
@@ -1960,6 +1956,14 @@ function CalculadoraInner() {
               </div>
             </div>
           )
+
+        {/* ── Siguiente sección ── */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
+          <button onClick={() => setTab(1)}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700', fontFamily: 'inherit' }}>
+            Pensión Actual →
+          </button>
+        </div>
         })()}
 
         {/* Análisis de IA — visible en tab 0 */}
@@ -2024,6 +2028,14 @@ function CalculadoraInner() {
               </div>
             </div>
           )
+
+        {/* ── Siguiente sección ── */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
+          <button onClick={() => setTab(2)}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700', fontFamily: 'inherit' }}>
+            Salario Prom Mod 40 →
+          </button>
+        </div>
         })()}
 
         {tab === 2 && (() => {
@@ -2144,6 +2156,14 @@ function CalculadoraInner() {
               </div>
             </div>
           )
+
+        {/* ── Siguiente sección ── */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
+          <button onClick={() => setTab(3)}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700', fontFamily: 'inherit' }}>
+            Costo Mod 40 →
+          </button>
+        </div>
         })()}
 
         {tab === 3 && (() => {
@@ -2212,6 +2232,14 @@ function CalculadoraInner() {
               </div>
             </div>
           )
+
+        {/* ── Siguiente sección ── */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
+          <button onClick={() => setTab(4)}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700', fontFamily: 'inherit' }}>
+            Generales Mod 40 →
+          </button>
+        </div>
         })()}
 
         {tab === 4 && (() => {
@@ -2268,6 +2296,14 @@ function CalculadoraInner() {
               </div>
             </div>
           )
+
+        {/* ── Siguiente sección ── */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
+          <button onClick={() => setTab(5)}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700', fontFamily: 'inherit' }}>
+            Pensión Mod 40 →
+          </button>
+        </div>
         })()}
 
         {tab === 5 && (() => {
@@ -2350,6 +2386,14 @@ function CalculadoraInner() {
               </div>
             </div>
           )
+
+        {/* ── Siguiente sección ── */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
+          <button onClick={() => setTab(6)}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700', fontFamily: 'inherit' }}>
+            Inversión →
+          </button>
+        </div>
         })()}
 
         {tab === 6 && (() => {
@@ -2607,9 +2651,9 @@ function CalculadoraInner() {
             <div style={{ display: 'flex', borderTop: '2px solid #E5E7EB', background: 'white', flexShrink: 0, overflowX: 'auto', alignItems: 'stretch' }}>
               {TABS.map((t, i) => (
                 <button key={i} onClick={() => setTab(i)}
-                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '3px', padding: '8px 12px', border: 'none', borderBottom: `3px solid ${tab === i ? NARANJA : 'transparent'}`, cursor: 'pointer', background: tab === i ? '#FFF7F4' : 'white', fontFamily: 'inherit', flex: '1 0 auto', transition: 'all 0.15s', minWidth: '80px' }}>
-                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: i < tab ? VERDE : tab === i ? NARANJA : '#D1D5DB', transition: 'all 0.15s' }} />
-                  <span style={{ fontSize: '10px', fontWeight: tab === i ? '700' : '500', color: tab === i ? NARANJA : i < tab ? '#374151' : '#9CA3AF', whiteSpace: 'nowrap', letterSpacing: '0.2px' }}>{t}</span>
+                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', padding: '12px 14px', border: 'none', borderBottom: '3px solid ' + (tab === i ? NARANJA : 'transparent'), cursor: 'pointer', background: tab === i ? '#FFF7F4' : 'white', fontFamily: 'inherit', flex: '1 0 auto', transition: 'all 0.15s', minWidth: '90px' }}>
+                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: i < tab ? VERDE : tab === i ? NARANJA : '#D1D5DB', transition: 'all 0.15s' }} />
+                  <span style={{ fontSize: '11.5px', fontWeight: tab === i ? '700' : '500', color: tab === i ? NARANJA : i < tab ? '#374151' : '#9CA3AF', whiteSpace: 'nowrap' }}>{t}</span>
                 </button>
               ))}
             </div>
