@@ -436,6 +436,7 @@ function CalculadoraInner() {
   ]
   // Carátula: se muestra solo cuando no hay datos cargados y no hay cliente pre-seleccionado
   const [mostrarCaratula, setMostrarCaratula] = useState(false)
+  const [appInicializado, setAppInicializado] = useState(false)
 
   // Tab 1 state
   const [datos, setDatos] = useState<DatosGenerales>(DEFAULT_DATOS)
@@ -537,11 +538,10 @@ function CalculadoraInner() {
       if (clienteParam) {
         setClienteId(clienteParam)
         setShowClienteModal(false)
-        // No mostrar modal — viene de tarjeta de cliente
-      } else {
-        // No hay cliente en URL — mostrar modal de bienvenida
-        setMostrarCaratula(true)
       }
+      // Siempre mostrar modal: requiere constancia aunque venga con cliente pre-seleccionado
+      setMostrarCaratula(true)
+      setAppInicializado(true)
 
       if (diagParam) {
         const { data: diag } = await supabase.from('diagnosticos')
@@ -1482,7 +1482,7 @@ function CalculadoraInner() {
 
       {/* ══ CARÁTULA DE BIENVENIDA ══ */}
       {/* ══ MODAL 1: Bienvenida — ambos campos obligatorios ══ */}
-      {mostrarCaratula && !clienteId && (
+      {appInicializado && mostrarCaratula && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(2px)' }}>
           <div style={{ background: 'white', width: '100%', maxWidth: '400px', boxShadow: '0 24px 64px rgba(0,0,0,0.25)', overflow: 'hidden' }}>
 
