@@ -1895,7 +1895,20 @@ function CalculadoraInner() {
               ))}
             </div>
 {/* Contenido de la pestaña actual */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', background: '#F4F6FB', fontSize: '13px', minWidth: 0 }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', background: '#F4F6FB', fontSize: '13px', minWidth: 0, position: 'relative' as const }}>
+
+              {/* ── Marca de agua KSE ── */}
+              <div style={{ position: 'fixed' as const, inset: 0, pointerEvents: 'none' as const, zIndex: 1, overflow: 'hidden' }}>
+                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style={{ position: 'absolute' as const, top: 0, left: 0 }}>
+                  <defs>
+                    <pattern id="kse-wm" x="0" y="0" width="260" height="180" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)">
+                      <text x="10" y="60" fontFamily="Arial Black, sans-serif" fontSize="22" fontWeight="900" fill="#1B3A6B" fillOpacity="0.045" letterSpacing="4">KSE®</text>
+                      <text x="30" y="110" fontFamily="Arial, sans-serif" fontSize="9" fill="#1B3A6B" fillOpacity="0.04" letterSpacing="2">PENSIONES</text>
+                    </pattern>
+                  </defs>
+                  <rect width="100%" height="100%" fill="url(#kse-wm)" />
+                </svg>
+              </div>
 
         {/* ══ TAB 0: DATOS GENERALES ══════════════════════════════════ */}
         {tab === 0 && (() => {
