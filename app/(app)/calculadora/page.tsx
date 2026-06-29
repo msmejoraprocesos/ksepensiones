@@ -426,13 +426,18 @@ function CalculadoraInner() {
   // Tab state
   const [tab, setTab] = useState(0)
   const TABS = [
-    'Datos generales',
-    'Pensión Actual',
-    'Salario Prom Mod 40',
-    'Costo Mod 40',
-    'Generales Mod 40',
-    'Pensión Mod 40',
-    'Inversión',
+    'Datos Generales',        // 0
+    'Cuantías Anuales',       // 1
+    'Salario Prom. Mod 40',   // 2
+    'Costo Mod 40',           // 3
+    'Info. del Pensionado',   // 4
+    'Importe de Pensión',     // 5
+    'Inversión',              // 6
+    'Datos del Proyecto',     // 7
+    'Escenarios',             // 8
+    'Escenario 1',            // 9
+    'Financiamiento',         // 10
+    'Resumen',                // 11
   ]
   // Carátula: se muestra solo cuando no hay datos cargados y no hay cliente pre-seleccionado
   const [mostrarCaratula, setMostrarCaratula] = useState(false)
@@ -2616,34 +2621,453 @@ function CalculadoraInner() {
           )
         })()}
 
-        {/* ══ ANÁLISIS DE IA — visible en el último tab (Inversión) ══ */}
+        {/* ── Siguiente sección ── */}
         {tab === 6 && (
-          <div style={{ background: 'white', border: '1px solid #DDD6FE', marginTop: '12px' }}>
-            <div style={{ background: '#7C3AED', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <p style={{ fontSize: '13px', fontWeight: '700', color: 'white', margin: '0 0 2px' }}>🤖 Análisis de Sofía IA</p>
-                <p style={{ fontSize: '11px', color: '#DDD6FE', margin: 0 }}>Diagnóstico inteligente basado en los datos del proyecto</p>
-              </div>
-              <button onClick={generarAnalisisIA} disabled={!clienteId || sdiPromedio <= 0}
-                style={{ padding: '8px 16px', border: '1px solid white', fontSize: '12px', fontWeight: '700', color: '#7C3AED', background: 'white', fontFamily: 'inherit', cursor: clienteId && sdiPromedio > 0 ? 'pointer' : 'not-allowed', opacity: clienteId && sdiPromedio > 0 ? 1 : 0.5 }}>
-                ✨ Generar análisis
-              </button>
-            </div>
-            <div style={{ padding: '14px 16px' }}>
-              {analisis.length === 0 && (
-                <div style={{ padding: '20px', color: '#9CA3AF', background: '#F5F3FF', border: '1px dashed #DDD6FE', fontSize: '12px', textAlign: 'center' as const }}>
-                  Haz clic en &quot;Generar análisis&quot; para obtener el diagnóstico completo del proyecto de pensión
-                </div>
-              )}
-              {analisis.length > 0 && analisis.map((sec, i) => (
-                <div key={i} style={{ background: '#F5F3FF', border: '1px solid #DDD6FE', borderLeft: '3px solid #7C3AED', padding: '12px 14px', marginBottom: '8px' }}>
-                  <p style={{ fontSize: '12px', fontWeight: '700', color: '#5B21B6', margin: '0 0 6px', textTransform: 'uppercase' as const, letterSpacing: '0.3px' }}>{sec.titulo}</p>
-                  <p style={{ fontSize: '12px', color: '#374151', margin: 0, lineHeight: 1.7 }}>{sec.contenido}</p>
-                </div>
-              ))}
-            </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
+            <button onClick={() => setTab(7)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700', fontFamily: 'inherit' }}>
+              Datos del Proyecto →
+            </button>
           </div>
         )}
+
+        {/* ══ TAB 7: DATOS DEL PROYECTO ════════════════════════════════ */}
+        {tab === 7 && (() => {
+          const escRec = escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
+          const sem = datos.semanas_totales - datos.semanas_descontadas
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={DS.card}>
+                <p style={DS.secTitle}>Datos del Proyecto de Pensión</p>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                  <tbody>
+                    {[
+                      ['Nombre del trabajador', datos.nombre_trabajador || '—'],
+                      ['Edad al momento del trámite (años)', escRec?.edad_retiro?.toFixed(3) || datos.edad_actual?.toFixed(2) || '—'],
+                      ['Semanas cotizadas totales', sem.toLocaleString()],
+                      ['Salario prom. 250 sem.', fmtMXN2(sdiPromedio)],
+                      ['Pensión actual (MXN)', fmtMXN2(escenarios[0]?.pension_base ?? 0)],
+                      ['Pensión mejorada (MXN)', fmtMXN2(escRec?.pension_mensual ?? 0)],
+                      ['Pensión con inflación', 'NO APLICA'],
+                      ['Años cotizados en Mod. 40', escRec?.mod40_meses ? ((escRec.mod40_meses / 12).toFixed(2) + ' años') : '—'],
+                      ['Salario registrado en Mod. 40 (UMAs)', escRec?.mod40_umas?.toString() ?? '—'],
+                      ['Salario registrado en Mod. 40 (MXN)', fmtMXN2(escRec?.sdi_mod40 ?? 0)],
+                      ['Costo total Mod. 40 (MXN)', fmtMXN2(escRec?.costo_total ?? 0)],
+                      ['Fecha estimada ingreso Mod. 40', escRec?.fecha_ingreso_mod40 || '—'],
+                      ['Edad al ingresar a Mod. 40 (años)', datos.edad_actual?.toFixed(2) || '—'],
+                      ['Fecha estimada baja Mod. 40', escRec?.fecha_baja_mod40 || '—'],
+                      ['Edad al concluir Mod. 40 (años)', escRec?.edad_retiro?.toFixed(2) || '—'],
+                      ['Semanas cotizadas finales', escRec?.semanas_finales?.toFixed(0) || '—'],
+                      ['Nuevo salario prom. 250 sem.', fmtMXN2(escRec?.nuevo_sdi_250 ?? 0)],
+                      ['Recuperación AFORE (MXN)', fmtMXN2(escRec?.recuperacion_afore ?? 0)],
+                      ['Inversión total (MXN)', fmtMXN2(escRec?.inversion_neta ?? 0)],
+                      ['Récup. de inversión (meses)', escRec?.roi_meses?.toFixed(2) || '—'],
+                      ['Ganancia a los 80 años (MXN)', fmtMXN2(escRec?.ganancia_a80 ?? 0)],
+                      ['Tasa de rendimiento total (%)', escRec?.tasa_rendimiento?.toFixed(2) + '%' || '—'],
+                      ['Aguinaldo anual (MXN)', fmtMXN2(escRec?.aguinaldo_anual ?? 0)],
+                      ['Estimado pago retroactivo (MXN)', fmtMXN2(escRec?.costo_retroactivo ?? 0)],
+                      ['Récup. AFORE retroactivo (MXN)', fmtMXN2(escRec?.recuperacion_afore_retro ?? 0)],
+                      ['Inversión retroactiva (MXN)', fmtMXN2(escRec?.inversion_neta_retro ?? 0)],
+                      ['Récup. inversión retro (meses)', escRec?.roi_retro?.toFixed(2) || '—'],
+                      ['Ganancia a 80 años retro (MXN)', fmtMXN2(escRec?.ganancia_a80_retro ?? 0)],
+                      ['Tasa rendimiento retroactivo (%)', escRec?.tasa_rendimiento_retro?.toFixed(2) + '%' || '—'],
+                    ].map(([label, value], i) => (
+                      <tr key={i} style={{ background: i % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
+                        <td style={{ padding: '7px 12px', color: '#6B7280', fontSize: '12px', width: '55%' }}>{label}</td>
+                        <td style={{ padding: '7px 12px', fontWeight: '700', color: '#111827', textAlign: 'right' as const }}>{value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
+                <button onClick={() => setTab(8)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700', fontFamily: 'inherit' }}>Escenarios →</button>
+              </div>
+            </div>
+          )
+        })()}
+
+        {/* ══ TAB 8: ESCENARIOS ════════════════════════════════════════ */}
+        {tab === 8 && (() => {
+          const escsConMod40 = escenarios.filter(e => e.mod40_meses > 0)
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={DS.card}>
+                <p style={DS.secTitle}>Comparativo de Escenarios</p>
+                {escsConMod40.length === 0 ? (
+                  <div style={{ padding: '32px', textAlign: 'center' as const, color: '#9CA3AF' }}>
+                    <p>Configura los datos de Modalidad 40 en la pestaña "Salario Prom. Mod 40" para ver los escenarios.</p>
+                  </div>
+                ) : (
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11.5px' }}>
+                      <thead>
+                        <tr style={{ background: '#1B3A6B' }}>
+                          <th style={{ padding: '8px 10px', color: 'white', textAlign: 'left' as const, fontWeight: '700', fontSize: '11px', position: 'sticky' as const, left: 0, background: '#1B3A6B' }}>Concepto</th>
+                          <th style={{ padding: '8px 10px', color: '#93C5FD', textAlign: 'right' as const, fontWeight: '700', fontSize: '11px', whiteSpace: 'nowrap' }}>Sin Mod. 40</th>
+                          {escsConMod40.slice(0, 6).map((e, i) => (
+                            <th key={i} style={{ padding: '8px 10px', color: 'white', textAlign: 'right' as const, fontWeight: '700', fontSize: '11px', whiteSpace: 'nowrap' }}>
+                              Esc. {i + 1}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[
+                          { label: 'Pensión mensual actual', fn: (e: any) => fmtMXN2(e.pension_base ?? 0), base: true },
+                          { label: 'Pensión mejorada', fn: (e: any) => fmtMXN2(e.pension_mensual), highlight: true },
+                          { label: 'Años en Mod. 40', fn: (e: any) => (e.mod40_meses / 12).toFixed(2) },
+                          { label: 'Salario registrado (UMAs)', fn: (e: any) => e.mod40_umas?.toString() ?? '—' },
+                          { label: 'Costo total (MXN)', fn: (e: any) => fmtMXN2(e.costo_total) },
+                          { label: 'Recuperación AFORE', fn: (e: any) => fmtMXN2(e.recuperacion_afore) },
+                          { label: 'Inversión neta', fn: (e: any) => fmtMXN2(e.inversion_neta), highlight: true },
+                          { label: 'Récup. inversión (meses)', fn: (e: any) => e.roi_meses?.toFixed(2) ?? '—' },
+                          { label: 'Ganancia a 80 años', fn: (e: any) => fmtMXN2(e.ganancia_a80), highlight: true },
+                          { label: 'Tasa de rendimiento', fn: (e: any) => (e.tasa_rendimiento?.toFixed(2) ?? '—') + '%' },
+                          { label: 'Aguinaldo anual', fn: (e: any) => fmtMXN2(e.aguinaldo_anual) },
+                        ].map((row, ri) => (
+                          <tr key={ri} style={{ background: row.highlight ? '#EEF2F8' : ri % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
+                            <td style={{ padding: '7px 10px', color: '#374151', fontWeight: row.highlight ? '700' : '400', position: 'sticky' as const, left: 0, background: row.highlight ? '#EEF2F8' : ri % 2 === 0 ? 'white' : '#F9FAFB' }}>{row.label}</td>
+                            <td style={{ padding: '7px 10px', textAlign: 'right' as const, color: '#9CA3AF', fontStyle: 'italic' }}>{fmtMXN2(escenarios[0]?.pension_base ?? 0)}</td>
+                            {escsConMod40.slice(0, 6).map((e, i) => (
+                              <td key={i} style={{ padding: '7px 10px', textAlign: 'right' as const, fontWeight: row.highlight ? '800' : '600', color: row.highlight ? '#1B3A6B' : '#374151' }}>{row.fn(e)}</td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
+                <button onClick={() => setTab(9)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700', fontFamily: 'inherit' }}>Escenario 1 →</button>
+              </div>
+            </div>
+          )
+        })()}
+
+        {/* ══ TAB 9: ESCENARIO 1 ═══════════════════════════════════════ */}
+        {tab === 9 && (() => {
+          const escRec = escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
+          if (!escRec || escRec.mod40_meses === 0) return (
+            <div style={{ textAlign: 'center' as const, padding: '60px', color: '#9CA3AF' }}>
+              <p>Configura los datos de Modalidad 40 primero</p>
+            </div>
+          )
+          const anioInicio = parseInt(escRec.fecha_ingreso_mod40?.slice(0,4) || '2027')
+          const anioFin = parseInt(escRec.fecha_baja_mod40?.slice(0,4) || '2030')
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {/* Header escenario */}
+              <div style={{ background: '#1B3A6B', padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <p style={{ fontSize: '16px', fontWeight: '800', color: 'white', margin: 0 }}>Escenario 1 — {escRec.label}</p>
+                  <p style={{ fontSize: '11px', color: '#93C5FD', margin: '2px 0 0' }}>Modalidad 40 Recurrente (Mes a Mes)</p>
+                </div>
+                <div style={{ textAlign: 'right' as const }}>
+                  <div style={{ fontSize: '11px', color: '#93C5FD' }}>Pensión mensual</div>
+                  <div style={{ fontSize: '24px', fontWeight: '900', color: 'white' }}>{fmtMXN2(escRec.pension_mensual)}</div>
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                {/* Puntos clave */}
+                <div style={DS.card}>
+                  <p style={DS.secTitle}>Puntos Clave</p>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                    <thead>
+                      <tr style={{ background: '#F4F6FB' }}>
+                        <th style={{ padding: '6px 10px', textAlign: 'left' as const, fontSize: '10px', color: '#9CA3AF', fontWeight: '700' }}>Concepto</th>
+                        <th style={{ padding: '6px 10px', textAlign: 'center' as const, fontSize: '10px', color: '#9CA3AF', fontWeight: '700' }}>Situación actual</th>
+                        <th style={{ padding: '6px 10px', textAlign: 'center' as const, fontSize: '10px', color: '#1B3A6B', fontWeight: '700' }}>Con Mod. 40</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        ['Edad al momento del trámite', String(Math.floor(datos.edad_actual || 60)), escRec.edad_retiro?.toFixed(2) || '—'],
+                        ['Fecha ingreso Mod. 40', 'No aplica', escRec.fecha_ingreso_mod40 || '—'],
+                        ['Salario a registrar (MXN)', 'No aplica', fmtMXN2(escRec.sdi_mod40 ?? 0)],
+                        ['Años cotizados en Mod. 40', 'No aplica', (escRec.mod40_meses / 12).toFixed(2)],
+                        ['¿Cuándo baja de Mod. 40?', 'No aplica', escRec.fecha_baja_mod40 || '—'],
+                        ['Semanas cotizadas totales', (datos.semanas_totales - datos.semanas_descontadas).toString(), escRec.semanas_finales?.toFixed(0) || '—'],
+                        ['Salario prom. 250 semanas', fmtMXN2(sdiPromedio), fmtMXN2(escRec.nuevo_sdi_250)],
+                        ['¿A qué edad se va a pensionar?', String(Math.floor(datos.edad_actual || 60)), String(Math.floor(escRec.edad_retiro || 62))],
+                      ].map(([l, v1, v2], i) => (
+                        <tr key={i} style={{ background: i % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
+                          <td style={{ padding: '6px 10px', color: '#6B7280', fontSize: '11.5px' }}>{l}</td>
+                          <td style={{ padding: '6px 10px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: '11.5px' }}>{v1}</td>
+                          <td style={{ padding: '6px 10px', textAlign: 'center' as const, fontWeight: '700', color: '#1B3A6B', fontSize: '11.5px' }}>{v2}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {/* Pensión mejorada */}
+                <div style={DS.card}>
+                  <p style={DS.secTitle}>Pensión Mejorada</p>
+                  {[
+                    { label: 'Pensión mensual estimada', v1: fmtMXN2(escenarios[0]?.pension_base ?? 0), v2: fmtMXN2(escRec.pension_mensual), big: true },
+                    { label: 'Meses para recuperar inversión', v1: 'No aplica', v2: escRec.roi_meses?.toFixed(2) ?? '—', big: false },
+                    { label: 'Ganancia acumulada a los 80 años', v1: 'No aplica', v2: fmtMXN2(escRec.ganancia_a80), big: false },
+                  ].map(({ label, v1, v2, big }, i) => (
+                    <div key={i} style={{ marginBottom: '10px', padding: '10px', background: big ? '#EEF2F8' : '#F9FAFB', border: `1px solid ${big ? '#BFDBFE' : '#E5E7EB'}` }}>
+                      <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '0 0 4px', textTransform: 'uppercase' as const }}>{label}</p>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '12px', color: '#9CA3AF' }}>{v1}</span>
+                        <span style={{ fontSize: big ? '20px' : '14px', fontWeight: '800', color: '#1B3A6B' }}>{v2}</span>
+                      </div>
+                    </div>
+                  ))}
+                  {/* Tabla costo mes a mes */}
+                  <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', margin: '12px 0 6px', textTransform: 'uppercase' as const }}>Costo Mes a Mes (Pago Recurrente)</p>
+                  <div style={{ overflowY: 'auto', maxHeight: '160px' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
+                      <thead>
+                        <tr style={{ background: '#1B3A6B', position: 'sticky' as const, top: 0 }}>
+                          {['Año', 'Sal. Reg.', 'Tasa %', 'Cuota mens.', 'Cuota anual'].map((h, i) => (
+                            <th key={i} style={{ padding: '5px 8px', color: 'white', fontWeight: '700', textAlign: 'right' as const, fontSize: '10px' }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Array.from({ length: anioFin - anioInicio + 1 }, (_, idx) => {
+                          const a = anioInicio + idx
+                          const tasa = getMod40Pct(a)
+                          const sdi = escRec.sdi_mod40 ?? 0
+                          const dias = a % 4 === 0 ? 366 : 365
+                          const cuotaMens = sdi * (tasa / 100) * dias / 12
+                          const cuotaAnual = cuotaMens * 12
+                          return (
+                            <tr key={a} style={{ background: idx % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
+                              <td style={{ padding: '4px 8px', textAlign: 'right' as const }}>{a}</td>
+                              <td style={{ padding: '4px 8px', textAlign: 'right' as const }}>{fmtMXN(sdi)}</td>
+                              <td style={{ padding: '4px 8px', textAlign: 'right' as const }}>{tasa.toFixed(3)}%</td>
+                              <td style={{ padding: '4px 8px', textAlign: 'right' as const, fontWeight: '600' }}>{fmtMXN2(cuotaMens)}</td>
+                              <td style={{ padding: '4px 8px', textAlign: 'right' as const, fontWeight: '700', color: '#1B3A6B' }}>{fmtMXN2(cuotaAnual)}</td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div style={{ marginTop: '8px', padding: '8px 10px', background: '#F9FAFB', borderLeft: '3px solid #1B3A6B' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', marginBottom: '2px' }}>
+                      <span style={{ color: '#6B7280' }}>Costo total Mod. 40 (Pago mes a mes)</span>
+                      <span style={{ fontWeight: '800', color: '#1B3A6B' }}>{fmtMXN2(escRec.costo_total)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', marginBottom: '2px' }}>
+                      <span style={{ color: '#6B7280' }}>Recuperación vía AFORE (20%)</span>
+                      <span style={{ fontWeight: '700', color: '#2E8B57' }}>{fmtMXN2(escRec.recuperacion_afore)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', borderTop: '1px solid #E5E7EB', paddingTop: '4px', marginTop: '4px' }}>
+                      <span style={{ fontWeight: '700', color: '#374151' }}>Inversión Real (Costo - Recuperación)</span>
+                      <span style={{ fontWeight: '900', color: '#F05B21' }}>{fmtMXN2(escRec.inversion_neta)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
+                <button onClick={() => setTab(10)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700', fontFamily: 'inherit' }}>Financiamiento →</button>
+              </div>
+            </div>
+          )
+        })()}
+
+        {/* ══ TAB 10: FINANCIAMIENTO ════════════════════════════════════ */}
+        {tab === 10 && (() => {
+          const escRec = escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
+          if (!escRec || escRec.mod40_meses === 0) return (
+            <div style={{ textAlign: 'center' as const, padding: '60px', color: '#9CA3AF' }}>
+              <p>Configura los datos de Modalidad 40 primero</p>
+            </div>
+          )
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                {/* Participaciones */}
+                <div style={DS.card}>
+                  <p style={DS.secTitle}>Pago Retroactivo — Participaciones</p>
+                  {[
+                    { label: 'Inversión total retroactiva', value: fmtMXN(escRec.costo_retroactivo), big: true, color: '#1B3A6B' },
+                    { label: 'Actualizaciones INPC (~7.27%)', value: fmtMXN(escRec.actualizaciones ?? 0), color: '#F59E0B' },
+                    { label: 'Recargos por mora (~41.80%)', value: fmtMXN(escRec.recargos ?? 0), color: '#EF4444' },
+                    { label: 'Recuperación vía AFORE', value: fmtMXN(escRec.recuperacion_afore_retro), color: '#2E8B57' },
+                    { label: 'Banco regulado (35.65%)', value: fmtMXN(escRec.aportacion_banco), color: '#3B82F6' },
+                    { label: 'Segundo fondeador / ahorros', value: fmtMXN(escRec.aportacion_segundo_fondeo), color: '#F59E0B' },
+                    { label: 'Cantidad mínima en AFORE', value: fmtMXN(escRec.cantidad_minima_afore ?? 0), big: true, color: '#EF4444' },
+                  ].map(({ label, value, big, color }, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid #F3F4F6' }}>
+                      <span style={{ fontSize: '11.5px', color: '#6B7280' }}>{label}</span>
+                      <span style={{ fontSize: big ? '14px' : '12px', fontWeight: big ? '800' : '700', color }}>{value}</span>
+                    </div>
+                  ))}
+                </div>
+                {/* Banco regulado */}
+                <div style={DS.card}>
+                  <p style={DS.secTitle}>Financiamiento Banco Regulado</p>
+                  {[
+                    { label: 'Monto del crédito', value: fmtMXN(escRec.aportacion_banco), big: true },
+                    { label: 'Duración del trámite', value: `${escRec.duracion_tramite_meses ?? 60} meses` },
+                    { label: 'Costo financiamiento', value: fmtMXN(escRec.costo_financiamiento_banco ?? 0) },
+                    { label: 'Monto máximo a pagar', value: fmtMXN(escRec.monto_maximo_pago ?? 0), big: true },
+                  ].map(({ label, value, big }, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid #F3F4F6' }}>
+                      <span style={{ fontSize: '11.5px', color: '#6B7280' }}>{label}</span>
+                      <span style={{ fontSize: big ? '14px' : '12px', fontWeight: big ? '800' : '700', color: '#1B3A6B' }}>{value}</span>
+                    </div>
+                  ))}
+                  <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', margin: '12px 0 8px', textTransform: 'uppercase' as const }}>¿Cómo pago el banco?</p>
+                  {[
+                    { label: 'Plazo', value: '60 meses' },
+                    { label: 'Descuento mensual a pensión', value: fmtMXN(escRec.descuento_mensual), big: true },
+                    { label: 'Pensión inmediata', value: fmtMXN(escRec.pension_inmediata), big: true },
+                    { label: 'Pensión al liquidar', value: fmtMXN(escRec.pension_al_liquidar), big: true },
+                  ].map(({ label, value, big }, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid #F3F4F6' }}>
+                      <span style={{ fontSize: '11.5px', color: '#6B7280' }}>{label}</span>
+                      <span style={{ fontSize: big ? '13px' : '12px', fontWeight: big ? '800' : '600', color: big ? '#F05B21' : '#374151' }}>{value}</span>
+                    </div>
+                  ))}
+                </div>
+                {/* Segundo fondeador */}
+                <div style={DS.card}>
+                  <p style={DS.secTitle}>Segundo Fondeador</p>
+                  {[
+                    { label: 'Monto requerido', value: fmtMXN(escRec.aportacion_segundo_fondeo), big: true },
+                    { label: 'Plazo', value: `${escRec.plazo_segundo_fondeo ?? 12} meses` },
+                    { label: 'Costo financiamiento', value: fmtMXN(escRec.costo_financiamiento_segundo ?? 0) },
+                    { label: 'Monto máximo a pagar', value: fmtMXN(escRec.monto_maximo_pago ?? 0), big: true },
+                  ].map(({ label, value, big }, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid #F3F4F6' }}>
+                      <span style={{ fontSize: '11.5px', color: '#6B7280' }}>{label}</span>
+                      <span style={{ fontSize: big ? '14px' : '12px', fontWeight: big ? '800' : '700', color: '#1B3A6B' }}>{value}</span>
+                    </div>
+                  ))}
+                  <div style={{ marginTop: '12px', padding: '12px', background: '#EEF2F8', border: '1px solid #BFDBFE' }}>
+                    <p style={{ fontSize: '11px', color: '#6B7280', margin: '0 0 6px', textTransform: 'uppercase' as const, fontWeight: '700' }}>Análisis financiado</p>
+                    {[
+                      { label: 'ROI (meses)', value: escRec.roi_financiado?.toFixed(2) ?? '—' },
+                      { label: 'Ganancia a 80 años', value: fmtMXN(escRec.ganancia_a80_financiado ?? 0) },
+                      { label: 'Tasa de rendimiento', value: (escRec.tasa_rendimiento_financiado?.toFixed(2) ?? '—') + '%' },
+                    ].map(({ label, value }, i) => (
+                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid #DBEAFE' }}>
+                        <span style={{ fontSize: '11.5px', color: '#6B7280' }}>{label}</span>
+                        <span style={{ fontSize: '12px', fontWeight: '700', color: '#1B3A6B' }}>{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
+                <button onClick={() => setTab(11)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700', fontFamily: 'inherit' }}>Resumen →</button>
+              </div>
+            </div>
+          )
+        })()}
+
+        {/* ══ TAB 11: RESUMEN ══════════════════════════════════════════ */}
+        {tab === 11 && (() => {
+          const escsConMod40 = escenarios.filter(e => e.mod40_meses > 0).slice(0, 3)
+          const sem = datos.semanas_totales - datos.semanas_descontadas
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {/* Header */}
+              <div style={{ background: '#1B3A6B', padding: '14px 18px' }}>
+                <p style={{ fontSize: '15px', fontWeight: '800', color: 'white', margin: '0 0 2px' }}>Resumen Ejecutivo del Proyecto de Pensión con Modalidad 40</p>
+                <p style={{ fontSize: '11px', color: '#93C5FD', margin: 0 }}>{datos.nombre_trabajador || 'Trabajador'} · {datos.nss ? 'NSS: ' + datos.nss : ''}</p>
+              </div>
+
+              {escsConMod40.length === 0 ? (
+                <div style={DS.card}>
+                  <p style={{ textAlign: 'center' as const, color: '#9CA3AF', padding: '24px' }}>Configura al menos un escenario de Modalidad 40 para ver el resumen.</p>
+                </div>
+              ) : (
+                <>
+                  {/* Tabla comparativa multi-escenario */}
+                  {[
+                    { section: 'Edad de Pensión y Monto Mensual a Recibir', rows: [
+                      { label: 'Fecha ingreso Mod. 40', base: 'Sin Mod. 40', fn: (e: any) => e.fecha_ingreso_mod40 || '—' },
+                      { label: 'Años cotizados en Mod. 40', base: 'Ninguno', fn: (e: any) => (e.mod40_meses / 12).toFixed(2) + ' años' },
+                      { label: 'Fecha baja Mod. 40', base: 'Sin Mod. 40', fn: (e: any) => e.fecha_baja_mod40 || '—' },
+                      { label: 'Edad de pensión (IMSS)', base: String(Math.floor(datos.edad_actual || 60)), fn: (e: any) => String(Math.floor(e.edad_retiro || 62)) },
+                      { label: 'Aguinaldo', base: fmtMXN(escenarios[0]?.pension_base ? escenarios[0].pension_base * 15 / 30 : 0), fn: (e: any) => fmtMXN(e.aguinaldo_anual) },
+                      { label: 'Pensión mensual mejorada', base: fmtMXN2(escenarios[0]?.pension_base ?? 0), fn: (e: any) => fmtMXN2(e.pension_mensual), highlight: true },
+                    ]},
+                    { section: 'Costo de la Modalidad 40', rows: [
+                      { label: 'Costo mensual promedio', base: 'Ninguno', fn: (e: any) => fmtMXN2(e.costo_mensual_mod40 ?? e.costo_total / e.mod40_meses) },
+                      { label: 'Costo total', base: 'Ninguno', fn: (e: any) => fmtMXN2(e.costo_total), highlight: true },
+                      { label: 'Recuperación AFORE (20%)', base: 'No aplica', fn: (e: any) => fmtMXN2(e.recuperacion_afore) },
+                      { label: 'Meses para recuperar inversión', base: 'No aplica', fn: (e: any) => e.roi_meses?.toFixed(2) ?? '—' },
+                    ]},
+                    { section: 'Costo de la Modalidad 40 Retroactiva', rows: [
+                      { label: 'Costo retroactivo estimado', base: 'Ninguno', fn: (e: any) => fmtMXN2(e.costo_retroactivo), highlight: true },
+                      { label: 'Recuperación AFORE (20%)', base: 'No aplica', fn: (e: any) => fmtMXN2(e.recuperacion_afore_retro) },
+                      { label: 'Aportación banco regulado', base: 'No aplica', fn: (e: any) => fmtMXN2(e.aportacion_banco) },
+                      { label: 'Aportación cliente/fondeador', base: 'No aplica', fn: (e: any) => fmtMXN2(e.aportacion_segundo_fondeo) },
+                    ]},
+                    { section: 'Financiamiento', rows: [
+                      { label: 'Pago mensual del crédito (60 meses)', base: 'No aplica', fn: (e: any) => fmtMXN2(-e.descuento_mensual) },
+                      { label: 'Pensión mensual inmediata', base: fmtMXN2(escenarios[0]?.pension_base ?? 0), fn: (e: any) => fmtMXN2(e.pension_inmediata), highlight: true },
+                    ]},
+                  ].map(({ section, rows }, si) => (
+                    <div key={si} style={DS.card}>
+                      <p style={{ fontSize: '11px', fontWeight: '800', color: '#1B3A6B', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 10px', padding: '6px 10px', background: '#EEF2F8', borderLeft: '3px solid #1B3A6B' }}>{section}</p>
+                      <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                          <thead>
+                            <tr style={{ background: '#F4F6FB' }}>
+                              <th style={{ padding: '7px 10px', textAlign: 'left' as const, color: '#9CA3AF', fontSize: '10px', fontWeight: '700', textTransform: 'uppercase' as const }}>Concepto</th>
+                              <th style={{ padding: '7px 10px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: '10px', fontWeight: '700' }}>Situación actual</th>
+                              {escsConMod40.map((_, i) => (
+                                <th key={i} style={{ padding: '7px 10px', textAlign: 'center' as const, color: '#1B3A6B', fontSize: '10px', fontWeight: '700' }}>Escenario {i+1}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {rows.map((row, ri) => (
+                              <tr key={ri} style={{ background: row.highlight ? '#EEF2F8' : ri % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
+                                <td style={{ padding: '7px 10px', color: '#374151', fontWeight: row.highlight ? '700' : '400' }}>{row.label}</td>
+                                <td style={{ padding: '7px 10px', textAlign: 'center' as const, color: '#9CA3AF' }}>{row.base}</td>
+                                {escsConMod40.map((e, i) => (
+                                  <td key={i} style={{ padding: '7px 10px', textAlign: 'center' as const, fontWeight: row.highlight ? '800' : '600', color: row.highlight ? '#1B3A6B' : '#374151' }}>{row.fn(e)}</td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+
+              {/* Análisis de IA al final del Resumen */}
+              <div style={{ background: 'white', border: '1px solid #DDD6FE' }}>
+                <div style={{ background: '#7C3AED', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div>
+                    <p style={{ fontSize: '13px', fontWeight: '700', color: 'white', margin: '0 0 2px' }}>🤖 Análisis de Sofía IA</p>
+                    <p style={{ fontSize: '11px', color: '#DDD6FE', margin: 0 }}>Diagnóstico inteligente del proyecto de pensión</p>
+                  </div>
+                  <button onClick={generarAnalisisIA} disabled={!clienteId || sdiPromedio <= 0}
+                    style={{ padding: '8px 16px', border: '1px solid white', fontSize: '12px', fontWeight: '700', color: '#7C3AED', background: 'white', fontFamily: 'inherit', cursor: 'pointer', opacity: clienteId && sdiPromedio > 0 ? 1 : 0.5 }}>
+                    ✨ Generar análisis
+                  </button>
+                </div>
+                <div style={{ padding: '14px 16px' }}>
+                  {analisis.length === 0 && (
+                    <div style={{ padding: '20px', color: '#9CA3AF', background: '#F5F3FF', border: '1px dashed #DDD6FE', fontSize: '12px', textAlign: 'center' as const }}>
+                      Haz clic en &quot;Generar análisis&quot; para el diagnóstico completo
+                    </div>
+                  )}
+                  {analisis.length > 0 && analisis.map((sec, i) => (
+                    <div key={i} style={{ background: '#F5F3FF', border: '1px solid #DDD6FE', borderLeft: '3px solid #7C3AED', padding: '12px 14px', marginBottom: '8px' }}>
+                      <p style={{ fontSize: '12px', fontWeight: '700', color: '#5B21B6', margin: '0 0 6px' }}>{sec.titulo}</p>
+                      <p style={{ fontSize: '12px', color: '#374151', margin: 0, lineHeight: 1.7 }}>{sec.contenido}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )
+        })()}
 
             </div>{/* fin overflowY */}
 
