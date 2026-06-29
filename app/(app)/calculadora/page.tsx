@@ -1554,15 +1554,10 @@ function CalculadoraInner() {
                 {clienteId && datos.semanas_totales > 0 ? '→ Continuar a la calculadora' : 'Completa los dos pasos para continuar'}
               </button>
 
-              {/* Registrar nuevo + Salir */}
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <a href="/clientes?nuevo=1" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '9px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600', textDecoration: 'none' }}>
-                  ＋ Nuevo cliente
-                </a>
-                <a href="/" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '9px', color: '#9CA3AF', border: '1px solid #E5E7EB', fontSize: '12px', textDecoration: 'none' }}>
-                  ← Mi día
-                </a>
-              </div>
+              {/* Salir */}
+              <a href="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '9px', color: '#9CA3AF', border: '1px solid #E5E7EB', fontSize: '12px', textDecoration: 'none' }}>
+                ← Salir — ir a mi día
+              </a>
             </div>
           </div>
         </div>
@@ -1803,24 +1798,15 @@ function CalculadoraInner() {
                   {diagGuardadoId && <span style={{ color: estatus === 'autorizado' ? VERDE : '#f59e0b', fontWeight: '600', fontSize: '12.5px' }}> · {estatus === 'autorizado' ? '✅ Autorizado' : '📝 Borrador'}</span>}
                 </p>
                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
-                  <select value={clienteId} onChange={e => { if (analisis.length > 0 || diagGuardadoId) { setPendingClienteId(e.target.value); setShowConfirmCambio(true) } else { setClienteId(e.target.value); setDiagGuardadoId(null); setEstatus('borrador') } }} style={{ ...inputSt, minWidth: '150px', fontSize: '12px', padding: '6px 10px', height: '32px', borderColor: !clienteId ? '#f97316' : '#e2e8f0' }}>
+                  <select value={clienteId} onChange={e => { if (analisis.length > 0 || diagGuardadoId) { setPendingClienteId(e.target.value); setShowConfirmCambio(true) } else { setClienteId(e.target.value); setDiagGuardadoId(null); setEstatus('borrador') } }} style={{ ...inputSt, minWidth: '160px', fontSize: '12px', padding: '6px 10px', height: '32px', borderColor: !clienteId ? '#f97316' : '#e2e8f0' }}>
                     <option value="">— Seleccionar cliente —</option>
                     {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
                   </select>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '0 12px', height: '32px', border: '1px solid #e2e8f0', cursor: extracting ? 'not-allowed' : 'pointer', fontSize: '12px', fontWeight: '600', color: AZUL, background: '#EEF2F8', whiteSpace: 'nowrap', boxSizing: 'border-box' as const }}>
-                    {extracting ? '⏳ Extrayendo...' : '📄 Cargar constancia'}
-                    <input ref={fileRef} type="file" accept=".pdf" style={{ display: 'none' }} disabled={extracting} onChange={e => { const f = e.target.files?.[0]; if (f) extraerPDF(f) }} />
-                  </label>
-                  {sdiPromedio > 0 && (
-                    <button onClick={generarAnalisisIA} disabled={!clienteId} style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '0 12px', height: '32px', border: '1px solid #8b5cf6', cursor: clienteId ? 'pointer' : 'not-allowed', fontSize: '12px', fontWeight: '600', color: 'white', background: '#7c3aed', whiteSpace: 'nowrap', opacity: clienteId ? 1 : 0.5, fontFamily: 'inherit' }}>
-                      ✨ Análisis IA
-                    </button>
-                  )}
                 </div>
               </div>
             </div>
-                        {/* KPI bar */}
-            <div style={{ display: 'flex', gap: '0', background: 'white', borderBottom: '2px solid #E5E7EB', flexShrink: 0, overflowX: 'auto' }}>
+            {/* ── KPI bar — indicadores clave ── */}
+            <div style={{ display: 'flex', background: 'white', borderBottom: '2px solid #E5E7EB', flexShrink: 0, overflowX: 'auto' }}>
               {[
                 { label: 'Semanas cotizadas', value: datos.semanas_totales > 0 ? (datos.semanas_totales - datos.semanas_descontadas).toLocaleString() : '—', color: (datos.semanas_totales - datos.semanas_descontadas) >= 500 ? VERDE : AZUL },
                 { label: 'Régimen', value: datos.ley ? 'Ley ' + datos.ley : '—', color: AZUL },
@@ -1830,9 +1816,9 @@ function CalculadoraInner() {
                 { label: 'Total sem. cot.', value: escenarios.find(e => e.recomendado)?.semanas_finales ? String(Math.round(escenarios.find(e => e.recomendado)!.semanas_finales)) : '—', color: AZUL },
                 { label: 'Fecha del trámite', value: datos.fecha_nacimiento ? (() => { const d = new Date(datos.fecha_nacimiento); d.setFullYear(d.getFullYear() + (datos.edad_min_pension || 60)); return d.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' }) })() : '—', color: '#7C3AED' },
               ].map((k, i) => (
-                <div key={i} style={{ flex: '1 0 auto', padding: '8px 14px', borderLeft: i > 0 ? '1px solid #E5E7EB' : 'none', borderRight: 'none' }}>
-                  <div style={{ fontSize: '9px', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap', marginBottom: '2px', fontWeight: '600' }}>{k.label}</div>
-                  <div style={{ fontSize: '13px', fontWeight: '800', color: k.color, whiteSpace: 'nowrap' }}>{k.value}</div>
+                <div key={i} style={{ flex: '1 0 auto', padding: '10px 12px', borderRight: '1px solid #F3F4F6', borderBottom: '2px solid ' + k.color, background: 'white', minWidth: '90px' }}>
+                  <div style={{ fontSize: '9px', color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.5px', whiteSpace: 'nowrap', marginBottom: '4px', fontWeight: '600' }}>{k.label}</div>
+                  <div style={{ fontSize: '14px', fontWeight: '800', color: k.color, whiteSpace: 'nowrap', letterSpacing: '-0.3px' }}>{k.value}</div>
                 </div>
               ))}
             </div>
@@ -1977,32 +1963,6 @@ function CalculadoraInner() {
         })()}
 
         {/* Análisis de IA — visible en tab 0 */}
-        {tab === 0 && (
-          <div style={{ background: 'white', border: '1px solid #d1d5db', padding: '14px', margin: '0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-              <div>
-                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 2px' }}>🤖 Análisis de Sofía IA</p>
-                <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>Diagnóstico inteligente basado en los datos del cliente</p>
-              </div>
-              <button onClick={generarAnalisisIA} disabled={!clienteId || sdiPromedio <= 0}
-                style={{ padding: '7px 14px', border: '1px solid #7c3aed', fontSize: '12px', fontWeight: '600', color: 'white', background: '#7c3aed', fontFamily: 'inherit', cursor: 'pointer', opacity: clienteId && sdiPromedio > 0 ? 1 : 0.5 }}>
-                ✨ Generar análisis
-              </button>
-            </div>
-            {analisis.length === 0 && (
-              <div style={{ padding: '16px', color: '#9CA3AF', background: '#F9FAFB', border: '1px dashed #d1d5db', fontSize: '12px', textAlign: 'center' }}>
-                Carga la constancia y haz clic en Generar análisis
-              </div>
-            )}
-            {analisis.length > 0 && analisis.map((sec, i) => (
-              <div key={i} style={{ background: '#F5F3FF', border: '1px solid #ddd6fe', padding: '12px 14px', marginBottom: '8px' }}>
-                <p style={{ fontSize: '12px', fontWeight: '700', color: '#5b21b6', margin: '0 0 6px' }}>{sec.titulo}</p>
-                <p style={{ fontSize: '12px', color: '#374151', margin: 0, lineHeight: 1.7 }}>{sec.contenido}</p>
-              </div>
-            ))}
-          </div>
-        )}
-
         {tab === 1 && (() => {
           const sem = datos.semanas_totales - datos.semanas_descontadas
           if (sdiPromedio <= 0) return (
@@ -2612,19 +2572,44 @@ function CalculadoraInner() {
           )
         })()}
 
-
+        {/* ══ ANÁLISIS DE IA — visible en el último tab (Inversión) ══ */}
+        {tab === 6 && (
+          <div style={{ background: 'white', border: '1px solid #DDD6FE', marginTop: '12px' }}>
+            <div style={{ background: '#7C3AED', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <p style={{ fontSize: '13px', fontWeight: '700', color: 'white', margin: '0 0 2px' }}>🤖 Análisis de Sofía IA</p>
+                <p style={{ fontSize: '11px', color: '#DDD6FE', margin: 0 }}>Diagnóstico inteligente basado en los datos del proyecto</p>
+              </div>
+              <button onClick={generarAnalisisIA} disabled={!clienteId || sdiPromedio <= 0}
+                style={{ padding: '8px 16px', border: '1px solid white', fontSize: '12px', fontWeight: '700', color: '#7C3AED', background: 'white', fontFamily: 'inherit', cursor: clienteId && sdiPromedio > 0 ? 'pointer' : 'not-allowed', opacity: clienteId && sdiPromedio > 0 ? 1 : 0.5 }}>
+                ✨ Generar análisis
+              </button>
+            </div>
+            <div style={{ padding: '14px 16px' }}>
+              {analisis.length === 0 && (
+                <div style={{ padding: '20px', color: '#9CA3AF', background: '#F5F3FF', border: '1px dashed #DDD6FE', fontSize: '12px', textAlign: 'center' as const }}>
+                  Haz clic en &quot;Generar análisis&quot; para obtener el diagnóstico completo del proyecto de pensión
+                </div>
+              )}
+              {analisis.length > 0 && analisis.map((sec, i) => (
+                <div key={i} style={{ background: '#F5F3FF', border: '1px solid #DDD6FE', borderLeft: '3px solid #7C3AED', padding: '12px 14px', marginBottom: '8px' }}>
+                  <p style={{ fontSize: '12px', fontWeight: '700', color: '#5B21B6', margin: '0 0 6px', textTransform: 'uppercase' as const, letterSpacing: '0.3px' }}>{sec.titulo}</p>
+                  <p style={{ fontSize: '12px', color: '#374151', margin: 0, lineHeight: 1.7 }}>{sec.contenido}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
             </div>{/* fin overflowY */}
 
-            {/* Tab bar en la parte inferior */}
-            {/* Tab bar — radio buttons */}
-            <div style={{ display: 'flex', borderTop: '1px solid #e2e8f0', background: '#F8FAFC', flexShrink: 0, padding: '6px 10px', overflowX: 'auto', alignItems: 'center', justifyContent: 'center' }}>
+            {/* ── Tab bar — pie de navegación ── */}
+            <div style={{ display: 'flex', borderTop: '2px solid #E5E7EB', background: 'white', flexShrink: 0, overflowX: 'auto', alignItems: 'stretch' }}>
               {TABS.map((t, i) => (
-                <button key={i} onClick={() => setTab(i)} style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 10px', border: 'none', cursor: 'pointer', background: 'transparent', fontFamily: 'inherit' }}>
-                  <div style={{ width: '14px', height: '14px', borderRadius: '50%', border: `2px solid ${tab === i ? NARANJA : '#94a3b8'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: tab === i ? NARANJA : 'white' }}>
-                    {tab === i && <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'white' }} />}
-                  </div>
-                  <span style={{ fontSize: '10.5px', fontWeight: tab === i ? '700' : '500', color: tab === i ? NARANJA : '#64748b', whiteSpace: 'nowrap' }}>{t}</span>
+                <button key={i} onClick={() => setTab(i)}
+                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '3px', padding: '8px 12px', border: 'none', borderBottom: `3px solid ${tab === i ? NARANJA : 'transparent'}`, cursor: 'pointer', background: tab === i ? '#FFF7F4' : 'white', fontFamily: 'inherit', flex: '1 0 auto', transition: 'all 0.15s', minWidth: '80px' }}>
+                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: i < tab ? VERDE : tab === i ? NARANJA : '#D1D5DB', transition: 'all 0.15s' }} />
+                  <span style={{ fontSize: '10px', fontWeight: tab === i ? '700' : '500', color: tab === i ? NARANJA : i < tab ? '#374151' : '#9CA3AF', whiteSpace: 'nowrap', letterSpacing: '0.2px' }}>{t}</span>
                 </button>
               ))}
             </div>
