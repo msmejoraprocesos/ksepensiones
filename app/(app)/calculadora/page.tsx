@@ -435,7 +435,7 @@ function CalculadoraInner() {
     'Inversión',
   ]
   // Carátula: se muestra solo cuando no hay datos cargados y no hay cliente pre-seleccionado
-  const [mostrarCaratula, setMostrarCaratula] = useState(true)
+  const [mostrarCaratula, setMostrarCaratula] = useState(false)
 
   // Tab 1 state
   const [datos, setDatos] = useState<DatosGenerales>(DEFAULT_DATOS)
@@ -537,7 +537,10 @@ function CalculadoraInner() {
       if (clienteParam) {
         setClienteId(clienteParam)
         setShowClienteModal(false)
-        setMostrarCaratula(false)
+        // No mostrar modal — viene de tarjeta de cliente
+      } else {
+        // No hay cliente en URL — mostrar modal de bienvenida
+        setMostrarCaratula(true)
       }
 
       if (diagParam) {
