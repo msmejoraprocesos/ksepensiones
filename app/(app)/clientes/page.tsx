@@ -959,27 +959,26 @@ function ClientesInner() {
             </label>
           </div>
         )}
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'nowrap', flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
           {[
             { label: 'Total clientes', value: String(filtered.length), color: AZUL, bg: '#EEF2F8', border: AZUL },
             { label: 'Cobrado', value: fmtMXN(filtered.reduce((s, c) => s + (c.total_pagado ?? 0), 0)), color: VERDE, bg: '#F0FDF4', border: VERDE },
             { label: 'Por cobrar', value: fmtMXN(filtered.reduce((s, c) => s + Math.max(0, (c.monto_acordado ?? 0) - (c.total_pagado ?? 0)), 0)), color: '#DC2626', bg: '#FEF2F2', border: '#FCA5A5' },
           ].map((k, i) => (
-            <div key={i} style={{ background: k.bg, border: `1px solid ${k.border}`, padding: '6px 14px', width: '140px', textAlign: 'center' as const, flexShrink: 0 }}>
+            <div key={i} style={{ background: k.bg, border: `1px solid ${k.border}`, padding: '5px 12px', width: '130px', textAlign: 'center' as const, flexShrink: 0 }}>
               <div style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase' as const, letterSpacing: '0.4px', fontWeight: '600', marginBottom: '2px' }}>{k.label}</div>
-              <div style={{ fontSize: '14px', fontWeight: '800', color: k.color, letterSpacing: '-0.3px' }}>{k.value}</div>
+              <div style={{ fontSize: '13px', fontWeight: '800', color: k.color, letterSpacing: '-0.3px' }}>{k.value}</div>
             </div>
           ))}
+          <button onClick={() => { setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', tipo_servicio: '', esquema_pago: '', monto_acordado: '', monto_pension_mensual: '', numero_meses_cobro: '', porcentaje_recuperacion: '', tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } } }); setFormErrors({}); setShowNuevo(true) }}
+            style={{ background: AZUL, color: 'white', border: 'none', borderRadius: '8px', padding: '8px 14px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' as const }}>
+            + Nuevo cliente
+          </button>
+          <button onClick={() => setShowGuia(true)}
+            style={{ background: '#F4F6FB', color: AZUL, border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px 12px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', flexShrink: 0 }}>
+            📖 Guía
+          </button>
         </div>
-        <div style={{ flex: 1 }} />
-        <button onClick={() => { setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', tipo_servicio: '', esquema_pago: '', monto_acordado: '', monto_pension_mensual: '', numero_meses_cobro: '', porcentaje_recuperacion: '', tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } } }); setFormErrors({}); setShowNuevo(true) }}
-          style={{ background: AZUL, color: 'white', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', flexShrink: 0 }}>
-          + Nuevo cliente
-        </button>
-        <button onClick={() => setShowGuia(true)}
-          style={{ background: '#F4F6FB', color: AZUL, border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px 14px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', flexShrink: 0 }}>
-          📖 Guía
-        </button>
       </div>
 
       {/* ── VISTA LISTA ── */}
