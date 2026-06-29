@@ -479,6 +479,7 @@ function CalculadoraInner() {
     'Escenario 1',            // 9
     'Financiamiento',         // 10
     'Resumen',                // 11
+    'Modalidad 10',           // 12
   ]
   // Carátula: se muestra solo cuando no hay datos cargados y no hay cliente pre-seleccionado
   const [mostrarCaratula, setMostrarCaratula] = useState(false)
@@ -3585,6 +3586,156 @@ function CalculadoraInner() {
         })()}
 
             </div>{/* fin overflowY */}
+
+        {/* ══ TAB 12: MODALIDAD 10 ═══════════════════════════════════════ */}
+        {tab === 12 && (() => {
+          const escM10 = escenarios.find(e => e.id === 'e_m10')
+          const escRec = escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
+          const pensionActual = escenarios[0]?.pension_base ?? 0
+          const TASA_M10_DISPLAY = 22
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+
+              {/* Header */}
+              <div style={{ background: '#0891B2', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <p style={{ fontSize: '10px', color: '#BAE6FD', margin: '0 0 3px', textTransform: 'uppercase' as const, letterSpacing: '0.6px', fontWeight: '600' }}>Cotización Voluntaria</p>
+                  <p style={{ fontSize: '16px', fontWeight: '800', color: 'white', margin: 0 }}>Modalidad 10 — Conservación de Derechos</p>
+                </div>
+                {escM10 && (
+                  <div style={{ textAlign: 'right' as const }}>
+                    <div style={{ fontSize: '10px', color: '#BAE6FD', marginBottom: '2px' }}>Pensión mejorada</div>
+                    <div style={{ fontSize: '26px', fontWeight: '900', color: 'white', letterSpacing: '-1px' }}>{fmtMXN2(escM10.pension_mensual)}</div>
+                  </div>
+                )}
+              </div>
+
+              {/* Explicación conceptual */}
+              <div style={DS.card}>
+                <p style={DS.secTitle}>¿Qué es la Modalidad 10?</p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                  <div>
+                    <p style={{ fontSize: '12px', color: '#374151', lineHeight: 1.7, margin: '0 0 10px' }}>
+                      La <strong>Modalidad 10</strong> permite a trabajadores que han dejado de cotizar (desempleados, independientes) continuar su cotización ante el IMSS de forma voluntaria, pagando el <strong>100% de las cuotas</strong> obrero-patronales.
+                    </p>
+                    <p style={{ fontSize: '12px', color: '#374151', lineHeight: 1.7, margin: 0 }}>
+                      A diferencia de la Modalidad 40, la Mod 10 <strong>incluye cobertura médica completa</strong> — el trabajador y su familia mantienen acceso a servicios de salud del IMSS mientras cotiza.
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {[
+                      { icon: '✅', title: 'Cobertura médica completa', desc: 'A diferencia de Mod 40, mantiene acceso a servicios médicos del IMSS' },
+                      { icon: '📅', title: 'Acumula semanas', desc: 'Suma semanas hacia las 500 mínimas requeridas para pensión' },
+                      { icon: '💰', title: 'Tasa ~22%', desc: 'Paga el 100% de cuotas: aprox. 22% del SBC registrado por año' },
+                      { icon: '🔒', title: 'Conserva derechos', desc: 'Mantiene vigentes los derechos ante el IMSS (pensión, invalidez)' },
+                    ].map(({ icon, title, desc }, i) => (
+                      <div key={i} style={{ display: 'flex', gap: '10px', padding: '8px 12px', background: '#F0F9FF', border: '1px solid #BAE6FD' }}>
+                        <span style={{ fontSize: '18px', flexShrink: 0 }}>{icon}</span>
+                        <div>
+                          <div style={{ fontSize: '12px', fontWeight: '700', color: '#0C4A6E' }}>{title}</div>
+                          <div style={{ fontSize: '11px', color: '#6B7280' }}>{desc}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* KPIs si hay datos */}
+              {escM10 && (
+                <>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px' }}>
+                    {[
+                      { label: 'Pensión sin Mod 10', value: fmtMXN2(pensionActual), color: '#9CA3AF', bg: '#F9FAFB', border: '#E5E7EB' },
+                      { label: 'Pensión con Mod 10', value: fmtMXN2(escM10.pension_mensual), color: '#0891B2', bg: '#F0F9FF', border: '#0891B2' },
+                      { label: 'Costo total (12 meses)', value: fmtMXN2(escM10.costo_total), color: '#92400E', bg: '#FFFBEB', border: '#FCD34D' },
+                      { label: 'Recuperación AFORE', value: fmtMXN2(escM10.recuperacion_afore), color: '#065F46', bg: '#F0FDF4', border: '#86EFAC' },
+                    ].map((k, i) => (
+                      <div key={i} style={{ background: k.bg, border: '2px solid ' + k.border, padding: '14px', textAlign: 'center' as const }}>
+                        <div style={{ fontSize: '9.5px', color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600', marginBottom: '6px' }}>{k.label}</div>
+                        <div style={{ fontSize: '18px', fontWeight: '900', color: k.color, letterSpacing: '-0.5px' }}>{k.value}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Detalle del cálculo */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                    <div style={DS.card}>
+                      <p style={DS.secTitle}>📊 Cálculo Modalidad 10 (12 meses)</p>
+                      {[
+                        { label: 'SDI actual (promedio 250 sem.)', value: fmtMXN2(sdiPromedio) },
+                        { label: 'Salario a registrar en Mod. 10', value: fmtMXN2(escM10.sdi_mod40 ?? sdiPromedio), highlight: true },
+                        { label: 'Tasa Mod. 10 anual (~22%)', value: TASA_M10_DISPLAY + '%' },
+                        { label: 'Cuota mensual estimada', value: fmtMXN2(escM10.costo_total / 12), highlight: true },
+                        { label: 'Semanas cotizadas en Mod. 10', value: Math.round(escM10.semanas_mod40 || 52).toString() + ' sem.' },
+                        { label: 'Semanas totales finales', value: Math.round(escM10.semanas_finales || 0).toString(), highlight: true },
+                        { label: 'Nuevo SDI promedio 250 sem.', value: fmtMXN2(escM10.nuevo_sdi_250) },
+                        { label: 'Inversión neta (costo - AFORE)', value: fmtMXN2(escM10.inversion_neta), highlight: true },
+                      ].map(({ label, value, highlight }, i) => (
+                        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #F3F4F6', background: highlight ? 'transparent' : 'transparent' }}>
+                          <span style={{ fontSize: '12px', color: '#6B7280' }}>{label}</span>
+                          <span style={{ fontSize: highlight ? '14px' : '12px', fontWeight: highlight ? '800' : '600', color: highlight ? '#0891B2' : '#374151' }}>{value}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      {/* Comparativo Mod 10 vs Mod 40 */}
+                      <div style={DS.card}>
+                        <p style={DS.secTitle}>⚖️ Mod 10 vs Mod 40 — ¿Cuál conviene?</p>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11.5px' }}>
+                          <thead>
+                            <tr style={{ background: '#F4F6FB' }}>
+                              <th style={{ padding: '7px 10px', textAlign: 'left' as const, fontSize: '10px', color: '#9CA3AF', fontWeight: '700' }}>Concepto</th>
+                              <th style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: '10px', color: '#0891B2', fontWeight: '700' }}>Mod 10</th>
+                              <th style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: '10px', color: '#1B3A6B', fontWeight: '700' }}>Mod 40</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[
+                              { label: 'Tasa anual aprox.', m10: '22%', m40: getMod40Pct(new Date().getFullYear()).toFixed(3) + '%' },
+                              { label: 'Cobertura médica', m10: '✅ Sí', m40: '✕ No' },
+                              { label: 'Mejora SDI promedio', m10: escM10.nuevo_sdi_250 > sdiPromedio ? '✅ Sí' : '—', m40: escRec?.nuevo_sdi_250 > sdiPromedio ? '✅ Sí' : '—' },
+                              { label: 'Pensión mensual', m10: fmtMXN2(escM10.pension_mensual), m40: fmtMXN2(escRec?.pension_mensual ?? 0), highlight: true },
+                              { label: 'Costo total', m10: fmtMXN2(escM10.costo_total), m40: fmtMXN2(escRec?.costo_total ?? 0) },
+                              { label: 'Inversión neta', m10: fmtMXN2(escM10.inversion_neta), m40: fmtMXN2(escRec?.inversion_neta ?? 0), highlight: true },
+                              { label: 'Recomendado para', m10: 'Desempleados / Independientes', m40: 'Empleados activos' },
+                            ].map(({ label, m10, m40, highlight }, i) => (
+                              <tr key={i} style={{ background: highlight ? '#F0F9FF' : i % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
+                                <td style={{ padding: '7px 10px', fontSize: '11.5px', color: '#374151' }}>{label}</td>
+                                <td style={{ padding: '7px 10px', textAlign: 'center' as const, fontWeight: highlight ? '800' : '600', color: highlight ? '#0891B2' : '#374151', fontSize: highlight ? '13px' : '11.5px' }}>{m10}</td>
+                                <td style={{ padding: '7px 10px', textAlign: 'center' as const, fontWeight: highlight ? '800' : '600', color: highlight ? '#1B3A6B' : '#374151', fontSize: highlight ? '13px' : '11.5px' }}>{m40}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Diferencia clave */}
+                      <div style={{ background: '#F0F9FF', border: '2px solid #0891B2', padding: '14px' }}>
+                        <p style={{ fontSize: '12px', fontWeight: '700', color: '#0C4A6E', margin: '0 0 8px' }}>💡 Diferencia clave con Mod 40</p>
+                        <p style={{ fontSize: '11.5px', color: '#374151', lineHeight: 1.7, margin: 0 }}>
+                          La <strong>Modalidad 40</strong> está diseñada para trabajadores que <em>siguen empleados</em> y quieren cotizar con un salario más alto para mejorar su pensión. La <strong>Modalidad 10</strong> es para quienes <em>ya no están empleados</em> y necesitan mantener sus derechos activos, incluyendo acceso a servicios médicos del IMSS. Son complementarias, no excluyentes.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {!escM10 && (
+                <div style={DS.card}>
+                  <div style={{ textAlign: 'center' as const, padding: '40px', color: '#9CA3AF' }}>
+                    <div style={{ fontSize: '48px', marginBottom: '12px' }}>📋</div>
+                    <p style={{ fontSize: '14px', margin: '0 0 6px' }}>Carga la constancia IMSS para ver el análisis de Modalidad 10</p>
+                    <p style={{ fontSize: '12px' }}>El sistema calcula automáticamente el escenario de Mod 10 con los datos de semanas cotizadas y SDI del trabajador</p>
+                  </div>
+                </div>
+              )}
+
+            </div>
+          )
+        })()}
 
             {/* ── Tab bar — pie de navegación ── */}
             <div style={{ display: 'flex', borderTop: '2px solid #E5E7EB', background: 'white', flexShrink: 0, overflowX: 'auto', alignItems: 'stretch' }}>
