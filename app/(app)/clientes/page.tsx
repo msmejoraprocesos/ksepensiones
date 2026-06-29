@@ -961,15 +961,16 @@ function ClientesInner() {
         )}
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'nowrap', flexShrink: 0 }}>
           {[
-            { label: 'Total', value: filtered.length, color: AZUL },
-            { label: 'Cobrado', value: fmtMXN(filtered.reduce((s, c) => s + (c.total_pagado ?? 0), 0)), color: VERDE },
-            { label: 'Por cobrar', value: fmtMXN(filtered.reduce((s, c) => s + Math.max(0, (c.monto_acordado ?? 0) - (c.total_pagado ?? 0)), 0)), color: '#ef4444' },
+            { label: 'Total clientes', value: String(filtered.length), color: AZUL, bg: '#EEF2F8', border: AZUL },
+            { label: 'Cobrado', value: fmtMXN(filtered.reduce((s, c) => s + (c.total_pagado ?? 0), 0)), color: VERDE, bg: '#F0FDF4', border: VERDE },
+            { label: 'Por cobrar', value: fmtMXN(filtered.reduce((s, c) => s + Math.max(0, (c.monto_acordado ?? 0) - (c.total_pagado ?? 0)), 0)), color: '#DC2626', bg: '#FEF2F2', border: '#FCA5A5' },
           ].map((k, i) => (
-            <div key={i} style={{ background: '#F4F6FB', borderRadius: '8px', padding: '4px 12px', border: '1px solid #e2e8f0' }}>
-              <div style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase' }}>{k.label}</div>
-              <div style={{ fontSize: '13px', fontWeight: '800', color: k.color }}>{k.value}</div>
+            <div key={i} style={{ background: k.bg, border: `1px solid ${k.border}`, padding: '6px 14px', width: '140px', textAlign: 'center' as const, flexShrink: 0 }}>
+              <div style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase' as const, letterSpacing: '0.4px', fontWeight: '600', marginBottom: '2px' }}>{k.label}</div>
+              <div style={{ fontSize: '14px', fontWeight: '800', color: k.color, letterSpacing: '-0.3px' }}>{k.value}</div>
             </div>
           ))}
+        </div>
         </div>
         <div style={{ flex: 1 }} />
         <button onClick={() => { setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', tipo_servicio: '', esquema_pago: '', monto_acordado: '', monto_pension_mensual: '', numero_meses_cobro: '', porcentaje_recuperacion: '', tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } } }); setFormErrors({}); setShowNuevo(true) }}
