@@ -660,7 +660,15 @@ function CalculadoraInner() {
   }
 
   async function loadSysVars(uid: string) {
-    const { data } = await supabase.from('perfiles_usuario').select('*').eq('id', uid).single()
+    // Las fórmulas/parámetros del sistema son GLOBALES — los configura el admin
+    // y deben aplicar a todos los asesores. Por eso se lee de la fila del admin
+    // (is_admin = true), NO de la fila del usuario que inició sesión.
+    // LIMITACIÓN CONOCIDA: si llegara a haber más de un usuario con is_admin=true,
+    // esta consulta puede traer cualquiera de ellos (sin orden garantizado). Para
+    // el modelo actual (un solo admin = dueño del negocio) esto no es un problema.
+    // Si se agregan más admins en el futuro, migrar a una tabla dedicada de
+    // configuración global (singleton), separada de perfiles_usuario.
+    const { data } = await supabase.from('perfiles_usuario').select('*').eq('is_admin', true).limit(1).maybeSingle()
     if (data) {
       setMod40PctPorAnio({
         2026: data.mod40_2026 ?? 14.438, 2027: data.mod40_2027 ?? 15.528,
@@ -1179,7 +1187,6 @@ function CalculadoraInner() {
 
   // ── Validación de datos lógicos ────────────────────────────────
   const [showValidacion, setShowValidacion] = useState(false)
-  const [forzarGuardado, setForzarGuardado] = useState(false)
   const [estatusPendiente, setEstatusPendiente] = useState<'borrador' | 'autorizado'>('borrador')
 
   function validarDatos(): { campo: string; mensaje: string; nivel: 'error' | 'aviso' }[] {
@@ -1224,13 +1231,12 @@ function CalculadoraInner() {
   }
 
   // ── Guardar diagnóstico
-  async function guardarDiagnostico(nuevoEstatus: 'borrador' | 'autorizado') {
+  async function guardarDiagnostico(nuevoEstatus: 'borrador' | 'autorizado', forzar = false) {
     if (!clienteId || !userId || analisis.length === 0) return
-    if (!forzarGuardado) {
+    if (!forzar) {
       const problemas = validarDatos()
       if (problemas.length > 0) { setEstatusPendiente(nuevoEstatus); setShowValidacion(true); return }
     }
-    setForzarGuardado(false)
     setGuardando(true)
     const escElegido = escenarios[escElegidoIdx] ?? escenarios.find(e => e.recomendado) ?? escenarios[0]
     const payload = {
@@ -1354,7 +1360,7 @@ function CalculadoraInner() {
                   ✕ Corregir datos
                 </button>
                 {!hayErrores && (
-                  <button onClick={() => { setShowValidacion(false); setForzarGuardado(true); setTimeout(() => guardarDiagnostico(estatusPendiente), 0) }}
+                  <button onClick={() => { setShowValidacion(false); guardarDiagnostico(estatusPendiente, true) }}
                     style={{ padding: '9px 16px', background: '#F59E0B', color: 'white', border: 'none', fontSize: '12.5px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
                     Continuar de todos modos →
                   </button>

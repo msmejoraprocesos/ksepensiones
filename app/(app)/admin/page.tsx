@@ -94,12 +94,12 @@ function AdminFormulasInner() {
         .eq('id', session.user.id)
         .single()
       if (conf) {
-        if (conf.UMA_DIARIA) setUma(conf.UMA_DIARIA)
-        if (conf.SALARIO_MIN) setSalMin(conf.SALARIO_MIN)
-        if (conf.PMG_L73) setPmgL73(conf.PMG_L73)
-        if (conf.PMG_L97) setPmgL97(conf.PMG_L97)
+        if (conf.uma_diaria) setUma(conf.uma_diaria)
+        if (conf.salario_minimo) setSalMin(conf.salario_minimo)
+        if (conf.pmg_mensual) setPmgL73(conf.pmg_mensual)
+        if (conf.pmg_l97) setPmgL97(conf.pmg_l97)
         if (conf.pct_afore_mod40) setPctAfore(conf.pct_afore_mod40)
-        if (conf.RENDIMIENTO_DEFAULT) setRendDefault(conf.RENDIMIENTO_DEFAULT)
+        if (conf.rendimiento_afore_default) setRendDefault(conf.rendimiento_afore_default)
         if (conf.pct_banco_regulado) setPctBanco(conf.pct_banco_regulado)
         if (conf.tasa_banco_anual) setTasaBanco(conf.tasa_banco_anual)
         const t: Record<number, number> = { ...TASAS_MOD40_POR_ANIO }
@@ -155,15 +155,25 @@ function AdminFormulasInner() {
 
   const handleSave = async () => {
     setSaving(true)
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { setSaving(false); return }
     const payload: Record<string, number> = {
-      UMA_DIARIA: uma, SALARIO_MIN: salMin,
-      PMG_L73: pmgL73, PMG_L97: pmgL97,
-      pct_afore_mod40: pctAfore, RENDIMIENTO_DEFAULT: rendDefault,
+      uma_diaria: uma, salario_minimo: salMin,
+      pmg_mensual: pmgL73, pmg_l97: pmgL97,
+      pct_afore_mod40: pctAfore, rendimiento_afore_default: rendDefault,
       pct_banco_regulado: pctBanco, tasa_banco_anual: tasaBanco,
     }
     for (let y = 2026; y <= 2030; y++) payload[`mod40_${y}`] = tasasMod40[y] ?? TASAS_MOD40_POR_ANIO[y]
     const nowIso = new Date().toISOString()
-    await supabase.from('perfiles_usuario').upsert({ id: 1, ...payload, fecha_actualizacion_formulas: nowIso })
+    // CRÍTICO: debe guardar en la misma fila (id = session.user.id) que lee init() al cargar.
+    // Antes guardaba en id:1 (literal inválido para columna UUID) — nunca persistía donde se leía.
+    const { error } = await supabase.from('perfiles_usuario').upsert({ id: session.user.id, ...payload, fecha_actualizacion_formulas: nowIso })
+    if (error) {
+      console.error('Error al guardar fórmulas:', error)
+      alert('Error al guardar: ' + error.message)
+      setSaving(false)
+      return
+    }
     setFechaActualizacion(nowIso)
     setSaving(false)
     setSaved(true)
