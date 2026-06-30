@@ -200,7 +200,7 @@ function MiDiaInner() {
   const rangos = [
     { label: '< $5,000', min: 0, max: 5000, color: '#DC2626' },
     { label: '$5k-$10k', min: 5000, max: 10000, color: NARANJA },
-    { label: '$10k-$15k', min: 10000, max: 15000, color: '#f59e0b' },
+    { label: '$10k-$15k', min: 10000, max: 15000, color: '#F59E0B' },
     { label: '> $15,000', min: 15000, max: Infinity, color: VERDE },
   ]
 
@@ -229,15 +229,15 @@ function MiDiaInner() {
   const sTitle = (title: string, sub?: string) => (
     <div style={{ marginBottom: '10px', paddingBottom: '8px', borderBottom: '2px solid #F3F4F6' }}>
       <p style={{ fontSize: '12px', fontWeight: '700' as const, color: '#111827', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>{title}</p>
-      {sub && <p style={{ fontSize: '10.5px', color: '#9CA3AF', margin: '2px 0 0' }}>{sub}</p>}
+      {sub && <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '2px 0 0' }}>{sub}</p>}
     </div>
   )
 
   const kpi = (label: string, value: string, sub?: string, color = '#374151', filled = false, delta?: number | null) => (
     <div style={{ background: filled ? color : 'white', border: filled ? `1px solid ${color}` : '1px solid #E5E7EB', borderLeft: `3px solid ${color}`, padding: '8px 10px', textAlign: 'center' as const, boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
       <div style={{ fontSize: '9.5px', color: filled ? 'rgba(255,255,255,0.8)' : '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' as const, marginBottom: '3px' }}>{label}</div>
-      <div style={{ fontSize: '17.5px', fontWeight: '800' as const, color: filled ? 'white' : color, letterSpacing: '-0.3px' }}>{value}</div>
-      {sub && <div style={{ fontSize: '10.5px', color: filled ? 'rgba(255,255,255,0.75)' : '#9CA3AF', marginTop: '2px' }}>{sub}</div>}
+      <div style={{ fontSize: '18px', fontWeight: '800' as const, color: filled ? 'white' : color, letterSpacing: '-0.3px' }}>{value}</div>
+      {sub && <div style={{ fontSize: '10px', color: filled ? 'rgba(255,255,255,0.75)' : '#9CA3AF', marginTop: '2px' }}>{sub}</div>}
       {delta !== undefined && delta !== null && (
         <div style={{ fontSize: '10px', fontWeight: '700' as const, color: filled ? 'white' : (delta >= 0 ? VERDE : '#DC2626'), marginTop: '2px' }}>
           {delta >= 0 ? '▲' : '▼'} {Math.abs(delta).toFixed(0)}% vs anterior
@@ -248,12 +248,12 @@ function MiDiaInner() {
 
   // Insignia de comparativo vs periodo anterior (↑/↓ %). null = sin datos del periodo anterior para comparar.
   const deltaBadge = (delta: number | null) => {
-    if (delta === null) return <span style={{ fontSize: '11.5px', color: '#D1D5DB' }}>sin comparativo</span>
+    if (delta === null) return <span style={{ fontSize: '11px', color: '#D1D5DB' }}>sin comparativo</span>
     const subio = delta >= 0
     return (
-      <span style={{ fontSize: '12.5px', fontWeight: '700', color: subio ? VERDE : '#DC2626', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+      <span style={{ fontSize: '12px', fontWeight: '700', color: subio ? VERDE : '#DC2626', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
         {subio ? '▲' : '▼'} {Math.abs(delta).toFixed(0)}%
-        <span style={{ fontSize: '10.5px', fontWeight: '500', color: '#9CA3AF', marginLeft: '2px' }}>vs periodo anterior</span>
+        <span style={{ fontSize: '10px', fontWeight: '500', color: '#9CA3AF', marginLeft: '2px' }}>vs periodo anterior</span>
       </span>
     )
   }
@@ -289,14 +289,14 @@ function MiDiaInner() {
           <h1 style={{ fontSize: '15px', fontWeight: '700', color: '#111827', margin: 0 }}>
             Buenos días, <span style={{ color: NARANJA }}>{nombreAsesor}</span>
           </h1>
-          <p style={{ fontSize: '12.5px', color: '#9CA3AF', margin: '1px 0 0', textTransform: 'capitalize' }}>{fechaStr}</p>
+          <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '1px 0 0', textTransform: 'capitalize' }}>{fechaStr}</p>
         </div>
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
           {/* Filtro período */}
           <div style={{ display: 'flex', gap: '2px', background: '#F4F6FB', border: '1px solid #E5E7EB', padding: '3px' }}>
             {(['mes','trimestre','año'] as const).map(p => (
               <button key={p} onClick={() => setFiltroPeriodo(p)}
-                style={{ padding: '5px 11px', border: 'none', background: filtroPeriodo === p ? 'white' : 'transparent', color: filtroPeriodo === p ? NARANJA : '#6B7280', fontSize: '12px', fontWeight: filtroPeriodo === p ? '700' as const : '400' as const, cursor: 'pointer', boxShadow: filtroPeriodo === p ? '0 1px 2px rgba(0,0,0,0.08)' : 'none' }}>
+                style={{ padding: '5px 11px', border: 'none', borderLeft: filtroPeriodo === p ? `2px solid ${NARANJA}` : '2px solid transparent', background: filtroPeriodo === p ? 'white' : 'transparent', color: filtroPeriodo === p ? NARANJA : '#6B7280', fontSize: '11px', fontWeight: filtroPeriodo === p ? '700' as const : '400' as const, cursor: 'pointer', boxShadow: filtroPeriodo === p ? '0 1px 2px rgba(0,0,0,0.08)' : 'none' }}>
                 {p === 'mes' ? 'Mes' : p === 'trimestre' ? 'Trimestre' : 'Año'}
               </button>
             ))}
@@ -305,13 +305,13 @@ function MiDiaInner() {
           <div style={{ display: 'flex', gap: '2px', background: '#F4F6FB', border: '1px solid #E5E7EB', padding: '3px' }}>
             {([['todos','Todos'],['mod10','Mod 10'],['mod40','Mod 40'],['combo','Combo']] as const).map(([val, label]) => (
               <button key={val} onClick={() => setFiltroTipo(val)}
-                style={{ padding: '5px 11px', border: 'none', background: filtroTipo === val ? 'white' : 'transparent', color: filtroTipo === val ? AZUL : '#6B7280', fontSize: '12px', fontWeight: filtroTipo === val ? '700' as const : '400' as const, cursor: 'pointer', boxShadow: filtroTipo === val ? '0 1px 2px rgba(0,0,0,0.08)' : 'none' }}>
+                style={{ padding: '5px 11px', border: 'none', borderLeft: filtroTipo === val ? `2px solid ${AZUL}` : '2px solid transparent', background: filtroTipo === val ? 'white' : 'transparent', color: filtroTipo === val ? AZUL : '#6B7280', fontSize: '11px', fontWeight: filtroTipo === val ? '700' as const : '400' as const, cursor: 'pointer', boxShadow: filtroTipo === val ? '0 1px 2px rgba(0,0,0,0.08)' : 'none' }}>
                 {label}
               </button>
             ))}
           </div>
           <button onClick={() => router.push('/clientes?nuevo=true')}
-            style={{ padding: '7px 16px', border: 'none', background: NARANJA, color: 'white', fontSize: '12.5px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+            style={{ padding: '7px 16px', border: 'none', background: NARANJA, color: 'white', fontSize: '12px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
             + Nuevo cliente
           </button>
         </div>
@@ -330,12 +330,12 @@ function MiDiaInner() {
               {[
                 { label: 'Clientes activos', value: clientesActivos.length.toString(), sub: 'en pipeline', color: AZUL },
                 { label: 'Prospectos', value: prospectos.length.toString(), sub: `+${clientesNuevosPeriodo} en el periodo`, color: AZUL, filled: true, delta: deltaClientesNuevos },
-                { label: 'En diagnóstico', value: enDiagnostico.length.toString(), sub: 'propuesta enviada', color: '#3b82f6', filled: true },
-                { label: 'En recopilación', value: enRecopilacion.length.toString(), sub: 'armando expediente', color: '#0d9488', filled: true },
-                { label: 'En trámite', value: enTramite.length.toString(), sub: 'en proceso IMSS', color: '#f59e0b' },
+                { label: 'En diagnóstico', value: enDiagnostico.length.toString(), sub: 'propuesta enviada', color: '#1D4ED8', filled: true },
+                { label: 'En recopilación', value: enRecopilacion.length.toString(), sub: 'armando expediente', color: '#0891B2', filled: true },
+                { label: 'En trámite', value: enTramite.length.toString(), sub: 'en proceso IMSS', color: '#F59E0B' },
                 { label: 'Cierres Exitosos', value: pensionados.length.toString(), sub: `${cierresPeriodo} en el periodo`, color: VERDE, filled: true, delta: deltaCierres },
                 { label: 'Cobrado', value: fmtMXN(ingresosTotal), sub: filtroPeriodo, color: VERDE, delta: deltaIngresos },
-                { label: 'Por Cobrar', value: fmtMXN(porCobrar), sub: 'saldo pendiente', color: '#f59e0b' },
+                { label: 'Por Cobrar', value: fmtMXN(porCobrar), sub: 'saldo pendiente', color: '#F59E0B' },
                 { label: 'Ventas Totales', value: fmtMXN(ingresosConComisiones), sub: 'incl. comisiones', color: AZUL },
               ].map((k: any, i) => kpi(k.label, k.value, k.sub, k.color, k.filled, k.delta))}
             </div>
@@ -385,7 +385,7 @@ function MiDiaInner() {
                       </svg>
                       <div style={{ display: 'flex', gap: '10px', marginTop: '2px' }}>
                         {anios.map((a, i) => (
-                          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12.5px', color: '#6B7280' }}>
+                          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#6B7280' }}>
                             <span style={{ width: '10px', height: '2px', background: coloresAnio[i], display: 'inline-block' }} />
                             {a}
                           </span>
@@ -402,9 +402,9 @@ function MiDiaInner() {
                 {(() => {
                   const etapas = [
                     { id: 'cierre', label: 'Cierre', color: VERDE },
-                    { id: 'tramite', label: 'Trámite', color: '#f59e0b' },
-                    { id: 'recopilacion', label: 'Recopilación', color: '#0d9488' },
-                    { id: 'diagnostico', label: 'Diagnóstico', color: '#3b82f6' },
+                    { id: 'tramite', label: 'Trámite', color: '#F59E0B' },
+                    { id: 'recopilacion', label: 'Recopilación', color: '#0891B2' },
+                    { id: 'diagnostico', label: 'Diagnóstico', color: '#1D4ED8' },
                     { id: 'prospecto', label: 'Prospecto', color: AZUL },
                   ]
                   const counts = etapas.map(e => ({ ...e, n: clientesFiltrados.filter(c => (c.etapa_kanban || 'prospecto') === e.id).length }))
@@ -413,11 +413,11 @@ function MiDiaInner() {
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly' }}>
                       {counts.map((c, i) => (
                         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontSize: '11.5px', color: '#6B7280', width: '70px', flexShrink: 0 }}>{c.label}</span>
+                          <span style={{ fontSize: '11px', color: '#6B7280', width: '70px', flexShrink: 0 }}>{c.label}</span>
                           <div style={{ flex: 1, background: '#F4F6FB', height: '18px', position: 'relative' as const }}>
                             <div style={{ width: `${(c.n / max) * 100}%`, height: '100%', background: c.color, minWidth: c.n > 0 ? '4px' : 0 }} />
                           </div>
-                          <span style={{ fontSize: '12.5px', fontWeight: '700', color: '#374151', width: '18px', textAlign: 'right' as const, flexShrink: 0 }}>{c.n}</span>
+                          <span style={{ fontSize: '12px', fontWeight: '700', color: '#374151', width: '18px', textAlign: 'right' as const, flexShrink: 0 }}>{c.n}</span>
                         </div>
                       ))}
                     </div>
@@ -433,7 +433,7 @@ function MiDiaInner() {
                     { id: 'asesoria', label: 'Asesoría', color: AZUL },
                     { id: 'gestion', label: 'Trámite', color: NARANJA },
                     { id: 'financiamiento', label: 'Financiamiento', color: VERDE },
-                    { id: 'gestoria_global', label: 'Gestoría Global', color: '#8b5cf6' },
+                    { id: 'gestoria_global', label: 'Gestoría Global', color: '#7C3AED' },
                   ]
                   const items = SERVICIOS_VENTAS.map(s => ({
                     ...s,
@@ -477,8 +477,8 @@ function MiDiaInner() {
                         {items.map((it, i) => (
                           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <span style={{ width: '9px', height: '9px', background: it.color, flexShrink: 0, display: 'inline-block' as const }} />
-                            <span style={{ fontSize: '11.5px', color: '#6B7280' }}>{it.label}</span>
-                            <span style={{ fontSize: '10.5px', fontWeight: '700', color: '#374151' }}>{fmtMXN(it.value)}</span>
+                            <span style={{ fontSize: '11px', color: '#6B7280' }}>{it.label}</span>
+                            <span style={{ fontSize: '10px', fontWeight: '700', color: '#374151' }}>{fmtMXN(it.value)}</span>
                           </div>
                         ))}
                       </div>
@@ -494,10 +494,10 @@ function MiDiaInner() {
                 { label: '$ Servicio promedio', value: fmtMXN(ticketPromedio), color: AZUL },
                 { label: 'Conversión General', value: fmtPct(tasaConversion), color: VERDE },
                 { label: 'Éxitos gestiones', value: fmtPct(tasaExitoGestiones), color: VERDE },
-                { label: 'Bateo Diagnóstico', value: fmtPct(bateoDiag), color: '#3b82f6' },
-                { label: 'Bateo Gestoría', value: fmtPct(bateoTramite), color: '#0d9488' },
-                { label: 'Cycle time prom.', value: fmtWeeks(cycleTime), color: '#f59e0b' },
-                { label: 'Activos este mes', value: diagMes.length.toString(), color: '#8b5cf6' },
+                { label: 'Bateo Diagnóstico', value: fmtPct(bateoDiag), color: '#1D4ED8' },
+                { label: 'Bateo Gestoría', value: fmtPct(bateoTramite), color: '#0891B2' },
+                { label: 'Cycle time prom.', value: fmtWeeks(cycleTime), color: '#F59E0B' },
+                { label: 'Activos este mes', value: diagMes.length.toString(), color: '#7C3AED' },
                 { label: 'Promedio Pensión', value: pensionPromedio > 0 ? fmtMXN(pensionPromedio) : '—', color: AZUL },
                 { label: '$ Comisiones', value: fmtMXN(comisionesFinancieras), color: NARANJA },
               ].map((k, i) => kpi(k.label, k.value, undefined, k.color))}
@@ -517,10 +517,10 @@ function MiDiaInner() {
                   ]
                   const ETAPAS = [
                     { id: 'prospecto', label: 'Prospecto', color: AZUL },
-                    { id: 'diagnostico', label: 'Diagnóstico', color: '#f59e0b' },
-                    { id: 'recopilacion', label: 'Recopilación', color: '#0d9488' },
-                    { id: 'tramite', label: 'Trámite', color: '#38bdf8' },
-                    { id: 'cierre', label: 'Cierre', color: '#a855f7' },
+                    { id: 'diagnostico', label: 'Diagnóstico', color: '#F59E0B' },
+                    { id: 'recopilacion', label: 'Recopilación', color: '#0891B2' },
+                    { id: 'tramite', label: 'Trámite', color: '#0EA5E9' },
+                    { id: 'cierre', label: 'Cierre', color: '#7C3AED' },
                     { id: 'cancelado', label: 'Cancelado', color: '#9CA3AF' },
                   ]
                   const datos = SERVICIOS.map(s => ({
@@ -559,7 +559,7 @@ function MiDiaInner() {
                       </svg>
                       <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '10px', marginTop: '6px', paddingTop: '8px', borderTop: '1px solid #F3F4F6' }}>
                         {ETAPAS.map((e, i) => (
-                          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11.5px', color: '#6B7280' }}>
+                          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#6B7280' }}>
                             <span style={{ width: '8px', height: '8px', background: e.color, display: 'inline-block' as const }} />
                             {e.label}
                           </span>
@@ -579,7 +579,7 @@ function MiDiaInner() {
                     const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
                     return (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span style={{ fontSize: '13.5px', color: '#6B7280', width: '76px', flexShrink: 0 }}>{r.label}</span>
+                        <span style={{ fontSize: '13px', color: '#6B7280', width: '76px', flexShrink: 0 }}>{r.label}</span>
                         <div style={{ flex: 1, height: '40px', background: '#F3F4F6', overflow: 'hidden' }}>
                           <div style={{ height: '100%', width: `${diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0}%`, background: r.color }} />
                         </div>
@@ -609,7 +609,7 @@ function MiDiaInner() {
                   ) : (
                     agendaHoy.slice(0, 4).map(a => (
                       <div key={a.id} style={{ padding: '7px 10px', border: '1px solid #E5E7EB', borderLeft: `2px solid ${NARANJA}`, textAlign: 'center' as const, background: '#FFFBF8' }}>
-                        <div style={{ fontSize: '12.5px', fontWeight: '600', color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.titulo}</div>
+                        <div style={{ fontSize: '12px', fontWeight: '600', color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.titulo}</div>
                         <div style={{ fontSize: '10px', color: '#9CA3AF' }}>{new Date(a.fecha_programada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</div>
                       </div>
                     ))
@@ -631,7 +631,7 @@ function MiDiaInner() {
                   ) : (
                     financieras.slice(0, 5).map((fin) => (
                       <div key={fin.id} style={{ padding: '7px 10px', border: '1px solid #E5E7EB', borderLeft: `2px solid ${VERDE}`, textAlign: 'center' as const, background: '#F9FAFB' }}>
-                        <span style={{ fontSize: '12.5px', fontWeight: '600', color: '#374151' }}>{fin.nombre}</span>
+                        <span style={{ fontSize: '12px', fontWeight: '600', color: '#374151' }}>{fin.nombre}</span>
                       </div>
                     ))
                   )}
@@ -667,9 +667,6 @@ function MiDiaInner() {
                 </div>
               </div>
 
-              <p style={{ fontSize: '9px', color: '#D1D5DB', textAlign: 'right' as const, margin: '14px 0 0' }}>
-                ⚡ Powered by KSE Pensiones
-              </p>
             </div>
           )}
           </div>

@@ -991,12 +991,12 @@ function ClientesInner() {
               <div style={{ color: '#64748b', fontSize: '15px', fontWeight: '600' }}>{search ? 'Sin resultados' : 'Sin clientes aún'}</div>
             </div>
           ) : (
-            <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #e2e8f0', overflow: 'auto', maxHeight: 'calc(100vh - 260px)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+            <div style={{ background: 'white', border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
-                  <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #e2e8f0' }}>
+                <thead>
+                  <tr style={{ background: '#F8FAFC', borderBottom: '2px solid #E5E7EB' }}>
                     {['Cliente', 'Etapa', 'Servicio', 'Acordado', 'Pagado', 'Saldo', 'Pago', 'Contacto', ''].map((h, i) => (
-                      <th key={i} style={{ padding: '9px 12px', textAlign: 'left', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{h}</th>
+                      <th key={i} style={{ position: 'sticky' as const, top: 0, zIndex: 2, background: '#F8FAFC', padding: '9px 12px', textAlign: 'left' as const, fontSize: '10px', fontWeight: '700' as const, color: '#6B7280', textTransform: 'uppercase' as const, letterSpacing: '0.5px', boxShadow: 'inset 0 -2px 0 #E5E7EB' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
