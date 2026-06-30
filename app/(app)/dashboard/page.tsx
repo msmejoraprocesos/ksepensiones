@@ -20,6 +20,7 @@ function MiDiaInner() {
   const [filtroPeriodo, setFiltroPeriodo] = useState<'mes' | 'trimestre' | 'año'>('mes')
   const [filtroTipo, setFiltroTipo] = useState<'todos' | 'mod10' | 'mod40' | 'combo'>('todos')
   const [showOnboarding, setShowOnboarding] = useState(false)
+  const [noVolverAMostrar, setNoVolverAMostrar] = useState(false)
 
   const [clientes, setClientes] = useState<any[]>([])
   const [pagos, setPagos] = useState<any[]>([])
@@ -37,7 +38,9 @@ function MiDiaInner() {
       if (!session) return
       loadData(session.user.id)
     })
-    if (typeof window !== 'undefined' && !localStorage.getItem('kse_onboarding_visto')) {
+    // Se muestra cada vez que inicias sesión, salvo que el usuario marque
+    // explícitamente "No volver a mostrar este mensaje" (flag distinto a "ya la vi una vez")
+    if (typeof window !== 'undefined' && localStorage.getItem('kse_onboarding_oculto') !== '1') {
       setShowOnboarding(true)
     }
   }, [])
@@ -329,6 +332,11 @@ function MiDiaInner() {
           <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '1px 0 0', textTransform: 'capitalize' }}>{fechaStr}</p>
         </div>
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          {/* Botón persistente para reabrir la guía, siempre disponible */}
+          <button onClick={() => setShowOnboarding(true)} title="Ver guía de primeros pasos"
+            style={{ width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F4F6FB', border: '1px solid #E5E7EB', borderRadius: '50%', cursor: 'pointer', fontSize: '13px', color: AZUL, flexShrink: 0 }}>
+            ❓
+          </button>
           {/* Filtro período */}
           <div style={{ display: 'flex', gap: '2px', background: '#F4F6FB', border: '1px solid #E5E7EB', padding: '3px' }}>
             {(['mes','trimestre','año'] as const).map(p => (
@@ -741,9 +749,13 @@ function MiDiaInner() {
       {showOnboarding && (
         <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'white', width: '100%', maxWidth: '440px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
-            <div style={{ background: AZUL, padding: '20px 24px' }}>
-              <p style={{ fontSize: '17px', fontWeight: '800' as const, color: 'white', margin: '0 0 4px' }}>👋 ¡Bienvenido a KSE Pensiones!</p>
-              <p style={{ fontSize: '12px', color: '#93C5FD', margin: 0 }}>Estos son tus primeros pasos para empezar a trabajar</p>
+            <div style={{ background: AZUL, padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <p style={{ fontSize: '17px', fontWeight: '800' as const, color: 'white', margin: '0 0 4px' }}>👋 ¡Bienvenido a KSE Pensiones!</p>
+                <p style={{ fontSize: '12px', color: '#93C5FD', margin: 0 }}>Estos son tus primeros pasos para empezar a trabajar</p>
+              </div>
+              <button onClick={() => setShowOnboarding(false)}
+                style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '20px', lineHeight: 1, padding: '0 2px', flexShrink: 0 }}>✕</button>
             </div>
             <div style={{ padding: '20px 24px' }}>
               {[
@@ -760,8 +772,14 @@ function MiDiaInner() {
                   </div>
                 </div>
               ))}
-              <button onClick={() => { localStorage.setItem('kse_onboarding_visto', '1'); setShowOnboarding(false) }}
-                style={{ width: '100%', padding: '12px', background: NARANJA, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit', marginTop: '6px' }}>
+
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11.5px', color: '#6B7280', cursor: 'pointer', marginBottom: '12px', marginTop: '4px' }}>
+                <input type="checkbox" checked={noVolverAMostrar} onChange={e => setNoVolverAMostrar(e.target.checked)} />
+                No volver a mostrar este mensaje al iniciar sesión
+              </label>
+
+              <button onClick={() => { if (noVolverAMostrar) localStorage.setItem('kse_onboarding_oculto', '1'); setShowOnboarding(false) }}
+                style={{ width: '100%', padding: '12px', background: NARANJA, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
                 Entendido, ¡empecemos! →
               </button>
             </div>
