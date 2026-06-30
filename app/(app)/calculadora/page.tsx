@@ -1177,9 +1177,60 @@ function CalculadoraInner() {
     setGenerandoAnalisis(false)
   }
 
+  // ── Validación de datos lógicos ────────────────────────────────
+  const [showValidacion, setShowValidacion] = useState(false)
+  const [forzarGuardado, setForzarGuardado] = useState(false)
+  const [estatusPendiente, setEstatusPendiente] = useState<'borrador' | 'autorizado'>('borrador')
+
+  function validarDatos(): { campo: string; mensaje: string; nivel: 'error' | 'aviso' }[] {
+    const problemas: { campo: string; mensaje: string; nivel: 'error' | 'aviso' }[] = []
+    const sem = datos.semanas_totales - datos.semanas_descontadas
+
+    if (datos.edad_actual !== undefined && datos.edad_actual !== null) {
+      if (datos.edad_actual < 0 || datos.edad_actual > 110) {
+        problemas.push({ campo: 'Edad actual', mensaje: `${datos.edad_actual.toFixed(1)} años está fuera de un rango razonable (0-110)`, nivel: 'error' })
+      } else if (datos.edad_actual > 90) {
+        problemas.push({ campo: 'Edad actual', mensaje: `${datos.edad_actual.toFixed(1)} años es inusual — verifica la fecha de nacimiento de la constancia`, nivel: 'aviso' })
+      }
+    }
+    if (datos.semanas_totales < 0) {
+      problemas.push({ campo: 'Semanas cotizadas', mensaje: 'No puede ser un número negativo', nivel: 'error' })
+    }
+    if (datos.semanas_totales > 0 && datos.semanas_totales > 3000) {
+      problemas.push({ campo: 'Semanas cotizadas', mensaje: `${datos.semanas_totales} semanas (~${(datos.semanas_totales/52).toFixed(0)} años) es un valor muy alto — verifica la constancia`, nivel: 'aviso' })
+    }
+    if (datos.semanas_descontadas > datos.semanas_totales) {
+      problemas.push({ campo: 'Semanas descontadas', mensaje: 'No pueden ser más que las semanas totales cotizadas', nivel: 'error' })
+    }
+    if (sem > 0 && sem < 250) {
+      problemas.push({ campo: 'Semanas netas', mensaje: `Solo ${sem.toFixed(0)} semanas — se requieren mínimo 250 para tener derecho a pensión (Art. 162 LSS)`, nivel: 'aviso' })
+    }
+    if (sdiPromedio > 0 && sdiPromedio < 50) {
+      problemas.push({ campo: 'SDI promedio', mensaje: `${fmtMXN2(sdiPromedio)}/día es muy bajo — verifica la extracción de la constancia`, nivel: 'aviso' })
+    }
+    if (sdiPromedio > 5000) {
+      problemas.push({ campo: 'SDI promedio', mensaje: `${fmtMXN2(sdiPromedio)}/día es inusualmente alto — verifica la extracción de la constancia`, nivel: 'aviso' })
+    }
+    if (datos.edad_min_pension && (datos.edad_min_pension < 60 || datos.edad_min_pension > 65)) {
+      problemas.push({ campo: 'Edad de pensión', mensaje: 'Bajo Ley 73, la edad de retiro debe estar entre 60 y 65 años', nivel: 'error' })
+    }
+    if (datos.num_hijos < 0 || datos.num_hijos > 10) {
+      problemas.push({ campo: 'Número de hijos', mensaje: 'Verifica este valor, parece fuera de rango', nivel: 'aviso' })
+    }
+    if (mod40Meses > 0 && mod40Meses > 60) {
+      problemas.push({ campo: 'Duración Mod. 40', mensaje: `${mod40Meses} meses (${(mod40Meses/12).toFixed(1)} años) es un periodo muy largo — verifica el dato`, nivel: 'aviso' })
+    }
+    return problemas
+  }
+
   // ── Guardar diagnóstico
   async function guardarDiagnostico(nuevoEstatus: 'borrador' | 'autorizado') {
     if (!clienteId || !userId || analisis.length === 0) return
+    if (!forzarGuardado) {
+      const problemas = validarDatos()
+      if (problemas.length > 0) { setEstatusPendiente(nuevoEstatus); setShowValidacion(true); return }
+    }
+    setForzarGuardado(false)
     setGuardando(true)
     const escElegido = escenarios[escElegidoIdx] ?? escenarios.find(e => e.recomendado) ?? escenarios[0]
     const payload = {
@@ -1274,6 +1325,45 @@ function CalculadoraInner() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 48px)', overflow: 'hidden', position: 'relative' as const }} onClick={() => setActiveTooltip(null)}>
+
+      {/* ── Modal de validación de datos ── */}
+      {showValidacion && (() => {
+        const problemas = validarDatos()
+        const hayErrores = problemas.some(p => p.nivel === 'error')
+        return (
+          <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+            <div style={{ background: 'white', width: '100%', maxWidth: '480px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+              <div style={{ background: hayErrores ? '#DC2626' : '#F59E0B', padding: '16px 20px' }}>
+                <p style={{ fontSize: '15px', fontWeight: '800' as const, color: 'white', margin: 0 }}>
+                  {hayErrores ? '⛔ Se encontraron errores en los datos' : '⚠️ Revisa estos datos antes de continuar'}
+                </p>
+              </div>
+              <div style={{ padding: '16px 20px', maxHeight: '320px', overflowY: 'auto' as const }}>
+                {problemas.map((p, i) => (
+                  <div key={i} style={{ padding: '10px 12px', marginBottom: '8px', background: p.nivel === 'error' ? '#FEF2F2' : '#FFFBEB', border: `1px solid ${p.nivel === 'error' ? '#FCA5A5' : '#FCD34D'}`, borderLeft: `3px solid ${p.nivel === 'error' ? '#DC2626' : '#F59E0B'}` }}>
+                    <p style={{ fontSize: '12px', fontWeight: '700' as const, color: p.nivel === 'error' ? '#991B1B' : '#92400E', margin: '0 0 3px' }}>
+                      {p.nivel === 'error' ? '⛔' : '⚠️'} {p.campo}
+                    </p>
+                    <p style={{ fontSize: '11.5px', color: '#374151', margin: 0, lineHeight: 1.5 }}>{p.mensaje}</p>
+                  </div>
+                ))}
+              </div>
+              <div style={{ padding: '14px 20px', borderTop: '1px solid #E5E7EB', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                <button onClick={() => setShowValidacion(false)}
+                  style={{ padding: '9px 16px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12.5px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  ✕ Corregir datos
+                </button>
+                {!hayErrores && (
+                  <button onClick={() => { setShowValidacion(false); setForzarGuardado(true); setTimeout(() => guardarDiagnostico(estatusPendiente), 0) }}
+                    style={{ padding: '9px 16px', background: '#F59E0B', color: 'white', border: 'none', fontSize: '12.5px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                    Continuar de todos modos →
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )
+      })()}
 
       {/* ── Modal sugerencia de avance de etapa ── */}
       {showSugerirEtapa && (() => {
