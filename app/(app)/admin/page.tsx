@@ -48,7 +48,32 @@ function AdminFormulasInner() {
   const [tasasMod40, setTasasMod40] = useState<Record<number, number>>({ ...TASAS_MOD40_POR_ANIO })
   const [activeTab, setActiveTab] = useState<'configurables' | 'legales' | 'equipo'>('configurables')
   const [fechaActualizacion, setFechaActualizacion] = useState<string | null>(null)
-  const [equipo, setEquipo] = useState<{ id: string; nombre: string; email: string; total_clientes: number; total_diagnosticos: number }[]>([])
+  const [equipo, setEquipo] = useState<{ id: string; nombre: string; email: string; total_clientes: number; total_diagnosticos: number; is_admin: boolean }[]>([])
+  const [showNuevoUsuario, setShowNuevoUsuario] = useState(false)
+  const [nuevoEmail, setNuevoEmail] = useState('')
+  const [nuevoPassword, setNuevoPassword] = useState('')
+  const [nuevoNombre, setNuevoNombre] = useState('')
+  const [nuevoEsAdmin, setNuevoEsAdmin] = useState(false)
+  const [creandoUsuario, setCreandoUsuario] = useState(false)
+  const [errorUsuario, setErrorUsuario] = useState('')
+  const [recargarEquipo, setRecargarEquipo] = useState(0)
+
+  async function cargarEquipo() {
+    const { data: asesores } = await supabase.from('perfiles_usuario').select('id, nombre, email, razon_social, is_admin')
+    if (asesores) {
+      const { data: clientesAll } = await supabase.from('clientes').select('asesor_id')
+      const { data: diagsAll } = await supabase.from('diagnosticos').select('asesor_id')
+      const equipoData = asesores.map(a => ({
+        id: a.id,
+        nombre: a.razon_social || a.nombre || 'Sin nombre',
+        email: a.email || '—',
+        total_clientes: (clientesAll ?? []).filter(c => c.asesor_id === a.id).length,
+        total_diagnosticos: (diagsAll ?? []).filter(d => d.asesor_id === a.id).length,
+        is_admin: !!a.is_admin,
+      }))
+      setEquipo(equipoData)
+    }
+  }
 
   useEffect(() => {
     const init = async () => {
@@ -85,23 +110,48 @@ function AdminFormulasInner() {
         setTasasMod40(t)
         if (conf.fecha_actualizacion_formulas) setFechaActualizacion(conf.fecha_actualizacion_formulas)
       }
-      // Cargar equipo: todos los asesores y su volumen de trabajo (aislado por asesor_id)
-      const { data: asesores } = await supabase.from('perfiles_usuario').select('id, nombre, email, razon_social')
-      if (asesores) {
-        const { data: clientesAll } = await supabase.from('clientes').select('asesor_id')
-        const { data: diagsAll } = await supabase.from('diagnosticos').select('asesor_id')
-        const equipoData = asesores.map(a => ({
-          id: a.id,
-          nombre: a.razon_social || a.nombre || 'Sin nombre',
-          email: a.email || '—',
-          total_clientes: (clientesAll ?? []).filter(c => c.asesor_id === a.id).length,
-          total_diagnosticos: (diagsAll ?? []).filter(d => d.asesor_id === a.id).length,
-        }))
-        setEquipo(equipoData)
-      }
+      await cargarEquipo()
     }
     init()
   }, [])
+
+  useEffect(() => {
+    if (recargarEquipo > 0) cargarEquipo()
+  }, [recargarEquipo])
+
+  async function crearUsuario() {
+    setErrorUsuario('')
+    if (!nuevoEmail || !nuevoPassword) { setErrorUsuario('Completa email y contraseña'); return }
+    setCreandoUsuario(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch('/api/admin/usuarios', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+        body: JSON.stringify({ email: nuevoEmail, password: nuevoPassword, nombre: nuevoNombre, is_admin: nuevoEsAdmin }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setErrorUsuario(data.error || 'Error al crear usuario'); setCreandoUsuario(false); return }
+      setShowNuevoUsuario(false)
+      setNuevoEmail(''); setNuevoPassword(''); setNuevoNombre(''); setNuevoEsAdmin(false)
+      setRecargarEquipo(n => n + 1)
+    } catch (e: any) {
+      setErrorUsuario(e.message || 'Error de conexión')
+    }
+    setCreandoUsuario(false)
+  }
+
+  async function eliminarUsuario(id: string, nombre: string) {
+    if (!confirm(`¿Eliminar la cuenta de "${nombre}"? Esta acción no se puede deshacer. Sus clientes y diagnósticos NO se eliminan, pero quedarán sin asesor asignado.`)) return
+    const { data: { session } } = await supabase.auth.getSession()
+    const res = await fetch(`/api/admin/usuarios?id=${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${session?.access_token}` },
+    })
+    const data = await res.json()
+    if (!res.ok) { alert(data.error || 'Error al eliminar'); return }
+    setRecargarEquipo(n => n + 1)
+  }
 
   const handleSave = async () => {
     setSaving(true)
@@ -452,29 +502,48 @@ function AdminFormulasInner() {
 
         {activeTab === 'equipo' && (
           <div className="af-card">
-            <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Equipo y aislamiento de datos</p>
-            <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '0 0 14px', lineHeight: 1.5 }}>
-              Cada asesor solo ve sus propios clientes y diagnósticos — el sistema filtra por <code>asesor_id</code> en cada consulta. Esta tabla confirma esa segregación.
-            </p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
+              <div>
+                <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Equipo y aislamiento de datos</p>
+                <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0, lineHeight: 1.5 }}>
+                  Cada asesor solo ve sus propios clientes y diagnósticos — el sistema filtra por <code>asesor_id</code> en cada consulta.
+                </p>
+              </div>
+              <button onClick={() => setShowNuevoUsuario(true)}
+                style={{ padding: '8px 16px', background: '#F05B21', color: 'white', border: 'none', fontSize: '12px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0, whiteSpace: 'nowrap' as const }}>
+                + Nuevo usuario
+              </button>
+            </div>
             <div style={{ overflowX: 'auto' }}>
               <table className="af-table">
                 <thead>
                   <tr>
                     <th>Asesor</th>
                     <th>Correo</th>
+                    <th>Rol</th>
                     <th className="r">Clientes</th>
                     <th className="r">Diagnósticos</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
                   {equipo.length === 0 ? (
-                    <tr><td colSpan={4} style={{ padding: '20px', textAlign: 'center' as const, color: '#9CA3AF' }}>Sin datos de equipo</td></tr>
+                    <tr><td colSpan={6} style={{ padding: '20px', textAlign: 'center' as const, color: '#9CA3AF' }}>Sin datos de equipo</td></tr>
                   ) : equipo.map(a => (
                     <tr key={a.id}>
                       <td style={{ fontWeight: '600' as const }}>{a.nombre}</td>
                       <td style={{ color: '#6B7280' }}>{a.email}</td>
+                      <td>
+                        <span className={a.is_admin ? 'af-badge-edit' : 'af-badge-fix'}>{a.is_admin ? 'Admin' : 'Asesor'}</span>
+                      </td>
                       <td className="r" style={{ fontWeight: '700' as const, color: AZUL }}>{a.total_clientes}</td>
                       <td className="r" style={{ fontWeight: '700' as const, color: VERDE }}>{a.total_diagnosticos}</td>
+                      <td className="r">
+                        <button onClick={() => eliminarUsuario(a.id, a.nombre)}
+                          style={{ padding: '4px 10px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FCA5A5', fontSize: '10.5px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                          Eliminar
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -488,6 +557,54 @@ function AdminFormulasInner() {
           </div>
         )}
       </div>
+
+      {/* ── Modal: crear nuevo usuario ── */}
+      {showNuevoUsuario && (
+        <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: '420px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+            <div style={{ background: AZUL, padding: '16px 20px' }}>
+              <p style={{ fontSize: '14px', fontWeight: '700' as const, color: 'white', margin: 0 }}>+ Crear nuevo usuario</p>
+            </div>
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {errorUsuario && (
+                <div style={{ padding: '8px 12px', background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#991B1B', fontSize: '11.5px' }}>{errorUsuario}</div>
+              )}
+              <div>
+                <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '4px' }}>Nombre</label>
+                <input value={nuevoNombre} onChange={e => setNuevoNombre(e.target.value)} placeholder="Ej. María González"
+                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '4px' }}>Correo</label>
+                <input type="email" value={nuevoEmail} onChange={e => setNuevoEmail(e.target.value)} placeholder="usuario@correo.com"
+                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '4px' }}>Contraseña temporal</label>
+                <input type="text" value={nuevoPassword} onChange={e => setNuevoPassword(e.target.value)} placeholder="Mínimo 6 caracteres"
+                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+              </div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#374151', cursor: 'pointer' }}>
+                <input type="checkbox" checked={nuevoEsAdmin} onChange={e => setNuevoEsAdmin(e.target.checked)} />
+                Dar permisos de Administrador (acceso a Fórmulas del sistema)
+              </label>
+              {!nuevoEsAdmin && (
+                <p style={{ fontSize: '10.5px', color: '#9CA3AF', margin: 0 }}>Por defecto se crea como Asesor — solo verá sus propios clientes, no podrá editar fórmulas.</p>
+              )}
+              <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                <button onClick={() => setShowNuevoUsuario(false)}
+                  style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12.5px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  Cancelar
+                </button>
+                <button onClick={crearUsuario} disabled={creandoUsuario}
+                  style={{ flex: 1, padding: '10px', background: '#F05B21', color: 'white', border: 'none', fontSize: '12.5px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit', opacity: creandoUsuario ? 0.6 : 1 }}>
+                  {creandoUsuario ? 'Creando...' : 'Crear usuario'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
