@@ -77,9 +77,13 @@ export async function DELETE(req: NextRequest) {
     if (id === solicitante.id) return NextResponse.json({ error: 'No puedes eliminar tu propia cuenta' }, { status: 400 })
 
     const admin = getAdminClient()
-    await admin.from('perfiles_usuario').delete().eq('id', id)
+    // Orden importante: eliminar primero de Auth. Si esto falla, el perfil
+    // permanece intacto (estado consistente). Si elimináramos el perfil primero
+    // y luego fallara Auth, quedaría un usuario huérfano que puede iniciar
+    // sesión pero sin perfil — rompería el resto de la app.
     const { error } = await admin.auth.admin.deleteUser(id)
     if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+    await admin.from('perfiles_usuario').delete().eq('id', id)
 
     return NextResponse.json({ ok: true })
   } catch (e: any) {
