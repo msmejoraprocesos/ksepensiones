@@ -46,8 +46,9 @@ function AdminFormulasInner() {
   const [pctBanco, setPctBanco] = useState(35.65)
   const [tasaBanco, setTasaBanco] = useState(32.2)
   const [tasasMod40, setTasasMod40] = useState<Record<number, number>>({ ...TASAS_MOD40_POR_ANIO })
-  const [activeTab, setActiveTab] = useState<'configurables' | 'legales'>('configurables')
+  const [activeTab, setActiveTab] = useState<'configurables' | 'legales' | 'equipo'>('configurables')
   const [fechaActualizacion, setFechaActualizacion] = useState<string | null>(null)
+  const [equipo, setEquipo] = useState<{ id: string; nombre: string; email: string; total_clientes: number; total_diagnosticos: number }[]>([])
 
   useEffect(() => {
     const init = async () => {
@@ -83,6 +84,20 @@ function AdminFormulasInner() {
         }
         setTasasMod40(t)
         if (conf.fecha_actualizacion_formulas) setFechaActualizacion(conf.fecha_actualizacion_formulas)
+      }
+      // Cargar equipo: todos los asesores y su volumen de trabajo (aislado por asesor_id)
+      const { data: asesores } = await supabase.from('perfiles_usuario').select('id, nombre, email, razon_social')
+      if (asesores) {
+        const { data: clientesAll } = await supabase.from('clientes').select('asesor_id')
+        const { data: diagsAll } = await supabase.from('diagnosticos').select('asesor_id')
+        const equipoData = asesores.map(a => ({
+          id: a.id,
+          nombre: a.razon_social || a.nombre || 'Sin nombre',
+          email: a.email || '—',
+          total_clientes: (clientesAll ?? []).filter(c => c.asesor_id === a.id).length,
+          total_diagnosticos: (diagsAll ?? []).filter(d => d.asesor_id === a.id).length,
+        }))
+        setEquipo(equipoData)
       }
     }
     init()
@@ -251,10 +266,10 @@ function AdminFormulasInner() {
       {/* Tabs */}
       <div style={{ padding: '14px 24px 0' }}>
         <div style={{ display: 'flex', borderBottom: '2px solid #E5E7EB', background: 'white' }}>
-          {(['configurables', 'legales'] as const).map(t => (
+          {(['configurables', 'legales', 'equipo'] as const).map(t => (
             <button key={t} onClick={() => setActiveTab(t)}
               style={{ padding: '10px 20px', border: 'none', borderBottom: '3px solid ' + (activeTab === t ? '#F05B21' : 'transparent'), cursor: 'pointer', fontSize: '12.5px', fontWeight: activeTab === t ? '700' : '500', background: 'white', color: activeTab === t ? '#F05B21' : '#6B7280', fontFamily: 'inherit', marginBottom: '-2px' }}>
-              {t === 'configurables' ? '📝 Parámetros editables' : '⚖️ Constantes legales'}
+              {t === 'configurables' ? '📝 Parámetros editables' : t === 'legales' ? '⚖️ Constantes legales' : '👥 Equipo y permisos'}
             </button>
           ))}
         </div>
@@ -433,6 +448,44 @@ function AdminFormulasInner() {
               </div>
             </div>
           </>
+        )}
+
+        {activeTab === 'equipo' && (
+          <div className="af-card">
+            <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Equipo y aislamiento de datos</p>
+            <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '0 0 14px', lineHeight: 1.5 }}>
+              Cada asesor solo ve sus propios clientes y diagnósticos — el sistema filtra por <code>asesor_id</code> en cada consulta. Esta tabla confirma esa segregación.
+            </p>
+            <div style={{ overflowX: 'auto' }}>
+              <table className="af-table">
+                <thead>
+                  <tr>
+                    <th>Asesor</th>
+                    <th>Correo</th>
+                    <th className="r">Clientes</th>
+                    <th className="r">Diagnósticos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {equipo.length === 0 ? (
+                    <tr><td colSpan={4} style={{ padding: '20px', textAlign: 'center' as const, color: '#9CA3AF' }}>Sin datos de equipo</td></tr>
+                  ) : equipo.map(a => (
+                    <tr key={a.id}>
+                      <td style={{ fontWeight: '600' as const }}>{a.nombre}</td>
+                      <td style={{ color: '#6B7280' }}>{a.email}</td>
+                      <td className="r" style={{ fontWeight: '700' as const, color: AZUL }}>{a.total_clientes}</td>
+                      <td className="r" style={{ fontWeight: '700' as const, color: VERDE }}>{a.total_diagnosticos}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div style={{ marginTop: '14px', padding: '12px 14px', background: '#EFF6FF', border: '1px solid #93C5FD' }}>
+              <p style={{ fontSize: '11.5px', color: '#1E3A8A', margin: 0, lineHeight: 1.6 }}>
+                💡 <strong>Nota sobre escalamiento:</strong> el modelo actual es de cuentas individuales aisladas (un asesor = una cuenta). Si en el futuro una empresa contrata varios asientos, se requerirá una capa de "organización" para agrupar asesores bajo un mismo cliente corporativo, con un rol de administrador de equipo distinto al admin global del sistema.
+              </p>
+            </div>
+          </div>
         )}
       </div>
     </div>

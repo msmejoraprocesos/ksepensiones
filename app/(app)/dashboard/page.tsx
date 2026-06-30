@@ -19,6 +19,7 @@ function MiDiaInner() {
   const [nombreAsesor, setNombreAsesor] = useState('Asesor')
   const [filtroPeriodo, setFiltroPeriodo] = useState<'mes' | 'trimestre' | 'año'>('mes')
   const [filtroTipo, setFiltroTipo] = useState<'todos' | 'mod10' | 'mod40' | 'combo'>('todos')
+  const [showOnboarding, setShowOnboarding] = useState(false)
 
   const [clientes, setClientes] = useState<any[]>([])
   const [pagos, setPagos] = useState<any[]>([])
@@ -36,6 +37,9 @@ function MiDiaInner() {
       if (!session) return
       loadData(session.user.id)
     })
+    if (typeof window !== 'undefined' && !localStorage.getItem('kse_onboarding_visto')) {
+      setShowOnboarding(true)
+    }
   }, [])
 
   async function loadData(uid: string) {
@@ -214,6 +218,39 @@ function MiDiaInner() {
   // ── DIAGMES ──
   const diagMes = diagnosticos.filter(d => new Date(d.created_at) >= start)
 
+  // ── ALERTAS ACCIONABLES ──
+  const DIAS_PAGO_VENCIDO = 7
+  const DIAS_SIN_SEGUIMIENTO = 14
+  const totalPagadoPorClienteAlerta = pagos.reduce((acc: Record<string, number>, p: any) => {
+    acc[p.cliente_id] = (acc[p.cliente_id] ?? 0) + (Number(p.monto) || 0)
+    return acc
+  }, {} as Record<string, number>)
+  const ultimaActividadPorCliente = new Map<string, string>()
+  for (const a of actividades) {
+    if (!a.cliente_id) continue
+    const prev = ultimaActividadPorCliente.get(a.cliente_id)
+    if (!prev || new Date(a.fecha_programada) > new Date(prev)) ultimaActividadPorCliente.set(a.cliente_id, a.fecha_programada)
+  }
+  const alertasPago = clientes
+    .filter(c => c.etapa_kanban !== 'cancelado' && c.etapa_kanban !== 'cierre')
+    .map(c => {
+      const saldo = Math.max(0, (c.monto_acordado || 0) - (totalPagadoPorClienteAlerta[c.id] ?? 0))
+      const diasDesdeEtapa = Math.floor((Date.now() - new Date(c.fecha_etapa || c.created_at).getTime()) / 86400000)
+      return { cliente: c, saldo, diasDesdeEtapa }
+    })
+    .filter(a => a.saldo > 0 && a.diasDesdeEtapa >= DIAS_PAGO_VENCIDO)
+    .sort((a, b) => b.diasDesdeEtapa - a.diasDesdeEtapa)
+  const alertasSeguimiento = clientes
+    .filter(c => ['prospecto', 'diagnostico', 'recopilacion', 'tramite'].includes(c.etapa_kanban || 'prospecto'))
+    .map(c => {
+      const ultima = ultimaActividadPorCliente.get(c.id)
+      const diasSinContacto = Math.floor((Date.now() - new Date(ultima || c.created_at).getTime()) / 86400000)
+      return { cliente: c, diasSinContacto }
+    })
+    .filter(a => a.diasSinContacto >= DIAS_SIN_SEGUIMIENTO)
+    .sort((a, b) => b.diasSinContacto - a.diasSinContacto)
+  const totalAlertas = alertasPago.length + alertasSeguimiento.length
+
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 48px)', color: '#9CA3AF', fontSize: '14px' }}>
       Cargando tu día...
@@ -324,6 +361,32 @@ function MiDiaInner() {
 
           {/* Columna principal: las 4 filas de contenido, apiladas */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+
+            {/* Alertas accionables — pendientes que requieren atención hoy */}
+            {totalAlertas > 0 && (
+              <div style={{ background: 'white', border: '1px solid #E5E7EB', borderLeft: '3px solid #DC2626', padding: '10px 14px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                <p style={{ fontSize: '11px', fontWeight: '700' as const, color: '#991B1B', margin: '0 0 8px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
+                  🔔 Tienes {totalAlertas} pendiente{totalAlertas !== 1 ? 's' : ''} que requiere{totalAlertas === 1 ? '' : 'n'} atención
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '8px' }}>
+                  {alertasPago.slice(0, 4).map(a => (
+                    <a key={'pago-' + a.cliente.id} href="/clientes"
+                      style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px', background: '#FEF2F2', border: '1px solid #FCA5A5', fontSize: '11px', color: '#991B1B', textDecoration: 'none' }}>
+                      🔴 <strong>{a.cliente.nombre}</strong> — {fmtMXN(a.saldo)} pendiente ({a.diasDesdeEtapa}d)
+                    </a>
+                  ))}
+                  {alertasSeguimiento.slice(0, 4).map(a => (
+                    <a key={'seg-' + a.cliente.id} href="/clientes"
+                      style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px', background: '#FFFBEB', border: '1px solid #FCD34D', fontSize: '11px', color: '#92400E', textDecoration: 'none' }}>
+                      🟡 <strong>{a.cliente.nombre}</strong> — sin seguimiento {a.diasSinContacto}d
+                    </a>
+                  ))}
+                  {totalAlertas > 8 && (
+                    <span style={{ display: 'flex', alignItems: 'center', padding: '6px 10px', fontSize: '11px', color: '#9CA3AF' }}>+{totalAlertas - 8} más</span>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Fila 1: KPIs */}
             <div className="db-kpis" style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '8px' }}>
@@ -673,6 +736,38 @@ function MiDiaInner() {
         </div>
 
       </div>
+
+      {/* ── Onboarding — primeros pasos ── */}
+      {showOnboarding && (
+        <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: '440px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+            <div style={{ background: AZUL, padding: '20px 24px' }}>
+              <p style={{ fontSize: '17px', fontWeight: '800' as const, color: 'white', margin: '0 0 4px' }}>👋 ¡Bienvenido a KSE Pensiones!</p>
+              <p style={{ fontSize: '12px', color: '#93C5FD', margin: 0 }}>Estos son tus primeros pasos para empezar a trabajar</p>
+            </div>
+            <div style={{ padding: '20px 24px' }}>
+              {[
+                { n: 1, icon: '👤', title: 'Registra tu primer cliente', desc: 'Ve a Clientes → + Nuevo cliente. Solo necesitas nombre y teléfono para empezar.' },
+                { n: 2, icon: '🧮', title: 'Corre tu primer diagnóstico', desc: 'Desde la tarjeta del cliente, abre la Calculadora y carga su constancia IMSS de semanas cotizadas.' },
+                { n: 3, icon: '📄', title: 'Genera el PDF y autorízalo', desc: 'Cuando el diagnóstico esté listo, autorízalo para generar el PDF oficial que entregarás al cliente.' },
+                { n: 4, icon: '📊', title: 'Da seguimiento desde Mi Día', desc: 'Aquí verás tus pendientes, alertas de pago y el progreso de todo tu pipeline cada día.' },
+              ].map(s => (
+                <div key={s.n} style={{ display: 'flex', gap: '12px', marginBottom: '14px' }}>
+                  <div style={{ width: '32px', height: '32px', background: '#EEF2F8', border: `2px solid ${AZUL}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '14px', fontWeight: '800' as const, color: AZUL }}>{s.n}</div>
+                  <div>
+                    <p style={{ fontSize: '13px', fontWeight: '700' as const, color: '#111827', margin: '0 0 2px' }}>{s.icon} {s.title}</p>
+                    <p style={{ fontSize: '11.5px', color: '#6B7280', margin: 0, lineHeight: 1.5 }}>{s.desc}</p>
+                  </div>
+                </div>
+              ))}
+              <button onClick={() => { localStorage.setItem('kse_onboarding_visto', '1'); setShowOnboarding(false) }}
+                style={{ width: '100%', padding: '12px', background: NARANJA, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit', marginTop: '6px' }}>
+                Entendido, ¡empecemos! →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

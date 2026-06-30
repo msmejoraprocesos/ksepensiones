@@ -1225,13 +1225,31 @@ function ClientesInner() {
             </div>
 
             {/* Tabs */}
-            <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', padding: '0 22px' }}>
+            <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', padding: '0 22px', alignItems: 'center' }}>
               {(['info', 'pagos', 'diagnosticos', 'financiamiento', 'actividades'] as const).map(tab => (
                 <button key={tab} onClick={() => setModalTab(tab)}
                   style={{ padding: '10px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: modalTab === tab ? '700' : '400', color: modalTab === tab ? AZUL : '#64748b', borderBottom: modalTab === tab ? `2px solid ${AZUL}` : '2px solid transparent', marginBottom: '-1px' }}>
                   {tab === 'info' ? 'Datos' : tab === 'pagos' ? `💰 Pagos (${pagos.length})` : tab === 'diagnosticos' ? `Diagnósticos (${diagnosticos.length})` : tab === 'financiamiento' ? '🏦 Financiamiento' : `Actividades (${actividades.length})`}
                 </button>
               ))}
+              <div style={{ flex: 1 }} />
+              <button onClick={() => {
+                  const expediente = {
+                    cliente: selected,
+                    diagnosticos, pagos, actividades, servicios,
+                    exportado_en: new Date().toISOString(),
+                  }
+                  const blob = new Blob([JSON.stringify(expediente, null, 2)], { type: 'application/json' })
+                  const url = URL.createObjectURL(blob)
+                  const a = document.createElement('a')
+                  a.href = url
+                  a.download = `expediente_${selected.nombre.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.json`
+                  a.click()
+                  URL.revokeObjectURL(url)
+                }}
+                style={{ padding: '6px 12px', background: '#F8FAFC', color: AZUL, border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '11px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}>
+                📥 Descargar expediente
+              </button>
             </div>
 
             {/* Tab content */}
@@ -1874,6 +1892,20 @@ function ClientesInner() {
                             {d.mod40_umas && d.mod40_meses && <span> · {d.mod40_umas} UMAs · {d.mod40_meses} meses</span>}
                           </div>
                         )}
+                        {/* Parámetros base usados — sys_snapshot */}
+                        {(() => {
+                          let pj: any = null
+                          try { pj = typeof d.params_json === 'string' ? JSON.parse(d.params_json) : d.params_json } catch {}
+                          const snap = pj?.sys_snapshot
+                          if (!snap) return null
+                          return (
+                            <div style={{ fontSize: '10px', color: '#64748b', marginBottom: '8px', padding: '5px 8px', background: '#F9FAFB', borderRadius: '6px', border: '1px solid #e2e8f0', display: 'flex', gap: '10px', flexWrap: 'wrap' as const }}>
+                              <span>🔖 UMA: <strong>{fmtMXN(snap.UMA_DIARIA ?? 0)}</strong></span>
+                              <span>PMG L73: <strong>{fmtMXN(snap.PMG_L73 ?? 0)}</strong></span>
+                              <span>% AFORE: <strong>{snap.pct_afore_mod40 ?? '—'}%</strong></span>
+                            </div>
+                          )
+                        })()}
                         {/* Acciones */}
                         <div style={{ display: 'flex', gap: '6px' }}>
                           {esBorrador && (
