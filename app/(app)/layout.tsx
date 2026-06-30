@@ -187,7 +187,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* ── MAIN CONTENT ── */}
-        <main style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', background: '#FAFAFA' }}>
+        <main style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', background: '#FAFAFA' }}>
           {children}
         </main>
       </div>

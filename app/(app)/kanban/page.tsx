@@ -150,9 +150,9 @@ export default function KanbanPage() {
   const inputSt: React.CSSProperties = { display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box', outline: 'none', fontFamily: 'inherit', background: 'white' }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)', background: '#F4F6FB', overflow: 'hidden' }}>
-      {/* Header */}
-      <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '12px 20px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '16px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 56px)', background: '#F4F6FB' }}>
+      {/* Header — fijo arriba mientras se hace scroll de toda la página */}
+      <div style={{ position: 'sticky' as const, top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #e2e8f0', padding: '12px 20px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '16px' }}>
         <h1 style={{ color: AZUL, fontSize: '18px', fontWeight: '800', margin: 0 }}>Pipeline de Clientes</h1>
 
         {/* KPIs rápidos */}
@@ -177,8 +177,8 @@ export default function KanbanPage() {
         </button>
       </div>
 
-      {/* Kanban board */}
-      <div style={{ flex: 1, overflow: 'auto', padding: '16px' }}>
+      {/* Kanban board — sin limite de altura, crece con su contenido; el scroll lo maneja la pagina (main) */}
+      <div style={{ padding: '16px' }}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8' }}>Cargando pipeline...</div>
         ) : (
@@ -197,8 +197,8 @@ export default function KanbanPage() {
                     borderRadius: '12px', border: `2px solid ${isDragOver ? col.color : 'transparent'}`,
                     transition: 'all 0.15s',
                   }}>
-                  {/* Columna header — sticky: se queda visible al hacer scroll de toda la pagina */}
-                  <div style={{ position: 'sticky' as const, top: 0, zIndex: 2, background: colBg, borderRadius: '12px 12px 0 0', padding: '10px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+                  {/* Columna header — sticky debajo del header de pagina (top: 65px ≈ altura del header) */}
+                  <div style={{ position: 'sticky' as const, top: '65px', zIndex: 2, background: colBg, borderRadius: '12px 12px 0 0', padding: '10px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: col.color }} />
                       <span style={{ fontSize: '12px', fontWeight: '700', color: col.cierre ? col.color : '#374151' }}>{col.label}</span>
