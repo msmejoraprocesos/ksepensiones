@@ -1205,6 +1205,10 @@ function CalculadoraInner() {
         ingresoObjetivo, simulacionLibre, simUmas, simMeses,
         mod40Umas, mod40Meses,
         fechaUltimaCot,
+        // ── Foto de los parámetros del sistema usados en este cálculo ──
+        // Esto permite saber exactamente con qué UMA/PMG/tasas se generó
+        // este diagnóstico, aunque después se actualicen los valores en Admin.
+        sys_snapshot: { ...sys, _fecha_calculo: new Date().toISOString() },
       },
     }
     if (diagGuardadoId && nuevoEstatus === 'autorizado') {
@@ -3592,6 +3596,30 @@ function CalculadoraInner() {
                     </div>
                   ))}
                 </div>
+              </div>
+
+              {/* Ficha técnica — parámetros usados en este cálculo */}
+              <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', padding: '12px 16px' }}>
+                <p style={{ fontSize: '10.5px', fontWeight: '700' as const, color: '#6B7280', margin: '0 0 8px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
+                  🔖 Ficha técnica — Parámetros usados en este cálculo
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
+                  {[
+                    { label: 'UMA diaria', value: fmtMXN2(sys.UMA_DIARIA) },
+                    { label: 'PMG Ley 73', value: fmtMXN2(sys.PMG_L73) },
+                    { label: '% Recup. AFORE', value: (sys.pct_afore_mod40 ?? 20) + '%' },
+                    { label: 'Tasa banco anual', value: (sys.tasa_banco_anual ?? 32.2) + '%' },
+                    { label: 'Fecha de cálculo', value: new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) },
+                  ].map((p, i) => (
+                    <div key={i}>
+                      <div style={{ fontSize: '9.5px', color: '#9CA3AF' }}>{p.label}</div>
+                      <div style={{ fontSize: '12px', fontWeight: '700' as const, color: '#374151' }}>{p.value}</div>
+                    </div>
+                  ))}
+                </div>
+                <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '8px 0 0', lineHeight: 1.5 }}>
+                  Estos valores quedan congelados en este diagnóstico — si se actualizan en Admin Fórmulas después, este registro conserva los valores originales con que fue calculado.
+                </p>
               </div>
 
             </div>
