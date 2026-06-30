@@ -47,6 +47,7 @@ function AdminFormulasInner() {
   const [tasaBanco, setTasaBanco] = useState(32.2)
   const [tasasMod40, setTasasMod40] = useState<Record<number, number>>({ ...TASAS_MOD40_POR_ANIO })
   const [activeTab, setActiveTab] = useState<'configurables' | 'legales'>('configurables')
+  const [fechaActualizacion, setFechaActualizacion] = useState<string | null>(null)
 
   useEffect(() => {
     const init = async () => {
@@ -81,6 +82,7 @@ function AdminFormulasInner() {
           if (conf[k]) t[y] = conf[k]
         }
         setTasasMod40(t)
+        if (conf.fecha_actualizacion_formulas) setFechaActualizacion(conf.fecha_actualizacion_formulas)
       }
     }
     init()
@@ -95,7 +97,9 @@ function AdminFormulasInner() {
       pct_banco_regulado: pctBanco, tasa_banco_anual: tasaBanco,
     }
     for (let y = 2026; y <= 2030; y++) payload[`mod40_${y}`] = tasasMod40[y] ?? TASAS_MOD40_POR_ANIO[y]
-    await supabase.from('perfiles_usuario').upsert({ id: 1, ...payload })
+    const nowIso = new Date().toISOString()
+    await supabase.from('perfiles_usuario').upsert({ id: 1, ...payload, fecha_actualizacion_formulas: nowIso })
+    setFechaActualizacion(nowIso)
     setSaving(false)
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
@@ -179,6 +183,54 @@ function AdminFormulasInner() {
           </button>
         </div>
       </div>
+
+      {/* ── Alerta de temporada de actualización oficial ── */}
+      {(() => {
+        const hoy = new Date()
+        const anio = hoy.getFullYear()
+        const mes = hoy.getMonth() // 0=ene
+        // Temporada de publicaciones oficiales: diciembre (salario mínimo) a febrero (UMA, PMG, tasas IMSS vigentes desde el 1° de febrero)
+        const enTemporada = mes === 11 || mes === 0 || mes === 1
+        const fechaUlt = fechaActualizacion ? new Date(fechaActualizacion) : null
+        const actualizadoEsteAnio = fechaUlt ? fechaUlt.getFullYear() === anio && fechaUlt.getMonth() <= 2 : false
+        const requiereAtencion = enTemporada && !actualizadoEsteAnio
+        const fuentes = [
+          { label: 'DOF — Diario Oficial', url: 'https://www.dof.gob.mx/' },
+          { label: 'CONASAMI — Salarios mínimos y UMA', url: 'https://www.gob.mx/conasami' },
+          { label: 'IMSS — Avisos y acuerdos', url: 'https://www.imss.gob.mx/' },
+        ]
+        return (
+          <div style={{ padding: '14px 24px 0' }}>
+            <div style={{ background: requiereAtencion ? '#FEF2F2' : '#F0FDF4', border: `2px solid ${requiereAtencion ? '#FCA5A5' : '#86EFAC'}`, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' as const, gap: '12px' }}>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                <span style={{ fontSize: '22px', flexShrink: 0 }}>{requiereAtencion ? '⚠️' : '📅'}</span>
+                <div>
+                  <p style={{ fontSize: '13px', fontWeight: '700' as const, color: requiereAtencion ? '#991B1B' : '#065F46', margin: '0 0 4px' }}>
+                    {requiereAtencion
+                      ? `Temporada de actualización oficial ${anio} — verifica si ya hay nuevos valores`
+                      : enTemporada
+                        ? `Temporada de actualización oficial ${anio} — valores ya revisados`
+                        : 'Calendario de publicaciones oficiales'}
+                  </p>
+                  <p style={{ fontSize: '11.5px', color: '#374151', margin: 0, lineHeight: 1.6 }}>
+                    Cada año el <strong>Salario Mínimo</strong> se publica a fines de diciembre (vigente desde el 1° de enero) y la <strong>UMA, PMG y tasas IMSS</strong> se publican entre enero y principios de febrero (vigentes desde el 1° de febrero).
+                    {fechaUlt && <> Última actualización registrada: <strong>{fechaUlt.toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}</strong>.</>}
+                    {!fechaUlt && ' Aún no se ha registrado ninguna actualización en este sistema.'}
+                  </p>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const, flexShrink: 0 }}>
+                {fuentes.map((f, i) => (
+                  <a key={i} href={f.url} target="_blank" rel="noopener noreferrer"
+                    style={{ padding: '6px 12px', background: 'white', border: '1px solid #D1D5DB', fontSize: '11px', fontWeight: '600' as const, color: '#1B3A6B', textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
+                    {f.label} ↗
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Guía rápida */}
       <div style={{ padding: '16px 24px 0' }}>
