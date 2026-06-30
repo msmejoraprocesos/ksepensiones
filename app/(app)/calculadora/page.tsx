@@ -1080,7 +1080,11 @@ function CalculadoraInner() {
 
   // ── Generar PDF completo
   async function exportarPDF() {
-    if (!diagGuardadoId) return
+    if (!diagGuardadoId) {
+      setMensaje('⚠️ Primero guarda el diagnóstico (borrador o autorizado) antes de generar el PDF')
+      setTimeout(() => setMensaje(''), 4000)
+      return
+    }
     const esBorrador = estatus === 'borrador'
     const idxToUse = escElegidoIdx >= 0 ? escElegidoIdx : escSelIdx
     const escToUse = escenarios[idxToUse] ?? escenarios.find((e: any) => e.recomendado) ?? escenarios[0]
@@ -1130,7 +1134,7 @@ function CalculadoraInner() {
       const clienteObj = clientes.find(c => c.id === clienteId)
       const esc0 = escenarios[0]
       const escM10 = escenarios.find(e => e.id === 'e_m10')
-      const escM40 = escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 2]
+      const escM40 = escenarios.find(e => e.recomendado) ?? escenarios.find(e => e.id.startsWith('e_m40')) ?? escenarios[escenarios.length - 1]
       const res = await fetch('/api/analisis-pensional', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
