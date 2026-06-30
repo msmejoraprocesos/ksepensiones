@@ -1085,6 +1085,11 @@ function CalculadoraInner() {
       setTimeout(() => setMensaje(''), 4000)
       return
     }
+    if (analisis.length === 0) {
+      setMensaje('⚠️ Genera el análisis de Sofía IA (pestaña Resumen) antes de exportar el PDF — es el cierre del diagnóstico, no un paso intermedio')
+      setTimeout(() => setMensaje(''), 5000)
+      return
+    }
     const esBorrador = estatus === 'borrador'
     const idxToUse = escElegidoIdx >= 0 ? escElegidoIdx : escSelIdx
     const escToUse = escenarios[idxToUse] ?? escenarios.find((e: any) => e.recomendado) ?? escenarios[0]
@@ -3721,6 +3726,22 @@ function CalculadoraInner() {
                 <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '8px 0 0', lineHeight: 1.5 }}>
                   Estos valores quedan congelados en este diagnóstico — si se actualizan en Admin Fórmulas después, este registro conserva los valores originales con que fue calculado.
                 </p>
+              </div>
+
+              {/* Cierre del flujo: exportar PDF — solo cuando todo está listo */}
+              <div style={{ background: analisis.length > 0 && diagGuardadoId ? '#F0FDF4' : '#F9FAFB', border: `2px solid ${analisis.length > 0 && diagGuardadoId ? '#86EFAC' : '#E5E7EB'}`, padding: '18px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <p style={{ fontSize: '13px', fontWeight: '700' as const, color: analisis.length > 0 && diagGuardadoId ? '#065F46' : '#6B7280', margin: '0 0 4px' }}>
+                    {analisis.length > 0 && diagGuardadoId ? '✓ Diagnóstico completo — listo para exportar' : '⏳ Diagnóstico incompleto'}
+                  </p>
+                  <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>
+                    {!diagGuardadoId ? 'Falta guardar el diagnóstico (borrador o autorizado)' : analisis.length === 0 ? 'Falta generar el análisis de Sofía IA (arriba)' : 'El PDF incluirá todos los datos, escenarios y el análisis de IA generado'}
+                  </p>
+                </div>
+                <button onClick={exportarPDF} disabled={analisis.length === 0 || !diagGuardadoId}
+                  style={{ padding: '12px 24px', background: analisis.length > 0 && diagGuardadoId ? '#1B3A6B' : '#D1D5DB', color: 'white', border: 'none', fontSize: '13px', fontWeight: '700' as const, cursor: analisis.length > 0 && diagGuardadoId ? 'pointer' : 'not-allowed', fontFamily: 'inherit', whiteSpace: 'nowrap' as const, flexShrink: 0 }}>
+                  📄 Exportar PDF
+                </button>
               </div>
 
             </div>
