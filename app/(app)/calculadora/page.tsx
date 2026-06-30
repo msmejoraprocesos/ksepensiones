@@ -1106,6 +1106,7 @@ function CalculadoraInner() {
           encabezadoColor={asesorPerfil?.encabezado_color ?? undefined}
           encabezadoTitulo={asesorPerfil?.encabezado_titulo ?? undefined}
           esBorrador={esBorrador}
+          umaDiaria={sys.UMA_DIARIA}
         />
       )
       const blob = await pdf(elemento).toBlob()

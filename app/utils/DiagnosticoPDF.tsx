@@ -86,6 +86,7 @@ interface PDFProps {
   encabezadoColor?: string
   encabezadoTitulo?: string
   esBorrador?: boolean
+  umaDiaria?: number
 }
 
 // ─── Colores ─────────────────────────────────────────────────────────────────
@@ -257,12 +258,12 @@ const SectionTitle = ({ title, sub, color }: { title: string; sub?: string; colo
 )
 
 // Fila de KPI cards
-const KpiRow = ({ items, color }: { items: { label: string; value: string; color?: string; sub?: string }[]; color: string }) => (
+const KpiRow = ({ items, color }: { items: { label: string; value: string; color?: string; sub?: string; fontSize?: number }[]; color: string }) => (
   <View style={s.kpiRow} wrap={false}>
     {items.map((item, i) => (
       <View key={i} style={[s.kpiCard, i === 0 ? { marginLeft: 0 } : {}, i === items.length - 1 ? { marginRight: 0 } : {}]}>
         <Text style={s.kpiLabel}>{item.label}</Text>
-        <Text style={[s.kpiValue, { color: item.color || color }]}>{item.value}</Text>
+        <Text style={[s.kpiValue, { color: item.color || color }, item.fontSize ? { fontSize: item.fontSize } : {}]}>{item.value}</Text>
         {item.sub ? <Text style={{ fontSize: 6, color: C.textoSm, textAlign: 'center', marginTop: 2 }}>{item.sub}</Text> : null}
       </View>
     ))}
@@ -611,7 +612,7 @@ const PaginaDatosConservacion = ({ datos, color, titulo, razonSocial, esBorrador
       <View wrap={false}>
         <SectionTitle title="DATOS DEL TRABAJADOR" color={color} />
         <KpiRow color={color} items={[
-          { label: 'Nombre', value: (datos.nombre_trabajador || datos.nombre || '—').substring(0, 24) },
+          { label: 'Nombre', value: datos.nombre_trabajador || datos.nombre || '—', fontSize: 10 },
           { label: 'NSS', value: datos.nss || '—' },
           { label: 'Edad actual', value: (datos.edad_actual || '—') + ' años' },
           { label: 'Régimen', value: datos.ley === '73' ? 'Ley 73' : datos.ley === '97' ? 'Ley 97' : '—', color: datos.ley === '73' ? color : C.verde },
@@ -685,14 +686,14 @@ const PaginaSalario = ({ periodos, sdiPromedio, color, titulo, razonSocial, esBo
 )
 
 // ─── PÁGINA 5: MODALIDAD 40 ───────────────────────────────────────────────────
-const PaginaMod40Mod10 = ({ escenarios, escSelIdx, color, titulo, razonSocial, esBorrador }: PDFProps & { color: string; titulo: string }) => {
+const PaginaMod40Mod10 = ({ escenarios, escSelIdx, color, titulo, razonSocial, esBorrador, umaDiaria }: PDFProps & { color: string; titulo: string }) => {
   const escSel = escenarios[escSelIdx] ?? escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
   const escM10 = escenarios.find(e => e.id === 'e_m10')
   const tieneMod40 = !!(escSel && escSel.mod40_meses)
   if (!tieneMod40 && !escM10) return null
 
   const costoM  = escSel?.costo_mensual_mod40 || 0
-  const sdiM40  = (escSel?.mod40_umas || 0) * 113.14
+  const sdiM40  = (escSel?.mod40_umas || 0) * (umaDiaria || 117.31)
   const meses   = escSel?.mod40_meses || 0
   const showMs  = meses <= 24
     ? Array.from({ length: meses }, (_, i) => i + 1)
