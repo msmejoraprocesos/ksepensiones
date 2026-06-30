@@ -182,22 +182,23 @@ export default function KanbanPage() {
         {loading ? (
           <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8' }}>Cargando pipeline...</div>
         ) : (
-          <div style={{ display: 'flex', gap: '12px', height: '100%', minWidth: 'max-content' }}>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', minWidth: 'max-content' }}>
             {COLUMNAS.map(col => {
               const cards = clientesPorColumna(col.id)
               const isDragOver = dragOver === col.id
+              const colBg = isDragOver ? `${col.color}15` : '#F4F6FB'
               return (
                 <div key={col.id}
                   onDragOver={e => onDragOver(e, col.id)}
                   onDrop={e => onDrop(e, col.id)}
                   style={{
                     width: '220px', flexShrink: 0, display: 'flex', flexDirection: 'column',
-                    background: isDragOver ? `${col.color}15` : '#F4F6FB',
+                    background: colBg,
                     borderRadius: '12px', border: `2px solid ${isDragOver ? col.color : 'transparent'}`,
                     transition: 'all 0.15s',
                   }}>
-                  {/* Columna header */}
-                  <div style={{ padding: '10px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+                  {/* Columna header — sticky: se queda visible al hacer scroll de toda la pagina */}
+                  <div style={{ position: 'sticky' as const, top: 0, zIndex: 2, background: colBg, borderRadius: '12px 12px 0 0', padding: '10px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: col.color }} />
                       <span style={{ fontSize: '12px', fontWeight: '700', color: col.cierre ? col.color : '#374151' }}>{col.label}</span>
@@ -207,8 +208,8 @@ export default function KanbanPage() {
                     </span>
                   </div>
 
-                  {/* Cards */}
-                  <div style={{ flex: 1, overflowY: 'auto', padding: '0 8px 8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {/* Cards — sin limite de altura, crecen con la pagina */}
+                  <div style={{ padding: '0 8px 8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {cards.map(cliente => (
                       <div key={cliente.id}
                         draggable
