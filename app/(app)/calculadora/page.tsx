@@ -2341,6 +2341,49 @@ function CalculadoraInner() {
               </div>
 
         {/* ── Siguiente sección ── */}
+
+              {/* ── Traza de cálculo (para verificar vs Excel) ── */}
+              <div style={{ background: '#F8FAFC', border: '1px solid #E5E7EB', padding: '14px 16px' }}>
+                <p style={{ fontSize: '11px', fontWeight: '700' as const, color: '#6B7280', margin: '0 0 10px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
+                  🔬 Traza del cálculo — compara con tu Excel paso a paso
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '10px' }}>
+                  {[
+                    { label: 'Semanas netas', value: (datos.semanas_totales - datos.semanas_descontadas).toString() },
+                    { label: 'SDI diario', value: fmtMXN2(sdiPromedio) },
+                    { label: 'UMA diaria (sys)', value: fmtMXN2(sys.UMA_DIARIA) },
+                    { label: 'Veces UMA (SDI÷UMA)', value: (sdiPromedio / sys.UMA_DIARIA).toFixed(4) },
+                    { label: '% Cuantía básica', value: (res.pctBasica * 100).toFixed(4) + '%' },
+                    { label: '% Incremento anual', value: (res.pctIncremento * 100).toFixed(4) + '%' },
+                    { label: 'Años adicionales (numIncrementos)', value: res.numIncrementos.toFixed(2) },
+                    { label: 'Factor 1.11', value: '1.11' },
+                    { label: 'Factor edad (60=75%)', value: (res.factorEdad * 100).toFixed(0) + '%' },
+                  ].map((r, i) => (
+                    <div key={i} style={{ background: 'white', border: '1px solid #E5E7EB', padding: '7px 10px' }}>
+                      <div style={{ fontSize: '9.5px', color: '#9CA3AF', marginBottom: '2px' }}>{r.label}</div>
+                      <div style={{ fontSize: '12px', fontWeight: '700' as const, color: '#111827' }}>{r.value}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', fontSize: '11px' }}>
+                  {[
+                    { label: 'Cuantía básica raw (sin ×1.11 ni ×%edad)', value: fmtMXN2(sdiPromedio * res.pctBasica * 365) },
+                    { label: 'Incrementos raw (sin ×1.11 ni ×%edad)', value: fmtMXN2(sdiPromedio * res.pctIncremento * 365 * res.numIncrementos) },
+                    { label: 'Cuantía básica anual (×1.11 ×%edad)', value: fmtMXN2(res.cuantiaBasicaAnual) },
+                    { label: 'Incrementos anuales (×1.11 ×%edad)', value: fmtMXN2(res.incrementosAnual) },
+                    { label: 'Asignaciones familiares (×1.11 ×%edad)', value: fmtMXN2(res.asignacionesAnual) },
+                    { label: 'Subtotal (básica+incr+asig) anual', value: fmtMXN2(res.cuantiaBasicaAnual + res.incrementosAnual + res.asignacionesAnual) },
+                    { label: 'PMG anual (piso)', value: fmtMXN2(sys.PMG_L73 * 12) },
+                    { label: '¿Aplica PMG?', value: res.pmg_aplica ? 'SÍ — pensión calculada < PMG' : 'NO — pensión calculada > PMG' },
+                  ].map((r, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 8px', background: i % 2 === 0 ? 'white' : '#F9FAFB', border: '1px solid #F3F4F6' }}>
+                      <span style={{ color: '#6B7280' }}>{r.label}</span>
+                      <span style={{ fontWeight: '700' as const, color: '#111827' }}>{r.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
           <button onClick={() => setTab(2)}
             style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>
