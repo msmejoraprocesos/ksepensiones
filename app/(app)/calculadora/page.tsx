@@ -2349,7 +2349,9 @@ function CalculadoraInner() {
                 </p>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '10px' }}>
                   {[
-                    { label: 'Semanas netas', value: (datos.semanas_totales - datos.semanas_descontadas).toString() },
+                    { label: 'Semanas totales (constancia)', value: datos.semanas_totales.toString() },
+                    { label: 'Semanas descontadas', value: datos.semanas_descontadas.toString() },
+                    { label: 'Semanas netas (usadas en cálculo)', value: (datos.semanas_totales - datos.semanas_descontadas).toString() },
                     { label: 'SDI diario', value: fmtMXN2(sdiPromedio) },
                     { label: 'UMA diaria (sys)', value: fmtMXN2(sys.UMA_DIARIA) },
                     { label: 'Veces UMA (SDI÷UMA)', value: (sdiPromedio / sys.UMA_DIARIA).toFixed(4) },
