@@ -2240,7 +2240,13 @@ function CalculadoraInner() {
 
         {/* Análisis de IA — visible en tab 0 */}
         {tab === 1 && (() => {
-          const sem = datos.semanas_totales - datos.semanas_descontadas
+          // Semanas proyectadas al momento del retiro — mismo criterio que recalcEscenarios:
+          // agrega las semanas naturales que cotizará entre hoy y el inicio del trámite.
+          // Esto replica el criterio del Excel de referencia que usa las semanas al retiro, no las actuales.
+          const semBase = datos.semanas_totales - datos.semanas_descontadas
+          const anioActual = new Date().getFullYear()
+          const mesesHastaInicioMod40 = datos.sigue_cotizando ? Math.max(0, (anioInicioTramite - anioActual) * 12) : 0
+          const sem = semBase + mesesHastaInicioMod40 * 4.33
           if (sdiPromedio <= 0) return (
             <div style={{ textAlign: 'center' as const, padding: '60px 20px', color: '#9CA3AF' }}>
               <div style={{ fontSize: '48px', marginBottom: '12px' }}>📋</div>
@@ -2351,7 +2357,8 @@ function CalculadoraInner() {
                   {[
                     { label: 'Semanas totales (constancia)', value: datos.semanas_totales.toString() },
                     { label: 'Semanas descontadas', value: datos.semanas_descontadas.toString() },
-                    { label: 'Semanas netas (usadas en cálculo)', value: (datos.semanas_totales - datos.semanas_descontadas).toString() },
+                    { label: 'Semanas naturales proyectadas', value: (mesesHastaInicioMod40 * 4.33).toFixed(1) },
+                    { label: 'Semanas netas al retiro (usadas en cálculo)', value: sem.toFixed(1) },
                     { label: 'SDI diario', value: fmtMXN2(sdiPromedio) },
                     { label: 'UMA diaria (sys)', value: fmtMXN2(sys.UMA_DIARIA) },
                     { label: 'Veces UMA (SDI÷UMA)', value: (sdiPromedio / sys.UMA_DIARIA).toFixed(4) },
