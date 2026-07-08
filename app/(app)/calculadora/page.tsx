@@ -731,7 +731,7 @@ function CalculadoraInner() {
       const result = await response.json()
       if (result.nombre) {
         const edadCalc = result.fecha_nac
-          ? Math.floor((Date.now() - new Date(result.fecha_nac).getTime()) / (365.25 * 86400000))
+          ? parseFloat(((Date.now() - new Date(result.fecha_nac).getTime()) / (365.25 * 86400000)).toFixed(2))
           : undefined
         // Sugerir "sigue cotizando" si la última cotización fue dentro de los últimos 60 días
         let sigueCotizandoSugerido: boolean | undefined
