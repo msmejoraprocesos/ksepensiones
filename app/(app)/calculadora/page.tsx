@@ -532,6 +532,35 @@ function CalculadoraInner() {
   const [etapaSugerida, setEtapaSugerida] = useState('')
   const [showConfirmCambio, setShowConfirmCambio] = useState(false)
   const [pendingClienteId, setPendingClienteId] = useState('')
+  const [showContinuarDiag, setShowContinuarDiag] = useState(false)
+  const [diagExistente, setDiagExistente] = useState<{ id: string; fecha: string } | null>(null)
+
+  // ── Dirty flag — avisa al layout cuando hay cambios sin guardar ──────────
+  useEffect(() => {
+    const isDirty = sdiPromedio > 0 && !diagGuardadoId
+    if (typeof window !== 'undefined') window.__kse_dirty = isDirty
+  }, [sdiPromedio, diagGuardadoId])
+
+  // Limpiar dirty al guardar o desmontar
+  useEffect(() => {
+    if (diagGuardadoId && typeof window !== 'undefined') window.__kse_dirty = false
+  }, [diagGuardadoId])
+
+  useEffect(() => {
+    return () => { if (typeof window !== 'undefined') window.__kse_dirty = false }
+  }, [])
+
+  // beforeunload — protege contra cierre/refresh de ventana
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (sdiPromedio > 0 && !diagGuardadoId) {
+        e.preventDefault()
+        e.returnValue = ''
+      }
+    }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [sdiPromedio, diagGuardadoId])
   const [buscarCliente, setBuscarCliente] = useState('')
 
   // Edad de retiro y año de trámite
@@ -1520,6 +1549,51 @@ function CalculadoraInner() {
         </div>
       )}
 
+      {/* ── Modal: ¿Continuar diagnóstico existente o nuevo? ── */}
+      {showContinuarDiag && diagExistente && (
+        <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: '420px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+            <div style={{ background: AZUL, padding: '16px 20px' }}>
+              <p style={{ fontSize: '14px', fontWeight: '700' as const, color: 'white', margin: 0 }}>📋 Este cliente tiene un diagnóstico en progreso</p>
+            </div>
+            <div style={{ padding: '20px' }}>
+              <p style={{ fontSize: '13px', color: '#374151', margin: '0 0 6px', lineHeight: 1.6 }}>
+                Guardado el {new Date(diagExistente.fecha).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}.
+              </p>
+              <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 20px', lineHeight: 1.6 }}>
+                ¿Deseas continuar donde lo dejaste, o iniciar un diagnóstico nuevo? Si inicias uno nuevo tendrás que cargar la constancia de nuevo.
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
+                <button onClick={() => {
+                  setShowContinuarDiag(false)
+                  router.push(`/calculadora?cliente=${pendingClienteId}&diag=${diagExistente.id}`)
+                  setDiagExistente(null)
+                }}
+                  style={{ padding: '12px', background: AZUL, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  ✓ Continuar el diagnóstico guardado
+                </button>
+                <button onClick={() => {
+                  setClienteId(pendingClienteId)
+                  setDiagGuardadoId(null)
+                  setEstatus('borrador')
+                  setAnalisis([])
+                  setDiagExistente(null)
+                  setPendingClienteId('')
+                  setShowContinuarDiag(false)
+                }}
+                  style={{ padding: '12px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  + Iniciar diagnóstico nuevo
+                </button>
+                <button onClick={() => { setShowContinuarDiag(false); setDiagExistente(null); setPendingClienteId('') }}
+                  style={{ padding: '8px', background: 'none', color: '#9CA3AF', border: 'none', fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit' }}>
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Modal confirmación cambio de cliente ── */}
       {showConfirmCambio && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
@@ -1754,7 +1828,25 @@ function CalculadoraInner() {
             <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
               {clientes.filter(c => c.nombre.toLowerCase().includes(buscarCliente.toLowerCase())).map(c => (
                 <button key={c.id}
-                  onClick={() => { setClienteId(c.id); setBuscarCliente(''); setShowClienteModal(false) }}
+                  onClick={async () => {
+                    // Verificar si el cliente ya tiene un diagnóstico en borrador
+                    const { data: diagsPrevios } = await supabase
+                      .from('diagnosticos')
+                      .select('id, created_at')
+                      .eq('cliente_id', c.id)
+                      .eq('estatus', 'borrador')
+                      .order('created_at', { ascending: false })
+                      .limit(1)
+                    if (diagsPrevios && diagsPrevios.length > 0) {
+                      setPendingClienteId(c.id)
+                      setDiagExistente({ id: diagsPrevios[0].id, fecha: diagsPrevios[0].created_at })
+                      setShowContinuarDiag(true)
+                      setBuscarCliente('')
+                      setShowClienteModal(false)
+                    } else {
+                      setClienteId(c.id); setBuscarCliente(''); setShowClienteModal(false)
+                    }
+                  }}
                   style={{ width: '100%', padding: '11px 16px', background: 'white', border: 'none', borderBottom: '1px solid #F3F4F6', cursor: 'pointer', textAlign: 'left' as const, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div style={{ width: '34px', height: '34px', background: '#EEF2F8', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: '700' as const, color: AZUL }}>
                     {c.nombre.charAt(0).toUpperCase()}

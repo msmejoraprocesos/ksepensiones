@@ -1,12 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
 
 const NARANJA = '#F05B21'
 const AZUL = '#1B3A6B'
+
+// Flag global que la calculadora activa cuando tiene cambios sin guardar
+declare global { interface Window { __kse_dirty?: boolean } }
 
 type NavItem = { href: string; label: string; icon: string; adminOnly?: boolean }
 
@@ -31,6 +34,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [checking, setChecking] = useState(true)
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
+  const [showNavGuard, setShowNavGuard] = useState(false)
+  const pendingNavRef = useRef<string | null>(null)
 
   useEffect(() => {
     const checkWidth = () => {
@@ -155,8 +160,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div style={{ flex: 1, padding: '8px 0' }}>
             {NAV_ITEMS.filter(item => !item.adminOnly || isAdmin).map(item => {
               const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+              const handleNavClick = (e: React.MouseEvent) => {
+                if (isActive) return // ya estamos aquí
+                if (window.__kse_dirty) {
+                  e.preventDefault()
+                  pendingNavRef.current = item.href
+                  setShowNavGuard(true)
+                }
+              }
               return (
-                <Link key={item.href} href={item.href} style={{ textDecoration: 'none', display: 'block' }}>
+                <Link key={item.href} href={item.href} onClick={handleNavClick} style={{ textDecoration: 'none', display: 'block' }}>
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: '10px',
                     padding: collapsed ? '9px 14px' : '8px 16px',
@@ -191,6 +204,38 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
+
+      {/* ── Modal guardia de navegación — calculadora con cambios sin guardar ── */}
+      {showNavGuard && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: '400px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+            <div style={{ background: '#F59E0B', padding: '16px 20px' }}>
+              <p style={{ fontSize: '14px', fontWeight: '800' as const, color: 'white', margin: 0 }}>⚠️ Tienes un diagnóstico sin guardar</p>
+            </div>
+            <div style={{ padding: '20px' }}>
+              <p style={{ fontSize: '13px', color: '#374151', margin: '0 0 20px', lineHeight: 1.6 }}>
+                Si sales ahora perderás el avance actual — los datos cargados, la configuración de Mod 40 y el análisis generado no se guardarán.
+              </p>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button onClick={() => { setShowNavGuard(false); pendingNavRef.current = null }}
+                  style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  ← Volver y guardar
+                </button>
+                <button onClick={() => {
+                  window.__kse_dirty = false
+                  const dest = pendingNavRef.current
+                  pendingNavRef.current = null
+                  setShowNavGuard(false)
+                  if (dest) router.push(dest)
+                }}
+                  style={{ flex: 1, padding: '10px', background: '#DC2626', color: 'white', border: 'none', fontSize: '13px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  Salir sin guardar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
