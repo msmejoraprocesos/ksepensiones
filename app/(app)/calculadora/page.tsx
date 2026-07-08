@@ -534,33 +534,6 @@ function CalculadoraInner() {
   const [pendingClienteId, setPendingClienteId] = useState('')
   const [showContinuarDiag, setShowContinuarDiag] = useState(false)
   const [diagExistente, setDiagExistente] = useState<{ id: string; fecha: string } | null>(null)
-
-  // ── Dirty flag — avisa al layout cuando hay cambios sin guardar ──────────
-  useEffect(() => {
-    const isDirty = sdiPromedio > 0 && !diagGuardadoId
-    if (typeof window !== 'undefined') window.__kse_dirty = isDirty
-  }, [sdiPromedio, diagGuardadoId])
-
-  // Limpiar dirty al guardar o desmontar
-  useEffect(() => {
-    if (diagGuardadoId && typeof window !== 'undefined') window.__kse_dirty = false
-  }, [diagGuardadoId])
-
-  useEffect(() => {
-    return () => { if (typeof window !== 'undefined') window.__kse_dirty = false }
-  }, [])
-
-  // beforeunload — protege contra cierre/refresh de ventana
-  useEffect(() => {
-    const handler = (e: BeforeUnloadEvent) => {
-      if (sdiPromedio > 0 && !diagGuardadoId) {
-        e.preventDefault()
-        e.returnValue = ''
-      }
-    }
-    window.addEventListener('beforeunload', handler)
-    return () => window.removeEventListener('beforeunload', handler)
-  }, [sdiPromedio, diagGuardadoId])
   const [buscarCliente, setBuscarCliente] = useState('')
 
   // Edad de retiro y año de trámite
@@ -597,6 +570,28 @@ function CalculadoraInner() {
   const [simUmas, setSimUmas] = useState(25)
   const [simMeses, setSimMeses] = useState(36)
   const [diagGuardadoId, setDiagGuardadoId] = useState<string | null>(null)
+
+  // ── Dirty flag — avisa al layout cuando hay cambios sin guardar ──────────
+  useEffect(() => {
+    const isDirty = sdiPromedio > 0 && !diagGuardadoId
+    if (typeof window !== 'undefined') window.__kse_dirty = isDirty
+  }, [sdiPromedio, diagGuardadoId])
+
+  useEffect(() => {
+    return () => { if (typeof window !== 'undefined') window.__kse_dirty = false }
+  }, [])
+
+  // beforeunload — protege contra cierre/refresh de ventana
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (sdiPromedio > 0 && !diagGuardadoId) {
+        e.preventDefault()
+        e.returnValue = ''
+      }
+    }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [sdiPromedio, diagGuardadoId])
   const [estatus, setEstatus] = useState<'borrador' | 'autorizado'>('borrador')
 
   // ── Load inicial
