@@ -2332,12 +2332,19 @@ function CalculadoraInner() {
 
         {/* Análisis de IA — visible en tab 0 */}
         {tab === 1 && (() => {
-          // Semanas proyectadas al momento del retiro — replica el criterio del Excel:
-          // siempre se proyecta a la edad de retiro, sin importar si sigue_cotizando está activo.
-          // Fórmula: sem = (semanas_totales - descontadas) + (edad_retiro - edad_actual) × 52
           const semBase = datos.semanas_totales - datos.semanas_descontadas
           const edadRet = datos.edad_min_pension || 60
-          const semanasNaturales = Math.max(0, Math.round((edadRet - (datos.edad_actual || 0)) * 52))
+          // Edad en la fecha de última cotización (fecha_calculo), NO en la fecha de hoy.
+          // Esto replica el criterio del Excel: usa la edad a la fecha de baja, no la edad actual.
+          const edadRef = (() => {
+            if (datos.fecha_nacimiento && datos.fecha_calculo) {
+              const nac = new Date(datos.fecha_nacimiento).getTime()
+              const ref = new Date(datos.fecha_calculo).getTime()
+              return parseFloat(((ref - nac) / (365.25 * 86400000)).toFixed(2))
+            }
+            return datos.edad_actual || 0
+          })()
+          const semanasNaturales = Math.max(0, Math.round((edadRet - edadRef) * 52))
           const sem = semBase + semanasNaturales
           if (sdiPromedio <= 0) return (
             <div style={{ textAlign: 'center' as const, padding: '60px 20px', color: '#9CA3AF' }}>
@@ -2448,7 +2455,10 @@ function CalculadoraInner() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '10px' }}>
                   {[
                     { label: 'Semanas totales (constancia)', value: datos.semanas_totales.toString() },
-                    { label: 'Semanas descontadas', value: datos.semanas_descontadas.toString() },
+                    { label: 'Fecha última cotización', value: datos.fecha_calculo || '—' },
+                    { label: 'Fecha nacimiento', value: datos.fecha_nacimiento || '—' },
+                    { label: 'Edad a fecha última cot.', value: edadRef.toFixed(2) + ' años' },
+                    { label: 'Edad retiro', value: edadRet + ' años' },
                     { label: 'Semanas naturales al retiro (+)', value: semanasNaturales.toString() },
                     { label: 'Semanas al retiro (usadas en cálculo)', value: sem.toFixed(0) },
                     { label: 'SDI diario', value: fmtMXN2(sdiPromedio) },
