@@ -2240,13 +2240,15 @@ function CalculadoraInner() {
 
         {/* Análisis de IA — visible en tab 0 */}
         {tab === 1 && (() => {
-          // Semanas proyectadas al momento del retiro — mismo criterio que recalcEscenarios:
-          // agrega las semanas naturales que cotizará entre hoy y el inicio del trámite.
-          // Esto replica el criterio del Excel de referencia que usa las semanas al retiro, no las actuales.
+          // Semanas proyectadas al momento del retiro — replica el criterio del Excel:
+          // agrega las semanas naturales entre la edad actual y la edad de retiro.
+          // Fórmula: sem = (semanas_totales - descontadas) + (edad_retiro - edad_actual) × 52
           const semBase = datos.semanas_totales - datos.semanas_descontadas
-          const anioActual = new Date().getFullYear()
-          const mesesHastaInicioMod40 = datos.sigue_cotizando ? Math.max(0, (anioInicioTramite - anioActual) * 12) : 0
-          const sem = semBase + mesesHastaInicioMod40 * 4.33
+          const edadRet = datos.edad_min_pension || 60
+          const semanasNaturales = datos.sigue_cotizando
+            ? Math.max(0, Math.round((edadRet - (datos.edad_actual || 0)) * 52))
+            : 0
+          const sem = semBase + semanasNaturales
           if (sdiPromedio <= 0) return (
             <div style={{ textAlign: 'center' as const, padding: '60px 20px', color: '#9CA3AF' }}>
               <div style={{ fontSize: '48px', marginBottom: '12px' }}>📋</div>
@@ -2357,8 +2359,8 @@ function CalculadoraInner() {
                   {[
                     { label: 'Semanas totales (constancia)', value: datos.semanas_totales.toString() },
                     { label: 'Semanas descontadas', value: datos.semanas_descontadas.toString() },
-                    { label: 'Semanas naturales proyectadas', value: (mesesHastaInicioMod40 * 4.33).toFixed(1) },
-                    { label: 'Semanas netas al retiro (usadas en cálculo)', value: sem.toFixed(1) },
+                    { label: 'Semanas naturales al retiro (+)', value: semanasNaturales.toString() },
+                    { label: 'Semanas al retiro (usadas en cálculo)', value: sem.toFixed(0) },
                     { label: 'SDI diario', value: fmtMXN2(sdiPromedio) },
                     { label: 'UMA diaria (sys)', value: fmtMXN2(sys.UMA_DIARIA) },
                     { label: 'Veces UMA (SDI÷UMA)', value: (sdiPromedio / sys.UMA_DIARIA).toFixed(4) },
