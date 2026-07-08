@@ -2087,7 +2087,7 @@ function CalculadoraInner() {
                 { label: 'Edad pensión', value: (datos.edad_min_pension || 60) + ' años', color: AZUL },
                 { label: 'SDI 250 sem.', value: sdiPromedio > 0 ? fmtMXN2(sdiPromedio) : '—', color: NARANJA },
                 { label: 'Sem. faltantes', value: datos.semanas_totales > 0 ? String(Math.max(0, 500 - (datos.semanas_totales - datos.semanas_descontadas))) : '—', color: Math.max(0, 500 - (datos.semanas_totales - datos.semanas_descontadas)) === 0 ? VERDE : '#DC2626' },
-                { label: 'Total sem. cot.', value: escenarios.find(e => e.recomendado)?.semanas_finales ? String(Math.round(escenarios.find(e => e.recomendado)!.semanas_finales)) : '—', color: AZUL },
+                { label: 'Total sem. c/Mod40', value: escenarios.find(e => e.recomendado)?.semanas_finales ? String(Math.round(escenarios.find(e => e.recomendado)!.semanas_finales)) : '—', color: AZUL },
                 { label: 'Fecha del trámite', value: datos.fecha_nacimiento ? (() => { const d = new Date(datos.fecha_nacimiento); d.setFullYear(d.getFullYear() + (datos.edad_min_pension || 60)); return d.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' }) })() : '—', color: '#7C3AED' },
               ].map((k, i) => (
                 <div key={i} style={{ flex: '1 1 0', padding: '10px 12px', borderRight: '1px solid #F3F4F6', borderBottom: '3px solid ' + k.color, background: 'white', minWidth: '100px', maxWidth: '160px' }}>
