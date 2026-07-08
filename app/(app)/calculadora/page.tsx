@@ -2328,13 +2328,11 @@ function CalculadoraInner() {
         {/* Análisis de IA — visible en tab 0 */}
         {tab === 1 && (() => {
           // Semanas proyectadas al momento del retiro — replica el criterio del Excel:
-          // agrega las semanas naturales entre la edad actual y la edad de retiro.
+          // siempre se proyecta a la edad de retiro, sin importar si sigue_cotizando está activo.
           // Fórmula: sem = (semanas_totales - descontadas) + (edad_retiro - edad_actual) × 52
           const semBase = datos.semanas_totales - datos.semanas_descontadas
           const edadRet = datos.edad_min_pension || 60
-          const semanasNaturales = datos.sigue_cotizando
-            ? Math.max(0, Math.round((edadRet - (datos.edad_actual || 0)) * 52))
-            : 0
+          const semanasNaturales = Math.max(0, Math.round((edadRet - (datos.edad_actual || 0)) * 52))
           const sem = semBase + semanasNaturales
           if (sdiPromedio <= 0) return (
             <div style={{ textAlign: 'center' as const, padding: '60px 20px', color: '#9CA3AF' }}>
