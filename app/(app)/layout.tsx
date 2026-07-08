@@ -8,8 +8,9 @@ import Link from 'next/link'
 const NARANJA = '#F05B21'
 const AZUL = '#1B3A6B'
 
-// Flag global que la calculadora activa cuando tiene cambios sin guardar
-declare global { interface Window { __kse_dirty?: boolean } }
+// Helpers para el flag de dirty state de la calculadora
+const getKseDirty = () => typeof window !== 'undefined' && !!(window as any).__kse_dirty
+const clearKseDirty = () => { if (typeof window !== 'undefined') (window as any).__kse_dirty = false }
 
 type NavItem = { href: string; label: string; icon: string; adminOnly?: boolean }
 
@@ -161,8 +162,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             {NAV_ITEMS.filter(item => !item.adminOnly || isAdmin).map(item => {
               const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
               const handleNavClick = (e: React.MouseEvent) => {
-                if (isActive) return // ya estamos aquí
-                if (window.__kse_dirty) {
+                if (isActive) return
+                if (getKseDirty()) {
                   e.preventDefault()
                   pendingNavRef.current = item.href
                   setShowNavGuard(true)
@@ -222,7 +223,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   ← Volver y guardar
                 </button>
                 <button onClick={() => {
-                  window.__kse_dirty = false
+                  clearKseDirty()
                   const dest = pendingNavRef.current
                   pendingNavRef.current = null
                   setShowNavGuard(false)

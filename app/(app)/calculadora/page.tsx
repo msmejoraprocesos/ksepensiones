@@ -574,11 +574,11 @@ function CalculadoraInner() {
   // ── Dirty flag — avisa al layout cuando hay cambios sin guardar ──────────
   useEffect(() => {
     const isDirty = sdiPromedio > 0 && !diagGuardadoId
-    if (typeof window !== 'undefined') window.__kse_dirty = isDirty
+    if (typeof window !== 'undefined') (window as any).__kse_dirty = isDirty
   }, [sdiPromedio, diagGuardadoId])
 
   useEffect(() => {
-    return () => { if (typeof window !== 'undefined') window.__kse_dirty = false }
+    return () => { if (typeof window !== 'undefined') (window as any).__kse_dirty = false }
   }, [])
 
   // beforeunload — protege contra cierre/refresh de ventana
