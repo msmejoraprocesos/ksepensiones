@@ -756,8 +756,13 @@ function CalculadoraInner() {
           fecha_nacimiento: result.fecha_nac || prev.fecha_nacimiento,
           edad_actual: edadCalc ?? prev.edad_actual,
           fecha_calculo: result.ultima_cotizacion || prev.fecha_calculo,
+          // sigue_cotizando: solo lo sobreescribe si el usuario no lo ha cambiado manualmente
+          // (si sigue en el default 'true', acepta la sugerencia; si ya lo cambió, lo respeta)
           sigue_cotizando: sigueCotizandoSugerido ?? prev.sigue_cotizando,
           ley: leyDetectada ?? prev.ley,
+          // num_hijos, tiene_conyuge, num_padres, tiene_ayuda_asistencial:
+          // NO se tocan — no vienen en la constancia y el asesor los entra manualmente.
+          // El ...prev de arriba ya los preserva.
         }))
         if (result.ultima_cotizacion) setFechaUltimaCot(result.ultima_cotizacion)
         // Build periodos from PDF data — recalcula "semanas" de forma determinística a partir de
