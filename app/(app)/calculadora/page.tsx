@@ -266,7 +266,19 @@ function calcPensionLey73(semanas: number, sdi: number, edadRetiro: number, sys:
 
   const cuantiaBasicaAnualFinal = cuantiaBasicaAnual * FACTOR_111 * factorEdad
   const incrementosAnualFinal = incrementosTotalAnual * FACTOR_111 * factorEdad
-  const aguinaldoAnual = montoFinal * DIAS_AGUINALDO / 30
+
+  // Aguinaldo anual — Art. 218 LSS Ley 73
+  // = MIN(
+  //     SI(pension > PMG) → (cuantíaBásica + incrementos) × %edad / 12
+  //                SINO   → PMG mensual
+  //     tope de 25 UMAs anuales = UMA × 25 × 365 / 12
+  //   )
+  // El aguinaldo es 1 mes de pensión BASE (sin asignaciones ni ayuda asistencial)
+  const tope25UMAs = sys.UMA_DIARIA * 25 * 365 / 12
+  const aguinaldoBase = pmg_aplica
+    ? pmgBase                                                          // si aplica PMG: usa PMG mensual
+    : (cuantiaBasicaAnualFinal + incrementosAnualFinal) / 12          // si no: cuantía+incr sin asignaciones / 12
+  const aguinaldoAnual = Math.min(aguinaldoBase, tope25UMAs)
 
   return {
     monto: montoFinal,
@@ -898,7 +910,10 @@ function CalculadoraInner() {
     const flujosSin = pensionBase * mesesHasta80base
     const ganancia_a80 = flujosCon - flujosSin - inversion_neta
     const tasa_rendimiento = inversion_neta > 0 ? (ganancia_a80 / inversion_neta) * 100 : 0
-    const aguinaldo_anual = (pension * 15) / 30
+
+    // Aguinaldo — mismo criterio que calcPensionLey73: MIN((básica+incr)/12, tope25UMAs)
+    const resDetalle = calcPensionLey73(semTotal, sdiNuevo, edadR, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, anioR, datos.tiene_ayuda_asistencial)
+    const aguinaldo_anual = resDetalle.aguinaldoAnual
 
     // Fechas de ingreso/baja — SAL. PROM MOD 40!E13, E14
     const fechaIngreso = new Date(anioI, 0, 1)
@@ -1042,7 +1057,7 @@ function CalculadoraInner() {
       incremento_vs_base: 0, roi_meses: 0, recomendado: false, pmg_aplica: pmgAplicaBase,
       fecha_ingreso_mod40: '', fecha_baja_mod40: '', edad_retiro: edadRetiro,
       semanas_finales: sem, nuevo_sdi_250: sdiBase, recuperacion_afore: 0, inversion_neta: 0,
-      ganancia_a80: 0, tasa_rendimiento: 0, aguinaldo_anual: (pensionBase * 15) / 30,
+      ganancia_a80: 0, tasa_rendimiento: 0, aguinaldo_anual: calcPensionLey73(sem, sdiBase, edadRetiro, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, undefined, datos.tiene_ayuda_asistencial).aguinaldoAnual,
       costo_retroactivo: 0, recuperacion_afore_retro: 0, inversion_neta_retro: 0,
       roi_retro: 0, ganancia_a80_retro: 0, tasa_rendimiento_retro: 0,
       aportacion_banco: 0, aportacion_segundo_fondeo: 0, cantidad_minima_afore: 0,
@@ -1068,7 +1083,7 @@ function CalculadoraInner() {
       tasaProyectada: TASA_M10,
       recuperacion_afore: costoM10 * 12 * (sys.pct_afore_mod40 ?? 20) / 100,
       inversion_neta: costoM10 * 12 * (1 - (sys.pct_afore_mod40 ?? 20) / 100),
-      ganancia_a80: 0, tasa_rendimiento: 0, aguinaldo_anual: (pensionM10 * 15) / 30,
+      ganancia_a80: 0, tasa_rendimiento: 0, aguinaldo_anual: calcPensionLey73(sem + 12 * 4.33, sdiNuevoM10, 65, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, undefined, datos.tiene_ayuda_asistencial).aguinaldoAnual,
       fecha_ingreso_mod40: '', fecha_baja_mod40: '',
       actualizaciones: 0, recargos: 0,
       costo_retroactivo: 0, recuperacion_afore_retro: 0, inversion_neta_retro: 0,
