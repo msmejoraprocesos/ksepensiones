@@ -976,6 +976,10 @@ function CalculadoraInner() {
       costoMensual, costo_total, sdiNuevo, semTotal, semMod40, pension, pmg_aplica, incr, roi,
       umaProyectada, tasaProyectada, sdiMod40,
       recuperacion_afore, inversion_neta, ganancia_a80, tasa_rendimiento, aguinaldo_anual,
+      cuantia_basica_anual: resDetalle.cuantiaBasicaAnual,
+      incrementos_anual: resDetalle.incrementosAnual,
+      asignaciones_anual: resDetalle.asignacionesAnual,
+      ayuda_asistencial_anual: resDetalle.ayudaAsistencialAnual,
       fecha_ingreso_mod40, fecha_baja_mod40,
       actualizaciones, recargos,
       costo_retroactivo, recuperacion_afore_retro, inversion_neta_retro,
@@ -1027,6 +1031,10 @@ function CalculadoraInner() {
       ganancia_a80: r.ganancia_a80,
       tasa_rendimiento: r.tasa_rendimiento,
       aguinaldo_anual: r.aguinaldo_anual,
+      cuantia_basica_anual: r.cuantia_basica_anual,
+      incrementos_anual: r.incrementos_anual,
+      asignaciones_anual: r.asignaciones_anual,
+      ayuda_asistencial_anual: r.ayuda_asistencial_anual,
       costo_retroactivo: r.costo_retroactivo,
       recuperacion_afore_retro: r.recuperacion_afore_retro,
       inversion_neta_retro: r.inversion_neta_retro,
@@ -1054,6 +1062,7 @@ function CalculadoraInner() {
     })
 
     // E0: Sin modalidad — escenario base con campos vacíos/cero para los de Mod40
+    const resBase = calcPensionLey73(sem, sdiBase, edadRetiro, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, undefined, datos.tiene_ayuda_asistencial)
     const escs: Escenario[] = [{
       id: 'e0', label: 'Sin modalidad', descripcion: 'Pensión base con semanas y SDI actuales',
       mod40_meses: 0, mod40_umas: 0, pension_base: pensionBase,
@@ -1061,7 +1070,11 @@ function CalculadoraInner() {
       incremento_vs_base: 0, roi_meses: 0, recomendado: false, pmg_aplica: pmgAplicaBase,
       fecha_ingreso_mod40: '', fecha_baja_mod40: '', edad_retiro: edadRetiro,
       semanas_finales: sem, nuevo_sdi_250: sdiBase, recuperacion_afore: 0, inversion_neta: 0,
-      ganancia_a80: 0, tasa_rendimiento: 0, aguinaldo_anual: calcPensionLey73(sem, sdiBase, edadRetiro, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, undefined, datos.tiene_ayuda_asistencial).aguinaldoAnual,
+      ganancia_a80: 0, tasa_rendimiento: 0, aguinaldo_anual: resBase.aguinaldoAnual,
+      cuantia_basica_anual: resBase.cuantiaBasicaAnual,
+      incrementos_anual: resBase.incrementosAnual,
+      asignaciones_anual: resBase.asignacionesAnual,
+      ayuda_asistencial_anual: resBase.ayudaAsistencialAnual,
       costo_retroactivo: 0, recuperacion_afore_retro: 0, inversion_neta_retro: 0,
       roi_retro: 0, ganancia_a80_retro: 0, tasa_rendimiento_retro: 0,
       aportacion_banco: 0, aportacion_segundo_fondeo: 0, cantidad_minima_afore: 0,

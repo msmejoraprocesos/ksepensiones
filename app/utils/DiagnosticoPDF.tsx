@@ -36,6 +36,11 @@ interface Escenario {
   roi_meses: number
   mod40_meses: number
   mod40_umas: number
+  // Desglose de componentes — de calcPensionLey73
+  cuantia_basica_anual?: number
+  incrementos_anual?: number
+  asignaciones_anual?: number
+  ayuda_asistencial_anual?: number
   recomendado?: boolean
   ganancia_a80?: number
   tasa_rendimiento?: number
@@ -622,7 +627,14 @@ const PaginaDatosConservacion = ({ datos, color, titulo, razonSocial, esBorrador
         { label: 'Semanas cotizadas', value: (datos.semanas_totales || 0).toLocaleString(), color: (datos.semanas_totales || 0) >= 500 ? C.verde : C.rojo },
         { label: 'Fecha de nacimiento', value: fmtFecha(datos.fecha_nacimiento) },
         { label: 'Última cotización', value: fmtFechaCta(datos.fecha_calculo) || 'No registrada', color: datos.fecha_calculo ? C.azul : C.gris },
-        { label: 'Asignaciones familiares', value: '+' + ((datos.tiene_conyuge ? 15 : 0) + (datos.num_hijos || 0) * 10) + '%', sub: 'sobre pensión base', color: C.naranja },
+        { label: 'Asignaciones familiares', value: (() => {
+          const hayConyuge = datos.tiene_conyuge
+          const hijos = datos.num_hijos || 0
+          const padres = datos.num_padres || 0
+          const hayBenef = hayConyuge || hijos > 0
+          const pct = (hayConyuge ? 15 : 0) + hijos * 10 + (!hayBenef && padres > 0 ? padres * 10 : 0)
+          return pct > 0 ? '+' + pct + '%' : 'Sin asignaciones'
+        })(), sub: 'Art. 168 LSS', color: C.naranja },
       ]} />
       {(datos.semanas_totales || 0) >= 500
         ? <AlertChip msg={`✓ Semanas suficientes para pensionarse (${datos.semanas_totales} de 500 requeridas)`} type="success" />
