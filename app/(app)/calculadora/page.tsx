@@ -167,7 +167,7 @@ function calcPagoRetroactivo(mesesAdeudados: number, fechaBaja: Date, mod40Umas:
     const fechaMes = new Date(fechaBaja)
     fechaMes.setMonth(fechaMes.getMonth() - i)
     const anioMes = fechaMes.getFullYear()
-    const umaDelAnio = proyectarValor(sys.UMA_DIARIA, new Date().getFullYear(), anioMes)
+    const umaDelAnio = proyectarValor(sys.UMA_DIARIA, new Date().getFullYear(), anioMes, (sys.inflacion_uma ?? 4) / 100)
     const costoMensual = calcCostoMod40(mod40Umas, getMod40PctFn(anioMes), { ...sys, UMA_DIARIA: umaDelAnio })
     costoBase += costoMensual
     totalActualizacion += costoMensual * i * tasaActualizacionMensual(anioMes)
@@ -260,7 +260,7 @@ function calcPensionLey73(semanas: number, sdi: number, edadRetiro: number, sys:
 
   // PMG — proyectada al año de retiro. Importante: la PMG NO se reduce por el factor de edad/cesantía
   // (es la misma a los 60 que a los 65), a diferencia de la pensión calculada.
-  const pmgBase = anioRetiro ? proyectarValor(sys.PMG_L73, new Date().getFullYear(), anioRetiro) : sys.PMG_L73
+  const pmgBase = anioRetiro ? proyectarValor(sys.PMG_L73, new Date().getFullYear(), anioRetiro, (sys.inflacion_uma ?? 4) / 100) : sys.PMG_L73
   const pmg_aplica = pmgBase > pensionMensual
   const montoFinal = Math.max(pmgBase, pensionMensual)
 
@@ -869,7 +869,7 @@ function CalculadoraInner() {
     const anioI = anioInicio ?? anioInicioTramite
     const anioR = anioBase + (edadR - datos.edad_actual)
     // UMA y SDI proyectados — SAL. PROM MOD 40!E17
-    const umaProyectada = proyectarValor(sys.UMA_DIARIA, anioBase, anioI)
+    const umaProyectada = proyectarValor(sys.UMA_DIARIA, anioBase, anioI, (sys.inflacion_uma ?? 4) / 100)
     const sdiMod40 = umas * umaProyectada
 
     // Costo mensual usando días REALES de cada mes (igual que Excel COSTO MOD.40)
@@ -883,7 +883,7 @@ function CalculadoraInner() {
       const mesMes = fechaMes.getMonth()
       const diasMes = new Date(anioMes, mesMes + 1, 0).getDate()
       const diasAnioMes = anioMes % 4 === 0 && (anioMes % 100 !== 0 || anioMes % 400 === 0) ? 366 : 365
-      const umaMes = proyectarValor(sys.UMA_DIARIA, anioBase, anioMes)
+      const umaMes = proyectarValor(sys.UMA_DIARIA, anioBase, anioMes, (sys.inflacion_uma ?? 4) / 100)
       const sdiMes = umas * umaMes
       const tasaMes = getMod40Pct(anioMes) / 100
       costo_total += sdiMes * tasaMes * diasMes / diasAnioMes * 30.4167
@@ -1225,7 +1225,7 @@ function CalculadoraInner() {
           anioInicioTramite: anioInicioTramite,
           aniosRetiro: Math.max(0, edadRetiro - datos.edad_actual),
           ingresoDes: ingresoObjetivo || 0,
-          inflacion: 4,
+          inflacion: sys.inflacion_uma ?? 4,
           sys,
           e1: { pension_real: esc0?.pension_mensual ?? 0 },
           e2: { pension_real: escM10?.pension_mensual ?? esc0?.pension_mensual ?? 0 },
