@@ -25,6 +25,9 @@ interface Perfil {
   rendimiento_afore_default: number
   inflacion_uma: number
   pct_afore_mod40: number
+  tasa_m10: number
+  pct_actualizacion_inpc: number
+  pct_recargos_retroactivo: number
   mod40_2026: number
   mod40_2027: number
   mod40_2028: number
@@ -535,6 +538,24 @@ export default function ConfiguracionPage() {
                 placeholder: '20',
                 help: 'De cada cuota mensual de Modalidad 40, este porcentaje se deposita en la subcuenta de Retiro 97 y se regresa al trabajador en una sola exhibición al pensionarse (el resto financia el seguro de Cesantía/Vejez). Estimado de mercado ~20% — verifica periódicamente en CONSAR (gob.mx/consar), ya que no hay una tasa única oficial publicada y puede variar según el caso.',
                 badge: 'Validar periódicamente', badgeColor: '#0891b2'
+              },
+              {
+                key: 'tasa_m10', label: 'Tasa cuotas Modalidad 10', unit: '% anual',
+                placeholder: '22',
+                help: 'Porcentaje de cuotas obrero-patronales que paga mensualmente un trabajador en Modalidad 10 (sobre su SDI × 30.4 días). El IMSS puede ajustarla. Verificar periódicamente en imss.gob.mx.',
+                badge: 'Verificar en IMSS', badgeColor: '#7c3aed'
+              },
+              {
+                key: 'pct_actualizacion_inpc', label: 'Actualización INPC retroactivo', unit: '%',
+                placeholder: '7.27',
+                help: 'Porcentaje de actualización por inflación (INPC acumulado) que aplica el SAT sobre el costo del pago retroactivo de Mod 40. Se actualiza anualmente según el INPC publicado por BANXICO. Verificar en sat.gob.mx.',
+                badge: 'Actualizar cada enero', badgeColor: NARANJA
+              },
+              {
+                key: 'pct_recargos_retroactivo', label: 'Recargos retroactivo Mod 40', unit: '%',
+                placeholder: '41.80',
+                help: 'Porcentaje de recargos que aplica el SAT sobre el costo base del pago retroactivo de Mod 40. Corresponde a la tabla de recargos para el período de adeudo. Verificar en sat.gob.mx al iniciar cada trámite retroactivo.',
+                badge: 'Verificar en SAT', badgeColor: '#dc2626'
               },
             ].map(f => (
               <div key={f.key} style={{ background: '#F8FAFC', borderRadius: '10px', padding: '14px', border: '1px solid #e2e8f0' }}>

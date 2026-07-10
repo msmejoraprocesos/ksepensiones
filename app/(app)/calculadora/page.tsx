@@ -409,7 +409,10 @@ const DEFAULT_DATOS: DatosGenerales = {
 const SYS_DEFAULT: SysVars = {
   UMA_DIARIA: 117.31, SALARIO_MIN: 315.04,
   PMG_L73: 10636.54, PMG_L97: 4345.72,
-  RENDIMIENTO_DEFAULT: 6, mod40_pct: 14.438, pct_afore_mod40: 20
+  RENDIMIENTO_DEFAULT: 6, mod40_pct: 14.438, pct_afore_mod40: 20,
+  tasa_m10: 22,                    // 22% tasa anual Modalidad 10
+  pct_actualizacion_inpc: 7.27,    // % INPC acumulado retroactivo
+  pct_recargos_retroactivo: 41.80  // % recargos SAT retroactivo
 }
 
 function CalculadoraInner() {
@@ -725,6 +728,9 @@ function CalculadoraInner() {
         pct_afore_mod40: data.pct_afore_mod40 ?? 20,
         pct_banco_regulado: data.pct_banco_regulado ?? 35.65,
         tasa_banco_anual: data.tasa_banco_anual ?? 32.2,
+        tasa_m10: data.tasa_m10 ?? 22,
+        pct_actualizacion_inpc: data.pct_actualizacion_inpc ?? 7.27,
+        pct_recargos_retroactivo: data.pct_recargos_retroactivo ?? 41.80,
       })
     }
   }
@@ -927,9 +933,9 @@ function CalculadoraInner() {
     const fecha_baja_mod40 = fechaBaja.toISOString().slice(0, 10)
 
     // Retroactivo con desglose completo — PAGO RETROACTIVO!E8-E12
-    // Tasas validadas contra Excel: actualización INPC ~7.27%, recargos ~41.80%
-    const pctActualizacion = 0.0727
-    const pctRecargos = 0.4180
+    // Tasas configurables desde Configuración → Admin
+    const pctActualizacion = (sys.pct_actualizacion_inpc ?? 7.27) / 100
+    const pctRecargos = (sys.pct_recargos_retroactivo ?? 41.80) / 100
     const costo_retroactivo_base = costo_total // base antes de recargos
     const actualizaciones = costo_retroactivo_base * pctActualizacion
     const recargos = costo_retroactivo_base * pctRecargos
@@ -1086,7 +1092,7 @@ function CalculadoraInner() {
     }]
 
     // E1: Modalidad 10 · 12 meses
-    const TASA_M10 = 0.22
+    const TASA_M10 = (sys.tasa_m10 ?? 22) / 100
     const sdiM10 = mod40Umas * sys.UMA_DIARIA
     const semM10 = Math.min(12 * 4.33, 250)
     const semEfM10 = Math.min(sem, 250 - semM10)
