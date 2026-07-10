@@ -624,10 +624,6 @@ function CalculadoraInner() {
         setClienteId(clienteParam)
         setShowClienteModal(false)
       }
-      // Siempre mostrar modal: requiere constancia aunque venga con cliente pre-seleccionado
-      setMostrarCaratula(true)
-      setAppInicializado(true)
-
       if (diagParam) {
         const { data: diag } = await supabase.from('diagnosticos')
           .select('*').eq('id', diagParam).single()
@@ -670,8 +666,16 @@ function CalculadoraInner() {
           }
           setTab(6) // Go to Resumen to show saved state
           setShowClienteModal(false)
+          // ✅ Diagnóstico restaurado: saltar carátula, entrar directo
+          setMostrarCaratula(false)
+          setAppInicializado(true)
+          return
         }
       }
+
+      // Sin ?diag: mostrar carátula normalmente
+      setMostrarCaratula(true)
+      setAppInicializado(true)
     })
   }, [])
 
