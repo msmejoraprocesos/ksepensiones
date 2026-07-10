@@ -2513,7 +2513,7 @@ function CalculadoraInner() {
                   <div style={DS.card}>
                     <p style={DS.secTitle}>Factores del Cálculo</p>
                     {[
-                      { label: 'Total Pensión por Vejez (100%)', value: fmtMXN2(res.pensionAnual / (res.factorEdad || 0.75)), important: false },
+                      { label: 'Total Pensión por Vejez (100%)', value: fmtMXN2((res.cuantiaBasicaAnual + res.incrementosAnual) / (res.factorEdad || 0.75)), important: false },
                       { label: 'Porcentaje por edad de retiro', value: ((res.factorEdad || 0.75) * 100).toFixed(0) + '%', important: true },
                       { label: 'Total de Pensión', value: fmtMXN2(res.pensionAnual), important: true },
                       { label: 'Pensión Mínima Garantizada / año', value: fmtMXN2(sys.PMG_L73 * 12), important: false },
