@@ -2209,11 +2209,78 @@ function CalculadoraInner() {
                         </select>
                       </div>
                       <div>
-                        <label style={DS.label}>Ayuda asistencial (Art. 165)</label>
-                        <select value={datos.tiene_ayuda_asistencial ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, tiene_ayuda_asistencial: e.target.value === 'si' }))} style={DS.select}>
-                          <option value="no">✕ No aplica</option>
-                          <option value="si">✓ Aplica</option>
-                        </select>
+                        {/* ── Ayuda Asistencial — derivada automáticamente de beneficiarios ── */}
+                        {(() => {
+                          const sinBenef = !datos.tiene_conyuge && datos.num_hijos === 0 && datos.num_padres === 0
+                          const soloUnPadre = !datos.tiene_conyuge && datos.num_hijos === 0 && datos.num_padres === 1
+                          const pctEsperado = sinBenef ? 15 : soloUnPadre ? 10 : 0
+                          const alertaPendiente = pctEsperado > 0 && !datos.tiene_ayuda_asistencial
+                          const noAplica = pctEsperado === 0
+
+                          return (
+                            <>
+                              <label style={{ ...DS.label, color: alertaPendiente ? '#C2410C' : noAplica ? '#9CA3AF' : DS.label.color }}>
+                                Ayuda asistencial (Art. 165)
+                                {pctEsperado > 0 && (
+                                  <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, background: '#FFF7ED', color: '#C2410C', border: '1px solid #FED7AA', borderRadius: 4, padding: '1px 5px' }}>
+                                    {pctEsperado}% disponible
+                                  </span>
+                                )}
+                              </label>
+
+                              {/* Campo deshabilitado visualmente si no aplica */}
+                              <select
+                                value={datos.tiene_ayuda_asistencial ? 'si' : 'no'}
+                                onChange={e => setDatos(p => ({ ...p, tiene_ayuda_asistencial: e.target.value === 'si' }))}
+                                disabled={noAplica}
+                                style={{
+                                  ...DS.select,
+                                  opacity: noAplica ? 0.45 : 1,
+                                  cursor: noAplica ? 'not-allowed' : 'pointer',
+                                  borderColor: alertaPendiente ? '#F97316' : noAplica ? '#E5E7EB' : DS.select?.borderColor,
+                                  background: alertaPendiente ? '#FFF7ED' : noAplica ? '#F9FAFB' : undefined,
+                                }}
+                              >
+                                <option value="no">{noAplica ? '— No aplica (tiene beneficiarios)' : '✕ No confirmada'}</option>
+                                <option value="si">✓ Confirmada y aplica</option>
+                              </select>
+
+                              {/* Alerta cuando aplica pero el asesor aún no la confirmó */}
+                              {alertaPendiente && (
+                                <div style={{
+                                  marginTop: 6, padding: '8px 10px', background: '#FFF7ED',
+                                  border: '1px solid #FED7AA', borderLeft: '3px solid #F97316',
+                                  borderRadius: 4, display: 'flex', alignItems: 'flex-start', gap: 6,
+                                }}>
+                                  <span style={{ fontSize: 14, flexShrink: 0 }}>⚠️</span>
+                                  <div>
+                                    <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: '#C2410C' }}>
+                                      Posible beneficio no capturado
+                                    </p>
+                                    <p style={{ margin: '2px 0 0', fontSize: 11, color: '#9A3412', lineHeight: 1.4 }}>
+                                      {sinBenef
+                                        ? 'El cliente no tiene beneficiarios → puede recibir Ayuda Asistencial del 15% (Art. 165 LSS). Confírmala si aplica.'
+                                        : 'Tiene solo 1 padre dependiente → puede recibir Ayuda Asistencial del 10% (Art. 165 LSS). Confírmala si aplica.'
+                                      }
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Confirmación positiva cuando sí está marcada */}
+                              {datos.tiene_ayuda_asistencial && pctEsperado > 0 && (
+                                <div style={{
+                                  marginTop: 6, padding: '6px 10px', background: '#F0FDF4',
+                                  border: '1px solid #86EFAC', borderRadius: 4,
+                                  fontSize: 11, color: '#065F46', display: 'flex', alignItems: 'center', gap: 5,
+                                }}>
+                                  <span>✅</span>
+                                  <span>Ayuda asistencial del <strong>{pctEsperado}%</strong> incluida en el cálculo</span>
+                                </div>
+                              )}
+                            </>
+                          )
+                        })()}
                       </div>
                     </div>
                   </div>
