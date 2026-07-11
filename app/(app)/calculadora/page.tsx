@@ -526,6 +526,10 @@ function CalculadoraInner() {
   const [mod40Activo, setMod40Activo] = useState(true)
   const [mod40Umas, setMod40Umas] = useState(25)
   const [mod40Meses, setMod40Meses] = useState(36)
+  const [mod40AniosUI, setMod40AniosUI] = useState(3)
+  const [mod40MesesUI, setMod40MesesUI] = useState(0)
+  const [edadIngresoAnios, setEdadIngresoAnios] = useState(0)
+  const [edadIngresoMeses, setEdadIngresoMeses] = useState(0)
 
   // Tab 5 - Escenarios
   const [escenarios, setEscenarios] = useState<Escenario[]>([])
@@ -640,7 +644,11 @@ function CalculadoraInner() {
             if (p.datos) setDatos(p.datos)
             if (p.periodos) { setPeriodos(p.periodos); setSdiPromedio(p.sdiPromedio ?? 0) }
             if (p.mod40Umas) setMod40Umas(p.mod40Umas)
-            if (p.mod40Meses) setMod40Meses(p.mod40Meses)
+            if (p.mod40Meses) {
+              setMod40Meses(p.mod40Meses)
+              setMod40AniosUI(Math.floor(p.mod40Meses / 12))
+              setMod40MesesUI(p.mod40Meses % 12)
+            }
             if (p.ingresoObjetivo) setIngresoObjetivo(p.ingresoObjetivo)
             if (p.simulacionLibre) setSimulacionLibre(p.simulacionLibre)
             if (p.simUmas) setSimUmas(p.simUmas)
@@ -787,6 +795,11 @@ function CalculadoraInner() {
           // NO se tocan — no vienen en la constancia y el asesor los entra manualmente.
           // El ...prev de arriba ya los preserva.
         }))
+        // Inicializar edad de ingreso a Mod. 40 con la edad actual del cliente
+        if (edadCalc !== undefined) {
+          setEdadIngresoAnios(Math.floor(edadCalc))
+          setEdadIngresoMeses(Math.round((edadCalc % 1) * 12))
+        }
         if (result.ultima_cotizacion) setFechaUltimaCot(result.ultima_cotizacion)
         // Build periodos from PDF data — recalcula "semanas" de forma determinística a partir de
         // fecha_inicio/fecha_fin en vez de confiar en el número que calculó la IA (las IA son
@@ -845,7 +858,7 @@ function CalculadoraInner() {
   }
 
   // Recalculate escenarios when sdiPromedio or mod40 changes
-  useEffect(() => { if (sdiPromedio > 0 || datos.semanas_totales > 0) recalcEscenarios() }, [sdiPromedio, datos, mod40Umas, mod40Meses, sys, simulacionLibre, simUmas, simMeses, edadRetiro, anioInicioTramite])
+  useEffect(() => { if (sdiPromedio > 0 || datos.semanas_totales > 0) recalcEscenarios() }, [sdiPromedio, datos, mod40Umas, mod40Meses, sys, simulacionLibre, simUmas, simMeses, edadRetiro, anioInicioTramite, edadIngresoAnios, edadIngresoMeses])
 
   const ETAPA_LABELS: Record<string, string> = {
     prospecto: 'Prospecto',
@@ -1002,7 +1015,11 @@ function CalculadoraInner() {
   function recalcEscenarios() {
     const semBase = datos.semanas_totales - datos.semanas_descontadas
     const anioActual = new Date().getFullYear()
-    const mesesHastaInicioMod40 = datos.sigue_cotizando ? Math.max(0, (anioInicioTramite - anioActual) * 12) : 0
+    // Año de inicio de Mod. 40: calculado desde la edad de ingreso editada por el asesor
+    const edadIngresoDecimal = (edadIngresoAnios || Math.floor(datos.edad_actual || 57)) +
+      (edadIngresoMeses || Math.round(((datos.edad_actual || 57) % 1) * 12)) / 12
+    const anioInicioCalculado = anioActual + Math.round((edadIngresoDecimal - (datos.edad_actual || 57)) * 12 / 12)
+    const mesesHastaInicioMod40 = Math.max(0, (anioInicioCalculado - anioActual) * 12)
     const sem = semBase + mesesHastaInicioMod40 * 4.33
     if (datos.semanas_totales === 0 || sdiPromedio <= 0) return
     const sdiBase = sdiPromedio > 0 ? sdiPromedio : sys.SALARIO_MIN
@@ -2636,20 +2653,30 @@ function CalculadoraInner() {
                   <p style={DS.secTitle}>⚙️ Parámetros de Cotización</p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
-                    {/* Edad entrada */}
+                    {/* Edad de ingreso a Mod. 40 — editable, pre-cargado de la constancia */}
                     <div>
-                      <label style={DS.label}>Edad de ingreso a Mod. 40</label>
+                      <label style={DS.label}>Edad de ingreso a Mod. 40 <Tip id="duracionMod40" /></label>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                        <div style={{ textAlign: 'center' as const }}>
-                          <div style={{ fontSize: '9.5px', color: '#9CA3AF', marginBottom: '3px', fontWeight: '600' as const }}>AÑOS</div>
-                          <div style={{ padding: '10px', background: '#EEF2F8', border: '2px solid #1B3A6B', textAlign: 'center' as const, fontSize: '24px', fontWeight: '900' as const, color: '#1B3A6B' }}>{Math.floor(datos.edad_actual || 58)}</div>
+                        <div>
+                          <div style={{ fontSize: '9.5px', color: '#9CA3AF', marginBottom: '3px', fontWeight: '600' as const, textAlign: 'center' as const }}>AÑOS</div>
+                          <select value={edadIngresoAnios} onChange={e => setEdadIngresoAnios(Number(e.target.value))}
+                            style={{ ...DS.select, textAlign: 'center' as const, fontSize: '18px', fontWeight: '800' as const, color: '#1B3A6B', borderWidth: '2px', borderColor: '#1B3A6B' }}>
+                            {Array.from({ length: 31 }, (_, i) => i + 40).map(a => (
+                              <option key={a} value={a}>{a}</option>
+                            ))}
+                          </select>
                         </div>
-                        <div style={{ textAlign: 'center' as const }}>
-                          <div style={{ fontSize: '9.5px', color: '#9CA3AF', marginBottom: '3px', fontWeight: '600' as const }}>MESES</div>
-                          <div style={{ padding: '10px', background: '#EEF2F8', border: '1px solid #BFDBFE', textAlign: 'center' as const, fontSize: '24px', fontWeight: '900' as const, color: '#1B3A6B' }}>{Math.round(((datos.edad_actual || 58) % 1) * 12)}</div>
+                        <div>
+                          <div style={{ fontSize: '9.5px', color: '#9CA3AF', marginBottom: '3px', fontWeight: '600' as const, textAlign: 'center' as const }}>MESES</div>
+                          <select value={edadIngresoMeses} onChange={e => setEdadIngresoMeses(Number(e.target.value))}
+                            style={{ ...DS.select, textAlign: 'center' as const, fontSize: '18px', fontWeight: '800' as const, color: '#1B3A6B', borderWidth: '2px', borderColor: '#BFDBFE' }}>
+                            {Array.from({ length: 12 }, (_, i) => i).map(m => (
+                              <option key={m} value={m}>{m}</option>
+                            ))}
+                          </select>
                         </div>
                       </div>
-                      <p style={{ fontSize: '10.5px', color: '#9CA3AF', margin: '4px 0 0' }}>Calculado automáticamente de la constancia IMSS</p>
+                      <p style={{ fontSize: '10.5px', color: '#9CA3AF', margin: '4px 0 0' }}>Pre-cargado de la constancia — ajusta si el cliente quiere entrar después</p>
                     </div>
 
                     <div>
@@ -2663,19 +2690,39 @@ function CalculadoraInner() {
                       </div>
                     </div>
 
+                    {/* Duración de Mod. 40 — selector de años + meses */}
                     <div>
-                      <label style={DS.label}>
-                        Duración de cotización en Mod. 40 <Tip id="duracionMod40" />
-                      </label>
-                      <select value={mod40Meses} onChange={e => setMod40Meses(Number(e.target.value))} style={{ ...DS.select, borderWidth: '2px', borderColor: '#1B3A6B' }}>
-                        {[6,12,18,24,30,36,42,48,54,60].map(m => (
-                          <option key={m} value={m}>{m} meses ({(m/12).toFixed(1)} años)</option>
-                        ))}
-                      </select>
+                      <label style={DS.label}>Duración de cotización en Mod. 40 <Tip id="duracionMod40" /></label>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                        <div>
+                          <div style={{ fontSize: '9.5px', color: '#9CA3AF', marginBottom: '3px', fontWeight: '600' as const, textAlign: 'center' as const }}>AÑOS</div>
+                          <select value={mod40AniosUI} onChange={e => {
+                            const a = Number(e.target.value)
+                            setMod40AniosUI(a)
+                            setMod40Meses(a * 12 + mod40MesesUI)
+                          }} style={{ ...DS.select, textAlign: 'center' as const, fontSize: '18px', fontWeight: '800' as const, color: '#1B3A6B', borderWidth: '2px', borderColor: '#1B3A6B' }}>
+                            {Array.from({ length: 6 }, (_, i) => i).map(a => (
+                              <option key={a} value={a}>{a}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '9.5px', color: '#9CA3AF', marginBottom: '3px', fontWeight: '600' as const, textAlign: 'center' as const }}>MESES</div>
+                          <select value={mod40MesesUI} onChange={e => {
+                            const m = Number(e.target.value)
+                            setMod40MesesUI(m)
+                            setMod40Meses(mod40AniosUI * 12 + m)
+                          }} style={{ ...DS.select, textAlign: 'center' as const, fontSize: '18px', fontWeight: '800' as const, color: '#1B3A6B', borderWidth: '2px', borderColor: '#BFDBFE' }}>
+                            {Array.from({ length: 12 }, (_, i) => i).map(m => (
+                              <option key={m} value={m}>{m}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
                       <div style={{ marginTop: '6px', padding: '6px 10px', background: '#FFF9F0', border: '1px solid #FCD34D', borderLeft: '3px solid #F59E0B', display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <span style={{ fontSize: '13px' }}>✏️</span>
                         <p style={{ fontSize: '10.5px', color: '#92400E', margin: 0, lineHeight: 1.4 }}>
-                          <strong>Ajustable por el asesor</strong> — acuerda este valor con el cliente según su capacidad de pago y cuándo quiere jubilarse.
+                          <strong>Total: {mod40Meses} meses</strong> — acuerda este valor con el cliente según su capacidad de pago y cuándo quiere jubilarse.
                         </p>
                       </div>
                     </div>
