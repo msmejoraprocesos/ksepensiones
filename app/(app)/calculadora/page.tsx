@@ -935,8 +935,11 @@ function CalculadoraInner() {
     const roi = incr > 0 ? Math.ceil(inversion_neta / incr) : 0
 
     // Ganancia a los 80 años y tasa de rendimiento — INVERSION!D46/F46
-    const mesesHasta80 = Math.max(0, (80 - edadR) * 12)
-    const mesesHasta80base = Math.max(0, (80 - Math.max(edadRetiro, datos.edad_actual || 60)) * 12)
+    // Meses hasta los 80 años — usando diferencia de edad decimal para mayor precisión
+    const anosHasta80 = Math.max(0, 80 - edadR)
+    const mesesHasta80 = Math.round(anosHasta80 * 12)
+    const anosHasta80base = Math.max(0, 80 - Math.max(edadRetiro, datos.edad_actual || 60))
+    const mesesHasta80base = Math.round(anosHasta80base * 12)
     const flujosCon = pension * mesesHasta80
     const flujosSin = pensionBase * mesesHasta80base
     const ganancia_a80 = flujosCon - flujosSin - inversion_neta
@@ -1027,7 +1030,12 @@ function CalculadoraInner() {
       (edadIngresoMeses || Math.round(((datos.edad_actual || 57) % 1) * 12)) / 12
     const anioInicioCalculado = anioActual + Math.round((edadIngresoDecimal - (datos.edad_actual || 57)) * 12 / 12)
     const mesesHastaInicioMod40 = Math.max(0, (anioInicioCalculado - anioActual) * 12)
-    const sem = semBase + mesesHastaInicioMod40 * 4.33
+    // Semanas naturales antes de Mod.40 — días calendarios exactos, no meses × 4.33
+    const hoy = new Date()
+    const fechaInicioMod40Natural = new Date(anioInicioCalculado, 0, 1)
+    const diasNaturales = Math.max(0, (fechaInicioMod40Natural.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24))
+    const semanasNaturalesAntesM40 = diasNaturales / 7
+    const sem = semBase + semanasNaturalesAntesM40
     if (datos.semanas_totales === 0 || sdiPromedio <= 0) return
     const sdiBase = sdiPromedio > 0 ? sdiPromedio : sys.SALARIO_MIN
     const anioBase = new Date().getFullYear()
@@ -1119,19 +1127,34 @@ function CalculadoraInner() {
     // E1: Modalidad 10 · 12 meses
     const TASA_M10 = (sys.tasa_m10 ?? 22) / 100
     const sdiM10 = mod40Umas * sys.UMA_DIARIA
-    const semM10 = Math.min(12 * 4.33, 250)
+    // Semanas M10 con días calendarios exactos (igual que Mod.40)
+    const fechaInicioM10 = new Date()
+    const fechaBajaM10 = new Date(fechaInicioM10)
+    fechaBajaM10.setMonth(fechaBajaM10.getMonth() + 12)
+    const diasM10 = (fechaBajaM10.getTime() - fechaInicioM10.getTime()) / (1000 * 60 * 60 * 24)
+    const semM10Real = diasM10 / 7 + 1 / 7
+    const semM10 = Math.min(semM10Real, 250)
     const semEfM10 = Math.min(sem, 250 - semM10)
     const sdiNuevoM10 = (sdiBase * semEfM10 + sdiM10 * semM10) / (semEfM10 + semM10)
-    const { monto: pensionM10, pmg_aplica: pmgAplicaM10 } = calcPensionLey73(sem + 12 * 4.33, sdiNuevoM10, 65, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, undefined, datos.tiene_ayuda_asistencial)
-    const costoM10 = sdiM10 * 30.4 * TASA_M10
+    const { monto: pensionM10, pmg_aplica: pmgAplicaM10 } = calcPensionLey73(sem + semM10Real, sdiNuevoM10, 65, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, undefined, datos.tiene_ayuda_asistencial)
+    // Costo M10 con días reales de cada mes (no días fijos 30.4)
+    let costoM10Total = 0
+    for (let m = 0; m < 12; m++) {
+      const fechaMesM10 = new Date(fechaInicioM10)
+      fechaMesM10.setMonth(fechaMesM10.getMonth() + m)
+      const diasMesM10 = new Date(fechaMesM10.getFullYear(), fechaMesM10.getMonth() + 1, 0).getDate()
+      const diasAnioM10 = fechaMesM10.getFullYear() % 4 === 0 ? 366 : 365
+      costoM10Total += sdiM10 * TASA_M10 * diasMesM10 / diasAnioM10 * 30.4167
+    }
+    const costoM10 = costoM10Total / 12
     const r0: ReturnType<typeof calcEscenarioMod40> = {
       costoMensual: costoM10, costo_total: costoM10 * 12, sdiNuevo: sdiNuevoM10,
-      semTotal: sem + 12 * 4.33, semMod40: 12 * (52 / 12), sdiMod40: sdiM10, pension: pensionM10, pmg_aplica: pmgAplicaM10,
+      semTotal: sem + semM10Real, semMod40: semM10Real, sdiMod40: sdiM10, pension: pensionM10, pmg_aplica: pmgAplicaM10,
       incr: pensionM10 - pensionBase, roi: 0, umaProyectada: sys.UMA_DIARIA,
       tasaProyectada: TASA_M10,
       recuperacion_afore: costoM10 * 12 * (sys.pct_afore_mod40 ?? 20) / 100,
       inversion_neta: costoM10 * 12 * (1 - (sys.pct_afore_mod40 ?? 20) / 100),
-      ganancia_a80: 0, tasa_rendimiento: 0, aguinaldo_anual: calcPensionLey73(sem + 12 * 4.33, sdiNuevoM10, 65, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, undefined, datos.tiene_ayuda_asistencial).aguinaldoAnual,
+      ganancia_a80: 0, tasa_rendimiento: 0, aguinaldo_anual: calcPensionLey73(sem + semM10Real, sdiNuevoM10, 65, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, undefined, datos.tiene_ayuda_asistencial).aguinaldoAnual,
       fecha_ingreso_mod40: '', fecha_baja_mod40: '',
       actualizaciones: 0, recargos: 0,
       costo_retroactivo: 0, recuperacion_afore_retro: 0, inversion_neta_retro: 0,
@@ -2474,7 +2497,19 @@ function CalculadoraInner() {
             }
             return datos.edad_actual || 0
           })()
-          const semanasNaturales = Math.max(0, Math.round((edadRet - edadRef) * 52))
+          // Semanas naturales al retiro — días exactos entre fecha última cotización y fecha de retiro
+          // Más preciso que (edadRet - edadRef) × 52 que acumula error por años bisiestos
+          const semanasNaturales = (() => {
+            if (datos.fecha_nacimiento) {
+              const nac = new Date(datos.fecha_nacimiento)
+              const fechaRetiro = new Date(nac)
+              fechaRetiro.setFullYear(nac.getFullYear() + edadRet)
+              const ref = datos.fecha_calculo ? new Date(datos.fecha_calculo) : new Date()
+              const diasHastaRetiro = Math.max(0, (fechaRetiro.getTime() - ref.getTime()) / (1000 * 60 * 60 * 24))
+              return Math.round(diasHastaRetiro / 7)
+            }
+            return Math.max(0, Math.round((edadRet - edadRef) * 52))
+          })()
           const sem = semBase + semanasNaturales
           if (sdiPromedio <= 0) return (
             <div style={{ textAlign: 'center' as const, padding: '60px 20px', color: '#9CA3AF' }}>
