@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     if (!pdf) return NextResponse.json({ error: 'No PDF provided' }, { status: 400 })
 
     const response = await client.messages.create({
-      model: 'claude-opus-4-5',
+      model: 'claude-sonnet-4-6',
       max_tokens: 2000,
       messages: [{
         role: 'user',

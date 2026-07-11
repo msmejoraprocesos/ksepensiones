@@ -61,7 +61,7 @@ Genera el análisis con EXACTAMENTE estas 5 secciones en formato JSON:
 Responde ÚNICAMENTE con el JSON válido, sin markdown.`
 
     const response = await client.messages.create({
-      model: 'claude-opus-4-5',
+      model: 'claude-sonnet-4-6',
       max_tokens: 2000,
       messages: [{ role: 'user', content: prompt }]
     })
