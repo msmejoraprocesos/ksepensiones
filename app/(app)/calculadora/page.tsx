@@ -536,16 +536,12 @@ function CalculadoraInner() {
   // Valores por defecto calculados de la constancia — para el botón de reset
   const [defaultEdadAnios, setDefaultEdadAnios] = useState(0)
   const [defaultEdadMeses, setDefaultEdadMeses] = useState(0)
-  const [defaultMod40Anios] = useState(3)
-  const [defaultMod40Meses] = useState(0)
 
   function resetParametrosMod40() {
     setEdadIngresoAnios(defaultEdadAnios)
     setEdadIngresoMeses(defaultEdadMeses)
-    setMod40AniosUI(defaultMod40Anios)
-    setMod40MesesUI(defaultMod40Meses)
-    setMod40Meses(defaultMod40Anios * 12 + defaultMod40Meses)
-    setMod40Umas(20)
+    // Duración y UMAs no tienen "sugerencia automática" — se dejan como están
+    // Solo la edad de ingreso viene pre-calculada de la constancia
   }
 
   // Tab 5 - Escenarios
@@ -2720,7 +2716,7 @@ function CalculadoraInner() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                     <p style={{ ...DS.secTitle, margin: 0 }}>⚙️ Parámetros de Cotización</p>
                     <button onClick={resetParametrosMod40}
-                      title="Restablecer a los valores calculados automáticamente de la constancia"
+                      title="Restituir la edad de ingreso calculada automáticamente de la constancia IMSS"
                       style={{ padding: '5px 12px', background: '#F4F6FB', color: '#6B7280', border: '1px solid #E5E7EB', fontSize: '11px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '4px' }}>
                       ↺ Restablecer sugerencia
                     </button>
