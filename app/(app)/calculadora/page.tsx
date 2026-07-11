@@ -455,6 +455,7 @@ function CalculadoraInner() {
     retroactivo: { titulo: 'Pago Retroactivo (Mod. 40)', desc: 'Permite pagar cuotas de períodos anteriores (hasta 5 años) para aumentar las semanas cotizadas. Incluye cuotas + actualizaciones INPC + recargos por mora.', ejemplo: 'Actualizaciones: ~7.27% anual. Recargos: ~41.80% acumulado.' },
     roi: { titulo: 'ROI — Recuperación de Inversión', desc: 'Número de meses que tarda el pensionado en recuperar la inversión realizada en Modalidad 40 con la diferencia de pensión mensual adicional.', ejemplo: 'Inversión $300K ÷ Incremento $5K/mes = 60 meses de ROI.' },
     factorEdad: { titulo: 'Factor por Edad de Retiro', desc: 'La pensión de cesantía en edad avanzada tiene un factor según la edad: 60 años=75%, 61=80%, 62=85%, 63=90%, 64=95%, 65+= 100% (pensión de vejez).', ejemplo: 'Retirarse a 62 en vez de 65 = 15% menos de pensión.' },
+    duracionMod40: { titulo: 'Duración de Mod. 40 — decisión del cliente', desc: 'Este valor lo acuerda el asesor con el cliente según su capacidad de pago y el tiempo que puede o quiere esperar para jubilarse. Los bloques son de 6 en 6 meses porque 6 meses = 26 semanas, que es el mínimo para sumar medio año adicional de incremento en la pensión (Art. 167 LSS). Cada bloque de 6 meses que se agrega mejora la pensión mensual de forma permanente.', ejemplo: '36 meses → más semanas y mejor pensión pero se jubila 3 años después de entrar a Mod. 40.' },
   }
 
   // ── Componente Tooltip ───────────────────────────────────────
@@ -2663,12 +2664,20 @@ function CalculadoraInner() {
                     </div>
 
                     <div>
-                      <label style={DS.label}>Duración de cotización en Mod. 40</label>
+                      <label style={DS.label}>
+                        Duración de cotización en Mod. 40 <Tip id="duracionMod40" />
+                      </label>
                       <select value={mod40Meses} onChange={e => setMod40Meses(Number(e.target.value))} style={{ ...DS.select, borderWidth: '2px', borderColor: '#1B3A6B' }}>
                         {[6,12,18,24,30,36,42,48,54,60].map(m => (
                           <option key={m} value={m}>{m} meses ({(m/12).toFixed(1)} años)</option>
                         ))}
                       </select>
+                      <div style={{ marginTop: '6px', padding: '6px 10px', background: '#FFF9F0', border: '1px solid #FCD34D', borderLeft: '3px solid #F59E0B', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '13px' }}>✏️</span>
+                        <p style={{ fontSize: '10.5px', color: '#92400E', margin: 0, lineHeight: 1.4 }}>
+                          <strong>Ajustable por el asesor</strong> — acuerda este valor con el cliente según su capacidad de pago y cuándo quiere jubilarse.
+                        </p>
+                      </div>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
