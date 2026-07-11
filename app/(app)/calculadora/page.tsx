@@ -2782,6 +2782,25 @@ function CalculadoraInner() {
                           ))}
                         </select>
                       </div>
+                      {/* Sugerencia de UMAs basada en ingreso objetivo */}
+                      {(() => {
+                        if (!ingresoObjetivo || ingresoObjetivo <= 0) return null
+                        // Encuentra el mínimo de UMAs cuya pensión proyectada alcanza el objetivo
+                        const umasSugeridas = escenarios
+                          .filter(e => e.recomendado)
+                          .map(e => e.pension_mensual)[0] ?? 0
+                        const pctAlcanzado = umasSugeridas > 0 ? Math.round((umasSugeridas / ingresoObjetivo) * 100) : 0
+                        const alcanza = umasSugeridas >= ingresoObjetivo
+                        return (
+                          <div style={{ marginTop: '6px', padding: '7px 10px', background: alcanza ? '#F0FDF4' : '#FFF9F0', border: `1px solid ${alcanza ? '#86EFAC' : '#FCD34D'}`, borderLeft: `3px solid ${alcanza ? '#22C55E' : '#F59E0B'}` }}>
+                            <p style={{ fontSize: '11px', color: alcanza ? '#065F46' : '#92400E', margin: 0, lineHeight: 1.5 }}>
+                              {alcanza
+                                ? `✅ Con ${mod40Umas} UMAs la pensión alcanza tu meta de ${fmtMXN2(ingresoObjetivo)}/mes (${pctAlcanzado}%)`
+                                : `💡 Con ${mod40Umas} UMAs la pensión cubre el ${pctAlcanzado}% de tu meta de ${fmtMXN2(ingresoObjetivo)}/mes`}
+                            </p>
+                          </div>
+                        )
+                      })()}
                     </div>
 
                     {/* Duración de Mod. 40 — selector de años + meses */}
