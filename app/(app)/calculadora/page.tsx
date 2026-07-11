@@ -456,6 +456,8 @@ function CalculadoraInner() {
     roi: { titulo: 'ROI — Recuperación de Inversión', desc: 'Número de meses que tarda el pensionado en recuperar la inversión realizada en Modalidad 40 con la diferencia de pensión mensual adicional.', ejemplo: 'Inversión $300K ÷ Incremento $5K/mes = 60 meses de ROI.' },
     factorEdad: { titulo: 'Factor por Edad de Retiro', desc: 'La pensión de cesantía en edad avanzada tiene un factor según la edad: 60 años=75%, 61=80%, 62=85%, 63=90%, 64=95%, 65+= 100% (pensión de vejez).', ejemplo: 'Retirarse a 62 en vez de 65 = 15% menos de pensión.' },
     duracionMod40: { titulo: 'Duración de Mod. 40 — decisión del cliente', desc: 'Este valor lo acuerda el asesor con el cliente según su capacidad de pago y el tiempo que puede o quiere esperar para jubilarse. Los bloques son de 6 en 6 meses porque 6 meses = 26 semanas, que es el mínimo para sumar medio año adicional de incremento en la pensión (Art. 167 LSS). Cada bloque de 6 meses que se agrega mejora la pensión mensual de forma permanente.', ejemplo: '36 meses → más semanas y mejor pensión pero se jubila 3 años después de entrar a Mod. 40.' },
+    sdiMod40: { titulo: 'SDI registrado en Mod. 40', desc: 'Es el salario diario que el trabajador declara al IMSS al inscribirse en Modalidad 40. Se calcula como: UMAs seleccionadas × valor de la UMA diaria. Este salario alto es el que "desplaza" los periodos de salario bajo en el promedio de las últimas 250 semanas.', ejemplo: '25 UMAs × $117.31 = $2,932.75/día registrado ante el IMSS.' },
+    nuevoSdi250: { titulo: 'Nuevo SDI promedio 250 semanas', desc: 'Es el promedio ponderado del SDI de las últimas 250 semanas DESPUÉS de incluir los periodos de Mod. 40. Fórmula: (semanas_mod40 × SDI_mod40 + semanas_históricas × SDI_histórico) ÷ 250. Las semanas de Mod. 40 desplazan las semanas más antiguas de salario bajo, elevando el promedio. Este nuevo SDI es la base sobre la que se calcula la pensión mejorada.', ejemplo: 'Con 25 UMAs en 36 meses: SDI sube de $520 a ~$2,276 → pensión mejora +158%.' },
   }
 
   // ── Componente Tooltip ───────────────────────────────────────
@@ -2751,13 +2753,15 @@ function CalculadoraInner() {
                     <p style={DS.secTitle}>📊 Resultado del Cálculo</p>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {[
-                        { label: 'SDI diario actual (constancia)', value: fmtMXN2(sdiPromedio), color: '#92400E', bg: '#FFFBEB', border: '#FCD34D', big: false },
-                        { label: 'SDI registrado en Mod. 40', value: escRec?.sdi_mod40 > 0 ? fmtMXN2(escRec.sdi_mod40) : '—', color: '#F05B21', bg: '#FFF7F4', border: '#FED7AA', big: false },
-                        { label: 'Nuevo SDI promedio 250 sem.', value: escRec?.nuevo_sdi_250 > 0 ? fmtMXN2(escRec.nuevo_sdi_250) : '—', color: '#065F46', bg: '#F0FDF4', border: '#86EFAC', big: true },
-                        { label: 'Diferencia vs SDI actual', value: escRec?.nuevo_sdi_250 > 0 ? fmtMXN2(escRec.nuevo_sdi_250 - sdiPromedio) : '—', color: '#1D4ED8', bg: '#EFF6FF', border: '#93C5FD', big: false },
-                      ].map(({ label, value, color, bg, border, big }, i) => (
+                        { label: 'SDI diario actual (constancia)', value: fmtMXN2(sdiPromedio), color: '#92400E', bg: '#FFFBEB', border: '#FCD34D', big: false, tip: null },
+                        { label: 'SDI registrado en Mod. 40', value: escRec?.sdi_mod40 > 0 ? fmtMXN2(escRec.sdi_mod40) : '—', color: '#F05B21', bg: '#FFF7F4', border: '#FED7AA', big: false, tip: 'sdiMod40' },
+                        { label: 'Nuevo SDI promedio 250 sem.', value: escRec?.nuevo_sdi_250 > 0 ? fmtMXN2(escRec.nuevo_sdi_250) : '—', color: '#065F46', bg: '#F0FDF4', border: '#86EFAC', big: true, tip: 'nuevoSdi250' },
+                        { label: 'Diferencia vs SDI actual', value: escRec?.nuevo_sdi_250 > 0 ? fmtMXN2(escRec.nuevo_sdi_250 - sdiPromedio) : '—', color: '#1D4ED8', bg: '#EFF6FF', border: '#93C5FD', big: false, tip: null },
+                      ].map(({ label, value, color, bg, border, big, tip }, i) => (
                         <div key={i} style={{ padding: '10px 14px', background: bg, border: '2px solid ' + border, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: '12px', color: '#6B7280' }}>{label}</span>
+                          <span style={{ fontSize: '12px', color: '#6B7280', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            {label}{tip && <Tip id={tip} />}
+                          </span>
                           <span style={{ fontSize: big ? '20px' : '14px', fontWeight: '800' as const, color }}>{value}</span>
                         </div>
                       ))}
