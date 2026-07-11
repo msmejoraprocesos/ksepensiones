@@ -1049,7 +1049,8 @@ function CalculadoraInner() {
     // Año de inicio de Mod. 40: calculado desde la edad de ingreso editada por el asesor
     const edadIngresoDecimal = (edadIngresoAnios || Math.floor(datos.edad_actual || 57)) +
       (edadIngresoMeses || Math.round(((datos.edad_actual || 57) % 1) * 12)) / 12
-    const anioInicioCalculado = anioActual + Math.round((edadIngresoDecimal - (datos.edad_actual || 57)) * 12 / 12)
+    // Mínimo el año siguiente — nadie puede inscribirse a Mod.40 el mismo día (igual que Excel que usa ene del siguiente año)
+    const anioInicioCalculado = Math.max(anioActual + 1, anioActual + Math.round((edadIngresoDecimal - (datos.edad_actual || 57)) * 12 / 12))
     const mesesHastaInicioMod40 = Math.max(0, (anioInicioCalculado - anioActual) * 12)
     // Semanas naturales antes de Mod.40 — días calendarios exactos, no meses × 4.33
     const hoy = new Date()
@@ -1195,13 +1196,13 @@ function CalculadoraInner() {
       [Math.min(36, mesesDisp), mod40Umas * 0.8, `Mod 40 · ${Math.min(36, mesesDisp)} meses · ${Math.round(mod40Umas * 0.8)} UMAs`, 'Estrategia media', false],
       [Math.min(mod40Meses, mesesDisp), mod40Umas, `Mod 40 · ${Math.min(mod40Meses, mesesDisp)} meses · ${mod40Umas} UMAs`, 'Estrategia configurada', true],
     ] as [number, number, string, string, boolean][]) {
-      const r = calcEscenarioMod40(sem, sdiBase, umas, meses, pensionBase, edadRetiro, anioInicioTramite)
+      const r = calcEscenarioMod40(sem, sdiBase, umas, meses, pensionBase, edadRetiro, anioInicioCalculado)
       escs.push(makeEsc(`e_m40_${meses}`, label, desc, meses, umas, r, esOpt))
     }
 
     // E5: Simulación libre
     if (simulacionLibre) {
-      const r = calcEscenarioMod40(sem, sdiBase, simUmas, simMeses, pensionBase, edadRetiro, anioInicioTramite)
+      const r = calcEscenarioMod40(sem, sdiBase, simUmas, simMeses, pensionBase, edadRetiro, anioInicioCalculado)
       escs.push(makeEsc('e_sim', `Mi simulación · ${simMeses} meses · ${simUmas} UMAs`, '🔧 Parámetros personalizados', simMeses, simUmas, r))
     }
 
@@ -2873,8 +2874,8 @@ function CalculadoraInner() {
                     </p>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
                       {[
-                        { label: 'Fecha de ingreso', value: escRec?.fecha_ingreso_mod40 ? new Date(escRec.fecha_ingreso_mod40).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) : '—' },
-                        { label: 'Fecha de baja', value: escRec?.fecha_baja_mod40 ? new Date(escRec.fecha_baja_mod40).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) : '—' },
+                        { label: 'Fecha de ingreso', value: escRec?.fecha_ingreso_mod40 ? (() => { const [y,m,d] = escRec.fecha_ingreso_mod40.split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) })() : '—' },
+                        { label: 'Fecha de baja', value: escRec?.fecha_baja_mod40 ? (() => { const [y,m,d] = escRec.fecha_baja_mod40.split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) })() : '—' },
                         { label: 'Edad al concluir', value: escRec?.edad_retiro ? escRec.edad_retiro.toFixed(2) + ' años' : '—' },
                         { label: 'UMA diaria vigente', value: fmtMXN2(sys.UMA_DIARIA) },
                       ].map((r, i) => (
