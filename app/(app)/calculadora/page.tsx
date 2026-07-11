@@ -2274,6 +2274,20 @@ function CalculadoraInner() {
                         </select>
                       </div>
                     </div>
+                    <div>
+                      <label style={DS.label}>🎯 Ingreso objetivo / mes</label>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '12px', color: '#9CA3AF', flexShrink: 0 }}>$</span>
+                        <input
+                          type="number"
+                          value={ingresoObjetivo || ''}
+                          onChange={e => setIngresoObjetivo(Number(e.target.value) || 0)}
+                          placeholder="Ej. 25,000"
+                          style={{ ...DS.input, fontWeight: '700' as const, color: '#F05B21' }}
+                        />
+                      </div>
+                    </div>
+
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                       <div>
                         <label style={DS.label}>Cónyuge / concubino</label>
@@ -2370,23 +2384,6 @@ function CalculadoraInner() {
                           )
                         })()}
                       </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Ingreso mensual objetivo — campo compacto */}
-                <div style={DS.card}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <label style={{ ...DS.label, margin: 0, flexShrink: 0 }}>🎯 Ingreso objetivo / mes</label>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: 1 }}>
-                      <span style={{ fontSize: '12px', color: '#9CA3AF' }}>$</span>
-                      <input
-                        type="number"
-                        value={ingresoObjetivo || ''}
-                        onChange={e => setIngresoObjetivo(Number(e.target.value) || 0)}
-                        placeholder="Ej. 25,000"
-                        style={{ ...DS.input, flex: 1, fontWeight: '700' as const, color: '#F05B21' }}
-                      />
                     </div>
                   </div>
                 </div>
