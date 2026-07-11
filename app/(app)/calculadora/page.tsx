@@ -455,9 +455,9 @@ function CalculadoraInner() {
     retroactivo: { titulo: 'Pago Retroactivo (Mod. 40)', desc: 'Permite pagar cuotas de períodos anteriores (hasta 5 años) para aumentar las semanas cotizadas. Incluye cuotas + actualizaciones INPC + recargos por mora.', ejemplo: 'Actualizaciones: ~7.27% anual. Recargos: ~41.80% acumulado.' },
     roi: { titulo: 'ROI — Recuperación de Inversión', desc: 'Número de meses que tarda el pensionado en recuperar la inversión realizada en Modalidad 40 con la diferencia de pensión mensual adicional.', ejemplo: 'Inversión $300K ÷ Incremento $5K/mes = 60 meses de ROI.' },
     factorEdad: { titulo: 'Factor por Edad de Retiro', desc: 'La pensión de cesantía en edad avanzada tiene un factor según la edad: 60 años=75%, 61=80%, 62=85%, 63=90%, 64=95%, 65+= 100% (pensión de vejez).', ejemplo: 'Retirarse a 62 en vez de 65 = 15% menos de pensión.' },
-    duracionMod40: { titulo: 'Duración de Mod. 40 — decisión del cliente', desc: 'Este valor lo acuerda el asesor con el cliente según su capacidad de pago y el tiempo que puede o quiere esperar para jubilarse. Los bloques son de 6 en 6 meses porque 6 meses = 26 semanas, que es el mínimo para sumar medio año adicional de incremento en la pensión (Art. 167 LSS). Cada bloque de 6 meses que se agrega mejora la pensión mensual de forma permanente.', ejemplo: '36 meses → más semanas y mejor pensión pero se jubila 3 años después de entrar a Mod. 40.' },
-    sdiMod40: { titulo: 'SDI registrado en Mod. 40', desc: 'Es el salario diario que el trabajador declara al IMSS al inscribirse en Modalidad 40. Se calcula como: UMAs seleccionadas × valor de la UMA diaria. Este salario alto es el que "desplaza" los periodos de salario bajo en el promedio de las últimas 250 semanas.', ejemplo: '25 UMAs × $117.31 = $2,932.75/día registrado ante el IMSS.' },
-    nuevoSdi250: { titulo: 'Nuevo SDI promedio 250 semanas', desc: 'Es el promedio ponderado del SDI de las últimas 250 semanas DESPUÉS de incluir los periodos de Mod. 40. Fórmula: (semanas_mod40 × SDI_mod40 + semanas_históricas × SDI_histórico) ÷ 250. Las semanas de Mod. 40 desplazan las semanas más antiguas de salario bajo, elevando el promedio. Este nuevo SDI es la base sobre la que se calcula la pensión mejorada.', ejemplo: 'Con 25 UMAs en 36 meses: SDI sube de $520 a ~$2,276 → pensión mejora +158%.' },
+    duracionMod40: { titulo: '¿Por qué bloques de 6 meses?', desc: '6 meses = 26 semanas = el mínimo para sumar medio año de incremento (Art. 167 LSS). Cada bloque de 6 meses que se agrega mejora la pensión mensual de forma permanente. La duración la decide el cliente según su capacidad de pago y cuándo quiere jubilarse.', ejemplo: '3 años → pensión sube de $10,985 a ~$28,950 en este caso.' },
+    sdiMod40: { titulo: '¿Cómo se calcula?', desc: 'SDI Mod.40 = UMAs seleccionadas × UMA diaria vigente. Este salario alto es el que registra el trabajador ante el IMSS durante Mod. 40, "desplazando" los periodos de salario bajo en el promedio de las últimas 250 semanas. A mayor número de UMAs → mayor SDI → mayor pensión, pero también mayor costo mensual.', ejemplo: '25 UMAs × $117.31 = $2,932.75/día registrado ante IMSS.' },
+    nuevoSdi250: { titulo: '¿Cómo se calcula el nuevo promedio?', desc: 'Fórmula: (semanas_Mod40 × SDI_alto + semanas_históricas_restantes × SDI_bajo) ÷ 250. Las semanas de Mod. 40 "desplazan" las semanas más antiguas de salario bajo. Si Mod. 40 cubre más de 250 semanas, el promedio es solo el SDI de Mod. 40.', ejemplo: '187 sem × $2,932 + 63 sem × $437 = $2,302/día promedio vs $520 anterior → +343%.' },
   }
 
   // ── Componente Tooltip ───────────────────────────────────────
@@ -532,6 +532,21 @@ function CalculadoraInner() {
   const [mod40MesesUI, setMod40MesesUI] = useState(0)
   const [edadIngresoAnios, setEdadIngresoAnios] = useState(0)
   const [edadIngresoMeses, setEdadIngresoMeses] = useState(0)
+
+  // Valores por defecto calculados de la constancia — para el botón de reset
+  const [defaultEdadAnios, setDefaultEdadAnios] = useState(0)
+  const [defaultEdadMeses, setDefaultEdadMeses] = useState(0)
+  const [defaultMod40Anios] = useState(3)
+  const [defaultMod40Meses] = useState(0)
+
+  function resetParametrosMod40() {
+    setEdadIngresoAnios(defaultEdadAnios)
+    setEdadIngresoMeses(defaultEdadMeses)
+    setMod40AniosUI(defaultMod40Anios)
+    setMod40MesesUI(defaultMod40Meses)
+    setMod40Meses(defaultMod40Anios * 12 + defaultMod40Meses)
+    setMod40Umas(20)
+  }
 
   // Tab 5 - Escenarios
   const [escenarios, setEscenarios] = useState<Escenario[]>([])
@@ -799,8 +814,12 @@ function CalculadoraInner() {
         }))
         // Inicializar edad de ingreso a Mod. 40 con la edad actual del cliente
         if (edadCalc !== undefined) {
-          setEdadIngresoAnios(Math.floor(edadCalc))
-          setEdadIngresoMeses(Math.round((edadCalc % 1) * 12))
+          const anios = Math.floor(edadCalc)
+          const meses = Math.round((edadCalc % 1) * 12)
+          setEdadIngresoAnios(anios)
+          setEdadIngresoMeses(meses)
+          setDefaultEdadAnios(anios)
+          setDefaultEdadMeses(meses)
         }
         if (result.ultima_cotizacion) setFechaUltimaCot(result.ultima_cotizacion)
         // Build periodos from PDF data — recalcula "semanas" de forma determinística a partir de
@@ -950,11 +969,17 @@ function CalculadoraInner() {
     const aguinaldo_anual = resDetalle.aguinaldoAnual
 
     // Fechas de ingreso/baja — SAL. PROM MOD 40!E13, E14
+    // Se usa formato local (no toISOString) para evitar bug de zona horaria que resta un día
     const fechaIngreso = new Date(anioI, 0, 1)
     const fechaBaja = new Date(fechaIngreso)
     fechaBaja.setMonth(fechaBaja.getMonth() + meses)
-    const fecha_ingreso_mod40 = fechaIngreso.toISOString().slice(0, 10)
-    const fecha_baja_mod40 = fechaBaja.toISOString().slice(0, 10)
+    const fmtFecha = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+    const fecha_ingreso_mod40 = fmtFecha(fechaIngreso)
+    const fecha_baja_mod40 = fmtFecha(fechaBaja)
+    // Edad al concluir Mod.40 — desde fecha_nacimiento hasta fecha_baja (igual que Excel)
+    const edadAlConcluir = datos.fecha_nacimiento
+      ? parseFloat(((fechaBaja.getTime() - new Date(datos.fecha_nacimiento).getTime()) / (365.25 * 86400000)).toFixed(3))
+      : edadRetiro
 
     // Retroactivo con desglose completo — PAGO RETROACTIVO!E8-E12
     // Tasas configurables desde Configuración → Admin
@@ -1003,7 +1028,7 @@ function CalculadoraInner() {
     const tasa_rendimiento_financiado = inversion_neta_retro > 0 ? (ganancia_a80_financiado / inversion_neta_retro) * 100 : 0
 
     return {
-      costoMensual, costo_total, sdiNuevo, semTotal, semMod40, pension, pmg_aplica, incr, roi,
+      costoMensual, costo_total, sdiNuevo, semTotal, semMod40, pension, pmg_aplica, incr, roi, edadAlConcluir,
       umaProyectada, tasaProyectada, sdiMod40,
       recuperacion_afore, inversion_neta, ganancia_a80, tasa_rendimiento, aguinaldo_anual,
       cuantia_basica_anual: resDetalle.cuantiaBasicaAnual,
@@ -1062,7 +1087,7 @@ function CalculadoraInner() {
       pmg_aplica: r.pmg_aplica,
       fecha_ingreso_mod40: r.fecha_ingreso_mod40,
       fecha_baja_mod40: r.fecha_baja_mod40,
-      edad_retiro: edadRetiro,
+      edad_retiro: r.edadAlConcluir ?? edadRetiro,
       semanas_finales: r.semTotal,
       nuevo_sdi_250: r.sdiNuevo,
       recuperacion_afore: r.recuperacion_afore,
@@ -2692,7 +2717,14 @@ function CalculadoraInner() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
                 {/* Inputs */}
                 <div style={DS.card}>
-                  <p style={DS.secTitle}>⚙️ Parámetros de Cotización</p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                    <p style={{ ...DS.secTitle, margin: 0 }}>⚙️ Parámetros de Cotización</p>
+                    <button onClick={resetParametrosMod40}
+                      title="Restablecer a los valores calculados automáticamente de la constancia"
+                      style={{ padding: '5px 12px', background: '#F4F6FB', color: '#6B7280', border: '1px solid #E5E7EB', fontSize: '11px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      ↺ Restablecer sugerencia
+                    </button>
+                  </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
                     {/* Edad de ingreso a Mod. 40 — editable, pre-cargado de la constancia */}
