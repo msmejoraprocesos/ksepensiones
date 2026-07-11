@@ -907,8 +907,13 @@ function CalculadoraInner() {
     const costoMensual = meses > 0 ? costo_total / meses : 0
     const tasaProyectada = getMod40Pct(anioI) / 100
 
-    // Semanas cotizadas en Mod40 — DATOS GEN. MOD 40!C7
-    const semMod40 = meses * (52 / 12) // semanas exactas según meses
+    // Semanas cotizadas en Mod40 — usando días calendarios exactos como el Excel
+    // Excel: (fecha_baja - fecha_inicio) / 7 + 1/7
+    // Antes se usaba meses × (52/12) que da ~5 semanas menos → ~$26/día de diferencia en SDI
+    const fechaBajaExacta = new Date(fechaInicioMod40)
+    fechaBajaExacta.setMonth(fechaBajaExacta.getMonth() + meses)
+    const diasMod40 = (fechaBajaExacta.getTime() - fechaInicioMod40.getTime()) / (1000 * 60 * 60 * 24)
+    const semMod40 = diasMod40 / 7 + 1 / 7 // replicando fórmula exacta del Excel
     // Semanas antes de Mod40 incluye las naturales cotizadas hasta el inicio — DATOS GEN. MOD 40!C6
     const semAntesM40 = sem // ya incluye las proyectadas en recalcEscenarios
     const semTotal = semAntesM40 + semMod40
