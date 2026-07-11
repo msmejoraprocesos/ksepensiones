@@ -2874,8 +2874,8 @@ function CalculadoraInner() {
                     </p>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
                       {[
-                        { label: 'Fecha de ingreso', value: escRec?.fecha_ingreso_mod40 ? (() => { const [y,m,d] = escRec.fecha_ingreso_mod40.split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) })() : '—' },
-                        { label: 'Fecha de baja', value: escRec?.fecha_baja_mod40 ? (() => { const [y,m,d] = escRec.fecha_baja_mod40.split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) })() : '—' },
+                        { label: 'Fecha de ingreso', value: (() => { try { const f = escRec?.fecha_ingreso_mod40; if (!f || f.length < 8) return '—'; const [y,m,d] = f.split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) } catch { return '—' } })() },
+                        { label: 'Fecha de baja', value: (() => { try { const f = escRec?.fecha_baja_mod40; if (!f || f.length < 8) return '—'; const [y,m,d] = f.split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) } catch { return '—' } })() },
                         { label: 'Edad al concluir', value: escRec?.edad_retiro ? escRec.edad_retiro.toFixed(2) + ' años' : '—' },
                         { label: 'UMA diaria vigente', value: fmtMXN2(sys.UMA_DIARIA) },
                       ].map((r, i) => (
