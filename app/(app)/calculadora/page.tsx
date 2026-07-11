@@ -2764,8 +2764,26 @@ function CalculadoraInner() {
                     </div>
                   </div>
 
-                  {/* Semanas */}
-                  <div style={DS.card}>
+                  {/* Contexto temporal — fechas y edad al concluir (calculadas en Tab 7) */}
+                  <div style={{ padding: '10px 14px', background: '#F8FAFC', border: '1px solid #E5E7EB', borderLeft: '3px solid #1B3A6B' }}>
+                    <p style={{ fontSize: '10px', fontWeight: '700' as const, color: '#6B7280', margin: '0 0 8px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
+                      📅 Contexto del periodo Mod. 40
+                    </p>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                      {[
+                        { label: 'Fecha de ingreso', value: escRec?.fecha_ingreso_mod40 ? new Date(escRec.fecha_ingreso_mod40).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) : '—' },
+                        { label: 'Fecha de baja', value: escRec?.fecha_baja_mod40 ? new Date(escRec.fecha_baja_mod40).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) : '—' },
+                        { label: 'Edad al concluir', value: escRec?.edad_retiro ? escRec.edad_retiro.toFixed(2) + ' años' : '—' },
+                        { label: 'UMA diaria vigente', value: fmtMXN2(sys.UMA_DIARIA) },
+                      ].map((r, i) => (
+                        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 8px', background: 'white', border: '1px solid #F3F4F6' }}>
+                          <span style={{ fontSize: '10.5px', color: '#9CA3AF' }}>{r.label}</span>
+                          <span style={{ fontSize: '10.5px', fontWeight: '700' as const, color: '#374151' }}>{r.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <p style={{ fontSize: '9.5px', color: '#9CA3AF', margin: '6px 0 0' }}>Valores calculados a partir de la edad de ingreso y duración configuradas arriba.</p>
+                  </div>
                     <p style={{ fontSize: '12px', fontWeight: '700' as const, color: '#374151', margin: '0 0 8px' }}>Semanas cotizadas</p>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
                       {[
