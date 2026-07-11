@@ -2374,6 +2374,30 @@ function CalculadoraInner() {
                   </div>
                 </div>
 
+                {/* Ingreso mensual objetivo */}
+                <div style={{ ...DS.card, borderLeft: '3px solid #F05B21' }}>
+                  <p style={{ ...DS.secTitle, margin: '0 0 6px' }}>🎯 Meta de Pensión</p>
+                  <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '0 0 10px', lineHeight: 1.5 }}>
+                    ¿Cuánto necesita recibir de pensión mensual? Este dato orienta la recomendación de estrategia y aparece en el análisis de Sofía IA y el PDF.
+                  </p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '13px', color: '#9CA3AF', flexShrink: 0 }}>$</span>
+                    <input
+                      type="number"
+                      value={ingresoObjetivo || ''}
+                      onChange={e => setIngresoObjetivo(Number(e.target.value) || 0)}
+                      placeholder="Ej. 25,000"
+                      style={{ ...DS.input, flex: 1, fontSize: '18px', fontWeight: '700' as const, color: '#F05B21' }}
+                    />
+                    <span style={{ fontSize: '12px', color: '#9CA3AF', flexShrink: 0 }}>/ mes</span>
+                  </div>
+                  {ingresoObjetivo > 0 && (
+                    <p style={{ fontSize: '11px', color: '#065F46', margin: '8px 0 0', background: '#F0FDF4', padding: '6px 10px', borderLeft: '2px solid #86EFAC' }}>
+                      Meta: <strong>{fmtMXN2(ingresoObjetivo)}/mes</strong> — la calculadora marcará qué escenarios alcanzan este objetivo
+                    </p>
+                  )}
+                </div>
+
                 {/* Columna 2: Datos calculados automáticamente */}
                 <div style={DS.card}>
                   <p style={DS.secTitle}>⚙️ Datos Calculados Automáticamente</p>
