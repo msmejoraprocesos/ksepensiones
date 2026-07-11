@@ -2498,16 +2498,16 @@ function CalculadoraInner() {
             return datos.edad_actual || 0
           })()
           // Semanas naturales al retiro — días exactos entre fecha última cotización y fecha de retiro
-          // Más preciso que (edadRet - edadRef) × 52 que acumula error por años bisiestos
           const semanasNaturales = (() => {
-            if (datos.fecha_nacimiento) {
-              const nac = new Date(datos.fecha_nacimiento)
-              const fechaRetiro = new Date(nac)
-              fechaRetiro.setFullYear(nac.getFullYear() + edadRet)
-              const ref = datos.fecha_calculo ? new Date(datos.fecha_calculo) : new Date()
-              const diasHastaRetiro = Math.max(0, (fechaRetiro.getTime() - ref.getTime()) / (1000 * 60 * 60 * 24))
-              return Math.round(diasHastaRetiro / 7)
-            }
+            try {
+              if (datos.fecha_nacimiento) {
+                const nac = new Date(datos.fecha_nacimiento)
+                const fechaRetiro = new Date(nac.getFullYear() + Math.floor(edadRet), nac.getMonth(), nac.getDate())
+                const ref = datos.fecha_calculo ? new Date(datos.fecha_calculo) : new Date()
+                const dias = Math.max(0, (fechaRetiro.getTime() - ref.getTime()) / 86400000)
+                return Math.round(dias / 7)
+              }
+            } catch {}
             return Math.max(0, Math.round((edadRet - edadRef) * 52))
           })()
           const sem = semBase + semanasNaturales
@@ -2828,6 +2828,9 @@ function CalculadoraInner() {
                     </div>
                     <p style={{ fontSize: '9.5px', color: '#9CA3AF', margin: '6px 0 0' }}>Valores calculados a partir de la edad de ingreso y duración configuradas arriba.</p>
                   </div>
+
+                  {/* Semanas */}
+                  <div style={DS.card}>
                     <p style={{ fontSize: '12px', fontWeight: '700' as const, color: '#374151', margin: '0 0 8px' }}>Semanas cotizadas</p>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
                       {[
