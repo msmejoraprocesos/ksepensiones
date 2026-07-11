@@ -2911,6 +2911,90 @@ function CalculadoraInner() {
               <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
                 <button onClick={() => setTab(3)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>Costo Mod 40 →</button>
               </div>
+
+              {/* Tabla desglose 250 semanas con Mod.40 */}
+              {escRec && escRec.semanas_mod40 > 0 && (() => {
+                const semM40 = escRec.semanas_mod40
+                const sdiM40 = escRec.sdi_mod40 || 0
+                const acumM40 = semM40 * sdiM40
+
+                // Construir filas históricas — igual que Excel: tomar los periodos
+                // más recientes hasta completar 250 semanas
+                const filasHist: { inicio: string; fin: string; sdi: number; semanas: number; acum: number }[] = []
+                let semRestantes = Math.max(0, 250 - semM40)
+                const periodosOrdenados = [...periodos].sort((a, b) =>
+                  new Date(b.fecha_fin).getTime() - new Date(a.fecha_fin).getTime()
+                )
+                for (const p of periodosOrdenados) {
+                  if (semRestantes <= 0) break
+                  const semP = Math.min(p.semanas, semRestantes)
+                  filasHist.push({ inicio: p.fecha_inicio, fin: p.fecha_fin, sdi: p.sdi, semanas: semP, acum: semP * p.sdi })
+                  semRestantes -= semP
+                }
+
+                const totalAcum = acumM40 + filasHist.reduce((s, r) => s + r.acum, 0)
+                const totalSem = semM40 + filasHist.reduce((s, r) => s + r.semanas, 0)
+                const nuevoPromedio = totalSem > 0 ? totalAcum / 250 : 0
+
+                const fmtD = (str: string) => {
+                  if (!str) return '—'
+                  const [y, m, d] = str.split('-').map(Number)
+                  return new Date(y, m - 1, d).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })
+                }
+
+                return (
+                  <div style={{ ...DS.card, marginTop: '16px' }}>
+                    <p style={{ ...DS.secTitle, margin: '0 0 12px' }}>📊 Desglose Nuevo SDI Promedio 250 Semanas con Mod. 40</p>
+                    <div style={{ overflowX: 'auto' as const }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '11px' }}>
+                        <thead>
+                          <tr style={{ background: '#1B3A6B' }}>
+                            {['Periodo', 'Inicio', 'Término', 'SDI diario', 'Semanas', 'Acumulado'].map((h, i) => (
+                              <th key={i} style={{ padding: '8px 10px', color: 'white', fontWeight: '700' as const, textAlign: i > 2 ? 'right' as const : 'left' as const, whiteSpace: 'nowrap' as const }}>{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {/* Fila Mod.40 */}
+                          <tr style={{ background: '#FFF7ED', borderBottom: '2px solid #FCD34D' }}>
+                            <td style={{ padding: '8px 10px', fontWeight: '700' as const, color: '#F05B21' }}>Mod. 40</td>
+                            <td style={{ padding: '8px 10px', color: '#374151' }}>{fmtD(escRec.fecha_ingreso_mod40)}</td>
+                            <td style={{ padding: '8px 10px', color: '#374151' }}>{fmtD(escRec.fecha_baja_mod40)}</td>
+                            <td style={{ padding: '8px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: '#F05B21' }}>{fmtMXN2(sdiM40)}</td>
+                            <td style={{ padding: '8px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: '#F05B21' }}>{semM40.toFixed(2)}</td>
+                            <td style={{ padding: '8px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: '#F05B21' }}>{fmtMXN(acumM40)}</td>
+                          </tr>
+                          {/* Filas históricas */}
+                          {filasHist.map((r, i) => (
+                            <tr key={i} style={{ background: i % 2 === 0 ? '#F9FAFB' : 'white', borderBottom: '1px solid #E5E7EB' }}>
+                              <td style={{ padding: '7px 10px', color: '#6B7280' }}>Historial {i + 1}</td>
+                              <td style={{ padding: '7px 10px', color: '#374151' }}>{fmtD(r.inicio)}</td>
+                              <td style={{ padding: '7px 10px', color: '#374151' }}>{fmtD(r.fin)}</td>
+                              <td style={{ padding: '7px 10px', textAlign: 'right' as const, color: '#374151' }}>{fmtMXN2(r.sdi)}</td>
+                              <td style={{ padding: '7px 10px', textAlign: 'right' as const, color: '#374151' }}>{r.semanas.toFixed(2)}</td>
+                              <td style={{ padding: '7px 10px', textAlign: 'right' as const, color: '#374151' }}>{fmtMXN(r.acum)}</td>
+                            </tr>
+                          ))}
+                          {/* Totales */}
+                          <tr style={{ background: '#EEF2F8', borderTop: '2px solid #1B3A6B' }}>
+                            <td colSpan={3} style={{ padding: '8px 10px', fontWeight: '700' as const, color: '#1B3A6B' }}>Total ÷ 250 semanas</td>
+                            <td style={{ padding: '8px 10px', textAlign: 'right' as const }} />
+                            <td style={{ padding: '8px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: '#1B3A6B' }}>{totalSem.toFixed(2)}</td>
+                            <td style={{ padding: '8px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: '#1B3A6B' }}>{fmtMXN(totalAcum)}</td>
+                          </tr>
+                          {/* Nuevo SDI */}
+                          <tr style={{ background: '#F0FDF4' }}>
+                            <td colSpan={5} style={{ padding: '10px', fontWeight: '700' as const, color: '#065F46', fontSize: '12px' }}>
+                              Nuevo SDI promedio 250 semanas = {fmtMXN(totalAcum)} ÷ 250
+                            </td>
+                            <td style={{ padding: '10px', textAlign: 'right' as const, fontWeight: '800' as const, color: '#065F46', fontSize: '15px' }}>{fmtMXN2(nuevoPromedio)}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )
+              })()}
             </div>
           )
         })()}
