@@ -899,9 +899,9 @@ function CalculadoraInner() {
     const edadR = edadRet ?? edadRetiro
     const anioI = anioInicio ?? anioInicioTramite
     const anioR = anioBase + (edadR - datos.edad_actual)
-    // UMA y SDI proyectados — SAL. PROM MOD 40!E17
-    const umaProyectada = proyectarValor(sys.UMA_DIARIA, anioBase, anioI, (sys.inflacion_uma ?? 4) / 100)
-    const sdiMod40 = umas * umaProyectada
+    // SDI de Mod.40 — usa UMA actual (igual que Excel), no proyectada
+    // El IMSS recalcula cuotas con la UMA vigente en cada pago bimestral
+    const sdiMod40 = umas * sys.UMA_DIARIA
 
     // Costo mensual usando días REALES de cada mes (igual que Excel COSTO MOD.40)
     // El Excel calcula: SDI × tasa_año × (días_mes / 365) para cada mes individualmente
