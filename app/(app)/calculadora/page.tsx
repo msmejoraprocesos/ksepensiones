@@ -2918,18 +2918,17 @@ function CalculadoraInner() {
                 const sdiM40 = escRec.sdi_mod40 || 0
                 const acumM40 = semM40 * sdiM40
 
-                // Construir filas históricas — igual que Excel: tomar los periodos
-                // más recientes hasta completar 250 semanas
+                // Construir filas históricas — mostrar TODOS los periodos como Excel
+                // Los que exceden 250 semanas muestran 0 semanas (igual que Excel filas 24+)
                 const filasHist: { inicio: string; fin: string; sdi: number; semanas: number; acum: number }[] = []
                 let semRestantes = Math.max(0, 250 - semM40)
                 const periodosOrdenados = [...periodos].sort((a, b) =>
                   new Date(b.fecha_fin).getTime() - new Date(a.fecha_fin).getTime()
                 )
                 for (const p of periodosOrdenados) {
-                  if (semRestantes <= 0) break
-                  const semP = Math.min(p.semanas, semRestantes)
+                  const semP = semRestantes > 0 ? Math.min(p.semanas, semRestantes) : 0
                   filasHist.push({ inicio: p.fecha_inicio, fin: p.fecha_fin, sdi: p.sdi, semanas: semP, acum: semP * p.sdi })
-                  semRestantes -= semP
+                  semRestantes = Math.max(0, semRestantes - semP)
                 }
 
                 const totalAcum = acumM40 + filasHist.reduce((s, r) => s + r.acum, 0)
