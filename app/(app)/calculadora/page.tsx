@@ -1431,6 +1431,31 @@ function CalculadoraInner() {
         setDiagGuardadoId(data.id)
         setEstatus(nuevoEstatus)
         setMensaje(nuevoEstatus === 'borrador' ? '💾 Borrador guardado en el expediente del cliente' : '✅ Diagnóstico autorizado')
+
+        // ── Auto-crear financiamiento si el diagnóstico tiene financiamiento bancario ──
+        if (nuevoEstatus === 'autorizado') {
+          const escRec = escenarios.find((e: any) => e.recomendado) ?? escenarios[escenarios.length - 1]
+          if (escRec && escRec.aportacion_banco > 0) {
+            await supabase.from('financiamientos').insert({
+              asesor_id: userId,
+              cliente_id: clienteId,
+              diagnostico_id: data.id,
+              monto_total: escRec.aportacion_banco,
+              plazo_meses: escRec.duracion_tramite_meses || 60,
+              cuota_mensual: escRec.cuota_banco || 0,
+              tasa_anual: sys.tasa_banco_anual || 32.2,
+              tipo: 'banco',
+              comision_pct: 0,
+              comision_monto: 0,
+              estatus: 'pendiente',
+              pension_sin_mod40: escRec.pension_base || 0,
+              pension_con_mod40: escRec.pension_mensual || 0,
+              umas_registradas: mod40Umas,
+              meses_mod40: mod40Meses,
+            })
+          }
+        }
+
         // Suggest etapa change
         const clienteActual = clientes.find(c => c.id === clienteId)
         const etapa = clienteActual?.etapa_kanban
