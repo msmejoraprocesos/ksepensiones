@@ -46,7 +46,11 @@ function AdminFormulasInner() {
   const [pctBanco, setPctBanco] = useState(35.65)
   const [tasaBanco, setTasaBanco] = useState(32.2)
   const [tasasMod40, setTasasMod40] = useState<Record<number, number>>({ ...TASAS_MOD40_POR_ANIO })
-  const [activeTab, setActiveTab] = useState<'configurables' | 'legales' | 'equipo'>('configurables')
+  const [activeTab, setActiveTab] = useState<'configurables' | 'legales' | 'equipo' | 'organizaciones'>('configurables')
+  const [organizaciones, setOrganizaciones] = useState<any[]>([])
+  const [showNuevaOrg, setShowNuevaOrg] = useState(false)
+  const [formOrg, setFormOrg] = useState({ nombre: '', plan: 'individual', asientos: 1, fecha_vencimiento: '' })
+  const [guardandoOrg, setGuardandoOrg] = useState(false)
   const [fechaActualizacion, setFechaActualizacion] = useState<string | null>(null)
   const [equipo, setEquipo] = useState<{ id: string; nombre: string; email: string; total_clientes: number; total_diagnosticos: number; is_admin: boolean }[]>([])
   const [showNuevoUsuario, setShowNuevoUsuario] = useState(false)
@@ -59,7 +63,7 @@ function AdminFormulasInner() {
   const [recargarEquipo, setRecargarEquipo] = useState(0)
 
   async function cargarEquipo() {
-    const { data: asesores } = await supabase.from('perfiles_usuario').select('id, nombre, email, razon_social, is_admin')
+    const { data: asesores } = await supabase.from('perfiles_usuario').select('id, nombre, email, razon_social, is_admin, organizacion_id, rol')
     if (asesores) {
       const { data: clientesAll } = await supabase.from('clientes').select('asesor_id')
       const { data: diagsAll } = await supabase.from('diagnosticos').select('asesor_id')
@@ -73,6 +77,27 @@ function AdminFormulasInner() {
       }))
       setEquipo(equipoData)
     }
+    const { data: orgs } = await supabase.from('organizaciones').select('*').order('nombre')
+    if (orgs) setOrganizaciones(orgs)
+  }
+
+  async function guardarOrganizacion() {
+    setGuardandoOrg(true)
+    await supabase.from('organizaciones').insert({ nombre: formOrg.nombre, plan: formOrg.plan, asientos: formOrg.asientos, fecha_vencimiento: formOrg.fecha_vencimiento || null })
+    await cargarEquipo()
+    setShowNuevaOrg(false)
+    setFormOrg({ nombre: '', plan: 'individual', asientos: 1, fecha_vencimiento: '' })
+    setGuardandoOrg(false)
+  }
+
+  async function asignarOrganizacion(asesorId: string, orgId: string | null) {
+    await supabase.from('perfiles_usuario').update({ organizacion_id: orgId || null }).eq('id', asesorId)
+    await cargarEquipo()
+  }
+
+  async function toggleOrgActivo(orgId: string, activo: boolean) {
+    await supabase.from('organizaciones').update({ activo: !activo }).eq('id', orgId)
+    await cargarEquipo()
   }
 
   useEffect(() => {
@@ -326,10 +351,10 @@ function AdminFormulasInner() {
       {/* Tabs */}
       <div style={{ padding: '14px 24px 0' }}>
         <div style={{ display: 'flex', borderBottom: '2px solid #E5E7EB', background: 'white' }}>
-          {(['configurables', 'legales', 'equipo'] as const).map(t => (
-            <button key={t} onClick={() => setActiveTab(t)}
+          {(['configurables', 'legales', 'equipo', 'organizaciones'] as const).map(t => (
+            <button key={t} onClick={() => setActiveTab(t as any)}
               style={{ padding: '10px 20px', border: 'none', borderBottom: '3px solid ' + (activeTab === t ? '#F05B21' : 'transparent'), cursor: 'pointer', fontSize: '12.5px', fontWeight: activeTab === t ? '700' : '500', background: 'white', color: activeTab === t ? '#F05B21' : '#6B7280', fontFamily: 'inherit', marginBottom: '-2px' }}>
-              {t === 'configurables' ? '📝 Parámetros editables' : t === 'legales' ? '⚖️ Constantes legales' : '👥 Equipo y permisos'}
+              {t === 'configurables' ? '📝 Parámetros editables' : t === 'legales' ? '⚖️ Constantes legales' : t === 'equipo' ? '👥 Equipo y permisos' : '🏢 Organizaciones'}
             </button>
           ))}
         </div>
@@ -609,6 +634,108 @@ function AdminFormulasInner() {
                 <button onClick={crearUsuario} disabled={creandoUsuario}
                   style={{ flex: 1, padding: '10px', background: '#F05B21', color: 'white', border: 'none', fontSize: '12.5px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit', opacity: creandoUsuario ? 0.6 : 1 }}>
                   {creandoUsuario ? 'Creando...' : 'Crear usuario'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+        {activeTab === 'organizaciones' && (
+          <div className="af-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
+              <div>
+                <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Organizaciones registradas</p>
+                <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>Cada organización agrupa uno o más asesores bajo un mismo cliente B2B.</p>
+              </div>
+              <button onClick={() => setShowNuevaOrg(true)}
+                style={{ padding: '8px 16px', background: '#F05B21', color: 'white', border: 'none', fontSize: '12px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                + Nueva organización
+              </button>
+            </div>
+            {organizaciones.length === 0 ? (
+              <p style={{ fontSize: '12px', color: '#9CA3AF', textAlign: 'center' as const, padding: '24px' }}>Sin organizaciones. Los asesores sin organización son cuentas individuales.</p>
+            ) : (
+              <div style={{ overflowX: 'auto' }}>
+                <table className="af-table">
+                  <thead><tr><th>Organización</th><th>Plan</th><th className="r">Asientos</th><th>Vencimiento</th><th>Estatus</th><th></th></tr></thead>
+                  <tbody>
+                    {organizaciones.map((org: any) => (
+                      <tr key={org.id}>
+                        <td style={{ fontWeight: '600' as const }}>{org.nombre}</td>
+                        <td style={{ textTransform: 'capitalize' as const }}>{org.plan}</td>
+                        <td className="r">{org.asientos}</td>
+                        <td style={{ color: '#6B7280' }}>{org.fecha_vencimiento || '—'}</td>
+                        <td><span className={org.activo ? 'af-badge-edit' : 'af-badge-fix'}>{org.activo ? 'Activa' : 'Inactiva'}</span></td>
+                        <td className="r">
+                          <button onClick={() => toggleOrgActivo(org.id, org.activo)}
+                            style={{ padding: '4px 10px', background: org.activo ? '#FEF2F2' : '#F0FDF4', color: org.activo ? '#DC2626' : '#065F46', border: `1px solid ${org.activo ? '#FCA5A5' : '#86EFAC'}`, fontSize: '10.5px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                            {org.activo ? 'Desactivar' : 'Activar'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            <div style={{ marginTop: '20px' }}>
+              <p style={{ fontSize: '12px', fontWeight: '700' as const, color: '#374151', margin: '0 0 10px' }}>Asignación de asesores</p>
+              <table className="af-table">
+                <thead><tr><th>Asesor</th><th>Correo</th><th>Organización</th></tr></thead>
+                <tbody>
+                  {equipo.filter(a => !a.is_admin).map((a: any) => (
+                    <tr key={a.id}>
+                      <td style={{ fontWeight: '600' as const }}>{a.nombre}</td>
+                      <td style={{ color: '#6B7280' }}>{a.email}</td>
+                      <td>
+                        <select value={a.organizacion_id || ''} onChange={e => asignarOrganizacion(a.id, e.target.value || null)}
+                          style={{ padding: '4px 8px', border: '1px solid #E5E7EB', fontSize: '12px', fontFamily: 'inherit', background: 'white' }}>
+                          <option value="">— Individual —</option>
+                          {organizaciones.filter((o: any) => o.activo).map((o: any) => <option key={o.id} value={o.id}>{o.nombre}</option>)}
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+      {/* ── Modal nueva organización ── */}
+      {showNuevaOrg && (
+        <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: '420px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+            <div style={{ background: AZUL, padding: '16px 20px' }}><p style={{ fontSize: '14px', fontWeight: '700' as const, color: 'white', margin: 0 }}>+ Nueva organización</p></div>
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
+              {[{ label: 'Nombre', key: 'nombre', type: 'text', placeholder: 'Ej. Grupo Financiero XYZ' }].map(f => (
+                <div key={f.key}>
+                  <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '4px' }}>{f.label}</label>
+                  <input type="text" placeholder={f.placeholder} value={(formOrg as any)[f.key]} onChange={e => setFormOrg(p => ({ ...p, [f.key]: e.target.value }))}
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+                </div>
+              ))}
+              <div>
+                <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '4px' }}>Plan</label>
+                <select value={formOrg.plan} onChange={e => setFormOrg(p => ({ ...p, plan: e.target.value }))} style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', fontFamily: 'inherit', background: 'white' }}>
+                  <option value="individual">Individual (1 asesor)</option>
+                  <option value="equipo">Equipo (2-10 asesores)</option>
+                  <option value="enterprise">Enterprise (10+ asesores)</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '4px' }}>Asientos</label>
+                <input type="number" value={formOrg.asientos} onChange={e => setFormOrg(p => ({ ...p, asientos: parseInt(e.target.value) || 1 }))} style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '4px' }}>Vencimiento (opcional)</label>
+                <input type="date" value={formOrg.fecha_vencimiento} onChange={e => setFormOrg(p => ({ ...p, fecha_vencimiento: e.target.value }))} style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+              </div>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                <button onClick={() => setShowNuevaOrg(false)} style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12.5px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
+                <button onClick={guardarOrganizacion} disabled={!formOrg.nombre || guardandoOrg} style={{ flex: 1, padding: '10px', background: '#F05B21', color: 'white', border: 'none', fontSize: '12.5px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit', opacity: !formOrg.nombre || guardandoOrg ? 0.6 : 1 }}>
+                  {guardandoOrg ? 'Guardando...' : 'Crear organización'}
                 </button>
               </div>
             </div>
