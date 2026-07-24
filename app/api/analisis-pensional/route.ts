@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { createClient } from '@supabase/supabase-js'
 
 const client = new Anthropic()
+
+function getAdminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -69,6 +78,27 @@ Responde ÚNICAMENTE con el JSON válido, sin markdown.`
     const text = response.content[0].type === 'text' ? response.content[0].text : ''
     const clean = text.replace(/```json|```/g, '').trim()
     const analisis = JSON.parse(clean)
+
+    // Registrar uso de IA en background
+    const asesorId = datos.asesor_id ?? null
+    const clienteId = datos.cliente_id ?? null
+    if (asesorId) {
+      try {
+        const db = getAdminClient()
+        const { data: perfil } = await db.from('perfiles_usuario').select('organizacion_id').eq('id', asesorId).single()
+        await db.from('uso_ia').insert({
+          asesor_id: asesorId,
+          organizacion_id: perfil?.organizacion_id ?? null,
+          cliente_id: clienteId,
+          tipo: 'analisis_pensional',
+          tokens_entrada: response.usage?.input_tokens ?? 0,
+          tokens_salida: response.usage?.output_tokens ?? 0,
+          modelo: 'claude-sonnet-4-6',
+          exitoso: true,
+          duracion_ms: 0,
+        })
+      } catch (e) { console.error('Error logging uso_ia:', e) }
+    }
 
     return NextResponse.json({ ok: true, analisis })
   } catch (error: any) {

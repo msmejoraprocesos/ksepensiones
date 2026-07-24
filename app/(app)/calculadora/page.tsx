@@ -770,7 +770,7 @@ function CalculadoraInner() {
       const response = await fetch('/api/extract-nss', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pdf: base64 })
+        body: JSON.stringify({ pdf: base64, asesor_id: userId, cliente_id: clienteId || null })
       })
       const result = await response.json()
       if (result.nombre) {
@@ -1282,6 +1282,8 @@ function CalculadoraInner() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          asesor_id: userId,
+          cliente_id: clienteId || null,
           nombre: clienteObj?.nombre || datos.nombre,
           nombre_trabajador: datos.nombre_trabajador || datos.nombre,
           ley: datos.ley,

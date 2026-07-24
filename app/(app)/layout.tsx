@@ -22,6 +22,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/financiamiento', label: 'Financiamiento', icon: '◐' },
   { href: '/configuracion',  label: 'Configuración',  icon: '⚙' },
   { href: '/admin',          label: 'Admin Fórmulas', icon: '🔬', adminOnly: true },
+  { href: '/super-admin',   label: 'Dashboard Negocio', icon: '📊', adminOnly: true },
 ]
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {

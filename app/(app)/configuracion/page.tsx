@@ -120,10 +120,10 @@ export default function ConfiguracionPage() {
       if (!session) return
       setUserId(session.user.id)
       loadMateriales(session.user.id)
-      supabase.from('perfiles_usuario').select('*').eq('id', session.user.id).single()
+      supabase.from('perfiles_usuario').select('*, organizaciones(nombre)').eq('id', session.user.id).single()
         .then(({ data }) => {
           if (data) {
-            const loaded = { ...DEFAULTS, ...data }
+            const loaded = { ...DEFAULTS, ...data, org_nombre: (data as any).organizaciones?.nombre ?? null }
             setPerfil(loaded)
             setPerfilOriginal(loaded)
             if (!data.nombre && !data.razon_social) { setIsFirstTime(true); setEditing(true) }
@@ -427,6 +427,12 @@ export default function ConfiguracionPage() {
             <div>
               <label style={labelSt}>Razón social / Empresa</label>
               <input value={perfil.razon_social} onChange={e => set('razon_social', e.target.value)} placeholder="Ej. Asesoría Pensional López S.C." style={editing ? inputSt() : disabledSt} disabled={!editing} />
+              {(perfil as any).org_nombre && (
+                <div style={{ marginTop: '8px', padding: '6px 10px', background: '#EEF2F8', border: '1px solid #BFDBFE', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '11px', color: '#6B7280' }}>Organización:</span>
+                  <span style={{ fontSize: '12px', fontWeight: '700' as const, color: AZUL }}>{(perfil as any).org_nombre}</span>
+                </div>
+              )}
             </div>
             <div>
               <label style={labelSt}>RFC {tooltip('Registro Federal de Contribuyentes. Formato: 4 letras + 6 dígitos fecha + 3 caracteres homoclave. Ej: LOPJ800101XX3')}</label>
