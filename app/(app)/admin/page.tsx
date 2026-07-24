@@ -736,10 +736,6 @@ function AdminFormulasInner() {
                             style={{ padding: '4px 10px', background: org.activo ? '#FEF2F2' : '#F0FDF4', color: org.activo ? '#DC2626' : '#065F46', border: `1px solid ${org.activo ? '#FCA5A5' : '#86EFAC'}`, fontSize: '10.5px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
                             {org.activo ? 'Desactivar' : 'Activar'}
                           </button>
-                          <button onClick={() => { setPagoOrgId(org.id); setShowPago(true) }}
-                            style={{ padding: '4px 10px', background: '#EFF6FF', color: '#1D4ED8', border: '1px solid #93C5FD', fontSize: '10.5px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit', marginLeft: '4px' }}>
-                            💳 Pago
-                          </button>
                         </td>
                       </tr>
                     ))}
