@@ -12,7 +12,7 @@ const AZUL = '#1B3A6B'
 const getKseDirty = () => typeof window !== 'undefined' && !!(window as any).__kse_dirty
 const clearKseDirty = () => { if (typeof window !== 'undefined') (window as any).__kse_dirty = false }
 
-type NavItem = { href: string; label: string; icon: string; adminOnly?: boolean }
+type NavItem = { href: string; label: string; icon: string; adminOnly?: boolean; orgAdminOnly?: boolean }
 
 const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard',      label: 'Mi día',        icon: '◈' },
@@ -23,6 +23,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/configuracion',  label: 'Configuración',  icon: '⚙' },
   { href: '/admin',          label: 'Admin Fórmulas', icon: '🔬', adminOnly: true },
   { href: '/super-admin',   label: 'Dashboard Negocio', icon: '📊', adminOnly: true },
+  { href: '/org-admin',     label: 'Mi Equipo', icon: '👥', orgAdminOnly: true },
 ]
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -49,19 +50,21 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, [])
 
   const [isAdmin, setIsAdmin] = useState(false)
+  const [userRol, setUserRol] = useState('')
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) { router.push('/login'); return }
       setChecking(false)
       setUserEmail(session.user.email ?? '')
-      supabase.from('perfiles_usuario').select('nombre, razon_social, logo_url, is_admin').eq('id', session.user.id).single()
+      supabase.from('perfiles_usuario').select('nombre, razon_social, logo_url, is_admin, rol').eq('id', session.user.id).single()
         .then(({ data }) => {
           if (data) {
             setUserName(data.nombre || session.user.email || '')
             setRazonSocial(data.razon_social || data.nombre || '')
             setAsesorLogo(data.logo_url || null)
             setIsAdmin(!!data.is_admin)
+            setUserRol(data.rol || (data.is_admin ? 'super_admin' : 'asesor'))
             if (!data.nombre && !data.razon_social && !window.location.pathname.includes('configuracion')) {
               router.push('/configuracion')
             }
@@ -160,7 +163,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         }}>
           {/* Nav items */}
           <div style={{ flex: 1, padding: '8px 0' }}>
-            {NAV_ITEMS.filter(item => !item.adminOnly || isAdmin).map(item => {
+            {NAV_ITEMS.filter(item => {
+              if (item.adminOnly && !isAdmin) return false
+              if (item.orgAdminOnly && !['org_admin','super_admin'].includes(userRol)) return false
+              return true
+            }).map(item => {
               const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
               const handleNavClick = (e: React.MouseEvent) => {
                 if (isActive) return

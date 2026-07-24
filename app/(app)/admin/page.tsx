@@ -51,6 +51,10 @@ function AdminFormulasInner() {
   const [showNuevaOrg, setShowNuevaOrg] = useState(false)
   const [formOrg, setFormOrg] = useState({ nombre: '', plan: 'individual', asientos: 1, fecha_vencimiento: '' })
   const [guardandoOrg, setGuardandoOrg] = useState(false)
+  const [showPago, setShowPago] = useState(false)
+  const [pagoOrgId, setPagoOrgId] = useState('')
+  const [formPago, setFormPago] = useState({ monto: 0, concepto: 'Suscripción mensual', periodo_inicio: '', periodo_fin: '', metodo_pago: '', notas: '' })
+  const [guardandoPago, setGuardandoPago] = useState(false)
   const [fechaActualizacion, setFechaActualizacion] = useState<string | null>(null)
   const [equipo, setEquipo] = useState<{ id: string; nombre: string; email: string; total_clientes: number; total_diagnosticos: number; is_admin: boolean }[]>([])
   const [showNuevoUsuario, setShowNuevoUsuario] = useState(false)
@@ -58,6 +62,7 @@ function AdminFormulasInner() {
   const [nuevoPassword, setNuevoPassword] = useState('')
   const [nuevoNombre, setNuevoNombre] = useState('')
   const [nuevoEsAdmin, setNuevoEsAdmin] = useState(false)
+  const [nuevoOrgId, setNuevoOrgId] = useState('')
   const [creandoUsuario, setCreandoUsuario] = useState(false)
   const [errorUsuario, setErrorUsuario] = useState('')
   const [recargarEquipo, setRecargarEquipo] = useState(0)
@@ -98,6 +103,23 @@ function AdminFormulasInner() {
   async function toggleOrgActivo(orgId: string, activo: boolean) {
     await supabase.from('organizaciones').update({ activo: !activo }).eq('id', orgId)
     await cargarEquipo()
+  }
+
+  async function guardarPago() {
+    setGuardandoPago(true)
+    await supabase.from('pagos_suscripcion').insert({
+      organizacion_id: pagoOrgId,
+      monto: formPago.monto,
+      concepto: formPago.concepto,
+      periodo_inicio: formPago.periodo_inicio,
+      periodo_fin: formPago.periodo_fin,
+      metodo_pago: formPago.metodo_pago || null,
+      notas: formPago.notas || null,
+      estatus: 'pendiente',
+    })
+    setShowPago(false)
+    setFormPago({ monto: 0, concepto: 'Suscripción mensual', periodo_inicio: '', periodo_fin: '', metodo_pago: '', notas: '' })
+    setGuardandoPago(false)
   }
 
   useEffect(() => {
@@ -153,7 +175,7 @@ function AdminFormulasInner() {
       const res = await fetch('/api/admin/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-        body: JSON.stringify({ email: nuevoEmail, password: nuevoPassword, nombre: nuevoNombre, is_admin: nuevoEsAdmin }),
+        body: JSON.stringify({ email: nuevoEmail, password: nuevoPassword, nombre: nuevoNombre, is_admin: nuevoEsAdmin, organizacion_id: nuevoOrgId || null }),
       })
       const data = await res.json()
       if (!res.ok) { setErrorUsuario(data.error || 'Error al crear usuario'); setCreandoUsuario(false); return }
@@ -593,7 +615,37 @@ function AdminFormulasInner() {
         )}
       </div>
 
-      {/* ── Modal: crear nuevo usuario ── */}
+      {/* Modal registrar pago */}
+      {showPago && (
+        <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: '420px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+            <div style={{ background: '#1D4ED8', padding: '14px 20px' }}><p style={{ fontSize: '14px', fontWeight: '700' as const, color: 'white', margin: 0 }}>💳 Registrar pago de suscripción</p></div>
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
+              {[
+                { label: 'Monto ($)', key: 'monto', type: 'number', placeholder: '1500' },
+                { label: 'Concepto', key: 'concepto', type: 'text', placeholder: 'Suscripción mensual' },
+                { label: 'Periodo inicio', key: 'periodo_inicio', type: 'date', placeholder: '' },
+                { label: 'Periodo fin', key: 'periodo_fin', type: 'date', placeholder: '' },
+                { label: 'Método de pago', key: 'metodo_pago', type: 'text', placeholder: 'Transferencia, tarjeta...' },
+              ].map(f => (
+                <div key={f.key}>
+                  <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '3px' }}>{f.label}</label>
+                  <input type={f.type} placeholder={f.placeholder} value={(formPago as any)[f.key]}
+                    onChange={e => setFormPago(p => ({ ...p, [f.key]: f.type === 'number' ? parseFloat(e.target.value) || 0 : e.target.value }))}
+                    style={{ width: '100%', padding: '7px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+                </div>
+              ))}
+              <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                <button onClick={() => setShowPago(false)} style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
+                <button onClick={guardarPago} disabled={guardandoPago || !formPago.periodo_inicio}
+                  style={{ flex: 1, padding: '10px', background: '#1D4ED8', color: 'white', border: 'none', fontSize: '12px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit', opacity: guardandoPago ? 0.6 : 1 }}>
+                  {guardandoPago ? 'Guardando...' : 'Registrar pago'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {showNuevoUsuario && (
         <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'white', width: '100%', maxWidth: '420px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
@@ -623,6 +675,18 @@ function AdminFormulasInner() {
                 <input type="checkbox" checked={nuevoEsAdmin} onChange={e => setNuevoEsAdmin(e.target.checked)} />
                 Dar permisos de Administrador (acceso a Fórmulas del sistema)
               </label>
+              {!nuevoEsAdmin && organizaciones.length > 0 && (
+                <div>
+                  <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '4px' }}>Asignar a organización (opcional)</label>
+                  <select value={nuevoOrgId} onChange={e => setNuevoOrgId(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', fontFamily: 'inherit', background: 'white' }}>
+                    <option value="">— Individual (sin organización) —</option>
+                    {organizaciones.filter((o: any) => o.activo).map((o: any) => (
+                      <option key={o.id} value={o.id}>{o.nombre} ({o.plan})</option>
+                    ))}
+                  </select>
+                </div>
+              )}
               {!nuevoEsAdmin && (
                 <p style={{ fontSize: '10.5px', color: '#9CA3AF', margin: 0 }}>Por defecto se crea como Asesor — solo verá sus propios clientes, no podrá editar fórmulas.</p>
               )}
@@ -671,6 +735,10 @@ function AdminFormulasInner() {
                           <button onClick={() => toggleOrgActivo(org.id, org.activo)}
                             style={{ padding: '4px 10px', background: org.activo ? '#FEF2F2' : '#F0FDF4', color: org.activo ? '#DC2626' : '#065F46', border: `1px solid ${org.activo ? '#FCA5A5' : '#86EFAC'}`, fontSize: '10.5px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
                             {org.activo ? 'Desactivar' : 'Activar'}
+                          </button>
+                          <button onClick={() => { setPagoOrgId(org.id); setShowPago(true) }}
+                            style={{ padding: '4px 10px', background: '#EFF6FF', color: '#1D4ED8', border: '1px solid #93C5FD', fontSize: '10.5px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit', marginLeft: '4px' }}>
+                            💳 Pago
                           </button>
                         </td>
                       </tr>
