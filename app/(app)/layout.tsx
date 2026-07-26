@@ -8,6 +8,10 @@ import Link from 'next/link'
 const NARANJA = '#F05B21'
 const AZUL = '#1B3A6B'
 
+// Cache de perfil para evitar llamadas repetidas a Supabase en cada navegacion
+let _perfilCache: { nombre: string; razonSocial: string; logo: string | null; isAdmin: boolean; rol: string } | null = null
+let _perfilUserId: string | null = null
+
 // Helpers para el flag de dirty state de la calculadora
 const getKseDirty = () => typeof window !== 'undefined' && !!(window as any).__kse_dirty
 const clearKseDirty = () => { if (typeof window !== 'undefined') (window as any).__kse_dirty = false }
@@ -57,14 +61,35 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       if (!session) { router.push('/login'); return }
       setChecking(false)
       setUserEmail(session.user.email ?? '')
+
+      // Usar cache si es el mismo usuario — evita llamada a DB en cada navegacion
+      if (_perfilCache && _perfilUserId === session.user.id) {
+        setUserName(_perfilCache.nombre)
+        setRazonSocial(_perfilCache.razonSocial)
+        setAsesorLogo(_perfilCache.logo)
+        setIsAdmin(_perfilCache.isAdmin)
+        setUserRol(_perfilCache.rol)
+        return
+      }
+
       supabase.from('perfiles_usuario').select('nombre, razon_social, logo_url, is_admin, rol').eq('id', session.user.id).single()
         .then(({ data }) => {
           if (data) {
-            setUserName(data.nombre || session.user.email || '')
-            setRazonSocial(data.razon_social || data.nombre || '')
-            setAsesorLogo(data.logo_url || null)
-            setIsAdmin(!!data.is_admin)
-            setUserRol(data.rol || (data.is_admin ? 'super_admin' : 'asesor'))
+            const nombre = data.nombre || session.user.email || ''
+            const razonSocial = data.razon_social || data.nombre || ''
+            const logo = data.logo_url || null
+            const isAdmin = !!data.is_admin
+            const rol = data.rol || (data.is_admin ? 'super_admin' : 'asesor')
+
+            // Guardar en cache
+            _perfilCache = { nombre, razonSocial, logo, isAdmin, rol }
+            _perfilUserId = session.user.id
+
+            setUserName(nombre)
+            setRazonSocial(razonSocial)
+            setAsesorLogo(logo)
+            setIsAdmin(isAdmin)
+            setUserRol(rol)
             if (!data.nombre && !data.razon_social && !window.location.pathname.includes('configuracion')) {
               router.push('/configuracion')
             }
@@ -74,6 +99,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, [])
 
   async function handleLogout() {
+    _perfilCache = null
+    _perfilUserId = null
     await supabase.auth.signOut()
     router.push('/login')
   }
@@ -165,7 +192,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div style={{ flex: 1, padding: '8px 0' }}>
             {NAV_ITEMS.filter(item => {
               if (item.adminOnly && !isAdmin) return false
-              if (item.orgAdminOnly && !['org_admin','super_admin'].includes(userRol)) return false
+              if (item.orgAdminOnly && userRol !== 'org_admin') return false
               return true
             }).map(item => {
               const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
