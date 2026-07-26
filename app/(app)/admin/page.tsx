@@ -62,6 +62,7 @@ function AdminFormulasInner() {
   const [nuevoPassword, setNuevoPassword] = useState('')
   const [nuevoNombre, setNuevoNombre] = useState('')
   const [nuevoEsAdmin, setNuevoEsAdmin] = useState(false)
+  const [nuevoRol, setNuevoRol] = useState<'asesor' | 'org_admin'>('asesor')
   const [nuevoOrgId, setNuevoOrgId] = useState('')
   const [creandoUsuario, setCreandoUsuario] = useState(false)
   const [errorUsuario, setErrorUsuario] = useState('')
@@ -175,7 +176,7 @@ function AdminFormulasInner() {
       const res = await fetch('/api/admin/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-        body: JSON.stringify({ email: nuevoEmail, password: nuevoPassword, nombre: nuevoNombre, is_admin: nuevoEsAdmin, organizacion_id: nuevoOrgId || null }),
+        body: JSON.stringify({ email: nuevoEmail, password: nuevoPassword, nombre: nuevoNombre, is_admin: nuevoEsAdmin, rol: nuevoEsAdmin ? 'super_admin' : nuevoRol, organizacion_id: nuevoOrgId || null }),
       })
       const data = await res.json()
       if (!res.ok) { setErrorUsuario(data.error || 'Error al crear usuario'); setCreandoUsuario(false); return }
@@ -672,9 +673,19 @@ function AdminFormulasInner() {
                   style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
               </div>
               <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#374151', cursor: 'pointer' }}>
-                <input type="checkbox" checked={nuevoEsAdmin} onChange={e => setNuevoEsAdmin(e.target.checked)} />
+                <input type="checkbox" checked={nuevoEsAdmin} onChange={e => { setNuevoEsAdmin(e.target.checked); if (e.target.checked) setNuevoRol('asesor') }} />
                 Dar permisos de Administrador (acceso a Fórmulas del sistema)
               </label>
+              {!nuevoEsAdmin && (
+                <div>
+                  <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '4px' }}>Rol</label>
+                  <select value={nuevoRol} onChange={e => setNuevoRol(e.target.value as 'asesor' | 'org_admin')}
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', fontFamily: 'inherit', background: 'white' }}>
+                    <option value="asesor">Asesor — solo ve sus propios clientes</option>
+                    <option value="org_admin">Líder de equipo — ve la actividad de su organización</option>
+                  </select>
+                </div>
+              )}
               {!nuevoEsAdmin && organizaciones.length > 0 && (
                 <div>
                   <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '4px' }}>Asignar a organización (opcional)</label>

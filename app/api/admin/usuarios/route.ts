@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     const solicitante = await verificarAdmin(req)
     if (!solicitante) return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
 
-    const { email, password, nombre, razon_social, is_admin, organizacion_id } = await req.json()
+    const { email, password, nombre, razon_social, is_admin, organizacion_id, rol } = await req.json()
     if (!email || !password) return NextResponse.json({ error: 'Email y contraseña son requeridos' }, { status: 400 })
     if (password.length < 6) return NextResponse.json({ error: 'La contraseña debe tener al menos 6 caracteres' }, { status: 400 })
 
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
       razon_social: razon_social || null,
       email,
       is_admin: !!is_admin,
-      rol: is_admin ? 'super_admin' : 'asesor',
+      rol: is_admin ? 'super_admin' : (rol || 'asesor'),
       organizacion_id: organizacion_id || null,
     })
     if (errPerfil) {
