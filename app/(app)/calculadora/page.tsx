@@ -445,19 +445,34 @@ function CalculadoraInner() {
     sdi: { titulo: 'SDI — Salario Diario Integrado', desc: 'El salario real que considera IMSS para el cálculo de la pensión. Incluye sueldo base, partes proporcionales de aguinaldo, vacaciones y prima vacacional.', ejemplo: 'Si ganas $15,000/mes tu SDI diario es aprox. $547/día.' },
     sdi250: { titulo: 'SDI Promedio 250 Semanas', desc: 'El IMSS calcula la pensión sobre el promedio del SDI de las últimas 250 semanas cotizadas (~5 años), no sobre el salario actual. Si en esos 5 años tu salario fue menor, tu pensión será menor.', ejemplo: 'Art. 167 LSS 1973.' },
     mod40: { titulo: 'Modalidad 40', desc: 'Permite cotizar voluntariamente ante el IMSS con un salario mayor al actual para incrementar el promedio de las 250 semanas. Es el instrumento clave para mejorar la pensión.', ejemplo: 'Se puede cotizar entre 1 y 25 UMAs diarias.' },
-    uma: { titulo: 'UMA — Unidad de Medida y Actualización', desc: 'Es la referencia económica en pesos que actualiza el IMSS anualmente. En 2024 es $108.57/día. En Modalidad 40, cotizas en múltiplos de UMA.', ejemplo: 'Cotizar a 10 UMAs = $1,085.70/día de SDI registrado.' },
-    pmg: { titulo: 'PMG — Pensión Mínima Garantizada', desc: 'El Estado garantiza que ningún pensionado bajo Ley 73 reciba menos de cierta cantidad mensual, aunque el cálculo dé un monto menor.', ejemplo: `En 2024: $${(4345.72).toLocaleString('es-MX')}/mes aprox.` },
-    cuantia: { titulo: 'Cuantía Básica de Pensión', desc: 'Porcentaje del SDI promedio que corresponde por las primeras 500 semanas cotizadas. La base del cálculo de la pensión.', ejemplo: '500 sem. = 35% del SDI. Cada 52 sem. adicionales suman 1.25%.' },
-    incrementos: { titulo: 'Incrementos Anuales', desc: 'Por cada 52 semanas de cotización adicionales a las primeras 500, la pensión se incrementa en 1.25% del SDI promedio.', ejemplo: '600 semanas = 35% + (100/52 × 1.25%) = 37.4%' },
-    asignaciones: { titulo: 'Asignaciones Familiares', desc: 'Incremento a la pensión por dependientes económicos: cónyuge/concubino (15%), hijos < 16 años (10% c/u), padres (10% c/u, si no hay cónyuge).', ejemplo: 'Con cónyuge e 1 hijo: +25% sobre pensión.' },
-    ayuda165: { titulo: 'Ayuda Asistencial (Art. 165 LSS)', desc: 'Cuando el pensionado no tiene cónyuge ni hijos ni padres dependientes, tiene derecho a un incremento adicional del 15% sobre la pensión.', ejemplo: 'Pensión de $5,000 → recibe $5,750 con Art. 165.' },
-    conservacion: { titulo: 'Conservación de Derechos', desc: 'Derecho a pensionarse que se mantiene aunque el trabajador deje de cotizar. Requiere haber cotizado mínimo 250 semanas. El derecho se conserva por un tiempo equivalente a la mitad del período cotizado.', ejemplo: 'Con 500 sem., derechos vigentes por 250 semanas adicionales.' },
-    retroactivo: { titulo: 'Pago Retroactivo (Mod. 40)', desc: 'Permite pagar cuotas de períodos anteriores (hasta 5 años) para aumentar las semanas cotizadas. Incluye cuotas + actualizaciones INPC + recargos por mora.', ejemplo: 'Actualizaciones: ~7.27% anual. Recargos: ~41.80% acumulado.' },
-    roi: { titulo: 'ROI — Recuperación de Inversión', desc: 'Número de meses que tarda el pensionado en recuperar la inversión realizada en Modalidad 40 con la diferencia de pensión mensual adicional.', ejemplo: 'Inversión $300K ÷ Incremento $5K/mes = 60 meses de ROI.' },
-    factorEdad: { titulo: 'Factor por Edad de Retiro', desc: 'La pensión de cesantía en edad avanzada tiene un factor según la edad: 60 años=75%, 61=80%, 62=85%, 63=90%, 64=95%, 65+= 100% (pensión de vejez).', ejemplo: 'Retirarse a 62 en vez de 65 = 15% menos de pensión.' },
-    duracionMod40: { titulo: '¿Por qué bloques de 6 meses?', desc: '6 meses = 26 semanas = el mínimo para sumar medio año de incremento (Art. 167 LSS). Cada bloque de 6 meses que se agrega mejora la pensión mensual de forma permanente. La duración la decide el cliente según su capacidad de pago y cuándo quiere jubilarse.', ejemplo: '3 años → pensión sube de $10,985 a ~$28,950 en este caso.' },
-    sdiMod40: { titulo: '¿Cómo se calcula?', desc: 'SDI Mod.40 = UMAs seleccionadas × UMA diaria vigente. Este salario alto es el que registra el trabajador ante el IMSS durante Mod. 40, "desplazando" los periodos de salario bajo en el promedio de las últimas 250 semanas. A mayor número de UMAs → mayor SDI → mayor pensión, pero también mayor costo mensual.', ejemplo: '25 UMAs × $117.31 = $2,932.75/día registrado ante IMSS.' },
-    nuevoSdi250: { titulo: '¿Cómo se calcula el nuevo promedio?', desc: 'Fórmula: (semanas_Mod40 × SDI_alto + semanas_históricas_restantes × SDI_bajo) ÷ 250. Las semanas de Mod. 40 "desplazan" las semanas más antiguas de salario bajo. Si Mod. 40 cubre más de 250 semanas, el promedio es solo el SDI de Mod. 40.', ejemplo: '187 sem × $2,932 + 63 sem × $437 = $2,302/día promedio vs $520 anterior → +343%.' },
+    uma: { titulo: 'UMA — Unidad de Medida y Actualización', desc: 'Referencia económica que actualiza el INEGI cada 1° de febrero. En Mod. 40 cotizas en múltiplos de UMA — a mayor número de UMAs, mayor SDI registrado y mayor pensión, pero también mayor cuota mensual al IMSS.', ejemplo: 'Cotizar a 25 UMAs = $2,932.75/día de SDI registrado.' },
+    pmg: { titulo: 'PMG — Pensión Mínima Garantizada', desc: 'El Estado garantiza que ningún pensionado bajo Ley 73 reciba menos de cierta cantidad mensual, aunque el cálculo matemático dé un monto menor. Se calcula como salario mínimo × 365 × 1.11. Con Mod 40 el objetivo es superar la PMG para recibir la pensión real calculada.', ejemplo: 'PMG 2024: ~$10,636/mes. Si tu pensión calculada es $9,000 recibes $10,636.' },
+    cuantia: { titulo: 'Cuantía Básica de Pensión', desc: 'Primer componente de la pensión. Se calcula como un % del SDI promedio de 250 semanas según la tabla del Art. 167 LSS. El porcentaje depende de cuántas veces el UMA representa el SDI — a mayor salario relativo al UMA, menor el porcentaje base pero mayor la pensión absoluta.', ejemplo: 'SDI = 4.43 UMAs → cuantía básica = 18.29% del SDI anual.' },
+    incrementos: { titulo: 'Incrementos Anuales', desc: 'Por cada año completo (52 semanas) cotizado más allá de las 500 mínimas, la pensión sube entre 0.39% y 2.09% del SDI según el bracket salarial. Art. 167 LSS. Aquí es donde Mod 40 genera su mayor impacto — más semanas + mayor SDI = más incrementos.', ejemplo: 'Con 25 años adicionales (1,800 sem.) el incremento puede ser 25 × 2.3% = 57.5% del SDI.' },
+    asignaciones: { titulo: 'Asignaciones Familiares', desc: 'Incremento a la pensión por dependientes económicos registrados ante el IMSS. Art. 164 LSS Ley 73: cónyuge/concubino +15%, cada hijo menor de 16 años +10%, cada padre dependiente +10% (solo si no hay cónyuge ni hijos).', ejemplo: 'Pensión base $10,000 + cónyuge + 1 hijo = $10,000 × 1.25 = $12,500/mes.' },
+    ayuda165: { titulo: 'Ayuda Asistencial (Art. 165 LSS)', desc: 'Cuando el pensionado no tiene cónyuge, hijos ni padres dependientes, tiene derecho a un 15% adicional sobre la pensión base. Es excluyente con las asignaciones familiares — aplica uno u otro, no ambos.', ejemplo: 'Pensión de $10,000 sin familia dependiente → recibe $11,500 con Art. 165.' },
+    conservacion: { titulo: 'Conservación de Derechos', desc: 'Derecho a pensionarse que se mantiene aunque el trabajador deje de cotizar. Requiere haber cotizado mínimo 250 semanas. El derecho se conserva por un tiempo equivalente a la mitad del período cotizado.', ejemplo: 'Con 500 sem. cotizadas, los derechos se conservan 250 semanas (~5 años) después de dejar de cotizar.' },
+    retroactivo: { titulo: 'Pago Retroactivo (Mod. 40)', desc: 'Permite pagar cuotas de períodos anteriores (hasta 5 años atrás) para aumentar semanas cotizadas sin esperar ese tiempo. Incluye cuota original + actualización por INPC + recargos por mora SAT. Útil para acortar el plazo de Mod 40.', ejemplo: 'Actualizaciones INPC: ~7.27% anual. Recargos SAT: ~41.80% acumulado.' },
+    roi: { titulo: 'ROI — Recuperación de Inversión', desc: 'Meses que tarda el pensionado en recuperar la inversión total de Mod 40 con el incremento mensual de pensión. Fórmula: inversión total ÷ incremento mensual. Un ROI menor a 60 meses se considera excelente.', ejemplo: 'Inversión $300K ÷ Incremento $5K/mes = 60 meses de ROI.' },
+    factorEdad: { titulo: 'Factor por Edad de Retiro', desc: 'La pensión de cesantía en edad avanzada se reduce según la edad al jubilarse. A los 65 se recibe el 100% (pensión de vejez). Por cada año antes de los 65 se reduce 5%. Art. 167 LSS Ley 73.', ejemplo: '60 años = 75% | 61 = 80% | 62 = 85% | 63 = 90% | 64 = 95% | 65+ = 100%.' },
+    duracionMod40: { titulo: 'Duración de Mod. 40 — decisión del cliente', desc: '6 meses = 26 semanas = el mínimo para sumar medio año de incremento en la pensión (Art. 167 LSS). Cada bloque mejora la pensión mensual de forma permanente. La duración la acuerda el asesor con el cliente según su capacidad de pago y cuándo quiere jubilarse.', ejemplo: '3 años → pensión puede mejorar +158% vs pensión sin Mod 40.' },
+    sdiMod40: { titulo: 'SDI registrado en Mod. 40', desc: 'Es el salario que el trabajador declara al IMSS al inscribirse en Mod. 40. Fórmula: UMAs seleccionadas × UMA diaria vigente. Este salario "desplaza" los periodos de salario bajo en el promedio de las últimas 250 semanas — es la clave del mecanismo.', ejemplo: '25 UMAs × $117.31 = $2,932.75/día registrado ante IMSS.' },
+    nuevoSdi250: { titulo: 'Nuevo SDI promedio 250 semanas', desc: 'Promedio ponderado del SDI de las últimas 250 semanas DESPUÉS de incluir Mod. 40. Fórmula: (semanas_Mod40 × SDI_alto + semanas_históricas × SDI_bajo) ÷ 250. A mayor duración y más UMAs en Mod 40, más se eleva este promedio y mayor es la pensión resultante.', ejemplo: '187 sem × $2,932 + 63 sem × $437 = $2,302/día promedio vs $520 anterior → +343%.' },
+    // Tab 0
+    regimen: { titulo: 'Régimen de pensión — Ley 73 vs Ley 97', desc: 'Define qué ley de pensiones aplica. Ley 73: cotizó antes del 1° de julio de 1997 — puede elegir jubilarse con pensión vitalicia calculada sobre SDI promedio. Ley 97: solo AFORE, pensión depende del ahorro acumulado, no del SDI. La constancia IMSS lo determina automáticamente por la fecha del primer empleo.', ejemplo: 'Primer empleo antes del 01/07/1997 → Ley 73 (más beneficiosa en la mayoría de casos).' },
+    sigueCotizando: { titulo: '¿Sigue cotizando ante el IMSS?', desc: 'Indica si el trabajador está activo laboralmente. Si sí, se proyectan las semanas naturales adicionales que acumulará entre hoy y la fecha de retiro. Si no, el cálculo usa solo las semanas actuales de la constancia.', ejemplo: 'Con 1,677 semanas actuales y 2.26 años restantes → proyecta 118 semanas adicionales = 1,795 semanas al retiro.' },
+    conyuge: { titulo: 'Cónyuge o concubino dependiente', desc: 'Si el pensionado tiene cónyuge o concubino registrado ante el IMSS como dependiente económico, agrega una asignación familiar del 15% sobre la pensión base (Art. 164 LSS Ley 73). Debe estar registrado en el IMSS para que aplique.', ejemplo: 'Pensión base $10,000/mes → con cónyuge recibe $11,500/mes.' },
+    numHijos: { titulo: 'Hijos dependientes menores de 16 años', desc: 'Cada hijo menor de 16 años (o hasta 25 si estudia y está registrado en IMSS) agrega un 10% adicional sobre la pensión base. Art. 164 LSS Ley 73. Deben estar registrados como beneficiarios en el IMSS.', ejemplo: 'Pensión base $10,000 + 2 hijos = $10,000 × 1.20 = $12,000/mes.' },
+    numPadres: { titulo: 'Padres como dependientes económicos', desc: 'Si el pensionado no tiene cónyuge ni hijos, los padres que dependan económicamente de él agregan un 10% por cada uno. Art. 164 LSS Ley 73. Es excluyente: solo aplica si no hay cónyuge ni hijos.', ejemplo: 'Sin cónyuge ni hijos + 2 padres → pensión base × 1.20.' },
+    ingresoObjetivo: { titulo: 'Meta de pensión mensual', desc: 'Monto mensual que el cliente necesita recibir de pensión para mantener su nivel de vida o cubrir sus gastos en el retiro. Sirve como referencia para que el sistema marque qué escenario alcanza esta meta y cuántas UMAs necesita registrar en Mod 40.', ejemplo: 'Si la meta es $25,000/mes y la pensión actual proyectada es $10,985, el sistema mostrará cuántas UMAs en Mod 40 se necesitan para alcanzarla.' },
+    // Tab 3
+    cuotaMensualMod40: { titulo: 'Cuota mensual al IMSS por Mod. 40', desc: 'Pago que realiza el trabajador al IMSS por cotizar en Modalidad 40. Se calcula como: SDI registrado × tasa Mod 40 (14.438%) × días del bimestre ÷ 2. La tasa la establece el IMSS y puede cambiar; se actualiza en Admin Fórmulas.', ejemplo: 'SDI $2,932.75 × 14.438% × 30.4 días = ~$12,876/mes aprox.' },
+    // Tab 6
+    ganancia80: { titulo: 'Ganancia acumulada a los 80 años', desc: 'Diferencia total entre lo que recibirás de pensión CON Mod 40 vs SIN Mod 40, proyectada desde tu fecha de retiro hasta los 80 años, descontando la inversión realizada. Muestra el beneficio neto real de hacer Mod 40.', ejemplo: 'Si la diferencia mensual es $15,000 y faltan 20 años para los 80 → ganancia bruta = $3.6M antes de descontar inversión.' },
+    tasaRendimiento: { titulo: 'Tasa de rendimiento efectiva', desc: 'Rendimiento anual efectivo que produce la inversión en Mod 40 comparado con el capital total invertido. Permite al cliente comparar Mod 40 contra otras alternativas de inversión como CETES, AFORE o fondos.', ejemplo: 'Inversión $300K → incremento de pensión genera retorno equivalente a 25% anual efectivo.' },
+    // Tab 12
+    mod10: { titulo: 'Modalidad 10 — Continuación voluntaria', desc: 'Permite seguir cotizando al IMSS durante 12 meses después de dejar de trabajar, con el mismo SDI del último empleo. No permite aumentar el SDI — solo conservarlo. Art. 218 LSS Ley 73. Útil para trabajadores que están entre empleos y no quieren perder semanas.', ejemplo: 'Último SDI $520/día → cotiza 12 meses más a $520/día agregando ~52 semanas.' },
+    mod10vsMod40: { titulo: 'Mod 10 vs Mod 40 — ¿cuál conviene?', desc: 'Mod 10: conserva el SDI actual, dura solo 12 meses, costo bajo, no mejora el promedio de 250 semanas significativamente. Mod 40: registra SDI mayor (hasta 25 UMAs), cualquier duración, mayor costo pero impacto radical en la pensión. Se recomienda Mod 40 cuando el cliente puede invertir y quiere maximizar la pensión a largo plazo.', ejemplo: 'Con Mod 10: pensión mejora ~5%. Con Mod 40 a 25 UMAs: pensión puede mejorar +150%.' },
   }
 
   // ── Componente Tooltip ───────────────────────────────────────
@@ -2289,21 +2304,21 @@ function CalculadoraInner() {
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                       <div>
-                        <label style={DS.label}>¿Seguirás cotizando?</label>
+                        <label style={DS.label}>¿Seguirás cotizando? <Tip id="sigueCotizando" /></label>
                         <select value={datos.sigue_cotizando ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, sigue_cotizando: e.target.value === 'si' }))} style={DS.select}>
                           <option value="si">✓ Sí</option>
                           <option value="no">✕ No</option>
                         </select>
                       </div>
                       <div>
-                        <label style={DS.label}>Edad de pensión</label>
+                        <label style={DS.label}>Edad de pensión <Tip id="factorEdad" /></label>
                         <select value={datos.edad_min_pension || 60} onChange={e => { const v = parseInt(e.target.value); setDatos(p => ({ ...p, edad_min_pension: v })); setEdadRetiro(v) }} style={DS.select}>
                           {[60,61,62,63,64,65].map(a => <option key={a} value={a}>{a} años — {75+(a-60)*5}%{a===65?' (Vejez)':''}</option>)}
                         </select>
                       </div>
                     </div>
                     <div>
-                      <label style={DS.label}>Ingreso objetivo / mes</label>
+                      <label style={DS.label}>Ingreso objetivo / mes <Tip id="ingresoObjetivo" /></label>
                       <input
                         type="number"
                         value={ingresoObjetivo || ''}
@@ -2315,14 +2330,14 @@ function CalculadoraInner() {
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                       <div>
-                        <label style={DS.label}>Cónyuge / concubino</label>
+                        <label style={DS.label}>Cónyuge / concubino <Tip id="conyuge" /></label>
                         <select value={datos.tiene_conyuge ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, tiene_conyuge: e.target.value === 'si' }))} style={DS.select}>
                           <option value="no">✕ No</option>
                           <option value="si">✓ Sí</option>
                         </select>
                       </div>
                       <div>
-                        <label style={DS.label}>Hijos menores 16 años</label>
+                        <label style={DS.label}>Hijos menores 16 años <Tip id="numHijos" /></label>
                         <select value={datos.num_hijos} onChange={e => setDatos(p => ({ ...p, num_hijos: parseInt(e.target.value) }))} style={DS.select}>
                           {[0,1,2,3,4,5].map(n => <option key={n} value={n}>{n} {n === 0 ? '(ninguno)' : n === 1 ? 'hijo' : 'hijos'}</option>)}
                         </select>
@@ -2330,7 +2345,7 @@ function CalculadoraInner() {
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                       <div>
-                        <label style={DS.label}>Padres dependientes</label>
+                        <label style={DS.label}>Padres dependientes <Tip id="numPadres" /></label>
                         <select value={datos.num_padres} onChange={e => setDatos(p => ({ ...p, num_padres: parseInt(e.target.value) }))} style={DS.select}>
                           {[0,1,2].map(n => <option key={n} value={n}>{n} {n === 0 ? '(ninguno)' : n === 1 ? 'padre' : 'padres'}</option>)}
                         </select>
