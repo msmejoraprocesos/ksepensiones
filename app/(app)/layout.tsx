@@ -20,6 +20,7 @@ type NavItem = { href: string; label: string; icon: string; adminOnly?: boolean;
 
 const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard',      label: 'Mi día',        icon: '◈' },
+  { href: '/org-admin',     label: 'Mi Equipo', icon: '👥', orgAdminOnly: true },
   { href: '/clientes',       label: 'Clientes',       icon: '◎' },
   { href: '/seguimiento',    label: 'Seguimiento',    icon: '◷' },
   { href: '/calculadora',    label: 'Calculadora',    icon: '⊞' },
@@ -27,7 +28,6 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/configuracion',  label: 'Configuración',  icon: '⚙' },
   { href: '/admin',          label: 'Admin Fórmulas', icon: '🔬', adminOnly: true },
   { href: '/super-admin',   label: 'Dashboard Negocio', icon: '📊', adminOnly: true },
-  { href: '/org-admin',     label: 'Mi Equipo', icon: '👥', orgAdminOnly: true },
 ]
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
