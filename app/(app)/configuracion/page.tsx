@@ -98,6 +98,11 @@ export default function ConfiguracionPage() {
   const [perfil, setPerfil] = useState<Perfil>(DEFAULTS)
   const [userId, setUserId] = useState('')
   const [saving, setSaving] = useState(false)
+  const [showCambiarPassword, setShowCambiarPassword] = useState(false)
+  const [nuevaPassword, setNuevaPassword] = useState('')
+  const [confirmarPassword, setConfirmarPassword] = useState('')
+  const [savingPassword, setSavingPassword] = useState(false)
+  const [msgPassword, setMsgPassword] = useState('')
   const [saved, setSaved] = useState(false)
   const [uploadingLogo, setUploadingLogo] = useState(false)
   const [isFirstTime, setIsFirstTime] = useState(false)
@@ -187,6 +192,22 @@ export default function ConfiguracionPage() {
     const { error } = await supabase.from('materiales_apoyo').delete().eq('id', id)
     if (error) { setMaterialError('Error al eliminar: ' + error.message); return }
     setMateriales(prev => prev.filter(m => m.id !== id))
+  }
+
+  async function cambiarPassword() {
+    if (nuevaPassword.length < 6) { setMsgPassword('❌ Mínimo 6 caracteres'); return }
+    if (nuevaPassword !== confirmarPassword) { setMsgPassword('❌ Las contraseñas no coinciden'); return }
+    setSavingPassword(true)
+    const { error } = await supabase.auth.updateUser({ password: nuevaPassword })
+    if (error) {
+      setMsgPassword('❌ Error: ' + error.message)
+    } else {
+      setMsgPassword('✅ Contraseña actualizada correctamente')
+      setNuevaPassword('')
+      setConfirmarPassword('')
+      setTimeout(() => { setShowCambiarPassword(false); setMsgPassword('') }, 2000)
+    }
+    setSavingPassword(false)
   }
 
   async function guardar() {
@@ -903,6 +924,44 @@ export default function ConfiguracionPage() {
                   {saving ? 'Guardando...' : '💾 Guardar cambios'}
                 </button>
               </>
+            )}
+          </div>
+
+          </div>
+
+          {/* Cambiar contraseña */}
+          <div style={{ marginTop: '16px', padding: '16px', background: 'white', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 2px' }}>🔒 Contraseña</p>
+                <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>Cambia tu contraseña de acceso al sistema</p>
+              </div>
+              <button onClick={() => { setShowCambiarPassword(!showCambiarPassword); setMsgPassword('') }}
+                style={{ padding: '7px 16px', background: showCambiarPassword ? '#F4F6FB' : '#1B3A6B', color: showCambiarPassword ? '#374151' : 'white', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                {showCambiarPassword ? 'Cancelar' : 'Cambiar contraseña'}
+              </button>
+            </div>
+            {showCambiarPassword && (
+              <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
+                {[
+                  { label: 'Nueva contraseña', value: nuevaPassword, set: setNuevaPassword },
+                  { label: 'Confirmar contraseña', value: confirmarPassword, set: setConfirmarPassword },
+                ].map(f => (
+                  <div key={f.label}>
+                    <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>{f.label}</label>
+                    <input type="password" value={f.value} onChange={e => f.set(e.target.value)}
+                      placeholder="Mínimo 6 caracteres"
+                      style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '6px' }} />
+                  </div>
+                ))}
+                {msgPassword && (
+                  <p style={{ fontSize: '12px', color: msgPassword.startsWith('✅') ? '#065F46' : '#DC2626', margin: 0, fontWeight: '600' }}>{msgPassword}</p>
+                )}
+                <button onClick={cambiarPassword} disabled={savingPassword || !nuevaPassword}
+                  style={{ padding: '10px', background: '#1B3A6B', color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', opacity: savingPassword || !nuevaPassword ? 0.6 : 1 }}>
+                  {savingPassword ? 'Actualizando...' : 'Actualizar contraseña'}
+                </button>
+              </div>
             )}
           </div>
 
