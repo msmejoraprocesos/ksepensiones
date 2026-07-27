@@ -1073,7 +1073,7 @@ function CalculadoraInner() {
     const diasNaturales = Math.max(0, (fechaInicioMod40Natural.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24))
     const semanasNaturalesAntesM40 = diasNaturales / 7
     const sem = semBase + semanasNaturalesAntesM40
-    if (datos.semanas_totales === 0 || sdiPromedio <= 0) return // TEMP-UNLOCK: restaurar esta linea
+    if (datos.semanas_totales === 0 || sdiPromedio <= 0) return
     const sdiBase = sdiPromedio > 0 ? sdiPromedio : sys.SALARIO_MIN
     const anioBase = new Date().getFullYear()
     const anioR = anioBase + (edadRetiro - (datos.edad_actual || 60))
@@ -1932,9 +1932,9 @@ function CalculadoraInner() {
               {/* Botón continuar */}
               <button
                 onClick={() => setMostrarCaratula(false)}
-                disabled={!clienteId} // TEMP-UNLOCK: restaurar disabled={!clienteId || datos.semanas_totales === 0}
-                style={{ width: '100%', padding: '13px', background: clienteId ? AZUL : '#E5E7EB', color: clienteId ? 'white' : '#9CA3AF', border: 'none', cursor: clienteId ? 'pointer' : 'not-allowed', fontSize: '14px', fontWeight: '700' as const, fontFamily: 'inherit', transition: 'all 0.2s' }}>
-                {clienteId ? '→ Continuar a la calculadora' : 'Selecciona un cliente para continuar'}
+                disabled={!clienteId || datos.semanas_totales === 0}
+                style={{ width: '100%', padding: '13px', background: clienteId && datos.semanas_totales > 0 ? AZUL : '#E5E7EB', color: clienteId && datos.semanas_totales > 0 ? 'white' : '#9CA3AF', border: 'none', cursor: clienteId && datos.semanas_totales > 0 ? 'pointer' : 'not-allowed', fontSize: '14px', fontWeight: '700' as const, fontFamily: 'inherit', transition: 'all 0.2s' }}>
+                {clienteId && datos.semanas_totales > 0 ? '→ Continuar a la calculadora' : 'Completa los dos pasos para continuar'}
               </button>
 
               {/* Salir */}
@@ -2586,7 +2586,7 @@ function CalculadoraInner() {
             return Math.max(0, Math.round((edadRet - edadRef) * 52))
           })()
           const sem = semBase + semanasNaturales
-          if (false && sdiPromedio <= 0) return ( // TEMP-UNLOCK: restaurar if (sdiPromedio <= 0)
+          if (sdiPromedio <= 0) return (
             <div style={{ textAlign: 'center' as const, padding: '60px 20px', color: '#9CA3AF' }}>
               <div style={{ fontSize: '48px', marginBottom: '12px' }}>📋</div>
               <p style={{ fontSize: '14px' }}>Carga la constancia IMSS para ver la pensión actual</p>
