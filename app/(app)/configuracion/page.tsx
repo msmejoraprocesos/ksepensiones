@@ -927,8 +927,6 @@ export default function ConfiguracionPage() {
             )}
           </div>
 
-          </div>
-
           {/* Cambiar contraseña */}
           <div style={{ marginTop: '16px', padding: '16px', background: 'white', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
