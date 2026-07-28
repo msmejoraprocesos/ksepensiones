@@ -231,25 +231,14 @@ function AdminFormulasInner() {
     setTimeout(() => setSaved(false), 2500)
   }
 
-  if (isAdmin === null) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', color: '#94a3b8', fontSize: '14px' }}>Verificando acceso...</div>
-
-  if (isAdmin === false) return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: '12px' }}>
-      <div style={{ fontSize: '40px' }}>🔒</div>
-      <p style={{ fontSize: '16px', fontWeight: '700', color: '#374151' }}>Acceso restringido</p>
-      <p style={{ fontSize: '13px', color: '#94a3b8' }}>Esta página solo es accesible para administradores del sistema.</p>
-      <button onClick={() => router.back()} style={{ padding: '8px 20px', background: AZUL, color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px' }}>← Regresar</button>
-    </div>
-  )
-
-  const sectionTitle = (t: string, sub: string) => (
+  function sectionTitle(t: string, sub: string) { return (
     <div style={{ marginBottom: '14px' }}>
-      <p style={{ fontSize: '13px', fontWeight: '800', color: AZUL, margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t}</p>
+      <p style={{ fontSize: '13px', fontWeight: '800', color: AZUL, margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>{t}</p>
       <p style={{ fontSize: '11px', color: '#94a3b8', margin: '2px 0 0' }}>{sub}</p>
     </div>
-  )
+  ) }
 
-  const fieldRow = (label: string, legal: string, excel: string, value: React.ReactNode, editable = false) => (
+  function fieldRow(label: string, legal: string, excel: string, value: any, editable = false) { return (
     <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
       <td style={{ padding: '10px 12px', fontSize: '12px', fontWeight: '600', color: '#374151', width: '220px' }}>{label}</td>
       <td style={{ padding: '10px 12px', fontSize: '11px', color: '#64748b' }}>{legal}</td>
@@ -262,15 +251,19 @@ function AdminFormulasInner() {
         }
       </td>
     </tr>
-  )
+  ) }
 
-  const numInput = (val: number, onChange: (v: number) => void, step = 0.01) => (
+  function numInput(val: number, onChange: (v: number) => void, step = 0.01) { return (
     <input
       type="number" step={step} value={val}
       onChange={e => onChange(parseFloat(e.target.value) || 0)}
       style={{ width: '110px', padding: '4px 8px', border: '1.5px solid #f59e0b', borderRadius: '6px', fontSize: '12px', fontWeight: '700', color: '#374151', background: '#fffbeb' }}
     />
-  )
+  ) }
+
+  if (isAdmin === null) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', color: '#94a3b8' }}>Cargando...</div>
+  if (isAdmin === null) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', color: '#94a3b8' }}>Verificando acceso...</div>
+  if (!isAdmin) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}><p style={{ color: '#374151', fontWeight: '700' }}>🔒 Acceso restringido</p></div>
 
   return (
     <div style={{ height: 'calc(100vh - 48px)', overflowY: 'auto', background: '#F4F6FB' }}>
@@ -849,6 +842,7 @@ function AdminFormulasInner() {
           </div>
         </div>
       )}
+    </div>
     </div>
   )
 }
