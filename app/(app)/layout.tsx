@@ -45,6 +45,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pendingNavRef = useRef<string | null>(null)
 
   useEffect(() => {
+    // Detectar cuando la sesión es invalidada por otro login en otro dispositivo
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        _perfilCache = null
+        _perfilUserId = null
+        router.push('/login?razon=otra-sesion')
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [])
+
+  useEffect(() => {
     const checkWidth = () => {
       if (window.innerWidth < 900) setCollapsed(true)
     }

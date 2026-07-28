@@ -29,11 +29,18 @@ export default function LoginPage() {
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true); setError(null)
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) setError('Correo o contraseña incorrectos')
-    else { router.push('/dashboard'); router.refresh() }
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) {
+      setError('Correo o contraseña incorrectos')
+    } else {
+      // Cierra todas las sesiones previas — evita que compartan credenciales
+      await supabase.auth.signOut({ scope: 'others' })
+      router.push('/dashboard'); router.refresh()
+    }
     setLoading(false)
   }
+
+  const razon = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('razon') : null
 
   async function handleRecover(e: React.FormEvent) {
     e.preventDefault()
@@ -206,6 +213,13 @@ export default function LoginPage() {
                 <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', padding: '10px 14px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span>⚠️</span>
                   <span style={{ color: '#dc2626', fontSize: '13px', fontWeight: '500' }}>{error}</span>
+                </div>
+              )}
+
+              {razon === 'otra-sesion' && !error && (
+                <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: '10px', padding: '10px 14px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>📱</span>
+                  <span style={{ color: '#92400E', fontSize: '13px', fontWeight: '500' }}>Tu sesión fue cerrada porque se inició sesión desde otro dispositivo.</span>
                 </div>
               )}
 
