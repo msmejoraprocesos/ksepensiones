@@ -5,5 +5,11 @@ export default defineConfig({
     environment: 'node',
     include: ['**/__tests__/**/*.test.ts'],
     globals: true,
+    setupFiles: ['__tests__/setup.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json'],
+      include: ['lib/**', 'app/api/**'],
+    },
   },
 })
