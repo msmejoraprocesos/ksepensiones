@@ -231,6 +231,17 @@ function AdminFormulasInner() {
     setTimeout(() => setSaved(false), 2500)
   }
 
+  if (isAdmin === null) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', color: '#94a3b8', fontSize: '14px' }}>Verificando acceso...</div>
+
+  if (isAdmin === false) return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: '12px' }}>
+      <div style={{ fontSize: '40px' }}>🔒</div>
+      <p style={{ fontSize: '16px', fontWeight: '700', color: '#374151' }}>Acceso restringido</p>
+      <p style={{ fontSize: '13px', color: '#94a3b8' }}>Esta página solo es accesible para administradores del sistema.</p>
+      <button onClick={() => router.back()} style={{ padding: '8px 20px', background: AZUL, color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px' }}>← Regresar</button>
+    </div>
+  )
+
   const sectionTitle = (t: string, sub: string) => (
     <div style={{ marginBottom: '14px' }}>
       <p style={{ fontSize: '13px', fontWeight: '800', color: AZUL, margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t}</p>
@@ -259,17 +270,6 @@ function AdminFormulasInner() {
       onChange={e => onChange(parseFloat(e.target.value) || 0)}
       style={{ width: '110px', padding: '4px 8px', border: '1.5px solid #f59e0b', borderRadius: '6px', fontSize: '12px', fontWeight: '700', color: '#374151', background: '#fffbeb' }}
     />
-  )
-
-  if (isAdmin === null) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', color: '#94a3b8', fontSize: '14px' }}>Verificando acceso...</div>
-
-  if (isAdmin === false) return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: '12px' }}>
-      <div style={{ fontSize: '40px' }}>🔒</div>
-      <p style={{ fontSize: '16px', fontWeight: '700', color: '#374151' }}>Acceso restringido</p>
-      <p style={{ fontSize: '13px', color: '#94a3b8' }}>Esta página solo es accesible para administradores del sistema.</p>
-      <button onClick={() => router.back()} style={{ padding: '8px 20px', background: AZUL, color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px' }}>← Regresar</button>
-    </div>
   )
 
   return (
