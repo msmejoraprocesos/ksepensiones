@@ -46,7 +46,8 @@ function AdminFormulasInner() {
   const [pctBanco, setPctBanco] = useState(35.65)
   const [tasaBanco, setTasaBanco] = useState(32.2)
   const [tasasMod40, setTasasMod40] = useState<Record<number, number>>({ ...TASAS_MOD40_POR_ANIO })
-  const [activeTab, setActiveTab] = useState<'configurables' | 'legales' | 'equipo' | 'organizaciones'>('configurables')
+  const [activeTab, setActiveTab] = useState<'configurables' | 'legales' | 'equipo'>('configurables')
+  const [orgExpandida, setOrgExpandida] = useState<string | null>(null)
   const [organizaciones, setOrganizaciones] = useState<any[]>([])
   const [showNuevaOrg, setShowNuevaOrg] = useState(false)
   const [formOrg, setFormOrg] = useState({ nombre: '', plan: 'individual', asientos: 1, fecha_vencimiento: '' })
@@ -63,6 +64,8 @@ function AdminFormulasInner() {
   const [nuevoNombre, setNuevoNombre] = useState('')
   const [nuevoEsAdmin, setNuevoEsAdmin] = useState(false)
   const [nuevoRol, setNuevoRol] = useState<'asesor' | 'org_admin'>('asesor')
+  const [showCambiarPwd, setShowCambiarPwd] = useState(false)
+  const [usuarioEditando, setUsuarioEditando] = useState('')
   const [nuevoOrgId, setNuevoOrgId] = useState('')
   const [creandoUsuario, setCreandoUsuario] = useState(false)
   const [errorUsuario, setErrorUsuario] = useState('')
@@ -374,10 +377,10 @@ function AdminFormulasInner() {
       {/* Tabs */}
       <div style={{ padding: '14px 24px 0' }}>
         <div style={{ display: 'flex', borderBottom: '2px solid #E5E7EB', background: 'white' }}>
-          {(['configurables', 'legales', 'equipo', 'organizaciones'] as const).map(t => (
-            <button key={t} onClick={() => setActiveTab(t as any)}
+          {(['configurables', 'legales', 'equipo'] as const).map(t => (
+            <button key={t} onClick={() => setActiveTab(t)}
               style={{ padding: '10px 20px', border: 'none', borderBottom: '3px solid ' + (activeTab === t ? '#F05B21' : 'transparent'), cursor: 'pointer', fontSize: '12.5px', fontWeight: activeTab === t ? '700' : '500', background: 'white', color: activeTab === t ? '#F05B21' : '#6B7280', fontFamily: 'inherit', marginBottom: '-2px' }}>
-              {t === 'configurables' ? '📝 Parámetros editables' : t === 'legales' ? '⚖️ Constantes legales' : t === 'equipo' ? '👥 Equipo y permisos' : '🏢 Organizaciones'}
+              {t === 'configurables' ? '📝 Parámetros editables' : t === 'legales' ? '⚖️ Constantes legales' : '👥 Equipo'}
             </button>
           ))}
         </div>
@@ -559,224 +562,174 @@ function AdminFormulasInner() {
         )}
 
         {activeTab === 'equipo' && (
-          <div className="af-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
-              <div>
-                <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Equipo y aislamiento de datos</p>
-                <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0, lineHeight: 1.5 }}>
-                  Cada asesor solo ve sus propios clientes y diagnósticos — el sistema filtra por <code>asesor_id</code> en cada consulta.
-                </p>
-              </div>
-              <button onClick={() => setShowNuevoUsuario(true)}
-                style={{ padding: '8px 16px', background: '#F05B21', color: 'white', border: 'none', fontSize: '12px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0, whiteSpace: 'nowrap' as const }}>
-                + Nuevo usuario
-              </button>
-            </div>
-            <div style={{ overflowX: 'auto' }}>
-              <table className="af-table">
-                <thead>
-                  <tr>
-                    <th>Asesor</th>
-                    <th>Correo</th>
-                    <th>Rol</th>
-                    <th className="r">Clientes</th>
-                    <th className="r">Diagnósticos</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {equipo.length === 0 ? (
-                    <tr><td colSpan={6} style={{ padding: '20px', textAlign: 'center' as const, color: '#9CA3AF' }}>Sin datos de equipo</td></tr>
-                  ) : equipo.map(a => (
-                    <tr key={a.id}>
-                      <td style={{ fontWeight: '600' as const }}>{a.nombre}</td>
-                      <td style={{ color: '#6B7280' }}>{a.email}</td>
-                      <td>
-                        <span className={a.is_admin ? 'af-badge-edit' : 'af-badge-fix'}>{a.is_admin ? 'Admin' : 'Asesor'}</span>
-                      </td>
-                      <td className="r" style={{ fontWeight: '700' as const, color: AZUL }}>{a.total_clientes}</td>
-                      <td className="r" style={{ fontWeight: '700' as const, color: VERDE }}>{a.total_diagnosticos}</td>
-                      <td className="r">
-                        <button onClick={() => eliminarUsuario(a.id, a.nombre)}
-                          style={{ padding: '4px 10px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FCA5A5', fontSize: '10.5px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
-                          Eliminar
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <div style={{ marginTop: '14px', padding: '12px 14px', background: '#EFF6FF', border: '1px solid #93C5FD' }}>
-              <p style={{ fontSize: '11.5px', color: '#1E3A8A', margin: 0, lineHeight: 1.6 }}>
-                💡 <strong>Nota sobre escalamiento:</strong> el modelo actual es de cuentas individuales aisladas (un asesor = una cuenta). Si en el futuro una empresa contrata varios asientos, se requerirá una capa de "organización" para agrupar asesores bajo un mismo cliente corporativo, con un rol de administrador de equipo distinto al admin global del sistema.
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '16px' }}>
 
-      {/* Modal registrar pago */}
-      {showPago && (
-        <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', width: '100%', maxWidth: '420px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
-            <div style={{ background: '#1D4ED8', padding: '14px 20px' }}><p style={{ fontSize: '14px', fontWeight: '700' as const, color: 'white', margin: 0 }}>💳 Registrar pago de suscripción</p></div>
-            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
-              {[
-                { label: 'Monto ($)', key: 'monto', type: 'number', placeholder: '1500' },
-                { label: 'Concepto', key: 'concepto', type: 'text', placeholder: 'Suscripción mensual' },
-                { label: 'Periodo inicio', key: 'periodo_inicio', type: 'date', placeholder: '' },
-                { label: 'Periodo fin', key: 'periodo_fin', type: 'date', placeholder: '' },
-                { label: 'Método de pago', key: 'metodo_pago', type: 'text', placeholder: 'Transferencia, tarjeta...' },
-              ].map(f => (
-                <div key={f.key}>
-                  <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '3px' }}>{f.label}</label>
-                  <input type={f.type} placeholder={f.placeholder} value={(formPago as any)[f.key]}
-                    onChange={e => setFormPago(p => ({ ...p, [f.key]: f.type === 'number' ? parseFloat(e.target.value) || 0 : e.target.value }))}
-                    style={{ width: '100%', padding: '7px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
-                </div>
-              ))}
-              <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                <button onClick={() => setShowPago(false)} style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
-                <button onClick={guardarPago} disabled={guardandoPago || !formPago.periodo_inicio}
-                  style={{ flex: 1, padding: '10px', background: '#1D4ED8', color: 'white', border: 'none', fontSize: '12px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit', opacity: guardandoPago ? 0.6 : 1 }}>
-                  {guardandoPago ? 'Guardando...' : 'Registrar pago'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-      {showNuevoUsuario && (
-        <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', width: '100%', maxWidth: '420px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
-            <div style={{ background: AZUL, padding: '16px 20px' }}>
-              <p style={{ fontSize: '14px', fontWeight: '700' as const, color: 'white', margin: 0 }}>+ Crear nuevo usuario</p>
-            </div>
-            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {errorUsuario && (
-                <div style={{ padding: '8px 12px', background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#991B1B', fontSize: '11.5px' }}>{errorUsuario}</div>
-              )}
-              <div>
-                <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '4px' }}>Nombre</label>
-                <input value={nuevoNombre} onChange={e => setNuevoNombre(e.target.value)} placeholder="Ej. María González"
-                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
-              </div>
-              <div>
-                <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '4px' }}>Correo</label>
-                <input type="email" value={nuevoEmail} onChange={e => setNuevoEmail(e.target.value)} placeholder="usuario@correo.com"
-                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
-              </div>
-              <div>
-                <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '4px' }}>Contraseña temporal</label>
-                <input type="text" value={nuevoPassword} onChange={e => setNuevoPassword(e.target.value)} placeholder="Mínimo 6 caracteres"
-                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
-              </div>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#374151', cursor: 'pointer' }}>
-                <input type="checkbox" checked={nuevoEsAdmin} onChange={e => { setNuevoEsAdmin(e.target.checked); if (e.target.checked) setNuevoRol('asesor') }} />
-                Dar permisos de Administrador (acceso a Fórmulas del sistema)
-              </label>
-              {!nuevoEsAdmin && (
-                <div>
-                  <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '4px' }}>Rol</label>
-                  <select value={nuevoRol} onChange={e => setNuevoRol(e.target.value as 'asesor' | 'org_admin')}
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', fontFamily: 'inherit', background: 'white' }}>
-                    <option value="asesor">Asesor — solo ve sus propios clientes</option>
-                    <option value="org_admin">Líder de equipo — ve la actividad de su organización</option>
-                  </select>
-                </div>
-              )}
-              {!nuevoEsAdmin && organizaciones.length > 0 && (
-                <div>
-                  <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '4px' }}>Asignar a organización (opcional)</label>
-                  <select value={nuevoOrgId} onChange={e => setNuevoOrgId(e.target.value)}
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', fontFamily: 'inherit', background: 'white' }}>
-                    <option value="">— Individual (sin organización) —</option>
-                    {organizaciones.filter((o: any) => o.activo).map((o: any) => (
-                      <option key={o.id} value={o.id}>{o.nombre} ({o.plan})</option>
-                    ))}
-                  </select>
-                </div>
-              )}
-              {!nuevoEsAdmin && (
-                <p style={{ fontSize: '10.5px', color: '#9CA3AF', margin: 0 }}>Por defecto se crea como Asesor — solo verá sus propios clientes, no podrá editar fórmulas.</p>
-              )}
-              <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
-                <button onClick={() => setShowNuevoUsuario(false)}
-                  style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12.5px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
-                  Cancelar
-                </button>
-                <button onClick={crearUsuario} disabled={creandoUsuario}
-                  style={{ flex: 1, padding: '10px', background: '#F05B21', color: 'white', border: 'none', fontSize: '12.5px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit', opacity: creandoUsuario ? 0.6 : 1 }}>
-                  {creandoUsuario ? 'Creando...' : 'Crear usuario'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-        {activeTab === 'organizaciones' && (
-          <div className="af-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
-              <div>
-                <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Organizaciones registradas</p>
-                <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>Cada organización agrupa uno o más asesores bajo un mismo cliente B2B.</p>
-              </div>
+            {/* Header con acciones principales */}
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
               <button onClick={() => setShowNuevaOrg(true)}
-                style={{ padding: '8px 16px', background: '#F05B21', color: 'white', border: 'none', fontSize: '12px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
-                + Nueva organización
+                style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                🏢 Nueva organización
+              </button>
+              <button onClick={() => setShowNuevoUsuario(true)}
+                style={{ padding: '8px 16px', background: NARANJA, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                + Nuevo asesor
               </button>
             </div>
-            {organizaciones.length === 0 ? (
-              <p style={{ fontSize: '12px', color: '#9CA3AF', textAlign: 'center' as const, padding: '24px' }}>Sin organizaciones. Los asesores sin organización son cuentas individuales.</p>
-            ) : (
-              <div style={{ overflowX: 'auto' }}>
-                <table className="af-table">
-                  <thead><tr><th>Organización</th><th>Plan</th><th className="r">Asientos</th><th>Vencimiento</th><th>Estatus</th><th></th></tr></thead>
-                  <tbody>
-                    {organizaciones.map((org: any) => (
-                      <tr key={org.id}>
-                        <td style={{ fontWeight: '600' as const }}>{org.nombre}</td>
-                        <td style={{ textTransform: 'capitalize' as const }}>{org.plan}</td>
-                        <td className="r">{org.asientos}</td>
-                        <td style={{ color: '#6B7280' }}>{org.fecha_vencimiento || '—'}</td>
-                        <td><span className={org.activo ? 'af-badge-edit' : 'af-badge-fix'}>{org.activo ? 'Activa' : 'Inactiva'}</span></td>
-                        <td className="r">
-                          <button onClick={() => toggleOrgActivo(org.id, org.activo)}
-                            style={{ padding: '4px 10px', background: org.activo ? '#FEF2F2' : '#F0FDF4', color: org.activo ? '#DC2626' : '#065F46', border: `1px solid ${org.activo ? '#FCA5A5' : '#86EFAC'}`, fontSize: '10.5px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
-                            {org.activo ? 'Desactivar' : 'Activar'}
+
+            {/* Organizaciones con asesores agrupados */}
+            {organizaciones.map((org: any) => {
+              const asesoresOrg = equipo.filter((a: any) => a.organizacion_id === org.id)
+              const isExpanded = orgExpandida === org.id
+              const pct = org.asientos > 0 ? Math.round((asesoresOrg.length / org.asientos) * 100) : 0
+              return (
+                <div key={org.id} style={{ background: 'white', border: `1px solid ${isExpanded ? AZUL : '#E5E7EB'}`, boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+                  {/* Header de org */}
+                  <div onClick={() => setOrgExpandida(isExpanded ? null : org.id)}
+                    style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', background: isExpanded ? '#EEF2F8' : 'white' }}>
+                    <span style={{ fontSize: '16px' }}>🏢</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: '13px', fontWeight: '700' as const, color: '#111827', margin: '0 0 2px' }}>{org.nombre}</p>
+                      <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>
+                        {org.plan} · <span style={{ color: pct >= 90 ? '#DC2626' : '#374151', fontWeight: '600' as const }}>{asesoresOrg.length}/{org.asientos} asientos</span>
+                        {org.fecha_vencimiento && ` · Vence ${org.fecha_vencimiento}`}
+                      </p>
+                    </div>
+                    {/* Barra de asientos */}
+                    <div style={{ width: '80px' }}>
+                      <div style={{ background: '#F4F6FB', height: '6px', borderRadius: '3px', overflow: 'hidden' as const }}>
+                        <div style={{ width: `${Math.min(100, pct)}%`, height: '100%', background: pct >= 90 ? '#DC2626' : AZUL }} />
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <button onClick={e => { e.stopPropagation(); toggleOrgActivo(org.id, org.activo) }}
+                        style={{ padding: '3px 8px', background: org.activo ? '#FEF2F2' : '#F0FDF4', color: org.activo ? '#DC2626' : '#065F46', border: `1px solid ${org.activo ? '#FCA5A5' : '#86EFAC'}`, fontSize: '10px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                        {org.activo ? 'Desactivar' : 'Activar'}
+                      </button>
+                    </div>
+                    <span style={{ color: '#9CA3AF', fontSize: '12px' }}>{isExpanded ? '▲' : '▼'}</span>
+                  </div>
+
+                  {/* Asesores de esta org */}
+                  {isExpanded && (
+                    <div style={{ borderTop: `2px solid ${AZUL}` }}>
+                      {asesoresOrg.length === 0 ? (
+                        <p style={{ padding: '16px', fontSize: '12px', color: '#9CA3AF', margin: 0, textAlign: 'center' as const }}>Sin asesores asignados</p>
+                      ) : (
+                        <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '12px' }}>
+                          <thead><tr style={{ background: '#F8FAFC' }}>
+                            {['Nombre', 'Email', 'Rol', 'Clientes', 'Diagnósticos', ''].map((h, i) => (
+                              <th key={i} style={{ padding: '7px 12px', textAlign: (i > 2 ? 'right' : 'left') as const, fontWeight: '700' as const, color: '#6B7280', fontSize: '10px', textTransform: 'uppercase' as const, letterSpacing: '0.5px', borderBottom: '1px solid #E5E7EB' }}>{h}</th>
+                            ))}
+                          </tr></thead>
+                          <tbody>
+                            {asesoresOrg.map((a: any, i: number) => (
+                              <tr key={a.id} style={{ borderBottom: '1px solid #F3F4F6', background: i % 2 === 0 ? 'white' : '#FAFAFA' }}>
+                                <td style={{ padding: '8px 12px', fontWeight: '600' as const }}>{a.nombre}</td>
+                                <td style={{ padding: '8px 12px', color: '#6B7280', fontSize: '11px' }}>{a.email}</td>
+                                <td style={{ padding: '8px 12px' }}>
+                                  <span style={{ padding: '2px 6px', background: a.rol === 'org_admin' ? '#EFF6FF' : '#F4F6FB', color: a.rol === 'org_admin' ? '#1D4ED8' : '#6B7280', fontSize: '10px', fontWeight: 700 }}>
+                                    {a.rol === 'org_admin' ? 'Líder' : 'Asesor'}
+                                  </span>
+                                </td>
+                                <td style={{ padding: '8px 12px', textAlign: 'right' as const, color: AZUL, fontWeight: '600' as const }}>{a.total_clientes}</td>
+                                <td style={{ padding: '8px 12px', textAlign: 'right' as const, color: '#374151' }}>{a.total_diagnosticos}</td>
+                                <td style={{ padding: '8px 12px', textAlign: 'right' as const }}>
+                                  <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
+                                    <button onClick={() => { setUsuarioEditando(a.id); setNuevoPassword(''); setShowCambiarPwd(true) }}
+                                      style={{ padding: '3px 8px', background: '#F4F6FB', color: '#374151', border: '1px solid #E5E7EB', fontSize: '10px', cursor: 'pointer', fontFamily: 'inherit' }}>
+                                      🔑 Pwd
+                                    </button>
+                                    <button onClick={() => eliminarUsuario(a.id, a.nombre)}
+                                      style={{ padding: '3px 8px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FCA5A5', fontSize: '10px', cursor: 'pointer', fontFamily: 'inherit' }}>
+                                      Eliminar
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      )}
+                      {/* Agregar asesor a esta org */}
+                      {asesoresOrg.length < org.asientos && (
+                        <div style={{ padding: '10px 16px', borderTop: '1px solid #F3F4F6' }}>
+                          <button onClick={() => { setNuevoOrgId(org.id); setShowNuevoUsuario(true) }}
+                            style={{ padding: '6px 14px', background: '#F4F6FB', color: AZUL, border: `1px solid ${AZUL}`, fontSize: '11px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                            + Agregar asesor a {org.nombre}
                           </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-            <div style={{ marginTop: '20px' }}>
-              <p style={{ fontSize: '12px', fontWeight: '700' as const, color: '#374151', margin: '0 0 10px' }}>Asignación de asesores</p>
-              <table className="af-table">
-                <thead><tr><th>Asesor</th><th>Correo</th><th>Organización</th></tr></thead>
-                <tbody>
-                  {equipo.filter(a => !a.is_admin).map((a: any) => (
-                    <tr key={a.id}>
-                      <td style={{ fontWeight: '600' as const }}>{a.nombre}</td>
-                      <td style={{ color: '#6B7280' }}>{a.email}</td>
-                      <td>
-                        <select value={a.organizacion_id || ''} onChange={e => asignarOrganizacion(a.id, e.target.value || null)}
-                          style={{ padding: '4px 8px', border: '1px solid #E5E7EB', fontSize: '12px', fontFamily: 'inherit', background: 'white' }}>
-                          <option value="">— Individual —</option>
-                          {organizaciones.filter((o: any) => o.activo).map((o: any) => <option key={o.id} value={o.id}>{o.nombre}</option>)}
-                        </select>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                        </div>
+                      )}
+                      {asesoresOrg.length >= org.asientos && (
+                        <div style={{ padding: '8px 16px', background: '#FEF2F2', borderTop: '1px solid #FCA5A5' }}>
+                          <p style={{ fontSize: '11px', color: '#DC2626', margin: 0 }}>
+                            ⚠️ Asientos llenos ({asesoresOrg.length}/{org.asientos}) — 
+                            <button onClick={() => { /* editar asientos */ }} style={{ background: 'none', border: 'none', color: '#DC2626', cursor: 'pointer', fontSize: '11px', fontWeight: '700', padding: '0 4px', fontFamily: 'inherit' }}>
+                              Ampliar plan
+                            </button>
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+
+            {/* Asesores individuales sin organización */}
+            {(() => {
+              const solos = equipo.filter((a: any) => !a.organizacion_id && !a.is_admin)
+              if (solos.length === 0 && organizaciones.length > 0) return null
+              return (
+                <div style={{ background: 'white', border: '1px solid #E5E7EB' }}>
+                  <div style={{ padding: '12px 16px', borderBottom: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '16px' }}>👤</span>
+                    <p style={{ fontSize: '13px', fontWeight: '700' as const, color: '#111827', margin: 0 }}>Asesores individuales</p>
+                    <span style={{ fontSize: '11px', color: '#9CA3AF' }}>{solos.length} asesor{solos.length !== 1 ? 'es' : ''}</span>
+                  </div>
+                  {solos.length === 0 ? (
+                    <p style={{ padding: '16px', fontSize: '12px', color: '#9CA3AF', margin: 0, textAlign: 'center' as const }}>Sin asesores individuales</p>
+                  ) : (
+                    <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '12px' }}>
+                      <thead><tr style={{ background: '#F8FAFC' }}>
+                        {['Nombre', 'Email', 'Clientes', 'Diagnósticos', ''].map((h, i) => (
+                          <th key={i} style={{ padding: '7px 12px', textAlign: (i > 1 ? 'right' : 'left') as const, fontWeight: '700' as const, color: '#6B7280', fontSize: '10px', textTransform: 'uppercase' as const, letterSpacing: '0.5px', borderBottom: '1px solid #E5E7EB' }}>{h}</th>
+                        ))}
+                      </tr></thead>
+                      <tbody>
+                        {solos.map((a: any, i: number) => (
+                          <tr key={a.id} style={{ borderBottom: '1px solid #F3F4F6', background: i % 2 === 0 ? 'white' : '#FAFAFA' }}>
+                            <td style={{ padding: '8px 12px', fontWeight: '600' as const }}>{a.nombre}</td>
+                            <td style={{ padding: '8px 12px', color: '#6B7280', fontSize: '11px' }}>{a.email}</td>
+                            <td style={{ padding: '8px 12px', textAlign: 'right' as const, color: AZUL, fontWeight: '600' as const }}>{a.total_clientes}</td>
+                            <td style={{ padding: '8px 12px', textAlign: 'right' as const }}>{a.total_diagnosticos}</td>
+                            <td style={{ padding: '8px 12px', textAlign: 'right' as const }}>
+                              <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
+                                <select value="" onChange={e => { if (e.target.value) asignarOrganizacion(a.id, e.target.value) }}
+                                  style={{ padding: '3px 6px', border: '1px solid #E5E7EB', fontSize: '10px', fontFamily: 'inherit', background: 'white', color: '#374151', cursor: 'pointer' }}>
+                                  <option value="">Asignar a org...</option>
+                                  {organizaciones.filter((o: any) => o.activo).map((o: any) => <option key={o.id} value={o.id}>{o.nombre}</option>)}
+                                </select>
+                                <button onClick={() => { setUsuarioEditando(a.id); setNuevoPassword(''); setShowCambiarPwd(true) }}
+                                  style={{ padding: '3px 8px', background: '#F4F6FB', color: '#374151', border: '1px solid #E5E7EB', fontSize: '10px', cursor: 'pointer', fontFamily: 'inherit' }}>
+                                  🔑
+                                </button>
+                                <button onClick={() => eliminarUsuario(a.id, a.nombre)}
+                                  style={{ padding: '3px 8px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FCA5A5', fontSize: '10px', cursor: 'pointer', fontFamily: 'inherit' }}>
+                                  Eliminar
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              )
+            })()}
           </div>
         )}
+
 
       {/* ── Modal nueva organización ── */}
       {showNuevaOrg && (
@@ -811,6 +764,85 @@ function AdminFormulasInner() {
                 <button onClick={() => setShowNuevaOrg(false)} style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12.5px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
                 <button onClick={guardarOrganizacion} disabled={!formOrg.nombre || guardandoOrg} style={{ flex: 1, padding: '10px', background: '#F05B21', color: 'white', border: 'none', fontSize: '12.5px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit', opacity: !formOrg.nombre || guardandoOrg ? 0.6 : 1 }}>
                   {guardandoOrg ? 'Guardando...' : 'Crear organización'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal nuevo usuario ── */}
+      {showNuevoUsuario && (
+        <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: '420px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+            <div style={{ background: AZUL, padding: '14px 20px' }}><p style={{ fontSize: '14px', fontWeight: '700' as const, color: 'white', margin: 0 }}>+ Nuevo asesor</p></div>
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
+              {errorUsuario && <p style={{ fontSize: '12px', color: '#DC2626', margin: 0, padding: '8px', background: '#FEF2F2', border: '1px solid #FCA5A5' }}>{errorUsuario}</p>}
+              {[{ label: 'Nombre completo', state: nuevoNombre, set: setNuevoNombre, type: 'text', placeholder: 'Ej. María García' },
+                { label: 'Correo electrónico', state: nuevoEmail, set: setNuevoEmail, type: 'email', placeholder: 'asesor@empresa.com' },
+                { label: 'Contraseña temporal', state: nuevoPassword, set: setNuevoPassword, type: 'password', placeholder: 'Mínimo 6 caracteres' },
+              ].map(f => (
+                <div key={f.label}>
+                  <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '3px' }}>{f.label}</label>
+                  <input type={f.type} placeholder={f.placeholder} value={f.state} onChange={e => f.set(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+                </div>
+              ))}
+              <div>
+                <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '3px' }}>Rol</label>
+                <select value={nuevoRol} onChange={e => setNuevoRol(e.target.value as 'asesor' | 'org_admin')}
+                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', fontFamily: 'inherit', background: 'white' }}>
+                  <option value="asesor">Asesor — solo ve sus propios clientes</option>
+                  <option value="org_admin">Líder de equipo — ve la actividad de su organización</option>
+                </select>
+              </div>
+              {organizaciones.length > 0 && (
+                <div>
+                  <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '3px' }}>Organización (opcional)</label>
+                  <select value={nuevoOrgId} onChange={e => setNuevoOrgId(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', fontFamily: 'inherit', background: 'white' }}>
+                    <option value="">— Individual (sin organización) —</option>
+                    {organizaciones.filter((o: any) => o.activo).map((o: any) => <option key={o.id} value={o.id}>{o.nombre} ({o.plan})</option>)}
+                  </select>
+                </div>
+              )}
+              <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                <button onClick={() => { setShowNuevoUsuario(false); setErrorUsuario(''); setNuevoEmail(''); setNuevoPassword(''); setNuevoNombre(''); setNuevoOrgId('') }}
+                  style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
+                <button onClick={crearUsuario} disabled={creandoUsuario}
+                  style={{ flex: 1, padding: '10px', background: NARANJA, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit', opacity: creandoUsuario ? 0.6 : 1 }}>
+                  {creandoUsuario ? 'Creando...' : 'Crear asesor'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal cambiar contraseña ── */}
+      {showCambiarPwd && (
+        <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: '360px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+            <div style={{ background: AZUL, padding: '14px 20px' }}><p style={{ fontSize: '14px', fontWeight: '700' as const, color: 'white', margin: 0 }}>🔑 Cambiar contraseña</p></div>
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
+              <div>
+                <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '3px' }}>Nueva contraseña</label>
+                <input type="password" value={nuevoPassword} onChange={e => setNuevoPassword(e.target.value)} placeholder="Mínimo 6 caracteres"
+                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+              </div>
+              {errorUsuario && <p style={{ fontSize: '12px', color: '#DC2626', margin: 0 }}>{errorUsuario}</p>}
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button onClick={() => { setShowCambiarPwd(false); setErrorUsuario(''); setNuevoPassword('') }}
+                  style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
+                <button onClick={async () => {
+                  if (nuevoPassword.length < 6) { setErrorUsuario('Mínimo 6 caracteres'); return }
+                  const { data: { session } } = await supabase.auth.getSession()
+                  const res = await fetch('/api/admin/usuarios', { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` }, body: JSON.stringify({ id: usuarioEditando, password: nuevoPassword }) })
+                  const json = await res.json()
+                  if (json.ok) { setShowCambiarPwd(false); setErrorUsuario(''); setNuevoPassword('') }
+                  else setErrorUsuario(json.error)
+                }} style={{ flex: 1, padding: '10px', background: AZUL, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  Actualizar
                 </button>
               </div>
             </div>
