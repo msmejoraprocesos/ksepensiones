@@ -85,17 +85,24 @@ export async function POST(req: NextRequest) {
 
     // Email de bienvenida
     const resendKey = process.env.RESEND_API_KEY
+    console.log('resendKey present:', !!resendKey, 'is_admin:', !!is_admin)
     if (resendKey && !is_admin) {
-      fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${resendKey}` },
-        body: JSON.stringify({
-          from: 'KSE Pensiones <onboarding@resend.dev>',
-          to: [email],
-          subject: 'Bienvenido a KSE Pensiones',
-          html: `<p>Hola ${nombre},</p><p>Tu cuenta fue creada.<br>Email: ${email}<br>Contraseña: ${password}</p><p><a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://ksepensiones.vercel.app'}">Entrar al sistema</a></p>`
+      try {
+        const emailRes = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${resendKey}` },
+          body: JSON.stringify({
+            from: 'KSE Pensiones <onboarding@resend.dev>',
+            to: [email],
+            subject: 'Bienvenido a KSE Pensiones',
+            html: `<p>Hola ${nombre},</p><p>Tu cuenta fue creada.<br>Email: ${email}<br>Contraseña: ${password}</p><p><a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://ksepensiones.vercel.app'}">Entrar al sistema</a></p>`
+          })
         })
-      }).catch(e => console.error('Email error:', e))
+        const emailData = await emailRes.json()
+        console.log('email result:', JSON.stringify(emailData))
+      } catch (e: any) {
+        console.error('Email error:', e.message)
+      }
     }
 
     return NextResponse.json({ id: nuevoUsuario.user.id, email, nombre })
