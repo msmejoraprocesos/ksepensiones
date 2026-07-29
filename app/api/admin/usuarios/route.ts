@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createServerSupabase } from '@supabase/supabase-js'
+import { createClient } from '@/utils/supabase/server'
 
 function getAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -8,29 +9,20 @@ function getAdminClient() {
   return createServerSupabase(url, serviceKey, { auth: { autoRefreshToken: false, persistSession: false } })
 }
 
-async function verificarAdmin(req: NextRequest) {
+async function verificarAdmin() {
   try {
-    const admin = getAdminClient()
-
-    // Intento 1: Bearer token del header Authorization
-    const authHeader = req.headers.get('authorization')?.replace('Bearer ', '').trim()
-    // Intento 2: header personalizado x-admin-token
-    const customHeader = req.headers.get('x-admin-token')?.trim()
-
-    // Clonar el body para leer el token sin consumirlo
-    let bodyToken: string | null = null
-    try {
-      const body = await req.clone().json()
-      bodyToken = body._token ?? null
-    } catch {}
-
-    const token = authHeader || customHeader || bodyToken
-    if (!token || token === 'undefined' || token === 'null' || token.length < 10) return null
-
-    const { data: { user }, error } = await admin.auth.getUser(token)
+    // Usa el cliente server que lee las cookies de sesión automáticamente
+    const supabase = createClient()
+    const { data: { user }, error } = await supabase.auth.getUser()
     if (error || !user) return null
 
-    const { data: perfil } = await admin.from('perfiles_usuario').select('is_admin, rol').eq('id', user.id).single()
+    const admin = getAdminClient()
+    const { data: perfil } = await admin
+      .from('perfiles_usuario')
+      .select('is_admin, rol')
+      .eq('id', user.id)
+      .single()
+
     if (perfil?.is_admin || perfil?.rol === 'super_admin') return user
     return null
   } catch (e) {
@@ -41,7 +33,7 @@ async function verificarAdmin(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const solicitante = await verificarAdmin(req)
+    const solicitante = await verificarAdmin()
     if (!solicitante) return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
 
     const { email, password, nombre, razon_social, is_admin, organizacion_id, rol } = await req.json()
@@ -127,7 +119,7 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const solicitante = await verificarAdmin(req)
+    const solicitante = await verificarAdmin()
     if (!solicitante) return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
 
     const id = req.nextUrl.searchParams.get('id')
@@ -147,7 +139,7 @@ export async function DELETE(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
-    const solicitante = await verificarAdmin(req)
+    const solicitante = await verificarAdmin()
     if (!solicitante) return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
 
     const { id, password, is_admin, organizacion_id, rol } = await req.json()
