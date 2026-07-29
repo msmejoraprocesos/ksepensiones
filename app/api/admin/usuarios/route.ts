@@ -11,15 +11,20 @@ function getAdminClient() {
 
 // Verifica que el usuario sea admin usando su ID directamente
 async function verificarAdmin(userId: string) {
-  if (!userId) return false
-  const admin = getAdminClient()
-  const { data, error } = await admin
-    .from('perfiles_usuario')
-    .select('is_admin, rol')
-    .eq('id', userId)
-    .single()
-  console.log('verificarAdmin:', { userId: userId.slice(0,8), data, error: error?.message })
-  return !!data?.is_admin || data?.rol === 'super_admin'
+  if (!userId || userId.length < 10) return false
+  try {
+    const admin = getAdminClient()
+    const { count, error } = await admin
+      .from('perfiles_usuario')
+      .select('*', { count: 'exact', head: true })
+      .eq('id', userId)
+      .or('is_admin.eq.true,rol.eq.super_admin')
+    console.log('verificarAdmin count:', count, 'error:', error?.message, 'uid:', userId.slice(0, 8))
+    return (count ?? 0) > 0
+  } catch (e: any) {
+    console.error('verificarAdmin exception:', e.message)
+    return false
+  }
 }
 
 export async function POST(req: NextRequest) {
