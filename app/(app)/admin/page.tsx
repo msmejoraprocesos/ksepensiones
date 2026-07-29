@@ -72,14 +72,14 @@ function AdminFormulasInner() {
   const [recargarEquipo, setRecargarEquipo] = useState(0)
 
   async function cargarEquipo() {
-    const { data: asesores } = await supabase.from('perfiles_usuario').select('id, nombre, email, razon_social, is_admin, organizacion_id, rol')
+    const { data: asesores } = await supabase.from('perfiles_usuario').select('id, nombre, email_contacto, razon_social, is_admin, organizacion_id, rol')
     if (asesores) {
       const { data: clientesAll } = await supabase.from('clientes').select('asesor_id')
       const { data: diagsAll } = await supabase.from('diagnosticos').select('asesor_id')
       const equipoData = asesores.map(a => ({
         id: a.id,
         nombre: a.razon_social || a.nombre || 'Sin nombre',
-        email: a.email || '—',
+        email: a.email_contacto || '—',
         total_clientes: (clientesAll ?? []).filter(c => c.asesor_id === a.id).length,
         total_diagnosticos: (diagsAll ?? []).filter(d => d.asesor_id === a.id).length,
         is_admin: !!a.is_admin,
