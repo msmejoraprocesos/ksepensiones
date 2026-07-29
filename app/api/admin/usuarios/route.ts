@@ -10,11 +10,26 @@ function getAdminClient() {
 
 async function verificarAdmin(req: NextRequest) {
   try {
-    const token = req.headers.get('authorization')?.replace('Bearer ', '').trim()
-    if (!token || token === 'undefined' || token === 'null') return null
     const admin = getAdminClient()
+
+    // Intento 1: Bearer token del header Authorization
+    const authHeader = req.headers.get('authorization')?.replace('Bearer ', '').trim()
+    // Intento 2: header personalizado x-admin-token
+    const customHeader = req.headers.get('x-admin-token')?.trim()
+
+    // Clonar el body para leer el token sin consumirlo
+    let bodyToken: string | null = null
+    try {
+      const body = await req.clone().json()
+      bodyToken = body._token ?? null
+    } catch {}
+
+    const token = authHeader || customHeader || bodyToken
+    if (!token || token === 'undefined' || token === 'null' || token.length < 10) return null
+
     const { data: { user }, error } = await admin.auth.getUser(token)
     if (error || !user) return null
+
     const { data: perfil } = await admin.from('perfiles_usuario').select('is_admin, rol').eq('id', user.id).single()
     if (perfil?.is_admin || perfil?.rol === 'super_admin') return user
     return null

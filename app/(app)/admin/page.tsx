@@ -176,10 +176,20 @@ function AdminFormulasInner() {
     setCreandoUsuario(true)
     try {
       const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token ?? ''
       const res = await fetch('/api/admin/usuarios', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-        body: JSON.stringify({ email: nuevoEmail, password: nuevoPassword, nombre: nuevoNombre, is_admin: nuevoEsAdmin, rol: nuevoEsAdmin ? 'super_admin' : nuevoRol, organizacion_id: nuevoOrgId || null }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'x-admin-token': token,
+        },
+        body: JSON.stringify({
+          email: nuevoEmail, password: nuevoPassword, nombre: nuevoNombre,
+          is_admin: nuevoEsAdmin, rol: nuevoEsAdmin ? 'super_admin' : nuevoRol,
+          organizacion_id: nuevoOrgId || null,
+          _token: token,
+        }),
       })
       const data = await res.json()
       if (!res.ok) { setErrorUsuario(data.error || 'Error al crear usuario'); setCreandoUsuario(false); return }
