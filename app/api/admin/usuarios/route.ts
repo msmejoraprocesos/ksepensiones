@@ -14,8 +14,8 @@ async function verificarAdmin(req: NextRequest) {
   const admin = getAdminClient()
   const { data: { user }, error } = await admin.auth.getUser(token)
   if (error || !user) return null
-  const { data: perfil } = await admin.from('perfiles_usuario').select('is_admin').eq('id', user.id).single()
-  if (!perfil?.is_admin) return null
+  const { data: perfil } = await admin.from('perfiles_usuario').select('is_admin, rol').eq('id', user.id).single()
+  if (!perfil?.is_admin && perfil?.rol !== 'super_admin') return null
   return user
 }
 
