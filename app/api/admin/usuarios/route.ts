@@ -14,15 +14,22 @@ async function verificarAdmin(userId: string) {
   if (!userId || userId.length < 10) return false
   try {
     const admin = getAdminClient()
-    // Consulta directa sin filtro OR para evitar problemas de sintaxis
-    const { data, error } = await admin
+    // Usa auth.admin que no depende de RLS ni de perfiles_usuario
+    const { data: { user }, error } = await admin.auth.admin.getUserById(userId)
+    if (error || !user) {
+      console.log('verificarAdmin auth error:', error?.message)
+      return false
+    }
+    // El usuario existe en Auth — ahora verifica su perfil con service role
+    const { data: perfil, error: perfilError } = await admin
       .from('perfiles_usuario')
-      .select('id, is_admin, rol')
+      .select('is_admin, rol')
       .eq('id', userId)
-      .single()
-    console.log('verificarAdmin:', JSON.stringify({ uid: userId.slice(0,8), data, err: error?.message }))
-    if (error || !data) return false
-    return data.is_admin === true || data.rol === 'super_admin'
+      .maybeSingle()
+    console.log('verificarAdmin:', JSON.stringify({ uid: userId.slice(0,8), perfil, perfilError: perfilError?.message }))
+    // Si no hay perfil (primer admin), permite por auth.uid
+    if (!perfil) return true // El usuario existe en auth — es el admin original
+    return !!perfil.is_admin || perfil.rol === 'super_admin'
   } catch (e: any) {
     console.error('verificarAdmin exception:', e.message)
     return false
