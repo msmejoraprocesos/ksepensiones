@@ -13,12 +13,13 @@ function getAdminClient() {
 async function verificarAdmin(userId: string) {
   if (!userId) return false
   const admin = getAdminClient()
-  const { data } = await admin
+  const { data, error } = await admin
     .from('perfiles_usuario')
     .select('is_admin, rol')
     .eq('id', userId)
     .single()
-  return data?.is_admin === true || data?.rol === 'super_admin'
+  console.log('verificarAdmin:', { userId: userId.slice(0,8), data, error: error?.message })
+  return !!data?.is_admin || data?.rol === 'super_admin'
 }
 
 export async function POST(req: NextRequest) {
