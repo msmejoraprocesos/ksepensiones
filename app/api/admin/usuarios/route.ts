@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createServerSupabase } from '@supabase/supabase-js'
-import { createClient } from '@/utils/supabase/server'
 
 function getAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -9,29 +8,15 @@ function getAdminClient() {
   return createServerSupabase(url, serviceKey, { auth: { autoRefreshToken: false, persistSession: false } })
 }
 
-// Verifica que quien solicita sea admin — usa las cookies del server (más confiable que el token Bearer)
 async function verificarAdmin(req: NextRequest) {
   try {
-    // Intento 1: usar el cliente server que lee cookies (más confiable en App Router)
-    const supabaseServer = createClient()
-    const { data: { user }, error } = await supabaseServer.auth.getUser()
-    if (!error && user) {
-      const admin = getAdminClient()
-      const { data: perfil } = await admin.from('perfiles_usuario').select('is_admin, rol').eq('id', user.id).single()
-      if (perfil?.is_admin || perfil?.rol === 'super_admin') return user
-    }
-
-    // Intento 2: usar Bearer token del header (fallback)
     const token = req.headers.get('authorization')?.replace('Bearer ', '').trim()
-    if (token && token !== 'undefined' && token !== 'null') {
-      const admin = getAdminClient()
-      const { data: { user: tokenUser }, error: tokenError } = await admin.auth.getUser(token)
-      if (!tokenError && tokenUser) {
-        const { data: perfil } = await admin.from('perfiles_usuario').select('is_admin, rol').eq('id', tokenUser.id).single()
-        if (perfil?.is_admin || perfil?.rol === 'super_admin') return tokenUser
-      }
-    }
-
+    if (!token || token === 'undefined' || token === 'null') return null
+    const admin = getAdminClient()
+    const { data: { user }, error } = await admin.auth.getUser(token)
+    if (error || !user) return null
+    const { data: perfil } = await admin.from('perfiles_usuario').select('is_admin, rol').eq('id', user.id).single()
+    if (perfil?.is_admin || perfil?.rol === 'super_admin') return user
     return null
   } catch (e) {
     console.error('verificarAdmin error:', e)
