@@ -75,8 +75,9 @@ export async function POST(req: NextRequest) {
       organizacion_id: organizacion_id || null,
     })
     if (errPerfil) {
+      console.log('errPerfil:', JSON.stringify(errPerfil))
       await admin.auth.admin.deleteUser(nuevoUsuario.user.id)
-      return NextResponse.json({ error: 'Error al crear perfil: ' + errPerfil.message }, { status: 400 })
+      return NextResponse.json({ error: 'Error al crear perfil: ' + errPerfil.message + ' | code: ' + errPerfil.code + ' | details: ' + errPerfil.details }, { status: 400 })
     }
 
     // Email de bienvenida
