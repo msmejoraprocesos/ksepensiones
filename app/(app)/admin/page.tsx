@@ -176,19 +176,16 @@ function AdminFormulasInner() {
     setCreandoUsuario(true)
     try {
       const { data: { session } } = await supabase.auth.getSession()
-      const token = session?.access_token ?? ''
+      const uid = session?.user?.id
+      if (!uid) { setErrorUsuario('Sesión no válida — recarga la página'); setCreandoUsuario(false); return }
       const res = await fetch('/api/admin/usuarios', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'x-admin-token': token,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          _uid: uid,
           email: nuevoEmail, password: nuevoPassword, nombre: nuevoNombre,
           is_admin: nuevoEsAdmin, rol: nuevoEsAdmin ? 'super_admin' : nuevoRol,
           organizacion_id: nuevoOrgId || null,
-          _token: token,
         }),
       })
       const data = await res.json()
@@ -205,9 +202,10 @@ function AdminFormulasInner() {
   async function eliminarUsuario(id: string, nombre: string) {
     if (!confirm(`¿Eliminar la cuenta de "${nombre}"? Esta acción no se puede deshacer. Sus clientes y diagnósticos NO se eliminan, pero quedarán sin asesor asignado.`)) return
     const { data: { session } } = await supabase.auth.getSession()
+    const uid = session?.user?.id
     const res = await fetch(`/api/admin/usuarios?id=${id}`, {
       method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${session?.access_token}` },
+      headers: { 'x-uid': uid ?? '' },
     })
     const data = await res.json()
     if (!res.ok) { alert(data.error || 'Error al eliminar'); return }
@@ -840,7 +838,8 @@ function AdminFormulasInner() {
                 <button onClick={async () => {
                   if (nuevoPassword.length < 6) { setErrorUsuario('Mínimo 6 caracteres'); return }
                   const { data: { session } } = await supabase.auth.getSession()
-                  const res = await fetch('/api/admin/usuarios', { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` }, body: JSON.stringify({ id: usuarioEditando, password: nuevoPassword }) })
+                  const uid = session?.user?.id
+                  const res = await fetch('/api/admin/usuarios', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ _uid: uid, id: usuarioEditando, password: nuevoPassword }) })
                   const json = await res.json()
                   if (json.ok) { setShowCambiarPwd(false); setErrorUsuario(''); setNuevoPassword('') }
                   else setErrorUsuario(json.error)
