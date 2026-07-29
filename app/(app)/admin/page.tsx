@@ -563,7 +563,7 @@ function AdminFormulasInner() {
                 style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
                 🏢 Nueva organización
               </button>
-              <button onClick={() => setShowNuevoUsuario(true)}
+              <button onClick={() => { setShowNuevoUsuario(true); setErrorUsuario(''); setNuevoEmail(''); setNuevoPassword(''); setNuevoNombre(''); setNuevoOrgId('') }}
                 style={{ padding: '8px 16px', background: NARANJA, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
                 + Nuevo asesor
               </button>
@@ -646,7 +646,7 @@ function AdminFormulasInner() {
                       {/* Agregar asesor a esta org */}
                       {asesoresOrg.length < org.asientos && (
                         <div style={{ padding: '10px 16px', borderTop: '1px solid #F3F4F6' }}>
-                          <button onClick={() => { setNuevoOrgId(org.id); setShowNuevoUsuario(true) }}
+                          <button onClick={() => { setNuevoOrgId(org.id); setShowNuevoUsuario(true); setErrorUsuario(''); setNuevoEmail(''); setNuevoPassword(''); setNuevoNombre('') }}
                             style={{ padding: '6px 14px', background: '#F4F6FB', color: AZUL, border: `1px solid ${AZUL}`, fontSize: '11px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
                             + Agregar asesor a {org.nombre}
                           </button>
