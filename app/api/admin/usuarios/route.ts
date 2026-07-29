@@ -65,6 +65,9 @@ export async function POST(req: NextRequest) {
     })
     if (errAuth || !nuevoUsuario.user) return NextResponse.json({ error: errAuth?.message || 'Error al crear usuario' }, { status: 400 })
 
+    // Limpiar perfil huérfano si existe (de intentos previos fallidos)
+    await admin.from('perfiles_usuario').delete().eq('id', nuevoUsuario.user.id)
+
     const { error: errPerfil } = await admin.from('perfiles_usuario').insert({
       id: nuevoUsuario.user.id,
       nombre: nombre || email.split('@')[0],
