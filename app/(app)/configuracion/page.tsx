@@ -49,6 +49,7 @@ const DEFAULTS: Perfil = {
   pmg_l97: 4345.72, rendimiento_afore_default: 6, inflacion_uma: 4.5, pct_afore_mod40: 20,
   mod40_2026: 14.438, mod40_2027: 15.528, mod40_2028: 16.619,
   mod40_2029: 17.709, mod40_2030: 18.800,
+  tasa_m10: 10.075, pct_actualizacion_inpc: 7.27, pct_recargos_retroactivo: 41.80,
   uma_actualizada_en: null, sm_actualizado_en: null, pmg_actualizado_en: null,
   encabezado_color: '#1B3A6B', encabezado_titulo: 'Diagnóstico Pensional',
   encabezado_logo_size: 28, encabezado_font_size: 13,

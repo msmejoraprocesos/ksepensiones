@@ -85,17 +85,54 @@ export async function POST(req: NextRequest) {
 
     // Email de bienvenida
     const resendKey = process.env.RESEND_API_KEY
-    console.log('resendKey present:', !!resendKey, 'is_admin:', !!is_admin)
     if (resendKey && !is_admin) {
       try {
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ksepensiones.vercel.app'
+        const features = [
+          ['🤖', 'Lectura automática de constancias IMSS por IA'],
+          ['📊', 'Diagnóstico pensional completo (Art. 167 LSS Ley 73)'],
+          ['💬', 'Análisis personalizado con Sofía IA'],
+          ['📄', 'PDF profesional con tu nombre y logo'],
+          ['👥', 'Gestión de tu cartera de clientes'],
+        ]
         const emailRes = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${resendKey}` },
           body: JSON.stringify({
             from: 'KSE Pensiones <onboarding@resend.dev>',
             to: [email],
-            subject: 'Bienvenido a KSE Pensiones',
-            html: `<p>Hola ${nombre},</p><p>Tu cuenta fue creada.<br>Email: ${email}<br>Contraseña: ${password}</p><p><a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://ksepensiones.vercel.app'}">Entrar al sistema</a></p>`
+            subject: '🔷 Bienvenido a KSE Pensiones — Tus credenciales de acceso',
+            html: `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#F4F6FB;font-family:Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#F4F6FB;padding:32px 0">
+<tr><td align="center"><table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%">
+<tr><td style="background:#1B3A6B;padding:28px 32px;text-align:center;border-radius:8px 8px 0 0">
+  <div style="font-size:22px;font-weight:900;color:white;letter-spacing:1px">KSE PENSIONES</div>
+  <div style="font-size:12px;color:#93C5FD;margin-top:4px;letter-spacing:0.5px">SISTEMA DE DIAGNÓSTICO PENSIONAL</div>
+</td></tr>
+<tr><td style="background:white;padding:32px">
+  <p style="font-size:16px;color:#111827;margin:0 0 8px">Hola, <strong>${nombre || email.split('@')[0]}</strong> 👋</p>
+  <p style="font-size:14px;color:#6B7280;line-height:1.7;margin:0 0 24px">Tu cuenta en <strong style="color:#1B3A6B">KSE Pensiones</strong> ha sido creada exitosamente. A partir de ahora puedes generar diagnósticos pensionales profesionales y gestionar tu cartera de clientes.</p>
+  <div style="background:#F4F6FB;border:1px solid #E5E7EB;border-left:4px solid #F05B21;border-radius:6px;padding:20px;margin:0 0 24px">
+    <p style="font-size:11px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px">Tus credenciales de acceso</p>
+    <p style="margin:0 0 12px"><span style="font-size:12px;color:#6B7280">📧 Usuario</span><br><span style="font-size:15px;font-weight:700;color:#111827">${email}</span></p>
+    <p style="margin:0"><span style="font-size:12px;color:#6B7280">🔑 Contraseña temporal</span><br><span style="font-size:20px;font-weight:900;color:#F05B21;letter-spacing:2px">${password}</span></p>
+  </div>
+  <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:6px;padding:12px 16px;margin:0 0 24px">
+    <p style="font-size:12px;color:#92400E;margin:0">⚠️ <strong>Por seguridad</strong>, cambia tu contraseña en tu primer acceso desde <strong>Configuración → Cambiar contraseña</strong>.</p>
+  </div>
+  <div style="text-align:center;margin:0 0 24px">
+    <a href="${appUrl}" style="display:inline-block;background:#1B3A6B;color:white;padding:14px 32px;font-size:14px;font-weight:700;text-decoration:none;border-radius:6px">Entrar al sistema →</a>
+  </div>
+  <p style="font-size:12px;font-weight:700;color:#374151;margin:0 0 10px">Con tu cuenta puedes:</p>
+  <table width="100%" cellpadding="0" cellspacing="0">${features.map(([icon, text]) => `<tr><td style="padding:6px 0;border-bottom:1px solid #F3F4F6;font-size:13px;color:#374151">${icon} ${text}</td></tr>`).join('')}</table>
+</td></tr>
+<tr><td style="background:#1B3A6B;padding:20px 32px;text-align:center;border-radius:0 0 8px 8px">
+  <p style="font-size:12px;color:rgba(255,255,255,0.6);margin:0">KSE Pensiones · Sistema de Diagnóstico Pensional · México</p>
+  <p style="font-size:11px;color:rgba(255,255,255,0.4);margin:6px 0 0">Si no esperabas este correo, ignóralo.</p>
+</td></tr>
+</table></td></tr></table>
+</body></html>`
           })
         })
         const emailData = await emailRes.json()
