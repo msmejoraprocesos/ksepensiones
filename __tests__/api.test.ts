@@ -3,6 +3,25 @@ import { NextRequest } from 'next/server'
 
 // ── Setup de mocks ANTES de importar los módulos ─────────────────────────────
 
+// Mock next/headers cookies (requerido por verificarAdmin con JWT)
+vi.mock('next/headers', () => ({
+  cookies: vi.fn(() => ({
+    getAll: vi.fn().mockReturnValue([{ name: 'sb-access-token', value: 'fake-token' }]),
+    set: vi.fn(),
+  })),
+}))
+
+// Mock @supabase/ssr createServerClient
+vi.mock('@supabase/ssr', () => ({
+  createServerClient: vi.fn(() => ({
+    auth: {
+      getUser: vi.fn().mockResolvedValue({
+        data: { user: { id: 'admin-uuid-123', email: 'admin@test.com' } }, error: null,
+      }),
+    },
+  })),
+}))
+
 // Mock Supabase
 vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(() => ({
@@ -25,13 +44,33 @@ vi.mock('@supabase/supabase-js', () => ({
       select: vi.fn().mockReturnThis(),
       insert: vi.fn().mockResolvedValue({ error: null }),
       update: vi.fn().mockReturnThis(),
+      upsert: vi.fn().mockResolvedValue({ error: null }),
       delete: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({ data: { is_admin: true, rol: 'super_admin', organizacion_id: null }, error: null }),
+      single: vi.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116' } }), // null = no rate limit record yet
       maybeSingle: vi.fn().mockResolvedValue({ data: { is_admin: true, rol: 'super_admin' }, error: null }),
       limit: vi.fn().mockReturnThis(),
       order: vi.fn().mockReturnThis(),
     })),
+  })),
+}))
+
+// Mock next/headers cookies
+vi.mock('next/headers', () => ({
+  cookies: vi.fn(() => ({
+    getAll: vi.fn().mockReturnValue([{ name: 'sb-access-token', value: 'fake-token' }]),
+    set: vi.fn(),
+  })),
+}))
+
+// Mock @supabase/ssr
+vi.mock('@supabase/ssr', () => ({
+  createServerClient: vi.fn(() => ({
+    auth: {
+      getUser: vi.fn().mockResolvedValue({
+        data: { user: { id: 'admin-uuid-123', email: 'admin@test.com' } }, error: null,
+      }),
+    },
   })),
 }))
 
@@ -84,13 +123,6 @@ function makeReq(method: string, body?: object, searchParams?: string): NextRequ
 // ══════════════════════════════════════════════════════════════════════════════
 
 describe('API /admin/usuarios — Validaciones de negocio', () => {
-
-  it('sin _uid retorna 403', async () => {
-    const { POST } = await import('../app/api/admin/usuarios/route')
-    const req = makeReq('POST', { email: 'test@test.com', password: 'Password1!x', nombre: 'Test', telefono: '1234567890' })
-    const res = await POST(req)
-    expect(res.status).toBe(403)
-  })
 
   it('email es requerido para crear usuario', async () => {
     const { POST } = await import('../app/api/admin/usuarios/route')

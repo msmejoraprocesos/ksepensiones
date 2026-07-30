@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@supabase/supabase-js'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 const client = new Anthropic()
 
@@ -24,6 +25,17 @@ export async function POST(req: NextRequest) {
     const { pdf, asesor_id, cliente_id } = await req.json()
     asesorId = asesor_id ?? null
     if (!pdf) return NextResponse.json({ error: 'No PDF provided' }, { status: 400 })
+
+    // Rate limiting: 30 llamadas por asesor por día
+    if (asesorId) {
+      const rl = await checkRateLimit(asesorId, 'extract-nss')
+      if (!rl.permitido) {
+        return NextResponse.json({
+          error: `Alcanzaste el límite diario de ${rl.limite} lecturas de constancia. Se restablece a medianoche.`,
+          llamadas: rl.llamadas, limite: rl.limite
+        }, { status: 429 })
+      }
+    }
 
     const response = await client.messages.create({
       model: 'claude-sonnet-4-6',

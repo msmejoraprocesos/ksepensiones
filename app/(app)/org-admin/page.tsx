@@ -106,7 +106,7 @@ export default function OrgAdminPage() {
     const res = await fetch('/api/admin/usuarios', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ _uid: session?.user?.id, email, password, nombre, telefono, rol: 'asesor', organizacion_id: org.id }),
+      body: JSON.stringify({ email, password, nombre, telefono, rol: 'asesor', organizacion_id: org.id }),
     })
     const data = await res.json()
     if (!res.ok) { setErrNuevo(data.error || 'Error al crear asesor'); setCreando(false); return }
@@ -125,7 +125,7 @@ export default function OrgAdminPage() {
     const res = await fetch('/api/admin/usuarios', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ _uid: session?.user?.id, id: pwdAsesorId, password: pwdNueva }),
+      body: JSON.stringify({ id: pwdAsesorId, password: pwdNueva }),
     })
     const data = await res.json()
     if (data.ok) { setShowPwd(false); setPwdNueva(''); setPwdErr('') }

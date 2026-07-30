@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
 function getAdminClient() {
   return createClient(
@@ -9,41 +11,47 @@ function getAdminClient() {
   )
 }
 
-// Verifica que el usuario sea admin usando su ID directamente
-async function verificarAdmin(userId: string) {
-  if (!userId || userId.length < 10) return false
+// Verifica admin usando JWT de cookies — más seguro que _uid en body
+async function verificarAdmin(): Promise<{ id: string } | null> {
   try {
+    const cookieStore = cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() { return cookieStore.getAll() },
+          setAll(cs: any[]) { try { cs.forEach(({ name, value, options }: any) => cookieStore.set(name, value, options)) } catch {} },
+        },
+      }
+    )
+    const { data: { user }, error } = await supabase.auth.getUser()
+    if (error || !user) return null
+
     const admin = getAdminClient()
-    // Usa auth.admin que no depende de RLS ni de perfiles_usuario
-    const { data: { user }, error } = await admin.auth.admin.getUserById(userId)
-    if (error || !user) {
-      console.log('verificarAdmin auth error:', error?.message)
-      return false
-    }
-    // El usuario existe en Auth — ahora verifica su perfil con service role
-    const { data: perfil, error: perfilError } = await admin
+    const { data: perfil } = await admin
       .from('perfiles_usuario')
       .select('is_admin, rol')
-      .eq('id', userId)
+      .eq('id', user.id)
       .maybeSingle()
-    console.log('verificarAdmin:', JSON.stringify({ uid: userId.slice(0,8), perfil, perfilError: perfilError?.message }))
-    // Si no hay perfil (primer admin), permite por auth.uid
-    if (!perfil) return true // El usuario existe en auth — es el admin original
-    return !!perfil.is_admin || perfil.rol === 'super_admin'
+
+    if (perfil?.is_admin || perfil?.rol === 'super_admin' || perfil?.rol === 'org_admin') {
+      return { id: user.id }
+    }
+    return null
   } catch (e: any) {
-    console.error('verificarAdmin exception:', e.message)
-    return false
+    console.error('verificarAdmin error:', e.message)
+    return null
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
-    const { email, password, nombre, razon_social, is_admin, organizacion_id, rol, _uid } = body
+    const solicitante = await verificarAdmin()
+    if (!solicitante) return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
 
-    if (!_uid) return NextResponse.json({ error: 'Sesión no válida — recarga la página' }, { status: 403 })
-    const esAdmin = await verificarAdmin(_uid)
-    if (!esAdmin) return NextResponse.json({ error: 'No tienes permisos de administrador' }, { status: 403 })
+    const body = await req.json()
+    const { email, password, nombre, razon_social, is_admin, organizacion_id, rol } = body
 
     if (!email || !password) return NextResponse.json({ error: 'Email y contraseña son requeridos' }, { status: 400 })
     if (password.length < 6) return NextResponse.json({ error: 'La contraseña debe tener al menos 6 caracteres' }, { status: 400 })
@@ -151,12 +159,12 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const uid = req.headers.get('x-uid') || req.nextUrl.searchParams.get('uid')
-    if (!uid || !(await verificarAdmin(uid))) return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
+    const solicitante = await verificarAdmin()
+    if (!solicitante) return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
 
     const id = req.nextUrl.searchParams.get('id')
     if (!id) return NextResponse.json({ error: 'Falta el id' }, { status: 400 })
-    if (id === uid) return NextResponse.json({ error: 'No puedes eliminar tu propia cuenta' }, { status: 400 })
+    if (id === solicitante.id) return NextResponse.json({ error: 'No puedes eliminar tu propia cuenta' }, { status: 400 })
 
     const admin = getAdminClient()
     const { error } = await admin.auth.admin.deleteUser(id)
@@ -170,9 +178,11 @@ export async function DELETE(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
+    const solicitante = await verificarAdmin()
+    if (!solicitante) return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
+
     const body = await req.json()
-    const { _uid, id, password, is_admin, organizacion_id, rol } = body
-    if (!_uid || !(await verificarAdmin(_uid))) return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
+    const { id, password, is_admin, organizacion_id, rol } = body
     if (!id) return NextResponse.json({ error: 'Falta el id' }, { status: 400 })
 
     const admin = getAdminClient()

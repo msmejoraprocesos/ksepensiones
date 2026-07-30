@@ -207,14 +207,11 @@ function AdminFormulasInner() {
     if (!nuevoPassword || nuevoPassword.length < 10) { setErrorUsuario('La contraseña debe tener mínimo 10 caracteres'); return }
     setCreandoUsuario(true)
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      const uid = session?.user?.id
       if (!uid) { setErrorUsuario('Sesión no válida — recarga la página'); setCreandoUsuario(false); return }
       const res = await fetch('/api/admin/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          _uid: uid,
           email: nuevoEmail, password: nuevoPassword, nombre: nuevoNombre,
           telefono: nuevoTelefono || null,
           is_admin: nuevoEsAdmin, rol: nuevoEsAdmin ? 'super_admin' : nuevoRol,
@@ -239,8 +236,6 @@ function AdminFormulasInner() {
 
   async function eliminarUsuario(id: string, nombre: string) {
     if (!confirm(`¿Eliminar la cuenta de "${nombre}"? Esta acción no se puede deshacer. Sus clientes y diagnósticos NO se eliminan, pero quedarán sin asesor asignado.`)) return
-    const { data: { session } } = await supabase.auth.getSession()
-    const uid = session?.user?.id
     const res = await fetch(`/api/admin/usuarios?id=${id}`, {
       method: 'DELETE',
       headers: { 'x-uid': uid ?? '' },
@@ -898,9 +893,7 @@ function AdminFormulasInner() {
                   style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
                 <button onClick={async () => {
                   if (nuevoPassword.length < 6) { setErrorUsuario('Mínimo 6 caracteres'); return }
-                  const { data: { session } } = await supabase.auth.getSession()
-                  const uid = session?.user?.id
-                  const res = await fetch('/api/admin/usuarios', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ _uid: uid, id: usuarioEditando, password: nuevoPassword }) })
+                  const res = await fetch('/api/admin/usuarios', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: usuarioEditando, password: nuevoPassword }) })
                   const json = await res.json()
                   if (json.ok) { setShowCambiarPwd(false); setErrorUsuario(''); setNuevoPassword('') }
                   else setErrorUsuario(json.error)

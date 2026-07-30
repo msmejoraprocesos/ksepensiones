@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@supabase/supabase-js'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 const client = new Anthropic()
 
@@ -15,6 +16,19 @@ function getAdminClient() {
 export async function POST(req: NextRequest) {
   try {
     const datos = await req.json()
+    const asesorId = datos.asesor_id ?? null
+
+    // Rate limiting: 30 llamadas por asesor por día
+    if (asesorId) {
+      const rl = await checkRateLimit(asesorId, 'analisis-pensional')
+      if (!rl.permitido) {
+        return NextResponse.json({
+          ok: false,
+          error: `Alcanzaste el límite diario de ${rl.limite} análisis de Sofía IA. Se restablece a medianoche.`,
+          llamadas: rl.llamadas, limite: rl.limite
+        }, { status: 429 })
+      }
+    }
     const {
       nombre, nombre_trabajador, ley, semanas, salarioDiario, salarioMensual, edadActual, edadRetiro,
       aniosRetiro, ingresoDes, inflacion, sys,
