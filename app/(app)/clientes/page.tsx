@@ -242,6 +242,8 @@ function ClientesInner() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const userIdRef = useRef('')
+  const userRolRef = useRef('asesor')
+  const userOrgRef = useRef<string | null>(null)
 
   // Expediente
   const [selected, setSelected] = useState<Cliente | null>(null)
@@ -289,7 +291,7 @@ function ClientesInner() {
   const [showNuevo, setShowNuevo] = useState(false)
   const [editando, setEditando] = useState(false)
   const [formEdit, setFormEdit] = useState({ nombre: '', telefono: '', email: '', notas: '' })
-  const [nssAlerta, setNssAlerta] = useState<{ tipo: 'activo' | 'cerrado'; mensaje: string; clienteId?: string } | null>(null)
+  const [nssAlerta, setNssAlerta] = useState<{ tipo: 'activo' | 'cerrado'; mensaje: string; clienteId?: string; accion?: 'ver' | 'canalizar'; textoAccion?: string } | null>(null)
   const [form, setForm] = useState({ nombre: '', nss: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', tipo_servicio: '', esquema_pago: '', monto_acordado: '', monto_pension_mensual: '', numero_meses_cobro: '', porcentaje_recuperacion: '', tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } } })
   const [formErrors, setFormErrors] = useState<{telefono?: string; email?: string; monto_acordado?: string; esquema_pago?: string; tipo_servicio?: string}>({})
   const [saving, setSaving] = useState(false)
@@ -322,10 +324,16 @@ function ClientesInner() {
       userIdRef.current = session.user.id
       // Load asesor profile for PDF generation
       supabase.from('perfiles_usuario')
-        .select('nombre, razon_social, logo_url, encabezado_color, encabezado_titulo, encabezado_logo_size, encabezado_font_size')
+        .select('nombre, razon_social, logo_url, encabezado_color, encabezado_titulo, encabezado_logo_size, encabezado_font_size, rol, organizacion_id')
         .eq('id', userIdRef.current)
         .single()
-        .then(({ data }) => { if (data) setAsesorPerfil(data) })
+        .then(({ data }) => {
+          if (data) {
+            setAsesorPerfil(data)
+            userRolRef.current = data.rol || 'asesor'
+            userOrgRef.current = data.organizacion_id || null
+          }
+        })
       loadClientes(session.user.id)
       loadMateriales(session.user.id)
     })
@@ -439,23 +447,55 @@ function ClientesInner() {
     if (enriched.length > 0) setServicioActivo(enriched[enriched.length - 1].id)
   }
 
-  async function buscarPorNSS(nss: string) {
-    if (!nss || nss.length < 5) { setNssAlerta(null); return }
-    const { data } = await supabase.from('clientes').select('id, nombre, activo, asesor_id').eq('nss', nss).limit(1)
-    if (!data || data.length === 0) { setNssAlerta(null); return }
-    const c = data[0]
-    if (c.activo !== false) {
-      setNssAlerta({ tipo: 'activo', mensaje: `⚠️ Este cliente ya está activo en el sistema. Contacta a tu líder de equipo para canalizarlo.`, clienteId: c.id })
+  async function buscarDuplicado(campo: 'nss' | 'nombre', valor: string) {
+    if (!valor || valor.length < (campo === 'nss' ? 5 : 3)) { setNssAlerta(null); return }
+    const uid = userIdRef.current
+    const esEquipo = !!userOrgRef.current
+
+    let query = supabase.from('clientes').select('id, nombre, activo, asesor_id')
+
+    if (campo === 'nss') {
+      query = query.eq('nss', valor)
     } else {
-      setNssAlerta({ tipo: 'cerrado', mensaje: `ℹ️ Este cliente tiene historial previo (caso cerrado). Puedes reusar sus datos.`, clienteId: c.id })
+      query = query.ilike('nombre', `%${valor}%`)
+    }
+
+    // Si es equipo, busca en toda la org (RLS ya filtra)
+    // Si es individual, busca solo sus propios clientes
+    if (!esEquipo) {
+      query = query.eq('asesor_id', uid)
+    }
+
+    const { data } = await query.limit(1)
+    if (!data || data.length === 0) { setNssAlerta(null); return }
+
+    const c = data[0]
+    const esMio = c.asesor_id === uid
+    const estaActivo = c.activo !== false
+
+    if (estaActivo) {
+      if (esMio) {
+        // Asesor individual — su propio cliente activo
+        setNssAlerta({ tipo: 'activo', mensaje: `⚠️ Ya tienes este cliente registrado y activo.`, clienteId: c.id, accion: 'ver', textoAccion: '→ Ver expediente' })
+      } else {
+        // Equipo — cliente activo de otro asesor
+        setNssAlerta({ tipo: 'activo', mensaje: `⛔ Este cliente está activo con otro asesor de tu equipo.`, clienteId: c.id, accion: 'canalizar', textoAccion: '→ Solicitar canalización' })
+      }
+    } else {
+      // Caso cerrado — cualquier asesor
+      setNssAlerta({ tipo: 'cerrado', mensaje: `ℹ️ ${esMio ? 'Ya tienes' : 'Existe'} historial previo de este cliente (caso cerrado).`, clienteId: c.id, accion: 'ver', textoAccion: '→ Ver historial' })
     }
   }
+
+  async function buscarPorNSS(nss: string) { await buscarDuplicado('nss', nss) }
+  async function buscarPorNombre(nombre: string) { await buscarDuplicado('nombre', nombre) }
 
   async function guardarNuevo() {
     const telDigits = form.telefono.replace(/\D/g, '')
     const newErrors: typeof formErrors = {}
     if (!form.nombre.trim()) return
-    if (nssAlerta?.tipo === 'activo') { setNssAlerta({ ...nssAlerta, mensaje: '⛔ No puedes registrar este cliente — ya está activo con otro asesor.' }); return }
+    if (nssAlerta?.tipo === 'activo' && nssAlerta.accion !== 'canalizar') { return } // Bloquea si es duplicado activo propio
+    if (nssAlerta?.tipo === 'activo' && nssAlerta.accion === 'canalizar') { return } // Bloquea si es de otro asesor
     if (telDigits.length !== 10) newErrors.telefono = 'El teléfono es obligatorio (10 dígitos)'
     if (form.email && validateEmail(form.email)) newErrors.email = validateEmail(form.email) ?? undefined
 
@@ -548,7 +588,8 @@ function ClientesInner() {
       setShowWappModal(true)
     }
     setShowNuevo(false)
-    setForm({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', tipo_servicio: '', esquema_pago: '', monto_acordado: '', monto_pension_mensual: '', numero_meses_cobro: '', porcentaje_recuperacion: '', tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } } })
+    setNssAlerta(null)
+    setForm({ nombre: '', nss: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', tipo_servicio: '', esquema_pago: '', monto_acordado: '', monto_pension_mensual: '', numero_meses_cobro: '', porcentaje_recuperacion: '', tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } } })
     setFormErrors({})
   }
 
@@ -2487,14 +2528,24 @@ function ClientesInner() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Nombre *</label>
-                <input value={form.nombre} onChange={e => setForm(p => ({ ...p, nombre: e.target.value }))} placeholder="Nombre completo" style={inputSt} />
+                <input value={form.nombre} onChange={e => { setForm(p => ({ ...p, nombre: e.target.value })); buscarPorNombre(e.target.value) }} placeholder="Nombre completo" style={inputSt} />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>NSS — Número de Seguridad Social</label>
                 <input value={form.nss} onChange={e => { setForm(p => ({ ...p, nss: e.target.value })); buscarPorNSS(e.target.value) }} placeholder="Ej. 12345678901" maxLength={11} style={inputSt} />
                 {nssAlerta && (
-                  <div style={{ marginTop: '6px', padding: '8px 12px', background: nssAlerta.tipo === 'activo' ? '#FEF2F2' : '#EFF6FF', border: `1px solid ${nssAlerta.tipo === 'activo' ? '#FCA5A5' : '#93C5FD'}`, borderRadius: '6px', fontSize: '11.5px', color: nssAlerta.tipo === 'activo' ? '#991B1B' : '#1D4ED8', fontWeight: '600' }}>
-                    {nssAlerta.mensaje}
+                  <div style={{ marginTop: '6px', padding: '10px 12px', background: nssAlerta.tipo === 'activo' ? '#FEF2F2' : '#EFF6FF', border: `1px solid ${nssAlerta.tipo === 'activo' ? '#FCA5A5' : '#93C5FD'}`, borderRadius: '6px' }}>
+                    <p style={{ fontSize: '11.5px', color: nssAlerta.tipo === 'activo' ? '#991B1B' : '#1D4ED8', fontWeight: '600', margin: '0 0 6px' }}>{nssAlerta.mensaje}</p>
+                    {nssAlerta.clienteId && nssAlerta.textoAccion && (
+                      <button onClick={() => {
+                        if (nssAlerta.accion === 'ver') {
+                          setShowNuevo(false)
+                          setSelected(clientes.find(c => c.id === nssAlerta.clienteId) || archivados.find(c => c.id === nssAlerta.clienteId) || null)
+                        }
+                      }} style={{ fontSize: '11px', fontWeight: '700', color: nssAlerta.tipo === 'activo' ? '#991B1B' : '#1D4ED8', background: 'none', border: `1px solid ${nssAlerta.tipo === 'activo' ? '#FCA5A5' : '#93C5FD'}`, padding: '4px 10px', borderRadius: '4px', cursor: 'pointer', fontFamily: 'inherit' }}>
+                        {nssAlerta.textoAccion}
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
