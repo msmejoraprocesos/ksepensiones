@@ -828,6 +828,7 @@ function AdminFormulasInner() {
                   <p style={{ fontSize: '10.5px', color: '#DC2626', margin: '4px 0 0' }}>⚠️ Ingresa el teléfono para enviar por WhatsApp</p>
                 )}
               </div>
+              {organizaciones.length > 0 && (
                 <div>
                   <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '3px' }}>Organización (opcional)</label>
                   <select value={nuevoOrgId} onChange={e => setNuevoOrgId(e.target.value)}
