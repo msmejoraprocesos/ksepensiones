@@ -62,6 +62,8 @@ function AdminFormulasInner() {
   const [nuevoEmail, setNuevoEmail] = useState('')
   const [nuevoPassword, setNuevoPassword] = useState('')
   const [nuevoNombre, setNuevoNombre] = useState('')
+  const [nuevoTelefono, setNuevoTelefono] = useState('')
+  const [nuevoEnvioMetodo, setNuevoEnvioMetodo] = useState<'email' | 'whatsapp' | 'ambos'>('email')
   const [nuevoEsAdmin, setNuevoEsAdmin] = useState(false)
   const [nuevoRol, setNuevoRol] = useState<'asesor' | 'org_admin'>('asesor')
   const [showCambiarPwd, setShowCambiarPwd] = useState(false)
@@ -170,6 +172,14 @@ function AdminFormulasInner() {
     if (recargarEquipo > 0) cargarEquipo()
   }, [recargarEquipo])
 
+  function abrirWhatsApp(nombre: string, email: string, password: string, telefono: string) {
+    const appUrl = 'https://ksepensiones.vercel.app'
+    const msg = `Hola ${nombre}, te damos la bienvenida a *KSE Pensiones* 🎉\n\nAquí están tus credenciales de acceso:\n\n📧 *Usuario:* ${email}\n🔑 *Contraseña:* ${password}\n\n🔗 Entra aquí: ${appUrl}\n\nTe recomendamos cambiar tu contraseña desde Configuración en tu primer acceso.\n\n¡Bienvenido al equipo! 💼`
+    const tel = telefono.replace(/\D/g, '')
+    const numero = tel.startsWith('52') ? tel : `52${tel}`
+    window.open(`https://wa.me/${numero}?text=${encodeURIComponent(msg)}`, '_blank')
+  }
+
   async function crearUsuario() {
     setErrorUsuario('')
     if (!nuevoEmail || !nuevoPassword) { setErrorUsuario('Completa email y contraseña'); return }
@@ -184,14 +194,20 @@ function AdminFormulasInner() {
         body: JSON.stringify({
           _uid: uid,
           email: nuevoEmail, password: nuevoPassword, nombre: nuevoNombre,
+          telefono: nuevoTelefono || null,
           is_admin: nuevoEsAdmin, rol: nuevoEsAdmin ? 'super_admin' : nuevoRol,
           organizacion_id: nuevoOrgId || null,
+          envio_metodo: nuevoEnvioMetodo,
         }),
       })
       const data = await res.json()
       if (!res.ok) { setErrorUsuario(data.error || 'Error al crear usuario'); setCreandoUsuario(false); return }
+      // Abrir WhatsApp si el método lo requiere
+      if ((nuevoEnvioMetodo === 'whatsapp' || nuevoEnvioMetodo === 'ambos') && nuevoTelefono) {
+        abrirWhatsApp(nuevoNombre, nuevoEmail, nuevoPassword, nuevoTelefono)
+      }
       setShowNuevoUsuario(false)
-      setNuevoEmail(''); setNuevoPassword(''); setNuevoNombre(''); setNuevoEsAdmin(false)
+      setNuevoEmail(''); setNuevoPassword(''); setNuevoNombre(''); setNuevoTelefono(''); setNuevoEsAdmin(false); setNuevoEnvioMetodo('email')
       setRecargarEquipo(n => n + 1)
     } catch (e: any) {
       setErrorUsuario(e.message || 'Error de conexión')
@@ -782,6 +798,7 @@ function AdminFormulasInner() {
               {[{ label: 'Nombre completo', state: nuevoNombre, set: setNuevoNombre, type: 'text', placeholder: 'Ej. María García' },
                 { label: 'Correo electrónico', state: nuevoEmail, set: setNuevoEmail, type: 'email', placeholder: 'asesor@empresa.com' },
                 { label: 'Contraseña temporal', state: nuevoPassword, set: setNuevoPassword, type: 'password', placeholder: 'Mínimo 6 caracteres' },
+                { label: 'Teléfono WhatsApp (10 dígitos)', state: nuevoTelefono, set: setNuevoTelefono, type: 'tel', placeholder: 'Ej. 4421234567' },
               ].map(f => (
                 <div key={f.label}>
                   <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '3px' }}>{f.label}</label>
@@ -797,7 +814,20 @@ function AdminFormulasInner() {
                   <option value="org_admin">Líder de equipo — ve la actividad de su organización</option>
                 </select>
               </div>
-              {organizaciones.length > 0 && (
+              <div>
+                <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '4px' }}>¿Cómo enviar las credenciales?</label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {([['email', '📧 Email'], ['whatsapp', '💬 WhatsApp'], ['ambos', '📧+💬 Ambos']] as const).map(([val, lbl]) => (
+                    <button key={val} type="button" onClick={() => setNuevoEnvioMetodo(val)}
+                      style={{ flex: 1, padding: '7px 4px', background: nuevoEnvioMetodo === val ? AZUL : '#F4F6FB', color: nuevoEnvioMetodo === val ? 'white' : '#374151', border: `1px solid ${nuevoEnvioMetodo === val ? AZUL : '#E5E7EB'}`, fontSize: '11px', fontWeight: nuevoEnvioMetodo === val ? '700' : '400' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                      {lbl}
+                    </button>
+                  ))}
+                </div>
+                {(nuevoEnvioMetodo === 'whatsapp' || nuevoEnvioMetodo === 'ambos') && !nuevoTelefono && (
+                  <p style={{ fontSize: '10.5px', color: '#DC2626', margin: '4px 0 0' }}>⚠️ Ingresa el teléfono para enviar por WhatsApp</p>
+                )}
+              </div>
                 <div>
                   <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '3px' }}>Organización (opcional)</label>
                   <select value={nuevoOrgId} onChange={e => setNuevoOrgId(e.target.value)}
@@ -808,7 +838,7 @@ function AdminFormulasInner() {
                 </div>
               )}
               <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                <button onClick={() => { setShowNuevoUsuario(false); setErrorUsuario(''); setNuevoEmail(''); setNuevoPassword(''); setNuevoNombre(''); setNuevoOrgId('') }}
+                <button onClick={() => { setShowNuevoUsuario(false); setErrorUsuario(''); setNuevoEmail(''); setNuevoPassword(''); setNuevoNombre(''); setNuevoTelefono(''); setNuevoOrgId(''); setNuevoEnvioMetodo('email') }}
                   style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
                 <button onClick={crearUsuario} disabled={creandoUsuario}
                   style={{ flex: 1, padding: '10px', background: NARANJA, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit', opacity: creandoUsuario ? 0.6 : 1 }}>
