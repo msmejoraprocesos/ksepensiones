@@ -172,9 +172,27 @@ function AdminFormulasInner() {
     if (recargarEquipo > 0) cargarEquipo()
   }, [recargarEquipo])
 
+  function generarPasswordAdmin() {
+    const chars = 'abcdefghijkmnpqrstuvwxyz'
+    const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
+    const nums = '23456789'
+    const syms = '!@#$%&*'
+    let pwd = upper[Math.floor(Math.random() * upper.length)]
+      + chars[Math.floor(Math.random() * chars.length)]
+      + chars[Math.floor(Math.random() * chars.length)]
+      + nums[Math.floor(Math.random() * nums.length)]
+      + nums[Math.floor(Math.random() * nums.length)]
+      + syms[Math.floor(Math.random() * syms.length)]
+      + upper[Math.floor(Math.random() * upper.length)]
+      + chars[Math.floor(Math.random() * chars.length)]
+      + nums[Math.floor(Math.random() * nums.length)]
+      + syms[Math.floor(Math.random() * syms.length)]
+    return pwd.split('').sort(() => Math.random() - 0.5).join('')
+  }
+
   function abrirWhatsApp(nombre: string, email: string, password: string, telefono: string) {
     const appUrl = 'https://ksepensiones.vercel.app'
-    const msg = `Hola ${nombre}, te damos la bienvenida a *KSE Pensiones* 🎉\n\nAquí están tus credenciales de acceso:\n\n📧 *Usuario:* ${email}\n🔑 *Contraseña:* ${password}\n\n🔗 Entra aquí: ${appUrl}\n\nTe recomendamos cambiar tu contraseña desde Configuración en tu primer acceso.\n\n¡Bienvenido al equipo! 💼`
+    const msg = `🔷 *KSE PENSIONES*\n_Sistema de Diagnóstico Pensional_\n\nHola *${nombre}* 👋\n\nTu cuenta ha sido creada exitosamente. Aquí están tus datos de acceso:\n\n━━━━━━━━━━━━━━━\n📧 *Usuario:* ${email}\n🔑 *Contraseña:* ${password}\n━━━━━━━━━━━━━━━\n\n🌐 *Accede aquí:*\n${appUrl}\n\n⚠️ _Por seguridad, cambia tu contraseña en tu primer acceso desde Configuración._\n\n¡Bienvenido al equipo! 💼✨`
     const tel = telefono.replace(/\D/g, '')
     const numero = tel.startsWith('52') ? tel : `52${tel}`
     window.open(`https://wa.me/${numero}?text=${encodeURIComponent(msg)}`, '_blank')
@@ -182,7 +200,11 @@ function AdminFormulasInner() {
 
   async function crearUsuario() {
     setErrorUsuario('')
-    if (!nuevoEmail || !nuevoPassword) { setErrorUsuario('Completa email y contraseña'); return }
+    setErrorUsuario('')
+    if (!nuevoNombre) { setErrorUsuario('El nombre es obligatorio'); return }
+    if (!nuevoEmail) { setErrorUsuario('El correo es obligatorio'); return }
+    if (!nuevoTelefono) { setErrorUsuario('El teléfono es obligatorio'); return }
+    if (!nuevoPassword || nuevoPassword.length < 10) { setErrorUsuario('La contraseña debe tener mínimo 10 caracteres'); return }
     setCreandoUsuario(true)
     try {
       const { data: { session } } = await supabase.auth.getSession()
@@ -795,17 +817,25 @@ function AdminFormulasInner() {
             <div style={{ background: AZUL, padding: '14px 20px' }}><p style={{ fontSize: '14px', fontWeight: '700' as const, color: 'white', margin: 0 }}>+ Nuevo asesor</p></div>
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
               {errorUsuario && <p style={{ fontSize: '12px', color: '#DC2626', margin: 0, padding: '8px', background: '#FEF2F2', border: '1px solid #FCA5A5' }}>{errorUsuario}</p>}
-              {[{ label: 'Nombre completo', state: nuevoNombre, set: setNuevoNombre, type: 'text', placeholder: 'Ej. María García' },
-                { label: 'Correo electrónico', state: nuevoEmail, set: setNuevoEmail, type: 'email', placeholder: 'asesor@empresa.com' },
-                { label: 'Contraseña temporal', state: nuevoPassword, set: setNuevoPassword, type: 'password', placeholder: 'Mínimo 6 caracteres' },
-                { label: 'Teléfono WhatsApp (10 dígitos)', state: nuevoTelefono, set: setNuevoTelefono, type: 'tel', placeholder: 'Ej. 4421234567' },
+              {[{ label: 'Nombre completo', state: nuevoNombre, set: setNuevoNombre, type: 'text', placeholder: 'Ej. María García', required: true },
+                { label: 'Correo electrónico', state: nuevoEmail, set: setNuevoEmail, type: 'email', placeholder: 'asesor@empresa.com', required: true },
+                { label: 'Teléfono WhatsApp (10 dígitos)', state: nuevoTelefono, set: setNuevoTelefono, type: 'tel', placeholder: 'Ej. 4421234567', required: true },
               ].map(f => (
                 <div key={f.label}>
-                  <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '3px' }}>{f.label}</label>
-                  <input type={f.type} placeholder={f.placeholder} value={f.state} onChange={e => f.set(e.target.value)}
+                  <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '3px' }}>{f.label} <span style={{ color: '#EF4444' }}>*</span></label>
+                  <input type={f.type} placeholder={f.placeholder} value={f.state} onChange={e => f.set(e.target.value)} required={f.required}
                     style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
                 </div>
               ))}
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
+                  <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280' }}>Contraseña temporal <span style={{ color: '#EF4444' }}>*</span></label>
+                  <button type="button" onClick={() => setNuevoPassword(generarPasswordAdmin())}
+                    style={{ fontSize: '11px', color: NARANJA, background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600' as const, fontFamily: 'inherit' }}>🎲 Generar</button>
+                </div>
+                <input type="text" placeholder="Mínimo 10 caracteres" value={nuevoPassword} onChange={e => setNuevoPassword(e.target.value)}
+                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', fontWeight: '600' }} />
+              </div>
               <div>
                 <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '3px' }}>Rol</label>
                 <select value={nuevoRol} onChange={e => setNuevoRol(e.target.value as 'asesor' | 'org_admin')}

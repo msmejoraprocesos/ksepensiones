@@ -289,7 +289,8 @@ function ClientesInner() {
   const [showNuevo, setShowNuevo] = useState(false)
   const [editando, setEditando] = useState(false)
   const [formEdit, setFormEdit] = useState({ nombre: '', telefono: '', email: '', notas: '' })
-  const [form, setForm] = useState({ nombre: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', tipo_servicio: '', esquema_pago: '', monto_acordado: '', monto_pension_mensual: '', numero_meses_cobro: '', porcentaje_recuperacion: '', tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } } })
+  const [nssAlerta, setNssAlerta] = useState<{ tipo: 'activo' | 'cerrado'; mensaje: string; clienteId?: string } | null>(null)
+  const [form, setForm] = useState({ nombre: '', nss: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', tipo_servicio: '', esquema_pago: '', monto_acordado: '', monto_pension_mensual: '', numero_meses_cobro: '', porcentaje_recuperacion: '', tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } } })
   const [formErrors, setFormErrors] = useState<{telefono?: string; email?: string; monto_acordado?: string; esquema_pago?: string; tipo_servicio?: string}>({})
   const [saving, setSaving] = useState(false)
 
@@ -438,10 +439,23 @@ function ClientesInner() {
     if (enriched.length > 0) setServicioActivo(enriched[enriched.length - 1].id)
   }
 
+  async function buscarPorNSS(nss: string) {
+    if (!nss || nss.length < 5) { setNssAlerta(null); return }
+    const { data } = await supabase.from('clientes').select('id, nombre, activo, asesor_id').eq('nss', nss).limit(1)
+    if (!data || data.length === 0) { setNssAlerta(null); return }
+    const c = data[0]
+    if (c.activo !== false) {
+      setNssAlerta({ tipo: 'activo', mensaje: `⚠️ Este cliente ya está activo en el sistema. Contacta a tu líder de equipo para canalizarlo.`, clienteId: c.id })
+    } else {
+      setNssAlerta({ tipo: 'cerrado', mensaje: `ℹ️ Este cliente tiene historial previo (caso cerrado). Puedes reusar sus datos.`, clienteId: c.id })
+    }
+  }
+
   async function guardarNuevo() {
     const telDigits = form.telefono.replace(/\D/g, '')
     const newErrors: typeof formErrors = {}
     if (!form.nombre.trim()) return
+    if (nssAlerta?.tipo === 'activo') { setNssAlerta({ ...nssAlerta, mensaje: '⛔ No puedes registrar este cliente — ya está activo con otro asesor.' }); return }
     if (telDigits.length !== 10) newErrors.telefono = 'El teléfono es obligatorio (10 dígitos)'
     if (form.email && validateEmail(form.email)) newErrors.email = validateEmail(form.email) ?? undefined
 
@@ -486,6 +500,7 @@ function ClientesInner() {
     const insertData: any = {
       asesor_id: uid,
       nombre: form.nombre,
+      nss: form.nss || null,
       telefono: form.telefono || null,
       email: form.email || null,
       notas: form.notas || null,
@@ -2473,6 +2488,15 @@ function ClientesInner() {
               <div>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Nombre *</label>
                 <input value={form.nombre} onChange={e => setForm(p => ({ ...p, nombre: e.target.value }))} placeholder="Nombre completo" style={inputSt} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>NSS — Número de Seguridad Social</label>
+                <input value={form.nss} onChange={e => { setForm(p => ({ ...p, nss: e.target.value })); buscarPorNSS(e.target.value) }} placeholder="Ej. 12345678901" maxLength={11} style={inputSt} />
+                {nssAlerta && (
+                  <div style={{ marginTop: '6px', padding: '8px 12px', background: nssAlerta.tipo === 'activo' ? '#FEF2F2' : '#EFF6FF', border: `1px solid ${nssAlerta.tipo === 'activo' ? '#FCA5A5' : '#93C5FD'}`, borderRadius: '6px', fontSize: '11.5px', color: nssAlerta.tipo === 'activo' ? '#991B1B' : '#1D4ED8', fontWeight: '600' }}>
+                    {nssAlerta.mensaje}
+                  </div>
+                )}
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>

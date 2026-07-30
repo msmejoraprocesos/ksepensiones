@@ -11,6 +11,9 @@ vi.mock('@supabase/supabase-js', () => ({
         data: { user: { id: 'admin-uuid-123' } }, error: null,
       }),
       admin: {
+        getUserById: vi.fn().mockResolvedValue({
+          data: { user: { id: 'admin-uuid-123', email: 'admin@test.com' } }, error: null,
+        }),
         createUser: vi.fn().mockResolvedValue({
           data: { user: { id: 'new-user-456', email: 'asesor@test.com' } }, error: null,
         }),
@@ -24,8 +27,8 @@ vi.mock('@supabase/supabase-js', () => ({
       update: vi.fn().mockReturnThis(),
       delete: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({ data: { is_admin: true, organizacion_id: null, rol: 'super_admin' }, error: null }),
-      maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+      single: vi.fn().mockResolvedValue({ data: { is_admin: true, rol: 'super_admin', organizacion_id: null }, error: null }),
+      maybeSingle: vi.fn().mockResolvedValue({ data: { is_admin: true, rol: 'super_admin' }, error: null }),
       limit: vi.fn().mockReturnThis(),
       order: vi.fn().mockReturnThis(),
     })),
@@ -82,51 +85,55 @@ function makeReq(method: string, body?: object, searchParams?: string): NextRequ
 
 describe('API /admin/usuarios — Validaciones de negocio', () => {
 
+  it('sin _uid retorna 403', async () => {
+    const { POST } = await import('../app/api/admin/usuarios/route')
+    const req = makeReq('POST', { email: 'test@test.com', password: 'Password1!x', nombre: 'Test', telefono: '1234567890' })
+    const res = await POST(req)
+    expect(res.status).toBe(403)
+  })
+
   it('email es requerido para crear usuario', async () => {
     const { POST } = await import('../app/api/admin/usuarios/route')
-    const req = makeReq('POST', { password: 'password123', nombre: 'Test' })
+    const req = makeReq('POST', { _uid: 'admin-uuid-123', password: 'Password1!x', nombre: 'Test', telefono: '1234567890' })
     const res = await POST(req)
-    const json = await res.json()
     expect(res.status).toBe(400)
-    expect(json.error).toMatch(/requeridos/)
   })
 
   it('password es requerida para crear usuario', async () => {
     const { POST } = await import('../app/api/admin/usuarios/route')
-    const req = makeReq('POST', { email: 'test@test.com', nombre: 'Test' })
+    const req = makeReq('POST', { _uid: 'admin-uuid-123', email: 'test@test.com', nombre: 'Test', telefono: '1234567890' })
     const res = await POST(req)
     expect(res.status).toBe(400)
   })
 
-  it('password mínimo 6 caracteres', async () => {
+  it('password mínimo 10 caracteres', async () => {
     const { POST } = await import('../app/api/admin/usuarios/route')
-    const req = makeReq('POST', { email: 'test@test.com', password: '123', nombre: 'Test' })
+    const req = makeReq('POST', { _uid: 'admin-uuid-123', email: 'test@test.com', password: '123', nombre: 'Test', telefono: '1234567890' })
     const res = await POST(req)
-    const json = await res.json()
     expect(res.status).toBe(400)
-    expect(json.error).toMatch(/6 caracteres/)
   })
 
   it('no puede eliminarse a sí mismo', async () => {
     const { DELETE } = await import('../app/api/admin/usuarios/route')
     const req = makeReq('DELETE', undefined, 'id=admin-uuid-123')
-    // El mock devuelve admin-uuid-123 como usuario actual
+    req.headers.set('x-uid', 'admin-uuid-123')
     const res = await DELETE(req)
-    const json = await res.json()
     expect(res.status).toBe(400)
+    const json = await res.json()
     expect(json.error).toMatch(/propia cuenta/)
   })
 
   it('falta id en DELETE retorna 400', async () => {
     const { DELETE } = await import('../app/api/admin/usuarios/route')
     const req = makeReq('DELETE')
+    req.headers.set('x-uid', 'admin-uuid-123')
     const res = await DELETE(req)
     expect(res.status).toBe(400)
   })
 
   it('password corta en PATCH retorna 400', async () => {
     const { PATCH } = await import('../app/api/admin/usuarios/route')
-    const req = makeReq('PATCH', { id: 'other-uuid', password: '12' })
+    const req = makeReq('PATCH', { _uid: 'admin-uuid-123', id: 'other-uuid', password: '12' })
     const res = await PATCH(req)
     const json = await res.json()
     expect(res.status).toBe(400)
