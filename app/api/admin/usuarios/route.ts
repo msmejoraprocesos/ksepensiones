@@ -86,8 +86,7 @@ export async function POST(req: NextRequest) {
       organizacion_id: organizacion_id || null,
     })
     if (errPerfil) {
-      console.log('errPerfil:', JSON.stringify(errPerfil))
-      await admin.auth.admin.deleteUser(nuevoUsuario.user.id)
+        await admin.auth.admin.deleteUser(nuevoUsuario.user.id)
       return NextResponse.json({ error: 'Error al crear perfil: ' + errPerfil.message + ' | code: ' + errPerfil.code + ' | details: ' + errPerfil.details }, { status: 400 })
     }
 
@@ -144,7 +143,6 @@ export async function POST(req: NextRequest) {
           })
         })
         const emailData = await emailRes.json()
-        console.log('email result:', JSON.stringify(emailData))
       } catch (e: any) {
         console.error('Email error:', e.message)
       }

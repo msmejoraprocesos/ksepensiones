@@ -16,11 +16,11 @@ function getAdminClient() {
 export async function POST(req: NextRequest) {
   try {
     const datos = await req.json()
-    const asesorId = datos.asesor_id ?? null
+    const asesorIdRL = datos.asesor_id ?? null
 
     // Rate limiting: 30 llamadas por asesor por día
-    if (asesorId) {
-      const rl = await checkRateLimit(asesorId, 'analisis-pensional')
+    if (asesorIdRL) {
+      const rl = await checkRateLimit(asesorIdRL, 'analisis-pensional')
       if (!rl.permitido) {
         return NextResponse.json({
           ok: false,

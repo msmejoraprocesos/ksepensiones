@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 const NARANJA = '#F05B21'
 const AZUL = '#1B3A6B'
@@ -297,7 +298,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
         {/* ── MAIN CONTENT ── */}
         <main style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', background: '#FAFAFA' }}>
-          {children}
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
         </main>
       </div>
 

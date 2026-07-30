@@ -191,27 +191,27 @@ export default function OrgAdminPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#F4F6FB' }}>
       {/* Header */}
-      <div style={{ position: 'sticky' as const, top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #E5E7EB', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #E5E7EB', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h1 style={{ fontSize: '16px', fontWeight: '800' as const, color: AZUL, margin: 0 }}>📊 {org.nombre}</h1>
+          <h1 style={{ fontSize: '16px', fontWeight: '800', color: AZUL, margin: 0 }}>📊 {org.nombre}</h1>
           <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>Panel de equipo · Plan {org.plan} · {org.asientos} asientos</p>
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>
           {(['dashboard', 'equipo'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)}
-              style={{ padding: '6px 14px', background: tab === t ? AZUL : '#F4F6FB', color: tab === t ? 'white' : '#6B7280', border: `1px solid ${tab === t ? AZUL : '#E5E7EB'}`, fontSize: '12px', fontWeight: (tab === t ? '700' : '400') as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+              style={{ padding: '6px 14px', background: tab === t ? AZUL : '#F4F6FB', color: tab === t ? 'white' : '#6B7280', border: `1px solid ${tab === t ? AZUL : '#E5E7EB'}`, fontSize: '12px', fontWeight: (tab === t ? '700' : '400'), cursor: 'pointer', fontFamily: 'inherit' }}>
               {t === 'dashboard' ? '📈 Actividad' : '👥 Mi Equipo'}
             </button>
           ))}
         </div>
       </div>
 
-      <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column' as const, gap: '16px' }}>
+      <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
         {/* Alertas */}
         {pagosPendientes.length > 0 && (
           <div style={{ background: '#FEF2F2', border: '2px solid #FCA5A5', borderLeft: '4px solid #DC2626', padding: '12px 16px' }}>
-            <p style={{ fontSize: '12px', fontWeight: '700' as const, color: '#991B1B', margin: '0 0 4px' }}>⚠️ {pagosPendientes.length} pago(s) pendiente(s)</p>
+            <p style={{ fontSize: '12px', fontWeight: '700', color: '#991B1B', margin: '0 0 4px' }}>⚠️ {pagosPendientes.length} pago(s) pendiente(s)</p>
             <p style={{ fontSize: '11px', color: '#991B1B', margin: 0 }}>Contacta a tu administrador de KSE Pensiones para regularizar.</p>
           </div>
         )}
@@ -227,16 +227,16 @@ export default function OrgAdminPage() {
                 { label: 'Autorizados', value: fmtNum(stats.autorizados), color: '#7C3AED' },
               ].map((k, i) => (
                 <div key={i} style={{ ...CARD, borderLeft: `3px solid ${k.color}` }}>
-                  <div style={{ fontSize: '10px', color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginBottom: '4px' }}>{k.label}</div>
-                  <div style={{ fontSize: '24px', fontWeight: '800' as const, color: k.color }}>{k.value}</div>
+                  <div style={{ fontSize: '10px', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>{k.label}</div>
+                  <div style={{ fontSize: '24px', fontWeight: '800', color: k.color }}>{k.value}</div>
                 </div>
               ))}
             </div>
 
             {/* Barra asientos */}
             <div style={CARD}>
-              <p style={{ fontSize: '12px', fontWeight: '700' as const, color: '#374151', margin: '0 0 8px' }}>Capacidad del equipo</p>
-              <div style={{ background: '#F4F6FB', height: '8px', borderRadius: '4px', overflow: 'hidden' as const }}>
+              <p style={{ fontSize: '12px', fontWeight: '700', color: '#374151', margin: '0 0 8px' }}>Capacidad del equipo</p>
+              <div style={{ background: '#F4F6FB', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
                 <div style={{ width: `${Math.min(100, pctAsientos)}%`, height: '100%', background: pctAsientos >= 90 ? '#DC2626' : AZUL }} />
               </div>
               <p style={{ fontSize: '11px', color: '#6B7280', margin: '6px 0 0' }}>
@@ -247,17 +247,17 @@ export default function OrgAdminPage() {
 
             {/* Tabla actividad */}
             <div style={CARD}>
-              <p style={{ fontSize: '13px', fontWeight: '700' as const, color: '#374151', margin: '0 0 12px' }}>Actividad por asesor</p>
-              <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '12px' }}>
-                <thead><tr style={{ background: '#F8FAFC' }}>{['Asesor','Rol','Clientes','Diagnósticos','Autorizados'].map((h,i) => <th key={i} style={{ padding:'7px 10px', textAlign:(i>1?'right':'left') as const, fontWeight:'700' as const, color:'#6B7280', borderBottom:'2px solid #E5E7EB', fontSize:'10px', textTransform:'uppercase' as const }}>{h}</th>)}</tr></thead>
+              <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 12px' }}>Actividad por asesor</p>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                <thead><tr style={{ background: '#F8FAFC' }}>{['Asesor','Rol','Clientes','Diagnósticos','Autorizados'].map((h,i) => <th key={i} style={{ padding:'7px 10px', textAlign:(i>1?'right':'left'), fontWeight:'700', color:'#6B7280', borderBottom:'2px solid #E5E7EB', fontSize:'10px', textTransform:'uppercase' }}>{h}</th>)}</tr></thead>
                 <tbody>
                   {asesoresActivos.map((a: any, i: number) => (
                     <tr key={a.id} style={{ borderBottom:'1px solid #F3F4F6', background: i%2===0?'white':'#FAFAFA' }}>
-                      <td style={{ padding:'8px 10px', fontWeight:'600' as const }}>{a.nombre||'—'}</td>
+                      <td style={{ padding:'8px 10px', fontWeight:'600' }}>{a.nombre||'—'}</td>
                       <td style={{ padding:'8px 10px' }}><span style={{ padding:'2px 6px', background: a.rol==='org_admin'?'#EFF6FF':'#F4F6FB', color: a.rol==='org_admin'?'#1D4ED8':'#6B7280', fontSize:'10px', fontWeight:700 }}>{a.rol==='org_admin'?'Líder':'Asesor'}</span></td>
-                      <td style={{ padding:'8px 10px', textAlign:'right' as const, color:AZUL, fontWeight:'600' as const }}>{a.clientes}</td>
-                      <td style={{ padding:'8px 10px', textAlign:'right' as const }}>{a.diagnosticos}</td>
-                      <td style={{ padding:'8px 10px', textAlign:'right' as const, color:VERDE, fontWeight:'600' as const }}>{a.autorizados}</td>
+                      <td style={{ padding:'8px 10px', textAlign:'right', color:AZUL, fontWeight:'600' }}>{a.clientes}</td>
+                      <td style={{ padding:'8px 10px', textAlign:'right' }}>{a.diagnosticos}</td>
+                      <td style={{ padding:'8px 10px', textAlign:'right', color:VERDE, fontWeight:'600' }}>{a.autorizados}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -267,9 +267,9 @@ export default function OrgAdminPage() {
             {/* Historial pagos */}
             {pagos.length > 0 && (
               <div style={CARD}>
-                <p style={{ fontSize: '13px', fontWeight: '700' as const, color: '#374151', margin: '0 0 12px' }}>Historial de suscripción</p>
-                <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '11px' }}>
-                  <thead><tr style={{ background: '#F8FAFC' }}>{['Periodo','Concepto','Monto','Estatus'].map((h,i) => <th key={i} style={{ padding:'7px 10px', textAlign:(i>1?'right':'left') as const, fontWeight:'700' as const, color:'#6B7280', borderBottom:'1px solid #E5E7EB' }}>{h}</th>)}</tr></thead>
+                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 12px' }}>Historial de suscripción</p>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
+                  <thead><tr style={{ background: '#F8FAFC' }}>{['Periodo','Concepto','Monto','Estatus'].map((h,i) => <th key={i} style={{ padding:'7px 10px', textAlign:(i>1?'right':'left'), fontWeight:'700', color:'#6B7280', borderBottom:'1px solid #E5E7EB' }}>{h}</th>)}</tr></thead>
                   <tbody>
                     {pagos.map((p: any, i: number) => {
                       const col: Record<string,string> = { pendiente:'#92400E', pagado:'#065F46', vencido:'#991B1B', cancelado:'#6B7280' }
@@ -277,8 +277,8 @@ export default function OrgAdminPage() {
                       return <tr key={p.id} style={{ borderBottom:'1px solid #F3F4F6', background:i%2===0?'white':'#FAFAFA' }}>
                         <td style={{ padding:'6px 10px', color:'#6B7280' }}>{fmtFecha(p.periodo_inicio)} — {fmtFecha(p.periodo_fin)}</td>
                         <td style={{ padding:'6px 10px' }}>{p.concepto}</td>
-                        <td style={{ padding:'6px 10px', textAlign:'right' as const, fontWeight:'600' as const }}>{fmtMXN(p.monto)}</td>
-                        <td style={{ padding:'6px 10px', textAlign:'right' as const }}><span style={{ padding:'2px 8px', background:bg[p.estatus]??'#F9FAFB', color:col[p.estatus]??'#6B7280', fontSize:'11px', fontWeight:700, textTransform:'capitalize' as const }}>{p.estatus}</span></td>
+                        <td style={{ padding:'6px 10px', textAlign:'right', fontWeight:'600' }}>{fmtMXN(p.monto)}</td>
+                        <td style={{ padding:'6px 10px', textAlign:'right' }}><span style={{ padding:'2px 8px', background:bg[p.estatus]??'#F9FAFB', color:col[p.estatus]??'#6B7280', fontSize:'11px', fontWeight:700, textTransform:'capitalize' }}>{p.estatus}</span></td>
                       </tr>
                     })}
                   </tbody>
@@ -294,7 +294,7 @@ export default function OrgAdminPage() {
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               {stats.asientos_usados < org.asientos ? (
                 <button onClick={() => { setShowNuevo(true); setErrNuevo('') }}
-                  style={{ padding: '8px 16px', background: NARANJA, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ padding: '8px 16px', background: NARANJA, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
                   + Nuevo asesor
                 </button>
               ) : (
@@ -304,17 +304,17 @@ export default function OrgAdminPage() {
 
             {/* Asesores activos */}
             <div style={CARD}>
-              <p style={{ fontSize: '13px', fontWeight: '700' as const, color: '#374151', margin: '0 0 12px' }}>Asesores activos ({asesoresActivos.length})</p>
-              <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '12px' }}>
-                <thead><tr style={{ background: '#F8FAFC' }}>{['Nombre','Correo','Rol','Clientes','Acciones'].map((h,i) => <th key={i} style={{ padding:'7px 10px', textAlign:(i>2?'right':'left') as const, fontWeight:'700' as const, color:'#6B7280', borderBottom:'2px solid #E5E7EB', fontSize:'10px', textTransform:'uppercase' as const }}>{h}</th>)}</tr></thead>
+              <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 12px' }}>Asesores activos ({asesoresActivos.length})</p>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                <thead><tr style={{ background: '#F8FAFC' }}>{['Nombre','Correo','Rol','Clientes','Acciones'].map((h,i) => <th key={i} style={{ padding:'7px 10px', textAlign:(i>2?'right':'left'), fontWeight:'700', color:'#6B7280', borderBottom:'2px solid #E5E7EB', fontSize:'10px', textTransform:'uppercase' }}>{h}</th>)}</tr></thead>
                 <tbody>
                   {asesoresActivos.map((a: any, i: number) => (
                     <tr key={a.id} style={{ borderBottom:'1px solid #F3F4F6', background:i%2===0?'white':'#FAFAFA' }}>
-                      <td style={{ padding:'8px 10px', fontWeight:'600' as const }}>{a.nombre||'—'}</td>
+                      <td style={{ padding:'8px 10px', fontWeight:'600' }}>{a.nombre||'—'}</td>
                       <td style={{ padding:'8px 10px', color:'#6B7280', fontSize:'11px' }}>{a.email_contacto||'—'}</td>
                       <td style={{ padding:'8px 10px' }}><span style={{ padding:'2px 6px', background: a.rol==='org_admin'?'#EFF6FF':'#F4F6FB', color: a.rol==='org_admin'?'#1D4ED8':'#6B7280', fontSize:'10px', fontWeight:700 }}>{a.rol==='org_admin'?'Líder':'Asesor'}</span></td>
-                      <td style={{ padding:'8px 10px', textAlign:'right' as const, color:AZUL, fontWeight:'600' as const }}>{a.clientes}</td>
-                      <td style={{ padding:'8px 10px', textAlign:'right' as const }}>
+                      <td style={{ padding:'8px 10px', textAlign:'right', color:AZUL, fontWeight:'600' }}>{a.clientes}</td>
+                      <td style={{ padding:'8px 10px', textAlign:'right' }}>
                         <div style={{ display:'flex', gap:'4px', justifyContent:'flex-end' }}>
                           <button onClick={() => { setPwdAsesorId(a.id); setPwdNueva(''); setPwdErr(''); setShowPwd(true) }}
                             style={{ padding:'3px 8px', background:'#F4F6FB', color:'#374151', border:'1px solid #E5E7EB', fontSize:'10px', cursor:'pointer', fontFamily:'inherit' }}>
@@ -330,7 +330,7 @@ export default function OrgAdminPage() {
                       </td>
                     </tr>
                   ))}
-                  {asesoresActivos.length === 0 && <tr><td colSpan={5} style={{ padding:'20px', textAlign:'center' as const, color:'#9CA3AF' }}>Sin asesores activos</td></tr>}
+                  {asesoresActivos.length === 0 && <tr><td colSpan={5} style={{ padding:'20px', textAlign:'center', color:'#9CA3AF' }}>Sin asesores activos</td></tr>}
                 </tbody>
               </table>
             </div>
@@ -338,16 +338,16 @@ export default function OrgAdminPage() {
             {/* Asesores inactivos */}
             {asesoresInactivos.length > 0 && (
               <div style={CARD}>
-                <p style={{ fontSize: '13px', fontWeight: '700' as const, color: '#374151', margin: '0 0 12px' }}>Asesores inactivos ({asesoresInactivos.length})</p>
-                <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '12px' }}>
-                  <thead><tr style={{ background: '#F8FAFC' }}>{['Nombre','Correo','Clientes previos',''].map((h,i) => <th key={i} style={{ padding:'7px 10px', textAlign:(i>1?'right':'left') as const, fontWeight:'700' as const, color:'#6B7280', borderBottom:'1px solid #E5E7EB', fontSize:'10px' }}>{h}</th>)}</tr></thead>
+                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 12px' }}>Asesores inactivos ({asesoresInactivos.length})</p>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                  <thead><tr style={{ background: '#F8FAFC' }}>{['Nombre','Correo','Clientes previos',''].map((h,i) => <th key={i} style={{ padding:'7px 10px', textAlign:(i>1?'right':'left'), fontWeight:'700', color:'#6B7280', borderBottom:'1px solid #E5E7EB', fontSize:'10px' }}>{h}</th>)}</tr></thead>
                   <tbody>
                     {asesoresInactivos.map((a: any, i: number) => (
                       <tr key={a.id} style={{ borderBottom:'1px solid #F3F4F6', background:'#FAFAFA', opacity:0.7 }}>
                         <td style={{ padding:'8px 10px', color:'#6B7280' }}>{a.nombre||'—'}</td>
                         <td style={{ padding:'8px 10px', color:'#9CA3AF', fontSize:'11px' }}>{a.email_contacto||'—'}</td>
-                        <td style={{ padding:'8px 10px', textAlign:'right' as const, color:'#9CA3AF' }}>{a.clientes}</td>
-                        <td style={{ padding:'8px 10px', textAlign:'right' as const }}>
+                        <td style={{ padding:'8px 10px', textAlign:'right', color:'#9CA3AF' }}>{a.clientes}</td>
+                        <td style={{ padding:'8px 10px', textAlign:'right' }}>
                           <button onClick={() => reactivarAsesor(a.id)}
                             style={{ padding:'3px 8px', background:'#F0FDF4', color:'#065F46', border:'1px solid #86EFAC', fontSize:'10px', cursor:'pointer', fontFamily:'inherit' }}>
                             Reactivar
@@ -364,9 +364,9 @@ export default function OrgAdminPage() {
 
         {/* ── TAB: REASIGNACIÓN ── */}
         {tab === 'reasignacion' && asesorInactivar && (
-          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', borderLeft: '4px solid #DC2626', padding: '14px 16px' }}>
-              <p style={{ fontSize: '13px', fontWeight: '700' as const, color: '#991B1B', margin: '0 0 4px' }}>⚠️ Antes de inactivar a {asesorInactivar.nombre}</p>
+              <p style={{ fontSize: '13px', fontWeight: '700', color: '#991B1B', margin: '0 0 4px' }}>⚠️ Antes de inactivar a {asesorInactivar.nombre}</p>
               <p style={{ fontSize: '12px', color: '#991B1B', margin: 0 }}>Tiene {clientesAsesor.length} cliente(s) activo(s). Debes reasignarlos antes de continuar.</p>
             </div>
 
@@ -375,7 +375,7 @@ export default function OrgAdminPage() {
                 <div style={{ display: 'flex', gap: '8px' }}>
                   {(['manual', 'auto'] as const).map(m => (
                     <button key={m} onClick={() => setModoReasig(m)}
-                      style={{ padding:'7px 14px', background: modoReasig===m ? AZUL : 'white', color: modoReasig===m ? 'white' : '#374151', border:`1px solid ${modoReasig===m ? AZUL : '#E5E7EB'}`, fontSize:'12px', fontWeight:(modoReasig===m?'700':'400') as const, cursor:'pointer', fontFamily:'inherit' }}>
+                      style={{ padding:'7px 14px', background: modoReasig===m ? AZUL : 'white', color: modoReasig===m ? 'white' : '#374151', border:`1px solid ${modoReasig===m ? AZUL : '#E5E7EB'}`, fontSize:'12px', fontWeight:(modoReasig===m?'700':'400'), cursor:'pointer', fontFamily:'inherit' }}>
                       {m === 'manual' ? '✋ Reasignación manual' : '🎲 Distribución automática'}
                     </button>
                   ))}
@@ -383,10 +383,10 @@ export default function OrgAdminPage() {
 
                 {modoReasig === 'manual' ? (
                   <div style={CARD}>
-                    <p style={{ fontSize: '12px', fontWeight: '700' as const, color: '#374151', margin: '0 0 10px' }}>Asigna cada cliente a un asesor activo:</p>
+                    <p style={{ fontSize: '12px', fontWeight: '700', color: '#374151', margin: '0 0 10px' }}>Asigna cada cliente a un asesor activo:</p>
                     {clientesAsesor.map((c: any) => (
                       <div key={c.id} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid #F3F4F6' }}>
-                        <span style={{ fontSize:'13px', fontWeight:'600' as const, color:'#111827' }}>{c.nombre}</span>
+                        <span style={{ fontSize:'13px', fontWeight:'600', color:'#111827' }}>{c.nombre}</span>
                         <select value={reasignaciones[c.id] || ''} onChange={e => setReasignaciones(r => ({ ...r, [c.id]: e.target.value }))}
                           style={{ padding:'5px 8px', border:`1px solid ${reasignaciones[c.id] ? '#86EFAC' : '#E5E7EB'}`, fontSize:'12px', fontFamily:'inherit', background:'white', minWidth:'160px' }}>
                           <option value=''>— Seleccionar asesor —</option>
@@ -409,11 +409,11 @@ export default function OrgAdminPage() {
 
             <div style={{ display: 'flex', gap: '8px' }}>
               <button onClick={() => { setTab('equipo'); setAsesorInactivar(null) }}
-                style={{ flex: 1, padding:'10px', background:'white', color:'#374151', border:'1px solid #E5E7EB', fontSize:'13px', fontWeight:'600' as const, cursor:'pointer', fontFamily:'inherit' }}>
+                style={{ flex: 1, padding:'10px', background:'white', color:'#374151', border:'1px solid #E5E7EB', fontSize:'13px', fontWeight:'600', cursor:'pointer', fontFamily:'inherit' }}>
                 Cancelar
               </button>
               <button onClick={confirmarInactivar} disabled={inactivando || (clientesAsesor.length > 0 && modoReasig === 'manual' && clientesAsesor.some((c: any) => !reasignaciones[c.id]))}
-                style={{ flex: 1, padding:'10px', background:'#DC2626', color:'white', border:'none', fontSize:'13px', fontWeight:'700' as const, cursor:'pointer', fontFamily:'inherit',
+                style={{ flex: 1, padding:'10px', background:'#DC2626', color:'white', border:'none', fontSize:'13px', fontWeight:'700', cursor:'pointer', fontFamily:'inherit',
                   opacity: (inactivando || (clientesAsesor.length > 0 && modoReasig === 'manual' && clientesAsesor.some((c: any) => !reasignaciones[c.id]))) ? 0.5 : 1 }}>
                 {inactivando ? 'Procesando...' : clientesAsesor.length === 0 ? 'Inactivar asesor' : 'Reasignar e inactivar'}
               </button>
@@ -424,10 +424,10 @@ export default function OrgAdminPage() {
 
       {/* ── Modal nuevo asesor ── */}
       {showNuevo && (
-        <div style={{ position:'fixed' as const, inset:0, background:'rgba(15,23,42,0.6)', zIndex:500, display:'flex', alignItems:'center', justifyContent:'center', padding:'20px' }}>
+        <div style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.6)', zIndex:500, display:'flex', alignItems:'center', justifyContent:'center', padding:'20px' }}>
           <div style={{ background:'white', width:'100%', maxWidth:'420px', boxShadow:'0 24px 64px rgba(0,0,0,0.3)', borderRadius:'8px', overflow:'hidden' }}>
-            <div style={{ background:AZUL, padding:'14px 20px' }}><p style={{ fontSize:'14px', fontWeight:'700' as const, color:'white', margin:0 }}>+ Nuevo asesor</p></div>
-            <div style={{ padding:'20px', display:'flex', flexDirection:'column' as const, gap:'10px' }}>
+            <div style={{ background:AZUL, padding:'14px 20px' }}><p style={{ fontSize:'14px', fontWeight:'700', color:'white', margin:0 }}>+ Nuevo asesor</p></div>
+            <div style={{ padding:'20px', display:'flex', flexDirection:'column', gap:'10px' }}>
               {errNuevo && <p style={{ fontSize:'12px', color:'#DC2626', margin:0, padding:'8px', background:'#FEF2F2', border:'1px solid #FCA5A5', borderRadius:'4px' }}>{errNuevo}</p>}
               {[
                 { label:'Nombre completo *', key:'nombre', type:'text', placeholder:'Ej. María García' },
@@ -435,26 +435,26 @@ export default function OrgAdminPage() {
                 { label:'Teléfono WhatsApp *', key:'telefono', type:'tel', placeholder:'Ej. 4421234567' },
               ].map(f => (
                 <div key={f.key}>
-                  <label style={{ fontSize:'10.5px', fontWeight:'600' as const, color:'#6B7280', display:'block', marginBottom:'3px' }}>{f.label}</label>
+                  <label style={{ fontSize:'10.5px', fontWeight:'600', color:'#6B7280', display:'block', marginBottom:'3px' }}>{f.label}</label>
                   <input type={f.type} placeholder={f.placeholder} value={(formNuevo as any)[f.key]} onChange={e => setFormNuevo(p => ({ ...p, [f.key]: e.target.value }))}
-                    style={{ width:'100%', padding:'8px 10px', border:'1px solid #D1D5DB', fontSize:'13px', boxSizing:'border-box' as const, fontFamily:'inherit', borderRadius:'4px' }} />
+                    style={{ width:'100%', padding:'8px 10px', border:'1px solid #D1D5DB', fontSize:'13px', boxSizing:'border-box', fontFamily:'inherit', borderRadius:'4px' }} />
                 </div>
               ))}
               <div>
                 <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'3px' }}>
-                  <label style={{ fontSize:'10.5px', fontWeight:'600' as const, color:'#6B7280' }}>Contraseña temporal *</label>
+                  <label style={{ fontSize:'10.5px', fontWeight:'600', color:'#6B7280' }}>Contraseña temporal *</label>
                   <button type="button" onClick={() => setFormNuevo(p => ({ ...p, password: generarPassword() }))}
-                    style={{ fontSize:'11px', color:NARANJA, background:'none', border:'none', cursor:'pointer', fontWeight:'600' as const, fontFamily:'inherit' }}>🎲 Generar</button>
+                    style={{ fontSize:'11px', color:NARANJA, background:'none', border:'none', cursor:'pointer', fontWeight:'600', fontFamily:'inherit' }}>🎲 Generar</button>
                 </div>
                 <input type="text" placeholder="Mínimo 10 caracteres" value={formNuevo.password} onChange={e => setFormNuevo(p => ({ ...p, password: e.target.value }))}
-                  style={{ width:'100%', padding:'8px 10px', border:'1px solid #D1D5DB', fontSize:'13px', boxSizing:'border-box' as const, fontFamily:'inherit', borderRadius:'4px', fontWeight:'600' }} />
+                  style={{ width:'100%', padding:'8px 10px', border:'1px solid #D1D5DB', fontSize:'13px', boxSizing:'border-box', fontFamily:'inherit', borderRadius:'4px', fontWeight:'600' }} />
               </div>
               <div>
-                <label style={{ fontSize:'10.5px', fontWeight:'600' as const, color:'#6B7280', display:'block', marginBottom:'4px' }}>¿Cómo enviar las credenciales?</label>
+                <label style={{ fontSize:'10.5px', fontWeight:'600', color:'#6B7280', display:'block', marginBottom:'4px' }}>¿Cómo enviar las credenciales?</label>
                 <div style={{ display:'flex', gap:'6px' }}>
                   {(['email','whatsapp','ambos'] as const).map(v => (
                     <button key={v} type="button" onClick={() => setFormNuevo(p => ({ ...p, envio: v }))}
-                      style={{ flex:1, padding:'6px 4px', background: formNuevo.envio===v ? AZUL : '#F4F6FB', color: formNuevo.envio===v ? 'white' : '#374151', border:`1px solid ${formNuevo.envio===v ? AZUL : '#E5E7EB'}`, fontSize:'11px', fontWeight:(formNuevo.envio===v?'700':'400') as const, cursor:'pointer', fontFamily:'inherit', borderRadius:'4px' }}>
+                      style={{ flex:1, padding:'6px 4px', background: formNuevo.envio===v ? AZUL : '#F4F6FB', color: formNuevo.envio===v ? 'white' : '#374151', border:`1px solid ${formNuevo.envio===v ? AZUL : '#E5E7EB'}`, fontSize:'11px', fontWeight:(formNuevo.envio===v?'700':'400'), cursor:'pointer', fontFamily:'inherit', borderRadius:'4px' }}>
                       {v === 'email' ? '📧 Email' : v === 'whatsapp' ? '💬 WhatsApp' : '📧+💬 Ambos'}
                     </button>
                   ))}
@@ -462,9 +462,9 @@ export default function OrgAdminPage() {
               </div>
               <div style={{ display:'flex', gap:'8px', marginTop:'4px' }}>
                 <button onClick={() => { setShowNuevo(false); setErrNuevo(''); setFormNuevo({ nombre:'', email:'', password:'', telefono:'', envio:'whatsapp' }) }}
-                  style={{ flex:1, padding:'10px', background:'#F8FAFC', color:'#374151', border:'1px solid #E5E7EB', fontSize:'12px', fontWeight:'600' as const, cursor:'pointer', fontFamily:'inherit', borderRadius:'4px' }}>Cancelar</button>
+                  style={{ flex:1, padding:'10px', background:'#F8FAFC', color:'#374151', border:'1px solid #E5E7EB', fontSize:'12px', fontWeight:'600', cursor:'pointer', fontFamily:'inherit', borderRadius:'4px' }}>Cancelar</button>
                 <button onClick={crearAsesor} disabled={creando}
-                  style={{ flex:1, padding:'10px', background:NARANJA, color:'white', border:'none', fontSize:'12px', fontWeight:'700' as const, cursor:'pointer', fontFamily:'inherit', borderRadius:'4px', opacity:creando?0.6:1 }}>
+                  style={{ flex:1, padding:'10px', background:NARANJA, color:'white', border:'none', fontSize:'12px', fontWeight:'700', cursor:'pointer', fontFamily:'inherit', borderRadius:'4px', opacity:creando?0.6:1 }}>
                   {creando ? 'Creando...' : 'Crear asesor'}
                 </button>
               </div>
@@ -475,25 +475,25 @@ export default function OrgAdminPage() {
 
       {/* ── Modal cambiar contraseña ── */}
       {showPwd && (
-        <div style={{ position:'fixed' as const, inset:0, background:'rgba(15,23,42,0.6)', zIndex:500, display:'flex', alignItems:'center', justifyContent:'center', padding:'20px' }}>
+        <div style={{ position:'fixed', inset:0, background:'rgba(15,23,42,0.6)', zIndex:500, display:'flex', alignItems:'center', justifyContent:'center', padding:'20px' }}>
           <div style={{ background:'white', width:'100%', maxWidth:'360px', boxShadow:'0 24px 64px rgba(0,0,0,0.3)', borderRadius:'8px', overflow:'hidden' }}>
-            <div style={{ background:AZUL, padding:'14px 20px' }}><p style={{ fontSize:'14px', fontWeight:'700' as const, color:'white', margin:0 }}>🔑 Cambiar contraseña</p></div>
-            <div style={{ padding:'20px', display:'flex', flexDirection:'column' as const, gap:'10px' }}>
+            <div style={{ background:AZUL, padding:'14px 20px' }}><p style={{ fontSize:'14px', fontWeight:'700', color:'white', margin:0 }}>🔑 Cambiar contraseña</p></div>
+            <div style={{ padding:'20px', display:'flex', flexDirection:'column', gap:'10px' }}>
               <div>
                 <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'3px' }}>
-                  <label style={{ fontSize:'10.5px', fontWeight:'600' as const, color:'#6B7280' }}>Nueva contraseña</label>
+                  <label style={{ fontSize:'10.5px', fontWeight:'600', color:'#6B7280' }}>Nueva contraseña</label>
                   <button type="button" onClick={() => setPwdNueva(generarPassword())}
-                    style={{ fontSize:'11px', color:NARANJA, background:'none', border:'none', cursor:'pointer', fontWeight:'600' as const, fontFamily:'inherit' }}>🎲 Generar</button>
+                    style={{ fontSize:'11px', color:NARANJA, background:'none', border:'none', cursor:'pointer', fontWeight:'600', fontFamily:'inherit' }}>🎲 Generar</button>
                 </div>
                 <input type="text" value={pwdNueva} onChange={e => { setPwdNueva(e.target.value); setPwdErr('') }} placeholder="Mínimo 10 caracteres"
-                  style={{ width:'100%', padding:'8px 10px', border:'1px solid #D1D5DB', fontSize:'13px', boxSizing:'border-box' as const, fontFamily:'inherit', borderRadius:'4px', fontWeight:'600' }} />
+                  style={{ width:'100%', padding:'8px 10px', border:'1px solid #D1D5DB', fontSize:'13px', boxSizing:'border-box', fontFamily:'inherit', borderRadius:'4px', fontWeight:'600' }} />
               </div>
               {pwdErr && <p style={{ fontSize:'12px', color:'#DC2626', margin:0 }}>{pwdErr}</p>}
               <div style={{ display:'flex', gap:'8px' }}>
                 <button onClick={() => { setShowPwd(false); setPwdNueva(''); setPwdErr('') }}
-                  style={{ flex:1, padding:'10px', background:'#F8FAFC', color:'#374151', border:'1px solid #E5E7EB', fontSize:'12px', fontWeight:'600' as const, cursor:'pointer', fontFamily:'inherit', borderRadius:'4px' }}>Cancelar</button>
+                  style={{ flex:1, padding:'10px', background:'#F8FAFC', color:'#374151', border:'1px solid #E5E7EB', fontSize:'12px', fontWeight:'600', cursor:'pointer', fontFamily:'inherit', borderRadius:'4px' }}>Cancelar</button>
                 <button onClick={cambiarPassword}
-                  style={{ flex:1, padding:'10px', background:AZUL, color:'white', border:'none', fontSize:'12px', fontWeight:'700' as const, cursor:'pointer', fontFamily:'inherit', borderRadius:'4px' }}>
+                  style={{ flex:1, padding:'10px', background:AZUL, color:'white', border:'none', fontSize:'12px', fontWeight:'700', cursor:'pointer', fontFamily:'inherit', borderRadius:'4px' }}>
                   Actualizar
                 </button>
               </div>

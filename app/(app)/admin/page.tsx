@@ -207,7 +207,6 @@ function AdminFormulasInner() {
     if (!nuevoPassword || nuevoPassword.length < 10) { setErrorUsuario('La contraseña debe tener mínimo 10 caracteres'); return }
     setCreandoUsuario(true)
     try {
-      if (!uid) { setErrorUsuario('Sesión no válida — recarga la página'); setCreandoUsuario(false); return }
       const res = await fetch('/api/admin/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -216,7 +215,6 @@ function AdminFormulasInner() {
           telefono: nuevoTelefono || null,
           is_admin: nuevoEsAdmin, rol: nuevoEsAdmin ? 'super_admin' : nuevoRol,
           organizacion_id: nuevoOrgId || null,
-          envio_metodo: nuevoEnvioMetodo,
         }),
       })
       const data = await res.json()
@@ -238,7 +236,7 @@ function AdminFormulasInner() {
     if (!confirm(`¿Eliminar la cuenta de "${nombre}"? Esta acción no se puede deshacer. Sus clientes y diagnósticos NO se eliminan, pero quedarán sin asesor asignado.`)) return
     const res = await fetch(`/api/admin/usuarios?id=${id}`, {
       method: 'DELETE',
-      headers: { 'x-uid': uid ?? '' },
+      headers: {},
     })
     const data = await res.json()
     if (!res.ok) { alert(data.error || 'Error al eliminar'); return }
@@ -274,7 +272,7 @@ function AdminFormulasInner() {
 
   function sectionTitle(t: string, sub: string) { return (
     <div style={{ marginBottom: '14px' }}>
-      <p style={{ fontSize: '13px', fontWeight: '800', color: AZUL, margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>{t}</p>
+      <p style={{ fontSize: '13px', fontWeight: '800', color: AZUL, margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t}</p>
       <p style={{ fontSize: '11px', color: '#94a3b8', margin: '2px 0 0' }}>{sub}</p>
     </div>
   ) }
@@ -285,7 +283,7 @@ function AdminFormulasInner() {
       <td style={{ padding: '10px 12px', fontSize: '11px', color: '#64748b' }}>{legal}</td>
       <td style={{ padding: '10px 12px', fontSize: '11px', color: '#94a3b8', fontFamily: 'monospace' }}>{excel}</td>
       <td style={{ padding: '10px 12px' }}>{value}</td>
-      <td style={{ padding: '10px 12px', textAlign: 'center' as const }}>
+      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
         {editable
           ? <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '4px', background: '#fef3c7', color: '#92400e', fontWeight: '700' }}>EDITABLE</span>
           : <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '4px', background: '#f0fdf4', color: '#166534', fontWeight: '700' }}>FIJO POR LEY</span>
@@ -361,11 +359,11 @@ function AdminFormulasInner() {
         ]
         return (
           <div style={{ padding: '14px 24px 0' }}>
-            <div style={{ background: requiereAtencion ? '#FEF2F2' : '#F0FDF4', border: `2px solid ${requiereAtencion ? '#FCA5A5' : '#86EFAC'}`, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' as const, gap: '12px' }}>
+            <div style={{ background: requiereAtencion ? '#FEF2F2' : '#F0FDF4', border: `2px solid ${requiereAtencion ? '#FCA5A5' : '#86EFAC'}`, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                 <span style={{ fontSize: '22px', flexShrink: 0 }}>{requiereAtencion ? '⚠️' : '📅'}</span>
                 <div>
-                  <p style={{ fontSize: '13px', fontWeight: '700' as const, color: requiereAtencion ? '#991B1B' : '#065F46', margin: '0 0 4px' }}>
+                  <p style={{ fontSize: '13px', fontWeight: '700', color: requiereAtencion ? '#991B1B' : '#065F46', margin: '0 0 4px' }}>
                     {requiereAtencion
                       ? `Temporada de actualización oficial ${anio} — verifica si ya hay nuevos valores`
                       : enTemporada
@@ -379,10 +377,10 @@ function AdminFormulasInner() {
                   </p>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const, flexShrink: 0 }}>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', flexShrink: 0 }}>
                 {fuentes.map((f, i) => (
                   <a key={i} href={f.url} target="_blank" rel="noopener noreferrer"
-                    style={{ padding: '6px 12px', background: 'white', border: '1px solid #D1D5DB', fontSize: '11px', fontWeight: '600' as const, color: '#1B3A6B', textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
+                    style={{ padding: '6px 12px', background: 'white', border: '1px solid #D1D5DB', fontSize: '11px', fontWeight: '600', color: '#1B3A6B', textDecoration: 'none', whiteSpace: 'nowrap' }}>
                     {f.label} ↗
                   </a>
                 ))}
@@ -596,16 +594,16 @@ function AdminFormulasInner() {
         )}
 
         {activeTab === 'equipo' && (
-          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
             {/* Header con acciones principales */}
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
               <button onClick={() => setShowNuevaOrg(true)}
-                style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
                 🏢 Nueva organización
               </button>
               <button onClick={() => { setShowNuevoUsuario(true); setErrorUsuario(''); setNuevoEmail(''); setNuevoPassword(''); setNuevoNombre(''); setNuevoOrgId('') }}
-                style={{ padding: '8px 16px', background: NARANJA, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ padding: '8px 16px', background: NARANJA, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
                 + Nuevo asesor
               </button>
             </div>
@@ -622,21 +620,21 @@ function AdminFormulasInner() {
                     style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', background: isExpanded ? '#EEF2F8' : 'white' }}>
                     <span style={{ fontSize: '16px' }}>🏢</span>
                     <div style={{ flex: 1 }}>
-                      <p style={{ fontSize: '13px', fontWeight: '700' as const, color: '#111827', margin: '0 0 2px' }}>{org.nombre}</p>
+                      <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 2px' }}>{org.nombre}</p>
                       <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>
-                        {org.plan} · <span style={{ color: pct >= 90 ? '#DC2626' : '#374151', fontWeight: '600' as const }}>{asesoresOrg.length}/{org.asientos} asientos</span>
+                        {org.plan} · <span style={{ color: pct >= 90 ? '#DC2626' : '#374151', fontWeight: '600' }}>{asesoresOrg.length}/{org.asientos} asientos</span>
                         {org.fecha_vencimiento && ` · Vence ${org.fecha_vencimiento}`}
                       </p>
                     </div>
                     {/* Barra de asientos */}
                     <div style={{ width: '80px' }}>
-                      <div style={{ background: '#F4F6FB', height: '6px', borderRadius: '3px', overflow: 'hidden' as const }}>
+                      <div style={{ background: '#F4F6FB', height: '6px', borderRadius: '3px', overflow: 'hidden' }}>
                         <div style={{ width: `${Math.min(100, pct)}%`, height: '100%', background: pct >= 90 ? '#DC2626' : AZUL }} />
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: '4px' }}>
                       <button onClick={e => { e.stopPropagation(); toggleOrgActivo(org.id, org.activo) }}
-                        style={{ padding: '3px 8px', background: org.activo ? '#FEF2F2' : '#F0FDF4', color: org.activo ? '#DC2626' : '#065F46', border: `1px solid ${org.activo ? '#FCA5A5' : '#86EFAC'}`, fontSize: '10px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                        style={{ padding: '3px 8px', background: org.activo ? '#FEF2F2' : '#F0FDF4', color: org.activo ? '#DC2626' : '#065F46', border: `1px solid ${org.activo ? '#FCA5A5' : '#86EFAC'}`, fontSize: '10px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
                         {org.activo ? 'Desactivar' : 'Activar'}
                       </button>
                     </div>
@@ -647,27 +645,27 @@ function AdminFormulasInner() {
                   {isExpanded && (
                     <div style={{ borderTop: `2px solid ${AZUL}` }}>
                       {asesoresOrg.length === 0 ? (
-                        <p style={{ padding: '16px', fontSize: '12px', color: '#9CA3AF', margin: 0, textAlign: 'center' as const }}>Sin asesores asignados</p>
+                        <p style={{ padding: '16px', fontSize: '12px', color: '#9CA3AF', margin: 0, textAlign: 'center' }}>Sin asesores asignados</p>
                       ) : (
-                        <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '12px' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                           <thead><tr style={{ background: '#F8FAFC' }}>
                             {['Nombre', 'Email', 'Rol', 'Clientes', 'Diagnósticos', ''].map((h, i) => (
-                              <th key={i} style={{ padding: '7px 12px', textAlign: (i > 2 ? 'right' : 'left') as const, fontWeight: '700' as const, color: '#6B7280', fontSize: '10px', textTransform: 'uppercase' as const, letterSpacing: '0.5px', borderBottom: '1px solid #E5E7EB' }}>{h}</th>
+                              <th key={i} style={{ padding: '7px 12px', textAlign: (i > 2 ? 'right' : 'left'), fontWeight: '700', color: '#6B7280', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #E5E7EB' }}>{h}</th>
                             ))}
                           </tr></thead>
                           <tbody>
                             {asesoresOrg.map((a: any, i: number) => (
                               <tr key={a.id} style={{ borderBottom: '1px solid #F3F4F6', background: i % 2 === 0 ? 'white' : '#FAFAFA' }}>
-                                <td style={{ padding: '8px 12px', fontWeight: '600' as const }}>{a.nombre}</td>
+                                <td style={{ padding: '8px 12px', fontWeight: '600' }}>{a.nombre}</td>
                                 <td style={{ padding: '8px 12px', color: '#6B7280', fontSize: '11px' }}>{a.email}</td>
                                 <td style={{ padding: '8px 12px' }}>
                                   <span style={{ padding: '2px 6px', background: a.rol === 'org_admin' ? '#EFF6FF' : '#F4F6FB', color: a.rol === 'org_admin' ? '#1D4ED8' : '#6B7280', fontSize: '10px', fontWeight: 700 }}>
                                     {a.rol === 'org_admin' ? 'Líder' : 'Asesor'}
                                   </span>
                                 </td>
-                                <td style={{ padding: '8px 12px', textAlign: 'right' as const, color: AZUL, fontWeight: '600' as const }}>{a.total_clientes}</td>
-                                <td style={{ padding: '8px 12px', textAlign: 'right' as const, color: '#374151' }}>{a.total_diagnosticos}</td>
-                                <td style={{ padding: '8px 12px', textAlign: 'right' as const }}>
+                                <td style={{ padding: '8px 12px', textAlign: 'right', color: AZUL, fontWeight: '600' }}>{a.total_clientes}</td>
+                                <td style={{ padding: '8px 12px', textAlign: 'right', color: '#374151' }}>{a.total_diagnosticos}</td>
+                                <td style={{ padding: '8px 12px', textAlign: 'right' }}>
                                   <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
                                     <button onClick={() => { setUsuarioEditando(a.id); setNuevoPassword(''); setShowCambiarPwd(true) }}
                                       style={{ padding: '3px 8px', background: '#F4F6FB', color: '#374151', border: '1px solid #E5E7EB', fontSize: '10px', cursor: 'pointer', fontFamily: 'inherit' }}>
@@ -688,7 +686,7 @@ function AdminFormulasInner() {
                       {asesoresOrg.length < org.asientos && (
                         <div style={{ padding: '10px 16px', borderTop: '1px solid #F3F4F6' }}>
                           <button onClick={() => { setNuevoOrgId(org.id); setShowNuevoUsuario(true); setErrorUsuario(''); setNuevoEmail(''); setNuevoPassword(''); setNuevoNombre('') }}
-                            style={{ padding: '6px 14px', background: '#F4F6FB', color: AZUL, border: `1px solid ${AZUL}`, fontSize: '11px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                            style={{ padding: '6px 14px', background: '#F4F6FB', color: AZUL, border: `1px solid ${AZUL}`, fontSize: '11px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
                             + Agregar asesor a {org.nombre}
                           </button>
                         </div>
@@ -717,26 +715,26 @@ function AdminFormulasInner() {
                 <div style={{ background: 'white', border: '1px solid #E5E7EB' }}>
                   <div style={{ padding: '12px 16px', borderBottom: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{ fontSize: '16px' }}>👤</span>
-                    <p style={{ fontSize: '13px', fontWeight: '700' as const, color: '#111827', margin: 0 }}>Asesores individuales</p>
+                    <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: 0 }}>Asesores individuales</p>
                     <span style={{ fontSize: '11px', color: '#9CA3AF' }}>{solos.length} asesor{solos.length !== 1 ? 'es' : ''}</span>
                   </div>
                   {solos.length === 0 ? (
-                    <p style={{ padding: '16px', fontSize: '12px', color: '#9CA3AF', margin: 0, textAlign: 'center' as const }}>Sin asesores individuales</p>
+                    <p style={{ padding: '16px', fontSize: '12px', color: '#9CA3AF', margin: 0, textAlign: 'center' }}>Sin asesores individuales</p>
                   ) : (
-                    <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '12px' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                       <thead><tr style={{ background: '#F8FAFC' }}>
                         {['Nombre', 'Email', 'Clientes', 'Diagnósticos', ''].map((h, i) => (
-                          <th key={i} style={{ padding: '7px 12px', textAlign: (i > 1 ? 'right' : 'left') as const, fontWeight: '700' as const, color: '#6B7280', fontSize: '10px', textTransform: 'uppercase' as const, letterSpacing: '0.5px', borderBottom: '1px solid #E5E7EB' }}>{h}</th>
+                          <th key={i} style={{ padding: '7px 12px', textAlign: (i > 1 ? 'right' : 'left'), fontWeight: '700', color: '#6B7280', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #E5E7EB' }}>{h}</th>
                         ))}
                       </tr></thead>
                       <tbody>
                         {solos.map((a: any, i: number) => (
                           <tr key={a.id} style={{ borderBottom: '1px solid #F3F4F6', background: i % 2 === 0 ? 'white' : '#FAFAFA' }}>
-                            <td style={{ padding: '8px 12px', fontWeight: '600' as const }}>{a.nombre}</td>
+                            <td style={{ padding: '8px 12px', fontWeight: '600' }}>{a.nombre}</td>
                             <td style={{ padding: '8px 12px', color: '#6B7280', fontSize: '11px' }}>{a.email}</td>
-                            <td style={{ padding: '8px 12px', textAlign: 'right' as const, color: AZUL, fontWeight: '600' as const }}>{a.total_clientes}</td>
-                            <td style={{ padding: '8px 12px', textAlign: 'right' as const }}>{a.total_diagnosticos}</td>
-                            <td style={{ padding: '8px 12px', textAlign: 'right' as const }}>
+                            <td style={{ padding: '8px 12px', textAlign: 'right', color: AZUL, fontWeight: '600' }}>{a.total_clientes}</td>
+                            <td style={{ padding: '8px 12px', textAlign: 'right' }}>{a.total_diagnosticos}</td>
+                            <td style={{ padding: '8px 12px', textAlign: 'right' }}>
                               <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
                                 <select value="" onChange={e => { if (e.target.value) asignarOrganizacion(a.id, e.target.value) }}
                                   style={{ padding: '3px 6px', border: '1px solid #E5E7EB', fontSize: '10px', fontFamily: 'inherit', background: 'white', color: '#374151', cursor: 'pointer' }}>
@@ -767,19 +765,19 @@ function AdminFormulasInner() {
 
       {/* ── Modal nueva organización ── */}
       {showNuevaOrg && (
-        <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'white', width: '100%', maxWidth: '420px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
-            <div style={{ background: AZUL, padding: '16px 20px' }}><p style={{ fontSize: '14px', fontWeight: '700' as const, color: 'white', margin: 0 }}>+ Nueva organización</p></div>
-            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
+            <div style={{ background: AZUL, padding: '16px 20px' }}><p style={{ fontSize: '14px', fontWeight: '700', color: 'white', margin: 0 }}>+ Nueva organización</p></div>
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {[{ label: 'Nombre', key: 'nombre', type: 'text', placeholder: 'Ej. Grupo Financiero XYZ' }].map(f => (
                 <div key={f.key}>
-                  <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '4px' }}>{f.label}</label>
+                  <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>{f.label}</label>
                   <input type="text" placeholder={f.placeholder} value={(formOrg as any)[f.key]} onChange={e => setFormOrg(p => ({ ...p, [f.key]: e.target.value }))}
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box', fontFamily: 'inherit' }} />
                 </div>
               ))}
               <div>
-                <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '4px' }}>Plan</label>
+                <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Plan</label>
                 <select value={formOrg.plan} onChange={e => setFormOrg(p => ({ ...p, plan: e.target.value }))} style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', fontFamily: 'inherit', background: 'white' }}>
                   <option value="individual">Individual (1 asesor)</option>
                   <option value="equipo">Equipo (2-10 asesores)</option>
@@ -787,16 +785,16 @@ function AdminFormulasInner() {
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '4px' }}>Asientos</label>
-                <input type="number" value={formOrg.asientos} onChange={e => setFormOrg(p => ({ ...p, asientos: parseInt(e.target.value) || 1 }))} style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+                <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Asientos</label>
+                <input type="number" value={formOrg.asientos} onChange={e => setFormOrg(p => ({ ...p, asientos: parseInt(e.target.value) || 1 }))} style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box', fontFamily: 'inherit' }} />
               </div>
               <div>
-                <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '4px' }}>Vencimiento (opcional)</label>
-                <input type="date" value={formOrg.fecha_vencimiento} onChange={e => setFormOrg(p => ({ ...p, fecha_vencimiento: e.target.value }))} style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+                <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Vencimiento (opcional)</label>
+                <input type="date" value={formOrg.fecha_vencimiento} onChange={e => setFormOrg(p => ({ ...p, fecha_vencimiento: e.target.value }))} style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box', fontFamily: 'inherit' }} />
               </div>
               <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
-                <button onClick={() => setShowNuevaOrg(false)} style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12.5px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
-                <button onClick={guardarOrganizacion} disabled={!formOrg.nombre || guardandoOrg} style={{ flex: 1, padding: '10px', background: '#F05B21', color: 'white', border: 'none', fontSize: '12.5px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit', opacity: !formOrg.nombre || guardandoOrg ? 0.6 : 1 }}>
+                <button onClick={() => setShowNuevaOrg(false)} style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12.5px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
+                <button onClick={guardarOrganizacion} disabled={!formOrg.nombre || guardandoOrg} style={{ flex: 1, padding: '10px', background: '#F05B21', color: 'white', border: 'none', fontSize: '12.5px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', opacity: !formOrg.nombre || guardandoOrg ? 0.6 : 1 }}>
                   {guardandoOrg ? 'Guardando...' : 'Crear organización'}
                 </button>
               </div>
@@ -807,32 +805,32 @@ function AdminFormulasInner() {
 
       {/* ── Modal nuevo usuario ── */}
       {showNuevoUsuario && (
-        <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'white', width: '100%', maxWidth: '420px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
-            <div style={{ background: AZUL, padding: '14px 20px' }}><p style={{ fontSize: '14px', fontWeight: '700' as const, color: 'white', margin: 0 }}>+ Nuevo asesor</p></div>
-            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
+            <div style={{ background: AZUL, padding: '14px 20px' }}><p style={{ fontSize: '14px', fontWeight: '700', color: 'white', margin: 0 }}>+ Nuevo asesor</p></div>
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {errorUsuario && <p style={{ fontSize: '12px', color: '#DC2626', margin: 0, padding: '8px', background: '#FEF2F2', border: '1px solid #FCA5A5' }}>{errorUsuario}</p>}
               {[{ label: 'Nombre completo', state: nuevoNombre, set: setNuevoNombre, type: 'text', placeholder: 'Ej. María García', required: true },
                 { label: 'Correo electrónico', state: nuevoEmail, set: setNuevoEmail, type: 'email', placeholder: 'asesor@empresa.com', required: true },
                 { label: 'Teléfono WhatsApp (10 dígitos)', state: nuevoTelefono, set: setNuevoTelefono, type: 'tel', placeholder: 'Ej. 4421234567', required: true },
               ].map(f => (
                 <div key={f.label}>
-                  <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '3px' }}>{f.label} <span style={{ color: '#EF4444' }}>*</span></label>
+                  <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '3px' }}>{f.label} <span style={{ color: '#EF4444' }}>*</span></label>
                   <input type={f.type} placeholder={f.placeholder} value={f.state} onChange={e => f.set(e.target.value)} required={f.required}
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box', fontFamily: 'inherit' }} />
                 </div>
               ))}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
-                  <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280' }}>Contraseña temporal <span style={{ color: '#EF4444' }}>*</span></label>
+                  <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280' }}>Contraseña temporal <span style={{ color: '#EF4444' }}>*</span></label>
                   <button type="button" onClick={() => setNuevoPassword(generarPasswordAdmin())}
-                    style={{ fontSize: '11px', color: NARANJA, background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600' as const, fontFamily: 'inherit' }}>🎲 Generar</button>
+                    style={{ fontSize: '11px', color: NARANJA, background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontFamily: 'inherit' }}>🎲 Generar</button>
                 </div>
                 <input type="text" placeholder="Mínimo 10 caracteres" value={nuevoPassword} onChange={e => setNuevoPassword(e.target.value)}
-                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', fontWeight: '600' }} />
+                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box', fontFamily: 'inherit', fontWeight: '600' }} />
               </div>
               <div>
-                <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '3px' }}>Rol</label>
+                <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '3px' }}>Rol</label>
                 <select value={nuevoRol} onChange={e => setNuevoRol(e.target.value as 'asesor' | 'org_admin')}
                   style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', fontFamily: 'inherit', background: 'white' }}>
                   <option value="asesor">Asesor — solo ve sus propios clientes</option>
@@ -840,11 +838,11 @@ function AdminFormulasInner() {
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '4px' }}>¿Cómo enviar las credenciales?</label>
+                <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>¿Cómo enviar las credenciales?</label>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   {([['email', '📧 Email'], ['whatsapp', '💬 WhatsApp'], ['ambos', '📧+💬 Ambos']] as const).map(([val, lbl]) => (
                     <button key={val} type="button" onClick={() => setNuevoEnvioMetodo(val)}
-                      style={{ flex: 1, padding: '7px 4px', background: nuevoEnvioMetodo === val ? AZUL : '#F4F6FB', color: nuevoEnvioMetodo === val ? 'white' : '#374151', border: `1px solid ${nuevoEnvioMetodo === val ? AZUL : '#E5E7EB'}`, fontSize: '11px', fontWeight: nuevoEnvioMetodo === val ? '700' : '400' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                      style={{ flex: 1, padding: '7px 4px', background: nuevoEnvioMetodo === val ? AZUL : '#F4F6FB', color: nuevoEnvioMetodo === val ? 'white' : '#374151', border: `1px solid ${nuevoEnvioMetodo === val ? AZUL : '#E5E7EB'}`, fontSize: '11px', fontWeight: nuevoEnvioMetodo === val ? '700' : '400', cursor: 'pointer', fontFamily: 'inherit' }}>
                       {lbl}
                     </button>
                   ))}
@@ -855,7 +853,7 @@ function AdminFormulasInner() {
               </div>
               {organizaciones.length > 0 && (
                 <div>
-                  <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '3px' }}>Organización (opcional)</label>
+                  <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '3px' }}>Organización (opcional)</label>
                   <select value={nuevoOrgId} onChange={e => setNuevoOrgId(e.target.value)}
                     style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', fontFamily: 'inherit', background: 'white' }}>
                     <option value="">— Individual (sin organización) —</option>
@@ -865,9 +863,9 @@ function AdminFormulasInner() {
               )}
               <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                 <button onClick={() => { setShowNuevoUsuario(false); setErrorUsuario(''); setNuevoEmail(''); setNuevoPassword(''); setNuevoNombre(''); setNuevoTelefono(''); setNuevoOrgId(''); setNuevoEnvioMetodo('email') }}
-                  style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
+                  style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
                 <button onClick={crearUsuario} disabled={creandoUsuario}
-                  style={{ flex: 1, padding: '10px', background: NARANJA, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit', opacity: creandoUsuario ? 0.6 : 1 }}>
+                  style={{ flex: 1, padding: '10px', background: NARANJA, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', opacity: creandoUsuario ? 0.6 : 1 }}>
                   {creandoUsuario ? 'Creando...' : 'Crear asesor'}
                 </button>
               </div>
@@ -878,26 +876,26 @@ function AdminFormulasInner() {
 
       {/* ── Modal cambiar contraseña ── */}
       {showCambiarPwd && (
-        <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'white', width: '100%', maxWidth: '360px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
-            <div style={{ background: AZUL, padding: '14px 20px' }}><p style={{ fontSize: '14px', fontWeight: '700' as const, color: 'white', margin: 0 }}>🔑 Cambiar contraseña</p></div>
-            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
+            <div style={{ background: AZUL, padding: '14px 20px' }}><p style={{ fontSize: '14px', fontWeight: '700', color: 'white', margin: 0 }}>🔑 Cambiar contraseña</p></div>
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div>
-                <label style={{ fontSize: '10.5px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '3px' }}>Nueva contraseña</label>
+                <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '3px' }}>Nueva contraseña</label>
                 <input type="password" value={nuevoPassword} onChange={e => setNuevoPassword(e.target.value)} placeholder="Mínimo 6 caracteres"
-                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box', fontFamily: 'inherit' }} />
               </div>
               {errorUsuario && <p style={{ fontSize: '12px', color: '#DC2626', margin: 0 }}>{errorUsuario}</p>}
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button onClick={() => { setShowCambiarPwd(false); setErrorUsuario(''); setNuevoPassword('') }}
-                  style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
+                  style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
                 <button onClick={async () => {
                   if (nuevoPassword.length < 6) { setErrorUsuario('Mínimo 6 caracteres'); return }
                   const res = await fetch('/api/admin/usuarios', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: usuarioEditando, password: nuevoPassword }) })
                   const json = await res.json()
                   if (json.ok) { setShowCambiarPwd(false); setErrorUsuario(''); setNuevoPassword('') }
                   else setErrorUsuario(json.error)
-                }} style={{ flex: 1, padding: '10px', background: AZUL, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                }} style={{ flex: 1, padding: '10px', background: AZUL, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
                   Actualizar
                 </button>
               </div>
