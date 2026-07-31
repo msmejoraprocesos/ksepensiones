@@ -4,6 +4,11 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'KSE Pensiones',
   description: 'CRM especializado en diagnóstico pensional para asesores en México',
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

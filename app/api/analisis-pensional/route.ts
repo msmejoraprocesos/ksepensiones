@@ -66,6 +66,7 @@ RESULTADOS DE LOS 4 ESCENARIOS (en pesos de hoy):
 ${ley === '97' ? `- Saldo AFORE: ${fmtMXN(aforeSaldo)}, rendimiento ${rendimiento}%` : ''}
 
 VARIABLES 2026: UMA ${sys.UMA_DIARIA}/día · SM ${sys.SALARIO_MIN}/día · PMG L73 ${fmtMXN(sys.PMG_L73)} · Inflación ${inflacion}%
+${mod40Activo ? `FINANCIAMIENTO MOD.40: Costo mensual ${fmtMXN(mod40Costo)} · Tasa banco regulado ${sys.pct_banco_regulado ?? 'n/d'}% · Tasa banco anual ${sys.tasa_banco_anual ?? 'n/d'}% · Aportación AFORE ${sys.pct_afore_mod40 ?? 20}%` : ''}
 
 Genera el análisis con EXACTAMENTE estas 5 secciones en formato JSON:
 

@@ -932,7 +932,7 @@ export default function ConfiguracionPage() {
           <div style={{ marginTop: '16px', padding: '16px', background: 'white', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 2px' }}>🔒 Contraseña</p>
+                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 2px' }}>🔒 Seguridad</p>
                 <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>Cambia tu contraseña de acceso al sistema</p>
               </div>
               <button onClick={() => { setShowCambiarPassword(!showCambiarPassword); setMsgPassword('') }}
@@ -942,17 +942,38 @@ export default function ConfiguracionPage() {
             </div>
             {showCambiarPassword && (
               <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
-                {[
-                  { label: 'Nueva contraseña', value: nuevaPassword, set: setNuevaPassword },
-                  { label: 'Confirmar contraseña', value: confirmarPassword, set: setConfirmarPassword },
-                ].map(f => (
-                  <div key={f.label}>
-                    <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>{f.label}</label>
-                    <input type="password" value={f.value} onChange={e => f.set(e.target.value)}
-                      placeholder="Mínimo 6 caracteres"
-                      style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '6px' }} />
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280' }}>Nueva contraseña</label>
+                    <button type="button" onClick={() => {
+                      const chars = 'abcdefghijkmnpqrstuvwxyz', upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ', nums = '23456789', syms = '!@#$%&*'
+                      const pwd = (upper[Math.floor(Math.random()*upper.length)] + chars[Math.floor(Math.random()*chars.length)] + chars[Math.floor(Math.random()*chars.length)] + nums[Math.floor(Math.random()*nums.length)] + nums[Math.floor(Math.random()*nums.length)] + syms[Math.floor(Math.random()*syms.length)] + upper[Math.floor(Math.random()*upper.length)] + chars[Math.floor(Math.random()*chars.length)] + nums[Math.floor(Math.random()*nums.length)] + syms[Math.floor(Math.random()*syms.length)]).split('').sort(() => Math.random() - 0.5).join('')
+                      setNuevaPassword(pwd); setConfirmarPassword(pwd)
+                    }} style={{ fontSize: '11px', color: '#F05B21', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontFamily: 'inherit' }}>🎲 Generar</button>
                   </div>
-                ))}
+                  <input type="text" value={nuevaPassword} onChange={e => setNuevaPassword(e.target.value)}
+                    placeholder="Mínimo 10 caracteres"
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '6px', fontWeight: '600' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Confirmar contraseña</label>
+                  <input type="password" value={confirmarPassword} onChange={e => setConfirmarPassword(e.target.value)}
+                    placeholder="Repite la contraseña"
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '6px' }} />
+                </div>
+                <div style={{ background: '#F8FAFC', borderRadius: '6px', padding: '10px 12px', fontSize: '11px', color: '#6B7280', lineHeight: 1.6 }}>
+                  <strong style={{ color: '#374151' }}>Criterios de seguridad:</strong>{' '}
+                  {[
+                    { label: '10+ caracteres', ok: nuevaPassword.length >= 10 },
+                    { label: 'Mayúscula', ok: /[A-Z]/.test(nuevaPassword) },
+                    { label: 'Número', ok: /[0-9]/.test(nuevaPassword) },
+                    { label: 'Símbolo', ok: /[!@#$%&*]/.test(nuevaPassword) },
+                  ].map(c => (
+                    <span key={c.label} style={{ display: 'inline-block', marginRight: '10px', color: nuevaPassword && c.ok ? '#16A34A' : '#9CA3AF' }}>
+                      {nuevaPassword && c.ok ? '✓' : '○'} {c.label}
+                    </span>
+                  ))}
+                </div>
                 {msgPassword && (
                   <p style={{ fontSize: '12px', color: msgPassword.startsWith('✅') ? '#065F46' : '#DC2626', margin: 0, fontWeight: '600' }}>{msgPassword}</p>
                 )}
