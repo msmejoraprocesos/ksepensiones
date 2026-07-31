@@ -56,6 +56,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [pwdError, setPwdError] = useState('')
   const [pwdGuardando, setPwdGuardando] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const [showNavGuard, setShowNavGuard] = useState(false)
   const pendingNavRef = useRef<string | null>(null)
 
@@ -73,7 +74,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const checkWidth = () => {
-      if (window.innerWidth < 900) setCollapsed(true)
+      const w = window.innerWidth
+      if (w < 640) { setIsMobile(true); setCollapsed(true) }
+      else if (w < 900) { setIsMobile(false); setCollapsed(true) }
+      else { setIsMobile(false); setCollapsed(false) }
     }
     checkWidth()
     window.addEventListener('resize', checkWidth)
@@ -247,7 +251,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {!collapsed && <span style={{ fontSize: '12px', fontWeight: '600', color: '#64748b', letterSpacing: '0.5px' }}>Pensiones</span>}
         </Link>
 
-        {/* Búsqueda global */}
+        {/* Búsqueda global — oculta en móvil */}
+        {!isMobile && (
         <div style={{ flex: 1, maxWidth: '400px', position: 'relative' as const, margin: '0 12px' }}>
           <div style={{ position: 'relative' as const }}>
             <span style={{ position: 'absolute' as const, left: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: '14px', color: '#9CA3AF' }}>🔍</span>
@@ -287,6 +292,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </>
           )}
         </div>
+        )}
 
         {/* Campanita notificaciones */}
         <div style={{ position: 'relative' as const, marginRight: '4px' }}>
@@ -387,13 +393,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* ── BODY: sidebar + content ── */}
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
 
-        {/* ── SIDEBAR ── */}
+        {/* ── SIDEBAR — oculto en móvil ── */}
         <div style={{
-          width: collapsed ? '48px' : '200px',
+          width: isMobile ? '0px' : collapsed ? '48px' : '200px',
           flexShrink: 0,
           background: 'white',
-          borderRight: '1px solid #e2e8f0',
-          display: 'flex',
+          borderRight: isMobile ? 'none' : '1px solid #e2e8f0',
+          display: isMobile ? 'none' : 'flex',
           flexDirection: 'column',
           transition: 'width 0.2s',
           overflow: 'hidden',
@@ -446,12 +452,33 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* ── MAIN CONTENT ── */}
-        <main style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', background: '#FAFAFA' }}>
+        <main style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', background: '#FAFAFA', paddingBottom: isMobile ? '60px' : 0 }}>
           <ErrorBoundary>
             {children}
           </ErrorBoundary>
         </main>
       </div>
+
+      {/* ── NAVEGACIÓN INFERIOR MÓVIL ── */}
+      {isMobile && (
+        <nav style={{ position: 'fixed' as const, bottom: 0, left: 0, right: 0, height: '56px', background: 'white', borderTop: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'space-around', zIndex: 50, padding: '0 4px' }}>
+          {NAV_ITEMS.filter(item => {
+            if (item.adminOnly && !isAdmin) return false
+            if (item.orgAdminOnly && userRol !== 'org_admin') return false
+            return true
+          }).slice(0, 5).map(item => {
+            const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+            return (
+              <button key={item.href} onClick={() => router.push(item.href)}
+                style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '2px', padding: '4px 8px', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '8px', flex: 1 }}>
+                <span style={{ fontSize: '18px', opacity: isActive ? 1 : 0.5 }}>{item.icon}</span>
+                <span style={{ fontSize: '9px', fontWeight: isActive ? '700' : '400', color: isActive ? AZUL : '#9CA3AF', fontFamily: 'inherit' }}>{item.label}</span>
+                {isActive && <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: AZUL }} />}
+              </button>
+            )
+          })}
+        </nav>
+      )}
 
       {/* ── Modal guardia de navegación — calculadora con cambios sin guardar ── */}
       {showNavGuard && (
