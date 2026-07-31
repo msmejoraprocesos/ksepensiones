@@ -1160,7 +1160,8 @@ function ClientesInner() {
                             )
                           })()}
                         </td>
-                          <span style={{ fontSize: '10px', padding: '2px 7px', borderRadius: '8px', fontWeight: '600', background: col?.bg, color: col?.color }}>{col?.label}</span>
+                        <td style={{ padding: '10px 12px' }}>
+                          <span style={{ fontSize: '10px', padding: '2px 7px', borderRadius: '8px', fontWeight: '600', background: col?.bg ?? '#F4F6FB', color: col?.color ?? '#6B7280' }}>{col?.label ?? '—'}</span>
                         </td>
                         <td style={{ padding: '10px 12px', fontSize: '12px', color: '#64748b' }}>{TIPOS_SERVICIO.find(t => t.id === c.tipo_servicio)?.label ?? '—'}</td>
                         <td style={{ padding: '10px 12px', fontSize: '12px', fontWeight: '600', color: AZUL }}>{fmtMXN(c.monto_acordado)}</td>
