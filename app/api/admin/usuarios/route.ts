@@ -90,6 +90,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Error al crear perfil: ' + errPerfil.message + ' | code: ' + errPerfil.code + ' | details: ' + errPerfil.details }, { status: 400 })
     }
 
+    // Inicializar catálogos de actividad para el nuevo asesor
+    if (!is_admin) {
+      try {
+        await admin.rpc('inicializar_catalogos_asesor', { p_asesor_id: nuevoUsuario.user.id })
+      } catch (e) {
+        console.error('Error inicializando catálogos:', e)
+        // No es crítico — el asesor puede funcionar sin catálogos
+      }
+    }
+
     // Email de bienvenida
     const resendKey = process.env.RESEND_API_KEY
     if (resendKey && !is_admin) {
