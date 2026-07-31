@@ -41,6 +41,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [razonSocial, setRazonSocial] = useState('')
   const [checking, setChecking] = useState(true)
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [showNotif, setShowNotif] = useState(false)
+  const [notificaciones, setNotificaciones] = useState<any[]>([])
+  const [noLeidas, setNoLeidas] = useState(0)
+  const [loadingNotif, setLoadingNotif] = useState(false)
   const [showCambiarPwd, setShowCambiarPwd] = useState(false)
   const [pwdNueva, setPwdNueva] = useState('')
   const [pwdConfirmar, setPwdConfirmar] = useState('')
@@ -80,6 +84,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       setChecking(false)
       setUserEmail(session.user.email ?? '')
 
+      // Cargar notificaciones
+      cargarNotificaciones(session.user.id)
+
       // Usar cache si es el mismo usuario — evita llamada a DB en cada navegacion
       if (_perfilCache && _perfilUserId === session.user.id) {
         setUserName(_perfilCache.nombre)
@@ -99,7 +106,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             const isAdmin = !!data.is_admin
             const rol = data.rol || (data.is_admin ? 'super_admin' : 'asesor')
 
-            // Guardar en cache
             _perfilCache = { nombre, razonSocial, logo, isAdmin, rol }
             _perfilUserId = session.user.id
 
@@ -111,6 +117,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             if (!data.nombre && !data.razon_social && !window.location.pathname.includes('configuracion')) {
               router.push('/configuracion')
             }
+
+            // Polling cada 60 segundos
+            const interval = setInterval(() => cargarNotificaciones(session.user.id), 60000)
+            return () => clearInterval(interval)
           }
         })
     })
@@ -154,6 +164,26 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     setPwdGuardando(false)
   }
 
+  async function cargarNotificaciones(uid: string) {
+    const res = await fetch(`/api/notificaciones?uid=${uid}`)
+    if (res.ok) {
+      const data = await res.json()
+      setNotificaciones(data.notificaciones ?? [])
+      setNoLeidas(data.no_leidas ?? 0)
+    }
+  }
+
+  async function marcarLeida(id?: string) {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+    await fetch('/api/notificaciones', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: session.user.id, id, todas: !id }),
+    })
+    await cargarNotificaciones(session.user.id)
+  }
+
   async function handleLogout() {
     _perfilCache = null
     _perfilUserId = null
@@ -190,6 +220,58 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </Link>
 
         <div style={{ flex: 1 }} />
+
+        {/* Campanita notificaciones */}
+        <div style={{ position: 'relative' as const, marginRight: '4px' }}>
+          <button onClick={() => setShowNotif(p => !p)}
+            style={{ position: 'relative' as const, padding: '6px 8px', background: 'none', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+            <span style={{ fontSize: '16px' }}>🔔</span>
+            {noLeidas > 0 && (
+              <span style={{ position: 'absolute' as const, top: '0px', right: '0px', background: '#EF4444', color: 'white', fontSize: '9px', fontWeight: '700', borderRadius: '50%', width: '15px', height: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {noLeidas > 9 ? '9+' : noLeidas}
+              </span>
+            )}
+          </button>
+          {showNotif && (
+            <>
+              <div style={{ position: 'fixed' as const, inset: 0, zIndex: 39 }} onClick={() => setShowNotif(false)} />
+              <div style={{ position: 'absolute' as const, right: 0, top: '40px', width: '340px', background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: 40, overflow: 'hidden' }}>
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid #E5E7EB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: 0 }}>
+                    Notificaciones
+                    {noLeidas > 0 && <span style={{ background: '#EF4444', color: 'white', fontSize: '10px', padding: '1px 6px', borderRadius: '10px', marginLeft: '6px' }}>{noLeidas}</span>}
+                  </p>
+                  {noLeidas > 0 && (
+                    <button onClick={() => marcarLeida()} style={{ fontSize: '11px', color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+                      Marcar todas leídas
+                    </button>
+                  )}
+                </div>
+                <div style={{ maxHeight: '380px', overflowY: 'auto' as const }}>
+                  {notificaciones.length === 0 ? (
+                    <div style={{ padding: '24px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: '13px' }}>Sin notificaciones</div>
+                  ) : notificaciones.map((n: any) => (
+                    <div key={n.id}
+                      onClick={() => { marcarLeida(n.id); setShowNotif(false); if (n.url_destino) router.push(n.url_destino) }}
+                      style={{ padding: '12px 16px', borderBottom: '1px solid #F3F4F6', cursor: n.url_destino ? 'pointer' : 'default', background: n.leida ? 'white' : '#EFF6FF', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+                      <span style={{ fontSize: '18px', flexShrink: 0 }}>
+                        {n.tipo === 'cliente_sin_contacto' ? '👤' : n.tipo === 'financiamiento_por_vencer' ? '💳' : n.tipo === 'actividad_pendiente' ? '📅' : n.tipo === 'solicitud_canalizacion' ? '🔄' : '🔔'}
+                      </span>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ fontSize: '12px', fontWeight: '700', color: '#111827', margin: '0 0 2px' }}>{n.titulo}</p>
+                        <p style={{ fontSize: '11px', color: '#6B7280', margin: '0 0 4px', lineHeight: 1.4 }}>{n.mensaje}</p>
+                        <p style={{ fontSize: '10px', color: '#9CA3AF', margin: 0 }}>
+                          {new Date(n.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
+                      {!n.leida && <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#3B82F6', flexShrink: 0, marginTop: '4px' }} />}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
 
         {/* Right — usuario */}
         <div style={{ position: 'relative' }}>
