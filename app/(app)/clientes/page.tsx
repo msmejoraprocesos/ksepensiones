@@ -256,7 +256,13 @@ function ClientesInner() {
   const [servicioActivo, setServicioActivo] = useState<string | null>(null)
   const [showNuevoServicio, setShowNuevoServicio] = useState(false)
   const [showNuevaActividad, setShowNuevaActividad] = useState(false)
-  const [formActividad, setFormActividad] = useState({ tipo: 'llamada', titulo: '', fecha_programada: new Date().toISOString().split('T')[0], hora: '09:00', notas: '' })
+  const [formActividad, setFormActividad] = useState({
+    tipo_contacto: '', resultado: '', proximo_paso: '',
+    fecha_programada: new Date().toISOString().split('T')[0], hora: '09:00', notas: '',
+    proximo_fecha: '', proximo_hora: '09:00'
+  })
+  const [catalogos, setCatalogos] = useState<Record<string, any[]>>({ tipo_contacto: [], resultado: [], proximo_paso: [] })
+  const [showMateriales, setShowMateriales] = useState(false)
   const [savingActividad, setSavingActividad] = useState(false)
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [deletingCliente, setDeletingCliente] = useState(false)
@@ -315,7 +321,13 @@ function ClientesInner() {
 
   async function loadMateriales(uid: string) {
     const { data } = await supabase.from('materiales_apoyo').select('*').eq('asesor_id', uid).eq('activo', true).order('orden')
-    setMateriales(data ?? [])
+    if (data) setMateriales(data)
+    const { data: cats } = await supabase.from('catalogos_actividad').select('*').eq('asesor_id', uid).eq('activo', true).order('orden')
+    if (cats) {
+      const grouped: Record<string, any[]> = { tipo_contacto: [], resultado: [], proximo_paso: [] }
+      cats.forEach((c: any) => { if (grouped[c.categoria]) grouped[c.categoria].push(c) })
+      setCatalogos(grouped)
+    }
   }
 
   useEffect(() => {
@@ -610,24 +622,78 @@ function ClientesInner() {
   }
 
   async function guardarActividad() {
-    if (!selected || !formActividad.titulo.trim()) return
+    if (!selected || !formActividad.tipo_contacto) return
     setSavingActividad(true)
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) { setSavingActividad(false); return }
+
+    const tipoLabel = catalogos.tipo_contacto.find((c: any) => c.valor === formActividad.tipo_contacto)?.etiqueta || formActividad.tipo_contacto
+    const resultadoLabel = catalogos.resultado.find((c: any) => c.valor === formActividad.resultado)?.etiqueta || ''
+    const pasoLabel = catalogos.proximo_paso.find((c: any) => c.valor === formActividad.proximo_paso)?.etiqueta || ''
+    const titulo = `${tipoLabel}${resultadoLabel ? ' — ' + resultadoLabel : ''}`
+
+    // Fecha de la actividad actual
     const fechaHora = new Date(`${formActividad.fecha_programada}T${formActividad.hora}:00`)
+
     const { data, error } = await supabase.from('actividades').insert({
       cliente_id: selected.id,
       asesor_id: session.user.id,
-      tipo: formActividad.tipo,
-      titulo: formActividad.titulo,
+      tipo: formActividad.tipo_contacto,
+      titulo,
+      tipo_contacto: formActividad.tipo_contacto,
+      resultado: formActividad.resultado || null,
+      proximo_paso: formActividad.proximo_paso || null,
       fecha_programada: fechaHora.toISOString(),
       notas: formActividad.notas || null,
-      estatus: 'pendiente',
+      estatus: 'completado', // La actividad que se registra ya ocurrió
     }).select().single()
-    if (!error && data) setActividades(prev => [data as Actividad, ...prev])
+
+    if (!error && data) {
+      setActividades(prev => [data as Actividad, ...prev])
+
+      // Automatización: crear evento para próximo paso si genera_evento = true
+      const pasoConfig = catalogos.proximo_paso.find((c: any) => c.valor === formActividad.proximo_paso)
+      if (pasoConfig?.genera_evento && formActividad.proximo_paso !== 'ninguno') {
+        const proximaFecha = calcularProximaFecha(formActividad.proximo_paso)
+        await supabase.from('actividades').insert({
+          cliente_id: selected.id,
+          asesor_id: session.user.id,
+          tipo: formActividad.tipo_contacto,
+          titulo: `${pasoLabel} — ${selected.nombre}`,
+          tipo_contacto: formActividad.tipo_contacto,
+          proximo_paso: null,
+          fecha_programada: proximaFecha.toISOString(),
+          notas: `Generado automáticamente desde actividad anterior`,
+          estatus: 'pendiente',
+        })
+      }
+
+      // Automatización: abrir materiales si abre_materiales = true
+      if (pasoConfig?.abre_materiales) {
+        setShowMateriales(true)
+      }
+    }
+
     setSavingActividad(false)
     setShowNuevaActividad(false)
-    setFormActividad({ tipo: 'llamada', titulo: '', fecha_programada: new Date().toISOString().split('T')[0], hora: '09:00', notas: '' })
+    setFormActividad({
+      tipo_contacto: '', resultado: '', proximo_paso: '',
+      fecha_programada: new Date().toISOString().split('T')[0], hora: '09:00', notas: '',
+      proximo_fecha: '', proximo_hora: '09:00'
+    })
+  }
+
+  function calcularProximaFecha(proximo_paso: string): Date {
+    const hoy = new Date()
+    const mapa: Record<string, number> = {
+      llamar_manana: 1, llamar_semana: 7, llamar_15dias: 15,
+      llamar_mes: 30, agendar_cita: 3, enviar_propuesta: 2,
+      solicitar_docs: 1, esperar_respuesta: 7,
+    }
+    const dias = mapa[proximo_paso] ?? 3
+    hoy.setDate(hoy.getDate() + dias)
+    hoy.setHours(9, 0, 0, 0)
+    return hoy
   }
 
   async function completarActividad(id: string) {
@@ -1999,41 +2065,74 @@ function ClientesInner() {
 
                   {showNuevaActividad && (
                     <div style={{ background: '#F4F6FB', borderRadius: '10px', padding: '14px', border: '1px solid #e2e8f0' }}>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Tipo</label>
-                          <select value={formActividad.tipo} onChange={e => setFormActividad(p => ({ ...p, tipo: e.target.value }))} style={inputSt}>
-                            <option value="llamada">📞 Llamada</option>
-                            <option value="whatsapp">💬 WhatsApp</option>
-                            <option value="cita">📅 Cita</option>
-                            <option value="email">✉️ Email</option>
-                            <option value="nota">📝 Nota</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Fecha</label>
-                          <input type="date" value={formActividad.fecha_programada} onChange={e => setFormActividad(p => ({ ...p, fecha_programada: e.target.value }))} style={inputSt} />
-                        </div>
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Hora</label>
-                          <input type="time" value={formActividad.hora} onChange={e => setFormActividad(p => ({ ...p, hora: e.target.value }))} style={inputSt} />
-                        </div>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Título *</label>
-                          <input value={formActividad.titulo} onChange={e => setFormActividad(p => ({ ...p, titulo: e.target.value }))} placeholder="Ej. Llamada de seguimiento" style={inputSt} />
-                        </div>
-                      </div>
+
+                      {/* Tipo de contacto */}
                       <div style={{ marginBottom: '10px' }}>
-                        <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Notas</label>
-                        <input value={formActividad.notas} onChange={e => setFormActividad(p => ({ ...p, notas: e.target.value }))} placeholder="Detalles de la actividad..." style={inputSt} />
+                        <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '6px', textTransform: 'uppercase' as const }}>¿Cómo fue el contacto? *</label>
+                        <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
+                          {catalogos.tipo_contacto.map((c: any) => (
+                            <button key={c.valor} type="button" onClick={() => setFormActividad(p => ({ ...p, tipo_contacto: c.valor }))}
+                              style={{ padding: '5px 10px', background: formActividad.tipo_contacto === c.valor ? AZUL : 'white', color: formActividad.tipo_contacto === c.valor ? 'white' : '#374151', border: `1px solid ${formActividad.tipo_contacto === c.valor ? AZUL : '#E5E7EB'}`, fontSize: '12px', fontWeight: formActividad.tipo_contacto === c.valor ? '700' : '400', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                              {c.icono} {c.etiqueta}
+                            </button>
+                          ))}
+                        </div>
                       </div>
+
+                      {/* Resultado */}
+                      {formActividad.tipo_contacto && (
+                        <div style={{ marginBottom: '10px' }}>
+                          <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '6px', textTransform: 'uppercase' as const }}>¿Cuál fue el resultado?</label>
+                          <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
+                            {catalogos.resultado.map((c: any) => (
+                              <button key={c.valor} type="button" onClick={() => setFormActividad(p => ({ ...p, resultado: c.valor }))}
+                                style={{ padding: '5px 10px', background: formActividad.resultado === c.valor ? '#374151' : 'white', color: formActividad.resultado === c.valor ? 'white' : '#374151', border: `1px solid ${formActividad.resultado === c.valor ? '#374151' : '#E5E7EB'}`, fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                                {c.icono} {c.etiqueta}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Próximo paso */}
+                      {formActividad.resultado && (
+                        <div style={{ marginBottom: '10px' }}>
+                          <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '6px', textTransform: 'uppercase' as const }}>¿Cuál es el próximo paso?</label>
+                          <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
+                            {catalogos.proximo_paso.map((c: any) => (
+                              <button key={c.valor} type="button" onClick={() => setFormActividad(p => ({ ...p, proximo_paso: c.valor }))}
+                                style={{ padding: '5px 10px', background: formActividad.proximo_paso === c.valor ? NARANJA : 'white', color: formActividad.proximo_paso === c.valor ? 'white' : '#374151', border: `1px solid ${formActividad.proximo_paso === c.valor ? NARANJA : '#E5E7EB'}`, fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                                {c.icono} {c.etiqueta}
+                                {c.genera_evento && <span style={{ marginLeft: '4px', fontSize: '10px', opacity: 0.7 }}>📅</span>}
+                                {c.abre_materiales && <span style={{ marginLeft: '4px', fontSize: '10px', opacity: 0.7 }}>📎</span>}
+                              </button>
+                            ))}
+                          </div>
+                          {formActividad.proximo_paso && catalogos.proximo_paso.find((c: any) => c.valor === formActividad.proximo_paso)?.genera_evento && (
+                            <div style={{ marginTop: '8px', padding: '8px 10px', background: '#EEF2F8', borderRadius: '6px', fontSize: '11px', color: AZUL }}>
+                              📅 Se creará automáticamente un evento en tu calendario para este próximo paso
+                            </div>
+                          )}
+                          {formActividad.proximo_paso && catalogos.proximo_paso.find((c: any) => c.valor === formActividad.proximo_paso)?.abre_materiales && (
+                            <div style={{ marginTop: '8px', padding: '8px 10px', background: '#FFF7ED', borderRadius: '6px', fontSize: '11px', color: '#92400E' }}>
+                              📎 Al guardar se abrirá el catálogo de materiales para enviar información
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Nota opcional */}
+                      <div style={{ marginBottom: '10px' }}>
+                        <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' as const }}>Nota adicional (opcional)</label>
+                        <input value={formActividad.notas} onChange={e => setFormActividad(p => ({ ...p, notas: e.target.value }))} placeholder="Detalles relevantes de la conversación..." style={inputSt} />
+                      </div>
+
                       <div style={{ display: 'flex', gap: '7px' }}>
-                        <button onClick={() => setShowNuevaActividad(false)} style={{ flex: 1, padding: '8px', background: 'white', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '7px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
-                        <button onClick={guardarActividad} disabled={savingActividad || !formActividad.titulo.trim()}
-                          style={{ flex: 2, padding: '8px', background: savingActividad || !formActividad.titulo.trim() ? '#94a3b8' : NARANJA, color: 'white', border: 'none', borderRadius: '7px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>
-                          {savingActividad ? 'Guardando...' : 'Guardar actividad'}
+                        <button onClick={() => { setShowNuevaActividad(false); setFormActividad({ tipo_contacto: '', resultado: '', proximo_paso: '', fecha_programada: new Date().toISOString().split('T')[0], hora: '09:00', notas: '', proximo_fecha: '', proximo_hora: '09:00' }) }}
+                          style={{ flex: 1, padding: '8px', background: 'white', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '7px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
+                        <button onClick={guardarActividad} disabled={savingActividad || !formActividad.tipo_contacto}
+                          style={{ flex: 2, padding: '8px', background: savingActividad || !formActividad.tipo_contacto ? '#94a3b8' : NARANJA, color: 'white', border: 'none', borderRadius: '7px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>
+                          {savingActividad ? 'Guardando...' : 'Registrar actividad'}
                         </button>
                       </div>
                     </div>
