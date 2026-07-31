@@ -26,6 +26,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/seguimiento',    label: 'Seguimiento',    icon: '◷' },
   { href: '/calculadora',    label: 'Calculadora',    icon: '⊞' },
   { href: '/financiamiento', label: 'Financiamiento', icon: '◐' },
+  { href: '/reportes',       label: 'Reportes',       icon: '📋' },
   { href: '/configuracion',  label: 'Configuración',  icon: '⚙' },
   { href: '/admin',          label: 'Admin Fórmulas', icon: '🔬', adminOnly: true },
   { href: '/super-admin',   label: 'Dashboard Negocio', icon: '📊', adminOnly: true },
