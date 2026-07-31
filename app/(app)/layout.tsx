@@ -46,6 +46,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [notificaciones, setNotificaciones] = useState<any[]>([])
   const [noLeidas, setNoLeidas] = useState(0)
   const [loadingNotif, setLoadingNotif] = useState(false)
+  const [showSearch, setShowSearch] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [searchLoading, setSearchLoading] = useState(false)
   const [showCambiarPwd, setShowCambiarPwd] = useState(false)
   const [pwdNueva, setPwdNueva] = useState('')
   const [pwdConfirmar, setPwdConfirmar] = useState('')
@@ -165,6 +169,29 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     setPwdGuardando(false)
   }
 
+  async function buscarGlobal(q: string) {
+    setSearchQuery(q)
+    if (q.length < 2) { setSearchResults([]); return }
+    setSearchLoading(true)
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+    const uid = session.user.id
+
+    const [{ data: clientes }, { data: financiamientos }, { data: diagnosticos }] = await Promise.all([
+      supabase.from('clientes').select('id, nombre, nss, telefono, etapa_kanban').eq('asesor_id', uid).ilike('nombre', `%${q}%`).limit(5),
+      supabase.from('financiamientos').select('id, clientes(nombre), instituciones_financieras(nombre), monto_total, estatus').eq('asesor_id', uid).limit(3),
+      supabase.from('diagnosticos').select('id, clientes(nombre), estatus, created_at').eq('asesor_id', uid).limit(3),
+    ])
+
+    const results: any[] = []
+    ;(clientes ?? []).forEach((c: any) => results.push({ tipo: 'cliente', id: c.id, titulo: c.nombre, sub: c.nss ? `NSS: ${c.nss}` : c.telefono ?? '', icono: '👤', url: '/clientes' }))
+    ;(financiamientos ?? []).filter((f: any) => f.clientes?.nombre?.toLowerCase().includes(q.toLowerCase())).forEach((f: any) => results.push({ tipo: 'financiamiento', id: f.id, titulo: f.clientes?.nombre ?? '—', sub: `${f.instituciones_financieras?.nombre ?? ''} · ${f.estatus}`, icono: '💳', url: '/financiamiento' }))
+    ;(diagnosticos ?? []).filter((d: any) => d.clientes?.nombre?.toLowerCase().includes(q.toLowerCase())).forEach((d: any) => results.push({ tipo: 'diagnostico', id: d.id, titulo: d.clientes?.nombre ?? '—', sub: `Diagnóstico · ${d.estatus}`, icono: '📊', url: '/calculadora' }))
+
+    setSearchResults(results)
+    setSearchLoading(false)
+  }
+
   async function cargarNotificaciones(uid: string) {
     const res = await fetch(`/api/notificaciones?uid=${uid}`)
     if (res.ok) {
@@ -220,7 +247,46 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {!collapsed && <span style={{ fontSize: '12px', fontWeight: '600', color: '#64748b', letterSpacing: '0.5px' }}>Pensiones</span>}
         </Link>
 
-        <div style={{ flex: 1 }} />
+        {/* Búsqueda global */}
+        <div style={{ flex: 1, maxWidth: '400px', position: 'relative' as const, margin: '0 12px' }}>
+          <div style={{ position: 'relative' as const }}>
+            <span style={{ position: 'absolute' as const, left: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: '14px', color: '#9CA3AF' }}>🔍</span>
+            <input
+              type="text"
+              placeholder="Buscar clientes, diagnósticos, financiamientos..."
+              value={searchQuery}
+              onChange={e => buscarGlobal(e.target.value)}
+              onFocus={() => setShowSearch(true)}
+              style={{ width: '100%', padding: '6px 10px 6px 32px', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '12px', fontFamily: 'inherit', background: '#F8FAFC', boxSizing: 'border-box' as const, outline: 'none' }}
+            />
+          </div>
+          {showSearch && searchQuery.length >= 2 && (
+            <>
+              <div style={{ position: 'fixed' as const, inset: 0, zIndex: 39 }} onClick={() => { setShowSearch(false); setSearchQuery(''); setSearchResults([]) }} />
+              <div style={{ position: 'absolute' as const, top: '38px', left: 0, right: 0, background: 'white', border: '1px solid #E5E7EB', borderRadius: '8px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: 40, overflow: 'hidden' }}>
+                {searchLoading ? (
+                  <div style={{ padding: '16px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: '12px' }}>Buscando...</div>
+                ) : searchResults.length === 0 ? (
+                  <div style={{ padding: '16px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: '12px' }}>Sin resultados para "{searchQuery}"</div>
+                ) : (
+                  searchResults.map((r, i) => (
+                    <div key={i} onClick={() => { router.push(r.url); setShowSearch(false); setSearchQuery(''); setSearchResults([]) }}
+                      style={{ padding: '10px 16px', borderBottom: '1px solid #F3F4F6', cursor: 'pointer', display: 'flex', gap: '10px', alignItems: 'center' }}
+                      onMouseEnter={e => (e.currentTarget.style.background = '#F8FAFC')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'white')}>
+                      <span style={{ fontSize: '18px' }}>{r.icono}</span>
+                      <div>
+                        <p style={{ fontSize: '12px', fontWeight: '700', color: '#111827', margin: '0 0 1px' }}>{r.titulo}</p>
+                        <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>{r.sub}</p>
+                      </div>
+                      <span style={{ marginLeft: 'auto', fontSize: '10px', color: '#9CA3AF', background: '#F4F6FB', padding: '2px 6px', borderRadius: '4px' }}>{r.tipo}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </>
+          )}
+        </div>
 
         {/* Campanita notificaciones */}
         <div style={{ position: 'relative' as const, marginRight: '4px' }}>
