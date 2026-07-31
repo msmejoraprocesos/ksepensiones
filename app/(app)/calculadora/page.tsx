@@ -416,6 +416,134 @@ const SYS_DEFAULT: SysVars = {
 }
 
 // ══════════════════════════════════════════════════════════════════
+// Simulador de impacto en vida real
+// ══════════════════════════════════════════════════════════════════
+function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pensionCon: number }) {
+  const AZUL = '#1B3A6B', VERDE = '#2E8B57', ROJO = '#DC2626', NARANJA = '#F05B21'
+  const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n || 0)
+
+  const [renta, setRenta] = useState(6000)
+  const [comida, setComida] = useState(4500)
+  const [servicios, setServicios] = useState(1200)
+  const [medicamentos, setMedicamentos] = useState(1800)
+  const [transporte, setTransporte] = useState(800)
+  const [entretenimiento, setEntretenimiento] = useState(1000)
+
+  const gastoTotal = renta + comida + servicios + medicamentos + transporte + entretenimiento
+  const excedenteSin = pensionSin - gastoTotal
+  const excedenteCon = pensionCon - gastoTotal
+  const mejora = pensionSin > 0 ? Math.round(((pensionCon - pensionSin) / pensionSin) * 100) : 0
+
+  const gastos = [
+    { label: '🏠 Renta/hipoteca', val: renta, set: setRenta, color: '#6366F1' },
+    { label: '🛒 Alimentación', val: comida, set: setComida, color: '#F59E0B' },
+    { label: '💡 Servicios', val: servicios, set: setServicios, color: '#10B981' },
+    { label: '💊 Medicamentos', val: medicamentos, set: setMedicamentos, color: '#EF4444' },
+    { label: '🚌 Transporte', val: transporte, set: setTransporte, color: '#8B5CF6' },
+    { label: '🎬 Entretenimiento', val: entretenimiento, set: setEntretenimiento, color: '#EC4899' },
+  ]
+
+  const maxBar = Math.max(pensionCon * 1.1, gastoTotal * 1.1)
+  const barPct = (v: number) => Math.min(100, Math.round((v / maxBar) * 100))
+
+  return (
+    <div style={{ background: 'white', border: '1px solid #E5E7EB', marginTop: '4px' }}>
+      <div style={{ background: AZUL, padding: '12px 16px' }}>
+        <p style={{ fontSize: '12px', color: '#93C5FD', margin: '0 0 2px', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '700' }}>
+          Simulador de vida real
+        </p>
+        <p style={{ fontSize: '14px', fontWeight: '800', color: 'white', margin: 0 }}>
+          ¿Te alcanzará la pensión para vivir?
+        </p>
+      </div>
+
+      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column' as const, gap: '16px' }}>
+
+        {/* Gastos ajustables */}
+        <div>
+          <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', margin: '0 0 10px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
+            Ajusta tus gastos mensuales estimados
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            {gastos.map(g => (
+              <div key={g.label} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '13px', flexShrink: 0 }}>{g.label.split(' ')[0]}</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
+                    <label style={{ fontSize: '10px', color: '#6B7280' }}>{g.label.substring(3)}</label>
+                    <span style={{ fontSize: '11px', fontWeight: '700', color: g.color }}>{fmtMXN(g.val)}</span>
+                  </div>
+                  <input type="range" min={0} max={15000} step={500} value={g.val} onChange={e => g.set(Number(e.target.value))}
+                    style={{ width: '100%', height: '4px', accentColor: g.color, cursor: 'pointer' }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Comparativa visual */}
+        <div style={{ background: '#F8FAFC', borderRadius: '8px', padding: '14px' }}>
+          <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', margin: '0 0 12px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
+            Comparativa
+          </p>
+
+          {[
+            { label: 'Tus gastos mensuales', val: gastoTotal, color: '#6B7280' },
+            { label: 'Pensión sin Modalidad 40', val: pensionSin, color: ROJO },
+            { label: 'Pensión con Modalidad 40', val: pensionCon, color: VERDE },
+          ].map((b, i) => (
+            <div key={i} style={{ marginBottom: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <span style={{ fontSize: '11px', color: '#374151' }}>{b.label}</span>
+                <span style={{ fontSize: '12px', fontWeight: '700', color: b.color }}>{fmtMXN(b.val)}</span>
+              </div>
+              <div style={{ height: '10px', background: '#E5E7EB', borderRadius: '5px', overflow: 'hidden' as const }}>
+                <div style={{ height: '100%', background: b.color, borderRadius: '5px', width: `${barPct(b.val)}%`, transition: 'width 0.3s' }} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Resultado */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+          <div style={{ padding: '12px', background: excedenteSin >= 0 ? '#F0FDF4' : '#FEF2F2', borderRadius: '8px', borderLeft: `3px solid ${excedenteSin >= 0 ? VERDE : ROJO}` }}>
+            <p style={{ fontSize: '10px', color: '#6B7280', margin: '0 0 4px' }}>Sin Modalidad 40</p>
+            <p style={{ fontSize: '16px', fontWeight: '800', color: excedenteSin >= 0 ? VERDE : ROJO, margin: '0 0 2px' }}>
+              {excedenteSin >= 0 ? `+${fmtMXN(excedenteSin)}` : fmtMXN(excedenteSin)}
+            </p>
+            <p style={{ fontSize: '10px', color: '#6B7280', margin: 0 }}>
+              {excedenteSin >= 0 ? 'sobraría al mes' : 'faltaría al mes'}
+            </p>
+          </div>
+          <div style={{ padding: '12px', background: excedenteCon >= 0 ? '#F0FDF4' : '#FEF2F2', borderRadius: '8px', borderLeft: `3px solid ${excedenteCon >= 0 ? VERDE : ROJO}` }}>
+            <p style={{ fontSize: '10px', color: '#6B7280', margin: '0 0 4px' }}>Con Modalidad 40</p>
+            <p style={{ fontSize: '16px', fontWeight: '800', color: excedenteCon >= 0 ? VERDE : ROJO, margin: '0 0 2px' }}>
+              {excedenteCon >= 0 ? `+${fmtMXN(excedenteCon)}` : fmtMXN(excedenteCon)}
+            </p>
+            <p style={{ fontSize: '10px', color: '#6B7280', margin: 0 }}>
+              {excedenteCon >= 0 ? 'sobraría al mes' : 'faltaría al mes'}
+            </p>
+          </div>
+        </div>
+
+        {/* Mensaje de impacto */}
+        <div style={{ padding: '12px 14px', background: '#EEF2F8', borderRadius: '8px', borderLeft: `3px solid ${AZUL}` }}>
+          <p style={{ fontSize: '12px', color: AZUL, fontWeight: '700', margin: '0 0 4px' }}>
+            {mejora > 0 ? `Con Modalidad 40 tu pensión mejora ${mejora}%` : 'Completa el diagnóstico para ver la mejora'}
+          </p>
+          <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>
+            {pensionCon > 0 && pensionSin > 0 && (
+              `Eso significa ${fmtMXN(pensionCon - pensionSin)} más al mes — la diferencia entre ${excedenteCon >= 0 ? 'cubrir tus gastos y tener un margen' : 'reducir el déficit mensual'}.`
+            )}
+          </p>
+        </div>
+
+      </div>
+    </div>
+  )
+}
+
+// ══════════════════════════════════════════════════════════════════
 // Semáforo de elegibilidad financiera
 // ══════════════════════════════════════════════════════════════════
 function SemaforoElegibilidad({ clienteId, diagnosticoId, datos, escenarioSel, supabase, userId }: {
@@ -4448,6 +4576,14 @@ function CalculadoraInner() {
                   escenarioSel={escSel}
                   supabase={supabase}
                   userId={userId}
+                />
+              )}
+
+              {/* ══ SIMULADOR DE IMPACTO EN VIDA REAL ══ */}
+              {escSel && (
+                <SimuladorVidaReal
+                  pensionSin={datos.pension_sin_mod40 ?? 0}
+                  pensionCon={escSel.pension_mensual ?? 0}
                 />
               )}
 
