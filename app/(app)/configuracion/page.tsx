@@ -93,6 +93,267 @@ function formatRFC(val: string): string {
   return val.toUpperCase().replace(/[^A-ZÑ&0-9]/g, '').slice(0, 13)
 }
 
+// ══════════════════════════════════════════════════════════════════
+// Componente: Financieras y Elegibilidad
+// ══════════════════════════════════════════════════════════════════
+function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabase: any }) {
+  const AZUL = '#1B3A6B', NARANJA = '#F05B21'
+  const [financieras, setFinancieras] = useState<any[]>([])
+  const [variables, setVariables] = useState<any[]>([])
+  const [docsCatalogo, setDocsCatalogo] = useState<any[]>([])
+  const [expandida, setExpandida] = useState<string | null>(null)
+  const [tab, setTab] = useState<'criterios' | 'documentos'>('criterios')
+  const [criterios, setCriterios] = useState<Record<string, any[]>>({})
+  const [docsFinanciera, setDocsFinanciera] = useState<Record<string, any[]>>({})
+  const [showNuevoDoc, setShowNuevoDoc] = useState(false)
+  const [nuevoDoc, setNuevoDoc] = useState({ nombre: '', descripcion: '', obligatorio: true })
+
+  useEffect(() => {
+    if (!userId) return
+    Promise.all([
+      supabase.from('instituciones_financieras').select('*').eq('asesor_id', userId).order('nombre'),
+      supabase.from('variables_elegibilidad').select('*').eq('activo', true).order('orden'),
+      supabase.from('documentos_catalogo').select('*').eq('asesor_id', userId).order('orden'),
+    ]).then(([{ data: f }, { data: v }, { data: d }]) => {
+      setFinancieras(f ?? [])
+      setVariables(v ?? [])
+      setDocsCatalogo(d ?? [])
+    })
+  }, [userId])
+
+  async function loadCriterios(financieraId: string) {
+    const [{ data: c }, { data: d }] = await Promise.all([
+      supabase.from('criterios_financiera').select('*').eq('institucion_id', financieraId),
+      supabase.from('documentos_financiera').select('*, documentos_catalogo(nombre, descripcion)').eq('institucion_id', financieraId),
+    ])
+    setCriterios(prev => ({ ...prev, [financieraId]: c ?? [] }))
+    setDocsFinanciera(prev => ({ ...prev, [financieraId]: d ?? [] }))
+  }
+
+  async function toggleExpand(id: string) {
+    if (expandida === id) { setExpandida(null); return }
+    setExpandida(id)
+    setTab('criterios')
+    await loadCriterios(id)
+  }
+
+  async function guardarCriterio(financieraId: string, clave: string, campo: string, valor: string) {
+    const existing = (criterios[financieraId] ?? []).find((c: any) => c.variable_clave === clave)
+    const update: any = { institucion_id: financieraId, variable_clave: clave }
+    if (campo === 'valor_min') update.valor_min = valor ? parseFloat(valor) : null
+    if (campo === 'valor_max') update.valor_max = valor ? parseFloat(valor) : null
+    if (existing) {
+      await supabase.from('criterios_financiera').update(update).eq('id', existing.id)
+    } else {
+      await supabase.from('criterios_financiera').insert(update)
+    }
+    await loadCriterios(financieraId)
+  }
+
+  async function toggleDocFinanciera(financieraId: string, docId: string, activo: boolean) {
+    if (activo) {
+      await supabase.from('documentos_financiera').insert({ institucion_id: financieraId, documento_id: docId, obligatorio: true })
+    } else {
+      await supabase.from('documentos_financiera').delete().eq('institucion_id', financieraId).eq('documento_id', docId)
+    }
+    await loadCriterios(financieraId)
+  }
+
+  async function crearDocCatalogo() {
+    if (!nuevoDoc.nombre.trim()) return
+    await supabase.from('documentos_catalogo').insert({ asesor_id: userId, ...nuevoDoc, orden: docsCatalogo.length })
+    const { data } = await supabase.from('documentos_catalogo').select('*').eq('asesor_id', userId).order('orden')
+    setDocsCatalogo(data ?? [])
+    setNuevoDoc({ nombre: '', descripcion: '', obligatorio: true })
+    setShowNuevoDoc(false)
+  }
+
+  const fmtNum = (n: any) => n != null ? new Intl.NumberFormat('es-MX').format(n) : ''
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
+
+      {/* Catálogo de documentos */}
+      <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '8px', overflow: 'hidden' }}>
+        <div style={{ padding: '12px 16px', background: '#F8FAFC', borderBottom: '1px solid #E5E7EB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <p style={{ fontSize: '12px', fontWeight: '700', color: '#374151', margin: 0 }}>📄 Catálogo de documentos</p>
+          <button onClick={() => setShowNuevoDoc(true)}
+            style={{ padding: '4px 12px', background: AZUL, color: 'white', border: 'none', fontSize: '11px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '4px' }}>
+            + Agregar
+          </button>
+        </div>
+        {docsCatalogo.length === 0 ? (
+          <p style={{ padding: '16px', fontSize: '12px', color: '#9CA3AF', margin: 0, textAlign: 'center' as const }}>Sin documentos — agrega los que piden tus financieras</p>
+        ) : (
+          <div style={{ padding: '8px 16px' }}>
+            {docsCatalogo.map((d: any) => (
+              <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 0', borderBottom: '1px solid #F3F4F6' }}>
+                <span style={{ fontSize: '12px', color: '#374151', flex: 1 }}>{d.nombre}</span>
+                {d.descripcion && <span style={{ fontSize: '11px', color: '#9CA3AF' }}>{d.descripcion}</span>}
+              </div>
+            ))}
+          </div>
+        )}
+        {showNuevoDoc && (
+          <div style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
+            <input placeholder="Nombre del documento (ej. Identificación oficial)" value={nuevoDoc.nombre} onChange={e => setNuevoDoc(p => ({ ...p, nombre: e.target.value }))}
+              style={{ padding: '7px 10px', border: '1px solid #D1D5DB', fontSize: '12px', borderRadius: '4px', fontFamily: 'inherit' }} />
+            <input placeholder="Descripción (opcional)" value={nuevoDoc.descripcion} onChange={e => setNuevoDoc(p => ({ ...p, descripcion: e.target.value }))}
+              style={{ padding: '7px 10px', border: '1px solid #D1D5DB', fontSize: '12px', borderRadius: '4px', fontFamily: 'inherit' }} />
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button onClick={() => setShowNuevoDoc(false)} style={{ flex: 1, padding: '7px', background: '#F4F6FB', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '4px' }}>Cancelar</button>
+              <button onClick={crearDocCatalogo} style={{ flex: 1, padding: '7px', background: NARANJA, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '4px' }}>Guardar</button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Financieras con criterios */}
+      {financieras.length === 0 ? (
+        <div style={{ background: '#F8FAFC', border: '1px dashed #D1D5DB', borderRadius: '8px', padding: '24px', textAlign: 'center' as const }}>
+          <p style={{ fontSize: '13px', color: '#9CA3AF', margin: '0 0 4px' }}>Sin financieras registradas</p>
+          <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>Ve a <strong>Financiamiento → Nueva institución</strong> para agregar tus financieras</p>
+        </div>
+      ) : (
+        financieras.map((f: any) => {
+          const isOpen = expandida === f.id
+          const crit = criterios[f.id] ?? []
+          const docs = docsFinanciera[f.id] ?? []
+          const docIds = docs.map((d: any) => d.documento_id)
+
+          return (
+            <div key={f.id} style={{ background: 'white', border: `1px solid ${isOpen ? AZUL : '#E5E7EB'}`, borderRadius: '8px', overflow: 'hidden' }}>
+              <div onClick={() => toggleExpand(f.id)}
+                style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', background: isOpen ? '#EEF2F8' : 'white' }}>
+                <span style={{ fontSize: '18px' }}>🏦</span>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: 0 }}>{f.nombre}</p>
+                  <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>{crit.length} criterio{crit.length !== 1 ? 's' : ''} · {docs.length} documento{docs.length !== 1 ? 's' : ''} requerido{docs.length !== 1 ? 's' : ''}</p>
+                </div>
+                <span style={{ color: '#9CA3AF', fontSize: '12px' }}>{isOpen ? '▲' : '▼'}</span>
+              </div>
+
+              {isOpen && (
+                <div style={{ borderTop: `2px solid ${AZUL}` }}>
+                  {/* Tabs */}
+                  <div style={{ display: 'flex', borderBottom: '1px solid #E5E7EB' }}>
+                    {([['criterios', '📋 Criterios de elegibilidad'], ['documentos', '📄 Documentos requeridos']] as const).map(([t, lbl]) => (
+                      <button key={t} onClick={() => setTab(t)}
+                        style={{ padding: '8px 16px', background: 'none', border: 'none', borderBottom: `2px solid ${tab === t ? AZUL : 'transparent'}`, fontSize: '12px', fontWeight: tab === t ? '700' : '400', color: tab === t ? AZUL : '#6B7280', cursor: 'pointer', fontFamily: 'inherit' }}>
+                        {lbl}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Criterios */}
+                  {tab === 'criterios' && (
+                    <div style={{ padding: '16px' }}>
+                      <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '0 0 12px' }}>
+                        Define los valores mínimos y máximos que acepta esta financiera. Deja en blanco los que no apliquen.
+                      </p>
+                      <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '12px' }}>
+                        <thead><tr style={{ background: '#F8FAFC' }}>
+                          {['Variable', 'Mínimo', 'Máximo', 'Unidad'].map((h, i) => (
+                            <th key={i} style={{ padding: '6px 10px', textAlign: 'left' as const, fontWeight: '700', color: '#6B7280', fontSize: '10px', textTransform: 'uppercase' as const, borderBottom: '1px solid #E5E7EB' }}>{h}</th>
+                          ))}
+                        </tr></thead>
+                        <tbody>
+                          {variables.filter((v: any) => v.tipo === 'numero').map((v: any) => {
+                            const c = crit.find((c: any) => c.variable_clave === v.clave)
+                            return (
+                              <tr key={v.clave} style={{ borderBottom: '1px solid #F3F4F6' }}>
+                                <td style={{ padding: '8px 10px' }}>
+                                  <p style={{ fontSize: '12px', fontWeight: '600', color: '#374151', margin: 0 }}>{v.nombre}</p>
+                                  {v.descripcion && <p style={{ fontSize: '10px', color: '#9CA3AF', margin: 0 }}>{v.descripcion}</p>}
+                                </td>
+                                <td style={{ padding: '8px 10px' }}>
+                                  <input type="number" defaultValue={c?.valor_min ?? ''} placeholder="—"
+                                    onBlur={e => guardarCriterio(f.id, v.clave, 'valor_min', e.target.value)}
+                                    style={{ width: '80px', padding: '4px 8px', border: '1px solid #D1D5DB', fontSize: '12px', borderRadius: '4px', fontFamily: 'inherit' }} />
+                                </td>
+                                <td style={{ padding: '8px 10px' }}>
+                                  <input type="number" defaultValue={c?.valor_max ?? ''} placeholder="—"
+                                    onBlur={e => guardarCriterio(f.id, v.clave, 'valor_max', e.target.value)}
+                                    style={{ width: '80px', padding: '4px 8px', border: '1px solid #D1D5DB', fontSize: '12px', borderRadius: '4px', fontFamily: 'inherit' }} />
+                                </td>
+                                <td style={{ padding: '8px 10px', color: '#9CA3AF', fontSize: '11px' }}>{v.unidad ?? '—'}</td>
+                              </tr>
+                            )
+                          })}
+                          {/* Variables cualitativas */}
+                          {variables.filter((v: any) => v.tipo === 'cualitativo').map((v: any) => {
+                            const c = crit.find((c: any) => c.variable_clave === v.clave)
+                            const seleccionados: string[] = c?.valores_aceptados ?? []
+                            return (
+                              <tr key={v.clave} style={{ borderBottom: '1px solid #F3F4F6' }}>
+                                <td style={{ padding: '8px 10px' }} colSpan={3}>
+                                  <p style={{ fontSize: '12px', fontWeight: '600', color: '#374151', margin: '0 0 6px' }}>{v.nombre}</p>
+                                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' as const }}>
+                                    {(v.opciones ?? []).map((op: any) => {
+                                      const sel = seleccionados.includes(op.valor)
+                                      return (
+                                        <button key={op.valor} onClick={async () => {
+                                          const nuevos = sel ? seleccionados.filter((x: string) => x !== op.valor) : [...seleccionados, op.valor]
+                                          const existing = crit.find((c: any) => c.variable_clave === v.clave)
+                                          if (existing) {
+                                            await supabase.from('criterios_financiera').update({ valores_aceptados: nuevos }).eq('id', existing.id)
+                                          } else {
+                                            await supabase.from('criterios_financiera').insert({ institucion_id: f.id, variable_clave: v.clave, valores_aceptados: nuevos })
+                                          }
+                                          await loadCriterios(f.id)
+                                        }} style={{ padding: '4px 10px', background: sel ? AZUL : '#F4F6FB', color: sel ? 'white' : '#374151', border: `1px solid ${sel ? AZUL : '#E5E7EB'}`, fontSize: '11px', fontWeight: sel ? '700' : '400', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '4px' }}>
+                                          {op.etiqueta}
+                                        </button>
+                                      )
+                                    })}
+                                  </div>
+                                </td>
+                                <td style={{ padding: '8px 10px' }} />
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {/* Documentos */}
+                  {tab === 'documentos' && (
+                    <div style={{ padding: '16px' }}>
+                      {docsCatalogo.length === 0 ? (
+                        <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>Primero agrega documentos al catálogo arriba</p>
+                      ) : (
+                        <>
+                          <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '0 0 12px' }}>
+                            Marca los documentos que requiere esta financiera
+                          </p>
+                          {docsCatalogo.map((d: any) => {
+                            const req = docIds.includes(d.id)
+                            return (
+                              <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 0', borderBottom: '1px solid #F3F4F6' }}>
+                                <input type="checkbox" checked={req} onChange={e => toggleDocFinanciera(f.id, d.id, e.target.checked)}
+                                  style={{ width: '16px', height: '16px', cursor: 'pointer' }} />
+                                <div>
+                                  <p style={{ fontSize: '12px', fontWeight: '600', color: '#374151', margin: 0 }}>{d.nombre}</p>
+                                  {d.descripcion && <p style={{ fontSize: '10px', color: '#9CA3AF', margin: 0 }}>{d.descripcion}</p>}
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )
+        })
+      )}
+    </div>
+  )
+}
+
 export default function ConfiguracionPage() {
   const supabase = createClient()
   const router = useRouter()
@@ -984,6 +1245,12 @@ export default function ConfiguracionPage() {
               </div>
             )}
           </div>
+
+          {/* ══ SECCIÓN: FINANCIERAS Y ELEGIBILIDAD ══ */}
+          {sectionTitle('💳', 'Financieras y elegibilidad', 'Configura las instituciones con las que trabajas y sus criterios de elegibilidad')}
+
+          {/* Lista de financieras con criterios */}
+          <FinancierasElegibilidad userId={userId} supabase={supabase} />
 
       </div>
     </div>

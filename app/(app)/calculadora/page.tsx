@@ -415,6 +415,137 @@ const SYS_DEFAULT: SysVars = {
   pct_recargos_retroactivo: 41.80  // % recargos SAT retroactivo
 }
 
+// ══════════════════════════════════════════════════════════════════
+// Semáforo de elegibilidad financiera
+// ══════════════════════════════════════════════════════════════════
+function SemaforoElegibilidad({ clienteId, diagnosticoId, datos, escenarioSel, supabase, userId }: {
+  clienteId: string; diagnosticoId: string; datos: any; escenarioSel: any; supabase: any; userId: string
+}) {
+  const AZUL = '#1B3A6B', NARANJA = '#F05B21'
+  const [financieras, setFinancieras] = useState<any[]>([])
+  const [criterios, setCriterios] = useState<Record<string, any[]>>({})
+  const [evaluaciones, setEvaluaciones] = useState<any[]>([])
+  const [evaluando, setEvaluando] = useState(false)
+  const [expandida, setExpandida] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!userId) return
+    supabase.from('instituciones_financieras').select('*').eq('asesor_id', userId).order('nombre')
+      .then(({ data }: any) => {
+        setFinancieras(data ?? [])
+        // Cargar criterios de todas las financieras
+        if (data && data.length > 0) {
+          Promise.all(data.map((f: any) =>
+            supabase.from('criterios_financiera').select('*').eq('institucion_id', f.id)
+              .then(({ data: c }: any) => ({ id: f.id, criterios: c ?? [] }))
+          )).then((results: any[]) => {
+            const map: Record<string, any[]> = {}
+            results.forEach((r: any) => { map[r.id] = r.criterios })
+            setCriterios(map)
+          })
+        }
+      })
+  }, [userId])
+
+  function evaluarCliente(financieraId: string): { resultado: 'viable' | 'condicional' | 'no_viable'; detalles: any[] } {
+    const crit = criterios[financieraId] ?? []
+    if (crit.length === 0) return { resultado: 'condicional', detalles: [] }
+
+    const valoresCliente: Record<string, number | string | null> = {
+      semanas_min: datos.semanas_totales,
+      semanas_max: datos.semanas_totales,
+      edad_min: datos.edad_actual,
+      edad_max: datos.edad_actual,
+      monto_min: escenarioSel?.costo_total_mod40 ?? 0,
+      monto_max: escenarioSel?.costo_total_mod40 ?? 0,
+      mejora_pension_min_pct: escenarioSel && escenarioSel.pension_mensual > 0 && (datos.pension_sin_mod40 ?? 0) > 0
+        ? ((escenarioSel.pension_mensual - (datos.pension_sin_mod40 ?? 0)) / (datos.pension_sin_mod40 ?? 1)) * 100
+        : 0,
+    }
+
+    const detalles = crit.map((c: any) => {
+      const valor = valoresCliente[c.variable_clave]
+      let cumple = true
+      let motivo = ''
+
+      if (c.valor_min != null && valor != null) {
+        if (Number(valor) < c.valor_min) { cumple = false; motivo = `Requiere mínimo ${c.valor_min}` }
+      }
+      if (c.valor_max != null && valor != null) {
+        if (Number(valor) > c.valor_max) { cumple = false; motivo = `No debe superar ${c.valor_max}` }
+      }
+
+      return { clave: c.variable_clave, cumple, valor, motivo }
+    })
+
+    const noCumple = detalles.filter((d: any) => !d.cumple).length
+    const resultado = noCumple === 0 ? 'viable' : noCumple <= 1 ? 'condicional' : 'no_viable'
+    return { resultado, detalles }
+  }
+
+  useEffect(() => {
+    if (financieras.length > 0 && Object.keys(criterios).length > 0) {
+      const evals = financieras.map((f: any) => ({
+        ...f,
+        ...evaluarCliente(f.id)
+      }))
+      setEvaluaciones(evals)
+    }
+  }, [financieras, criterios, datos, escenarioSel])
+
+  if (financieras.length === 0) return null
+
+  const viables = evaluaciones.filter((e: any) => e.resultado === 'viable').length
+  const condicionales = evaluaciones.filter((e: any) => e.resultado === 'condicional').length
+
+  const colorResultado = (r: string) => r === 'viable' ? '#16A34A' : r === 'condicional' ? '#D97706' : '#DC2626'
+  const bgResultado = (r: string) => r === 'viable' ? '#F0FDF4' : r === 'condicional' ? '#FFFBEB' : '#FEF2F2'
+  const etiqueta = (r: string) => r === 'viable' ? '✅ Viable' : r === 'condicional' ? '⚠️ Condicional' : '❌ No cumple'
+
+  return (
+    <div style={{ marginTop: '4px' }}>
+      <div style={{ background: '#1B3A6B', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <p style={{ fontSize: '12px', color: '#93C5FD', margin: '0 0 2px', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '700' }}>Elegibilidad Financiera</p>
+          <p style={{ fontSize: '14px', fontWeight: '800', color: 'white', margin: 0 }}>
+            {viables > 0 ? `✅ Viable en ${viables} de ${financieras.length} financiera${financieras.length !== 1 ? 's' : ''}` :
+             condicionales > 0 ? `⚠️ Condicional en ${condicionales} de ${financieras.length} financiera${financieras.length !== 1 ? 's' : ''}` :
+             '❌ Sin elegibilidad en financieras configuradas'}
+          </p>
+        </div>
+      </div>
+
+      <div style={{ background: 'white', border: '1px solid #E5E7EB', borderTop: 'none' }}>
+        {evaluaciones.map((e: any) => (
+          <div key={e.id} style={{ borderBottom: '1px solid #F3F4F6' }}>
+            <div onClick={() => setExpandida(expandida === e.id ? null : e.id)}
+              style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+              <span style={{ fontSize: '16px' }}>🏦</span>
+              <span style={{ fontSize: '13px', fontWeight: '600', color: '#374151', flex: 1 }}>{e.nombre}</span>
+              <span style={{ padding: '3px 10px', background: bgResultado(e.resultado), color: colorResultado(e.resultado), fontSize: '11px', fontWeight: '700', borderRadius: '4px' }}>
+                {etiqueta(e.resultado)}
+              </span>
+              <span style={{ color: '#9CA3AF', fontSize: '11px' }}>{expandida === e.id ? '▲' : '▼'}</span>
+            </div>
+            {expandida === e.id && e.detalles.length > 0 && (
+              <div style={{ padding: '0 16px 12px 42px' }}>
+                {e.detalles.map((d: any, i: number) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 0', fontSize: '11px' }}>
+                    <span>{d.cumple ? '✓' : '✗'}</span>
+                    <span style={{ color: d.cumple ? '#16A34A' : '#DC2626' }}>
+                      {d.clave.replace(/_/g, ' ')} — {d.motivo || `Valor: ${d.valor}`}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function CalculadoraInner() {
   const supabase = createClient()
   const router = useRouter()
@@ -4307,6 +4438,18 @@ function CalculadoraInner() {
                   📄 Exportar PDF
                 </button>
               </div>
+
+              {/* ══ SEMÁFORO DE ELEGIBILIDAD FINANCIERA ══ */}
+              {diagGuardadoId && clienteId && (
+                <SemaforoElegibilidad
+                  clienteId={clienteId}
+                  diagnosticoId={diagGuardadoId}
+                  datos={datos}
+                  escenarioSel={escSel}
+                  supabase={supabase}
+                  userId={userId}
+                />
+              )}
 
             </div>
           )
