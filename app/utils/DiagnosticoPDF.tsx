@@ -963,6 +963,111 @@ const PaginaAviso = ({ razonSocial, color, titulo, esBorrador }: Partial<PDFProp
   </View>
 )
 
+// ─── PÁGINA INFOGRÁFICA — Resumen en lenguaje cotidiano ──────────────────────
+const PaginaInfografia = ({ datos, escenarios, escSelIdx, color, razonSocial, esBorrador }: PDFProps & { color: string }) => {
+  const esc = escenarios?.[escSelIdx] ?? escenarios?.[0]
+  const trabajador = datos.nombre_trabajador || datos.nombre || '—'
+  const pensionSin = esc?.pension_sin_mod40 ?? esc?.cuantia_base ?? 0
+  const pensionCon = esc?.pension_mensual ?? pensionSin
+  const mejora = pensionSin > 0 ? Math.round(((pensionCon - pensionSin) / pensionSin) * 100) : 0
+  const costoCred = esc?.costo_total_mod40 ?? 0
+  const semanas = datos.semanas_cotizadas ?? datos.semanas ?? 0
+  const edadRetiro = esc?.edad_retiro ?? datos.edad_retiro ?? 65
+
+  // Gastos mensuales típicos en México para contextualizar
+  const renta = 6000, comida = 4500, servicios = 1200, medicamentos = 1800
+  const gastoBasico = renta + comida + servicios + medicamentos
+
+  const alcanzaGastos = pensionCon >= gastoBasico
+
+  const barWidth = (val: number, max: number) => Math.min(100, Math.round((val / max) * 100))
+  const maxPension = Math.max(pensionCon * 1.2, pensionSin * 1.2, gastoBasico)
+
+  return (
+    <View wrap={false} style={{ marginBottom: 20 }}>
+      {/* Header de la infografía */}
+      <View style={{ backgroundColor: color, padding: 14, marginBottom: 12 }}>
+        <Text style={{ color: '#FFFFFF', fontSize: 14, fontFamily: 'Helvetica-Bold' }}>
+          Lo que esto significa para {trabajador.split(' ')[0]}
+        </Text>
+        <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 8, marginTop: 2 }}>
+          Traduciendo los números a tu vida diaria
+        </Text>
+      </View>
+
+      {/* 3 KPIs visuales */}
+      <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
+        {[
+          { label: 'Sin actuar hoy', valor: mxn(pensionSin), sub: 'pensión mensual estimada', color: C.rojo, bg: '#FEF2F2' },
+          { label: `Con Modalidad 40`, valor: mxn(pensionCon), sub: 'pensión mensual estimada', color: C.verde, bg: '#F0FDF4' },
+          { label: 'Mejora en pensión', valor: `+${mejora}%`, sub: `+${mxn(pensionCon - pensionSin)}/mes`, color: color, bg: C.grisCl },
+        ].map((k, i) => (
+          <View key={i} style={{ flex: 1, backgroundColor: k.bg, borderLeftWidth: 3, borderLeftColor: k.color, padding: 10 }}>
+            <Text style={{ fontSize: 7, color: C.textoSm, fontFamily: 'Helvetica-Bold', textTransform: 'uppercase' }}>{k.label}</Text>
+            <Text style={{ fontSize: 16, fontFamily: 'Helvetica-Bold', color: k.color, marginTop: 4 }}>{k.valor}</Text>
+            <Text style={{ fontSize: 7, color: C.textoSm, marginTop: 2 }}>{k.sub}</Text>
+          </View>
+        ))}
+      </View>
+
+      {/* Comparativa gráfica de barras */}
+      <View style={{ backgroundColor: C.grisCl, padding: 12, marginBottom: 12 }}>
+        <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color: C.texto, marginBottom: 8 }}>
+          Comparativa visual
+        </Text>
+
+        {[
+          { label: 'Pensión actual (sin actuar)', val: pensionSin, color: C.rojo },
+          { label: 'Pensión con Modalidad 40', val: pensionCon, color: C.verde },
+          { label: 'Gasto básico mensual estimado', val: gastoBasico, color: C.azul },
+        ].map((b, i) => (
+          <View key={i} style={{ marginBottom: 6 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 }}>
+              <Text style={{ fontSize: 7, color: C.textoSm }}>{b.label}</Text>
+              <Text style={{ fontSize: 7, fontFamily: 'Helvetica-Bold', color: b.color }}>{mxn(b.val)}</Text>
+            </View>
+            <View style={{ height: 8, backgroundColor: '#E5E7EB', borderRadius: 4 }}>
+              <View style={{ height: 8, backgroundColor: b.color, borderRadius: 4, width: `${barWidth(b.val, maxPension)}%` }} />
+            </View>
+          </View>
+        ))}
+
+        <Text style={{ fontSize: 7, color: C.textoSm, marginTop: 6, fontStyle: 'italic' }}>
+          * Gasto básico estimado: renta {mxn(renta)} + comida {mxn(comida)} + servicios {mxn(servicios)} + medicamentos {mxn(medicamentos)}
+        </Text>
+      </View>
+
+      {/* Mensaje de impacto */}
+      <View style={{ backgroundColor: alcanzaGastos ? '#F0FDF4' : '#FEF2F2', borderLeftWidth: 4, borderLeftColor: alcanzaGastos ? C.verde : C.rojo, padding: 10, marginBottom: 12 }}>
+        <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color: alcanzaGastos ? C.verde : C.rojo, marginBottom: 4 }}>
+          {alcanzaGastos ? '✓ Con Modalidad 40 cubrirías tus gastos básicos mensuales' : '⚠ La pensión no alcanzaría para cubrir los gastos básicos mensuales'}
+        </Text>
+        <Text style={{ fontSize: 8, color: C.textoSm }}>
+          {alcanzaGastos
+            ? `Tu pensión de ${mxn(pensionCon)}/mes superaría el gasto básico estimado de ${mxn(gastoBasico)}/mes. Tendrías un excedente de ${mxn(pensionCon - gastoBasico)}/mes para otros gastos.`
+            : `Tu pensión de ${mxn(pensionCon)}/mes estaría ${mxn(gastoBasico - pensionCon)}/mes por debajo del gasto básico estimado. Considera complementar con ahorros adicionales.`
+          }
+        </Text>
+      </View>
+
+      {/* Datos clave en formato simple */}
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        {[
+          { label: '📅 Semanas cotizadas', val: `${semanas} semanas` },
+          { label: '🎯 Edad de retiro', val: `${edadRetiro} años` },
+          { label: '💰 Inversión total Mod.40', val: costoCred > 0 ? mxn(costoCred) : 'Por calcular' },
+          { label: '📈 Recuperación estimada', val: costoCred > 0 && pensionCon > pensionSin ? `${Math.round(costoCred / (pensionCon - pensionSin))} meses` : '—' },
+        ].map((d, i) => (
+          <View key={i} style={{ flex: 1, backgroundColor: C.grisCl, padding: 8 }}>
+            <Text style={{ fontSize: 7, color: C.textoSm, marginBottom: 3 }}>{d.label}</Text>
+            <Text style={{ fontSize: 9, fontFamily: 'Helvetica-Bold', color: C.texto }}>{d.val}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  )
+}
+
 // ─── DOCUMENTO PRINCIPAL ──────────────────────────────────────────────────────
 export const DiagnosticoPDF = (props: PDFProps) => {
   const {
@@ -988,6 +1093,7 @@ export const DiagnosticoPDF = (props: PDFProps) => {
         <PageHeader razonSocial={razonSocial} titulo={titulo} color={color} esBorrador={esBorrador} />
         <PageFooter esBorrador={esBorrador} />
 
+        <PaginaInfografia {...shared} />
         <PaginaPortada {...shared} />
         <PaginaDatosConservacion {...shared} />
         <PaginaSalario {...shared} />
