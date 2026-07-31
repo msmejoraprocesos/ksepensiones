@@ -250,6 +250,7 @@ function ClientesInner() {
   const [diagnosticos, setDiagnosticos] = useState<Diagnostico[]>([])
   const [clientesConDiagnostico, setClientesConDiagnostico] = useState<Set<string>>(new Set())
   const [clientesConDiagnosticoAutorizado, setClientesConDiagnosticoAutorizado] = useState<Set<string>>(new Set())
+  const [diagsResumen, setDiagsResumen] = useState<any[]>([])
   const [actividades, setActividades] = useState<Actividad[]>([])
   const [pagos, setPagos] = useState<Pago[]>([])
   const [servicios, setServicios] = useState<Servicio[]>([])
@@ -404,9 +405,10 @@ function ClientesInner() {
     setClientes(clientesConPago as Cliente[])
     // Set de clientes con al menos un diagnóstico (incluye borradores) — necesario para validar el paso Diagnóstico → Recopilación
     // y set de clientes con diagnóstico autorizado — necesario para validar Recopilación → Trámite
-    const { data: diagRows } = await supabase.from('diagnosticos').select('cliente_id, estatus').eq('asesor_id', uid)
+    const { data: diagRows } = await supabase.from('diagnosticos').select('cliente_id, estatus, semanas, edad_retiro').eq('asesor_id', uid)
     setClientesConDiagnostico(new Set((diagRows ?? []).map((d: any) => d.cliente_id)))
     setClientesConDiagnosticoAutorizado(new Set((diagRows ?? []).filter((d: any) => d.estatus === 'autorizado').map((d: any) => d.cliente_id)))
+    setDiagsResumen(diagRows ?? [])
     setLoading(false)
   }
 
@@ -1117,7 +1119,7 @@ function ClientesInner() {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: '#F8FAFC', borderBottom: '2px solid #E5E7EB' }}>
-                    {['Cliente', 'Etapa', 'Servicio', 'Acordado', 'Pagado', 'Saldo', 'Pago', 'Contacto', ''].map((h, i) => (
+                    {['Cliente', 'Urgencia', 'Etapa', 'Servicio', 'Acordado', 'Pagado', 'Saldo', 'Pago', 'Contacto', ''].map((h, i) => (
                       <th key={i} style={{ position: 'sticky' as const, top: 0, zIndex: 2, background: '#F8FAFC', padding: '9px 12px', textAlign: 'left' as const, fontSize: '10px', fontWeight: '700' as const, color: '#6B7280', textTransform: 'uppercase' as const, letterSpacing: '0.5px', boxShadow: 'inset 0 -2px 0 #E5E7EB' }}>{h}</th>
                     ))}
                   </tr>
@@ -1142,6 +1144,22 @@ function ClientesInner() {
                           </div>
                         </td>
                         <td style={{ padding: '10px 12px' }}>
+                          {(() => {
+                            const urg = calcularUrgencia(c, diagsResumen)
+                            const colors: Record<string, { bg: string; color: string }> = {
+                              rojo: { bg: '#FEF2F2', color: '#DC2626' },
+                              amarillo: { bg: '#FFFBEB', color: '#D97706' },
+                              verde: { bg: '#F0FDF4', color: '#16A34A' },
+                              gris: { bg: '#F9FAFB', color: '#9CA3AF' },
+                            }
+                            const style = colors[urg.nivel]
+                            return (
+                              <span title={urg.razon} style={{ display: 'inline-block', padding: '2px 8px', background: style.bg, color: style.color, fontSize: '11px', fontWeight: '700', borderRadius: '6px', cursor: 'help', whiteSpace: 'nowrap' as const }}>
+                                {urg.label}
+                              </span>
+                            )
+                          })()}
+                        </td>
                           <span style={{ fontSize: '10px', padding: '2px 7px', borderRadius: '8px', fontWeight: '600', background: col?.bg, color: col?.color }}>{col?.label}</span>
                         </td>
                         <td style={{ padding: '10px 12px', fontSize: '12px', color: '#64748b' }}>{TIPOS_SERVICIO.find(t => t.id === c.tipo_servicio)?.label ?? '—'}</td>
@@ -1308,7 +1326,24 @@ function ClientesInner() {
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '16px', fontWeight: '700', color: '#1e293b' }}>{selected.nombre}</div>
-                <div style={{ fontSize: '11px', color: '#94a3b8' }}>Alta: {fmt(selected.created_at)}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
+                  <span style={{ fontSize: '11px', color: '#94a3b8' }}>Alta: {fmt(selected.created_at)}</span>
+                  {(() => {
+                    const urg = calcularUrgencia(selected, diagsResumen)
+                    const colors: Record<string, { bg: string; color: string }> = {
+                      rojo: { bg: '#FEF2F2', color: '#DC2626' },
+                      amarillo: { bg: '#FFFBEB', color: '#D97706' },
+                      verde: { bg: '#F0FDF4', color: '#16A34A' },
+                      gris: { bg: '#F9FAFB', color: '#9CA3AF' },
+                    }
+                    const style = colors[urg.nivel]
+                    return (
+                      <span title={urg.razon} style={{ padding: '1px 8px', background: style.bg, color: style.color, fontSize: '11px', fontWeight: '700', borderRadius: '6px', cursor: 'help' }}>
+                        {urg.label} — {urg.razon}
+                      </span>
+                    )
+                  })()}
+                </div>
               </div>
               <button onClick={() => { setNuevoClienteData({ id: selected.id, nombre: selected.nombre, telefono: selected.telefono }); setMaterialesSeleccionados([]); setShowWappModal(true) }}
                 title="Enviar material de apoyo"
@@ -2790,6 +2825,43 @@ function ClientesInner() {
   )
 }
 
+
+
+// ── Semáforo de urgencia pensional ──────────────────────────────────
+function calcularUrgencia(cliente: any, diags: any[]): { nivel: 'rojo' | 'amarillo' | 'verde' | 'gris'; label: string; razon: string } {
+  // Sin diagnóstico — no se puede calcular
+  const diag = diags.find(d => d.cliente_id === cliente.id)
+  if (!diag && !cliente.fecha_nac && !cliente.semanas_ref) {
+    return { nivel: 'gris', label: 'Sin datos', razon: 'Falta diagnóstico o fecha de nacimiento' }
+  }
+
+  // Edad actual
+  let edadActual = 0
+  if (cliente.fecha_nac) {
+    const hoy = new Date()
+    const nac = new Date(cliente.fecha_nac)
+    edadActual = hoy.getFullYear() - nac.getFullYear()
+    if (hoy < new Date(hoy.getFullYear(), nac.getMonth(), nac.getDate())) edadActual--
+  } else if (diag?.edad_retiro) {
+    edadActual = diag.edad_retiro - 5 // estimado
+  }
+
+  const semanas = diag?.semanas ?? cliente.semanas_ref ?? 0
+  const edadRetiro = diag?.edad_retiro ?? 65
+  const aniosRestantes = Math.max(0, edadRetiro - edadActual)
+  const semanasParaMinimo = Math.max(0, 500 - semanas) // mínimo para pensión
+
+  // ROJO: menos de 2 años para retiro o menos de 100 semanas para el mínimo con poco tiempo
+  if (aniosRestantes <= 2) return { nivel: 'rojo', label: '🔴 Urgente', razon: `${aniosRestantes} año${aniosRestantes !== 1 ? 's' : ''} para el retiro` }
+  if (aniosRestantes <= 3 && semanasParaMinimo > 50) return { nivel: 'rojo', label: '🔴 Urgente', razon: 'Poco tiempo y semanas insuficientes' }
+
+  // AMARILLO: 3-5 años para retiro o semanas insuficientes con tiempo moderado
+  if (aniosRestantes <= 5) return { nivel: 'amarillo', label: '🟡 Pronto', razon: `${aniosRestantes} años para el retiro` }
+  if (semanasParaMinimo > 200 && aniosRestantes <= 7) return { nivel: 'amarillo', label: '🟡 Pronto', razon: `Faltan ${semanasParaMinimo} semanas con ${aniosRestantes} años` }
+
+  // VERDE: suficiente tiempo y semanas
+  return { nivel: 'verde', label: '🟢 Con tiempo', razon: `${aniosRestantes} años para el retiro` }
+}
 
 export default function ClientesPage() {
   return (
