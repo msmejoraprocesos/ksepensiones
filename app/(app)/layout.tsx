@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { SofiaChat } from '@/components/SofiaChat'
 
 const NARANJA = '#F05B21'
 const AZUL = '#1B3A6B'
@@ -511,6 +512,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       )}
+      {/* ── Sofía IA — chat flotante ── */}
+      <SofiaChat />
+
       {/* ── Modal cambiar contraseña ── */}
       {showCambiarPwd && (
         <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>

@@ -1,6 +1,11 @@
 import { createClient } from '@supabase/supabase-js'
 
-const LIMITE_DIARIO = 30
+const LIMITES: Record<string, number> = {
+  'extract-nss': 30,
+  'analisis-pensional': 30,
+  'sofia-chat': 50,
+}
+const DEFAULT_LIMITE = 30
 
 function getAdminClient() {
   return createClient(
@@ -11,6 +16,7 @@ function getAdminClient() {
 }
 
 export async function checkRateLimit(asesorId: string, endpoint: string): Promise<{ permitido: boolean; llamadas: number; limite: number }> {
+  const LIMITE_DIARIO = LIMITES[endpoint] ?? DEFAULT_LIMITE
   if (!asesorId) return { permitido: false, llamadas: 0, limite: LIMITE_DIARIO }
 
   try {
