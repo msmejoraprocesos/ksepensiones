@@ -29,6 +29,11 @@ function MiDiaInner() {
   const [actividades, setActividades] = useState<any[]>([])
   const [financieras, setFinancieras] = useState<any[]>([])
   const [solicitudes, setSolicitudes] = useState<any[]>([])
+  const [costoIA, setCostoIA] = useState(0)
+  const [diagsUrgencia, setDiagsUrgencia] = useState<{ rojo: number; amarillo: number; verde: number; gris: number }>({ rojo: 0, amarillo: 0, verde: 0, gris: 0 })
+  const [clientesEstancados, setClientesEstancados] = useState(0)
+  const [actividadesSemana, setActividadesSemana] = useState(0)
+  const [actividadesSemanaAnt, setActividadesSemanaAnt] = useState(0)
 
   const hoy = new Date()
   const fechaStr = hoy.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
@@ -58,6 +63,48 @@ function MiDiaInner() {
       supabase.from('financieras').select('*').eq('activa', true),
       supabase.from('solicitudes_financiamiento').select('*, financieras(nombre)').eq('asesor_id', uid),
     ])
+
+    // Nuevas consultas para KPIs adicionales
+    const inicioMes = new Date(); inicioMes.setDate(1); inicioMes.setHours(0,0,0,0)
+    const inicioSemana = new Date(); inicioSemana.setDate(inicioSemana.getDate() - 7)
+    const inicioSemanaAnt = new Date(); inicioSemanaAnt.setDate(inicioSemanaAnt.getDate() - 14)
+    const hace60dias = new Date(); hace60dias.setDate(hace60dias.getDate() - 60)
+
+    const [{ data: iaData }, { data: actSem }, { data: actSemAnt }] = await Promise.all([
+      supabase.from('uso_ia').select('costo_usd').eq('asesor_id', uid).gte('created_at', inicioMes.toISOString()),
+      supabase.from('actividades').select('id').eq('asesor_id', uid).gte('created_at', inicioSemana.toISOString()),
+      supabase.from('actividades').select('id').eq('asesor_id', uid).gte('created_at', inicioSemanaAnt.toISOString()).lt('created_at', inicioSemana.toISOString()),
+    ])
+
+    setCostoIA((iaData ?? []).reduce((s: number, r: any) => s + (Number(r.costo_usd) || 0), 0))
+    setActividadesSemana((actSem ?? []).length)
+    setActividadesSemanaAnt((actSemAnt ?? []).length)
+
+    // Clientes estancados: activos sin cambio de etapa en 60+ días
+    const estancados = (cl ?? []).filter((c: any) => {
+      if (c.activo === false) return false
+      const fechaEtapa = c.fecha_etapa ? new Date(c.fecha_etapa) : new Date(c.created_at)
+      return fechaEtapa < hace60dias && !['cierre_exitoso', 'cancelado'].includes(c.etapa_kanban ?? '')
+    }).length
+    setClientesEstancados(estancados)
+
+    // Semáforo de urgencia basado en diagnósticos
+    const urgencia = { rojo: 0, amarillo: 0, verde: 0, gris: 0 }
+    ;(cl ?? []).filter((c: any) => c.activo !== false).forEach((c: any) => {
+      const diag = (dg ?? []).find((d: any) => d.cliente_id === c.id)
+      if (!diag && !c.fecha_nac) { urgencia.gris++; return }
+      let edadActual = 0
+      if (c.fecha_nac) {
+        const nac = new Date(c.fecha_nac)
+        edadActual = new Date().getFullYear() - nac.getFullYear()
+      } else if (diag?.edad_retiro) { edadActual = diag.edad_retiro - 5 }
+      const aniosRestantes = Math.max(0, (diag?.edad_retiro ?? 65) - edadActual)
+      const semanas = diag?.semanas ?? 0
+      if (aniosRestantes <= 2 || (aniosRestantes <= 3 && semanas < 450)) urgencia.rojo++
+      else if (aniosRestantes <= 5) urgencia.amarillo++
+      else urgencia.verde++
+    })
+    setDiagsUrgencia(urgencia)
     setClientes(cl ?? [])
     if (pgError) {
       console.error('🔴 Error cargando pagos:', pgError)
@@ -743,6 +790,127 @@ function MiDiaInner() {
           </div>
         </div>
 
+      </div>
+
+      {/* ── NUEVOS KPIs: Urgencia, Actividad, Costo IA, Pipeline ── */}
+      <div style={{ padding: '0 16px 16px' }}>
+
+        {/* Fila: Semáforo de urgencia + Actividad semanal + Costo IA */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '12px' }}>
+
+          {/* Semáforo de urgencia */}
+          <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', padding: '14px' }}>
+            <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>🚦 Urgencia pensional</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px' }}>
+              {[
+                { nivel: 'rojo', label: 'Urgente', val: diagsUrgencia.rojo, color: '#DC2626', bg: '#FEF2F2', desc: 'menos de 2 años' },
+                { nivel: 'amarillo', label: 'Pronto', val: diagsUrgencia.amarillo, color: '#D97706', bg: '#FFFBEB', desc: '3 a 5 años' },
+                { nivel: 'verde', label: 'Con tiempo', val: diagsUrgencia.verde, color: '#16A34A', bg: '#F0FDF4', desc: 'más de 5 años' },
+                { nivel: 'gris', label: 'Sin datos', val: diagsUrgencia.gris, color: '#9CA3AF', bg: '#F9FAFB', desc: 'sin diagnóstico' },
+              ].map(s => (
+                <div key={s.nivel} style={{ background: s.bg, borderRadius: '6px', padding: '8px', borderLeft: `3px solid ${s.color}` }}>
+                  <div style={{ fontSize: '18px', fontWeight: '800', color: s.color }}>{s.val}</div>
+                  <div style={{ fontSize: '10px', fontWeight: '700', color: s.color }}>{s.label}</div>
+                  <div style={{ fontSize: '9px', color: '#9CA3AF' }}>{s.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Actividad semanal */}
+          <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', padding: '14px' }}>
+            <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>📞 Actividad esta semana</p>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '12px', marginBottom: '8px' }}>
+              <div>
+                <div style={{ fontSize: '32px', fontWeight: '800', color: AZUL }}>{actividadesSemana}</div>
+                <div style={{ fontSize: '11px', color: '#6B7280' }}>actividades registradas</div>
+              </div>
+              {actividadesSemanaAnt > 0 && (
+                <div style={{ fontSize: '12px', fontWeight: '700', color: actividadesSemana >= actividadesSemanaAnt ? '#16A34A' : '#DC2626' }}>
+                  {actividadesSemana >= actividadesSemanaAnt ? '↑' : '↓'} {Math.abs(actividadesSemana - actividadesSemanaAnt)} vs semana ant.
+                </div>
+              )}
+            </div>
+            <div style={{ height: '6px', background: '#F3F4F6', borderRadius: '3px', overflow: 'hidden' }}>
+              <div style={{ height: '100%', background: AZUL, borderRadius: '3px', width: `${Math.min(100, actividadesSemana * 10)}%` }} />
+            </div>
+            <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '4px 0 0' }}>Meta sugerida: 10 actividades/semana</p>
+          </div>
+
+          {/* Costo IA este mes */}
+          <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', padding: '14px' }}>
+            <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>🤖 Costo IA este mes</p>
+            <div style={{ fontSize: '28px', fontWeight: '800', color: costoIA > 5 ? '#DC2626' : VERDE, marginBottom: '4px' }}>
+              ${costoIA.toFixed(2)} <span style={{ fontSize: '14px', fontWeight: '400', color: '#6B7280' }}>USD</span>
+            </div>
+            <p style={{ fontSize: '11px', color: '#6B7280', margin: '0 0 8px' }}>
+              ~${(costoIA * 17.5).toFixed(0)} MXN · límite: $10 USD/mes
+            </p>
+            <div style={{ height: '6px', background: '#F3F4F6', borderRadius: '3px', overflow: 'hidden' }}>
+              <div style={{ height: '100%', background: costoIA > 8 ? '#DC2626' : costoIA > 5 ? '#D97706' : VERDE, borderRadius: '3px', width: `${Math.min(100, (costoIA / 10) * 100)}%` }} />
+            </div>
+            <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '4px 0 0' }}>{Math.round((costoIA / 10) * 100)}% del límite mensual usado</p>
+          </div>
+        </div>
+
+        {/* Fila: Clientes estancados + Valor del pipeline */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+
+          {/* Clientes estancados */}
+          <div style={{ background: 'white', border: `1px solid ${clientesEstancados > 0 ? '#FCA5A5' : '#E5E7EB'}`, borderRadius: '10px', padding: '14px' }}>
+            <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 6px' }}>
+              ⏸ Clientes sin avance
+            </p>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px' }}>
+              <div style={{ fontSize: '32px', fontWeight: '800', color: clientesEstancados > 0 ? '#DC2626' : '#16A34A' }}>
+                {clientesEstancados}
+              </div>
+              <div style={{ fontSize: '12px', color: '#6B7280', paddingBottom: '4px' }}>
+                {clientesEstancados === 0 ? 'Sin clientes estancados ✓' : `cliente${clientesEstancados !== 1 ? 's' : ''} sin cambio de etapa en 60+ días`}
+              </div>
+            </div>
+            {clientesEstancados > 0 && (
+              <p style={{ fontSize: '11px', color: '#DC2626', margin: '6px 0 0', fontWeight: '600' }}>
+                ⚠️ Revisa su seguimiento — pueden estar en riesgo de cancelación
+              </p>
+            )}
+          </div>
+
+          {/* Valor estimado del pipeline */}
+          {(() => {
+            const probPorEtapa: Record<string, number> = {
+              prospecto: 0.15, diagnostico: 0.35, propuesta_enviada: 0.50,
+              recopilacion: 0.65, tramite: 0.80, cierre_exitoso: 1, cancelado: 0,
+            }
+            const valorPipeline = clientes
+              .filter((c: any) => c.activo !== false && !['cierre_exitoso', 'cancelado'].includes(c.etapa_kanban ?? ''))
+              .reduce((sum: number, c: any) => {
+                const prob = probPorEtapa[c.etapa_kanban ?? 'prospecto'] ?? 0.2
+                return sum + ((c.monto_acordado ?? 0) * prob)
+              }, 0)
+            const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n)
+            return (
+              <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', padding: '14px' }}>
+                <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 6px' }}>
+                  💰 Valor estimado del pipeline
+                </p>
+                <div style={{ fontSize: '28px', fontWeight: '800', color: AZUL }}>
+                  {fmtMXN(valorPipeline)}
+                </div>
+                <p style={{ fontSize: '11px', color: '#6B7280', margin: '4px 0 0' }}>
+                  Ingresos probables ponderados por probabilidad de cierre por etapa
+                </p>
+                <div style={{ marginTop: '8px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                  {Object.entries(probPorEtapa).filter(([k]) => !['cierre_exitoso', 'cancelado'].includes(k)).map(([etapa, prob]) => (
+                    <span key={etapa} style={{ fontSize: '9px', padding: '2px 6px', background: '#F4F6FB', color: '#6B7280', borderRadius: '4px' }}>
+                      {etapa.replace('_', ' ')}: {Math.round(prob * 100)}%
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )
+          })()}
+        </div>
       </div>
 
       {/* ── Onboarding — primeros pasos ── */}
