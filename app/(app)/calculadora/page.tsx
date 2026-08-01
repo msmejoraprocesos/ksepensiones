@@ -2164,7 +2164,7 @@ function CalculadoraInner() {
                 )}
               </div>
 
-              {/* Paso 2: Constancia */}
+              {/* Paso 2: Constancia o captura manual */}
               <div style={{ border: `2px solid ${datos.semanas_totales > 0 ? VERDE : '#E5E7EB'}`, padding: '14px 16px', background: datos.semanas_totales > 0 ? '#F0FDF4' : 'white', transition: 'all 0.2s' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: datos.semanas_totales > 0 ? '0' : '10px' }}>
                   <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: datos.semanas_totales > 0 ? VERDE : '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '13px', fontWeight: '700' as const, color: 'white' }}>
@@ -2172,19 +2172,65 @@ function CalculadoraInner() {
                   </div>
                   <div style={{ flex: 1 }}>
                     <p style={{ margin: 0, fontSize: '13px', fontWeight: '700' as const, color: datos.semanas_totales > 0 ? VERDE : '#374151' }}>
-                      {datos.semanas_totales > 0 ? `Constancia cargada — ${datos.semanas_totales} semanas` : 'Cargar constancia IMSS'}
+                      {datos.semanas_totales > 0 ? `Datos cargados — ${datos.semanas_totales} semanas` : 'Datos del trabajador'}
                     </p>
-                    {datos.semanas_totales === 0 && <p style={{ margin: '1px 0 0', fontSize: '11px', color: '#9CA3AF' }}>Requerido — PDF de semanas cotizadas</p>}
+                    {datos.semanas_totales === 0 && <p style={{ margin: '1px 0 0', fontSize: '11px', color: '#9CA3AF' }}>Carga la constancia PDF o captura los datos manualmente</p>}
                   </div>
                 </div>
+
                 {datos.semanas_totales === 0 && (
-                  <label style={{ width: '100%', padding: '9px', background: AZUL, color: 'white', cursor: extracting ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600' as const, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxSizing: 'border-box' as const, opacity: extracting ? 0.7 : 1 }}>
-                    {extracting ? '⏳ Extrayendo...' : '📎 Cargar Constancia Semanas Cotizadas'}
-                    <input type="file" accept=".pdf" style={{ display: 'none' }} disabled={extracting} onChange={e => {
-                      const f = e.target.files?.[0]
-                      if (f) extraerPDF(f)
-                    }} />
-                  </label>
+                  <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
+                    {/* Opción A: Constancia PDF */}
+                    <label style={{ width: '100%', padding: '10px', background: AZUL, color: 'white', cursor: extracting ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600' as const, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxSizing: 'border-box' as const, opacity: extracting ? 0.7 : 1, borderRadius: '6px' }}>
+                      {extracting ? '⏳ Extrayendo...' : '📎 Cargar Constancia PDF (lectura automática)'}
+                      <input type="file" accept=".pdf" style={{ display: 'none' }} disabled={extracting} onChange={e => {
+                        const f = e.target.files?.[0]
+                        if (f) extraerPDF(f)
+                      }} />
+                    </label>
+
+                    {/* Separador */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ flex: 1, height: '1px', background: '#E5E7EB' }} />
+                      <span style={{ fontSize: '11px', color: '#9CA3AF' }}>o captura manual</span>
+                      <div style={{ flex: 1, height: '1px', background: '#E5E7EB' }} />
+                    </div>
+
+                    {/* Opción B: Captura manual */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                      <div>
+                        <label style={{ fontSize: '10px', fontWeight: '700' as const, color: '#6B7280', display: 'block', marginBottom: '3px', textTransform: 'uppercase' as const }}>Semanas cotizadas *</label>
+                        <input type="number" placeholder="Ej. 850" min={0} max={2000}
+                          onChange={e => {
+                            const val = Number(e.target.value)
+                            if (val > 0) setDatos(prev => ({ ...prev, semanas_totales: val }))
+                          }}
+                          style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '6px' }} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '10px', fontWeight: '700' as const, color: '#6B7280', display: 'block', marginBottom: '3px', textTransform: 'uppercase' as const }}>SDI actual (MXN/día)</label>
+                        <input type="number" placeholder="Ej. 450.00" min={0}
+                          onChange={e => {
+                            const val = Number(e.target.value)
+                            if (val > 0) setDatos(prev => ({ ...prev, sdi_actual: val }))
+                          }}
+                          style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '6px' }} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '10px', fontWeight: '700' as const, color: '#6B7280', display: 'block', marginBottom: '3px', textTransform: 'uppercase' as const }}>NSS</label>
+                        <input type="text" placeholder="Ej. 12345678901"
+                          onChange={e => setDatos(prev => ({ ...prev, nss: e.target.value }))}
+                          style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '6px' }} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '10px', fontWeight: '700' as const, color: '#6B7280', display: 'block', marginBottom: '3px', textTransform: 'uppercase' as const }}>Nombre del trabajador</label>
+                        <input type="text" placeholder="Nombre completo"
+                          onChange={e => setDatos(prev => ({ ...prev, nombre_trabajador: e.target.value }))}
+                          style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '6px' }} />
+                      </div>
+                    </div>
+                    <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '2px 0 0' }}>* Al capturar las semanas se habilita el botón de continuar</p>
+                  </div>
                 )}
               </div>
 
