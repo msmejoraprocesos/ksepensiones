@@ -372,19 +372,13 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
   const [editValor, setEditValor] = useState('')
   const [saving, setSaving] = useState(false)
 
-  useEffect(() => {
-    if (!userId) return
-    cargar()
-  }, [userId])
+  useEffect(() => { if (!userId) return; cargar() }, [userId])
 
   async function cargar() {
     const { data } = await supabase.from('catalogos_actividad').select('*').eq('asesor_id', userId).order('orden')
     if (data) {
       const grouped: Record<string, any[]> = {}
-      data.forEach((c: any) => {
-        if (!grouped[c.categoria]) grouped[c.categoria] = []
-        grouped[c.categoria].push(c)
-      })
+      data.forEach((c: any) => { if (!grouped[c.categoria]) grouped[c.categoria] = []; grouped[c.categoria].push(c) })
       setCatalogos(grouped)
     }
   }
@@ -395,37 +389,29 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
     const cat = catalogos[catActiva] ?? []
     const valor = nuevo.etiqueta.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')
     await supabase.from('catalogos_actividad').insert({
-      asesor_id: userId,
-      categoria: catActiva,
+      asesor_id: userId, categoria: catActiva,
       valor: `custom_${valor}_${Date.now()}`,
-      etiqueta: nuevo.etiqueta.trim(),
-      icono: nuevo.icono.trim() || '•',
-      orden: cat.length,
-      activo: true,
-      genera_evento: catActiva === 'proximo_paso',
-      abre_materiales: false,
+      etiqueta: nuevo.etiqueta.trim(), icono: nuevo.icono.trim() || '•',
+      orden: cat.length, activo: true,
+      genera_evento: catActiva === 'proximo_paso', abre_materiales: false,
     })
     setNuevo({ etiqueta: '', icono: '' })
-    await cargar()
-    setSaving(false)
+    await cargar(); setSaving(false)
   }
 
   async function toggleActivo(id: string, activo: boolean) {
-    await supabase.from('catalogos_actividad').update({ activo: !activo }).eq('id', id)
-    await cargar()
+    await supabase.from('catalogos_actividad').update({ activo: !activo }).eq('id', id); await cargar()
   }
 
   async function guardarEdicion(id: string) {
     if (!editValor.trim()) return
     await supabase.from('catalogos_actividad').update({ etiqueta: editValor.trim() }).eq('id', id)
-    setEditando(null)
-    await cargar()
+    setEditando(null); await cargar()
   }
 
   async function eliminar(id: string) {
     if (!confirm('¿Eliminar esta opción? No afecta actividades ya registradas.')) return
-    await supabase.from('catalogos_actividad').delete().eq('id', id)
-    await cargar()
+    await supabase.from('catalogos_actividad').delete().eq('id', id); await cargar()
   }
 
   const items = catalogos[catActiva] ?? []
@@ -433,74 +419,108 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
+
       {/* Tabs de categoría */}
-      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const }}>
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' as const }}>
         {CATEGORIAS.map(c => (
-          <button key={c.id} onClick={() => setCatActiva(c.id)}
-            style={{ padding: '7px 14px', background: catActiva === c.id ? AZUL : 'white', color: catActiva === c.id ? 'white' : '#374151', border: `1px solid ${catActiva === c.id ? AZUL : '#E5E7EB'}`, fontSize: '12px', fontWeight: catActiva === c.id ? '700' : '400', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+          <button key={c.id} onClick={() => { setCatActiva(c.id); setEditando(null) }}
+            style={{ padding: '9px 18px', background: catActiva === c.id ? AZUL : 'white', color: catActiva === c.id ? 'white' : '#374151', border: `1.5px solid ${catActiva === c.id ? AZUL : '#E5E7EB'}`, fontSize: '13px', fontWeight: catActiva === c.id ? '700' : '500', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
             {c.label}
           </button>
         ))}
       </div>
 
-      <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '8px', overflow: 'hidden' }}>
-        {/* Header */}
-        <div style={{ padding: '10px 16px', background: '#F8FAFC', borderBottom: '1px solid #E5E7EB' }}>
-          <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>{catInfo?.desc}</p>
+      <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', overflow: 'hidden' }}>
+
+        {/* Descripción de la categoría */}
+        <div style={{ padding: '12px 18px', background: '#F8FAFC', borderBottom: '1px solid #E5E7EB' }}>
+          <p style={{ fontSize: '13px', color: '#4B5563', margin: 0 }}>{catInfo?.desc}</p>
+          <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '3px 0 0' }}>
+            {items.filter((i: any) => i.activo).length} activas · {items.filter((i: any) => !i.activo).length} pausadas
+          </p>
         </div>
 
         {/* Lista de opciones */}
-        <div>
-          {items.length === 0 ? (
-            <p style={{ padding: '16px', fontSize: '12px', color: '#9CA3AF', margin: 0, textAlign: 'center' as const }}>Sin opciones — agrega la primera abajo</p>
-          ) : (
-            items.map((item: any, i: number) => (
-              <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 16px', borderBottom: '1px solid #F3F4F6', background: item.activo ? 'white' : '#FAFAFA', opacity: item.activo ? 1 : 0.5 }}>
-                <span style={{ fontSize: '16px', flexShrink: 0 }}>{item.icono || '•'}</span>
+        {items.length === 0 ? (
+          <div style={{ padding: '32px', textAlign: 'center' as const }}>
+            <p style={{ fontSize: '32px', margin: '0 0 8px' }}>📋</p>
+            <p style={{ fontSize: '14px', color: '#9CA3AF', margin: 0 }}>Sin opciones — agrega la primera abajo</p>
+          </div>
+        ) : (
+          <div>
+            {items.map((item: any) => (
+              <div key={item.id} style={{ borderBottom: '1px solid #F3F4F6', background: item.activo ? 'white' : '#FAFAFA' }}>
                 {editando === item.id ? (
-                  <input autoFocus value={editValor} onChange={e => setEditValor(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter') guardarEdicion(item.id); if (e.key === 'Escape') setEditando(null) }}
-                    style={{ flex: 1, padding: '4px 8px', border: `1px solid ${AZUL}`, fontSize: '12px', borderRadius: '4px', fontFamily: 'inherit' }} />
+                  /* Modo edición */
+                  <div style={{ padding: '12px 18px', display: 'flex', gap: '10px', alignItems: 'center', background: '#EEF2F8' }}>
+                    <span style={{ fontSize: '20px' }}>{item.icono || '•'}</span>
+                    <input autoFocus value={editValor} onChange={e => setEditValor(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') guardarEdicion(item.id); if (e.key === 'Escape') setEditando(null) }}
+                      style={{ flex: 1, padding: '8px 12px', border: `2px solid ${AZUL}`, fontSize: '14px', borderRadius: '6px', fontFamily: 'inherit', outline: 'none' }} />
+                    <button onClick={() => guardarEdicion(item.id)}
+                      style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                      Guardar
+                    </button>
+                    <button onClick={() => setEditando(null)}
+                      style={{ padding: '8px 14px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                      Cancelar
+                    </button>
+                  </div>
                 ) : (
-                  <span style={{ flex: 1, fontSize: '12px', color: '#374151' }}>{item.etiqueta}</span>
-                )}
-                {item.genera_evento && <span style={{ fontSize: '10px', color: AZUL, background: '#EEF2F8', padding: '2px 6px', borderRadius: '4px' }}>📅 evento</span>}
-                {item.abre_materiales && <span style={{ fontSize: '10px', color: NARANJA, background: '#FFF7ED', padding: '2px 6px', borderRadius: '4px' }}>📎 materiales</span>}
-                <div style={{ display: 'flex', gap: '4px' }}>
-                  {editando === item.id ? (
-                    <>
-                      <button onClick={() => guardarEdicion(item.id)} style={{ padding: '3px 8px', background: AZUL, color: 'white', border: 'none', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '4px' }}>✓</button>
-                      <button onClick={() => setEditando(null)} style={{ padding: '3px 8px', background: '#F4F6FB', color: '#374151', border: '1px solid #E5E7EB', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '4px' }}>✕</button>
-                    </>
-                  ) : (
-                    <>
-                      <button onClick={() => { setEditando(item.id); setEditValor(item.etiqueta) }} style={{ padding: '3px 8px', background: '#F4F6FB', color: '#374151', border: '1px solid #E5E7EB', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '4px' }}>✏️</button>
-                      <button onClick={() => toggleActivo(item.id, item.activo)} style={{ padding: '3px 8px', background: item.activo ? '#FFFBEB' : '#F0FDF4', color: item.activo ? '#D97706' : '#16A34A', border: `1px solid ${item.activo ? '#FDE68A' : '#86EFAC'}`, fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '4px' }}>
-                        {item.activo ? '⏸' : '▶'}
+                  /* Modo visualización */
+                  <div style={{ padding: '12px 18px', display: 'flex', alignItems: 'center', gap: '12px', opacity: item.activo ? 1 : 0.55 }}>
+                    <span style={{ fontSize: '20px', flexShrink: 0 }}>{item.icono || '•'}</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827', margin: '0 0 2px' }}>{item.etiqueta}</p>
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        {!item.activo && <span style={{ fontSize: '11px', color: '#9CA3AF', background: '#F3F4F6', padding: '1px 6px', borderRadius: '4px' }}>Pausada</span>}
+                        {item.genera_evento && <span style={{ fontSize: '11px', color: AZUL, background: '#EEF2F8', padding: '1px 6px', borderRadius: '4px' }}>📅 Genera evento</span>}
+                        {item.abre_materiales && <span style={{ fontSize: '11px', color: NARANJA, background: '#FFF7ED', padding: '1px 6px', borderRadius: '4px' }}>📎 Abre materiales</span>}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                      <button onClick={() => { setEditando(item.id); setEditValor(item.etiqueta) }}
+                        title="Editar"
+                        style={{ padding: '6px 12px', background: '#F4F6FB', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                        ✏️ Editar
                       </button>
-                      <button onClick={() => eliminar(item.id)} style={{ padding: '3px 8px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FCA5A5', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '4px' }}>🗑</button>
-                    </>
-                  )}
-                </div>
+                      <button onClick={() => toggleActivo(item.id, item.activo)}
+                        title={item.activo ? 'Pausar' : 'Activar'}
+                        style={{ padding: '6px 12px', background: item.activo ? '#FFFBEB' : '#F0FDF4', color: item.activo ? '#D97706' : '#16A34A', border: `1px solid ${item.activo ? '#FDE68A' : '#86EFAC'}`, fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                        {item.activo ? '⏸ Pausar' : '▶ Activar'}
+                      </button>
+                      <button onClick={() => eliminar(item.id)}
+                        title="Eliminar"
+                        style={{ padding: '6px 12px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                        🗑 Eliminar
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
 
-        {/* Agregar nuevo */}
-        <div style={{ padding: '12px 16px', borderTop: '1px solid #E5E7EB', background: '#F8FAFC' }}>
-          <p style={{ fontSize: '10.5px', fontWeight: '700', color: '#6B7280', margin: '0 0 8px', textTransform: 'uppercase' as const }}>Agregar opción</p>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <input value={nuevo.icono} onChange={e => setNuevo(p => ({ ...p, icono: e.target.value }))}
-              placeholder="🔔"
-              style={{ width: '44px', padding: '7px', border: '1px solid #D1D5DB', fontSize: '16px', borderRadius: '6px', fontFamily: 'inherit', textAlign: 'center' as const }} />
+        {/* Agregar nueva opción */}
+        <div style={{ padding: '14px 18px', borderTop: '2px solid #E5E7EB', background: '#F8FAFC' }}>
+          <p style={{ fontSize: '12px', fontWeight: '700', color: '#6B7280', margin: '0 0 10px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
+            + Agregar nueva opción
+          </p>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div style={{ position: 'relative' as const }}>
+              <input value={nuevo.icono} onChange={e => setNuevo(p => ({ ...p, icono: e.target.value }))}
+                placeholder="😊"
+                style={{ width: '52px', padding: '9px', border: '1.5px solid #D1D5DB', fontSize: '18px', borderRadius: '8px', fontFamily: 'inherit', textAlign: 'center' as const }} />
+              <span style={{ position: 'absolute' as const, bottom: '-16px', left: '50%', transform: 'translateX(-50%)', fontSize: '9px', color: '#9CA3AF', whiteSpace: 'nowrap' as const }}>emoji</span>
+            </div>
             <input value={nuevo.etiqueta} onChange={e => setNuevo(p => ({ ...p, etiqueta: e.target.value }))}
               onKeyDown={e => e.key === 'Enter' && agregar()}
-              placeholder="Nombre de la opción..."
-              style={{ flex: 1, padding: '7px 10px', border: '1px solid #D1D5DB', fontSize: '13px', borderRadius: '6px', fontFamily: 'inherit' }} />
+              placeholder="Escribe el nombre de la opción..."
+              style={{ flex: 1, padding: '10px 14px', border: '1.5px solid #D1D5DB', fontSize: '14px', borderRadius: '8px', fontFamily: 'inherit', outline: 'none' }} />
             <button onClick={agregar} disabled={saving || !nuevo.etiqueta.trim()}
-              style={{ padding: '7px 16px', background: !nuevo.etiqueta.trim() ? '#E5E7EB' : NARANJA, color: !nuevo.etiqueta.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '12px', fontWeight: '700', cursor: !nuevo.etiqueta.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
-              {saving ? '...' : '+ Agregar'}
+              style={{ padding: '10px 20px', background: !nuevo.etiqueta.trim() ? '#E5E7EB' : NARANJA, color: !nuevo.etiqueta.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: !nuevo.etiqueta.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '8px', whiteSpace: 'nowrap' as const }}>
+              {saving ? 'Guardando...' : '+ Agregar'}
             </button>
           </div>
         </div>
