@@ -33,14 +33,13 @@ export default function LoginPage() {
 
   async function doLogin() {
     setLoading(true); setError(null)
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
       setError('Correo o contraseña incorrectos')
+      setLoading(false)
     } else {
-      await supabase.auth.signOut({ scope: 'others' })
-      router.push('/dashboard'); router.refresh()
+      router.push('/dashboard')
     }
-    setLoading(false)
   }
 
   const razon = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('razon') : null
