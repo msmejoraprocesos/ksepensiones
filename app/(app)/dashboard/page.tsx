@@ -320,18 +320,26 @@ function MiDiaInner() {
     </div>
   )
 
-  const kpi = (label: string, value: string, sub?: string, color = '#374151', filled = false, delta?: number | null) => (
-    <div style={{ background: filled ? color : 'white', border: filled ? `1px solid ${color}` : '1px solid #E5E7EB', borderLeft: `3px solid ${color}`, padding: '8px 10px', textAlign: 'center' as const, boxShadow: '0 1px 2px rgba(0,0,0,0.03)' }}>
-      <div style={{ fontSize: '9.5px', color: filled ? 'rgba(255,255,255,0.8)' : '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' as const, marginBottom: '3px' }}>{label}</div>
-      <div style={{ fontSize: '18px', fontWeight: '800' as const, color: filled ? 'white' : color, letterSpacing: '-0.3px' }}>{value}</div>
-      {sub && <div style={{ fontSize: '10px', color: filled ? 'rgba(255,255,255,0.75)' : '#9CA3AF', marginTop: '2px' }}>{sub}</div>}
-      {delta !== undefined && delta !== null && (
-        <div style={{ fontSize: '10px', fontWeight: '700' as const, color: filled ? 'white' : (delta >= 0 ? VERDE : '#DC2626'), marginTop: '2px' }}>
-          {delta >= 0 ? '▲' : '▼'} {Math.abs(delta).toFixed(0)}% vs anterior
-        </div>
-      )}
-    </div>
-  )
+  const kpi = (label: string, value: string, sub?: string, color = '#374151', filled = false, delta?: number | null) => {
+    const tintMap: Record<string, string> = {
+      '#1B3A6B': '#EEF2F8', '#1D4ED8': '#EFF6FF', '#0891B2': '#ECFEFF',
+      '#F59E0B': '#FFFBEB', '#16A34A': '#F0FDF4', '#DC2626': '#FEF2F2',
+      [VERDE]: '#F0FDF4', [AZUL]: '#EEF2F8', [NARANJA]: '#FFF7ED',
+    }
+    const tint = tintMap[color] ?? '#F8FAFC'
+    return (
+      <div style={{ background: filled ? color : tint, border: `1px solid ${color}22`, borderLeft: `4px solid ${color}`, padding: '8px 10px', textAlign: 'center' as const, borderRadius: '6px' }}>
+        <div style={{ fontSize: '9.5px', color: filled ? 'rgba(255,255,255,0.8)' : '#6B7280', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' as const, marginBottom: '3px' }}>{label}</div>
+        <div style={{ fontSize: '18px', fontWeight: '800' as const, color: filled ? 'white' : color, letterSpacing: '-0.3px' }}>{value}</div>
+        {sub && <div style={{ fontSize: '10px', color: filled ? 'rgba(255,255,255,0.75)' : '#6B7280', marginTop: '2px' }}>{sub}</div>}
+        {delta !== undefined && delta !== null && (
+          <div style={{ fontSize: '10px', fontWeight: '700' as const, color: filled ? 'white' : (delta >= 0 ? VERDE : '#DC2626'), marginTop: '2px' }}>
+            {delta >= 0 ? '▲' : '▼'} {Math.abs(delta).toFixed(0)}% vs anterior
+          </div>
+        )}
+      </div>
+    )
+  }
 
   // Insignia de comparativo vs periodo anterior (↑/↓ %). null = sin datos del periodo anterior para comparar.
   const deltaBadge = (delta: number | null) => {
@@ -353,6 +361,32 @@ function MiDiaInner() {
 
   return (
     <div style={{ height: 'calc(100vh - 48px)', overflow: 'auto', background: '#F4F6FB' }}>
+
+      {/* ── Header de bienvenida ── */}
+      <div style={{ background: AZUL, padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.55)', letterSpacing: '0.5px', marginBottom: '2px' }}>
+            {new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+          </div>
+          <div style={{ fontSize: '17px', fontWeight: '700', color: 'white' }}>
+            Buenos días, {nombreAsesor.split(' ')[0]} 👋
+          </div>
+        </div>
+        <div style={{ background: 'rgba(255,255,255,0.12)', borderRadius: '8px', padding: '8px 16px', textAlign: 'center' as const }}>
+          <div style={{ fontSize: '22px', fontWeight: '800', color: 'white' }}>{clientesActivos.length}</div>
+          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)' }}>clientes activos</div>
+        </div>
+      </div>
+
+      {/* ── Barra de alertas ── */}
+      {totalAlertas > 0 && (
+        <div style={{ background: '#FEF2F2', borderBottom: '1px solid #FECACA', padding: '8px 20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '14px' }}>🔔</span>
+          <span style={{ fontSize: '12px', color: '#991B1B', fontWeight: '600' }}>
+            Tienes {totalAlertas} pendiente{totalAlertas !== 1 ? 's' : ''} que requiere{totalAlertas !== 1 ? 'n' : ''} atención
+          </span>
+        </div>
+      )}
       <style>{`
         .db-outer { display: grid; grid-template-columns: 1fr 12px 190px; gap: 12px; align-items: stretch; }
         .db-kpis  { display: grid; grid-template-columns: repeat(9, 1fr); gap: 8px; }
