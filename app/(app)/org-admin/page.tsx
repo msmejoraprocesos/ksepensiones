@@ -22,12 +22,155 @@ function abrirWhatsApp(nombre: string, email: string, password: string, telefono
   window.open(`https://wa.me/${tel.startsWith('52') ? tel : '52'+tel}?text=${encodeURIComponent(msg)}`, '_blank')
 }
 
+// ══════════════════════════════════════════════════════════════════
+// Panel de canalizaciones para org-admin
+// ══════════════════════════════════════════════════════════════════
+function PanelCanalizaciones({ supabase, userId, asesores }: { supabase: any; userId: string; asesores: any[] }) {
+  const AZUL = '#1B3A6B', NARANJA = '#F05B21', VERDE = '#16A34A', ROJO = '#DC2626'
+  const [solicitudes, setSolicitudes] = useState<any[]>([])
+  const [cargando, setCargando] = useState(true)
+  const [procesando, setProcesando] = useState<string | null>(null)
+  const [notaRechazo, setNotaRechazo] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    cargar()
+  }, [userId])
+
+  async function cargar() {
+    setCargando(true)
+    const { data } = await supabase
+      .from('solicitudes_canalizacion')
+      .select('*, clientes(nombre, nss, etapa_kanban), origen:asesor_origen_id(nombre), destino:asesor_destino_id(nombre)')
+      .order('created_at', { ascending: false })
+    setSolicitudes(data ?? [])
+    setCargando(false)
+  }
+
+  async function resolver(id: string, accion: 'aprobada' | 'rechazada', clienteId: string, destinoId: string) {
+    setProcesando(id)
+    await supabase.from('solicitudes_canalizacion').update({
+      estatus: accion,
+      notas: notaRechazo[id] ?? null,
+      updated_at: new Date().toISOString()
+    }).eq('id', id)
+
+    if (accion === 'aprobada') {
+      await supabase.from('clientes').update({ asesor_id: destinoId }).eq('id', clienteId)
+    }
+
+    await cargar()
+    setProcesando(null)
+  }
+
+  const pendientes = solicitudes.filter(s => s.estatus === 'pendiente')
+  const resueltas = solicitudes.filter(s => s.estatus !== 'pendiente')
+
+  const badgeEstatus = (e: string) => ({
+    pendiente: { bg: '#FFFBEB', color: '#D97706', label: '⏳ Pendiente' },
+    aprobada:  { bg: '#F0FDF4', color: VERDE,    label: '✅ Aprobada' },
+    rechazada: { bg: '#FEF2F2', color: ROJO,     label: '❌ Rechazada' },
+  }[e] ?? { bg: '#F4F6FB', color: '#6B7280', label: e })
+
+  return (
+    <div style={{ padding: '16px' }}>
+
+      {/* Pendientes */}
+      <div style={{ marginBottom: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+          <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: 0 }}>Pendientes de aprobación</p>
+          {pendientes.length > 0 && (
+            <span style={{ background: NARANJA, color: 'white', fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px' }}>{pendientes.length}</span>
+          )}
+        </div>
+
+        {cargando ? (
+          <p style={{ fontSize: '13px', color: '#9CA3AF' }}>Cargando...</p>
+        ) : pendientes.length === 0 ? (
+          <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: '8px', padding: '20px', textAlign: 'center' as const }}>
+            <p style={{ fontSize: '13px', color: VERDE, margin: 0, fontWeight: '600' }}>✓ Sin solicitudes pendientes</p>
+          </div>
+        ) : (
+          pendientes.map(s => (
+            <div key={s.id} style={{ background: 'white', border: '1px solid #FDE68A', borderRadius: '10px', padding: '14px 16px', marginBottom: '10px', borderLeft: `4px solid ${NARANJA}` }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                <div>
+                  <p style={{ fontSize: '14px', fontWeight: '700', color: '#111827', margin: '0 0 2px' }}>{s.clientes?.nombre ?? '—'}</p>
+                  <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>
+                    NSS: {s.clientes?.nss ?? '—'} · Etapa: {s.clientes?.etapa_kanban ?? '—'}
+                  </p>
+                </div>
+                <span style={{ fontSize: '11px', color: '#9CA3AF' }}>
+                  {new Date(s.created_at).toLocaleDateString('es-MX')}
+                </span>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '10px', background: '#F8FAFC', borderRadius: '6px', padding: '10px' }}>
+                <div>
+                  <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '0 0 2px', textTransform: 'uppercase' as const }}>De</p>
+                  <p style={{ fontSize: '12px', fontWeight: '700', color: '#374151', margin: 0 }}>{s.origen?.nombre ?? '—'}</p>
+                </div>
+                <div>
+                  <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '0 0 2px', textTransform: 'uppercase' as const }}>Hacia</p>
+                  <p style={{ fontSize: '12px', fontWeight: '700', color: AZUL, margin: 0 }}>{s.destino?.nombre ?? '—'}</p>
+                </div>
+              </div>
+
+              <div style={{ background: '#FFFBEB', borderRadius: '6px', padding: '8px 10px', marginBottom: '10px' }}>
+                <p style={{ fontSize: '11px', color: '#92400E', margin: 0 }}>💬 {s.motivo}</p>
+              </div>
+
+              <input placeholder="Nota para el rechazo (opcional)"
+                value={notaRechazo[s.id] ?? ''}
+                onChange={e => setNotaRechazo(prev => ({ ...prev, [s.id]: e.target.value }))}
+                style={{ width: '100%', padding: '7px 10px', border: '1px solid #E5E7EB', fontSize: '12px', borderRadius: '6px', fontFamily: 'inherit', boxSizing: 'border-box' as const, marginBottom: '10px' }} />
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button onClick={() => resolver(s.id, 'rechazada', s.cliente_id, s.asesor_destino_id)}
+                  disabled={procesando === s.id}
+                  style={{ flex: 1, padding: '9px', background: '#FEF2F2', color: ROJO, border: `1px solid ${ROJO}`, fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', opacity: procesando === s.id ? 0.6 : 1 }}>
+                  ❌ Rechazar
+                </button>
+                <button onClick={() => resolver(s.id, 'aprobada', s.cliente_id, s.asesor_destino_id)}
+                  disabled={procesando === s.id}
+                  style={{ flex: 2, padding: '9px', background: VERDE, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', opacity: procesando === s.id ? 0.6 : 1 }}>
+                  {procesando === s.id ? 'Procesando...' : '✅ Aprobar y reasignar cliente'}
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Historial */}
+      {resueltas.length > 0 && (
+        <div>
+          <p style={{ fontSize: '12px', fontWeight: '700', color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 10px' }}>Historial</p>
+          {resueltas.slice(0, 10).map(s => {
+            const badge = badgeEstatus(s.estatus)
+            return (
+              <div key={s.id} style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '8px', padding: '10px 14px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: '12px', fontWeight: '700', color: '#374151', margin: '0 0 2px' }}>{s.clientes?.nombre ?? '—'}</p>
+                  <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>{s.origen?.nombre} → {s.destino?.nombre}</p>
+                </div>
+                <span style={{ padding: '3px 10px', background: badge.bg, color: badge.color, fontSize: '11px', fontWeight: '700', borderRadius: '6px', whiteSpace: 'nowrap' as const }}>
+                  {badge.label}
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function OrgAdminPage() {
   const router = useRouter()
   const supabase = createClient()
 
   const [loading, setLoading] = useState(true)
-  const [tab, setTab] = useState<'dashboard' | 'equipo' | 'reasignacion'>('dashboard')
+  const [tab, setTab] = useState<'dashboard' | 'equipo' | 'canalizaciones' | 'reasignacion'>('dashboard')
   const [org, setOrg] = useState<any>(null)
   const [myId, setMyId] = useState('')
   const [asesores, setAsesores] = useState<any[]>([])
@@ -197,10 +340,10 @@ export default function OrgAdminPage() {
           <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>Panel de equipo · Plan {org.plan} · {org.asientos} asientos</p>
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>
-          {(['dashboard', 'equipo'] as const).map(t => (
+          {(['dashboard', 'equipo', 'canalizaciones'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)}
               style={{ padding: '6px 14px', background: tab === t ? AZUL : '#F4F6FB', color: tab === t ? 'white' : '#6B7280', border: `1px solid ${tab === t ? AZUL : '#E5E7EB'}`, fontSize: '12px', fontWeight: (tab === t ? '700' : '400'), cursor: 'pointer', fontFamily: 'inherit' }}>
-              {t === 'dashboard' ? '📈 Actividad' : '👥 Mi Equipo'}
+              {t === 'dashboard' ? '📈 Actividad' : t === 'equipo' ? '👥 Mi Equipo' : '🔄 Canalizaciones'}
             </button>
           ))}
         </div>
@@ -289,6 +432,10 @@ export default function OrgAdminPage() {
         )}
 
         {/* ── TAB: MI EQUIPO ── */}
+        {tab === 'canalizaciones' && (
+          <PanelCanalizaciones supabase={supabase} userId={userId} asesores={asesores} />
+        )}
+
         {tab === 'equipo' && (
           <>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>

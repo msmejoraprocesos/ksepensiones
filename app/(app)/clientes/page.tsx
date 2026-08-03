@@ -312,6 +312,11 @@ function ClientesInner() {
   const [pagosProgramados, setPagosProgramados] = useState<PagoProgramado[]>([])
   const [uploadingProgComp, setUploadingProgComp] = useState<string | null>(null)
   const [showWappModal, setShowWappModal] = useState(false)
+  const [showCanalizarModal, setShowCanalizarModal] = useState<any>(null)
+  const [canalizarDestino, setCanalizarDestino] = useState('')
+  const [canalizarMotivo, setCanalizarMotivo] = useState('')
+  const [canalizarLoading, setCanalizarLoading] = useState(false)
+  const [asesoresEquipo, setAsesoresEquipo] = useState<any[]>([])
   const [nuevoClienteData, setNuevoClienteData] = useState<{id: string; nombre: string; telefono: string | null} | null>(null)
   const [materiales, setMateriales] = useState<{id:string;nombre:string;descripcion:string|null;tipo:string;url:string|null;activo?:boolean;archivo_url?:string|null}[]>([])
   const [compFile, setCompFile] = useState<File | null>(null)
@@ -349,6 +354,9 @@ function ClientesInner() {
         })
       loadClientes(session.user.id)
       loadMateriales(session.user.id)
+    // Cargar asesores del equipo para canalización
+    supabase.from('perfiles_usuario').select('id, nombre').eq('activo', true).neq('id', session.user.id)
+      .then(({ data }) => setAsesoresEquipo(data ?? []))
     })
     if (searchParams.get('nuevo') === 'true') { setShowNuevo(true); router.replace('/clientes') }
   }, [])
@@ -1351,6 +1359,13 @@ function ClientesInner() {
                 style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 10px', background: '#dcfce7', color: '#15803d', border: 'none', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
                 💬 Material
               </button>
+              {userRol === 'asesor' && (
+                <button onClick={() => setShowCanalizarModal(selected)}
+                  title="Solicitar canalización"
+                  style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 10px', background: '#EEF2F8', color: AZUL, border: `1px solid ${AZUL}`, borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
+                  🔄 Canalizar
+                </button>
+              )}
               <button onClick={() => { if (editando) setShowConfirmClose(true); else setSelected(null) }} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
             </div>
 
@@ -2207,6 +2222,74 @@ function ClientesInner() {
       )}
 
       {/* ── MODAL WHATSAPP MATERIAL DE APOYO ── */}
+      {/* ══ MODAL CANALIZACIÓN ══ */}
+      {showCanalizarModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: '440px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+            <div style={{ background: AZUL, padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <p style={{ fontSize: '14px', fontWeight: '700', color: 'white', margin: 0 }}>🔄 Solicitar canalización</p>
+                <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)', margin: '2px 0 0' }}>{showCanalizarModal.nombre}</p>
+              </div>
+              <button onClick={() => { setShowCanalizarModal(null); setCanalizarDestino(''); setCanalizarMotivo('') }}
+                style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '20px' }}>✕</button>
+            </div>
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
+              <div style={{ background: '#FFF7ED', border: '1px solid #FDE68A', borderRadius: '8px', padding: '10px 12px', fontSize: '12px', color: '#92400E' }}>
+                ⚠️ La canalización requiere aprobación del org-admin. El cliente seguirá asignado a ti hasta que se apruebe.
+              </div>
+              <div>
+                <label style={{ fontSize: '10.5px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>Asesor destino *</label>
+                <select value={canalizarDestino} onChange={e => setCanalizarDestino(e.target.value)}
+                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', borderRadius: '6px', fontFamily: 'inherit', background: 'white' }}>
+                  <option value="">Selecciona un asesor...</option>
+                  {asesoresEquipo.map((a: any) => (
+                    <option key={a.id} value={a.id}>{a.nombre}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: '10.5px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>Motivo *</label>
+                <textarea value={canalizarMotivo} onChange={e => setCanalizarMotivo(e.target.value)}
+                  placeholder="Ej. Exceso de carga de trabajo, especialidad requerida, zona geográfica..."
+                  rows={3}
+                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', borderRadius: '6px', fontFamily: 'inherit', resize: 'none' as const, boxSizing: 'border-box' as const }} />
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button onClick={() => { setShowCanalizarModal(null); setCanalizarDestino(''); setCanalizarMotivo('') }}
+                  style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                  Cancelar
+                </button>
+                <button disabled={!canalizarDestino || !canalizarMotivo.trim() || canalizarLoading}
+                  onClick={async () => {
+                    setCanalizarLoading(true)
+                    const { data: { session } } = await supabase.auth.getSession()
+                    if (!session) { setCanalizarLoading(false); return }
+                    const perfil = await supabase.from('perfiles_usuario').select('organizacion_id').eq('id', session.user.id).single()
+                    await supabase.from('solicitudes_canalizacion').insert({
+                      cliente_id: showCanalizarModal.id,
+                      asesor_origen_id: session.user.id,
+                      asesor_destino_id: canalizarDestino,
+                      organizacion_id: perfil.data?.organizacion_id ?? null,
+                      motivo: canalizarMotivo.trim(),
+                      estatus: 'pendiente',
+                    })
+                    setCanalizarLoading(false)
+                    setShowCanalizarModal(null)
+                    setCanalizarDestino('')
+                    setCanalizarMotivo('')
+                    alert('✅ Solicitud enviada. El org-admin recibirá una notificación para aprobarla.')
+                  }}
+                  style={{ flex: 2, padding: '10px', background: !canalizarDestino || !canalizarMotivo.trim() ? '#E5E7EB' : AZUL, color: !canalizarDestino || !canalizarMotivo.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: !canalizarDestino || !canalizarMotivo.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                  {canalizarLoading ? 'Enviando...' : '🔄 Enviar solicitud'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══ MODAL WHATSAPP ══ */}
       {showWappModal && nuevoClienteData && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'white', borderRadius: '16px', padding: '28px', width: '480px', boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}>
