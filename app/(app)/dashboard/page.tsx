@@ -363,29 +363,24 @@ function MiDiaInner() {
     <div style={{ height: 'calc(100vh - 48px)', overflow: 'auto', background: '#F4F6FB' }}>
 
       {/* ── Header de bienvenida ── */}
-      <div style={{ background: AZUL, padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.55)', letterSpacing: '0.5px', marginBottom: '2px' }}>
-            {new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-          </div>
-          <div style={{ fontSize: '17px', fontWeight: '700', color: 'white' }}>
-            Buenos días, {nombreAsesor.split(' ')[0]} 👋
-          </div>
+      <div style={{ background: AZUL, padding: '14px 20px' }}>
+        <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.55)', letterSpacing: '0.5px', marginBottom: '2px' }}>
+          {new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
         </div>
-        <div style={{ background: 'rgba(255,255,255,0.12)', borderRadius: '8px', padding: '8px 16px', textAlign: 'center' as const }}>
-          <div style={{ fontSize: '22px', fontWeight: '800', color: 'white' }}>{clientesActivos.length}</div>
-          <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)' }}>clientes activos</div>
+        <div style={{ fontSize: '17px', fontWeight: '700', color: 'white' }}>
+          Buenos días, {nombreAsesor.split(' ')[0]} 👋
         </div>
       </div>
 
       {/* ── Barra de alertas ── */}
       {totalAlertas > 0 && (
-        <div style={{ background: '#FEF2F2', borderBottom: '1px solid #FECACA', padding: '8px 20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <a href="/clientes" style={{ textDecoration: 'none', display: 'block', background: '#FEF2F2', borderBottom: '1px solid #FECACA', padding: '8px 20px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
           <span style={{ fontSize: '14px' }}>🔔</span>
           <span style={{ fontSize: '12px', color: '#991B1B', fontWeight: '600' }}>
             Tienes {totalAlertas} pendiente{totalAlertas !== 1 ? 's' : ''} que requiere{totalAlertas !== 1 ? 'n' : ''} atención
           </span>
-        </div>
+          <span style={{ marginLeft: 'auto', fontSize: '11px', color: '#991B1B', background: '#FEE2E2', padding: '2px 8px', borderRadius: '10px' }}>Ver clientes →</span>
+        </a>
       )}
       <style>{`
         .db-outer { display: grid; grid-template-columns: 1fr 12px 190px; gap: 12px; align-items: stretch; }
