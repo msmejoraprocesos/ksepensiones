@@ -246,7 +246,6 @@ export default function LoginPage() {
                   <div style={{ position: 'relative' }}>
                     <input type={showPass ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} required
                       placeholder="••••••••"
-                      onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); doLogin() } }}
                       style={{ display: 'block', width: '100%', padding: '13px 48px 13px 16px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', background: '#FAFBFC', fontFamily: 'inherit' }}
                       onFocus={e => { e.target.style.borderColor = NARANJA; e.target.style.boxShadow = `0 0 0 3px ${NARANJA}20` }}
                       onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none' }}
