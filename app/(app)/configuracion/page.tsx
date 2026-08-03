@@ -1334,6 +1334,27 @@ export default function ConfiguracionPage() {
               </div>
             )}
           </div>
+        {/* ══ FIN CONTENIDO TAB SISTEMA ══ */}
+        </div>
+        )} {/* fin tab sistema */}
+
+        {/* ── TAB: FINANCIERAS ── */}
+        {tabActiva === 'financieras' && (
+        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
+          {sectionTitle('💳', 'Financieras y elegibilidad', 'Configura las instituciones con las que trabajas y sus criterios de elegibilidad')}
+          <FinancierasElegibilidad userId={userId} supabase={supabase} />
+        </div>
+        )}
+
+        {/* ── TAB: CATÁLOGOS ── */}
+        {tabActiva === 'catalogos' && (
+        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
+          {sectionTitle('📋', 'Catálogos de actividad', 'Personaliza las opciones que aparecen al registrar una actividad con un cliente')}
+          <CatalogosActividad userId={userId} supabase={supabase} />
+        </div>
+        )}
+
+      </div>
 
         {/* Barra sticky inferior */}
         <div style={{ position: 'sticky', bottom: 0, background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 -4px 16px rgba(0,0,0,0.06)', marginBottom: '8px' }}>
@@ -1440,27 +1461,6 @@ export default function ConfiguracionPage() {
               </div>
             )}
           </div>
-
-          {/* ══ FINANCIERAS Y CATÁLOGOS — en sus propios tabs ══ */}
-        </div>
-        </div>
-        )} {/* fin tab sistema */}
-
-        {/* ── TAB: FINANCIERAS ── */}
-        {tabActiva === 'financieras' && (
-        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
-          {sectionTitle('💳', 'Financieras y elegibilidad', 'Configura las instituciones con las que trabajas y sus criterios de elegibilidad')}
-          <FinancierasElegibilidad userId={userId} supabase={supabase} />
-        </div>
-        )}
-
-        {/* ── TAB: CATÁLOGOS ── */}
-        {tabActiva === 'catalogos' && (
-        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
-          {sectionTitle('📋', 'Catálogos de actividad', 'Personaliza las opciones que aparecen al registrar una actividad con un cliente')}
-          <CatalogosActividad userId={userId} supabase={supabase} />
-        </div>
-        )}
 
       </div>
     </div>
