@@ -507,12 +507,12 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
           <p style={{ fontSize: '12px', fontWeight: '700', color: '#6B7280', margin: '0 0 10px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
             + Agregar nueva opción
           </p>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <div style={{ position: 'relative' as const }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '4px', flexShrink: 0 }}>
               <input value={nuevo.icono} onChange={e => setNuevo(p => ({ ...p, icono: e.target.value }))}
                 placeholder="😊"
-                style={{ width: '52px', padding: '9px', border: '1.5px solid #D1D5DB', fontSize: '18px', borderRadius: '8px', fontFamily: 'inherit', textAlign: 'center' as const }} />
-              <span style={{ position: 'absolute' as const, bottom: '-16px', left: '50%', transform: 'translateX(-50%)', fontSize: '9px', color: '#9CA3AF', whiteSpace: 'nowrap' as const }}>emoji</span>
+                style={{ width: '52px', padding: '9px 4px', border: '1.5px solid #D1D5DB', fontSize: '18px', borderRadius: '8px', fontFamily: 'inherit', textAlign: 'center' as const, boxSizing: 'border-box' as const }} />
+              <span style={{ fontSize: '9px', color: '#9CA3AF' }}>emoji</span>
             </div>
             <input value={nuevo.etiqueta} onChange={e => setNuevo(p => ({ ...p, etiqueta: e.target.value }))}
               onKeyDown={e => e.key === 'Enter' && agregar()}
