@@ -492,7 +492,7 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
           <p style={{ fontSize: '10.5px', fontWeight: '700', color: '#6B7280', margin: '0 0 8px', textTransform: 'uppercase' as const }}>Agregar opción</p>
           <div style={{ display: 'flex', gap: '8px' }}>
             <input value={nuevo.icono} onChange={e => setNuevo(p => ({ ...p, icono: e.target.value }))}
-              placeholder="🔔" maxLength={2}
+              placeholder="🔔"
               style={{ width: '44px', padding: '7px', border: '1px solid #D1D5DB', fontSize: '16px', borderRadius: '6px', fontFamily: 'inherit', textAlign: 'center' as const }} />
             <input value={nuevo.etiqueta} onChange={e => setNuevo(p => ({ ...p, etiqueta: e.target.value }))}
               onKeyDown={e => e.key === 'Enter' && agregar()}
