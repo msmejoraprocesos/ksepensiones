@@ -817,28 +817,60 @@ export default function ConfiguracionPage() {
           </div>
         )}
 
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div>
-            <h1 style={{ fontSize: '22px', fontWeight: '800', color: AZUL, margin: 0 }}>Configuración</h1>
-            <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0' }}>Perfil del asesor · Variables del sistema</p>
+        {/* ── Header con tabs y botones de acción ── */}
+        <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #E5E7EB', overflow: 'hidden' }}>
+          {/* Título + botones */}
+          <div style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #F3F4F6' }}>
+            <div>
+              <h1 style={{ fontSize: '18px', fontWeight: '800', color: AZUL, margin: 0 }}>Configuración</h1>
+              <p style={{ fontSize: '12px', color: '#94a3b8', margin: '2px 0 0' }}>
+                {tabActiva === 'perfil' && 'Identidad del asesor · Seguridad'}
+                {tabActiva === 'sistema' && 'Variables del sistema · Encabezado PDF'}
+                {tabActiva === 'financieras' && 'Instituciones financieras · Criterios de elegibilidad'}
+                {tabActiva === 'catalogos' && 'Tipos de contacto · Resultados · Próximos pasos'}
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              {saveError && <p style={{ fontSize: '12px', color: '#ef4444', margin: 0, fontWeight: '600' }}>⚠️ {saveError}</p>}
+              {!saveError && saved && <p style={{ fontSize: '12px', color: VERDE, margin: 0, fontWeight: '600' }}>✓ Guardado</p>}
+              {!saveError && !saved && editing && <p style={{ fontSize: '12px', color: NARANJA, margin: 0 }}>✏️ Sin guardar</p>}
+              {(tabActiva === 'perfil' || tabActiva === 'sistema') && (
+                !editing ? (
+                  <button onClick={() => { setEditing(true); setSaveError(null) }}
+                    style={{ padding: '8px 18px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
+                    ✏️ Editar
+                  </button>
+                ) : (
+                  <>
+                    <button onClick={cancelarEdicion}
+                      style={{ padding: '8px 14px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
+                      ✕ Cancelar
+                    </button>
+                    <button onClick={guardarCambios} disabled={saving}
+                      style={{ padding: '8px 18px', background: saving ? '#94a3b8' : VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                      {saving ? 'Guardando...' : '💾 Guardar'}
+                    </button>
+                  </>
+                )
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* ── TABS de navegación ── */}
-        <div style={{ display: 'flex', gap: '4px', background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', padding: '4px' }}>
-          {([
-            { id: 'perfil', label: '👤 Perfil', desc: 'Identidad y PDF' },
-            { id: 'sistema', label: '⚙️ Sistema', desc: 'Variables y fórmulas' },
-            { id: 'financieras', label: '💳 Financieras', desc: 'Elegibilidad y docs' },
-            { id: 'catalogos', label: '📋 Catálogos', desc: 'Tipos de actividad' },
-          ] as const).map(t => (
-            <button key={t.id} onClick={() => setTabActiva(t.id)}
-              style={{ flex: 1, padding: '10px 8px', background: tabActiva === t.id ? AZUL : 'transparent', color: tabActiva === t.id ? 'white' : '#6B7280', border: 'none', borderRadius: '8px', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center' as const }}>
-              <div style={{ fontSize: '13px', fontWeight: '700' }}>{t.label}</div>
-              <div style={{ fontSize: '10px', opacity: 0.8, marginTop: '2px' }}>{t.desc}</div>
-            </button>
-          ))}
+          {/* Tabs de navegación */}
+          <div style={{ display: 'flex', padding: '4px', gap: '2px' }}>
+            {([
+              { id: 'perfil', label: '👤 Perfil', desc: 'Identidad y seguridad' },
+              { id: 'sistema', label: '⚙️ Sistema', desc: 'Variables y fórmulas' },
+              { id: 'financieras', label: '💳 Financieras', desc: 'Elegibilidad y docs' },
+              { id: 'catalogos', label: '📋 Catálogos', desc: 'Tipos de actividad' },
+            ] as const).map(t => (
+              <button key={t.id} onClick={() => setTabActiva(t.id)}
+                style={{ flex: 1, padding: '9px 8px', background: tabActiva === t.id ? AZUL : 'transparent', color: tabActiva === t.id ? 'white' : '#6B7280', border: 'none', borderRadius: '7px', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center' as const }}>
+                <div style={{ fontSize: '13px', fontWeight: '700' }}>{t.label}</div>
+                <div style={{ fontSize: '10px', opacity: 0.75, marginTop: '1px' }}>{t.desc}</div>
+              </button>
+            ))}
+          </div>
         </div>
         {/* ── TAB: PERFIL ── */}
         {tabActiva === 'perfil' && (
@@ -926,6 +958,63 @@ export default function ConfiguracionPage() {
               {errorMsg('email_contacto')}
               {!errors.email_contacto && perfil.email_contacto && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(perfil.email_contacto) && <p style={{ fontSize: '10px', color: VERDE, margin: '3px 0 0' }}>✓ Email válido</p>}
             </div>
+          </div>
+
+          {/* Cambiar contraseña */}
+          <div style={{ marginTop: '16px', padding: '16px', background: 'white', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 2px' }}>🔒 Seguridad</p>
+                <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>Cambia tu contraseña de acceso al sistema</p>
+              </div>
+              <button onClick={() => { setShowCambiarPassword(!showCambiarPassword); setMsgPassword('') }}
+                style={{ padding: '7px 16px', background: showCambiarPassword ? '#F4F6FB' : '#1B3A6B', color: showCambiarPassword ? '#374151' : 'white', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                {showCambiarPassword ? 'Cancelar' : 'Cambiar contraseña'}
+              </button>
+            </div>
+            {showCambiarPassword && (
+              <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280' }}>Nueva contraseña</label>
+                    <button type="button" onClick={() => {
+                      const chars = 'abcdefghijkmnpqrstuvwxyz', upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ', nums = '23456789', syms = '!@#$%&*'
+                      const pwd = (upper[Math.floor(Math.random()*upper.length)] + chars[Math.floor(Math.random()*chars.length)] + chars[Math.floor(Math.random()*chars.length)] + nums[Math.floor(Math.random()*nums.length)] + nums[Math.floor(Math.random()*nums.length)] + syms[Math.floor(Math.random()*syms.length)] + upper[Math.floor(Math.random()*upper.length)] + chars[Math.floor(Math.random()*chars.length)] + nums[Math.floor(Math.random()*nums.length)] + syms[Math.floor(Math.random()*syms.length)]).split('').sort(() => Math.random() - 0.5).join('')
+                      setNuevaPassword(pwd); setConfirmarPassword(pwd)
+                    }} style={{ fontSize: '11px', color: '#F05B21', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontFamily: 'inherit' }}>🎲 Generar</button>
+                  </div>
+                  <input type="text" value={nuevaPassword} onChange={e => setNuevaPassword(e.target.value)}
+                    placeholder="Mínimo 10 caracteres"
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '6px', fontWeight: '600' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Confirmar contraseña</label>
+                  <input type="password" value={confirmarPassword} onChange={e => setConfirmarPassword(e.target.value)}
+                    placeholder="Repite la contraseña"
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '6px' }} />
+                </div>
+                <div style={{ background: '#F8FAFC', borderRadius: '6px', padding: '10px 12px', fontSize: '11px', color: '#6B7280', lineHeight: 1.6 }}>
+                  <strong style={{ color: '#374151' }}>Criterios de seguridad:</strong>{' '}
+                  {[
+                    { label: '10+ caracteres', ok: nuevaPassword.length >= 10 },
+                    { label: 'Mayúscula', ok: /[A-Z]/.test(nuevaPassword) },
+                    { label: 'Número', ok: /[0-9]/.test(nuevaPassword) },
+                    { label: 'Símbolo', ok: /[!@#$%&*]/.test(nuevaPassword) },
+                  ].map(c => (
+                    <span key={c.label} style={{ display: 'inline-block', marginRight: '10px', color: nuevaPassword && c.ok ? '#16A34A' : '#9CA3AF' }}>
+                      {nuevaPassword && c.ok ? '✓' : '○'} {c.label}
+                    </span>
+                  ))}
+                </div>
+                {msgPassword && (
+                  <p style={{ fontSize: '12px', color: msgPassword.startsWith('✅') ? '#065F46' : '#DC2626', margin: 0, fontWeight: '600' }}>{msgPassword}</p>
+                )}
+                <button onClick={cambiarPassword} disabled={savingPassword || !nuevaPassword}
+                  style={{ padding: '10px', background: '#1B3A6B', color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', opacity: savingPassword || !nuevaPassword ? 0.6 : 1 }}>
+                  {savingPassword ? 'Actualizando...' : 'Actualizar contraseña'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
         )} {/* fin tab perfil */}
@@ -1353,114 +1442,6 @@ export default function ConfiguracionPage() {
           <CatalogosActividad userId={userId} supabase={supabase} />
         </div>
         )}
-
-      </div>
-
-        {/* Barra sticky inferior */}
-        <div style={{ position: 'sticky', bottom: 0, background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 -4px 16px rgba(0,0,0,0.06)', marginBottom: '8px' }}>
-          <div>
-            {saveError && <p style={{ fontSize: '12px', color: '#ef4444', margin: 0, fontWeight: '600' }}>⚠️ {saveError}</p>}
-            {!saveError && saved && <p style={{ fontSize: '12px', color: VERDE, margin: 0, fontWeight: '600' }}>✓ Configuración guardada correctamente</p>}
-            {!saveError && !saved && !editing && lastSaved && (
-              <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>
-                ✓ Guardado el {lastSaved.toLocaleDateString('es-MX', { day:'numeric', month:'short' })} a las {lastSaved.toLocaleTimeString('es-MX', { hour:'2-digit', minute:'2-digit' })}
-              </p>
-            )}
-            {!saveError && !saved && editing && (
-              <p style={{ fontSize: '12px', color: NARANJA, margin: 0, fontWeight: '500' }}>✏️ Editando — los cambios no se han guardado</p>
-            )}
-            {!saveError && !saved && !editing && !lastSaved && (
-              <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>Haz clic en Editar para modificar tu configuración</p>
-            )}
-          </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            {!editing ? (
-              <button onClick={() => { setEditing(true); setSaveError(null) }}
-                style={{ padding: '10px 24px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>
-                ✏️ Editar configuración
-              </button>
-            ) : (
-              <>
-                <button onClick={async () => {
-                  setPerfil(perfilOriginal); setEditing(false); setErrors({}); setSaveError(null); setMaterialError(null)
-                  // Limpiar archivos huérfanos de materiales no guardados
-                  for (const fila of materialesNuevos) {
-                    if (fila.archivo_url) {
-                      try {
-                        const urlParts = fila.archivo_url.split('/').pop()?.split('?')[0]
-                        if (urlParts) await supabase.storage.from('logos').remove([`materiales/${urlParts}`])
-                      } catch { /* noop */ }
-                    }
-                  }
-                  setMaterialesNuevos([])
-                }}
-                  style={{ padding: '10px 20px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
-                  ✕ Cancelar
-                </button>
-                <button onClick={guardar} disabled={saving}
-                  style={{ padding: '10px 28px', background: saving ? '#94a3b8' : VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer' }}>
-                  {saving ? 'Guardando...' : '💾 Guardar cambios'}
-                </button>
-              </>
-            )}
-          </div>
-
-          {/* Cambiar contraseña */}
-          <div style={{ marginTop: '16px', padding: '16px', background: 'white', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 2px' }}>🔒 Seguridad</p>
-                <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>Cambia tu contraseña de acceso al sistema</p>
-              </div>
-              <button onClick={() => { setShowCambiarPassword(!showCambiarPassword); setMsgPassword('') }}
-                style={{ padding: '7px 16px', background: showCambiarPassword ? '#F4F6FB' : '#1B3A6B', color: showCambiarPassword ? '#374151' : 'white', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
-                {showCambiarPassword ? 'Cancelar' : 'Cambiar contraseña'}
-              </button>
-            </div>
-            {showCambiarPassword && (
-              <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                    <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280' }}>Nueva contraseña</label>
-                    <button type="button" onClick={() => {
-                      const chars = 'abcdefghijkmnpqrstuvwxyz', upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ', nums = '23456789', syms = '!@#$%&*'
-                      const pwd = (upper[Math.floor(Math.random()*upper.length)] + chars[Math.floor(Math.random()*chars.length)] + chars[Math.floor(Math.random()*chars.length)] + nums[Math.floor(Math.random()*nums.length)] + nums[Math.floor(Math.random()*nums.length)] + syms[Math.floor(Math.random()*syms.length)] + upper[Math.floor(Math.random()*upper.length)] + chars[Math.floor(Math.random()*chars.length)] + nums[Math.floor(Math.random()*nums.length)] + syms[Math.floor(Math.random()*syms.length)]).split('').sort(() => Math.random() - 0.5).join('')
-                      setNuevaPassword(pwd); setConfirmarPassword(pwd)
-                    }} style={{ fontSize: '11px', color: '#F05B21', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontFamily: 'inherit' }}>🎲 Generar</button>
-                  </div>
-                  <input type="text" value={nuevaPassword} onChange={e => setNuevaPassword(e.target.value)}
-                    placeholder="Mínimo 10 caracteres"
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '6px', fontWeight: '600' }} />
-                </div>
-                <div>
-                  <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Confirmar contraseña</label>
-                  <input type="password" value={confirmarPassword} onChange={e => setConfirmarPassword(e.target.value)}
-                    placeholder="Repite la contraseña"
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '6px' }} />
-                </div>
-                <div style={{ background: '#F8FAFC', borderRadius: '6px', padding: '10px 12px', fontSize: '11px', color: '#6B7280', lineHeight: 1.6 }}>
-                  <strong style={{ color: '#374151' }}>Criterios de seguridad:</strong>{' '}
-                  {[
-                    { label: '10+ caracteres', ok: nuevaPassword.length >= 10 },
-                    { label: 'Mayúscula', ok: /[A-Z]/.test(nuevaPassword) },
-                    { label: 'Número', ok: /[0-9]/.test(nuevaPassword) },
-                    { label: 'Símbolo', ok: /[!@#$%&*]/.test(nuevaPassword) },
-                  ].map(c => (
-                    <span key={c.label} style={{ display: 'inline-block', marginRight: '10px', color: nuevaPassword && c.ok ? '#16A34A' : '#9CA3AF' }}>
-                      {nuevaPassword && c.ok ? '✓' : '○'} {c.label}
-                    </span>
-                  ))}
-                </div>
-                {msgPassword && (
-                  <p style={{ fontSize: '12px', color: msgPassword.startsWith('✅') ? '#065F46' : '#DC2626', margin: 0, fontWeight: '600' }}>{msgPassword}</p>
-                )}
-                <button onClick={cambiarPassword} disabled={savingPassword || !nuevaPassword}
-                  style={{ padding: '10px', background: '#1B3A6B', color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', opacity: savingPassword || !nuevaPassword ? 0.6 : 1 }}>
-                  {savingPassword ? 'Actualizando...' : 'Actualizar contraseña'}
-                </button>
-              </div>
-            )}
-          </div>
 
       </div>
     </div>
