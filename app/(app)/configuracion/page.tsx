@@ -928,6 +928,7 @@ export default function ConfiguracionPage() {
             </div>
           </div>
         </div>
+        )} {/* fin tab perfil */}
 
         {/* ── TAB: SISTEMA ── */}
         {tabActiva === 'sistema' && (
@@ -1083,13 +1084,10 @@ export default function ConfiguracionPage() {
             </div>
           </div>
         </div>
-        )} {/* fin tab sistema variables */}
-
-        )} {/* fin tab perfil */}
 
         {/* ── SECCIÓN 3: Preview PDF (dentro del tab sistema) ── */}
-        {tabActiva === 'sistema' && (
-        <div id="encabezado" style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>          {sectionTitle('🎨', 'Encabezado de propuestas PDF', 'Personaliza cómo se ve el encabezado en tus documentos')}
+        <div id="encabezado" style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
+          {sectionTitle('🎨', 'Encabezado de propuestas PDF', 'Personaliza cómo se ve el encabezado en tus documentos')}
 
           {/* Configuración del encabezado */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', marginBottom: '16px' }}>
@@ -1445,7 +1443,8 @@ export default function ConfiguracionPage() {
 
           {/* ══ FINANCIERAS Y CATÁLOGOS — en sus propios tabs ══ */}
         </div>
-        )} {/* fin tab PDF/seguridad dentro de sistema */}
+        </div>
+        )} {/* fin tab sistema */}
 
         {/* ── TAB: FINANCIERAS ── */}
         {tabActiva === 'financieras' && (
