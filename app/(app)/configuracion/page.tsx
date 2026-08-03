@@ -928,15 +928,14 @@ export default function ConfiguracionPage() {
             </div>
           </div>
         </div>
-        )} {/* fin tab perfil */}
 
         {/* ── TAB: SISTEMA ── */}
         {tabActiva === 'sistema' && (
+        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '20px' }}>
+
         <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
           {sectionTitle('📊', 'Variables del sistema 2026', 'Valores oficiales que usa la calculadora para todos los diagnósticos')}
-
-          {/* Alertas de vigencia - se ocultan si la variable fue actualizada recientemente */}
-          {(() => {
+        {(() => {
             const today = new Date()
             const alerts = [
               { key: 'uma_diaria', label: 'UMA Diaria', mes: 1, dia: 1, url: 'https://www.inegi.org.mx/temas/uma/', fuente: 'INEGI', desc: 'Se actualiza en febrero de cada año', updatedKey: 'uma_actualizada_en' },
@@ -1084,16 +1083,13 @@ export default function ConfiguracionPage() {
             </div>
           </div>
         </div>
+        )} {/* fin tab sistema variables */}
 
         )} {/* fin tab perfil */}
 
-        {/* ── TAB: SISTEMA ── */}
+        {/* ── SECCIÓN 3: Preview PDF (dentro del tab sistema) ── */}
         {tabActiva === 'sistema' && (
-        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '20px' }}>
-
-        {/* ── SECCIÓN 3: Preview PDF ── */}
-        <div id="encabezado" style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
-          {sectionTitle('🎨', 'Encabezado de propuestas PDF', 'Personaliza cómo se ve el encabezado en tus documentos')}
+        <div id="encabezado" style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>          {sectionTitle('🎨', 'Encabezado de propuestas PDF', 'Personaliza cómo se ve el encabezado en tus documentos')}
 
           {/* Configuración del encabezado */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', marginBottom: '16px' }}>
@@ -1449,7 +1445,7 @@ export default function ConfiguracionPage() {
 
           {/* ══ FINANCIERAS Y CATÁLOGOS — en sus propios tabs ══ */}
         </div>
-        )} {/* fin tab sistema */}
+        )} {/* fin tab PDF/seguridad dentro de sistema */}
 
         {/* ── TAB: FINANCIERAS ── */}
         {tabActiva === 'financieras' && (
