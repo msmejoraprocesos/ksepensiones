@@ -828,6 +828,8 @@ function CalculadoraInner() {
 
   // Tab 7 - Analisis
   const [analisis, setAnalisis] = useState<AnalisisSeccion[]>([])
+  const [analisisManual, setAnalisisManual] = useState('')
+  const [modoAnalisis, setModoAnalisis] = useState<'manual' | 'ia'>('manual')
   const [generandoAnalisis, setGenerandoAnalisis] = useState(false)
   const [guardando, setGuardando] = useState(false)
   const [mensaje, setMensaje] = useState('')
@@ -960,7 +962,13 @@ function CalculadoraInner() {
           if (diag.analisis_narrativo) {
             try {
               const parsed = JSON.parse(diag.analisis_narrativo)
-              if (Array.isArray(parsed)) setAnalisis(parsed)
+              if (Array.isArray(parsed)) {
+                setAnalisis(parsed)
+                setModoAnalisis('ia')
+              } else if (typeof parsed === 'string') {
+                setAnalisisManual(parsed)
+                setModoAnalisis('manual')
+              }
             } catch(e) {}
           }
           setTab(6) // Go to Resumen to show saved state
@@ -1514,7 +1522,7 @@ function CalculadoraInner() {
           sdiPromedio={sdiPromedio}
           escenarios={escenarios}
           escSelIdx={idxToUse}
-          analisis={analisis}
+          analisis={modoAnalisis === 'ia' ? analisis : analisisManual ? [{ titulo: 'Análisis del diagnóstico', contenido: analisisManual }] : []}
           ingresoObjetivo={ingresoObjetivo || undefined}
           logoUrl={asesorPerfil?.logo_url ?? undefined}
           razonSocial={asesorPerfil?.razon_social ?? undefined}
@@ -1599,6 +1607,7 @@ function CalculadoraInner() {
           { titulo: 'Recomendación', contenido: a.recomendacion ?? '' },
           { titulo: 'Próximos pasos', contenido: a.proximos_pasos ?? '' },
         ].filter(s => s.contenido))
+        setModoAnalisis('ia')
       } else {
         console.error('Analisis error:', data.error)
         setMensaje('Error al generar el análisis. Intenta de nuevo.')
@@ -1671,7 +1680,11 @@ function CalculadoraInner() {
       pension_sin_mod40: escenarios[0]?.pension_mensual,
       pension_con_mod40: escElegido?.pension_mensual,
       inversion_mod40: escElegido?.costo_total,
-      analisis_narrativo: JSON.stringify(analisis),
+      analisis_narrativo: modoAnalisis === 'ia' && analisis.length > 0
+        ? JSON.stringify(analisis)
+        : analisisManual
+        ? JSON.stringify(analisisManual)
+        : null,
       notas: JSON.stringify({ datos, periodos, escenarios }),
       estatus: nuevoEstatus,
       escenario_elegido: escElegido?.id ?? null,
@@ -4546,30 +4559,75 @@ function CalculadoraInner() {
                 </>
               )}
 
-              {/* Análisis IA */}
-              <div style={{ background: 'white', border: '1px solid #DDD6FE' }}>
+              {/* Análisis — Manual o IA */}
+              <div style={{ background: 'white', border: '1px solid #DDD6FE', borderRadius: '8px', overflow: 'hidden' }}>
+                {/* Header */}
                 <div style={{ background: '#7C3AED', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
-                    <p style={{ fontSize: '13px', fontWeight: '700' as const, color: 'white', margin: '0 0 2px' }}>🤖 Análisis de Sofía IA</p>
-                    <p style={{ fontSize: '11px', color: '#DDD6FE', margin: 0 }}>Diagnóstico inteligente del proyecto de pensión</p>
+                    <p style={{ fontSize: '13px', fontWeight: '700' as const, color: 'white', margin: '0 0 2px' }}>📝 Análisis del diagnóstico</p>
+                    <p style={{ fontSize: '11px', color: '#DDD6FE', margin: 0 }}>Escríbelo tú o genera uno con Sofía IA</p>
                   </div>
-                  <button onClick={generarAnalisisIA} disabled={!clienteId || sdiPromedio <= 0}
-                    style={{ padding: '8px 16px', border: '1px solid white', fontSize: '12px', fontWeight: '700' as const, color: '#7C3AED', background: 'white', fontFamily: 'inherit', cursor: 'pointer', opacity: clienteId && sdiPromedio > 0 ? 1 : 0.5 }}>
-                    ✨ Generar análisis
+                  <button onClick={generarAnalisisIA} disabled={generandoAnalisis || !clienteId || sdiPromedio <= 0}
+                    style={{ padding: '8px 14px', border: '1px solid white', fontSize: '12px', fontWeight: '700' as const, color: '#7C3AED', background: 'white', fontFamily: 'inherit', cursor: clienteId && sdiPromedio > 0 ? 'pointer' : 'not-allowed', opacity: clienteId && sdiPromedio > 0 ? 1 : 0.5, borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {generandoAnalisis ? '⏳ Generando...' : '✨ Generar con Sofía IA'}
                   </button>
                 </div>
+
                 <div style={{ padding: '14px 16px' }}>
-                  {analisis.length === 0 && (
-                    <div style={{ padding: '20px', color: '#9CA3AF', background: '#F5F3FF', border: '1px dashed #DDD6FE', fontSize: '12px', textAlign: 'center' as const }}>
-                      Haz clic en &quot;Generar análisis&quot; para el diagnóstico completo
+                  {/* Toggle manual / IA */}
+                  {analisis.length > 0 && (
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                      <button onClick={() => setModoAnalisis('manual')}
+                        style={{ padding: '5px 14px', background: modoAnalisis === 'manual' ? '#7C3AED' : '#F5F3FF', color: modoAnalisis === 'manual' ? 'white' : '#7C3AED', border: '1px solid #DDD6FE', fontSize: '12px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                        ✍️ Manual
+                      </button>
+                      <button onClick={() => setModoAnalisis('ia')}
+                        style={{ padding: '5px 14px', background: modoAnalisis === 'ia' ? '#7C3AED' : '#F5F3FF', color: modoAnalisis === 'ia' ? 'white' : '#7C3AED', border: '1px solid #DDD6FE', fontSize: '12px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                        ✨ Sofía IA
+                      </button>
                     </div>
                   )}
-                  {analisis.length > 0 && analisis.map((sec, i) => (
-                    <div key={i} style={{ background: '#F5F3FF', border: '1px solid #DDD6FE', borderLeft: '3px solid #7C3AED', padding: '12px 14px', marginBottom: '8px' }}>
-                      <p style={{ fontSize: '12px', fontWeight: '700' as const, color: '#5B21B6', margin: '0 0 6px' }}>{sec.titulo}</p>
-                      <p style={{ fontSize: '12px', color: '#374151', margin: 0, lineHeight: 1.7 }}>{sec.contenido}</p>
+
+                  {/* Modo manual */}
+                  {(modoAnalisis === 'manual' || analisis.length === 0) && (
+                    <div>
+                      <textarea
+                        value={analisisManual}
+                        onChange={e => setAnalisisManual(e.target.value)}
+                        placeholder={`Escribe aquí tu análisis del diagnóstico pensional...\n\nPuedes incluir:\n• Situación actual del cliente\n• Recomendaciones de Modalidad 40\n• Escenario sugerido y justificación\n• Próximos pasos`}
+                        rows={8}
+                        style={{ width: '100%', padding: '12px 14px', border: '1.5px solid #DDD6FE', borderRadius: '8px', fontSize: '13px', fontFamily: 'inherit', lineHeight: 1.7, color: '#374151', resize: 'vertical' as const, boxSizing: 'border-box' as const, outline: 'none' }}
+                        onFocus={e => e.target.style.borderColor = '#7C3AED'}
+                        onBlur={e => e.target.style.borderColor = '#DDD6FE'}
+                      />
+                      <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '6px 0 0' }}>
+                        {analisisManual.length} caracteres · Este texto aparecerá en el PDF del diagnóstico
+                      </p>
                     </div>
-                  ))}
+                  )}
+
+                  {/* Modo IA */}
+                  {modoAnalisis === 'ia' && analisis.length > 0 && (
+                    <div>
+                      {analisis.map((sec, i) => (
+                        <div key={i} style={{ background: '#F5F3FF', border: '1px solid #DDD6FE', borderLeft: '3px solid #7C3AED', padding: '12px 14px', marginBottom: '8px', borderRadius: '6px' }}>
+                          <p style={{ fontSize: '12px', fontWeight: '700' as const, color: '#5B21B6', margin: '0 0 6px' }}>{sec.titulo}</p>
+                          <p style={{ fontSize: '13px', color: '#374151', margin: 0, lineHeight: 1.7 }}>{sec.contenido}</p>
+                        </div>
+                      ))}
+                      <button onClick={() => { setModoAnalisis('manual'); setAnalisisManual(analisis.map(s => `${s.titulo}\n${s.contenido}`).join('\n\n')) }}
+                        style={{ fontSize: '12px', color: '#7C3AED', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0, marginTop: '4px' }}>
+                        ✏️ Editar manualmente
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Estado vacío */}
+                  {analisis.length === 0 && !analisisManual && (
+                    <p style={{ fontSize: '12px', color: '#9CA3AF', textAlign: 'center' as const, margin: '8px 0 0' }}>
+                      Escribe el análisis arriba o usa el botón <strong>✨ Generar con Sofía IA</strong>
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -4598,20 +4656,26 @@ function CalculadoraInner() {
               </div>
 
               {/* Cierre del flujo: exportar PDF — solo cuando todo está listo */}
-              <div style={{ background: analisis.length > 0 && diagGuardadoId ? '#F0FDF4' : '#F9FAFB', border: `2px solid ${analisis.length > 0 && diagGuardadoId ? '#86EFAC' : '#E5E7EB'}`, padding: '18px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <p style={{ fontSize: '13px', fontWeight: '700' as const, color: analisis.length > 0 && diagGuardadoId ? '#065F46' : '#6B7280', margin: '0 0 4px' }}>
-                    {analisis.length > 0 && diagGuardadoId ? '✓ Diagnóstico completo — listo para exportar' : '⏳ Diagnóstico incompleto'}
-                  </p>
-                  <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>
-                    {!diagGuardadoId ? 'Falta guardar el diagnóstico (borrador o autorizado)' : analisis.length === 0 ? 'Falta generar el análisis de Sofía IA (arriba)' : 'El PDF incluirá todos los datos, escenarios y el análisis de IA generado'}
-                  </p>
+              {(() => {
+                const tieneAnalisis = (modoAnalisis === 'ia' && analisis.length > 0) || (modoAnalisis === 'manual' && analisisManual.trim().length > 0)
+                const listo = tieneAnalisis && !!diagGuardadoId
+                return (
+                <div style={{ background: listo ? '#F0FDF4' : '#F9FAFB', border: `2px solid ${listo ? '#86EFAC' : '#E5E7EB'}`, padding: '18px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <p style={{ fontSize: '13px', fontWeight: '700' as const, color: listo ? '#065F46' : '#6B7280', margin: '0 0 4px' }}>
+                      {listo ? '✓ Diagnóstico completo — listo para exportar' : '⏳ Diagnóstico incompleto'}
+                    </p>
+                    <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>
+                      {!diagGuardadoId ? 'Falta guardar el diagnóstico (borrador o autorizado)' : !tieneAnalisis ? 'Falta agregar el análisis (manual o con Sofía IA)' : 'El PDF incluirá todos los datos, escenarios y el análisis generado'}
+                    </p>
+                  </div>
+                  <button onClick={exportarPDF} disabled={!listo}
+                    style={{ padding: '12px 24px', background: listo ? '#1B3A6B' : '#D1D5DB', color: 'white', border: 'none', fontSize: '13px', fontWeight: '700' as const, cursor: listo ? 'pointer' : 'not-allowed', fontFamily: 'inherit', whiteSpace: 'nowrap' as const, flexShrink: 0 }}>
+                    📄 Exportar PDF
+                  </button>
                 </div>
-                <button onClick={exportarPDF} disabled={analisis.length === 0 || !diagGuardadoId}
-                  style={{ padding: '12px 24px', background: analisis.length > 0 && diagGuardadoId ? '#1B3A6B' : '#D1D5DB', color: 'white', border: 'none', fontSize: '13px', fontWeight: '700' as const, cursor: analisis.length > 0 && diagGuardadoId ? 'pointer' : 'not-allowed', fontFamily: 'inherit', whiteSpace: 'nowrap' as const, flexShrink: 0 }}>
-                  📄 Exportar PDF
-                </button>
-              </div>
+                )
+              })()}
 
               {/* ══ SEMÁFORO DE ELEGIBILIDAD FINANCIERA ══ */}
               {diagGuardadoId && clienteId && (
