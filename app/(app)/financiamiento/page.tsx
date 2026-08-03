@@ -198,7 +198,7 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
       {/* Modal envío por email */}
       {showEnvio && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', width: '100%', maxWidth: '480px', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: '480px', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', borderRadius: '12px', overflow: 'hidden' }}>
             <div style={{ background: AZUL, padding: '14px 20px', display: 'flex', justifyContent: 'space-between' }}>
               <p style={{ fontSize: '14px', fontWeight: '700', color: 'white', margin: 0 }}>📧 Enviar expediente a financiera</p>
               <button onClick={() => setShowEnvio(false)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '18px' }}>×</button>
@@ -519,7 +519,7 @@ function FinanciamientoPage() {
             )}
             {showNuevaInst && (
               <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-                <div style={{ background: 'white', width: '100%', maxWidth: '420px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+                <div style={{ background: 'white', width: '100%', maxWidth: '420px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', borderRadius: '12px', overflow: 'hidden' }}>
                   <div style={{ background: AZUL, padding: '14px 20px' }}><p style={{ fontSize: '14px', fontWeight: '700', color: 'white', margin: 0 }}>+ Nueva institución</p></div>
                   <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {[{ label: 'Nombre', key: 'nombre', type: 'text', placeholder: 'Ej. HSBC, Caja Popular...' }, { label: 'Tasa anual (%)', key: 'tasa_anual', type: 'number', placeholder: '32.2' }, { label: 'Plazo máximo (meses)', key: 'plazo_max_meses', type: 'number', placeholder: '60' }].map(f => (

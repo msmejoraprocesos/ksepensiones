@@ -2225,7 +2225,7 @@ function ClientesInner() {
       {/* ══ MODAL CANALIZACIÓN ══ */}
       {showCanalizarModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.5)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', width: '100%', maxWidth: '440px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: '440px', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', borderRadius: '12px', overflow: 'hidden' }}>
             <div style={{ background: AZUL, padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <p style={{ fontSize: '14px', fontWeight: '700', color: 'white', margin: 0 }}>🔄 Solicitar canalización</p>
