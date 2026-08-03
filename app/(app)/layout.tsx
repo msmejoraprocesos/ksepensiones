@@ -296,7 +296,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         )}
 
         {/* Campanita notificaciones */}
-        <div style={{ position: 'relative' as const, marginRight: '4px' }}>
+        <div style={{ position: 'relative' as const, marginRight: '4px', marginLeft: 'auto' }}>
           <button onClick={() => setShowNotif(p => !p)}
             style={{ position: 'relative' as const, padding: '6px 8px', background: 'none', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
             <span style={{ fontSize: '16px' }}>🔔</span>
