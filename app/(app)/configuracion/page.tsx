@@ -556,6 +556,7 @@ export default function ConfiguracionPage() {
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [editing, setEditing] = useState(false)
   const [perfilOriginal, setPerfilOriginal] = useState<Perfil>(DEFAULTS)
+  const [tabActiva, setTabActiva] = useState<'perfil' | 'sistema' | 'financieras' | 'catalogos'>('perfil')
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -822,10 +823,25 @@ export default function ConfiguracionPage() {
             <h1 style={{ fontSize: '22px', fontWeight: '800', color: AZUL, margin: 0 }}>Configuración</h1>
             <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0' }}>Perfil del asesor · Variables del sistema</p>
           </div>
-
         </div>
 
-        {/* ── SECCIÓN 1: Identidad ── */}
+        {/* ── TABS de navegación ── */}
+        <div style={{ display: 'flex', gap: '4px', background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', padding: '4px' }}>
+          {([
+            { id: 'perfil', label: '👤 Perfil', desc: 'Identidad y PDF' },
+            { id: 'sistema', label: '⚙️ Sistema', desc: 'Variables y fórmulas' },
+            { id: 'financieras', label: '💳 Financieras', desc: 'Elegibilidad y docs' },
+            { id: 'catalogos', label: '📋 Catálogos', desc: 'Tipos de actividad' },
+          ] as const).map(t => (
+            <button key={t.id} onClick={() => setTabActiva(t.id)}
+              style={{ flex: 1, padding: '10px 8px', background: tabActiva === t.id ? AZUL : 'transparent', color: tabActiva === t.id ? 'white' : '#6B7280', border: 'none', borderRadius: '8px', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center' as const }}>
+              <div style={{ fontSize: '13px', fontWeight: '700' }}>{t.label}</div>
+              <div style={{ fontSize: '10px', opacity: 0.8, marginTop: '2px' }}>{t.desc}</div>
+            </button>
+          ))}
+        </div>
+        {/* ── TAB: PERFIL ── */}
+        {tabActiva === 'perfil' && (
         <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
           {sectionTitle('👤', 'Identidad del asesor', 'Esta información aparece en el encabezado de tus propuestas PDF')}
 
@@ -912,7 +928,11 @@ export default function ConfiguracionPage() {
             </div>
           </div>
         </div>
+        )} {/* fin tab perfil */}
 
+        {/* ── TAB: SISTEMA ── */}
+        {tabActiva === 'sistema' && (
+        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
           {sectionTitle('📊', 'Variables del sistema 2026', 'Valores oficiales que usa la calculadora para todos los diagnósticos')}
 
           {/* Alertas de vigencia - se ocultan si la variable fue actualizada recientemente */}
@@ -1064,6 +1084,12 @@ export default function ConfiguracionPage() {
             </div>
           </div>
         </div>
+
+        )} {/* fin tab perfil */}
+
+        {/* ── TAB: SISTEMA ── */}
+        {tabActiva === 'sistema' && (
+        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '20px' }}>
 
         {/* ── SECCIÓN 3: Preview PDF ── */}
         <div id="encabezado" style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
@@ -1421,13 +1447,25 @@ export default function ConfiguracionPage() {
             )}
           </div>
 
-          {/* ══ SECCIÓN: FINANCIERAS Y ELEGIBILIDAD ══ */}
+          {/* ══ FINANCIERAS Y CATÁLOGOS — en sus propios tabs ══ */}
+        </div>
+        )} {/* fin tab sistema */}
+
+        {/* ── TAB: FINANCIERAS ── */}
+        {tabActiva === 'financieras' && (
+        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
           {sectionTitle('💳', 'Financieras y elegibilidad', 'Configura las instituciones con las que trabajas y sus criterios de elegibilidad')}
           <FinancierasElegibilidad userId={userId} supabase={supabase} />
+        </div>
+        )}
 
-          {/* ══ SECCIÓN: CATÁLOGOS DE ACTIVIDAD ══ */}
+        {/* ── TAB: CATÁLOGOS ── */}
+        {tabActiva === 'catalogos' && (
+        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
           {sectionTitle('📋', 'Catálogos de actividad', 'Personaliza las opciones que aparecen al registrar una actividad con un cliente')}
           <CatalogosActividad userId={userId} supabase={supabase} />
+        </div>
+        )}
 
       </div>
     </div>
