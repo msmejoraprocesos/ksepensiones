@@ -842,11 +842,13 @@ export default function ConfiguracionPage() {
                   </button>
                 ) : (
                   <>
-                    <button onClick={cancelarEdicion}
+                    <button onClick={async () => {
+                      setPerfil(perfilOriginal); setEditing(false); setErrors({}); setSaveError(null)
+                    }}
                       style={{ padding: '8px 14px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
                       ✕ Cancelar
                     </button>
-                    <button onClick={guardarCambios} disabled={saving}
+                    <button onClick={guardar} disabled={saving}
                       style={{ padding: '8px 18px', background: saving ? '#94a3b8' : VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
                       {saving ? 'Guardando...' : '💾 Guardar'}
                     </button>
