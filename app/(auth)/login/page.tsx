@@ -38,7 +38,7 @@ export default function LoginPage() {
       setError('Correo o contraseña incorrectos')
       setLoading(false)
     } else {
-      router.push('/dashboard')
+      window.location.href = '/dashboard'
     }
   }
 
