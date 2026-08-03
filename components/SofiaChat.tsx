@@ -49,7 +49,7 @@ export function SofiaChat({ contextoCliente }: SofiaChatProps) {
   useEffect(() => {
     if (abierto && mensajes.length === 0) {
       const bienvenida = contextoCliente?.nombre
-        ? `¡Hola! Soy Sofía 👋 Veo que estás trabajando con **${contextoCliente.nombre}**. ¿En qué te puedo ayudar?`
+        ? `¡Hola! Veo que estás trabajando con **${contextoCliente.nombre}**. ¿En qué te puedo ayudar?`
         : '¡Hola! Soy Sofía, tu asistente pensional 👋 ¿En qué te puedo ayudar hoy?'
       setMensajes([{ role: 'assistant', content: bienvenida }])
     }
@@ -69,7 +69,7 @@ export function SofiaChat({ contextoCliente }: SofiaChatProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: nuevosMensajes.filter(m => m.role !== 'assistant' || nuevosMensajes.indexOf(m) > 0),
+          messages: nuevosMensajes,
           asesor_id: userId,
           contexto_cliente: contextoCliente ?? null,
         }),
@@ -91,11 +91,9 @@ export function SofiaChat({ contextoCliente }: SofiaChatProps) {
     setMensajes([])
     setError('')
     setTimeout(() => {
-      if (contextoCliente?.nombre) {
-        setMensajes([{ role: 'assistant', content: `¡Hola de nuevo! ¿Tienes otra pregunta sobre ${contextoCliente.nombre}?` }])
-      } else {
-        setMensajes([{ role: 'assistant', content: '¡Hola! ¿En qué te puedo ayudar?' }])
-      }
+      setMensajes([{ role: 'assistant', content: contextoCliente?.nombre
+        ? `¡Lista para seguir! ¿Qué necesitas sobre ${contextoCliente.nombre}?`
+        : '¡Nueva conversación! ¿En qué te puedo ayudar?' }])
     }, 100)
   }
 
@@ -108,47 +106,65 @@ export function SofiaChat({ contextoCliente }: SofiaChatProps) {
 
   return (
     <>
-      {/* Botón flotante */}
-      <button
-        onClick={() => setAbierto(p => !p)}
+      {/* Botón flotante con avatar */}
+      <button onClick={() => setAbierto(p => !p)}
         style={{
           position: 'fixed' as const, bottom: '20px', right: '20px', zIndex: 1000,
-          width: '52px', height: '52px', borderRadius: '50%',
+          width: '60px', height: '60px', borderRadius: '50%',
           background: abierto ? '#374151' : AZUL,
-          border: 'none', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
+          border: `3px solid ${abierto ? '#6B7280' : '#F05B21'}`,
+          cursor: 'pointer', boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '22px', transition: 'all 0.2s',
+          padding: 0, overflow: 'hidden', transition: 'all 0.2s',
         }}>
-        {abierto ? '✕' : '✨'}
+        {abierto
+          ? <span style={{ color: 'white', fontSize: '20px', fontWeight: '700' }}>✕</span>
+          : <img src="/sofia-avatar.svg" alt="Sofía" style={{ width: '52px', height: '52px', objectFit: 'contain' }} />
+        }
       </button>
+
+      {/* Badge de mensajes disponibles */}
+      {!abierto && llamadas > 0 && (
+        <div style={{
+          position: 'fixed' as const, bottom: '72px', right: '16px', zIndex: 1001,
+          background: NARANJA, color: 'white', fontSize: '10px', fontWeight: '700',
+          padding: '2px 6px', borderRadius: '10px',
+        }}>
+          {50 - llamadas}/50
+        </div>
+      )}
 
       {/* Panel de chat */}
       {abierto && (
         <div style={{
-          position: 'fixed' as const, bottom: '84px', right: '20px', zIndex: 999,
-          width: '360px', height: '500px',
-          background: 'white', borderRadius: '16px',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+          position: 'fixed' as const, bottom: '92px', right: '20px', zIndex: 999,
+          width: '370px', height: '520px',
+          background: 'white', borderRadius: '20px',
+          boxShadow: '0 12px 40px rgba(0,0,0,0.2)',
           display: 'flex', flexDirection: 'column' as const,
-          overflow: 'hidden',
-          animation: 'slideUp 0.2s ease',
+          overflow: 'hidden', animation: 'sofiaSlideUp 0.25s ease',
         }}>
 
-          {/* Header */}
-          <div style={{ background: AZUL, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>
-              ✨
+          {/* Header con avatar */}
+          <div style={{ background: AZUL, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+            <div style={{ width: '46px', height: '46px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)', border: '2px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+              <img src="/sofia-avatar.svg" alt="Sofía" style={{ width: '42px', height: '42px', objectFit: 'contain' }} />
             </div>
             <div style={{ flex: 1 }}>
-              <p style={{ fontSize: '14px', fontWeight: '700', color: 'white', margin: 0 }}>Sofía IA</p>
-              <p style={{ fontSize: '10px', color: 'rgba(255,255,255,0.7)', margin: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <p style={{ fontSize: '15px', fontWeight: '700', color: 'white', margin: 0 }}>Sofía IA</p>
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22C55E', animation: 'sofiaOnline 1.5s ease-in-out infinite' }} />
+              </div>
+              <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)', margin: 0 }}>
                 {contextoCliente?.nombre ? `Contexto: ${contextoCliente.nombre}` : 'Asistente pensional KSE'}
               </p>
             </div>
-            <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-              <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)' }}>{llamadas}/50</span>
-              <button onClick={limpiar} title="Nueva conversación"
-                style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', padding: '4px 8px', borderRadius: '6px', fontSize: '11px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'flex-end', gap: '4px' }}>
+              <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '8px' }}>
+                {llamadas}/50 hoy
+              </span>
+              <button onClick={limpiar}
+                style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', padding: '3px 8px', borderRadius: '6px', fontSize: '10px', fontFamily: 'inherit' }}>
                 Nueva
               </button>
             </div>
@@ -156,37 +172,52 @@ export function SofiaChat({ contextoCliente }: SofiaChatProps) {
 
           {/* Contexto del cliente */}
           {contextoCliente?.nombre && (
-            <div style={{ padding: '8px 14px', background: '#EEF2F8', borderBottom: '1px solid #E5E7EB', fontSize: '11px', color: AZUL }}>
-              <strong>{contextoCliente.nombre}</strong>
-              {contextoCliente.semanas && ` · ${contextoCliente.semanas} semanas`}
-              {contextoCliente.edad && ` · ${contextoCliente.edad} años`}
-              {contextoCliente.pension_con && ` · Pensión est. $${Math.round(contextoCliente.pension_con).toLocaleString('es-MX')}/mes`}
+            <div style={{ padding: '8px 16px', background: '#EEF2F8', borderBottom: '1px solid #E5E7EB', fontSize: '11px', color: AZUL, display: 'flex', gap: '8px', flexWrap: 'wrap' as const, flexShrink: 0 }}>
+              <span>👤 <strong>{contextoCliente.nombre}</strong></span>
+              {contextoCliente.semanas && <span>· {contextoCliente.semanas} sem.</span>}
+              {contextoCliente.edad && <span>· {contextoCliente.edad} años</span>}
+              {contextoCliente.pension_con && <span>· Est. ${Math.round(contextoCliente.pension_con).toLocaleString('es-MX')}/mes</span>}
             </div>
           )}
 
           {/* Mensajes */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '14px', display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
+          <div style={{ flex: 1, overflowY: 'auto', padding: '16px 14px', display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
             {mensajes.map((m, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start' }}>
+              <div key={i} style={{ display: 'flex', justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start', gap: '8px', alignItems: 'flex-end' }}>
+                {m.role === 'assistant' && (
+                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: AZUL, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                    <img src="/sofia-avatar.svg" alt="" style={{ width: '26px', height: '26px' }} />
+                  </div>
+                )}
                 <div style={{
-                  maxWidth: '85%', padding: '8px 12px', borderRadius: m.role === 'user' ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
+                  maxWidth: '82%', padding: '9px 13px',
+                  borderRadius: m.role === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
                   background: m.role === 'user' ? AZUL : '#F4F6FB',
                   color: m.role === 'user' ? 'white' : '#374151',
-                  fontSize: '13px', lineHeight: 1.5,
+                  fontSize: '13px', lineHeight: 1.55,
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
                 }}>
                   {renderTexto(m.content)}
                 </div>
               </div>
             ))}
+
+            {/* Indicador de escritura */}
             {enviando && (
-              <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                <div style={{ padding: '10px 14px', background: '#F4F6FB', borderRadius: '12px 12px 12px 2px', fontSize: '18px' }}>
-                  <span style={{ animation: 'pulse 1s infinite' }}>•••</span>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: AZUL, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                  <img src="/sofia-avatar.svg" alt="" style={{ width: '26px', height: '26px' }} />
+                </div>
+                <div style={{ padding: '10px 14px', background: '#F4F6FB', borderRadius: '16px 16px 16px 4px', display: 'flex', gap: '4px', alignItems: 'center' }}>
+                  {[0, 1, 2].map(i => (
+                    <div key={i} style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#9CA3AF', animation: `sofiaTyping 1.2s ease-in-out ${i * 0.2}s infinite` }} />
+                  ))}
                 </div>
               </div>
             )}
+
             {error && (
-              <div style={{ padding: '8px 12px', background: '#FEF2F2', borderRadius: '8px', fontSize: '12px', color: '#DC2626' }}>
+              <div style={{ padding: '8px 12px', background: '#FEF2F2', borderRadius: '10px', fontSize: '12px', color: '#DC2626', border: '1px solid #FECACA' }}>
                 {error}
               </div>
             )}
@@ -194,7 +225,7 @@ export function SofiaChat({ contextoCliente }: SofiaChatProps) {
           </div>
 
           {/* Input */}
-          <div style={{ padding: '10px 12px', borderTop: '1px solid #E5E7EB', display: 'flex', gap: '8px' }}>
+          <div style={{ padding: '10px 12px', borderTop: '1px solid #F3F4F6', display: 'flex', gap: '8px', alignItems: 'center', background: 'white', flexShrink: 0 }}>
             <input
               ref={inputRef}
               type="text"
@@ -204,32 +235,38 @@ export function SofiaChat({ contextoCliente }: SofiaChatProps) {
               placeholder="Pregúntale a Sofía..."
               disabled={enviando}
               style={{
-                flex: 1, padding: '8px 12px', border: '1px solid #E5E7EB', borderRadius: '20px',
-                fontSize: '13px', fontFamily: 'inherit', outline: 'none',
-                background: enviando ? '#F8FAFC' : 'white',
+                flex: 1, padding: '9px 14px', border: '1.5px solid #E5E7EB',
+                borderRadius: '22px', fontSize: '13px', fontFamily: 'inherit',
+                outline: 'none', background: '#F8FAFC', transition: 'border 0.2s',
               }}
+              onFocus={e => e.target.style.borderColor = AZUL}
+              onBlur={e => e.target.style.borderColor = '#E5E7EB'}
             />
             <button onClick={enviar} disabled={enviando || !input.trim()}
               style={{
-                width: '36px', height: '36px', borderRadius: '50%',
+                width: '38px', height: '38px', borderRadius: '50%', flexShrink: 0,
                 background: enviando || !input.trim() ? '#E5E7EB' : NARANJA,
                 border: 'none', cursor: enviando || !input.trim() ? 'default' : 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px',
-                flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '16px', transition: 'background 0.2s',
               }}>
-              ➤
+              <span style={{ color: enviando || !input.trim() ? '#9CA3AF' : 'white', fontSize: '14px', marginLeft: '2px' }}>➤</span>
             </button>
           </div>
         </div>
       )}
 
       <style>{`
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
+        @keyframes sofiaSlideUp {
+          from { opacity: 0; transform: translateY(16px) scale(0.97); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        @keyframes pulse {
-          0%, 100% { opacity: 0.3; } 50% { opacity: 1; }
+        @keyframes sofiaOnline {
+          0%,100% { opacity: 1; } 50% { opacity: 0.3; }
+        }
+        @keyframes sofiaTyping {
+          0%,100% { transform: translateY(0); opacity: 0.4; }
+          50% { transform: translateY(-4px); opacity: 1; }
         }
       `}</style>
     </>
