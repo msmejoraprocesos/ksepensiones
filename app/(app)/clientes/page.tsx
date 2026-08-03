@@ -2753,7 +2753,7 @@ function ClientesInner() {
                 <input value={form.nss} onChange={e => { setForm(p => ({ ...p, nss: e.target.value })); buscarPorNSS(e.target.value) }} placeholder="Ej. 12345678901" maxLength={11} style={inputSt} />
                 {nssAlerta && (
                   <div style={{ marginTop: '6px', padding: '10px 12px', background: nssAlerta.tipo === 'activo' ? '#FEF2F2' : '#EFF6FF', border: `1px solid ${nssAlerta.tipo === 'activo' ? '#FCA5A5' : '#93C5FD'}`, borderRadius: '6px' }}>
-                    <p style={{ fontSize: '11.5px', color: nssAlerta.tipo === 'activo' ? '#991B1B' : '#1D4ED8', fontWeight: '600', margin: '0 0 6px' }}>{nssAlerta.mensaje}</p>
+                    <p style={{ fontSize: '13px', color: nssAlerta.tipo === 'activo' ? '#991B1B' : '#1D4ED8', fontWeight: '600', margin: '0 0 6px' }}>{nssAlerta.mensaje}</p>
                     {nssAlerta.clienteId && nssAlerta.textoAccion && (
                       <button onClick={() => {
                         if (nssAlerta.accion === 'ver') {

@@ -370,7 +370,7 @@ function AdminFormulasInner() {
                         ? `Temporada de actualización oficial ${anio} — valores ya revisados`
                         : 'Calendario de publicaciones oficiales'}
                   </p>
-                  <p style={{ fontSize: '11.5px', color: '#374151', margin: 0, lineHeight: 1.6 }}>
+                  <p style={{ fontSize: '13px', color: '#374151', margin: 0, lineHeight: 1.6 }}>
                     Cada año el <strong>Salario Mínimo</strong> se publica a fines de diciembre (vigente desde el 1° de enero) y la <strong>UMA, PMG y tasas IMSS</strong> se publican entre enero y principios de febrero (vigentes desde el 1° de febrero).
                     {fechaUlt && <> Última actualización registrada: <strong>{fechaUlt.toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}</strong>.</>}
                     {!fechaUlt && ' Aún no se ha registrado ninguna actualización en este sistema.'}
@@ -576,7 +576,7 @@ function AdminFormulasInner() {
                   <tbody>
                     {TABLA_CUANTIA_UMA.map((fila, i) => (
                       <tr key={i}>
-                        <td style={{ fontFamily: 'monospace', fontSize: '11.5px' }}>
+                        <td style={{ fontFamily: 'monospace', fontSize: '13px' }}>
                           {fila.min === 0 ? '0.00' : fila.min.toFixed(2)} – {fila.max === Infinity ? '∞' : fila.max.toFixed(2)}
                         </td>
                         <td className="r" style={{ fontWeight: '700', color: AZUL }}>{(fila.basica * 100).toFixed(2)}%</td>

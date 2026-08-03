@@ -582,7 +582,7 @@ function FinanciamientoPage() {
                 <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: 0 }}>Tabla de amortización — {corrPlazo} pagos</p>
               </div>
               <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11.5px' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                   <thead><tr style={{ background: '#1B3A6B' }}>{['#', 'Cuota', 'Interés', 'Capital', 'Saldo'].map((h, i) => <th key={i} style={{ padding: '8px 12px', color: 'white', fontWeight: '700', textAlign: (i === 0 ? 'left' : 'right') }}>{h}</th>)}</tr></thead>
                   <tbody>
                     {tablaCorr.map((r, i) => (

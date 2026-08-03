@@ -945,38 +945,38 @@ function MiDiaInner() {
       {/* ── Onboarding — primeros pasos ── */}
       {showOnboarding && (
         <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', width: '100%', maxWidth: '440px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: '460px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', borderRadius: '14px', overflow: 'hidden' }}>
             <div style={{ background: AZUL, padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <p style={{ fontSize: '17px', fontWeight: '800' as const, color: 'white', margin: '0 0 4px' }}>👋 ¡Bienvenido a KSE Pensiones!</p>
-                <p style={{ fontSize: '12px', color: '#93C5FD', margin: 0 }}>Estos son tus primeros pasos para empezar a trabajar</p>
+                <p style={{ fontSize: '18px', fontWeight: '800' as const, color: 'white', margin: '0 0 6px' }}>👋 ¡Bienvenido a KSE Pensiones!</p>
+                <p style={{ fontSize: '13px', color: '#93C5FD', margin: 0, lineHeight: 1.4 }}>Estos son tus primeros pasos para empezar a trabajar</p>
               </div>
               <button onClick={() => setShowOnboarding(false)}
-                style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '20px', lineHeight: 1, padding: '0 2px', flexShrink: 0 }}>✕</button>
+                style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', fontSize: '16px', lineHeight: 1, padding: '6px 8px', borderRadius: '6px', flexShrink: 0 }}>✕</button>
             </div>
-            <div style={{ padding: '20px 24px' }}>
+            <div style={{ padding: '22px 24px' }}>
               {[
                 { n: 1, icon: '👤', title: 'Registra tu primer cliente', desc: 'Ve a Clientes → + Nuevo cliente. Solo necesitas nombre y teléfono para empezar.' },
                 { n: 2, icon: '🧮', title: 'Corre tu primer diagnóstico', desc: 'Desde la tarjeta del cliente, abre la Calculadora y carga su constancia IMSS de semanas cotizadas.' },
                 { n: 3, icon: '📄', title: 'Genera el PDF y autorízalo', desc: 'Cuando el diagnóstico esté listo, autorízalo para generar el PDF oficial que entregarás al cliente.' },
                 { n: 4, icon: '📊', title: 'Da seguimiento desde Mi Día', desc: 'Aquí verás tus pendientes, alertas de pago y el progreso de todo tu pipeline cada día.' },
               ].map(s => (
-                <div key={s.n} style={{ display: 'flex', gap: '12px', marginBottom: '14px' }}>
-                  <div style={{ width: '32px', height: '32px', background: '#EEF2F8', border: `2px solid ${AZUL}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '14px', fontWeight: '800' as const, color: AZUL }}>{s.n}</div>
-                  <div>
-                    <p style={{ fontSize: '13px', fontWeight: '700' as const, color: '#111827', margin: '0 0 2px' }}>{s.icon} {s.title}</p>
-                    <p style={{ fontSize: '11.5px', color: '#6B7280', margin: 0, lineHeight: 1.5 }}>{s.desc}</p>
+                <div key={s.n} style={{ display: 'flex', gap: '14px', marginBottom: '16px', alignItems: 'flex-start' }}>
+                  <div style={{ width: '34px', height: '34px', background: '#EEF2F8', border: `2px solid ${AZUL}`, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '15px', fontWeight: '800' as const, color: AZUL }}>{s.n}</div>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontSize: '14px', fontWeight: '700' as const, color: '#111827', margin: '0 0 3px' }}>{s.icon} {s.title}</p>
+                    <p style={{ fontSize: '13px', color: '#4B5563', margin: 0, lineHeight: 1.5 }}>{s.desc}</p>
                   </div>
                 </div>
               ))}
 
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11.5px', color: '#6B7280', cursor: 'pointer', marginBottom: '12px', marginTop: '4px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12.5px', color: '#4B5563', cursor: 'pointer', marginBottom: '14px', marginTop: '6px' }}>
                 <input type="checkbox" checked={noVolverAMostrar} onChange={e => setNoVolverAMostrar(e.target.checked)} />
                 No volver a mostrar este mensaje al iniciar sesión
               </label>
 
               <button onClick={() => { if (noVolverAMostrar) localStorage.setItem('kse_onboarding_oculto', '1'); setShowOnboarding(false) }}
-                style={{ width: '100%', padding: '12px', background: NARANJA, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ width: '100%', padding: '13px', background: NARANJA, color: 'white', border: 'none', fontSize: '14px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
                 Entendido, ¡empecemos! →
               </button>
             </div>
