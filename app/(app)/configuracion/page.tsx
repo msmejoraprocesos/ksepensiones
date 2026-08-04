@@ -534,6 +534,7 @@ export default function ConfiguracionPage() {
   const router = useRouter()
   const [perfil, setPerfil] = useState<Perfil>(DEFAULTS)
   const [userId, setUserId] = useState('')
+  const [cargando, setCargando] = useState(true)
   const [saving, setSaving] = useState(false)
   const [showCambiarPassword, setShowCambiarPassword] = useState(false)
   const [nuevaPassword, setNuevaPassword] = useState('')
@@ -571,6 +572,7 @@ export default function ConfiguracionPage() {
           } else {
             setIsFirstTime(true)
           }
+          setCargando(false)
         })
     })
   }, [])
@@ -795,6 +797,13 @@ export default function ConfiguracionPage() {
   return (
     <div style={{ height: 'calc(100vh - 48px)', overflow: 'auto', background: '#FAFAFA', padding: '0' }}>
       <div style={{ maxWidth: '1600px', margin: '0 auto', padding: 'clamp(12px, 3vw, 32px)', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+        {cargando ? (
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
+            <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #E5E7EB', padding: '16px 20px', height: '76px', opacity: 0.5 }} />
+            <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E5E7EB', padding: '24px', height: '300px', opacity: 0.3 }} />
+          </div>
+        ) : (<>
 
         {/* Banner primera vez */}
         {isFirstTime && (
@@ -1410,6 +1419,8 @@ export default function ConfiguracionPage() {
           <CatalogosActividad userId={userId} supabase={supabase} />
         </div>
         )}
+
+        </>)}
 
       </div>
     </div>
