@@ -648,6 +648,8 @@ export default function ConfiguracionPage() {
   }
 
   async function guardar() {
+    // No guardar si el nombre está vacío (usuario en proceso de llenar por primera vez)
+    if (!perfil.nombre.trim()) return
     if (!validate()) return
 
     // Validar materiales pendientes antes de continuar
@@ -745,7 +747,7 @@ export default function ConfiguracionPage() {
     setUserId(uid)
     setSaved(true)
     setLastSaved(new Date())
-    setIsFirstTime(false)
+    if (perfil.nombre.trim()) setIsFirstTime(false)
     const saved_perfil = { ...perfil, logo_url: perfil.logo_url?.startsWith('blob:') ? null : perfil.logo_url }
     setPerfilOriginal(saved_perfil)
     setTimeout(() => setSaved(false), 3000)
