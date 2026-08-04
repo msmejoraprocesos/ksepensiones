@@ -579,9 +579,7 @@ export default function ConfiguracionPage() {
 
   function validate(): boolean {
     const newErrors: Partial<Record<keyof Perfil, string>> = {}
-    // Solo nombre es obligatorio
     if (!perfil.nombre.trim()) newErrors.nombre = 'El nombre es requerido'
-    // Solo validar RFC/tel/email si tienen valor (no son obligatorios)
     if (perfil.rfc) {
       const rfcErr = validarRFC(perfil.rfc)
       if (rfcErr) newErrors.rfc = rfcErr
@@ -677,10 +675,13 @@ export default function ConfiguracionPage() {
       const { data: existing } = await supabase.from('perfiles_usuario').select('logo_url').eq('id', uid).single()
       logoUrl = existing?.logo_url ?? null
     }
+    // Si razón social está vacía, usar el nombre del asesor
+    const razonSocialFinal = perfil.razon_social.trim() || perfil.nombre.trim()
+
     // Solo guardar campos que pertenecen a perfiles_usuario (no variables del sistema)
     const camposPerfil = {
       nombre: perfil.nombre,
-      razon_social: perfil.razon_social,
+      razon_social: razonSocialFinal,
       rfc: perfil.rfc,
       telefono: perfil.telefono,
       email_contacto: perfil.email_contacto,
@@ -946,7 +947,7 @@ export default function ConfiguracionPage() {
               {errorMsg('nombre')}
             </div>
             <div>
-              <label style={labelSt}>Razón social / Empresa {tooltip('Nombre de tu empresa o despacho. Opcional si trabajas de forma independiente')}</label>
+              <label style={labelSt}>Razón social / Empresa {tooltip('Nombre de tu empresa o despacho. Si lo dejas vacío se usará tu nombre personal')}</label>
               <input value={perfil.razon_social} onBlur={guardar} onChange={e => set('razon_social', e.target.value)} placeholder="Ej. Asesoría Pensional López S.C." style={inputSt()} />
               {(perfil as any).org_nombre && (
                 <div style={{ marginTop: '8px', padding: '6px 10px', background: '#EEF2F8', border: '1px solid #BFDBFE', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -962,13 +963,13 @@ export default function ConfiguracionPage() {
               {!errors.rfc && (perfil.rfc.length === 12 || perfil.rfc.length === 13) && !validarRFC(perfil.rfc) && <p style={{ fontSize: '10px', color: VERDE, margin: '3px 0 0' }}>✓ RFC válido ({perfil.rfc.length === 12 ? 'persona moral' : 'persona física'})</p>}
             </div>
             <div>
-              <label style={labelSt}>Teléfono de contacto {tooltip('10 dígitos sin espacios ni guiones. Ej: 4421234567')}</label>
+              <label style={labelSt}>Teléfono de contacto <span style={{ fontSize: '10px', color: '#0891B2', background: '#ECFEFF', padding: '1px 6px', borderRadius: '4px', fontWeight: '600' }}>Recomendado</span> {tooltip('10 dígitos sin espacios ni guiones. Ej: 4421234567')}</label>
               <input value={perfil.telefono} onChange={e => { const f = formatTelefono(e.target.value); set('telefono', f) }} placeholder="44 2123 4567" maxLength={12} style={inputSt(!!errors.telefono)} />
               {errorMsg('telefono')}
               {!errors.telefono && perfil.telefono.replace(/\D/g,'').length === 10 && <p style={{ fontSize: '10px', color: VERDE, margin: '3px 0 0' }}>✓ Teléfono válido</p>}
             </div>
             <div>
-              <label style={labelSt}>Email de contacto {tooltip('Aparece en el pie de página del PDF para que el cliente pueda contactarte directamente')}</label>
+              <label style={labelSt}>Email de contacto <span style={{ fontSize: '10px', color: '#0891B2', background: '#ECFEFF', padding: '1px 6px', borderRadius: '4px', fontWeight: '600' }}>Recomendado</span> {tooltip('Aparece en el pie de página del PDF para que el cliente pueda contactarte directamente')}</label>
               <input type="email" value={perfil.email_contacto} onChange={e => set('email_contacto', e.target.value)} onBlur={e => { const err = validarEmail(e.target.value); if (err) setErrors(p => ({ ...p, email_contacto: err })); else guardar() }} placeholder="contacto@tuempresa.com" style={inputSt(!!errors.email_contacto)} />
               {errorMsg('email_contacto')}
               {!errors.email_contacto && perfil.email_contacto && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(perfil.email_contacto) && <p style={{ fontSize: '10px', color: VERDE, margin: '3px 0 0' }}>✓ Email válido</p>}
