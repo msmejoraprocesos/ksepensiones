@@ -1228,10 +1228,10 @@ export default function ConfiguracionPage() {
                 <p style={{ fontSize: '14px', fontWeight: '700', color: '#1e293b', margin: '0 0 2px' }}>📚 Catálogo de materiales de apoyo</p>
                 <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>Documentos y links que puedes enviar por WhatsApp al dar de alta un cliente</p>
               </div>
-                              <button onClick={agregarFilaMaterial}
-                  style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
-                  + Agregar material
-                </button>
+              <button onClick={agregarFilaMaterial}
+                style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', flexShrink: 0 }}>
+                + Agregar material
+              </button>
             </div>
 
             {materialError && (
@@ -1241,7 +1241,7 @@ export default function ConfiguracionPage() {
             )}
             {materialesNuevos.length > 0 && (
               <div style={{ padding: '8px 12px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px', fontSize: '12px', color: '#92400e', marginBottom: '12px' }}>
-                📌 Tienes {materialesNuevos.length} material{materialesNuevos.length > 1 ? 'es' : ''} sin guardar. Completa los campos requeridos (*) y presiona <strong>Guardar cambios</strong> para confirmarlos.
+                📌 Tienes {materialesNuevos.length} material{materialesNuevos.length > 1 ? 'es' : ''} pendiente{materialesNuevos.length > 1 ? 's' : ''}. Completa los campos requeridos y sal del campo para guardar automáticamente.
               </div>
             )}
             {materiales.length === 0 && materialesNuevos.length === 0 ? (
