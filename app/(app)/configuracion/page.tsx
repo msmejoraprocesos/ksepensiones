@@ -1232,7 +1232,6 @@ export default function ConfiguracionPage() {
                   style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
                   + Agregar material
                 </button>
-              )}
             </div>
 
             {materialError && (
@@ -1384,7 +1383,6 @@ export default function ConfiguracionPage() {
                                 🗑️
                               </button>
                             </div>
-                          )}
                         </td>
                       </tr>
                     ))}
