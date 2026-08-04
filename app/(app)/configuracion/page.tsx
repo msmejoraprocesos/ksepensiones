@@ -675,11 +675,43 @@ export default function ConfiguracionPage() {
       const { data: existing } = await supabase.from('perfiles_usuario').select('logo_url').eq('id', uid).single()
       logoUrl = existing?.logo_url ?? null
     }
-    const perfilToSave = { ...perfil, logo_url: logoUrl }
+    // Solo guardar campos que pertenecen a perfiles_usuario (no variables del sistema)
+    const camposPerfil = {
+      nombre: perfil.nombre,
+      razon_social: perfil.razon_social,
+      rfc: perfil.rfc,
+      telefono: perfil.telefono,
+      email_contacto: perfil.email_contacto,
+      direccion: perfil.direccion,
+      logo_url: logoUrl,
+      banner_url: perfil.banner_url,
+      vigencia_propuesta: perfil.vigencia_propuesta,
+      encabezado_color: perfil.encabezado_color,
+      encabezado_titulo: perfil.encabezado_titulo,
+      encabezado_logo_size: perfil.encabezado_logo_size,
+      encabezado_font_size: perfil.encabezado_font_size,
+      // Variables del sistema (sí están en perfiles_usuario)
+      uma_diaria: perfil.uma_diaria,
+      salario_minimo: perfil.salario_minimo,
+      pmg_mensual: perfil.pmg_mensual,
+      pmg_l97: perfil.pmg_l97,
+      rendimiento_afore_default: perfil.rendimiento_afore_default,
+      inflacion_uma: perfil.inflacion_uma,
+      pct_afore_mod40: perfil.pct_afore_mod40,
+      tasa_m10: perfil.tasa_m10,
+      mod40_2026: perfil.mod40_2026,
+      mod40_2027: perfil.mod40_2027,
+      mod40_2028: perfil.mod40_2028,
+      mod40_2029: perfil.mod40_2029,
+      mod40_2030: perfil.mod40_2030,
+      uma_actualizada_en: perfil.uma_actualizada_en,
+      sm_actualizado_en: perfil.sm_actualizado_en,
+      pmg_actualizado_en: perfil.pmg_actualizado_en,
+    }
 
     const { error } = await supabase
       .from('perfiles_usuario')
-      .upsert({ id: uid, ...perfilToSave }, { onConflict: 'id' })
+      .upsert({ id: uid, ...camposPerfil }, { onConflict: 'id' })
 
     if (error) {
       setSaving(false)
