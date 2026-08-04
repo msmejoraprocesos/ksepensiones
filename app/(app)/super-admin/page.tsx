@@ -176,7 +176,7 @@ export default function SuperAdminDashboard() {
           <p style={{ fontSize: '12px', fontWeight: '700', color: '#374151', margin: '0 0 10px' }}>💡 Costo de Inteligencia Artificial</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
             {[
-              { label: 'Costo total IA', value: fmtUSD(stats.costoIATotal), color: '#DC2626', big: true },
+              { label: 'Costo total IA', value: fmtUSD(stats.costoIATotal), color: '#DC2626' },
               { label: 'Extracción constancias', value: fmtUSD(stats.costoIAExtraccion), color: '#F59E0B' },
               { label: 'Análisis Sofía IA', value: fmtUSD(stats.costoIAAnalisis), color: '#7C3AED' },
               { label: 'Tokens totales', value: fmtNum(stats.tokensTotal), color: '#6B7280' },
@@ -184,7 +184,7 @@ export default function SuperAdminDashboard() {
             ].map((k, i) => (
               <div key={i} style={{ ...CARD, borderTop: `3px solid ${k.color}` }}>
                 <div style={LABEL}>{k.label}</div>
-                <div style={{ fontSize: k.big ? '20px' : '14px', fontWeight: '800', color: k.color }}>{k.value}</div>
+                <div style={{ fontSize: '18px', fontWeight: '800', color: k.color }}>{k.value}</div>
               </div>
             ))}
           </div>
