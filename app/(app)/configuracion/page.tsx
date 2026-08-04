@@ -899,7 +899,7 @@ export default function ConfiguracionPage() {
           {/* Logo: subir (izq) + mini preview (der) */}
           <div style={{ marginBottom: '20px', display: 'flex', gap: '20px', alignItems: 'center' }}>
             <div style={{ flex: 1 }}>
-              <label style={labelSt}>Logo del asesor</label>
+              <label style={labelSt}>Logo del asesor {tooltip('PNG con fondo transparente recomendado. Mínimo 200×80px para buena resolución en el PDF')}</label>
               <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 8px', lineHeight: 1.5 }}>
                 Aparece en el PDF de propuesta junto a tu nombre. PNG con fondo transparente recomendado, mínimo 200×80px.
               </p>
@@ -939,12 +939,12 @@ export default function ConfiguracionPage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
             <div>
-              <label style={labelSt}>Nombre del asesor <span style={{ color: '#ef4444' }}>*</span></label>
+              <label style={labelSt}>Nombre del asesor <span style={{ color: '#ef4444' }}>*</span> {tooltip('Tu nombre completo como aparecerá firmando los diagnósticos PDF')}</label>
               <input value={perfil.nombre} onBlur={guardar} onChange={e => set('nombre', e.target.value)} placeholder="Ej. Juan Pérez González" style={inputSt(!!errors.nombre)} />
               {errorMsg('nombre')}
             </div>
             <div>
-              <label style={labelSt}>Razón social / Empresa</label>
+              <label style={labelSt}>Razón social / Empresa {tooltip('Nombre de tu empresa o despacho. Opcional si trabajas de forma independiente')}</label>
               <input value={perfil.razon_social} onBlur={guardar} onChange={e => set('razon_social', e.target.value)} placeholder="Ej. Asesoría Pensional López S.C." style={inputSt()} />
               {(perfil as any).org_nombre && (
                 <div style={{ marginTop: '8px', padding: '6px 10px', background: '#EEF2F8', border: '1px solid #BFDBFE', display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -966,7 +966,7 @@ export default function ConfiguracionPage() {
               {!errors.telefono && perfil.telefono.replace(/\D/g,'').length === 10 && <p style={{ fontSize: '10px', color: VERDE, margin: '3px 0 0' }}>✓ Teléfono válido</p>}
             </div>
             <div>
-              <label style={labelSt}>Email de contacto</label>
+              <label style={labelSt}>Email de contacto {tooltip('Aparece en el pie de página del PDF para que el cliente pueda contactarte directamente')}</label>
               <input type="email" value={perfil.email_contacto} onChange={e => set('email_contacto', e.target.value)} onBlur={e => { const err = validarEmail(e.target.value); if (err) setErrors(p => ({ ...p, email_contacto: err })); else guardar() }} placeholder="contacto@tuempresa.com" style={inputSt(!!errors.email_contacto)} />
               {errorMsg('email_contacto')}
               {!errors.email_contacto && perfil.email_contacto && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(perfil.email_contacto) && <p style={{ fontSize: '10px', color: VERDE, margin: '3px 0 0' }}>✓ Email válido</p>}
@@ -1146,7 +1146,7 @@ export default function ConfiguracionPage() {
             ].map(f => (
               <div key={f.key} style={{ background: '#F8FAFC', borderRadius: '10px', padding: '14px', border: '1px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <label style={{ ...labelSt, marginBottom: 0, flex: 1 }}>{f.label}</label>
+                  <label style={{ ...labelSt, marginBottom: 0, flex: 1 }}>{f.label} {tooltip(f.help)}</label>
                   <span style={{ fontSize: '9px', fontWeight: '700', padding: '2px 6px', borderRadius: '6px', background: f.badgeColor + '15', color: f.badgeColor, whiteSpace: 'nowrap', marginLeft: '4px' }}>{f.badge}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
@@ -1194,11 +1194,11 @@ export default function ConfiguracionPage() {
           {/* Configuración del encabezado */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', marginBottom: '16px' }}>
             <div>
-              <label style={labelSt}>Título del documento</label>
+              <label style={labelSt}>Título del documento {tooltip('Aparece como encabezado principal en el PDF. Ej: Diagnóstico Pensional, Propuesta de Pensión')}</label>
               <input value={perfil.encabezado_titulo} onBlur={guardar} onChange={e => set('encabezado_titulo', e.target.value)} placeholder="Diagnóstico Pensional" style={inputSt()} />
             </div>
             <div>
-              <label style={labelSt}>Color del encabezado</label>
+              <label style={labelSt}>Color del encabezado {tooltip('Color en formato hexadecimal (#RRGGBB). Define el color de la barra superior del PDF')}</label>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <input type="color" value={perfil.encabezado_color} onBlur={guardar} onChange={e => set('encabezado_color', e.target.value)}
                   style={{ width: '40px', height: '36px', border: '1px solid #e2e8f0', borderRadius: '6px', cursor: 'pointer', padding: '2px' }} />
@@ -1206,13 +1206,13 @@ export default function ConfiguracionPage() {
               </div>
             </div>
             <div>
-              <label style={labelSt}>Tamaño del logo (px)</label>
+              <label style={labelSt}>Tamaño del logo (px) {tooltip('Altura del logo en el encabezado del PDF en píxeles. Recomendado: 24-40px')}</label>
               <input type="range" min="20" max="48" value={perfil.encabezado_logo_size} onChange={e => set('encabezado_logo_size', parseInt(e.target.value))}
                 style={{ width: '100%' }} />
               <p style={{ fontSize: '11px', color: '#94a3b8', margin: '2px 0 0', textAlign: 'right' }}>{perfil.encabezado_logo_size}px</p>
             </div>
             <div>
-              <label style={labelSt}>Tamaño de fuente (px)</label>
+              <label style={labelSt}>Tamaño de fuente (px) {tooltip('Tamaño del texto del nombre del asesor en el encabezado. Recomendado: 11-15px')}</label>
               <input type="range" min="10" max="18" value={perfil.encabezado_font_size} onChange={e => set('encabezado_font_size', parseInt(e.target.value))}
                 style={{ width: '100%' }} />
               <p style={{ fontSize: '11px', color: '#94a3b8', margin: '2px 0 0', textAlign: 'right' }}>{perfil.encabezado_font_size}px</p>
