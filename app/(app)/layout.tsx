@@ -87,6 +87,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   const [isAdmin, setIsAdmin] = useState(false)
   const [userRol, setUserRol] = useState('')
+  const [rolCargado, setRolCargado] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -104,6 +105,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         setAsesorLogo(_perfilCache.logo)
         setIsAdmin(_perfilCache.isAdmin)
         setUserRol(_perfilCache.rol)
+        setRolCargado(true)
         return
       }
 
@@ -124,6 +126,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             setAsesorLogo(logo)
             setIsAdmin(isAdmin)
             setUserRol(rol)
+            setRolCargado(true)
             if (!data.nombre && !data.razon_social && !window.location.pathname.includes('configuracion')) {
               router.push('/configuracion')
             }
@@ -405,8 +408,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           transition: 'width 0.2s',
           overflow: 'hidden',
         }}>
-          {/* Nav items */}
-          <div style={{ flex: 1, padding: '8px 0' }}>
+          {/* Nav items — ocultos hasta que el rol esté cargado para evitar flash */}
+          <div style={{ flex: 1, padding: '8px 0', visibility: rolCargado ? 'visible' : 'hidden' }}>
             {NAV_ITEMS.filter(item => {
               if (item.adminOnly && !isAdmin) return false
               if (item.orgAdminOnly && userRol !== 'org_admin') return false
@@ -467,7 +470,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             if (item.adminOnly && !isAdmin) return false
             if (item.orgAdminOnly && userRol !== 'org_admin') return false
             return true
-          }).slice(0, 5).map(item => {
+          }).slice(0, 5).filter(() => rolCargado).map(item => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
             return (
               <button key={item.href} onClick={() => router.push(item.href)}
