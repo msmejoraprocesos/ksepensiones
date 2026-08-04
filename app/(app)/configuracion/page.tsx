@@ -973,16 +973,23 @@ export default function ConfiguracionPage() {
             </div>
           </div>
 
+          {/* Separador visual */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '8px 0' }}>
+            <div style={{ flex: 1, height: '1px', background: '#E5E7EB' }} />
+            <span style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Seguridad</span>
+            <div style={{ flex: 1, height: '1px', background: '#E5E7EB' }} />
+          </div>
+
           {/* Cambiar contraseña */}
-          <div style={{ marginTop: '16px', padding: '16px', background: 'white', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
+          <div style={{ padding: '16px', background: '#F8FAFC', border: '1px solid #E5E7EB', borderRadius: '10px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 2px' }}>🔒 Seguridad</p>
-                <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>Cambia tu contraseña de acceso al sistema</p>
+                <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 2px' }}>🔒 Contraseña de acceso</p>
+                <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>Cambia tu contraseña de acceso al sistema</p>
               </div>
               <button onClick={() => { setShowCambiarPassword(!showCambiarPassword); setMsgPassword('') }}
-                style={{ padding: '7px 16px', background: showCambiarPassword ? '#F4F6FB' : '#1B3A6B', color: showCambiarPassword ? '#374151' : 'white', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
-                {showCambiarPassword ? 'Cancelar' : 'Cambiar contraseña'}
+                style={{ padding: '8px 16px', background: showCambiarPassword ? 'white' : 'white', color: '#374151', border: '1px solid #D1D5DB', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
+                {showCambiarPassword ? '✕ Cancelar' : '🔑 Cambiar contraseña'}
               </button>
             </div>
             {showCambiarPassword && (
