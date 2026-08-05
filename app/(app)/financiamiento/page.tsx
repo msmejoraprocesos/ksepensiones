@@ -101,33 +101,41 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
     : 0
 
   return (
-    <div style={{ background: 'white', border: '1px solid #E5E7EB' }}>
-      <div style={{ padding: '12px 16px', background: '#F8FAFC', borderBottom: '1px solid #E5E7EB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '12px', overflow: 'hidden' }}>
+
+      {/* Header */}
+      <div style={{ padding: '14px 20px', background: '#EEF2F8', borderBottom: '1px solid #D1D5DB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 2px' }}>📁 Expediente de documentos</p>
-          {docsRequeridos.length > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ background: '#E5E7EB', height: '6px', width: '120px', borderRadius: '3px', overflow: 'hidden' }}>
-                <div style={{ width: `${pctCompleto}%`, height: '100%', background: pctCompleto === 100 ? VERDE : AZUL }} />
+          <p style={{ fontSize: '14px', fontWeight: '800', color: AZUL, margin: '0 0 4px' }}>📁 Expediente de documentos</p>
+          {docsRequeridos.length > 0 ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ background: '#D1D5DB', height: '8px', width: '160px', borderRadius: '4px', overflow: 'hidden' }}>
+                <div style={{ width: `${pctCompleto}%`, height: '100%', background: pctCompleto === 100 ? VERDE : AZUL, transition: 'width 0.4s' }} />
               </div>
-              <span style={{ fontSize: '11px', color: '#6B7280' }}>{pctCompleto}% completo para {institucionNombre}</span>
+              <span style={{ fontSize: '12px', color: '#374151', fontWeight: '600' }}>
+                {pctCompleto}% · {docs.filter((d: any) => ['recibido','verificado'].includes(d.estatus)).length}/{docsRequeridos.length} docs entregados
+              </span>
             </div>
+          ) : (
+            <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>{docs.length} documento{docs.length !== 1 ? 's' : ''} en el expediente</p>
           )}
         </div>
         <button onClick={() => { setShowEnvio(true); setMsgEnvio('') }}
-          style={{ padding: '7px 14px', background: AZUL, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
+          style={{ padding: '9px 18px', background: AZUL, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
           📧 Enviar a financiera
         </button>
       </div>
 
-      {/* Documentos requeridos faltantes */}
+      {/* Documentos faltantes requeridos */}
       {faltantes.length > 0 && (
-        <div style={{ padding: '10px 16px', background: '#FFFBEB', borderBottom: '1px solid #FDE68A' }}>
-          <p style={{ fontSize: '11px', fontWeight: '700', color: '#92400E', margin: '0 0 6px' }}>⚠️ Documentos requeridos por {institucionNombre} que faltan en el expediente:</p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+        <div style={{ padding: '12px 20px', background: '#FFFBEB', borderBottom: '1px solid #FDE68A' }}>
+          <p style={{ fontSize: '12px', fontWeight: '700', color: '#92400E', margin: '0 0 8px' }}>
+            ⚠️ {faltantes.length} documento{faltantes.length !== 1 ? 's' : ''} requerido{faltantes.length !== 1 ? 's' : ''} por {institucionNombre} sin agregar:
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
             {faltantes.map((r: any) => (
               <button key={r.documento_id} onClick={() => agregarDocumento(r.documento_id, r.documentos_catalogo?.nombre || '')}
-                style={{ padding: '3px 10px', background: 'white', color: '#92400E', border: '1px solid #FDE68A', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ padding: '5px 12px', background: 'white', color: '#92400E', border: '1px solid #FCD34D', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
                 + {r.documentos_catalogo?.nombre || '—'}
               </button>
             ))}
@@ -135,92 +143,97 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
         </div>
       )}
 
-      {/* Lista de documentos */}
-      {docs.length === 0 ? (
-        <div style={{ padding: '24px', textAlign: 'center', color: '#9CA3AF' }}>
-          <p style={{ fontSize: '13px', margin: '0 0 8px' }}>Sin documentos en el expediente</p>
-          {catalogo.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', justifyContent: 'center' }}>
-              {catalogo.slice(0, 5).map((c: any) => (
-                <button key={c.id} onClick={() => agregarDocumento(c.id, c.nombre)}
-                  style={{ padding: '4px 10px', background: '#F4F6FB', color: AZUL, border: `1px solid ${AZUL}`, fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit' }}>
-                  + {c.nombre}
+      {/* Lista de documentos como cards */}
+      <div style={{ padding: '14px 20px', display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
+        {docs.length === 0 ? (
+          <div style={{ padding: '28px', textAlign: 'center' as const, background: '#F8FAFC', borderRadius: '8px', border: '1px dashed #D1D5DB' }}>
+            <p style={{ fontSize: '22px', margin: '0 0 6px' }}>📂</p>
+            <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>Sin documentos en el expediente</p>
+          </div>
+        ) : (
+          docs.map((d: any) => {
+            const est = ESTATUS[d.estatus] ?? ESTATUS.pendiente
+            return (
+              <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', background: '#F8FAFC', border: `1px solid ${est.color}33`, borderLeft: `3px solid ${est.color}`, borderRadius: '8px' }}>
+                <span style={{ fontSize: '20px', flexShrink: 0 }}>📄</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
+                    {d.documentos_catalogo?.nombre || d.nombre_archivo}
+                  </p>
+                  <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>
+                    {d.updated_at ? `Actualizado: ${new Date(d.updated_at).toLocaleDateString('es-MX')}` : 'Sin actualizar'}
+                  </p>
+                </div>
+                <select value={d.estatus} onChange={e => actualizarEstatus(d.id, e.target.value)}
+                  style={{ padding: '5px 10px', border: `1.5px solid ${est.color}`, background: est.bg, color: est.color, fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', flexShrink: 0 }}>
+                  {Object.entries(ESTATUS).map(([v, { label }]) => <option key={v} value={v}>{label}</option>)}
+                </select>
+                <button onClick={async () => {
+                  await supabase.from('documentos_cliente').delete().eq('id', d.id)
+                  const { data } = await supabase.from('documentos_cliente').select('*, documentos_catalogo(nombre)').eq('cliente_id', clienteId).eq('asesor_id', userId)
+                  setDocs(data ?? [])
+                }} style={{ padding: '5px 10px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', flexShrink: 0 }}>
+                  Quitar
                 </button>
-              ))}
-            </div>
-          )}
-        </div>
-      ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-          <thead><tr style={{ background: '#F8FAFC' }}>
-            {['Documento', 'Estatus', 'Fecha', 'Notas', ''].map((h, i) => (
-              <th key={i} style={{ padding: '7px 12px', textAlign: 'left', fontWeight: '700', color: '#6B7280', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid #E5E7EB' }}>{h}</th>
-            ))}
-          </tr></thead>
-          <tbody>
-            {docs.map((d: any, i: number) => (
-              <tr key={d.id} style={{ borderBottom: '1px solid #F3F4F6', background: i % 2 === 0 ? 'white' : '#FAFAFA' }}>
-                <td style={{ padding: '8px 12px', fontWeight: '600' }}>{d.documentos_catalogo?.nombre || d.nombre_archivo}</td>
-                <td style={{ padding: '8px 12px' }}>
-                  <select value={d.estatus} onChange={e => actualizarEstatus(d.id, e.target.value)}
-                    style={{ padding: '3px 8px', border: `1px solid ${ESTATUS[d.estatus]?.color || '#E5E7EB'}`, background: ESTATUS[d.estatus]?.bg || 'white', color: ESTATUS[d.estatus]?.color || '#374151', fontSize: '11px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '4px' }}>
-                    {Object.entries(ESTATUS).map(([v, { label }]) => <option key={v} value={v}>{label}</option>)}
-                  </select>
-                </td>
-                <td style={{ padding: '8px 12px', color: '#9CA3AF', fontSize: '11px' }}>
-                  {d.updated_at ? new Date(d.updated_at).toLocaleDateString('es-MX') : '—'}
-                </td>
-                <td style={{ padding: '8px 12px', color: '#6B7280', fontSize: '11px' }}>{d.notas || '—'}</td>
-                <td style={{ padding: '8px 12px' }}>
-                  <button onClick={async () => { await supabase.from('documentos_cliente').delete().eq('id', d.id); const { data } = await supabase.from('documentos_cliente').select('*, documentos_catalogo(nombre)').eq('cliente_id', clienteId).eq('asesor_id', userId); setDocs(data ?? []) }}
-                    style={{ padding: '2px 8px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FCA5A5', fontSize: '10px', cursor: 'pointer', fontFamily: 'inherit' }}>
-                    ✕
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+              </div>
+            )
+          })
+        )}
 
-      {/* Agregar documento adicional */}
-      {catalogo.length > 0 && docs.length > 0 && (
-        <div style={{ padding: '8px 16px', borderTop: '1px solid #F3F4F6', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-          {catalogo.filter((c: any) => !docs.find((d: any) => d.documento_id === c.id)).map((c: any) => (
-            <button key={c.id} onClick={() => agregarDocumento(c.id, c.nombre)}
-              style={{ padding: '3px 10px', background: '#F4F6FB', color: AZUL, border: `1px solid ${AZUL}`, fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit' }}>
-              + {c.nombre}
-            </button>
-          ))}
-        </div>
-      )}
+        {/* Agregar documentos del catálogo */}
+        {catalogo.filter((c: any) => !docs.find((d: any) => d.documento_id === c.id)).length > 0 && (
+          <div style={{ paddingTop: '8px', borderTop: '1px solid #F3F4F6', display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
+            <span style={{ fontSize: '11px', color: '#9CA3AF', alignSelf: 'center', flexShrink: 0 }}>Agregar:</span>
+            {catalogo.filter((c: any) => !docs.find((d: any) => d.documento_id === c.id)).map((c: any) => (
+              <button key={c.id} onClick={() => agregarDocumento(c.id, c.nombre)}
+                style={{ padding: '4px 10px', background: '#EEF2F8', color: AZUL, border: `1px solid ${AZUL}`, fontSize: '11px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                + {c.nombre}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Modal envío por email */}
       {showEnvio && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', width: '100%', maxWidth: '480px', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', borderRadius: '12px', overflow: 'hidden' }}>
-            <div style={{ background: AZUL, padding: '14px 20px', display: 'flex', justifyContent: 'space-between' }}>
-              <p style={{ fontSize: '14px', fontWeight: '700', color: 'white', margin: 0 }}>📧 Enviar expediente a financiera</p>
-              <button onClick={() => setShowEnvio(false)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '18px' }}>×</button>
+        <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: '480px', borderRadius: '14px', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+            <div style={{ background: AZUL, padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <p style={{ fontSize: '15px', fontWeight: '700', color: 'white', margin: 0 }}>📧 Enviar expediente</p>
+                <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.65)', margin: '2px 0 0' }}>{clienteNombre} → {institucionNombre}</p>
+              </div>
+              <button onClick={() => setShowEnvio(false)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', fontSize: '18px', padding: '4px 8px', borderRadius: '6px' }}>✕</button>
             </div>
-            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ background: '#F8FAFC', borderRadius: '6px', padding: '12px' }}>
-                <p style={{ fontSize: '12px', fontWeight: '700', color: '#374151', margin: '0 0 6px' }}>Resumen del expediente</p>
-                <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 2px' }}>👤 Cliente: <strong>{clienteNombre}</strong></p>
-                <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 2px' }}>🏦 Financiera: <strong>{institucionNombre}</strong></p>
-                <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 2px' }}>📄 Documentos recibidos/verificados: <strong>{docs.filter((d: any) => ['recibido', 'verificado'].includes(d.estatus)).length} de {docs.length}</strong></p>
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
+              <div style={{ background: '#F8FAFC', borderRadius: '10px', padding: '14px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                <div>
+                  <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '0 0 2px', textTransform: 'uppercase' as const, fontWeight: '600' }}>Total documentos</p>
+                  <p style={{ fontSize: '18px', fontWeight: '800', color: AZUL, margin: 0 }}>{docs.length}</p>
+                </div>
+                <div>
+                  <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '0 0 2px', textTransform: 'uppercase' as const, fontWeight: '600' }}>Recibidos/verificados</p>
+                  <p style={{ fontSize: '18px', fontWeight: '800', color: VERDE, margin: 0 }}>{docs.filter((d: any) => ['recibido','verificado'].includes(d.estatus)).length}</p>
+                </div>
               </div>
               <div>
-                <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Email de destino (ejecutivo de la financiera)</label>
+                <label style={{ fontSize: '11px', fontWeight: '700', color: '#374151', display: 'block', marginBottom: '6px', textTransform: 'uppercase' as const }}>Email del ejecutivo de la financiera *</label>
                 <input type="email" value={emailDestino} onChange={e => setEmailDestino(e.target.value)}
                   placeholder="ejecutivo@financiera.com"
-                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box', fontFamily: 'inherit', borderRadius: '4px' }} />
+                  style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '8px', outline: 'none' }} />
               </div>
-              {msgEnvio && <p style={{ fontSize: '12px', color: msgEnvio.startsWith('✅') ? '#065F46' : '#DC2626', margin: 0, fontWeight: '600' }}>{msgEnvio}</p>}
+              {msgEnvio && (
+                <p style={{ fontSize: '13px', color: msgEnvio.startsWith('✅') ? '#065F46' : '#DC2626', margin: 0, fontWeight: '600', background: msgEnvio.startsWith('✅') ? '#F0FDF4' : '#FEF2F2', padding: '8px 12px', borderRadius: '6px' }}>
+                  {msgEnvio}
+                </p>
+              )}
               <div style={{ display: 'flex', gap: '8px' }}>
-                <button onClick={() => setShowEnvio(false)} style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '4px' }}>Cancelar</button>
+                <button onClick={() => setShowEnvio(false)}
+                  style={{ flex: 1, padding: '11px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
+                  Cancelar
+                </button>
                 <button onClick={enviarExpediente} disabled={enviando || !emailDestino}
-                  style={{ flex: 1, padding: '10px', background: NARANJA, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '4px', opacity: enviando || !emailDestino ? 0.6 : 1 }}>
+                  style={{ flex: 2, padding: '11px', background: NARANJA, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: enviando || !emailDestino ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '8px', opacity: enviando || !emailDestino ? 0.6 : 1 }}>
                   {enviando ? 'Enviando...' : '📧 Enviar expediente'}
                 </button>
               </div>
