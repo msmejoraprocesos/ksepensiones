@@ -364,13 +364,23 @@ const CATEGORIAS = [
 ]
 
 function CatalogosActividad({ userId, supabase }: { userId: string; supabase: any }) {
-  const AZUL = '#1B3A6B', NARANJA = '#F05B21'
+  const AZUL = '#1B3A6B', NARANJA = '#F05B21', VERDE = '#16A34A'
   const [catalogos, setCatalogos] = useState<Record<string, any[]>>({})
   const [catActiva, setCatActiva] = useState('tipo_contacto')
-  const [nuevo, setNuevo] = useState({ etiqueta: '', icono: '' })
+  const [nuevaEtiqueta, setNuevaEtiqueta] = useState('')
+  const [nuevoIcono, setNuevoIcono] = useState('')
   const [editando, setEditando] = useState<string | null>(null)
   const [editValor, setEditValor] = useState('')
   const [saving, setSaving] = useState(false)
+
+  const ICONOS_DEFAULT: Record<string, string> = {
+    tipo_contacto: '📞', resultado: '🎯', proximo_paso: '→',
+  }
+  const PLACEHOLDERS: Record<string, string> = {
+    tipo_contacto: 'Ej: Videollamada, Visita domicilio, WhatsApp...',
+    resultado: 'Ej: Interesado, No contestó, Requiere más info...',
+    proximo_paso: 'Ej: Enviar propuesta, Agendar cita, Solicitar constancia...',
+  }
 
   useEffect(() => { if (!userId) return; cargar() }, [userId])
 
@@ -384,18 +394,18 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
   }
 
   async function agregar() {
-    if (!nuevo.etiqueta.trim()) return
+    if (!nuevaEtiqueta.trim()) return
     setSaving(true)
     const cat = catalogos[catActiva] ?? []
-    const valor = nuevo.etiqueta.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')
+    const valor = `custom_${nuevaEtiqueta.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')}_${Date.now()}`
     await supabase.from('catalogos_actividad').insert({
-      asesor_id: userId, categoria: catActiva,
-      valor: `custom_${valor}_${Date.now()}`,
-      etiqueta: nuevo.etiqueta.trim(), icono: nuevo.icono.trim() || '•',
+      asesor_id: userId, categoria: catActiva, valor,
+      etiqueta: nuevaEtiqueta.trim(),
+      icono: nuevoIcono.trim() || ICONOS_DEFAULT[catActiva] || '•',
       orden: cat.length, activo: true,
       genera_evento: catActiva === 'proximo_paso', abre_materiales: false,
     })
-    setNuevo({ etiqueta: '', icono: '' })
+    setNuevaEtiqueta(''); setNuevoIcono('')
     await cargar(); setSaving(false)
   }
 
@@ -409,125 +419,91 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
     setEditando(null); await cargar()
   }
 
-  async function eliminar(id: string) {
-    if (!confirm('¿Eliminar esta opción? No afecta actividades ya registradas.')) return
-    await supabase.from('catalogos_actividad').delete().eq('id', id); await cargar()
-  }
-
   const items = catalogos[catActiva] ?? []
   const catInfo = CATEGORIAS.find(c => c.id === catActiva)
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
-
-      {/* Tabs de categoría */}
-      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' as const }}>
+      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const }}>
         {CATEGORIAS.map(c => (
-          <button key={c.id} onClick={() => { setCatActiva(c.id); setEditando(null) }}
+          <button key={c.id} onClick={() => { setCatActiva(c.id); setEditando(null); setNuevaEtiqueta(''); setNuevoIcono('') }}
             style={{ padding: '9px 18px', background: catActiva === c.id ? AZUL : 'white', color: catActiva === c.id ? 'white' : '#374151', border: `1.5px solid ${catActiva === c.id ? AZUL : '#E5E7EB'}`, fontSize: '13px', fontWeight: catActiva === c.id ? '700' : '500', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
             {c.label}
           </button>
         ))}
       </div>
-
       <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', overflow: 'hidden' }}>
-
-        {/* Descripción de la categoría */}
         <div style={{ padding: '12px 18px', background: '#F8FAFC', borderBottom: '1px solid #E5E7EB' }}>
           <p style={{ fontSize: '13px', color: '#4B5563', margin: 0 }}>{catInfo?.desc}</p>
-          <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '3px 0 0' }}>
-            {items.filter((i: any) => i.activo).length} activas · {items.filter((i: any) => !i.activo).length} pausadas
+          <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '3px 0 0' }}>
+            {items.filter((i: any) => i.activo).length} activas · {items.filter((i: any) => !i.activo).length} inactivas
           </p>
         </div>
-
-        {/* Lista de opciones */}
         {items.length === 0 ? (
           <div style={{ padding: '32px', textAlign: 'center' as const }}>
-            <p style={{ fontSize: '32px', margin: '0 0 8px' }}>📋</p>
-            <p style={{ fontSize: '14px', color: '#9CA3AF', margin: 0 }}>Sin opciones — agrega la primera abajo</p>
+            <p style={{ fontSize: '14px', color: '#9CA3AF', margin: 0 }}>Aún no hay opciones — agrega la primera abajo</p>
           </div>
-        ) : (
-          <div>
-            {items.map((item: any) => (
-              <div key={item.id} style={{ borderBottom: '1px solid #F3F4F6', background: item.activo ? 'white' : '#FAFAFA' }}>
-                {editando === item.id ? (
-                  /* Modo edición */
-                  <div style={{ padding: '12px 18px', display: 'flex', gap: '10px', alignItems: 'center', background: '#EEF2F8' }}>
-                    <span style={{ fontSize: '20px' }}>{item.icono || '•'}</span>
-                    <input autoFocus value={editValor} onChange={e => setEditValor(e.target.value)}
-                      onKeyDown={e => { if (e.key === 'Enter') guardarEdicion(item.id); if (e.key === 'Escape') setEditando(null) }}
-                      style={{ flex: 1, padding: '8px 12px', border: `2px solid ${AZUL}`, fontSize: '14px', borderRadius: '6px', fontFamily: 'inherit', outline: 'none' }} />
-                    <button onClick={() => guardarEdicion(item.id)}
-                      style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
-                      Guardar
-                    </button>
-                    <button onClick={() => setEditando(null)}
-                      style={{ padding: '8px 14px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
-                      Cancelar
-                    </button>
-                  </div>
-                ) : (
-                  /* Modo visualización */
-                  <div style={{ padding: '12px 18px', display: 'flex', alignItems: 'center', gap: '12px', opacity: item.activo ? 1 : 0.55 }}>
-                    <span style={{ fontSize: '20px', flexShrink: 0 }}>{item.icono || '•'}</span>
-                    <div style={{ flex: 1 }}>
-                      <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827', margin: '0 0 2px' }}>{item.etiqueta}</p>
-                      <div style={{ display: 'flex', gap: '6px' }}>
-                        {!item.activo && <span style={{ fontSize: '11px', color: '#9CA3AF', background: '#F3F4F6', padding: '1px 6px', borderRadius: '4px' }}>Pausada</span>}
-                        {item.genera_evento && <span style={{ fontSize: '11px', color: AZUL, background: '#EEF2F8', padding: '1px 6px', borderRadius: '4px' }}>📅 Genera evento</span>}
-                        {item.abre_materiales && <span style={{ fontSize: '11px', color: NARANJA, background: '#FFF7ED', padding: '1px 6px', borderRadius: '4px' }}>📎 Abre materiales</span>}
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
-                      <button onClick={() => { setEditando(item.id); setEditValor(item.etiqueta) }}
-                        title="Editar"
-                        style={{ padding: '6px 12px', background: '#F4F6FB', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
-                        ✏️ Editar
-                      </button>
-                      <button onClick={() => toggleActivo(item.id, item.activo)}
-                        title={item.activo ? 'Pausar' : 'Activar'}
-                        style={{ padding: '6px 12px', background: item.activo ? '#FFFBEB' : '#F0FDF4', color: item.activo ? '#D97706' : '#16A34A', border: `1px solid ${item.activo ? '#FDE68A' : '#86EFAC'}`, fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
-                        {item.activo ? '⏸ Pausar' : '▶ Activar'}
-                      </button>
-                      <button onClick={() => eliminar(item.id)}
-                        title="Eliminar"
-                        style={{ padding: '6px 12px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
-                        🗑 Eliminar
-                      </button>
-                    </div>
-                  </div>
-                )}
+        ) : items.map((item: any) => (
+          <div key={item.id} style={{ borderBottom: '1px solid #F3F4F6', background: item.activo ? 'white' : '#F9FAFB' }}>
+            {editando === item.id ? (
+              <div style={{ padding: '12px 18px', display: 'flex', gap: '10px', alignItems: 'center', background: '#EEF2F8' }}>
+                <span style={{ fontSize: '20px' }}>{item.icono || '•'}</span>
+                <input autoFocus value={editValor} onChange={e => setEditValor(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') guardarEdicion(item.id); if (e.key === 'Escape') setEditando(null) }}
+                  style={{ flex: 1, padding: '8px 12px', border: `2px solid ${AZUL}`, fontSize: '14px', borderRadius: '6px', fontFamily: 'inherit', outline: 'none' }} />
+                <button onClick={() => guardarEdicion(item.id)}
+                  style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>Guardar</button>
+                <button onClick={() => setEditando(null)}
+                  style={{ padding: '8px 14px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>Cancelar</button>
               </div>
-            ))}
+            ) : (
+              <div style={{ padding: '12px 18px', display: 'flex', alignItems: 'center', gap: '12px', opacity: item.activo ? 1 : 0.5 }}>
+                <span style={{ fontSize: '20px', flexShrink: 0 }}>{item.icono || '•'}</span>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827', margin: '0 0 2px' }}>{item.etiqueta}</p>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    {!item.activo && <span style={{ fontSize: '11px', color: '#9CA3AF', background: '#F3F4F6', padding: '1px 6px', borderRadius: '4px' }}>Inactiva</span>}
+                    {item.genera_evento && <span style={{ fontSize: '11px', color: AZUL, background: '#EEF2F8', padding: '1px 6px', borderRadius: '4px' }}>📅 Genera evento</span>}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                  <button onClick={() => { setEditando(item.id); setEditValor(item.etiqueta) }}
+                    style={{ padding: '6px 12px', background: '#F4F6FB', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>✏️ Editar</button>
+                  <button onClick={() => toggleActivo(item.id, item.activo)}
+                    style={{ padding: '6px 12px', background: item.activo ? '#FFFBEB' : '#F0FDF4', color: item.activo ? '#D97706' : VERDE, border: `1px solid ${item.activo ? '#FDE68A' : '#86EFAC'}`, fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                    {item.activo ? '⏸ Inactivar' : '▶ Activar'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-
-        {/* Agregar nueva opción */}
+        ))}
         <div style={{ padding: '14px 18px', borderTop: '2px solid #E5E7EB', background: '#F8FAFC' }}>
-          <p style={{ fontSize: '12px', fontWeight: '700', color: '#6B7280', margin: '0 0 10px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
-            + Agregar nueva opción
+          <p style={{ fontSize: '12px', fontWeight: '700', color: '#374151', margin: '0 0 10px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
+            + Nueva opción para {catInfo?.label.replace(/^[^\s]+\s/, '')}
           </p>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-            <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '4px', flexShrink: 0 }}>
-              <input value={nuevo.icono} onChange={e => setNuevo(p => ({ ...p, icono: e.target.value }))}
-                placeholder="😊"
-                style={{ width: '52px', padding: '9px 4px', border: '1.5px solid #D1D5DB', fontSize: '18px', borderRadius: '8px', fontFamily: 'inherit', textAlign: 'center' as const, boxSizing: 'border-box' as const }} />
-              <span style={{ fontSize: '9px', color: '#9CA3AF' }}>emoji</span>
-            </div>
-            <input value={nuevo.etiqueta} onChange={e => setNuevo(p => ({ ...p, etiqueta: e.target.value }))}
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <input value={nuevoIcono} onChange={e => setNuevoIcono(e.target.value)}
+              placeholder={ICONOS_DEFAULT[catActiva] || '•'}
+              style={{ width: '52px', padding: '9px 4px', border: '1.5px solid #D1D5DB', fontSize: '18px', borderRadius: '8px', fontFamily: 'inherit', textAlign: 'center' as const, boxSizing: 'border-box' as const }} />
+            <input value={nuevaEtiqueta} onChange={e => setNuevaEtiqueta(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && agregar()}
-              placeholder="Escribe el nombre de la opción..."
+              placeholder={PLACEHOLDERS[catActiva] || 'Nombre de la opción...'}
               style={{ flex: 1, padding: '10px 14px', border: '1.5px solid #D1D5DB', fontSize: '14px', borderRadius: '8px', fontFamily: 'inherit', outline: 'none' }} />
-            <button onClick={agregar} disabled={saving || !nuevo.etiqueta.trim()}
-              style={{ padding: '10px 20px', background: !nuevo.etiqueta.trim() ? '#E5E7EB' : NARANJA, color: !nuevo.etiqueta.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: !nuevo.etiqueta.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '8px', whiteSpace: 'nowrap' as const }}>
+            <button onClick={agregar} disabled={saving || !nuevaEtiqueta.trim()}
+              style={{ padding: '10px 20px', background: !nuevaEtiqueta.trim() ? '#E5E7EB' : NARANJA, color: !nuevaEtiqueta.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: !nuevaEtiqueta.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '8px', whiteSpace: 'nowrap' as const }}>
               {saving ? 'Guardando...' : '+ Agregar'}
             </button>
           </div>
+          <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '6px 0 0' }}>
+            Emoji opcional — si lo dejas vacío se usa {ICONOS_DEFAULT[catActiva] || '•'} por defecto
+          </p>
         </div>
       </div>
     </div>
   )
 }
+
 
 export default function ConfiguracionPage() {
   const supabase = createClient()
@@ -874,7 +850,12 @@ export default function ConfiguracionPage() {
               {saveError && <p style={{ fontSize: '12px', color: '#ef4444', margin: 0, fontWeight: '600' }}>⚠️ {saveError}</p>}
               {!saveError && saved && <p style={{ fontSize: '12px', color: VERDE, margin: 0, fontWeight: '600' }}>✓ Guardado</p>}
               {!saveError && !saved && saving && <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>⏳ Guardando...</p>}
-
+              {(tabActiva === 'perfil' || tabActiva === 'sistema') && (
+                <button onClick={guardar} disabled={saving}
+                  style={{ padding: '9px 20px', background: saving ? '#94a3b8' : VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                  {saving ? 'Guardando...' : '💾 Guardar'}
+                </button>
+              )}
             </div>
           </div>
 
@@ -943,12 +924,12 @@ export default function ConfiguracionPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
             <div>
               <label style={labelSt}>Nombre del asesor <span style={{ color: '#ef4444' }}>*</span> {tooltip('Tu nombre completo como aparecerá firmando los diagnósticos PDF')}</label>
-              <input value={perfil.nombre} onBlur={guardar} onChange={e => set('nombre', e.target.value)} placeholder="Ej. Juan Pérez González" style={inputSt(!!errors.nombre)} />
+              <input value={perfil.nombre} onChange={e => set('nombre', e.target.value)} placeholder="Ej. Juan Pérez González" style={inputSt(!!errors.nombre)} />
               {errorMsg('nombre')}
             </div>
             <div>
               <label style={labelSt}>Razón social / Empresa {tooltip('Nombre de tu empresa o despacho. Si lo dejas vacío se usará tu nombre personal')}</label>
-              <input value={perfil.razon_social} onBlur={guardar} onChange={e => set('razon_social', e.target.value)} placeholder="Ej. Asesoría Pensional López S.C." style={inputSt()} />
+              <input value={perfil.razon_social} onChange={e => set('razon_social', e.target.value)} placeholder="Ej. Asesoría Pensional López S.C." style={inputSt()} />
               {(perfil as any).org_nombre && (
                 <div style={{ marginTop: '8px', padding: '6px 10px', background: '#EEF2F8', border: '1px solid #BFDBFE', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{ fontSize: '11px', color: '#6B7280' }}>Organización:</span>
@@ -958,7 +939,7 @@ export default function ConfiguracionPage() {
             </div>
             <div>
               <label style={labelSt}>RFC {tooltip('Registro Federal de Contribuyentes. Formato: 4 letras + 6 dígitos fecha + 3 caracteres homoclave. Ej: LOPJ800101XX3')}</label>
-              <input value={perfil.rfc} onBlur={guardar} onChange={e => set('rfc', formatRFC(e.target.value))} placeholder="LOPJ800101XX3" maxLength={13} style={inputSt(!!errors.rfc)} />
+              <input value={perfil.rfc} onChange={e => set('rfc', formatRFC(e.target.value))} placeholder="LOPJ800101XX3" maxLength={13} style={inputSt(!!errors.rfc)} />
               {errorMsg('rfc')}
               {!errors.rfc && (perfil.rfc.length === 12 || perfil.rfc.length === 13) && !validarRFC(perfil.rfc) && <p style={{ fontSize: '10px', color: VERDE, margin: '3px 0 0' }}>✓ RFC válido ({perfil.rfc.length === 12 ? 'persona moral' : 'persona física'})</p>}
             </div>
@@ -970,7 +951,7 @@ export default function ConfiguracionPage() {
             </div>
             <div>
               <label style={labelSt}>Email de contacto <span style={{ fontSize: '10px', color: '#0891B2', background: '#ECFEFF', padding: '1px 6px', borderRadius: '4px', fontWeight: '600' }}>Recomendado</span> {tooltip('Aparece en el pie de página del PDF para que el cliente pueda contactarte directamente')}</label>
-              <input type="email" value={perfil.email_contacto} onChange={e => set('email_contacto', e.target.value)} onBlur={e => { const err = validarEmail(e.target.value); if (err) setErrors(p => ({ ...p, email_contacto: err })); else guardar() }} placeholder="contacto@tuempresa.com" style={inputSt(!!errors.email_contacto)} />
+              <input type="email" value={perfil.email_contacto} onChange={e => set('email_contacto', e.target.value)} onBlur={e => { const err = validarEmail(e.target.value); if (err) setErrors(p => ({ ...p, email_contacto: err })) }} placeholder="contacto@tuempresa.com" style={inputSt(!!errors.email_contacto)} />
               {errorMsg('email_contacto')}
               {!errors.email_contacto && perfil.email_contacto && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(perfil.email_contacto) && <p style={{ fontSize: '10px', color: VERDE, margin: '3px 0 0' }}>✓ Email válido</p>}
             </div>
@@ -1205,12 +1186,12 @@ export default function ConfiguracionPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', marginBottom: '16px' }}>
             <div>
               <label style={labelSt}>Título del documento {tooltip('Aparece como encabezado principal en el PDF. Ej: Diagnóstico Pensional, Propuesta de Pensión')}</label>
-              <input value={perfil.encabezado_titulo} onBlur={guardar} onChange={e => set('encabezado_titulo', e.target.value)} placeholder="Diagnóstico Pensional" style={inputSt()} />
+              <input value={perfil.encabezado_titulo} onChange={e => set('encabezado_titulo', e.target.value)} placeholder="Diagnóstico Pensional" style={inputSt()} />
             </div>
             <div>
               <label style={labelSt}>Color del encabezado {tooltip('Color en formato hexadecimal (#RRGGBB). Define el color de la barra superior del PDF')}</label>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <input type="color" value={perfil.encabezado_color} onBlur={guardar} onChange={e => set('encabezado_color', e.target.value)}
+                <input type="color" value={perfil.encabezado_color} onChange={e => set('encabezado_color', e.target.value)}
                   style={{ width: '40px', height: '36px', border: '1px solid #e2e8f0', borderRadius: '6px', cursor: 'pointer', padding: '2px' }} />
                 <input value={perfil.encabezado_color} onChange={e => set('encabezado_color', e.target.value)} placeholder="#1B3A6B" style={inputSt()} />
               </div>
