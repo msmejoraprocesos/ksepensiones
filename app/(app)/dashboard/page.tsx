@@ -34,6 +34,7 @@ function MiDiaInner() {
   const [clientesEstancados, setClientesEstancados] = useState(0)
   const [actividadesSemana, setActividadesSemana] = useState(0)
   const [actividadesSemanaAnt, setActividadesSemanaAnt] = useState(0)
+  const [encuestaStats, setEncuestaStats] = useState({ promedio: 0, nps: 0, respondidas: 0, enviadas: 0 })
 
   const hoy = new Date()
   const fechaStr = hoy.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
@@ -70,11 +71,22 @@ function MiDiaInner() {
     const inicioSemanaAnt = new Date(); inicioSemanaAnt.setDate(inicioSemanaAnt.getDate() - 14)
     const hace60dias = new Date(); hace60dias.setDate(hace60dias.getDate() - 60)
 
-    const [{ data: iaData }, { data: actSem }, { data: actSemAnt }] = await Promise.all([
+    const [{ data: iaData }, { data: actSem }, { data: actSemAnt }, { data: encuestas }] = await Promise.all([
       supabase.from('uso_ia').select('costo_usd').eq('asesor_id', uid).gte('created_at', inicioMes.toISOString()),
       supabase.from('actividades').select('id').eq('asesor_id', uid).gte('created_at', inicioSemana.toISOString()),
       supabase.from('actividades').select('id').eq('asesor_id', uid).gte('created_at', inicioSemanaAnt.toISOString()).lt('created_at', inicioSemana.toISOString()),
+      supabase.from('encuestas_satisfaccion').select('calificacion, recomendaria, respondida_at').eq('asesor_id', uid).gte('created_at', inicioMes.toISOString()),
     ])
+
+    // KPIs encuesta
+    const respondidas = (encuestas ?? []).filter((e: any) => e.respondida_at)
+    const promedio = respondidas.length > 0
+      ? respondidas.reduce((s: number, e: any) => s + (e.calificacion ?? 0), 0) / respondidas.length
+      : 0
+    const promotores = respondidas.filter((e: any) => e.recomendaria === 'si').length
+    const detractores = respondidas.filter((e: any) => e.recomendaria === 'no').length
+    const nps = respondidas.length > 0 ? Math.round(((promotores - detractores) / respondidas.length) * 100) : 0
+    setEncuestaStats({ promedio: Math.round(promedio * 10) / 10, nps, respondidas: respondidas.length, enviadas: (encuestas ?? []).length })
 
     setCostoIA((iaData ?? []).reduce((s: number, r: any) => s + (Number(r.costo_usd) || 0), 0))
     setActividadesSemana((actSem ?? []).length)
@@ -940,6 +952,45 @@ function MiDiaInner() {
             )
           })()}
         </div>
+
+        {/* ── KPIs Satisfacción del cliente ── */}
+        <div style={{ background: 'white', border: '1px solid #E5E7EB', borderLeft: '4px solid #F59E0B', borderRadius: '10px', padding: '14px' }}>
+          <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 12px' }}>⭐ Satisfacción del cliente — este mes</p>
+          {encuestaStats.enviadas === 0 ? (
+            <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>Sin encuestas enviadas este mes. Envíalas desde el expediente de cada cliente al cerrar un caso.</p>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+              <div style={{ textAlign: 'center' as const }}>
+                <div style={{ fontSize: '28px', fontWeight: '800', color: encuestaStats.promedio >= 4 ? VERDE : encuestaStats.promedio >= 3 ? '#D97706' : '#DC2626' }}>
+                  {encuestaStats.promedio > 0 ? encuestaStats.promedio.toFixed(1) : '—'}
+                </div>
+                <div style={{ fontSize: '16px', letterSpacing: '2px', margin: '2px 0' }}>
+                  {'⭐'.repeat(Math.round(encuestaStats.promedio))}
+                </div>
+                <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '4px 0 0', textTransform: 'uppercase' as const }}>Satisfacción</p>
+              </div>
+              <div style={{ textAlign: 'center' as const, borderLeft: '1px solid #F3F4F6', borderRight: '1px solid #F3F4F6' }}>
+                <div style={{ fontSize: '28px', fontWeight: '800', color: encuestaStats.nps >= 50 ? VERDE : encuestaStats.nps >= 0 ? '#D97706' : '#DC2626' }}>
+                  {encuestaStats.respondidas > 0 ? `${encuestaStats.nps > 0 ? '+' : ''}${encuestaStats.nps}` : '—'}
+                </div>
+                <div style={{ fontSize: '11px', color: encuestaStats.nps >= 50 ? VERDE : '#D97706', fontWeight: '600', margin: '2px 0' }}>
+                  {encuestaStats.nps >= 70 ? 'Excelente' : encuestaStats.nps >= 50 ? 'Bueno' : encuestaStats.nps >= 0 ? 'Regular' : 'Malo'}
+                </div>
+                <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '4px 0 0', textTransform: 'uppercase' as const }}>NPS</p>
+              </div>
+              <div style={{ textAlign: 'center' as const }}>
+                <div style={{ fontSize: '28px', fontWeight: '800', color: AZUL }}>
+                  {encuestaStats.respondidas}<span style={{ fontSize: '16px', color: '#9CA3AF' }}>/{encuestaStats.enviadas}</span>
+                </div>
+                <div style={{ height: '4px', background: '#F3F4F6', borderRadius: '2px', overflow: 'hidden', margin: '6px auto', maxWidth: '60px' }}>
+                  <div style={{ height: '100%', background: AZUL, width: `${encuestaStats.enviadas > 0 ? (encuestaStats.respondidas / encuestaStats.enviadas) * 100 : 0}%` }} />
+                </div>
+                <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '4px 0 0', textTransform: 'uppercase' as const }}>Respondidas</p>
+              </div>
+            </div>
+          )}
+        </div>
+
       </div>
 
       {/* ── Onboarding — primeros pasos ── */}

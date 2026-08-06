@@ -312,6 +312,9 @@ function ClientesInner() {
   const [pagosProgramados, setPagosProgramados] = useState<PagoProgramado[]>([])
   const [uploadingProgComp, setUploadingProgComp] = useState<string | null>(null)
   const [showWappModal, setShowWappModal] = useState(false)
+  const [showEncuestaModal, setShowEncuestaModal] = useState(false)
+  const [enviandoEncuesta, setEnviandoEncuesta] = useState(false)
+  const [encuestaLink, setEncuestaLink] = useState('')
   const [showCanalizarModal, setShowCanalizarModal] = useState<any>(null)
   const [canalizarDestino, setCanalizarDestino] = useState('')
   const [canalizarMotivo, setCanalizarMotivo] = useState('')
@@ -1359,6 +1362,11 @@ function ClientesInner() {
                 style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 10px', background: '#dcfce7', color: '#15803d', border: 'none', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
                 💬 Material
               </button>
+              <button onClick={() => setShowEncuestaModal(true)}
+                title="Enviar encuesta de satisfacción"
+                style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 10px', background: '#FFF7ED', color: '#C2410C', border: '1px solid #FED7AA', borderRadius: '8px', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}>
+                ⭐ Encuesta
+              </button>
               {userRol === 'asesor' && (
                 <button onClick={() => setShowCanalizarModal(selected)}
                   title="Solicitar canalización"
@@ -2284,6 +2292,68 @@ function ClientesInner() {
                   {canalizarLoading ? 'Enviando...' : '🔄 Enviar solicitud'}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══ MODAL ENCUESTA ══ */}
+      {showEncuestaModal && selected && (
+        <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.5)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: '440px', borderRadius: '14px', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.25)' }}>
+            <div style={{ background: AZUL, padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <p style={{ fontSize: '15px', fontWeight: '700', color: 'white', margin: 0 }}>⭐ Enviar encuesta de satisfacción</p>
+                <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.65)', margin: '2px 0 0' }}>{selected.nombre}</p>
+              </div>
+              <button onClick={() => { setShowEncuestaModal(false); setEncuestaLink('') }}
+                style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', fontSize: '18px', padding: '4px 8px', borderRadius: '6px' }}>✕</button>
+            </div>
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
+              {!encuestaLink ? (
+                <>
+                  <div style={{ background: '#F8FAFC', borderRadius: '10px', padding: '14px' }}>
+                    <p style={{ fontSize: '13px', color: '#374151', margin: '0 0 8px', fontWeight: '600' }}>La encuesta incluye:</p>
+                    <p style={{ fontSize: '13px', color: '#6B7280', margin: '4px 0' }}>⭐ Calificación del servicio (1-5 estrellas)</p>
+                    <p style={{ fontSize: '13px', color: '#6B7280', margin: '4px 0' }}>🔄 ¿Recomendarías el servicio?</p>
+                    <p style={{ fontSize: '13px', color: '#6B7280', margin: '4px 0' }}>💬 Comentarios (opcional)</p>
+                  </div>
+                  <button onClick={async () => {
+                    setEnviandoEncuesta(true)
+                    const { data: { session } } = await supabase.auth.getSession()
+                    if (!session) { setEnviandoEncuesta(false); return }
+                    const { data } = await supabase.from('encuestas_satisfaccion').insert({
+                      asesor_id: session.user.id,
+                      cliente_id: selected.id,
+                      cliente_nombre: selected.nombre,
+                      cliente_telefono: selected.telefono,
+                    }).select('token').single()
+                    if (data) setEncuestaLink(`${process.env.NEXT_PUBLIC_APP_URL}/encuesta/${data.token}`)
+                    setEnviandoEncuesta(false)
+                  }} disabled={enviandoEncuesta}
+                    style={{ padding: '12px', background: AZUL, color: 'white', border: 'none', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
+                    {enviandoEncuesta ? 'Generando...' : '🔗 Generar link de encuesta'}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: '8px', padding: '12px' }}>
+                    <p style={{ fontSize: '11px', color: '#15803D', fontWeight: '700', margin: '0 0 6px', textTransform: 'uppercase' as const }}>Link generado</p>
+                    <p style={{ fontSize: '12px', color: '#374151', margin: 0, wordBreak: 'break-all' as const }}>{encuestaLink}</p>
+                  </div>
+                  <button onClick={() => {
+                    const tel = selected.telefono?.replace(/\D/g,'') || ''
+                    const msg = encodeURIComponent(`Hola ${selected.nombre.split(' ')[0]} 👋 Me gustaría conocer tu opinión sobre el servicio de asesoría pensional. ¿Podrías tomarte 2 minutos para responder esta breve encuesta? 📋\n\n${encuestaLink}\n\n¡Muchas gracias!`)
+                    window.open(`https://wa.me/52${tel}?text=${msg}`, '_blank')
+                  }} style={{ padding: '12px', background: '#16A34A', color: 'white', border: 'none', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    📱 Enviar por WhatsApp
+                  </button>
+                  <button onClick={() => { navigator.clipboard.writeText(encuestaLink) }}
+                    style={{ padding: '10px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
+                    📋 Copiar link
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
