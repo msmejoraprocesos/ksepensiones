@@ -97,334 +97,288 @@ function formatRFC(val: string): string {
 // Componente: Financieras y Elegibilidad
 // ══════════════════════════════════════════════════════════════════
 function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabase: any }) {
-  const AZUL = '#1B3A6B', NARANJA = '#F05B21', VERDE = '#16A34A'
+  const AZUL = '#1B3A6B', NARANJA = '#F05B21', VERDE = '#16A34A', ROJO = '#DC2626'
   const [financieras, setFinancieras] = useState<any[]>([])
-  const [variables, setVariables] = useState<any[]>([])
-  const [financieraActiva, setFinancieraActiva] = useState<string | null>(null)
-  const [criterios, setCriterios] = useState<Record<string, any[]>>({})
-  const [docsFinanciera, setDocsFinanciera] = useState<Record<string, any[]>>({})
-  const [tabFinanciera, setTabFinanciera] = useState<'criterios' | 'documentos'>('documentos')
-  const [showNuevaFinanciera, setShowNuevaFinanciera] = useState(false)
-  const [nuevaFinanciera, setNuevaFinanciera] = useState({ nombre: '', contacto: '', email: '', telefono: '' })
-  const [savingFinanciera, setSavingFinanciera] = useState(false)
+  const [catalogo, setCatalogo] = useState<any[]>([])  // documentos maestros
+  const [asignaciones, setAsignaciones] = useState<Record<string, string[]>>({}) // financiera_id -> [doc_id]
+  const [tab, setTab] = useState<'matriz' | 'catalogo'>('matriz')
+  const [showNuevaFin, setShowNuevaFin] = useState(false)
+  const [nuevaFin, setNuevaFin] = useState({ nombre: '', contacto: '', email: '', telefono: '' })
+  const [savingFin, setSavingFin] = useState(false)
   const [showNuevoDoc, setShowNuevoDoc] = useState(false)
   const [nuevoDoc, setNuevoDoc] = useState({ nombre: '', descripcion: '' })
   const [savingDoc, setSavingDoc] = useState(false)
+  const [toggling, setToggling] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (!userId) return
-    cargar()
-  }, [userId])
+  const DOCS_INICIALES = [
+    { nombre: 'Constancia de semanas cotizadas', descripcion: 'Documento oficial del IMSS (SISEC) actualizado a la fecha de solicitud' },
+    { nombre: 'Estado de cuenta AFORE', descripcion: 'Resumen de saldos más reciente — valida subcuenta de retiro e Infonavit' },
+    { nombre: 'Baja patronal', descripcion: 'Formato IMSS con fecha exacta del último trabajo cotizado' },
+    { nombre: 'Identificación oficial vigente', descripcion: 'INE o Pasaporte vigente' },
+    { nombre: 'CURP', descripcion: 'Formato actualizado' },
+    { nombre: 'Constancia de Situación Fiscal', descripcion: 'RFC con Homoclave' },
+    { nombre: 'Comprobante de domicilio', descripcion: 'No mayor a 3 meses' },
+    { nombre: 'Saldo AFORE mínimo verificado', descripcion: 'Subcuentas SAR 92, Retiro 97, Infonavit o voluntarias — mínimo $150,000 MXN' },
+  ]
+
+  useEffect(() => { if (!userId) return; cargar() }, [userId])
 
   async function cargar() {
-    const [{ data: f }, { data: v }] = await Promise.all([
+    const [{ data: fins }, { data: docs }, { data: asig }] = await Promise.all([
       supabase.from('instituciones_financieras').select('*').eq('asesor_id', userId).order('nombre'),
-      supabase.from('variables_elegibilidad').select('*').eq('activo', true).order('orden'),
+      supabase.from('documentos_catalogo').select('*').eq('asesor_id', userId).order('orden'),
+      supabase.from('documentos_financiera').select('institucion_id, documento_id'),
     ])
-    setFinancieras(f ?? [])
-    setVariables(v ?? [])
-    if (!financieraActiva && f && f.length > 0) {
-      setFinancieraActiva(f[0].id)
-      await cargarDatosFinanciera(f[0].id)
+    setFinancieras(fins ?? [])
+
+    // Si no hay documentos en catálogo, pre-cargar los iniciales
+    if ((docs ?? []).length === 0 && DOCS_INICIALES.length > 0) {
+      const inserts = DOCS_INICIALES.map((d, i) => ({ asesor_id: userId, nombre: d.nombre, descripcion: d.descripcion, orden: i, activo: true }))
+      const { data: inserted } = await supabase.from('documentos_catalogo').insert(inserts).select()
+      setCatalogo(inserted ?? [])
+    } else {
+      setCatalogo(docs ?? [])
     }
-  }
 
-  async function cargarDatosFinanciera(id: string) {
-    const [{ data: c }, { data: d }] = await Promise.all([
-      supabase.from('criterios_financiera').select('*').eq('institucion_id', id),
-      supabase.from('documentos_financiera').select('*, documentos_catalogo(nombre, descripcion)').eq('institucion_id', id),
-    ])
-    setCriterios(prev => ({ ...prev, [id]: c ?? [] }))
-    setDocsFinanciera(prev => ({ ...prev, [id]: d ?? [] }))
-  }
-
-  async function seleccionarFinanciera(id: string) {
-    setFinancieraActiva(id)
-    if (!criterios[id]) await cargarDatosFinanciera(id)
+    // Construir mapa de asignaciones
+    const mapa: Record<string, string[]> = {}
+    for (const a of (asig ?? [])) {
+      if (!mapa[a.institucion_id]) mapa[a.institucion_id] = []
+      mapa[a.institucion_id].push(a.documento_id)
+    }
+    setAsignaciones(mapa)
   }
 
   async function crearFinanciera() {
-    if (!nuevaFinanciera.nombre.trim()) return
-    setSavingFinanciera(true)
-    const { data } = await supabase.from('instituciones_financieras').insert({
-      asesor_id: userId,
-      nombre: nuevaFinanciera.nombre.trim(),
-      contacto_nombre: nuevaFinanciera.contacto.trim() || null,
-      contacto_email: nuevaFinanciera.email.trim() || null,
-      contacto_telefono: nuevaFinanciera.telefono.trim() || null,
+    if (!nuevaFin.nombre.trim()) return
+    setSavingFin(true)
+    await supabase.from('instituciones_financieras').insert({
+      asesor_id: userId, nombre: nuevaFin.nombre.trim(),
+      contacto_nombre: nuevaFin.contacto.trim() || null,
+      contacto_email: nuevaFin.email.trim() || null,
+      contacto_telefono: nuevaFin.telefono.trim() || null,
       activa: true,
-    }).select().single()
-    setNuevaFinanciera({ nombre: '', contacto: '', email: '', telefono: '' })
-    setShowNuevaFinanciera(false)
+    })
+    setNuevaFin({ nombre: '', contacto: '', email: '', telefono: '' })
+    setShowNuevaFin(false)
     await cargar()
-    if (data) { setFinancieraActiva(data.id); await cargarDatosFinanciera(data.id) }
-    setSavingFinanciera(false)
+    setSavingFin(false)
   }
 
-  async function guardarCriterio(financieraId: string, clave: string, campo: string, valor: string) {
-    const existing = (criterios[financieraId] ?? []).find((c: any) => c.variable_clave === clave)
-    const update: any = { institucion_id: financieraId, variable_clave: clave }
-    if (campo === 'valor_min') update.valor_min = valor ? parseFloat(valor) : null
-    if (campo === 'valor_max') update.valor_max = valor ? parseFloat(valor) : null
-    if (existing) {
-      await supabase.from('criterios_financiera').update(update).eq('id', existing.id)
-    } else {
-      await supabase.from('criterios_financiera').insert(update)
-    }
-    await cargarDatosFinanciera(financieraId)
-  }
-
-  async function agregarDoc() {
-    if (!nuevoDoc.nombre.trim() || !financieraActiva) return
+  async function crearDoc() {
+    if (!nuevoDoc.nombre.trim()) return
     setSavingDoc(true)
-    // Crear en catálogo y asignar a financiera
-    const { data: docCat } = await supabase.from('documentos_catalogo').insert({
+    await supabase.from('documentos_catalogo').insert({
       asesor_id: userId, nombre: nuevoDoc.nombre.trim(),
-      descripcion: nuevoDoc.descripcion.trim() || null, orden: 0,
-    }).select().single()
-    if (docCat) {
-      await supabase.from('documentos_financiera').insert({
-        institucion_id: financieraActiva, documento_id: docCat.id, obligatorio: true,
-      })
-    }
+      descripcion: nuevoDoc.descripcion.trim() || null,
+      orden: catalogo.length, activo: true,
+    })
     setNuevoDoc({ nombre: '', descripcion: '' })
     setShowNuevoDoc(false)
-    await cargarDatosFinanciera(financieraActiva)
+    await cargar()
     setSavingDoc(false)
   }
 
-  async function eliminarDoc(docFinancieraId: string) {
-    if (!confirm('¿Quitar este documento de la financiera?')) return
-    await supabase.from('documentos_financiera').delete().eq('id', docFinancieraId)
-    if (financieraActiva) await cargarDatosFinanciera(financieraActiva)
+  async function toggleDoc(docId: string, activo: boolean) {
+    await supabase.from('documentos_catalogo').update({ activo: !activo }).eq('id', docId)
+    await cargar()
   }
 
-  const fActual = financieras.find((f: any) => f.id === financieraActiva)
-  const crit = criterios[financieraActiva ?? ''] ?? []
-  const docs = docsFinanciera[financieraActiva ?? ''] ?? []
+  async function toggleAsignacion(finId: string, docId: string) {
+    const key = `${finId}_${docId}`
+    setToggling(key)
+    const asignados = asignaciones[finId] ?? []
+    const yaAsignado = asignados.includes(docId)
+    if (yaAsignado) {
+      await supabase.from('documentos_financiera').delete().eq('institucion_id', finId).eq('documento_id', docId)
+    } else {
+      await supabase.from('documentos_financiera').insert({ institucion_id: finId, documento_id: docId, obligatorio: true })
+    }
+    setAsignaciones(prev => {
+      const current = prev[finId] ?? []
+      return {
+        ...prev,
+        [finId]: yaAsignado ? current.filter(id => id !== docId) : [...current, docId],
+      }
+    })
+    setToggling(null)
+  }
+
+  const docsActivos = catalogo.filter((d: any) => d.activo)
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '16px' }}>
 
-      {/* Header con lista de financieras como tabs + botón nueva */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' as const }}>
-        {financieras.map((f: any) => (
-          <button key={f.id} onClick={() => seleccionarFinanciera(f.id)}
-            style={{ padding: '8px 16px', background: financieraActiva === f.id ? AZUL : 'white', color: financieraActiva === f.id ? 'white' : '#374151', border: `1.5px solid ${financieraActiva === f.id ? AZUL : '#E5E7EB'}`, fontSize: '13px', fontWeight: financieraActiva === f.id ? '700' : '500', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
-            🏦 {f.nombre}
+      {/* Tabs principales */}
+      <div style={{ display: 'flex', gap: '4px', background: '#F4F6FB', padding: '4px', borderRadius: '10px' }}>
+        {([['matriz', '📊 Matriz de documentos'], ['catalogo', '📋 Catálogo maestro']] as const).map(([t, lbl]) => (
+          <button key={t} onClick={() => setTab(t)}
+            style={{ flex: 1, padding: '9px', background: tab === t ? AZUL : 'transparent', color: tab === t ? 'white' : '#6B7280', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: tab === t ? '700' : '500', cursor: 'pointer', fontFamily: 'inherit' }}>
+            {lbl}
           </button>
         ))}
-        <button onClick={() => setShowNuevaFinanciera(true)}
-          style={{ padding: '8px 16px', background: 'white', color: NARANJA, border: `1.5px dashed ${NARANJA}`, fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
-          + Nueva financiera
-        </button>
       </div>
 
-      {/* Modal nueva financiera */}
-      {showNuevaFinanciera && (
-        <div style={{ background: '#F8FAFC', border: '1px solid #E5E7EB', borderRadius: '10px', padding: '16px', display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
-          <p style={{ fontSize: '14px', fontWeight: '700', color: AZUL, margin: 0 }}>Nueva institución financiera</p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-            <div>
-              <label style={{ fontSize: '11px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>Nombre *</label>
-              <input value={nuevaFinanciera.nombre} onChange={e => setNuevaFinanciera(p => ({ ...p, nombre: e.target.value }))}
-                placeholder="Ej: Caja Libertad, Financiera Independencia"
-                style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #D1D5DB', fontSize: '13px', borderRadius: '6px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
-            </div>
-            <div>
-              <label style={{ fontSize: '11px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>Contacto</label>
-              <input value={nuevaFinanciera.contacto} onChange={e => setNuevaFinanciera(p => ({ ...p, contacto: e.target.value }))}
-                placeholder="Nombre del ejecutivo"
-                style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #D1D5DB', fontSize: '13px', borderRadius: '6px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
-            </div>
-            <div>
-              <label style={{ fontSize: '11px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>Email</label>
-              <input value={nuevaFinanciera.email} onChange={e => setNuevaFinanciera(p => ({ ...p, email: e.target.value }))}
-                placeholder="ejecutivo@financiera.com"
-                style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #D1D5DB', fontSize: '13px', borderRadius: '6px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
-            </div>
-            <div>
-              <label style={{ fontSize: '11px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>Teléfono</label>
-              <input value={nuevaFinanciera.telefono} onChange={e => setNuevaFinanciera(p => ({ ...p, telefono: e.target.value }))}
-                placeholder="10 dígitos"
-                style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #D1D5DB', fontSize: '13px', borderRadius: '6px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-            <button onClick={() => { setShowNuevaFinanciera(false); setNuevaFinanciera({ nombre: '', contacto: '', email: '', telefono: '' }) }}
-              style={{ padding: '8px 16px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
-              Cancelar
-            </button>
-            <button onClick={crearFinanciera} disabled={savingFinanciera || !nuevaFinanciera.nombre.trim()}
-              style={{ padding: '8px 20px', background: !nuevaFinanciera.nombre.trim() ? '#E5E7EB' : AZUL, color: !nuevaFinanciera.nombre.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: !nuevaFinanciera.nombre.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
-              {savingFinanciera ? 'Guardando...' : '+ Crear financiera'}
+      {/* ── TAB MATRIZ ── */}
+      {tab === 'matriz' && (
+        <div>
+          {/* Botón nueva financiera */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '12px' }}>
+            <button onClick={() => setShowNuevaFin(true)}
+              style={{ padding: '8px 16px', background: 'white', color: NARANJA, border: `1.5px dashed ${NARANJA}`, fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
+              + Nueva financiera
             </button>
           </div>
+
+          {/* Modal nueva financiera */}
+          {showNuevaFin && (
+            <div style={{ background: '#F8FAFC', border: '1px solid #E5E7EB', borderRadius: '10px', padding: '16px', marginBottom: '12px', display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
+              <p style={{ fontSize: '14px', fontWeight: '700', color: AZUL, margin: 0 }}>Nueva institución financiera</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                {[
+                  { label: 'Nombre *', key: 'nombre', placeholder: 'Ej: Caja Libertad, Banorte' },
+                  { label: 'Contacto', key: 'contacto', placeholder: 'Nombre del ejecutivo' },
+                  { label: 'Email', key: 'email', placeholder: 'ejecutivo@financiera.com' },
+                  { label: 'Teléfono', key: 'telefono', placeholder: '10 dígitos' },
+                ].map(f => (
+                  <div key={f.key}>
+                    <label style={{ fontSize: '11px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>{f.label}</label>
+                    <input value={(nuevaFin as any)[f.key]} onChange={e => setNuevaFin(p => ({ ...p, [f.key]: e.target.value }))}
+                      placeholder={f.placeholder}
+                      style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #D1D5DB', fontSize: '13px', borderRadius: '6px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                <button onClick={() => { setShowNuevaFin(false); setNuevaFin({ nombre: '', contacto: '', email: '', telefono: '' }) }}
+                  style={{ padding: '8px 16px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>Cancelar</button>
+                <button onClick={crearFinanciera} disabled={savingFin || !nuevaFin.nombre.trim()}
+                  style={{ padding: '8px 20px', background: !nuevaFin.nombre.trim() ? '#E5E7EB' : AZUL, color: !nuevaFin.nombre.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: !nuevaFin.nombre.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                  {savingFin ? 'Guardando...' : '+ Crear financiera'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {financieras.length === 0 ? (
+            <div style={{ padding: '32px', textAlign: 'center' as const, background: '#F8FAFC', border: '1px dashed #D1D5DB', borderRadius: '10px' }}>
+              <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>Agrega tu primera financiera con el botón de arriba</p>
+            </div>
+          ) : docsActivos.length === 0 ? (
+            <div style={{ padding: '24px', textAlign: 'center' as const, background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '10px' }}>
+              <p style={{ fontSize: '13px', color: '#92400E', margin: 0 }}>⚠️ No hay documentos en el catálogo. Ve al tab "Catálogo maestro" para agregarlos.</p>
+            </div>
+          ) : (
+            /* MATRIZ */
+            <div style={{ overflowX: 'auto' as const, borderRadius: '10px', border: '1px solid #E5E7EB' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '13px' }}>
+                <thead>
+                  <tr style={{ background: AZUL }}>
+                    <th style={{ padding: '12px 16px', textAlign: 'left' as const, color: 'rgba(255,255,255,0.8)', fontSize: '11px', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: '0.5px', minWidth: '220px', position: 'sticky' as const, left: 0, background: AZUL }}>
+                      Documento
+                    </th>
+                    {financieras.map((f: any) => (
+                      <th key={f.id} style={{ padding: '12px 16px', textAlign: 'center' as const, color: 'white', fontSize: '12px', fontWeight: '700', minWidth: '130px', whiteSpace: 'nowrap' as const }}>
+                        🏦 {f.nombre}
+                        <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.55)', fontWeight: '400', marginTop: '2px' }}>
+                          {(asignaciones[f.id] ?? []).length} docs
+                        </div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {docsActivos.map((doc: any, i: number) => (
+                    <tr key={doc.id} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #F3F4F6' }}>
+                      <td style={{ padding: '12px 16px', position: 'sticky' as const, left: 0, background: i % 2 === 0 ? 'white' : '#F8FAFC', borderRight: '1px solid #E5E7EB' }}>
+                        <p style={{ fontSize: '13px', fontWeight: '600', color: '#111827', margin: '0 0 2px' }}>{doc.nombre}</p>
+                        {doc.descripcion && <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>{doc.descripcion}</p>}
+                      </td>
+                      {financieras.map((f: any) => {
+                        const key = `${f.id}_${doc.id}`
+                        const asignado = (asignaciones[f.id] ?? []).includes(doc.id)
+                        return (
+                          <td key={f.id} style={{ padding: '12px 16px', textAlign: 'center' as const }}>
+                            <button onClick={() => toggleAsignacion(f.id, doc.id)}
+                              disabled={toggling === key}
+                              style={{
+                                width: '32px', height: '32px', borderRadius: '8px',
+                                background: asignado ? '#DCFCE7' : '#F3F4F6',
+                                border: `2px solid ${asignado ? '#16A34A' : '#D1D5DB'}`,
+                                cursor: toggling === key ? 'not-allowed' : 'pointer',
+                                fontSize: '16px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                                transition: 'all 0.15s',
+                                opacity: toggling === key ? 0.5 : 1,
+                              }}>
+                              {toggling === key ? '⏳' : asignado ? '✅' : '☐'}
+                            </button>
+                          </td>
+                        )
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Panel de la financiera seleccionada */}
-      {financieraActiva && fActual ? (
-        <div style={{ background: 'white', border: `1.5px solid ${AZUL}`, borderRadius: '10px', overflow: 'hidden' }}>
-
-          {/* Header financiera */}
-          <div style={{ padding: '14px 20px', background: '#EEF2F8', borderBottom: '1px solid #D1D5DB', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontSize: '22px' }}>🏦</span>
-            <div style={{ flex: 1 }}>
-              <p style={{ fontSize: '15px', fontWeight: '800', color: AZUL, margin: 0 }}>{fActual.nombre}</p>
-              <p style={{ fontSize: '12px', color: '#6B7280', margin: '2px 0 0' }}>
-                {fActual.contacto_nombre && `${fActual.contacto_nombre} · `}
-                {fActual.contacto_email || fActual.contacto_telefono || 'Sin datos de contacto'}
-              </p>
-            </div>
-            <div style={{ display: 'flex', gap: '6px' }}>
-              <span style={{ fontSize: '11px', color: VERDE, background: '#F0FDF4', border: '1px solid #86EFAC', padding: '3px 8px', borderRadius: '6px', fontWeight: '600' }}>
-                {docs.length} docs
-              </span>
-              <span style={{ fontSize: '11px', color: AZUL, background: '#EEF2F8', border: '1px solid #BFDBFE', padding: '3px 8px', borderRadius: '6px', fontWeight: '600' }}>
-                {crit.length} criterios
-              </span>
-            </div>
+      {/* ── TAB CATÁLOGO MAESTRO ── */}
+      {tab === 'catalogo' && (
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <p style={{ fontSize: '13px', color: '#4B5563', margin: 0 }}>
+              Lista maestra de documentos. Inactiva los que no uses — desaparecen de la matriz pero sin borrar historial.
+            </p>
+            <button onClick={() => setShowNuevoDoc(true)}
+              style={{ padding: '8px 16px', background: NARANJA, color: 'white', border: 'none', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px', flexShrink: 0 }}>
+              + Nuevo documento
+            </button>
           </div>
 
-          {/* Tabs */}
-          <div style={{ display: 'flex', borderBottom: '1px solid #E5E7EB' }}>
-            {([['documentos', '📄 Documentos requeridos'], ['criterios', '📋 Criterios de elegibilidad']] as const).map(([t, lbl]) => (
-              <button key={t} onClick={() => setTabFinanciera(t)}
-                style={{ padding: '10px 20px', background: 'none', border: 'none', borderBottom: `2px solid ${tabFinanciera === t ? AZUL : 'transparent'}`, fontSize: '13px', fontWeight: tabFinanciera === t ? '700' : '400', color: tabFinanciera === t ? AZUL : '#6B7280', cursor: 'pointer', fontFamily: 'inherit' }}>
-                {lbl}
-              </button>
-            ))}
-          </div>
-
-          {/* Tab Documentos */}
-          {tabFinanciera === 'documentos' && (
-            <div style={{ padding: '16px 20px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <p style={{ fontSize: '13px', color: '#4B5563', margin: 0 }}>
-                  Documentos que pide esta financiera al cliente para tramitar el crédito
-                </p>
-                <button onClick={() => setShowNuevoDoc(true)}
-                  style={{ padding: '7px 14px', background: NARANJA, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', whiteSpace: 'nowrap' as const }}>
-                  + Agregar documento
+          {showNuevoDoc && (
+            <div style={{ background: '#F8FAFC', border: '1px solid #E5E7EB', borderRadius: '10px', padding: '14px', marginBottom: '12px', display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
+              <input value={nuevoDoc.nombre} onChange={e => setNuevoDoc(p => ({ ...p, nombre: e.target.value }))}
+                placeholder="Nombre del documento * (ej: Estado de cuenta bancario)"
+                style={{ padding: '9px 12px', border: '1.5px solid #D1D5DB', fontSize: '13px', borderRadius: '6px', fontFamily: 'inherit' }} />
+              <input value={nuevoDoc.descripcion} onChange={e => setNuevoDoc(p => ({ ...p, descripcion: e.target.value }))}
+                placeholder="Descripción adicional (opcional)"
+                style={{ padding: '9px 12px', border: '1.5px solid #D1D5DB', fontSize: '13px', borderRadius: '6px', fontFamily: 'inherit' }} />
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                <button onClick={() => { setShowNuevoDoc(false); setNuevoDoc({ nombre: '', descripcion: '' }) }}
+                  style={{ padding: '7px 14px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>Cancelar</button>
+                <button onClick={crearDoc} disabled={savingDoc || !nuevoDoc.nombre.trim()}
+                  style={{ padding: '7px 16px', background: !nuevoDoc.nombre.trim() ? '#E5E7EB' : AZUL, color: !nuevoDoc.nombre.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '12px', fontWeight: '700', cursor: !nuevoDoc.nombre.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                  {savingDoc ? 'Guardando...' : 'Agregar'}
                 </button>
               </div>
-
-              {/* Formulario nuevo documento */}
-              {showNuevoDoc && (
-                <div style={{ background: '#F8FAFC', border: '1px solid #E5E7EB', borderRadius: '8px', padding: '12px', marginBottom: '12px', display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
-                  <input value={nuevoDoc.nombre} onChange={e => setNuevoDoc(p => ({ ...p, nombre: e.target.value }))}
-                    placeholder="Nombre del documento * (ej: Identificación oficial, Comprobante domicilio)"
-                    style={{ padding: '8px 12px', border: '1.5px solid #D1D5DB', fontSize: '13px', borderRadius: '6px', fontFamily: 'inherit' }} />
-                  <input value={nuevoDoc.descripcion} onChange={e => setNuevoDoc(p => ({ ...p, descripcion: e.target.value }))}
-                    placeholder="Descripción adicional (opcional — ej: Vigente, no mayor a 3 meses)"
-                    style={{ padding: '8px 12px', border: '1.5px solid #D1D5DB', fontSize: '13px', borderRadius: '6px', fontFamily: 'inherit' }} />
-                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                    <button onClick={() => { setShowNuevoDoc(false); setNuevoDoc({ nombre: '', descripcion: '' }) }}
-                      style={{ padding: '7px 14px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
-                      Cancelar
-                    </button>
-                    <button onClick={agregarDoc} disabled={savingDoc || !nuevoDoc.nombre.trim()}
-                      style={{ padding: '7px 16px', background: !nuevoDoc.nombre.trim() ? '#E5E7EB' : AZUL, color: !nuevoDoc.nombre.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '12px', fontWeight: '700', cursor: !nuevoDoc.nombre.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
-                      {savingDoc ? 'Guardando...' : 'Agregar'}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {docs.length === 0 ? (
-                <div style={{ padding: '24px', textAlign: 'center' as const, background: '#F8FAFC', borderRadius: '8px', border: '1px dashed #D1D5DB' }}>
-                  <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>Sin documentos — agrega los que pide esta financiera</p>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
-                  {docs.map((d: any) => (
-                    <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: '#F8FAFC', borderRadius: '8px', border: '1px solid #E5E7EB' }}>
-                      <span style={{ fontSize: '18px', flexShrink: 0 }}>📄</span>
-                      <div style={{ flex: 1 }}>
-                        <p style={{ fontSize: '13px', fontWeight: '600', color: '#111827', margin: 0 }}>{d.documentos_catalogo?.nombre ?? d.nombre}</p>
-                        {d.documentos_catalogo?.descripcion && <p style={{ fontSize: '11px', color: '#6B7280', margin: '2px 0 0' }}>{d.documentos_catalogo.descripcion}</p>}
-                      </div>
-                      <button onClick={() => eliminarDoc(d.id)}
-                        style={{ padding: '5px 10px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', fontSize: '11px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '5px', flexShrink: 0 }}>
-                        Quitar
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           )}
 
-          {/* Tab Criterios */}
-          {tabFinanciera === 'criterios' && (
-            <div style={{ padding: '16px 20px' }}>
-              <p style={{ fontSize: '13px', color: '#4B5563', margin: '0 0 14px' }}>
-                Define los rangos que acepta esta financiera. Deja en blanco lo que no aplique.
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
-                {variables.filter((v: any) => v.tipo === 'numero').map((v: any) => {
-                  const c = crit.find((c: any) => c.variable_clave === v.clave)
-                  return (
-                    <div key={v.clave} style={{ display: 'grid', gridTemplateColumns: '1fr 120px 120px', gap: '10px', alignItems: 'center', padding: '10px 14px', background: '#F8FAFC', borderRadius: '8px', border: '1px solid #E5E7EB' }}>
-                      <div>
-                        <p style={{ fontSize: '13px', fontWeight: '600', color: '#374151', margin: 0 }}>{v.nombre}</p>
-                        {v.descripcion && <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '2px 0 0' }}>{v.descripcion}</p>}
-                        {v.unidad && <span style={{ fontSize: '10px', color: '#6B7280', background: '#EEF2F8', padding: '1px 6px', borderRadius: '4px' }}>{v.unidad}</span>}
-                      </div>
-                      <div>
-                        <label style={{ fontSize: '10px', color: '#9CA3AF', display: 'block', marginBottom: '3px', textTransform: 'uppercase' as const }}>Mínimo</label>
-                        <input type="number" defaultValue={c?.valor_min ?? ''}  placeholder="—"
-                          onBlur={e => guardarCriterio(financieraActiva, v.clave, 'valor_min', e.target.value)}
-                          style={{ width: '100%', padding: '6px 8px', border: '1px solid #D1D5DB', fontSize: '13px', borderRadius: '6px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
-                      </div>
-                      <div>
-                        <label style={{ fontSize: '10px', color: '#9CA3AF', display: 'block', marginBottom: '3px', textTransform: 'uppercase' as const }}>Máximo</label>
-                        <input type="number" defaultValue={c?.valor_max ?? ''} placeholder="—"
-                          onBlur={e => guardarCriterio(financieraActiva, v.clave, 'valor_max', e.target.value)}
-                          style={{ width: '100%', padding: '6px 8px', border: '1px solid #D1D5DB', fontSize: '13px', borderRadius: '6px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
-                      </div>
-                    </div>
-                  )
-                })}
-                {variables.filter((v: any) => v.tipo === 'cualitativo').map((v: any) => {
-                  const c = crit.find((c: any) => c.variable_clave === v.clave)
-                  const seleccionados: string[] = c?.valores_aceptados ?? []
-                  return (
-                    <div key={v.clave} style={{ padding: '10px 14px', background: '#F8FAFC', borderRadius: '8px', border: '1px solid #E5E7EB' }}>
-                      <p style={{ fontSize: '13px', fontWeight: '600', color: '#374151', margin: '0 0 8px' }}>{v.nombre}</p>
-                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const }}>
-                        {(v.opciones ?? []).map((op: any) => {
-                          const sel = seleccionados.includes(op.valor)
-                          return (
-                            <button key={op.valor} onClick={async () => {
-                              const nuevos = sel ? seleccionados.filter((x: string) => x !== op.valor) : [...seleccionados, op.valor]
-                              const existing = crit.find((c: any) => c.variable_clave === v.clave)
-                              if (existing) {
-                                await supabase.from('criterios_financiera').update({ valores_aceptados: nuevos }).eq('id', existing.id)
-                              } else {
-                                await supabase.from('criterios_financiera').insert({ institucion_id: financieraActiva, variable_clave: v.clave, valores_aceptados: nuevos })
-                              }
-                              await cargarDatosFinanciera(financieraActiva)
-                            }} style={{ padding: '5px 12px', background: sel ? AZUL : 'white', color: sel ? 'white' : '#374151', border: `1.5px solid ${sel ? AZUL : '#E5E7EB'}`, fontSize: '12px', fontWeight: sel ? '700' : '400', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
-                              {sel ? '✓ ' : ''}{op.etiqueta}
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  )
-                })}
-                {variables.length === 0 && (
-                  <p style={{ fontSize: '13px', color: '#9CA3AF', textAlign: 'center' as const }}>Sin variables de elegibilidad configuradas</p>
-                )}
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
+            {catalogo.length === 0 ? (
+              <div style={{ padding: '24px', textAlign: 'center' as const, background: '#F8FAFC', border: '1px dashed #D1D5DB', borderRadius: '8px' }}>
+                <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>Sin documentos en el catálogo</p>
               </div>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div style={{ background: '#F8FAFC', border: '1px dashed #D1D5DB', borderRadius: '10px', padding: '32px', textAlign: 'center' as const }}>
-          <p style={{ fontSize: '14px', color: '#9CA3AF', margin: 0 }}>Agrega tu primera financiera con el botón de arriba</p>
+            ) : catalogo.map((doc: any) => (
+              <div key={doc.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', background: doc.activo ? 'white' : '#F9FAFB', border: '1px solid #E5E7EB', borderLeft: `3px solid ${doc.activo ? AZUL : '#D1D5DB'}`, borderRadius: '8px', opacity: doc.activo ? 1 : 0.6 }}>
+                <span style={{ fontSize: '18px', flexShrink: 0 }}>📄</span>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: '13px', fontWeight: '600', color: '#111827', margin: '0 0 2px' }}>{doc.nombre}</p>
+                  {doc.descripcion && <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>{doc.descripcion}</p>}
+                  <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '3px 0 0' }}>
+                    Asignado a {Object.values(asignaciones).filter((ids: any) => ids.includes(doc.id)).length} financiera(s)
+                  </p>
+                </div>
+                {!doc.activo && <span style={{ fontSize: '11px', color: '#9CA3AF', background: '#F3F4F6', padding: '2px 8px', borderRadius: '4px', flexShrink: 0 }}>Inactivo</span>}
+                <button onClick={() => toggleDoc(doc.id, doc.activo)}
+                  style={{ padding: '6px 14px', background: doc.activo ? '#FFFBEB' : '#F0FDF4', color: doc.activo ? '#D97706' : VERDE, border: `1px solid ${doc.activo ? '#FDE68A' : '#86EFAC'}`, fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', flexShrink: 0 }}>
+                  {doc.activo ? '⏸ Inactivar' : '▶ Activar'}
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -432,9 +386,6 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
 }
 
 
-// ══════════════════════════════════════════════════════════════════
-// Catálogos de actividad configurables
-// ══════════════════════════════════════════════════════════════════
 const CATEGORIAS = [
   { id: 'tipo_contacto', label: '📞 Tipo de contacto', desc: 'Cómo fue el contacto con el cliente' },
   { id: 'resultado', label: '🎯 Resultado', desc: 'Qué resultado tuvo el contacto' },
