@@ -102,7 +102,8 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
   const [catalogo, setCatalogo] = useState<any[]>([])
   const [asignaciones, setAsignaciones] = useState<Record<string, string[]>>({})
   const [showModal, setShowModal] = useState(false)
-  const [editFin, setEditFin] = useState<any>(null) // null = nueva
+  const [editFin, setEditFin] = useState<any>(null)
+  const [finIdModal, setFinIdModal] = useState<string | null>(null)
   const [modalTab, setModalTab] = useState<'datos' | 'docs'>('datos')
   const [finForm, setFinForm] = useState({ nombre: '', contacto: '', email: '', telefono: '' })
   const [savingFin, setSavingFin] = useState(false)
@@ -147,6 +148,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
 
   function abrirNuevaFinanciera() {
     setEditFin(null)
+    setFinIdModal(null)
     setFinForm({ nombre: '', contacto: '', email: '', telefono: '' })
     setModalTab('datos')
     setShowModal(true)
@@ -154,6 +156,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
 
   function abrirEditarFinanciera(f: any) {
     setEditFin(f)
+    setFinIdModal(f.id)
     setFinForm({ nombre: f.nombre ?? '', contacto: f.contacto_nombre ?? '', email: f.contacto_email ?? '', telefono: f.contacto_telefono ?? '' })
     setModalTab('datos')
     setShowModal(true)
@@ -174,11 +177,15 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
       await supabase.from('instituciones_financieras').update(payload).eq('id', editFin.id)
     } else {
       const { data } = await supabase.from('instituciones_financieras').insert(payload).select().single()
-      if (data) setEditFin(data) // para poder asignar docs en el modal
+      await cargar()
+      if (data) { setEditFin(data); setFinIdModal(data.id) }
+    } else {
+      await supabase.from('instituciones_financieras').update(payload).eq('id', editFin.id)
+      setFinIdModal(editFin.id)
+      await cargar()
     }
-    await cargar()
     setSavingFin(false)
-    setModalTab('docs') // avanzar a docs automáticamente al crear
+    setModalTab('docs')
   }
 
   async function toggleAsignacion(finId: string, docId: string) {
@@ -204,7 +211,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
   }
 
   const docsActivos = catalogo.filter((d: any) => d.activo)
-  const finModal = editFin ?? null
+  const finModal = financieras.find((f: any) => f.id === finIdModal) ?? editFin
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '16px' }}>
