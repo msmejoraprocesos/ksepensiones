@@ -175,14 +175,12 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
     }
     if (editFin) {
       await supabase.from('instituciones_financieras').update(payload).eq('id', editFin.id)
+      setFinIdModal(editFin.id)
+      await cargar()
     } else {
       const { data } = await supabase.from('instituciones_financieras').insert(payload).select().single()
       await cargar()
       if (data) { setEditFin(data); setFinIdModal(data.id) }
-    } else {
-      await supabase.from('instituciones_financieras').update(payload).eq('id', editFin.id)
-      setFinIdModal(editFin.id)
-      await cargar()
     }
     setSavingFin(false)
     setModalTab('docs')
