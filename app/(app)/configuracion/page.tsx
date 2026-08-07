@@ -723,11 +723,21 @@ export default function ConfiguracionPage() {
       uma_actualizada_en: perfil.uma_actualizada_en,
       sm_actualizado_en: perfil.sm_actualizado_en,
       pmg_actualizado_en: perfil.pmg_actualizado_en,
+      tasa_banco_anual: perfil.tasa_banco_anual,
+      pct_banco_regulado: perfil.pct_banco_regulado,
+      pct_recargos_retroactivo: perfil.pct_recargos_retroactivo,
+      pct_actualizacion_inpc: perfil.pct_actualizacion_inpc,
+      mod40_pct: perfil.mod40_pct,
     }
 
-    const { error } = await supabase
+    // Primero intentar update, si no existe hacer insert
+    const { error: updateError } = await supabase
       .from('perfiles_usuario')
-      .upsert({ id: uid, ...camposPerfil }, { onConflict: 'id' })
+      .update(camposPerfil)
+      .eq('id', uid)
+
+    // Si no hay fila (update afecta 0 rows), hacer insert
+    const { error } = updateError ? await supabase.from('perfiles_usuario').insert({ id: uid, ...camposPerfil }) : { error: null }
 
     if (error) {
       setSaving(false)
