@@ -123,6 +123,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
   useEffect(() => { if (!userId) return; cargar() }, [userId])
 
   async function cargar() {
+    if (!userId) return
     const [{ data: fins }, { data: docs }, { data: asig }] = await Promise.all([
       supabase.from('instituciones_financieras').select('*').eq('asesor_id', userId).order('nombre'),
       supabase.from('documentos_catalogo').select('*').eq('asesor_id', userId).order('orden'),
@@ -361,29 +362,38 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
               )}
 
               {/* Tab documentos */}
-              {modalTab === 'docs' && finModal && (
+              {modalTab === 'docs' && (
                 <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
-                  <p style={{ fontSize: '13px', color: '#4B5563', margin: '0 0 4px' }}>
-                    Marca los documentos que pide <strong>{finModal.nombre}</strong> para tramitar el financiamiento:
-                  </p>
-                  {docsActivos.length === 0 ? (
-                    <p style={{ fontSize: '13px', color: '#9CA3AF' }}>No hay documentos en el catálogo. Agrégalos en el tab Catálogos.</p>
-                  ) : docsActivos.map((doc: any) => {
-                    const key = `${finModal.id}_${doc.id}`
-                    const asignado = (asignaciones[finModal.id] ?? []).includes(doc.id)
-                    return (
-                      <div key={doc.id} onClick={() => toggleAsignacion(finModal.id, doc.id)}
-                        style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', background: asignado ? '#F0FDF4' : '#F8FAFC', border: `1.5px solid ${asignado ? '#86EFAC' : '#E5E7EB'}`, borderRadius: '10px', cursor: 'pointer', transition: 'all 0.15s' }}>
-                        <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: asignado ? VERDE : 'white', border: `2px solid ${asignado ? VERDE : '#D1D5DB'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '14px' }}>
-                          {toggling === key ? '⏳' : asignado ? '✓' : ''}
-                        </div>
-                        <div style={{ flex: 1 }}>
-                          <p style={{ fontSize: '13px', fontWeight: asignado ? '700' : '500', color: asignado ? '#15803D' : '#374151', margin: '0 0 2px' }}>{doc.nombre}</p>
-                          {doc.descripcion && <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>{doc.descripcion}</p>}
-                        </div>
-                      </div>
-                    )
-                  })}
+                  {!finModal ? (
+                    <p style={{ fontSize: '13px', color: '#9CA3AF', textAlign: 'center' as const }}>Guarda los datos generales primero</p>
+                  ) : docsActivos.length === 0 ? (
+                    <div style={{ textAlign: 'center' as const, padding: '20px' }}>
+                      <p style={{ fontSize: '13px', color: '#9CA3AF', margin: '0 0 12px' }}>No hay documentos en el catálogo.</p>
+                      <p style={{ fontSize: '12px', color: '#6B7280' }}>Ve al tab <strong>Catálogos</strong> en Configuración para agregar documentos, o cierra este modal y verifica que los documentos estándar se cargaron correctamente.</p>
+                    </div>
+                  ) : (
+                    <>
+                      <p style={{ fontSize: '13px', color: '#4B5563', margin: '0 0 4px' }}>
+                        Marca los documentos que pide <strong>{finModal.nombre}</strong>:
+                      </p>
+                      {docsActivos.map((doc: any) => {
+                        const key = `${finModal.id}_${doc.id}`
+                        const asignado = (asignaciones[finModal.id] ?? []).includes(doc.id)
+                        return (
+                          <div key={doc.id} onClick={() => toggleAsignacion(finModal.id, doc.id)}
+                            style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', background: asignado ? '#F0FDF4' : '#F8FAFC', border: `1.5px solid ${asignado ? '#86EFAC' : '#E5E7EB'}`, borderRadius: '10px', cursor: 'pointer', transition: 'all 0.15s' }}>
+                            <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: asignado ? VERDE : 'white', border: `2px solid ${asignado ? VERDE : '#D1D5DB'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '14px', color: 'white', fontWeight: '700' }}>
+                              {toggling === key ? '⏳' : asignado ? '✓' : ''}
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <p style={{ fontSize: '13px', fontWeight: asignado ? '700' : '500', color: asignado ? '#15803D' : '#374151', margin: '0 0 2px' }}>{doc.nombre}</p>
+                              {doc.descripcion && <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>{doc.descripcion}</p>}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </>
+                  )}
                   <button onClick={() => setShowModal(false)}
                     style={{ padding: '12px', background: VERDE, color: 'white', border: 'none', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px', marginTop: '8px' }}>
                     ✓ Listo
