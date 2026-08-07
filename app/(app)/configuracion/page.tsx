@@ -96,7 +96,8 @@ function formatRFC(val: string): string {
 // ══════════════════════════════════════════════════════════════════
 // Componente: Financieras y Elegibilidad
 // ══════════════════════════════════════════════════════════════════
-function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabase: any }) {
+function FinancierasElegibilidad({ userId, supabase: _supabase }: { userId: string; supabase: any }) {
+  const supabase = useMemo(() => createClient(), [])
   const AZUL = '#1B3A6B', NARANJA = '#F05B21', VERDE = '#16A34A'
   const [financieras, setFinancieras] = useState<any[]>([])
   const [catalogo, setCatalogo] = useState<any[]>([])
@@ -415,7 +416,8 @@ const CATEGORIAS = [
   { id: 'proximo_paso', label: '→ Próximo paso', desc: 'Qué acción sigue después del contacto' },
 ]
 
-function CatalogosActividad({ userId, supabase }: { userId: string; supabase: any }) {
+function CatalogosActividad({ userId, supabase: _supabase }: { userId: string; supabase: any }) {
+  const supabase = useMemo(() => createClient(), [])
   const AZUL = '#1B3A6B', NARANJA = '#F05B21', VERDE = '#16A34A'
   const [catalogos, setCatalogos] = useState<Record<string, any[]>>({})
   const [catActiva, setCatActiva] = useState('tipo_contacto')
