@@ -4,6 +4,9 @@ import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 
+// Singleton — no crear dentro del componente para no perder sesión entre renders
+const supabase = createClient()
+
 const AZUL = '#1B3A6B'
 const VERDE = '#2E8B57'
 const NARANJA = '#F05B21'
@@ -543,7 +546,6 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
 
 
 export default function ConfiguracionPage() {
-  const supabase = createClient()
   const router = useRouter()
   const [perfil, setPerfil] = useState<Perfil>(DEFAULTS)
   const [userId, setUserId] = useState('')
