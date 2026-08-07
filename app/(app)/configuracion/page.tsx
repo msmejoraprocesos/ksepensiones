@@ -97,28 +97,26 @@ function formatRFC(val: string): string {
 // Componente: Financieras y Elegibilidad
 // ══════════════════════════════════════════════════════════════════
 function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabase: any }) {
-  const AZUL = '#1B3A6B', NARANJA = '#F05B21', VERDE = '#16A34A', ROJO = '#DC2626'
+  const AZUL = '#1B3A6B', NARANJA = '#F05B21', VERDE = '#16A34A'
   const [financieras, setFinancieras] = useState<any[]>([])
-  const [catalogo, setCatalogo] = useState<any[]>([])  // documentos maestros
-  const [asignaciones, setAsignaciones] = useState<Record<string, string[]>>({}) // financiera_id -> [doc_id]
-  const [tab, setTab] = useState<'matriz' | 'catalogo'>('matriz')
-  const [showNuevaFin, setShowNuevaFin] = useState(false)
-  const [nuevaFin, setNuevaFin] = useState({ nombre: '', contacto: '', email: '', telefono: '' })
+  const [catalogo, setCatalogo] = useState<any[]>([])
+  const [asignaciones, setAsignaciones] = useState<Record<string, string[]>>({})
+  const [showModal, setShowModal] = useState(false)
+  const [editFin, setEditFin] = useState<any>(null) // null = nueva
+  const [modalTab, setModalTab] = useState<'datos' | 'docs'>('datos')
+  const [finForm, setFinForm] = useState({ nombre: '', contacto: '', email: '', telefono: '' })
   const [savingFin, setSavingFin] = useState(false)
-  const [showNuevoDoc, setShowNuevoDoc] = useState(false)
-  const [nuevoDoc, setNuevoDoc] = useState({ nombre: '', descripcion: '' })
-  const [savingDoc, setSavingDoc] = useState(false)
   const [toggling, setToggling] = useState<string | null>(null)
 
   const DOCS_INICIALES = [
     { nombre: 'Constancia de semanas cotizadas', descripcion: 'Documento oficial del IMSS (SISEC) actualizado a la fecha de solicitud' },
-    { nombre: 'Estado de cuenta AFORE', descripcion: 'Resumen de saldos más reciente — valida subcuenta de retiro e Infonavit' },
+    { nombre: 'Estado de cuenta AFORE', descripcion: 'Resumen de saldos — valida subcuenta de retiro e Infonavit' },
     { nombre: 'Baja patronal', descripcion: 'Formato IMSS con fecha exacta del último trabajo cotizado' },
     { nombre: 'Identificación oficial vigente', descripcion: 'INE o Pasaporte vigente' },
     { nombre: 'CURP', descripcion: 'Formato actualizado' },
     { nombre: 'Constancia de Situación Fiscal', descripcion: 'RFC con Homoclave' },
     { nombre: 'Comprobante de domicilio', descripcion: 'No mayor a 3 meses' },
-    { nombre: 'Saldo AFORE mínimo verificado', descripcion: 'Subcuentas SAR 92, Retiro 97, Infonavit o voluntarias — mínimo $150,000 MXN' },
+    { nombre: 'Saldo AFORE mínimo verificado', descripcion: 'SAR 92, Retiro 97, Infonavit o voluntarias — mínimo $150,000 MXN' },
   ]
 
   useEffect(() => { if (!userId) return; cargar() }, [userId])
@@ -131,16 +129,14 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
     ])
     setFinancieras(fins ?? [])
 
-    // Si no hay documentos en catálogo, pre-cargar los iniciales
-    if ((docs ?? []).length === 0 && DOCS_INICIALES.length > 0) {
+    let docsFinales = docs ?? []
+    if (docsFinales.length === 0) {
       const inserts = DOCS_INICIALES.map((d, i) => ({ asesor_id: userId, nombre: d.nombre, descripcion: d.descripcion, orden: i, activo: true }))
       const { data: inserted } = await supabase.from('documentos_catalogo').insert(inserts).select()
-      setCatalogo(inserted ?? [])
-    } else {
-      setCatalogo(docs ?? [])
+      docsFinales = inserted ?? []
     }
+    setCatalogo(docsFinales)
 
-    // Construir mapa de asignaciones
     const mapa: Record<string, string[]> = {}
     for (const a of (asig ?? [])) {
       if (!mapa[a.institucion_id]) mapa[a.institucion_id] = []
@@ -149,39 +145,40 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
     setAsignaciones(mapa)
   }
 
-  async function crearFinanciera() {
-    if (!nuevaFin.nombre.trim()) return
+  function abrirNuevaFinanciera() {
+    setEditFin(null)
+    setFinForm({ nombre: '', contacto: '', email: '', telefono: '' })
+    setModalTab('datos')
+    setShowModal(true)
+  }
+
+  function abrirEditarFinanciera(f: any) {
+    setEditFin(f)
+    setFinForm({ nombre: f.nombre ?? '', contacto: f.contacto_nombre ?? '', email: f.contacto_email ?? '', telefono: f.contacto_telefono ?? '' })
+    setModalTab('datos')
+    setShowModal(true)
+  }
+
+  async function guardarFinanciera() {
+    if (!finForm.nombre.trim()) return
     setSavingFin(true)
-    await supabase.from('instituciones_financieras').insert({
-      asesor_id: userId, nombre: nuevaFin.nombre.trim(),
-      contacto_nombre: nuevaFin.contacto.trim() || null,
-      contacto_email: nuevaFin.email.trim() || null,
-      contacto_telefono: nuevaFin.telefono.trim() || null,
+    const payload = {
+      asesor_id: userId,
+      nombre: finForm.nombre.trim(),
+      contacto_nombre: finForm.contacto.trim() || null,
+      contacto_email: finForm.email.trim() || null,
+      contacto_telefono: finForm.telefono.trim() || null,
       activa: true,
-    })
-    setNuevaFin({ nombre: '', contacto: '', email: '', telefono: '' })
-    setShowNuevaFin(false)
+    }
+    if (editFin) {
+      await supabase.from('instituciones_financieras').update(payload).eq('id', editFin.id)
+    } else {
+      const { data } = await supabase.from('instituciones_financieras').insert(payload).select().single()
+      if (data) setEditFin(data) // para poder asignar docs en el modal
+    }
     await cargar()
     setSavingFin(false)
-  }
-
-  async function crearDoc() {
-    if (!nuevoDoc.nombre.trim()) return
-    setSavingDoc(true)
-    await supabase.from('documentos_catalogo').insert({
-      asesor_id: userId, nombre: nuevoDoc.nombre.trim(),
-      descripcion: nuevoDoc.descripcion.trim() || null,
-      orden: catalogo.length, activo: true,
-    })
-    setNuevoDoc({ nombre: '', descripcion: '' })
-    setShowNuevoDoc(false)
-    await cargar()
-    setSavingDoc(false)
-  }
-
-  async function toggleDoc(docId: string, activo: boolean) {
-    await supabase.from('documentos_catalogo').update({ activo: !activo }).eq('id', docId)
-    await cargar()
+    setModalTab('docs') // avanzar a docs automáticamente al crear
   }
 
   async function toggleAsignacion(finId: string, docId: string) {
@@ -194,190 +191,201 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
     } else {
       await supabase.from('documentos_financiera').insert({ institucion_id: finId, documento_id: docId, obligatorio: true })
     }
-    setAsignaciones(prev => {
-      const current = prev[finId] ?? []
-      return {
-        ...prev,
-        [finId]: yaAsignado ? current.filter(id => id !== docId) : [...current, docId],
-      }
-    })
+    setAsignaciones(prev => ({
+      ...prev,
+      [finId]: yaAsignado ? (prev[finId] ?? []).filter(id => id !== docId) : [...(prev[finId] ?? []), docId],
+    }))
     setToggling(null)
   }
 
+  async function toggleFinanciera(f: any) {
+    await supabase.from('instituciones_financieras').update({ activa: !f.activa }).eq('id', f.id)
+    await cargar()
+  }
+
   const docsActivos = catalogo.filter((d: any) => d.activo)
+  const finModal = editFin ?? null
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '16px' }}>
 
-      {/* Tabs principales */}
-      <div style={{ display: 'flex', gap: '4px', background: '#F4F6FB', padding: '4px', borderRadius: '10px' }}>
-        {([['matriz', '📊 Matriz de documentos'], ['catalogo', '📋 Catálogo maestro']] as const).map(([t, lbl]) => (
-          <button key={t} onClick={() => setTab(t)}
-            style={{ flex: 1, padding: '9px', background: tab === t ? AZUL : 'transparent', color: tab === t ? 'white' : '#6B7280', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: tab === t ? '700' : '500', cursor: 'pointer', fontFamily: 'inherit' }}>
-            {lbl}
-          </button>
-        ))}
+      {/* Header con botón nueva */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <p style={{ fontSize: '13px', color: '#4B5563', margin: 0 }}>
+          {financieras.length === 0 ? 'Agrega las instituciones financieras con las que trabajas' : `${financieras.filter((f:any)=>f.activa).length} financiera(s) activa(s)`}
+        </p>
+        <button onClick={abrirNuevaFinanciera}
+          style={{ padding: '9px 18px', background: NARANJA, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
+          + Nueva financiera
+        </button>
       </div>
 
-      {/* ── TAB MATRIZ ── */}
-      {tab === 'matriz' && (
-        <div>
-          {/* Botón nueva financiera */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '12px' }}>
-            <button onClick={() => setShowNuevaFin(true)}
-              style={{ padding: '8px 16px', background: 'white', color: NARANJA, border: `1.5px dashed ${NARANJA}`, fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
-              + Nueva financiera
-            </button>
-          </div>
-
-          {/* Modal nueva financiera */}
-          {showNuevaFin && (
-            <div style={{ background: '#F8FAFC', border: '1px solid #E5E7EB', borderRadius: '10px', padding: '16px', marginBottom: '12px', display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
-              <p style={{ fontSize: '14px', fontWeight: '700', color: AZUL, margin: 0 }}>Nueva institución financiera</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                {[
-                  { label: 'Nombre *', key: 'nombre', placeholder: 'Ej: Caja Libertad, Banorte' },
-                  { label: 'Contacto', key: 'contacto', placeholder: 'Nombre del ejecutivo' },
-                  { label: 'Email', key: 'email', placeholder: 'ejecutivo@financiera.com' },
-                  { label: 'Teléfono', key: 'telefono', placeholder: '10 dígitos' },
-                ].map(f => (
-                  <div key={f.key}>
-                    <label style={{ fontSize: '11px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>{f.label}</label>
-                    <input value={(nuevaFin as any)[f.key]} onChange={e => setNuevaFin(p => ({ ...p, [f.key]: e.target.value }))}
-                      placeholder={f.placeholder}
-                      style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #D1D5DB', fontSize: '13px', borderRadius: '6px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
-                  </div>
-                ))}
+      {/* Lista de financieras */}
+      {financieras.length === 0 ? (
+        <div style={{ padding: '32px', textAlign: 'center' as const, background: '#F8FAFC', border: '1px dashed #D1D5DB', borderRadius: '10px' }}>
+          <p style={{ fontSize: '22px', margin: '0 0 8px' }}>🏦</p>
+          <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>Sin financieras registradas</p>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
+          {financieras.map((f: any) => {
+            const docsAsig = (asignaciones[f.id] ?? []).length
+            return (
+              <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', background: f.activa ? 'white' : '#F9FAFB', border: '1px solid #E5E7EB', borderLeft: `4px solid ${f.activa ? AZUL : '#D1D5DB'}`, borderRadius: '10px', opacity: f.activa ? 1 : 0.65 }}>
+                <span style={{ fontSize: '24px', flexShrink: 0 }}>🏦</span>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: '14px', fontWeight: '700', color: '#111827', margin: '0 0 2px' }}>{f.nombre}</p>
+                  <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>
+                    {f.contacto_nombre && `${f.contacto_nombre} · `}
+                    {f.contacto_email || f.contacto_telefono || 'Sin datos de contacto'}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
+                  <span style={{ fontSize: '11px', color: AZUL, background: '#EEF2F8', padding: '3px 8px', borderRadius: '6px', fontWeight: '600' }}>
+                    📄 {docsAsig} docs
+                  </span>
+                  <button onClick={() => abrirEditarFinanciera(f)}
+                    style={{ padding: '6px 12px', background: '#F4F6FB', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                    ✏️ Editar
+                  </button>
+                  <button onClick={() => toggleFinanciera(f)}
+                    style={{ padding: '6px 12px', background: f.activa ? '#FFFBEB' : '#F0FDF4', color: f.activa ? '#D97706' : VERDE, border: `1px solid ${f.activa ? '#FDE68A' : '#86EFAC'}`, fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                    {f.activa ? '⏸ Inactivar' : '▶ Activar'}
+                  </button>
+                </div>
               </div>
-              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                <button onClick={() => { setShowNuevaFin(false); setNuevaFin({ nombre: '', contacto: '', email: '', telefono: '' }) }}
-                  style={{ padding: '8px 16px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>Cancelar</button>
-                <button onClick={crearFinanciera} disabled={savingFin || !nuevaFin.nombre.trim()}
-                  style={{ padding: '8px 20px', background: !nuevaFin.nombre.trim() ? '#E5E7EB' : AZUL, color: !nuevaFin.nombre.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: !nuevaFin.nombre.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
-                  {savingFin ? 'Guardando...' : '+ Crear financiera'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {financieras.length === 0 ? (
-            <div style={{ padding: '32px', textAlign: 'center' as const, background: '#F8FAFC', border: '1px dashed #D1D5DB', borderRadius: '10px' }}>
-              <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>Agrega tu primera financiera con el botón de arriba</p>
-            </div>
-          ) : docsActivos.length === 0 ? (
-            <div style={{ padding: '24px', textAlign: 'center' as const, background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '10px' }}>
-              <p style={{ fontSize: '13px', color: '#92400E', margin: 0 }}>⚠️ No hay documentos en el catálogo. Ve al tab "Catálogo maestro" para agregarlos.</p>
-            </div>
-          ) : (
-            /* MATRIZ */
-            <div style={{ overflowX: 'auto' as const, borderRadius: '10px', border: '1px solid #E5E7EB' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '13px' }}>
-                <thead>
-                  <tr style={{ background: AZUL }}>
-                    <th style={{ padding: '12px 16px', textAlign: 'left' as const, color: 'rgba(255,255,255,0.8)', fontSize: '11px', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: '0.5px', minWidth: '220px', position: 'sticky' as const, left: 0, background: AZUL }}>
-                      Documento
-                    </th>
-                    {financieras.map((f: any) => (
-                      <th key={f.id} style={{ padding: '12px 16px', textAlign: 'center' as const, color: 'white', fontSize: '12px', fontWeight: '700', minWidth: '130px', whiteSpace: 'nowrap' as const }}>
-                        🏦 {f.nombre}
-                        <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.55)', fontWeight: '400', marginTop: '2px' }}>
-                          {(asignaciones[f.id] ?? []).length} docs
-                        </div>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {docsActivos.map((doc: any, i: number) => (
-                    <tr key={doc.id} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #F3F4F6' }}>
-                      <td style={{ padding: '12px 16px', position: 'sticky' as const, left: 0, background: i % 2 === 0 ? 'white' : '#F8FAFC', borderRight: '1px solid #E5E7EB' }}>
-                        <p style={{ fontSize: '13px', fontWeight: '600', color: '#111827', margin: '0 0 2px' }}>{doc.nombre}</p>
-                        {doc.descripcion && <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>{doc.descripcion}</p>}
-                      </td>
-                      {financieras.map((f: any) => {
-                        const key = `${f.id}_${doc.id}`
-                        const asignado = (asignaciones[f.id] ?? []).includes(doc.id)
-                        return (
-                          <td key={f.id} style={{ padding: '12px 16px', textAlign: 'center' as const }}>
-                            <button onClick={() => toggleAsignacion(f.id, doc.id)}
-                              disabled={toggling === key}
-                              style={{
-                                width: '32px', height: '32px', borderRadius: '8px',
-                                background: asignado ? '#DCFCE7' : '#F3F4F6',
-                                border: `2px solid ${asignado ? '#16A34A' : '#D1D5DB'}`,
-                                cursor: toggling === key ? 'not-allowed' : 'pointer',
-                                fontSize: '16px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                                transition: 'all 0.15s',
-                                opacity: toggling === key ? 0.5 : 1,
-                              }}>
-                              {toggling === key ? '⏳' : asignado ? '✅' : '☐'}
-                            </button>
-                          </td>
-                        )
-                      })}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+            )
+          })}
         </div>
       )}
 
-      {/* ── TAB CATÁLOGO MAESTRO ── */}
-      {tab === 'catalogo' && (
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <p style={{ fontSize: '13px', color: '#4B5563', margin: 0 }}>
-              Lista maestra de documentos. Inactiva los que no uses — desaparecen de la matriz pero sin borrar historial.
-            </p>
-            <button onClick={() => setShowNuevoDoc(true)}
-              style={{ padding: '8px 16px', background: NARANJA, color: 'white', border: 'none', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px', flexShrink: 0 }}>
-              + Nuevo documento
-            </button>
-          </div>
+      {/* Matriz resumen */}
+      {financieras.length > 0 && docsActivos.length > 0 && (
+        <div style={{ overflowX: 'auto' as const, borderRadius: '10px', border: '1px solid #E5E7EB' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '12px' }}>
+            <thead>
+              <tr style={{ background: AZUL }}>
+                <th style={{ padding: '10px 16px', textAlign: 'left' as const, color: 'rgba(255,255,255,0.75)', fontSize: '11px', fontWeight: '600', textTransform: 'uppercase' as const, minWidth: '200px', position: 'sticky' as const, left: 0, background: AZUL }}>Documento</th>
+                {financieras.filter((f:any)=>f.activa).map((f: any) => (
+                  <th key={f.id} style={{ padding: '10px 16px', textAlign: 'center' as const, color: 'white', fontSize: '12px', fontWeight: '700', minWidth: '120px', whiteSpace: 'nowrap' as const }}>
+                    {f.nombre}
+                    <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.55)', fontWeight: '400' }}>{(asignaciones[f.id]??[]).length} docs</div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {docsActivos.map((doc: any, i: number) => (
+                <tr key={doc.id} style={{ background: i % 2 === 0 ? 'white' : '#F8FAFC', borderBottom: '1px solid #F3F4F6' }}>
+                  <td style={{ padding: '10px 16px', position: 'sticky' as const, left: 0, background: i % 2 === 0 ? 'white' : '#F8FAFC', borderRight: '1px solid #E5E7EB' }}>
+                    <p style={{ fontSize: '12px', fontWeight: '600', color: '#111827', margin: 0 }}>{doc.nombre}</p>
+                  </td>
+                  {financieras.filter((f:any)=>f.activa).map((f: any) => {
+                    const key = `${f.id}_${doc.id}`
+                    const asignado = (asignaciones[f.id] ?? []).includes(doc.id)
+                    return (
+                      <td key={f.id} style={{ padding: '10px', textAlign: 'center' as const }}>
+                        <button onClick={() => toggleAsignacion(f.id, doc.id)} disabled={toggling === key}
+                          style={{ width: '30px', height: '30px', borderRadius: '6px', background: asignado ? '#DCFCE7' : '#F3F4F6', border: `2px solid ${asignado ? VERDE : '#D1D5DB'}`, cursor: 'pointer', fontSize: '14px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s', opacity: toggling === key ? 0.5 : 1 }}>
+                          {toggling === key ? '⏳' : asignado ? '✅' : ''}
+                        </button>
+                      </td>
+                    )
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-          {showNuevoDoc && (
-            <div style={{ background: '#F8FAFC', border: '1px solid #E5E7EB', borderRadius: '10px', padding: '14px', marginBottom: '12px', display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
-              <input value={nuevoDoc.nombre} onChange={e => setNuevoDoc(p => ({ ...p, nombre: e.target.value }))}
-                placeholder="Nombre del documento * (ej: Estado de cuenta bancario)"
-                style={{ padding: '9px 12px', border: '1.5px solid #D1D5DB', fontSize: '13px', borderRadius: '6px', fontFamily: 'inherit' }} />
-              <input value={nuevoDoc.descripcion} onChange={e => setNuevoDoc(p => ({ ...p, descripcion: e.target.value }))}
-                placeholder="Descripción adicional (opcional)"
-                style={{ padding: '9px 12px', border: '1.5px solid #D1D5DB', fontSize: '13px', borderRadius: '6px', fontFamily: 'inherit' }} />
-              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                <button onClick={() => { setShowNuevoDoc(false); setNuevoDoc({ nombre: '', descripcion: '' }) }}
-                  style={{ padding: '7px 14px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>Cancelar</button>
-                <button onClick={crearDoc} disabled={savingDoc || !nuevoDoc.nombre.trim()}
-                  style={{ padding: '7px 16px', background: !nuevoDoc.nombre.trim() ? '#E5E7EB' : AZUL, color: !nuevoDoc.nombre.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '12px', fontWeight: '700', cursor: !nuevoDoc.nombre.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
-                  {savingDoc ? 'Guardando...' : 'Agregar'}
-                </button>
+      {/* MODAL nueva/editar financiera */}
+      {showModal && (
+        <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: '520px', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', maxHeight: '90vh', display: 'flex', flexDirection: 'column' as const }}>
+
+            {/* Header modal */}
+            <div style={{ background: AZUL, padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+              <div>
+                <p style={{ fontSize: '15px', fontWeight: '700', color: 'white', margin: 0 }}>
+                  {editFin ? `✏️ ${editFin.nombre}` : '🏦 Nueva financiera'}
+                </p>
+                <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', margin: '2px 0 0' }}>
+                  {modalTab === 'datos' ? 'Paso 1 de 2 — Datos generales' : 'Paso 2 de 2 — Documentos requeridos'}
+                </p>
               </div>
+              <button onClick={() => setShowModal(false)}
+                style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', fontSize: '18px', padding: '4px 8px', borderRadius: '6px' }}>✕</button>
             </div>
-          )}
 
-          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
-            {catalogo.length === 0 ? (
-              <div style={{ padding: '24px', textAlign: 'center' as const, background: '#F8FAFC', border: '1px dashed #D1D5DB', borderRadius: '8px' }}>
-                <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>Sin documentos en el catálogo</p>
-              </div>
-            ) : catalogo.map((doc: any) => (
-              <div key={doc.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', background: doc.activo ? 'white' : '#F9FAFB', border: '1px solid #E5E7EB', borderLeft: `3px solid ${doc.activo ? AZUL : '#D1D5DB'}`, borderRadius: '8px', opacity: doc.activo ? 1 : 0.6 }}>
-                <span style={{ fontSize: '18px', flexShrink: 0 }}>📄</span>
-                <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: '13px', fontWeight: '600', color: '#111827', margin: '0 0 2px' }}>{doc.nombre}</p>
-                  {doc.descripcion && <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>{doc.descripcion}</p>}
-                  <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '3px 0 0' }}>
-                    Asignado a {Object.values(asignaciones).filter((ids: any) => ids.includes(doc.id)).length} financiera(s)
-                  </p>
-                </div>
-                {!doc.activo && <span style={{ fontSize: '11px', color: '#9CA3AF', background: '#F3F4F6', padding: '2px 8px', borderRadius: '4px', flexShrink: 0 }}>Inactivo</span>}
-                <button onClick={() => toggleDoc(doc.id, doc.activo)}
-                  style={{ padding: '6px 14px', background: doc.activo ? '#FFFBEB' : '#F0FDF4', color: doc.activo ? '#D97706' : VERDE, border: `1px solid ${doc.activo ? '#FDE68A' : '#86EFAC'}`, fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', flexShrink: 0 }}>
-                  {doc.activo ? '⏸ Inactivar' : '▶ Activar'}
+            {/* Tabs del modal */}
+            <div style={{ display: 'flex', borderBottom: '1px solid #E5E7EB', flexShrink: 0 }}>
+              {([['datos', '📋 Datos generales'], ['docs', '📄 Documentos']] as const).map(([t, lbl]) => (
+                <button key={t} onClick={() => setModalTab(t)}
+                  disabled={t === 'docs' && !editFin && !savingFin}
+                  style={{ flex: 1, padding: '12px', background: 'none', border: 'none', borderBottom: `3px solid ${modalTab === t ? AZUL : 'transparent'}`, fontSize: '13px', fontWeight: modalTab === t ? '700' : '400', color: modalTab === t ? AZUL : t === 'docs' && !editFin ? '#D1D5DB' : '#6B7280', cursor: t === 'docs' && !editFin ? 'not-allowed' : 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}>
+                  {lbl}
                 </button>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            {/* Contenido tabs */}
+            <div style={{ flex: 1, overflowY: 'auto' as const, padding: '20px' }}>
+
+              {/* Tab datos */}
+              {modalTab === 'datos' && (
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
+                  {[
+                    { label: 'Nombre de la institución *', key: 'nombre', placeholder: 'Ej: Caja Libertad, Financiera Independencia, Banorte' },
+                    { label: 'Nombre del ejecutivo/contacto', key: 'contacto', placeholder: 'Ej: Lic. Juan Pérez' },
+                    { label: 'Email de contacto', key: 'email', placeholder: 'ejecutivo@financiera.com' },
+                    { label: 'Teléfono', key: 'telefono', placeholder: '10 dígitos' },
+                  ].map(f => (
+                    <div key={f.key}>
+                      <label style={{ fontSize: '11px', fontWeight: '700', color: '#374151', display: 'block', marginBottom: '5px', textTransform: 'uppercase' as const, letterSpacing: '0.4px' }}>{f.label}</label>
+                      <input value={(finForm as any)[f.key]} onChange={e => setFinForm(p => ({ ...p, [f.key]: e.target.value }))}
+                        placeholder={f.placeholder}
+                        style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #D1D5DB', fontSize: '14px', borderRadius: '8px', fontFamily: 'inherit', boxSizing: 'border-box' as const, outline: 'none' }} />
+                    </div>
+                  ))}
+                  <button onClick={guardarFinanciera} disabled={savingFin || !finForm.nombre.trim()}
+                    style={{ padding: '12px', background: !finForm.nombre.trim() ? '#E5E7EB' : AZUL, color: !finForm.nombre.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '14px', fontWeight: '700', cursor: !finForm.nombre.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '8px', marginTop: '4px' }}>
+                    {savingFin ? 'Guardando...' : editFin ? '💾 Guardar cambios' : '➡️ Guardar y configurar documentos'}
+                  </button>
+                </div>
+              )}
+
+              {/* Tab documentos */}
+              {modalTab === 'docs' && finModal && (
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
+                  <p style={{ fontSize: '13px', color: '#4B5563', margin: '0 0 4px' }}>
+                    Marca los documentos que pide <strong>{finModal.nombre}</strong> para tramitar el financiamiento:
+                  </p>
+                  {docsActivos.length === 0 ? (
+                    <p style={{ fontSize: '13px', color: '#9CA3AF' }}>No hay documentos en el catálogo. Agrégalos en el tab Catálogos.</p>
+                  ) : docsActivos.map((doc: any) => {
+                    const key = `${finModal.id}_${doc.id}`
+                    const asignado = (asignaciones[finModal.id] ?? []).includes(doc.id)
+                    return (
+                      <div key={doc.id} onClick={() => toggleAsignacion(finModal.id, doc.id)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', background: asignado ? '#F0FDF4' : '#F8FAFC', border: `1.5px solid ${asignado ? '#86EFAC' : '#E5E7EB'}`, borderRadius: '10px', cursor: 'pointer', transition: 'all 0.15s' }}>
+                        <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: asignado ? VERDE : 'white', border: `2px solid ${asignado ? VERDE : '#D1D5DB'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '14px' }}>
+                          {toggling === key ? '⏳' : asignado ? '✓' : ''}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <p style={{ fontSize: '13px', fontWeight: asignado ? '700' : '500', color: asignado ? '#15803D' : '#374151', margin: '0 0 2px' }}>{doc.nombre}</p>
+                          {doc.descripcion && <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>{doc.descripcion}</p>}
+                        </div>
+                      </div>
+                    )
+                  })}
+                  <button onClick={() => setShowModal(false)}
+                    style={{ padding: '12px', background: VERDE, color: 'white', border: 'none', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px', marginTop: '8px' }}>
+                    ✓ Listo
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -879,6 +887,11 @@ export default function ConfiguracionPage() {
               {saveError && <p style={{ fontSize: '12px', color: '#ef4444', margin: 0, fontWeight: '600' }}>⚠️ {saveError}</p>}
               {!saveError && saved && <p style={{ fontSize: '12px', color: VERDE, margin: 0, fontWeight: '600' }}>✓ Guardado</p>}
               {!saveError && !saved && saving && <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>⏳ Guardando...</p>}
+              {(tabActiva === 'financieras' || tabActiva === 'catalogos') && (
+                <span style={{ fontSize: '12px', color: '#9CA3AF', background: '#F4F6FB', padding: '5px 10px', borderRadius: '6px' }}>
+                  ✓ Cambios en tiempo real
+                </span>
+              )}
               {(tabActiva === 'perfil' || tabActiva === 'sistema') && (
                 <button onClick={guardar} disabled={saving}
                   style={{ padding: '9px 20px', background: saving ? '#94a3b8' : VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
