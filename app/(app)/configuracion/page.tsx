@@ -730,20 +730,34 @@ export default function ConfiguracionPage() {
       mod40_pct: perfil.mod40_pct,
     }
 
-    // Primero intentar update, si no existe hacer insert
-    const { error: updateError } = await supabase
+    // Update explícito con manejo de errores detallado
+    const { error: updateError, data: updateData } = await supabase
       .from('perfiles_usuario')
       .update(camposPerfil)
       .eq('id', uid)
+      .select()
 
-    // Si no hay fila (update afecta 0 rows), hacer insert
-    const { error } = updateError ? await supabase.from('perfiles_usuario').insert({ id: uid, ...camposPerfil }) : { error: null }
-
-    if (error) {
+    if (updateError) {
       setSaving(false)
-      setSaveError('Error al guardar: ' + error.message)
+      setSaveError('Error al guardar: ' + updateError.message)
+      console.error('Update error:', updateError)
       return
     }
+
+    // Si no actualizó ninguna fila, insertar
+    if (!updateData || updateData.length === 0) {
+      const { error: insertError } = await supabase
+        .from('perfiles_usuario')
+        .insert({ id: uid, ...camposPerfil })
+      if (insertError) {
+        setSaving(false)
+        setSaveError('Error al crear perfil: ' + insertError.message)
+        console.error('Insert error:', insertError)
+        return
+      }
+    }
+
+    const error = null
 
     // Insertar materiales nuevos pendientes
     if (materialesNuevos.length > 0) {
