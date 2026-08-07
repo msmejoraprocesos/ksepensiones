@@ -681,9 +681,6 @@ export default function ConfiguracionPage() {
       return
     }
 
-    console.log('Guardando perfil para uid:', uid)
-    console.log('Campos a guardar:', { nombre: camposPerfil.nombre, telefono: camposPerfil.telefono })
-
     // Clean logo_url: if still blob (upload failed or pending), get from DB
     let logoUrl = perfil.logo_url
     if (logoUrl?.startsWith('blob:')) {
