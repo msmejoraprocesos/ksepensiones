@@ -1,11 +1,8 @@
 'use client' // v-banner
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
-
-// Singleton — no crear dentro del componente para no perder sesión entre renders
-const supabase = createClient()
 
 const AZUL = '#1B3A6B'
 const VERDE = '#2E8B57'
@@ -547,6 +544,7 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
 
 export default function ConfiguracionPage() {
   const router = useRouter()
+  const supabase = useMemo(() => createClient(), [])
   const [perfil, setPerfil] = useState<Perfil>(DEFAULTS)
   const [userId, setUserId] = useState('')
   const [cargando, setCargando] = useState(true)
@@ -577,10 +575,10 @@ export default function ConfiguracionPage() {
       if (!session) return
       setUserId(session.user.id)
       loadMateriales(session.user.id)
-      supabase.from('perfiles_usuario').select('*, organizaciones(nombre)').eq('id', session.user.id).single()
+      supabase.from('perfiles_usuario').select('*').eq('id', session.user.id).single()
         .then(({ data }) => {
           if (data) {
-            const loaded = { ...DEFAULTS, ...data, org_nombre: (data as any).organizaciones?.nombre ?? null }
+            const loaded = { ...DEFAULTS, ...data, org_nombre: null }
             setPerfil(loaded)
             setPerfilOriginal(loaded)
             if (!data.nombre && !data.razon_social) { setIsFirstTime(true) }
