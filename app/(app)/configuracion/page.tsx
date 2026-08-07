@@ -897,15 +897,16 @@ export default function ConfiguracionPage() {
               {saveError && <p style={{ fontSize: '12px', color: '#ef4444', margin: 0, fontWeight: '600' }}>⚠️ {saveError}</p>}
               {!saveError && saved && <p style={{ fontSize: '12px', color: VERDE, margin: 0, fontWeight: '600' }}>✓ Guardado</p>}
               {!saveError && !saved && saving && <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>⏳ Guardando...</p>}
-              {(tabActiva === 'financieras' || tabActiva === 'catalogos') && (
-                <span style={{ fontSize: '12px', color: '#9CA3AF', background: '#F4F6FB', padding: '5px 10px', borderRadius: '6px' }}>
-                  ✓ Cambios en tiempo real
-                </span>
-              )}
               {(tabActiva === 'perfil' || tabActiva === 'sistema') && (
                 <button onClick={guardar} disabled={saving}
                   style={{ padding: '9px 20px', background: saving ? '#94a3b8' : VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
                   {saving ? 'Guardando...' : '💾 Guardar'}
+                </button>
+              )}
+              {(tabActiva === 'financieras' || tabActiva === 'catalogos') && (
+                <button onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 3000) }}
+                  style={{ padding: '9px 20px', background: VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
+                  💾 Guardar
                 </button>
               )}
             </div>
