@@ -580,7 +580,6 @@ export default function ConfiguracionPage() {
           if (data) {
             const loaded = { ...DEFAULTS, ...data, org_nombre: null }
             setPerfil(loaded)
-            setPerfilOriginal(loaded)
             if (!data.nombre && !data.razon_social) { setIsFirstTime(true) }
           } else {
             setIsFirstTime(true)
@@ -789,8 +788,6 @@ export default function ConfiguracionPage() {
     setSaved(true)
     setLastSaved(new Date())
     if (perfil.nombre.trim()) setIsFirstTime(false)
-    const saved_perfil = { ...perfil, logo_url: perfil.logo_url?.startsWith('blob:') ? null : perfil.logo_url }
-    setPerfilOriginal(saved_perfil)
     setTimeout(() => setSaved(false), 3000)
   }
 
