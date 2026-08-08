@@ -212,7 +212,8 @@ function FinancierasElegibilidad({ userId, supabase: _supabase }: { userId: stri
   }
 
   const docsActivos = catalogo.filter((d: any) => d.activo)
-  const finModal = financieras.find((f: any) => f.id === finIdModal) ?? editFin
+  const finModalId = finIdModal ?? editFin?.id ?? null
+  const finModal = financieras.find((f: any) => f.id === finModalId) ?? editFin
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '16px' }}>
@@ -368,7 +369,7 @@ function FinancierasElegibilidad({ userId, supabase: _supabase }: { userId: stri
                 <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
                   {/* DEBUG TEMPORAL */}
                   <div style={{ background: '#FEF2F2', padding: '8px', borderRadius: '6px', fontSize: '11px', color: '#991B1B' }}>
-                    DEBUG: userId={userId} | catalogo.length={catalogo.length} | docsActivos.length={docsActivos.length} | finIdModal={finIdModal ?? 'null'} | finModal={finModal?.nombre ?? 'null'}
+                    DEBUG: userId={userId} | catalogo.length={catalogo.length} | docsActivos.length={docsActivos.length} | finIdModal={finIdModal ?? 'null'} | finModalId={finModalId ?? 'null'} | finModal={finModal?.nombre ?? 'null'}
                   </div>
                   {!finModal ? (
                     <p style={{ fontSize: '13px', color: '#9CA3AF', textAlign: 'center' as const }}>Guarda los datos generales primero</p>
