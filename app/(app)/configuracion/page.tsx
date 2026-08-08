@@ -110,14 +110,16 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
   const [savedMsg, setSavedMsg] = useState(false)
   const [showNueva, setShowNueva] = useState(false)
 
+  const [errores, setErrores] = useState<Record<string, string>>({})
+
   useEffect(() => {
     if (!userId) return
     supabase.auth.getSession().then(({ data: { session } }: any) => {
-      if (session) cargar()
+      if (session) cargar(null)
     })
   }, [userId])
 
-  async function cargar() {
+  async function cargar(mantenerFinId: string | null) {
     const [{ data: fins }, { data: docs }, { data: asig }] = await Promise.all([
       supabase.from('instituciones_financieras').select('*').eq('asesor_id', userId).order('nombre'),
       supabase.from('documentos_catalogo').select('*').eq('asesor_id', userId).order('orden'),
@@ -149,11 +151,18 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
     }
     setAsignaciones(mapa)
 
-    if (!finActiva && fins && fins.length > 0) {
-      const id = fins[0].id
-      setFinActiva(id)
-      setDocsLocal(mapa[id] ?? [])
-    }
+    // Mantener la financiera activa si se pasó un id, si no usar la primera
+    const targetId = mantenerFinId ?? (fins && fins.length > 0 ? fins[0].id : null)
+    if (targetId) setFinActiva(targetId)
+  }
+
+  function validarForm() {
+    const errs: Record<string, string> = {}
+    if (!form.nombre.trim()) errs.nombre = 'El nombre es requerido'
+    if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.email = 'Email inválido'
+    if (form.telefono.trim() && !/^\d{10}$/.test(form.telefono.replace(/\s|-/g, ''))) errs.telefono = 'Debe ser 10 dígitos'
+    setErrores(errs)
+    return Object.keys(errs).length === 0
   }
 
   function seleccionarFin(f: any) {
@@ -182,11 +191,11 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
   }
 
   async function guardarTodo() {
-    if (!form.nombre.trim() || !userId) return
+    if (!validarForm() || !userId) return
 
     // Validar al menos 1 documento si hay catálogo disponible
     if (docsActivos.length > 0 && docsLocal.length === 0) {
-      alert('Selecciona al menos un documento requerido antes de guardar.')
+      setErrores(prev => ({ ...prev, docs: 'Selecciona al menos un documento requerido' }))
       return
     }
 
@@ -207,7 +216,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
           finId = data.id
           setFinActiva(data.id)
         }
-        setShowNueva(false) // queda en el panel, no sale
+        setShowNueva(false)
       } else {
         await supabase.from('instituciones_financieras').update(payload).eq('id', finId)
       }
@@ -225,7 +234,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
         setDocsModificado(false)
       }
 
-      await cargar()
+      await cargar(finId) // pasar el id para mantener la financiera activa
       setSavedMsg(true)
       setTimeout(() => setSavedMsg(false), 3000)
     } finally {
@@ -235,7 +244,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
 
   async function toggleActiva(f: any) {
     await supabase.from('instituciones_financieras').update({ activa: !f.activa }).eq('id', f.id)
-    await cargar()
+    await cargar(finActiva)
   }
 
   const fin = financieras.find((f: any) => f.id === finActiva)
@@ -303,13 +312,14 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
                   { label: 'Nombre *', key: 'nombre', placeholder: 'Ej: Caja Libertad' },
                   { label: 'Contacto', key: 'contacto', placeholder: 'Nombre del ejecutivo' },
                   { label: 'Email', key: 'email', placeholder: 'ejecutivo@financiera.com' },
-                  { label: 'Teléfono', key: 'telefono', placeholder: '10 dígitos' },
+                  { label: 'Teléfono', key: 'telefono', placeholder: '10 dígitos sin espacios' },
                 ].map(f => (
                   <div key={f.key}>
-                    <label style={{ fontSize: '11px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>{f.label}</label>
-                    <input value={(form as any)[f.key]} onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
+                    <label style={{ fontSize: '11px', fontWeight: '700', color: errores[f.key] ? '#DC2626' : '#6B7280', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>{f.label}</label>
+                    <input value={(form as any)[f.key]} onChange={e => { setForm(p => ({ ...p, [f.key]: e.target.value })); setErrores(p => ({ ...p, [f.key]: '' })) }}
                       placeholder={f.placeholder}
-                      style={{ width: '100%', padding: '9px 12px', border: '1.5px solid #D1D5DB', fontSize: '13px', borderRadius: '7px', fontFamily: 'inherit', boxSizing: 'border-box' as const, outline: 'none' }} />
+                      style={{ width: '100%', padding: '9px 12px', border: `1.5px solid ${errores[f.key] ? '#DC2626' : '#D1D5DB'}`, fontSize: '13px', borderRadius: '7px', fontFamily: 'inherit', boxSizing: 'border-box' as const, outline: 'none' }} />
+                    {errores[f.key] && <p style={{ fontSize: '11px', color: '#DC2626', margin: '3px 0 0' }}>{errores[f.key]}</p>}
                   </div>
                 ))}
                 <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px' }}>
@@ -354,10 +364,10 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
               </div>
 
               {/* Aviso si es nueva financiera y no hay docs */}
-              {docsLocal.length === 0 && (
+              {(docsLocal.length === 0 || errores.docs) && (
                 <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: '8px', padding: '10px 14px', marginBottom: '10px' }}>
                   <p style={{ fontSize: '12px', color: '#C2410C', margin: 0 }}>
-                    📋 Selecciona los documentos que pide esta financiera para tramitar el financiamiento. Es requerido al menos uno.
+                    📋 {errores.docs || 'Selecciona los documentos que pide esta financiera. Se requiere al menos uno.'}
                   </p>
                 </div>
               )}
