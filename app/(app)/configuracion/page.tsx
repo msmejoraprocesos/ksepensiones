@@ -173,35 +173,31 @@ function FinancierasElegibilidad({ userId, supabase: _supabase }: { userId: stri
   }
 
   async function guardarFinanciera() {
-    if (!finForm.nombre.trim()) return
+    if (!finForm.nombre.trim() || !userId) return
     setSavingFin(true)
-    const payload = {
-      asesor_id: userId,
-      nombre: finForm.nombre.trim(),
-      contacto_nombre: finForm.contacto.trim() || null,
-      contacto_email: finForm.email.trim() || null,
-      contacto_telefono: finForm.telefono.trim() || null,
-      activa: true,
-    }
-    if (editFin) {
-      await supabase.from('instituciones_financieras').update(payload).eq('id', editFin.id)
-      await cargar()
-      setFinId(editFin.id)
-    } else {
-      const { data, error } = await supabase.from('instituciones_financieras').insert(payload).select().single()
-      if (error) {
-        console.error('Error creando financiera:', error)
-        setSavingFin(false)
-        return
+    try {
+      const payload = {
+        asesor_id: userId,
+        nombre: finForm.nombre.trim(),
+        contacto_nombre: finForm.contacto.trim() || null,
+        contacto_email: finForm.email.trim() || null,
+        contacto_telefono: finForm.telefono.trim() || null,
+        activa: true,
       }
-      await cargar()
-      if (data) {
-        setEditFin(data)
-        setFinId(data.id)
+      if (editFin) {
+        await supabase.from('instituciones_financieras').update(payload).eq('id', editFin.id)
+        await cargar()
+        setFinId(editFin.id)
+      } else {
+        const { data, error } = await supabase.from('instituciones_financieras').insert(payload).select().single()
+        if (error) { console.error('Error creando financiera:', error.message); return }
+        await cargar()
+        if (data) { setEditFin(data); setFinId(data.id) }
       }
+      setModalTab('docs')
+    } finally {
+      setSavingFin(false)
     }
-    setSavingFin(false)
-    setModalTab('docs')
   }
 
   async function toggleAsignacion(finId: string, docId: string) {
