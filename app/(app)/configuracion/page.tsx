@@ -183,6 +183,13 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
 
   async function guardarTodo() {
     if (!form.nombre.trim() || !userId) return
+
+    // Validar al menos 1 documento si hay catálogo disponible
+    if (docsActivos.length > 0 && docsLocal.length === 0) {
+      alert('Selecciona al menos un documento requerido antes de guardar.')
+      return
+    }
+
     setSaving(true)
     try {
       let finId = finActiva
@@ -196,21 +203,24 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
       }
       if (showNueva || !finId) {
         const { data } = await supabase.from('instituciones_financieras').insert(payload).select().single()
-        if (data) { finId = data.id; setFinActiva(data.id) }
-        setShowNueva(false)
+        if (data) {
+          finId = data.id
+          setFinActiva(data.id)
+        }
+        setShowNueva(false) // queda en el panel, no sale
       } else {
         await supabase.from('instituciones_financieras').update(payload).eq('id', finId)
       }
       setEditando(false)
 
-      // Sincronizar documentos si hubo cambios
-      if (finId && (docsModificado || showNueva)) {
+      // Sincronizar documentos
+      if (finId) {
         const actuales = asignaciones[finId] ?? []
         const agregar = docsLocal.filter(id => !actuales.includes(id))
         const quitar = actuales.filter(id => !docsLocal.includes(id))
         await Promise.all([
           ...agregar.map(docId => supabase.from('documentos_financiera').insert({ institucion_id: finId, documento_id: docId, obligatorio: true })),
-          ...quitar.map(docId => supabase.from('documentos_financiera').delete().eq('institucion_id', finId).eq('documento_id', docId)),
+          ...quitar.map(docId => supabase.from('documentos_financiera').delete().eq('institucion_id', finId!).eq('documento_id', docId)),
         ])
         setDocsModificado(false)
       }
@@ -331,17 +341,27 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
             )}
 
           {/* ── Sección documentos ── */}
-          {(fin || (showNueva && finActiva)) && !showNueva && (
+          {(fin || finActiva) && (
             <div style={{ padding: '16px 20px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                 <p style={{ fontSize: '13px', fontWeight: '700', color: AZUL, margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
                   📄 Documentos requeridos
                 </p>
-                <span style={{ fontSize: '12px', color: '#6B7280', background: '#F4F6FB', padding: '3px 10px', borderRadius: '6px' }}>
-                  {docsLocal.length} de {docsActivos.length} seleccionados
-                  {docsModificado && <span style={{ color: NARANJA, marginLeft: '6px' }}>● sin guardar</span>}
+                <span style={{ fontSize: '12px', color: docsLocal.length === 0 ? '#DC2626' : '#6B7280', background: docsLocal.length === 0 ? '#FEF2F2' : '#F4F6FB', padding: '3px 10px', borderRadius: '6px', fontWeight: docsLocal.length === 0 ? '700' : '400' }}>
+                  {docsLocal.length === 0 ? '⚠️ Selecciona al menos 1' : `${docsLocal.length} de ${docsActivos.length} seleccionados`}
+                  {docsModificado && docsLocal.length > 0 && <span style={{ color: NARANJA, marginLeft: '6px' }}>● sin guardar</span>}
                 </span>
               </div>
+
+              {/* Aviso si es nueva financiera y no hay docs */}
+              {docsLocal.length === 0 && (
+                <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: '8px', padding: '10px 14px', marginBottom: '10px' }}>
+                  <p style={{ fontSize: '12px', color: '#C2410C', margin: 0 }}>
+                    📋 Selecciona los documentos que pide esta financiera para tramitar el financiamiento. Es requerido al menos uno.
+                  </p>
+                </div>
+              )}
+
               <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
                 {docsActivos.map((doc: any) => {
                   const asignado = docsLocal.includes(doc.id)
@@ -369,8 +389,8 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
                 {savedMsg && <p style={{ fontSize: '12px', color: VERDE, margin: 0, fontWeight: '600' }}>✓ Guardado correctamente</p>}
                 {hayPendientes && !savedMsg && <p style={{ fontSize: '12px', color: NARANJA, margin: 0 }}>● Tienes cambios sin guardar</p>}
               </div>
-              <button onClick={guardarTodo} disabled={saving || !form.nombre.trim()}
-                style={{ padding: '10px 24px', background: !form.nombre.trim() ? '#E5E7EB' : AZUL, color: !form.nombre.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: !form.nombre.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
+              <button onClick={guardarTodo} disabled={saving || !form.nombre.trim() || (docsActivos.length > 0 && docsLocal.length === 0)}
+                style={{ padding: '10px 24px', background: (!form.nombre.trim() || (docsActivos.length > 0 && docsLocal.length === 0)) ? '#E5E7EB' : AZUL, color: (!form.nombre.trim() || (docsActivos.length > 0 && docsLocal.length === 0)) ? '#9CA3AF' : 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: (!form.nombre.trim() || (docsActivos.length > 0 && docsLocal.length === 0)) ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
                 {saving ? 'Guardando...' : '💾 Guardar'}
               </button>
             </div>
