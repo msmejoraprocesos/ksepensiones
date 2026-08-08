@@ -1509,20 +1509,16 @@ export default function ConfiguracionPage() {
         )} {/* fin tab sistema */}
 
         {/* ── TAB: FINANCIERAS ── */}
-        {tabActiva === 'financieras' && (
-        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
+        <div style={{ display: tabActiva === 'financieras' ? 'block' : 'none', background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
           {sectionTitle('💳', 'Financieras y elegibilidad', 'Configura las instituciones con las que trabajas y sus criterios de elegibilidad')}
           <FinancierasElegibilidad userId={userId} supabase={supabase} />
         </div>
-        )}
 
         {/* ── TAB: CATÁLOGOS ── */}
-        {tabActiva === 'catalogos' && (
-        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
+        <div style={{ display: tabActiva === 'catalogos' ? 'block' : 'none', background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
           {sectionTitle('📋', 'Catálogos de actividad', 'Personaliza las opciones que aparecen al registrar una actividad con un cliente')}
           <CatalogosActividad userId={userId} supabase={supabase} />
         </div>
-        )}
 
         </>)}
 
