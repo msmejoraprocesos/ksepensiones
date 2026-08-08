@@ -101,12 +101,14 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
   const [financieras, setFinancieras] = useState<any[]>([])
   const [catalogo, setCatalogo] = useState<any[]>([])
   const [asignaciones, setAsignaciones] = useState<Record<string, string[]>>({})
+  const [docsLocal, setDocsLocal] = useState<string[]>([]) // cambios pendientes de guardar
+  const [docsModificado, setDocsModificado] = useState(false)
   const [finActiva, setFinActiva] = useState<string | null>(null)
   const [editando, setEditando] = useState(false)
   const [form, setForm] = useState({ nombre: '', contacto: '', email: '', telefono: '' })
   const [saving, setSaving] = useState(false)
+  const [savedMsg, setSavedMsg] = useState(false)
   const [showNueva, setShowNueva] = useState(false)
-  const [toggling, setToggling] = useState<string | null>(null)
 
   useEffect(() => {
     if (!userId) return
@@ -147,13 +149,43 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
     }
     setAsignaciones(mapa)
 
-    if (!finActiva && fins && fins.length > 0) setFinActiva(fins[0].id)
+    if (!finActiva && fins && fins.length > 0) {
+      const id = fins[0].id
+      setFinActiva(id)
+      setDocsLocal(mapa[id] ?? [])
+    }
   }
 
-  async function guardarDatos() {
+  function seleccionarFin(f: any) {
+    setFinActiva(f.id)
+    setShowNueva(false)
+    setEditando(false)
+    setDocsModificado(false)
+    setForm({ nombre: f.nombre ?? '', contacto: f.contacto_nombre ?? '', email: f.contacto_email ?? '', telefono: f.contacto_telefono ?? '' })
+    setDocsLocal(asignaciones[f.id] ?? [])
+  }
+
+  function iniciarNueva() {
+    setShowNueva(true)
+    setEditando(true)
+    setDocsModificado(false)
+    setForm({ nombre: '', contacto: '', email: '', telefono: '' })
+    setFinActiva(null)
+    setDocsLocal([])
+  }
+
+  function toggleDocLocal(docId: string) {
+    setDocsLocal(prev =>
+      prev.includes(docId) ? prev.filter(id => id !== docId) : [...prev, docId]
+    )
+    setDocsModificado(true)
+  }
+
+  async function guardarTodo() {
     if (!form.nombre.trim() || !userId) return
     setSaving(true)
     try {
+      let finId = finActiva
       const payload = {
         asesor_id: userId,
         nombre: form.nombre.trim(),
@@ -162,35 +194,33 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
         contacto_telefono: form.telefono.trim() || null,
         activa: true,
       }
-      if (finActiva && !showNueva) {
-        await supabase.from('instituciones_financieras').update(payload).eq('id', finActiva)
-      } else {
+      if (showNueva || !finId) {
         const { data } = await supabase.from('instituciones_financieras').insert(payload).select().single()
-        if (data) setFinActiva(data.id)
+        if (data) { finId = data.id; setFinActiva(data.id) }
         setShowNueva(false)
+      } else {
+        await supabase.from('instituciones_financieras').update(payload).eq('id', finId)
       }
-      await cargar()
       setEditando(false)
+
+      // Sincronizar documentos si hubo cambios
+      if (finId && (docsModificado || showNueva)) {
+        const actuales = asignaciones[finId] ?? []
+        const agregar = docsLocal.filter(id => !actuales.includes(id))
+        const quitar = actuales.filter(id => !docsLocal.includes(id))
+        await Promise.all([
+          ...agregar.map(docId => supabase.from('documentos_financiera').insert({ institucion_id: finId, documento_id: docId, obligatorio: true })),
+          ...quitar.map(docId => supabase.from('documentos_financiera').delete().eq('institucion_id', finId).eq('documento_id', docId)),
+        ])
+        setDocsModificado(false)
+      }
+
+      await cargar()
+      setSavedMsg(true)
+      setTimeout(() => setSavedMsg(false), 3000)
     } finally {
       setSaving(false)
     }
-  }
-
-  async function toggleDoc(finId: string, docId: string) {
-    const key = `${finId}_${docId}`
-    setToggling(key)
-    const asignados = asignaciones[finId] ?? []
-    const yaAsignado = asignados.includes(docId)
-    if (yaAsignado) {
-      await supabase.from('documentos_financiera').delete().eq('institucion_id', finId).eq('documento_id', docId)
-    } else {
-      await supabase.from('documentos_financiera').insert({ institucion_id: finId, documento_id: docId, obligatorio: true })
-    }
-    setAsignaciones(prev => ({
-      ...prev,
-      [finId]: yaAsignado ? (prev[finId] ?? []).filter(id => id !== docId) : [...(prev[finId] ?? []), docId],
-    }))
-    setToggling(null)
   }
 
   async function toggleActiva(f: any) {
@@ -198,23 +228,9 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
     await cargar()
   }
 
-  function iniciarNueva() {
-    setShowNueva(true)
-    setEditando(true)
-    setForm({ nombre: '', contacto: '', email: '', telefono: '' })
-    setFinActiva(null)
-  }
-
-  function seleccionarFin(f: any) {
-    setFinActiva(f.id)
-    setShowNueva(false)
-    setEditando(false)
-    setForm({ nombre: f.nombre ?? '', contacto: f.contacto_nombre ?? '', email: f.contacto_email ?? '', telefono: f.contacto_telefono ?? '' })
-  }
-
   const fin = financieras.find((f: any) => f.id === finActiva)
   const docsActivos = catalogo.filter((d: any) => d.activo)
-  const docsAsig = asignaciones[finActiva ?? ''] ?? []
+  const hayPendientes = editando || docsModificado
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '16px' }}>
@@ -293,10 +309,6 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
                       Cancelar
                     </button>
                   )}
-                  <button onClick={guardarDatos} disabled={saving || !form.nombre.trim()}
-                    style={{ padding: '9px 20px', background: !form.nombre.trim() ? '#E5E7EB' : VERDE, color: !form.nombre.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: !form.nombre.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '7px' }}>
-                    {saving ? 'Guardando...' : showNueva ? '💾 Guardar y ver documentos' : '💾 Guardar cambios'}
-                  </button>
                 </div>
               </div>
               </div>
@@ -319,25 +331,25 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
             )}
 
           {/* ── Sección documentos ── */}
-          {fin && !showNueva && (
+          {(fin || (showNueva && finActiva)) && !showNueva && (
             <div style={{ padding: '16px 20px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                 <p style={{ fontSize: '13px', fontWeight: '700', color: AZUL, margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
                   📄 Documentos requeridos
                 </p>
                 <span style={{ fontSize: '12px', color: '#6B7280', background: '#F4F6FB', padding: '3px 10px', borderRadius: '6px' }}>
-                  {docsAsig.length} de {docsActivos.length} seleccionados
+                  {docsLocal.length} de {docsActivos.length} seleccionados
+                  {docsModificado && <span style={{ color: NARANJA, marginLeft: '6px' }}>● sin guardar</span>}
                 </span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '6px' }}>
                 {docsActivos.map((doc: any) => {
-                  const key = `${finActiva}_${doc.id}`
-                  const asignado = docsAsig.includes(doc.id)
+                  const asignado = docsLocal.includes(doc.id)
                   return (
-                    <div key={doc.id} onClick={() => toggleDoc(finActiva!, doc.id)}
+                    <div key={doc.id} onClick={() => toggleDocLocal(doc.id)}
                       style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: asignado ? '#F0FDF4' : '#F8FAFC', border: `1.5px solid ${asignado ? '#86EFAC' : '#E5E7EB'}`, borderRadius: '8px', cursor: 'pointer', transition: 'all 0.15s' }}>
                       <div style={{ width: '22px', height: '22px', borderRadius: '5px', background: asignado ? VERDE : 'white', border: `2px solid ${asignado ? VERDE : '#D1D5DB'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'white', fontSize: '13px', fontWeight: '700' }}>
-                        {toggling === key ? '⏳' : asignado ? '✓' : ''}
+                        {asignado ? '✓' : ''}
                       </div>
                       <div style={{ flex: 1 }}>
                         <p style={{ fontSize: '13px', fontWeight: asignado ? '700' : '500', color: asignado ? '#15803D' : '#374151', margin: '0 0 1px' }}>{doc.nombre}</p>
@@ -347,6 +359,20 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
                   )
                 })}
               </div>
+            </div>
+          )}
+
+          {/* ── Botón guardar único al final ── */}
+          {(fin || showNueva) && (
+            <div style={{ padding: '14px 20px', background: '#F8FAFC', borderTop: '1px solid #E5E7EB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                {savedMsg && <p style={{ fontSize: '12px', color: VERDE, margin: 0, fontWeight: '600' }}>✓ Guardado correctamente</p>}
+                {hayPendientes && !savedMsg && <p style={{ fontSize: '12px', color: NARANJA, margin: 0 }}>● Tienes cambios sin guardar</p>}
+              </div>
+              <button onClick={guardarTodo} disabled={saving || !form.nombre.trim()}
+                style={{ padding: '10px 24px', background: !form.nombre.trim() ? '#E5E7EB' : AZUL, color: !form.nombre.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: !form.nombre.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
+                {saving ? 'Guardando...' : '💾 Guardar'}
+              </button>
             </div>
           )}
         </div>
@@ -901,10 +927,9 @@ export default function ConfiguracionPage() {
                 </button>
               )}
               {(tabActiva === 'financieras' || tabActiva === 'catalogos') && (
-                <button onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 3000) }}
-                  style={{ padding: '9px 20px', background: VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
-                  💾 Guardar
-                </button>
+                <span style={{ fontSize: '12px', color: '#9CA3AF', fontStyle: 'italic' }}>
+                  Usa el botón Guardar dentro de cada sección
+                </span>
               )}
             </div>
           </div>
