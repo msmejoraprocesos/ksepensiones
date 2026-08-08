@@ -185,6 +185,7 @@ function FinancierasElegibilidad({ userId, supabase: _supabase }: { userId: stri
       if (data) { setEditFin(data); setFinIdModal(data.id) }
     }
     setSavingFin(false)
+    await cargar()
     setModalTab('docs')
   }
 
@@ -328,9 +329,9 @@ function FinancierasElegibilidad({ userId, supabase: _supabase }: { userId: stri
             {/* Tabs del modal */}
             <div style={{ display: 'flex', borderBottom: '1px solid #E5E7EB', flexShrink: 0 }}>
               {([['datos', '📋 Datos generales'], ['docs', '📄 Documentos']] as const).map(([t, lbl]) => (
-                <button key={t} onClick={() => setModalTab(t)}
-                  disabled={t === 'docs' && !editFin && !savingFin}
-                  style={{ flex: 1, padding: '12px', background: 'none', border: 'none', borderBottom: `3px solid ${modalTab === t ? AZUL : 'transparent'}`, fontSize: '13px', fontWeight: modalTab === t ? '700' : '400', color: modalTab === t ? AZUL : t === 'docs' && !editFin ? '#D1D5DB' : '#6B7280', cursor: t === 'docs' && !editFin ? 'not-allowed' : 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}>
+                <button key={t} onClick={async () => { setModalTab(t); if (t === 'docs' && catalogo.length === 0) await cargar() }}
+                  disabled={t === 'docs' && !finIdModal}
+                  style={{ flex: 1, padding: '12px', background: 'none', border: 'none', borderBottom: `3px solid ${modalTab === t ? AZUL : 'transparent'}`, fontSize: '13px', fontWeight: modalTab === t ? '700' : '400', color: modalTab === t ? AZUL : t === 'docs' && !finIdModal ? '#D1D5DB' : '#6B7280', cursor: t === 'docs' && !finIdModal ? 'not-allowed' : 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}>
                   {lbl}
                 </button>
               ))}
