@@ -591,7 +591,7 @@ function MiDiaInner() {
                   const SERVICIOS_VENTAS = [
                     { id: 'asesoria', label: 'Asesoría', color: AZUL },
                     { id: 'gestion', label: 'Trámite', color: NARANJA },
-                    { id: 'financiamiento', label: 'Financiamiento', color: VERDE },
+                    // financiamiento removido del combo
                     { id: 'gestoria_global', label: 'Gestoría Global', color: '#7C3AED' },
                   ]
                   const items = SERVICIOS_VENTAS.map(s => ({
@@ -671,7 +671,7 @@ function MiDiaInner() {
                   const SERVICIOS = [
                     { id: 'asesoria', label: 'Asesoría' },
                     { id: 'gestion', label: 'Trámite' },
-                    { id: 'financiamiento', label: 'Financiamiento' },
+                    // financiamiento removido del combo
                     { id: 'gestoria_global', label: 'Gestión Global' },
                   ]
                   const ETAPAS = [

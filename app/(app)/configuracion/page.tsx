@@ -153,7 +153,10 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
 
     // Mantener la financiera activa si se pasó un id, si no usar la primera
     const targetId = mantenerFinId ?? (fins && fins.length > 0 ? fins[0].id : null)
-    if (targetId) setFinActiva(targetId)
+    if (targetId) {
+      setFinActiva(targetId)
+      setDocsLocal(mapa[targetId] ?? [])
+    }
   }
 
   function validarForm() {

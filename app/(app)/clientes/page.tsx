@@ -21,16 +21,15 @@ const COLUMNAS = [
 ]
 
 const TIPOS_SERVICIO = [
-  { id: 'asesoria',        label: 'Asesoría',         color: '#378ADD' },
+  { id: 'asesoria',        label: 'Asesoría',           color: '#378ADD' },
   { id: 'gestion',         label: 'Trámite de Pensión', color: '#639922' },
-  { id: 'financiamiento',  label: 'Financiamiento',   color: '#eab308' },
-  { id: 'gestoria_global', label: 'Gestoría Global',  color: '#7F77DD' },
+  { id: 'gestoria_global', label: 'Gestoría Global',    color: '#7F77DD' },
 ]
 
 const SERVICIO_COLORS: Record<string, string> = {
   asesoria: '#378ADD',
   gestion: '#639922',
-  financiamiento: '#eab308',
+  financiamiento: '#eab308', // legacy — mantener para registros existentes
   gestoria_global: '#7F77DD',
 }
 
@@ -243,6 +242,7 @@ function ClientesInner() {
   const [search, setSearch] = useState('')
   const userIdRef = useRef('')
   const userRolRef = useRef('asesor')
+  const [userRol, setUserRol] = useState('asesor')
   const userOrgRef = useRef<string | null>(null)
 
   // Expediente
@@ -352,6 +352,7 @@ function ClientesInner() {
           if (data) {
             setAsesorPerfil(data)
             userRolRef.current = data.rol || 'asesor'
+            setUserRol(data.rol || 'asesor')
             userOrgRef.current = data.organizacion_id || null
           }
         })
