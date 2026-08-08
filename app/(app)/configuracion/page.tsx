@@ -105,6 +105,7 @@ function FinancierasElegibilidad({ userId, supabase: _supabase }: { userId: stri
   const [showModal, setShowModal] = useState(false)
   const [editFin, setEditFin] = useState<any>(null)
   const [finIdModal, setFinIdModal] = useState<string | null>(null)
+  const finIdRef = useRef<string | null>(null)
   const [modalTab, setModalTab] = useState<'datos' | 'docs'>('datos')
   const [finForm, setFinForm] = useState({ nombre: '', contacto: '', email: '', telefono: '' })
   const [savingFin, setSavingFin] = useState(false)
@@ -151,6 +152,7 @@ function FinancierasElegibilidad({ userId, supabase: _supabase }: { userId: stri
   function abrirNuevaFinanciera() {
     setEditFin(null)
     setFinIdModal(null)
+    finIdRef.current = null
     setFinForm({ nombre: '', contacto: '', email: '', telefono: '' })
     setModalTab('datos')
     setShowModal(true)
@@ -159,6 +161,7 @@ function FinancierasElegibilidad({ userId, supabase: _supabase }: { userId: stri
   function abrirEditarFinanciera(f: any) {
     setEditFin(f)
     setFinIdModal(f.id)
+    finIdRef.current = f.id
     setFinForm({ nombre: f.nombre ?? '', contacto: f.contacto_nombre ?? '', email: f.contacto_email ?? '', telefono: f.contacto_telefono ?? '' })
     setModalTab('datos')
     setShowModal(true)
@@ -177,15 +180,19 @@ function FinancierasElegibilidad({ userId, supabase: _supabase }: { userId: stri
     }
     if (editFin) {
       await supabase.from('instituciones_financieras').update(payload).eq('id', editFin.id)
+      finIdRef.current = editFin.id
       setFinIdModal(editFin.id)
       await cargar()
     } else {
       const { data } = await supabase.from('instituciones_financieras').insert(payload).select().single()
       await cargar()
-      if (data) { setEditFin(data); setFinIdModal(data.id) }
+      if (data) {
+        finIdRef.current = data.id
+        setFinIdModal(data.id)
+        setEditFin(data)
+      }
     }
     setSavingFin(false)
-    await cargar()
     setModalTab('docs')
   }
 
@@ -212,7 +219,7 @@ function FinancierasElegibilidad({ userId, supabase: _supabase }: { userId: stri
   }
 
   const docsActivos = catalogo.filter((d: any) => d.activo)
-  const finModalId = finIdModal ?? editFin?.id ?? null
+  const finModalId = finIdRef.current ?? finIdModal ?? editFin?.id ?? null
   const finModal = financieras.find((f: any) => f.id === finModalId) ?? editFin
 
   return (
