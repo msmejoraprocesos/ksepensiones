@@ -378,10 +378,6 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
               {/* Tab documentos */}
               {modalTab === 'docs' && (
                 <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
-                  {/* DEBUG TEMPORAL */}
-                  <div style={{ background: '#FEF2F2', padding: '8px', borderRadius: '6px', fontSize: '11px', color: '#991B1B' }}>
-                    DEBUG: catalogo={catalogo.length} | docsActivos={docsActivos.length} | finIdModal={finIdModal ?? 'null'} | ref={finIdRef.current ?? 'null'} | currentFinId={currentFinId ?? 'null'} | finModal={finModal?.nombre ?? 'null'}
-                  </div>
                   {!finModal ? (
                     <p style={{ fontSize: '13px', color: '#9CA3AF', textAlign: 'center' as const }}>Guarda los datos generales primero</p>
                   ) : docsActivos.length === 0 ? (
