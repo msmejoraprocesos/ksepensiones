@@ -203,7 +203,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
         nombre: form.nombre.trim(),
         contacto_nombre: form.contacto.trim() || null,
         contacto_email: form.email.trim() || null,
-        contacto_telefono: form.telefono.trim() || null,
+        contacto_telefono: form.telefono ? form.telefono.replace(/\D/g, '') || null : null,
         activa: true,
       }
       if (showNueva || !finId) {
@@ -739,7 +739,7 @@ export default function ConfiguracionPage() {
       nombre: perfil.nombre,
       razon_social: razonSocialFinal,
       rfc: perfil.rfc,
-      telefono: perfil.telefono,
+      telefono: perfil.telefono ? perfil.telefono.replace(/\D/g, '') : null,
       email_contacto: perfil.email_contacto,
       direccion: perfil.direccion,
       logo_url: logoUrl,
