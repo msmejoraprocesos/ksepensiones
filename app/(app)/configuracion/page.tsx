@@ -238,27 +238,40 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
       {(fin || showNueva) && (
         <div style={{ background: 'white', border: `1.5px solid ${AZUL}`, borderRadius: '12px', overflow: 'hidden' }}>
 
-          {/* ── Sección datos generales ── */}
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid #E5E7EB' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-              <p style={{ fontSize: '13px', fontWeight: '700', color: AZUL, margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
-                📋 Datos generales
-              </p>
-              {!showNueva && !editando && (
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button onClick={() => { setEditando(true); setForm({ nombre: fin.nombre ?? '', contacto: fin.contacto_nombre ?? '', email: fin.contacto_email ?? '', telefono: fin.contacto_telefono ?? '' }) }}
-                    style={{ padding: '6px 14px', background: '#F4F6FB', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
-                    ✏️ Editar
-                  </button>
-                  <button onClick={() => toggleActiva(fin)}
-                    style={{ padding: '6px 14px', background: fin?.activa ? '#FFFBEB' : '#F0FDF4', color: fin?.activa ? '#D97706' : VERDE, border: `1px solid ${fin?.activa ? '#FDE68A' : '#86EFAC'}`, fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
-                    {fin?.activa ? '⏸ Inactivar' : '▶ Activar'}
-                  </button>
+          {/* ── Header azul con nombre destacado ── */}
+          {fin && !showNueva && (
+            <div style={{ background: AZUL, padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '28px' }}>🏦</span>
+                <div>
+                  <p style={{ fontSize: '18px', fontWeight: '800', color: 'white', margin: '0 0 2px' }}>{fin.nombre}</p>
+                  <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.65)', margin: 0 }}>
+                    {[fin.contacto_nombre, fin.contacto_email, fin.contacto_telefono].filter(Boolean).join(' · ') || 'Sin datos de contacto'}
+                  </p>
                 </div>
-              )}
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button onClick={() => { setEditando(true); setForm({ nombre: fin.nombre ?? '', contacto: fin.contacto_nombre ?? '', email: fin.contacto_email ?? '', telefono: fin.contacto_telefono ?? '' }) }}
+                  style={{ padding: '7px 14px', background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '7px' }}>
+                  ✏️ Editar
+                </button>
+                <button onClick={() => toggleActiva(fin)}
+                  style={{ padding: '7px 14px', background: fin?.activa ? 'rgba(255,255,255,0.15)' : '#F0FDF4', color: fin?.activa ? 'white' : VERDE, border: `1px solid ${fin?.activa ? 'rgba(255,255,255,0.3)' : '#86EFAC'}`, fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '7px' }}>
+                  {fin?.activa ? '⏸ Inactivar' : '▶ Activar'}
+                </button>
+              </div>
             </div>
+          )}
+
+          {showNueva && (
+            <div style={{ background: AZUL, padding: '16px 20px' }}>
+              <p style={{ fontSize: '16px', fontWeight: '800', color: 'white', margin: '0 0 2px' }}>🏦 Nueva institución financiera</p>
+              <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.65)', margin: 0 }}>Llena los datos generales para comenzar</p>
+            </div>
+          )}
 
             {editando ? (
+              <div style={{ padding: '16px 20px', borderBottom: '1px solid #E5E7EB' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 {[
                   { label: 'Nombre *', key: 'nombre', placeholder: 'Ej: Caja Libertad' },
@@ -286,7 +299,9 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
                   </button>
                 </div>
               </div>
+              </div>
             ) : (
+              <div style={{ padding: '16px 20px', borderBottom: '1px solid #E5E7EB' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 {[
                   { label: 'Nombre', val: fin?.nombre },
@@ -300,8 +315,8 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
                   </div>
                 ))}
               </div>
+              </div>
             )}
-          </div>
 
           {/* ── Sección documentos ── */}
           {fin && !showNueva && (
@@ -474,10 +489,29 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
           <p style={{ fontSize: '12px', fontWeight: '700', color: '#374151', margin: '0 0 10px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
             + Nueva opción para {catInfo?.label.replace(/^[^\s]+\s/, '')}
           </p>
+
+          {/* Selector de emojis */}
+          <div style={{ marginBottom: '10px' }}>
+            <p style={{ fontSize: '11px', color: '#6B7280', margin: '0 0 6px' }}>Elige un emoji:</p>
+            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '4px', background: 'white', padding: '8px', borderRadius: '8px', border: '1px solid #E5E7EB' }}>
+              {(catActiva === 'tipo_contacto'
+                ? ['📞','📱','💬','📧','🤝','🏠','🏢','📝','💻','📹','🎙️','📠']
+                : catActiva === 'resultado'
+                ? ['✅','❌','⏳','🔄','💡','👍','👎','⚠️','🎉','💰','📋','🔕']
+                : ['📅','📞','📄','✉️','🚀','⏰','📊','💼','🔔','✍️','📌','🎯']
+              ).map(e => (
+                <button key={e} onClick={() => setNuevoIcono(nuevoIcono === e ? '' : e)}
+                  style={{ width: '36px', height: '36px', fontSize: '18px', background: nuevoIcono === e ? '#EEF2F8' : 'white', border: `2px solid ${nuevoIcono === e ? AZUL : '#E5E7EB'}`, borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {e}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <input value={nuevoIcono} onChange={e => setNuevoIcono(e.target.value)}
-              placeholder={ICONOS_DEFAULT[catActiva] || '•'}
-              style={{ width: '52px', padding: '9px 4px', border: '1.5px solid #D1D5DB', fontSize: '18px', borderRadius: '8px', fontFamily: 'inherit', textAlign: 'center' as const, boxSizing: 'border-box' as const }} />
+            <div style={{ width: '42px', height: '42px', background: '#F4F6FB', border: '1.5px solid #D1D5DB', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>
+              {nuevoIcono || ICONOS_DEFAULT[catActiva] || '•'}
+            </div>
             <input value={nuevaEtiqueta} onChange={e => setNuevaEtiqueta(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && agregar()}
               placeholder={PLACEHOLDERS[catActiva] || 'Nombre de la opción...'}
@@ -487,9 +521,6 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
               {saving ? 'Guardando...' : '+ Agregar'}
             </button>
           </div>
-          <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '6px 0 0' }}>
-            Emoji opcional — si lo dejas vacío se usa {ICONOS_DEFAULT[catActiva] || '•'} por defecto
-          </p>
         </div>
       </div>
     </div>
