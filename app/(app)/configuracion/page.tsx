@@ -1,6 +1,6 @@
 'use client' // v-banner
 
-import { useEffect, useState, useRef, useMemo } from 'react'
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 
@@ -106,6 +106,13 @@ function FinancierasElegibilidad({ userId, supabase: _supabase }: { userId: stri
   const [editFin, setEditFin] = useState<any>(null)
   const [finIdModal, setFinIdModal] = useState<string | null>(null)
   const finIdRef = useRef<string | null>(null)
+  const [, forceUpdate] = useState(0)
+
+  function setFinId(id: string | null) {
+    finIdRef.current = id
+    setFinIdModal(id)
+    forceUpdate(n => n + 1)
+  }
   const [modalTab, setModalTab] = useState<'datos' | 'docs'>('datos')
   const [finForm, setFinForm] = useState({ nombre: '', contacto: '', email: '', telefono: '' })
   const [savingFin, setSavingFin] = useState(false)
@@ -151,8 +158,7 @@ function FinancierasElegibilidad({ userId, supabase: _supabase }: { userId: stri
 
   function abrirNuevaFinanciera() {
     setEditFin(null)
-    setFinIdModal(null)
-    finIdRef.current = null
+    setFinId(null)
     setFinForm({ nombre: '', contacto: '', email: '', telefono: '' })
     setModalTab('datos')
     setShowModal(true)
@@ -160,8 +166,7 @@ function FinancierasElegibilidad({ userId, supabase: _supabase }: { userId: stri
 
   function abrirEditarFinanciera(f: any) {
     setEditFin(f)
-    setFinIdModal(f.id)
-    finIdRef.current = f.id
+    setFinId(f.id)
     setFinForm({ nombre: f.nombre ?? '', contacto: f.contacto_nombre ?? '', email: f.contacto_email ?? '', telefono: f.contacto_telefono ?? '' })
     setModalTab('datos')
     setShowModal(true)
@@ -180,16 +185,14 @@ function FinancierasElegibilidad({ userId, supabase: _supabase }: { userId: stri
     }
     if (editFin) {
       await supabase.from('instituciones_financieras').update(payload).eq('id', editFin.id)
-      finIdRef.current = editFin.id
-      setFinIdModal(editFin.id)
+      setFinId(editFin.id)
       await cargar()
     } else {
       const { data } = await supabase.from('instituciones_financieras').insert(payload).select().single()
       await cargar()
       if (data) {
-        finIdRef.current = data.id
-        setFinIdModal(data.id)
         setEditFin(data)
+        setFinId(data.id)
       }
     }
     setSavingFin(false)
@@ -219,8 +222,9 @@ function FinancierasElegibilidad({ userId, supabase: _supabase }: { userId: stri
   }
 
   const docsActivos = catalogo.filter((d: any) => d.activo)
-  const finModalId = finIdRef.current ?? finIdModal ?? editFin?.id ?? null
-  const finModal = financieras.find((f: any) => f.id === finModalId) ?? editFin
+  // Usar el ref directamente para obtener siempre el valor más actual
+  const currentFinId = finIdRef.current ?? finIdModal ?? editFin?.id ?? null
+  const finModal = financieras.find((f: any) => f.id === currentFinId) ?? editFin
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '16px' }}>
@@ -376,7 +380,7 @@ function FinancierasElegibilidad({ userId, supabase: _supabase }: { userId: stri
                 <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
                   {/* DEBUG TEMPORAL */}
                   <div style={{ background: '#FEF2F2', padding: '8px', borderRadius: '6px', fontSize: '11px', color: '#991B1B' }}>
-                    DEBUG: userId={userId} | catalogo.length={catalogo.length} | docsActivos.length={docsActivos.length} | finIdModal={finIdModal ?? 'null'} | finModalId={finModalId ?? 'null'} | finModal={finModal?.nombre ?? 'null'}
+                    DEBUG: catalogo={catalogo.length} | docsActivos={docsActivos.length} | finIdModal={finIdModal ?? 'null'} | ref={finIdRef.current ?? 'null'} | currentFinId={currentFinId ?? 'null'} | finModal={finModal?.nombre ?? 'null'}
                   </div>
                   {!finModal ? (
                     <p style={{ fontSize: '13px', color: '#9CA3AF', textAlign: 'center' as const }}>Guarda los datos generales primero</p>
