@@ -185,10 +185,15 @@ function FinancierasElegibilidad({ userId, supabase: _supabase }: { userId: stri
     }
     if (editFin) {
       await supabase.from('instituciones_financieras').update(payload).eq('id', editFin.id)
-      setFinId(editFin.id)
       await cargar()
+      setFinId(editFin.id)
     } else {
-      const { data } = await supabase.from('instituciones_financieras').insert(payload).select().single()
+      const { data, error } = await supabase.from('instituciones_financieras').insert(payload).select().single()
+      if (error) {
+        console.error('Error creando financiera:', error)
+        setSavingFin(false)
+        return
+      }
       await cargar()
       if (data) {
         setEditFin(data)
