@@ -3431,7 +3431,7 @@ function CalculadoraInner() {
               {/* 3 KPIs críticos */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
                 {[
-                  { label: 'Costo total Mod. 40', value: fmtMXN2(escRec.costo_total), sub: 'pago mes a mes', color: '#B91C1C', bg: '#FEF2F2', border: '#FCA5A5' },
+                  { label: 'Costo total Mod. 40', value: fmtMXN2(escRec.costo_total), sub: 'suma de todos los pagos mensuales', color: '#B91C1C', bg: '#FEF2F2', border: '#FCA5A5' },
                   { label: 'Recuperación AFORE (20%)', value: fmtMXN2(escRec.recuperacion_afore), sub: 'se regresa al invertir', color: '#065F46', bg: '#F0FDF4', border: '#86EFAC' },
                   { label: 'Inversión real neta', value: fmtMXN2(escRec.inversion_neta), sub: 'costo menos AFORE', color: '#92400E', bg: '#FFFBEB', border: '#FCD34D' },
                 ].map((k, i) => (
