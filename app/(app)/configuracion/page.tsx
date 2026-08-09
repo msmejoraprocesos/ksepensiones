@@ -318,7 +318,13 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
                 ].map(f => (
                   <div key={f.key}>
                     <label style={{ fontSize: '11px', fontWeight: '700', color: errores[f.key] ? '#DC2626' : '#6B7280', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>{f.label}</label>
-                    <input value={(form as any)[f.key]} onChange={e => { setForm(p => ({ ...p, [f.key]: e.target.value })); setErrores(p => ({ ...p, [f.key]: '' })) }}
+                    <input value={(form as any)[f.key]}
+                      onChange={e => { setForm(p => ({ ...p, [f.key]: e.target.value })); setErrores(p => ({ ...p, [f.key]: '' })) }}
+                      onBlur={e => {
+                        const val = e.target.value.trim()
+                        if (f.key === 'email' && val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) setErrores(p => ({ ...p, email: 'Email inválido' }))
+                        if (f.key === 'telefono' && val && !/^\d{10}$/.test(val.replace(/\D/g, ''))) setErrores(p => ({ ...p, telefono: 'Debe ser 10 dígitos' }))
+                      }}
                       placeholder={f.placeholder}
                       style={{ width: '100%', padding: '9px 12px', border: `1.5px solid ${errores[f.key] ? '#DC2626' : '#D1D5DB'}`, fontSize: '13px', borderRadius: '7px', fontFamily: 'inherit', boxSizing: 'border-box' as const, outline: 'none' }} />
                     {errores[f.key] && <p style={{ fontSize: '11px', color: '#DC2626', margin: '3px 0 0' }}>{errores[f.key]}</p>}
