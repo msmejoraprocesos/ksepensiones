@@ -1198,7 +1198,7 @@ function CalculadoraInner() {
     setTimeout(() => setMensaje(''), 4000)
   }
 
-  function calcEscenarioMod40(sem: number, sdiBase: number, umas: number, meses: number, pensionBase: number, edadRet?: number, anioInicio?: number) {
+  function calcEscenarioMod40(sem: number, sdiBase: number, sdiReciente: number, umas: number, meses: number, pensionBase: number, edadRet?: number, anioInicio?: number) {
     const anioBase = new Date().getFullYear()
     const edadR = edadRet ?? edadRetiro
     const anioI = anioInicio ?? anioInicioTramite
@@ -1238,10 +1238,12 @@ function CalculadoraInner() {
     const semTotal = semAntesM40 + semMod40
 
     // SDI ponderado 250 semanas — SAL. PROM MOD 40
+    // Excel: SUM(SDI × semanas) / 250 exactas
+    // Para las semanas históricas usa el SDI del período más reciente (no el promedio global)
     const semMod40en250 = Math.min(semMod40, 250)
     const semHistEn250 = Math.min(semAntesM40, 250 - semMod40en250)
     const sdiNuevo = semHistEn250 + semMod40en250 > 0
-      ? (sdiBase * semHistEn250 + sdiMod40 * semMod40en250) / (semHistEn250 + semMod40en250)
+      ? (sdiReciente * semHistEn250 + sdiMod40 * semMod40en250) / 250
       : sdiBase
 
     const { monto: pension, pmg_aplica } = calcPensionLey73(semTotal, sdiNuevo, edadR, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, anioR, datos.tiene_ayuda_asistencial)
@@ -1364,6 +1366,10 @@ function CalculadoraInner() {
     const sem = semBase + semanasNaturalesAntesM40
     if (datos.semanas_totales === 0 || sdiPromedio <= 0) return
     const sdiBase = sdiPromedio > 0 ? sdiPromedio : sys.SALARIO_MIN
+    // SDI del período más reciente para el cálculo de las semanas históricas en Mod 40
+    // El Excel usa el SDI del período más reciente (no el promedio global) para las semanas que quedan
+    // después de asignar las de Mod 40
+    const sdiReciente = periodos.length > 0 ? periodos[periodos.length - 1].sdi : sdiBase
     const anioBase = new Date().getFullYear()
     const anioR = anioBase + (edadRetiro - (datos.edad_actual || 60))
 
@@ -1500,13 +1506,13 @@ function CalculadoraInner() {
       [Math.min(36, mesesDisp), mod40Umas * 0.8, `Mod 40 · ${Math.min(36, mesesDisp)} meses · ${Math.round(mod40Umas * 0.8)} UMAs`, 'Estrategia media', false],
       [Math.min(mod40Meses, mesesDisp), mod40Umas, `Mod 40 · ${Math.min(mod40Meses, mesesDisp)} meses · ${mod40Umas} UMAs`, 'Estrategia configurada', true],
     ] as [number, number, string, string, boolean][]) {
-      const r = calcEscenarioMod40(sem, sdiBase, umas, meses, pensionBase, edadRetiro, anioInicioCalculado)
+      const r = calcEscenarioMod40(sem, sdiBase, sdiReciente, umas, meses, pensionBase, edadRetiro, anioInicioCalculado)
       escs.push(makeEsc(`e_m40_${meses}`, label, desc, meses, umas, r, esOpt))
     }
 
     // E5: Simulación libre
     if (simulacionLibre) {
-      const r = calcEscenarioMod40(sem, sdiBase, simUmas, simMeses, pensionBase, edadRetiro, anioInicioCalculado)
+      const r = calcEscenarioMod40(sem, sdiBase, sdiReciente, simUmas, simMeses, pensionBase, edadRetiro, anioInicioCalculado)
       escs.push(makeEsc('e_sim', `Mi simulación · ${simMeses} meses · ${simUmas} UMAs`, '🔧 Parámetros personalizados', simMeses, simUmas, r))
     }
 
