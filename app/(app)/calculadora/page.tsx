@@ -1122,28 +1122,25 @@ function CalculadoraInner() {
 
   function buildPeriodos250(rawPeriodos: any[], totalSemanas: number) {
     // Ordenar siempre de más reciente a más antiguo por fecha_fin
-    // para garantizar que tomamos las ÚLTIMAS 250 semanas sin importar
-    // el orden en que la IA extrajo los períodos del PDF
+    // para garantizar que tomamos las ÚLTIMAS 250 semanas
     const ordenados = [...rawPeriodos].sort((a, b) => {
       const fa = a.fecha_fin ? new Date(a.fecha_fin).getTime() : 0
       const fb = b.fecha_fin ? new Date(b.fecha_fin).getTime() : 0
       return fb - fa // más reciente primero
     })
 
-    // Tomar períodos desde el más reciente hasta completar 250 semanas
     let acum = 0
     const result: PeriodoSalarial[] = []
     for (const p of ordenados) {
       if (acum >= 250) break
       const semDisponibles = p.semanas || 0
-      if (semDisponibles === 0) continue
       const sem = Math.min(semDisponibles, 250 - acum)
       acum += sem
       const truncado = sem < semDisponibles
       let fechaInicioAjustada = p.fecha_inicio || ''
       if (truncado && p.fecha_fin) {
         const fin = new Date(p.fecha_fin)
-        fin.setDate(fin.getDate() - Math.round(sem * 7))
+        fin.setDate(fin.getDate() - sem * 7)
         fechaInicioAjustada = fin.toISOString().slice(0, 10)
       }
       result.unshift({
