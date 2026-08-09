@@ -327,9 +327,10 @@ function edadDetallada(fechaNac: string, ahora: number): { anios: number; meses:
 
 function calcPromedioSalarial250(periodos: PeriodoSalarial[]): number {
   if (!periodos.length) return 0
-  const totalSem = periodos.reduce((s, p) => s + p.semanas, 0)
-  if (totalSem === 0) return 0
-  return periodos.reduce((s, p) => s + p.sdi * p.semanas, 0) / totalSem
+  // Siempre dividir entre 250 exactas — Art. 167 LSS 1973
+  // =SUBTOTAL(9,F11:F123)/250 — suma de (SDI × semanas) / 250
+  const suma = periodos.reduce((s, p) => s + p.sdi * p.semanas, 0)
+  return suma / 250
 }
 
 function calcCostoMod40(umasSalario: number, pctMod40: number, sys: SysVars): number {
