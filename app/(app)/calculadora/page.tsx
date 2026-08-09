@@ -1105,9 +1105,10 @@ function CalculadoraInner() {
         // imprecisas haciendo aritmética de fechas en texto libre; esto elimina esa imprecisión).
         if (result.periodos && Array.isArray(result.periodos)) {
           const periodosRecalculados = result.periodos.map((p: any) => {
-            const finStr = p.fecha_fin || new Date().toISOString().slice(0, 10)
-            if (p.fecha_inicio && finStr) {
-              const dias = (new Date(finStr).getTime() - new Date(p.fecha_inicio).getTime()) / 86400000
+            // Solo recalcular semanas si ambas fechas están disponibles
+            // Si no hay fecha_fin (empleo activo), conservar las semanas que extrajo la IA
+            if (p.fecha_inicio && p.fecha_fin) {
+              const dias = (new Date(p.fecha_fin).getTime() - new Date(p.fecha_inicio).getTime()) / 86400000
               const semanasExactas = Math.max(0, Math.round((dias / 7) * 100) / 100)
               return { ...p, semanas: semanasExactas }
             }
