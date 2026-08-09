@@ -1106,7 +1106,8 @@ function CalculadoraInner() {
         if (result.periodos && Array.isArray(result.periodos)) {
           const periodosRecalculados = result.periodos.map((p: any) => {
             // Solo recalcular semanas si ambas fechas están disponibles
-            // Si no hay fecha_fin (empleo activo), conservar las semanas que extrajo la IA
+            // Si no hay fecha_fin (empleo activo), las semanas se derivan
+            // del total menos los períodos cerrados (ver buildPeriodos250)
             if (p.fecha_inicio && p.fecha_fin) {
               const dias = (new Date(p.fecha_fin).getTime() - new Date(p.fecha_inicio).getTime()) / 86400000
               const semanasExactas = Math.max(0, Math.round((dias / 7) * 100) / 100)
@@ -1114,6 +1115,20 @@ function CalculadoraInner() {
             }
             return p
           })
+
+          // Recalcular semanas del período activo (sin fecha_fin) como
+          // totalSemanas − suma de semanas de períodos cerrados con fechas conocidas
+          const semanasTotal = result.semanas || 0
+          if (semanasTotal > 0) {
+            const semanasConFecha = periodosRecalculados
+              .filter((p: any) => p.fecha_fin)
+              .reduce((s: number, p: any) => s + (p.semanas || 0), 0)
+            const semanasActivo = Math.max(0, Math.round((semanasTotal - semanasConFecha) * 100) / 100)
+            const idxActivo = periodosRecalculados.findIndex((p: any) => !p.fecha_fin)
+            if (idxActivo >= 0 && semanasActivo > 0) {
+              periodosRecalculados[idxActivo] = { ...periodosRecalculados[idxActivo], semanas: semanasActivo }
+            }
+          }
           setPeriodosCompletos(periodosRecalculados)
           buildPeriodos250(periodosRecalculados, result.semanas || 0)
         }
