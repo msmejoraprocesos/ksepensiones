@@ -1207,21 +1207,20 @@ function CalculadoraInner() {
     const umaProyectada = sys.UMA_DIARIA
     const sdiMod40 = umas * umaProyectada
 
-    // Costo mensual usando días REALES de cada mes (igual que Excel COSTO MOD.40)
-    // El Excel calcula: SDI × tasa_año × (días_mes / 365) para cada mes individualmente
+    // Costo mensual = SDI × tasa × días_año / 12  (fórmula oficial IMSS)
+    // El Excel usa: SDI × tasa% × días_pagados → anual, luego /12 para mensual
     let costo_total = 0
     const fechaInicioMod40 = new Date(anioI, 0, 1)
     for (let m = 0; m < meses; m++) {
       const fechaMes = new Date(fechaInicioMod40)
       fechaMes.setMonth(fechaMes.getMonth() + m)
       const anioMes = fechaMes.getFullYear()
-      const mesMes = fechaMes.getMonth()
-      const diasMes = new Date(anioMes, mesMes + 1, 0).getDate()
       const diasAnioMes = anioMes % 4 === 0 && (anioMes % 100 !== 0 || anioMes % 400 === 0) ? 366 : 365
       const umaMes = proyectarValor(sys.UMA_DIARIA, anioBase, anioMes, (sys.inflacion_uma ?? 4) / 100)
       const sdiMes = umas * umaMes
       const tasaMes = getMod40Pct(anioMes) / 100
-      costo_total += sdiMes * tasaMes * diasMes / diasAnioMes * 30.4167
+      // SDI × tasa × días_año / 12 = cuota mensual de ese año
+      costo_total += sdiMes * tasaMes * diasAnioMes / 12
     }
     const costoMensual = meses > 0 ? costo_total / meses : 0
     const tasaProyectada = getMod40Pct(anioI) / 100
