@@ -1105,8 +1105,9 @@ function CalculadoraInner() {
         // imprecisas haciendo aritmética de fechas en texto libre; esto elimina esa imprecisión).
         if (result.periodos && Array.isArray(result.periodos)) {
           const periodosRecalculados = result.periodos.map((p: any) => {
-            if (p.fecha_inicio && p.fecha_fin) {
-              const dias = (new Date(p.fecha_fin).getTime() - new Date(p.fecha_inicio).getTime()) / 86400000
+            const finStr = p.fecha_fin || new Date().toISOString().slice(0, 10)
+            if (p.fecha_inicio && finStr) {
+              const dias = (new Date(finStr).getTime() - new Date(p.fecha_inicio).getTime()) / 86400000
               const semanasExactas = Math.max(0, Math.round((dias / 7) * 100) / 100)
               return { ...p, semanas: semanasExactas }
             }
@@ -1121,11 +1122,12 @@ function CalculadoraInner() {
   }
 
   function buildPeriodos250(rawPeriodos: any[], totalSemanas: number) {
-    // Ordenar siempre de más reciente a más antiguo por fecha_fin
-    // para garantizar que tomamos las ÚLTIMAS 250 semanas
+    // Ordenar de más reciente a más antiguo por fecha_fin
+    // Si fecha_fin es nula (empleo actual vigente), se trata como hoy
+    const hoy = Date.now()
     const ordenados = [...rawPeriodos].sort((a, b) => {
-      const fa = a.fecha_fin ? new Date(a.fecha_fin).getTime() : 0
-      const fb = b.fecha_fin ? new Date(b.fecha_fin).getTime() : 0
+      const fa = a.fecha_fin ? new Date(a.fecha_fin).getTime() : hoy
+      const fb = b.fecha_fin ? new Date(b.fecha_fin).getTime() : hoy
       return fb - fa // más reciente primero
     })
 
