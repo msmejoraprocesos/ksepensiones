@@ -3326,9 +3326,11 @@ function CalculadoraInner() {
                 // Los que exceden 250 semanas muestran 0 semanas (igual que Excel filas 24+)
                 const filasHist: { inicio: string; fin: string; sdi: number; semanas: number; acum: number }[] = []
                 let semRestantes = Math.max(0, 250 - semM40)
-                const periodosOrdenados = [...periodos].sort((a, b) =>
-                  new Date(b.fecha_fin).getTime() - new Date(a.fecha_fin).getTime()
-                )
+                const periodosOrdenados = [...periodos].sort((a, b) => {
+                  const fa = a.fecha_fin ? new Date(a.fecha_fin).getTime() : Date.now()
+                  const fb = b.fecha_fin ? new Date(b.fecha_fin).getTime() : Date.now()
+                  return fb - fa
+                })
                 for (const p of periodosOrdenados) {
                   const semP = semRestantes > 0 ? Math.min(p.semanas, semRestantes) : 0
                   filasHist.push({ inicio: p.fecha_inicio, fin: p.fecha_fin, sdi: p.sdi, semanas: semP, acum: semP * p.sdi })
