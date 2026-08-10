@@ -884,6 +884,8 @@ function CalculadoraInner() {
   const [simulacionLibre, setSimulacionLibre] = useState(false)
   const [simUmas, setSimUmas] = useState(25)
   const [simMeses, setSimMeses] = useState(36)
+  const [duracionTramiteMeses, setDuracionTramiteMeses] = useState(12)
+  const [plazoCredito, setPlazoCredito] = useState(60)
   const [diagGuardadoId, setDiagGuardadoId] = useState<string | null>(null)
 
   // ── Dirty flag — avisa al layout cuando hay cambios sin guardar ──────────
@@ -1184,7 +1186,7 @@ function CalculadoraInner() {
   }
 
   // Recalculate escenarios when sdiPromedio or mod40 changes
-  useEffect(() => { if (sdiPromedio > 0 || datos.semanas_totales > 0) recalcEscenarios() }, [sdiPromedio, datos, mod40Umas, mod40Meses, sys, simulacionLibre, simUmas, simMeses, edadRetiro, anioInicioTramite, edadIngresoAnios, edadIngresoMeses])
+  useEffect(() => { if (sdiPromedio > 0 || datos.semanas_totales > 0) recalcEscenarios() }, [sdiPromedio, datos, mod40Umas, mod40Meses, sys, simulacionLibre, simUmas, simMeses, edadRetiro, anioInicioTramite, edadIngresoAnios, edadIngresoMeses, duracionTramiteMeses, plazoCredito])
 
   const ETAPA_LABELS: Record<string, string> = {
     prospecto: 'Prospecto',
@@ -1328,8 +1330,8 @@ function CalculadoraInner() {
     const aportacion_segundo_fondeo = costo_retroactivo - aportacion_banco  // 64.35% — sin descontar AFORE
     const cantidad_minima_afore = costo_retroactivo - aportacion_banco
 
-    // Costo financiamiento banco regulado — duración estándar 12 meses (IMSS)
-    const duracion_tramite_meses = 12
+    // Costo financiamiento banco regulado — editable por el asesor
+    const duracion_tramite_meses = duracionTramiteMeses
     const tasa_banco_anual_val = (sys.tasa_banco_anual ?? 32.2) / 100
     const tasa_banco_mensual = tasa_banco_anual_val / 12
     const cuota_banco = tasa_banco_mensual > 0
@@ -1339,13 +1341,19 @@ function CalculadoraInner() {
     const costo_financiamiento_banco = cuota_banco * duracion_tramite_meses - aportacion_banco
     const monto_maximo_pago = aportacion_banco + costo_financiamiento_banco
 
-    const descuento_mensual = cuota_banco
+    // Descuento mensual basado en plazo del crédito (editable)
+    const plazo_credito = plazoCredito
+    const cuota_pago = tasa_banco_mensual > 0
+      ? monto_maximo_pago * (tasa_banco_mensual * Math.pow(1 + tasa_banco_mensual, plazo_credito))
+        / (Math.pow(1 + tasa_banco_mensual, plazo_credito) - 1)
+      : monto_maximo_pago / plazo_credito
+
+    const descuento_mensual = cuota_pago
     const pension_inmediata = pension - descuento_mensual
     const pension_al_liquidar = pension
 
-    // ROI y análisis financiado
-    const flujos_financiados = pension_inmediata * Math.min(duracion_tramite_meses, mesesHasta80) +
-      pension * Math.max(0, mesesHasta80 - duracion_tramite_meses)
+    const flujos_financiados = pension_inmediata * Math.min(plazo_credito, mesesHasta80) +
+      pension * Math.max(0, mesesHasta80 - plazo_credito)
     const ganancia_a80_financiado = flujos_financiados - flujosSin - inversion_neta_retro
     const roi_financiado = incr > 0 ? Math.ceil(inversion_neta_retro / incr) : 0
     const tasa_rendimiento_financiado = inversion_neta_retro > 0 ? (ganancia_a80_financiado / inversion_neta_retro) * 100 : 0
@@ -1365,7 +1373,7 @@ function CalculadoraInner() {
       aportacion_banco, aportacion_segundo_fondeo, cantidad_minima_afore,
       descuento_mensual, pension_inmediata, pension_al_liquidar,
       roi_financiado, ganancia_a80_financiado, tasa_rendimiento_financiado,
-      duracion_tramite_meses, plazo_segundo_fondeo,
+      duracion_tramite_meses, plazo_segundo_fondeo: plazo_credito,
       costo_financiamiento_banco, costo_financiamiento_segundo, monto_maximo_pago
     }
   }
@@ -3922,7 +3930,6 @@ function CalculadoraInner() {
                     <p style={{ fontSize: '13px', fontWeight: '700' as const, color: '#374151', margin: '4px 0 3px', textTransform: 'uppercase' as const }}>COSTO DEL FINANCIAMIENTO (BANCO REGULADO)</p>
                     {[
                       ['MONTO DEL CRÉDITO', fmtMXN(escRec.aportacion_banco)],
-                      ['DURACIÓN DEL TRÁMITE (MESES)', String(escRec.duracion_tramite_meses || 12)],
                       ['COSTO DE FINANCIAMIENTO DURANTE EL TRÁMITE', fmtMXN(escRec.costo_financiamiento_banco)],
                       ['MONTO MÁXIMO A PAGAR', fmtMXN(escRec.monto_maximo_pago)],
                     ].map(([l, v], i) => (
@@ -3931,10 +3938,15 @@ function CalculadoraInner() {
                         <span style={{ fontWeight: '700' as const, color: '#374151' }}>{v}</span>
                       </div>
                     ))}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #F3F4F6', padding: '4px 0', fontSize: '12px' }}>
+                      <span style={{ color: '#6B7280' }}>DURACIÓN DEL TRÁMITE (MESES)</span>
+                      <input type="number" value={duracionTramiteMeses} min={1} max={60}
+                        onChange={e => setDuracionTramiteMeses(Math.max(1, Math.min(60, parseInt(e.target.value) || 12)))}
+                        style={{ width: '60px', padding: '3px 6px', border: '1.5px solid #1B3A6B', borderRadius: '5px', fontSize: '12px', fontWeight: '700', textAlign: 'right' as const, fontFamily: 'inherit' }} />
+                    </div>
                     <p style={{ fontSize: '13px', fontWeight: '700' as const, color: '#374151', margin: '6px 0 3px', textTransform: 'uppercase' as const }}>¿CÓMO VOY A PAGAR EL FINANCIAMIENTO DEL BANCO?</p>
                     {[
-                      ['MONTO DEL CRÉDITO', fmtMXN(escRec.aportacion_banco)],
-                      ['PLAZO (MESES)', '60'],
+                      ['MONTO DEL CRÉDITO', fmtMXN(escRec.monto_maximo_pago)],
                       ['DESCUENTO MENSUAL A LA PENSIÓN MEJORADA', fmtMXN(escRec.descuento_mensual)],
                     ].map(([l, v], i) => (
                       <div key={i} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #F3F4F6', padding: '3px 0', fontSize: '12px' }}>
@@ -3942,6 +3954,12 @@ function CalculadoraInner() {
                         <span style={{ fontWeight: '700' as const, color: '#374151' }}>{v}</span>
                       </div>
                     ))}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #F3F4F6', padding: '4px 0', fontSize: '12px' }}>
+                      <span style={{ color: '#6B7280' }}>PLAZO (MESES)</span>
+                      <input type="number" value={plazoCredito} min={12} max={120}
+                        onChange={e => setPlazoCredito(Math.max(12, Math.min(120, parseInt(e.target.value) || 60)))}
+                        style={{ width: '60px', padding: '3px 6px', border: '1.5px solid #1B3A6B', borderRadius: '5px', fontSize: '12px', fontWeight: '700', textAlign: 'right' as const, fontFamily: 'inherit' }} />
+                    </div>
                   </div>
                 </div>
 
