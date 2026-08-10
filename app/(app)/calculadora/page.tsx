@@ -1452,14 +1452,17 @@ function CalculadoraInner() {
       monto_maximo_pago: r.monto_maximo_pago,
     })
 
+    // Edad de retiro efectiva — mínimo legal: 60 años (cesantía en edad avanzada)
+    const edadRetiroEfectiva = Math.max(edadRetiro, 60)
+
     // E0: Sin modalidad — escenario base con campos vacíos/cero para los de Mod40
-    const resBase = calcPensionLey73(sem, sdiBase, edadRetiro, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, undefined, datos.tiene_ayuda_asistencial)
+    const resBase = calcPensionLey73(sem, sdiBase, edadRetiroEfectiva, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, undefined, datos.tiene_ayuda_asistencial)
     const escs: Escenario[] = [{
       id: 'e0', label: 'Sin modalidad', descripcion: 'Pensión base con semanas y SDI actuales',
       mod40_meses: 0, mod40_umas: 0, pension_base: pensionBase,
       pension_mensual: pensionBase, costo_total: 0, costo_mensual_mod40: 0,
       incremento_vs_base: 0, roi_meses: 0, recomendado: false, pmg_aplica: pmgAplicaBase,
-      fecha_ingreso_mod40: '', fecha_baja_mod40: '', edad_retiro: edadRetiro,
+      fecha_ingreso_mod40: '', fecha_baja_mod40: '', edad_retiro: edadRetiroEfectiva,
       semanas_finales: sem, nuevo_sdi_250: sdiBase, recuperacion_afore: 0, inversion_neta: 0,
       ganancia_a80: 0, tasa_rendimiento: 0, aguinaldo_anual: resBase.aguinaldoAnual,
       cuantia_basica_anual: resBase.cuantiaBasicaAnual,
@@ -1526,13 +1529,13 @@ function CalculadoraInner() {
       [Math.min(36, mesesDisp), mod40Umas * 0.8, `Mod 40 · ${Math.min(36, mesesDisp)} meses · ${Math.round(mod40Umas * 0.8)} UMAs`, 'Estrategia media', false],
       [Math.min(mod40Meses, mesesDisp), mod40Umas, `Mod 40 · ${Math.min(mod40Meses, mesesDisp)} meses · ${mod40Umas} UMAs`, 'Estrategia configurada', true],
     ] as [number, number, string, string, boolean][]) {
-      const r = calcEscenarioMod40(sem, sdiBase, umas, meses, pensionBase, edadRetiro, anioInicioCalculado)
+      const r = calcEscenarioMod40(sem, sdiBase, umas, meses, pensionBase, Math.max(edadRetiro, 60), anioInicioCalculado)
       escs.push(makeEsc(`e_m40_${meses}`, label, desc, meses, umas, r, esOpt))
     }
 
     // E5: Simulación libre
     if (simulacionLibre) {
-      const r = calcEscenarioMod40(sem, sdiBase, simUmas, simMeses, pensionBase, edadRetiro, anioInicioCalculado)
+      const r = calcEscenarioMod40(sem, sdiBase, simUmas, simMeses, pensionBase, Math.max(edadRetiro, 60), anioInicioCalculado)
       escs.push(makeEsc('e_sim', `Mi simulación · ${simMeses} meses · ${simUmas} UMAs`, '🔧 Parámetros personalizados', simMeses, simUmas, r))
     }
 
@@ -2681,6 +2684,11 @@ function CalculadoraInner() {
                         <select value={datos.edad_min_pension || 60} onChange={e => { const v = parseInt(e.target.value); setDatos(p => ({ ...p, edad_min_pension: v })); setEdadRetiro(v) }} style={DS.select}>
                           {[60,61,62,63,64,65].map(a => <option key={a} value={a}>{a} años — {75+(a-60)*5}%{a===65?' (Vejez)':''}</option>)}
                         </select>
+                        {(datos.edad_actual || 0) < 60 && (
+                          <p style={{ fontSize: '11px', color: '#D97706', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '4px', padding: '4px 8px', margin: '4px 0 0' }}>
+                            ⚠️ El cliente tiene {Math.floor(datos.edad_actual || 0)} años. La edad mínima legal para pensionarse es 60 (cesantía). Los cálculos se hacen a partir de los 60 años.
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div>
