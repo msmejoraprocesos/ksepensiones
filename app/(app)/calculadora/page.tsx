@@ -1062,8 +1062,19 @@ function CalculadoraInner() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pdf: base64, asesor_id: userId, cliente_id: clienteId || null })
       })
+      if (!response.ok) {
+        const errText = await response.text()
+        console.error('API error:', response.status, errText)
+        alert(`Error al extraer la constancia (${response.status}). Intenta de nuevo o usa captura manual.`)
+        return
+      }
       const result = await response.json()
-      if (result.nombre) {
+      console.log('PDF result:', result)
+      if (!result.nombre && !result.semanas && !result.nss) {
+        alert('No se pudo leer la constancia. Verifica que sea un PDF del IMSS (SISEC) válido o usa captura manual.')
+        return
+      }
+      if (result.nombre || result.semanas) {
         const edadCalc = result.fecha_nac
           ? parseFloat(((Date.now() - new Date(result.fecha_nac).getTime()) / (365.25 * 86400000)).toFixed(2))
           : undefined
