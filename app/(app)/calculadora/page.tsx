@@ -294,7 +294,12 @@ function calcPensionLey73(semanas: number, sdi: number, edadRetiro: number, sys:
     vecesUMA: sdi / sys.UMA_DIARIA,
     pctBasica,
     pctIncremento,
-    numIncrementos
+    numIncrementos,
+    // Valores intermedios para desglose
+    cuantiaTotal: cuantiaBasicaAnual + incrementosTotalAnual,             // antes de ×1.11 y ×factorEdad
+    totalVejez100: (totalAnual) / factorEdad,                             // pensión al 100% sin factor edad
+    pmgMensual: pmgBase,                                                  // PMG mensual proyectada
+    pensionSinPMG: pensionMensual,                                        // pensión calculada antes de aplicar PMG
   }
 }
 
@@ -3015,10 +3020,12 @@ function CalculadoraInner() {
                   <div style={DS.card}>
                     <p style={DS.secTitle}>Factores del Cálculo</p>
                     {[
-                      { label: 'Total Pensión por Vejez (100%)', value: fmtMXN2((res.cuantiaBasicaAnual + res.incrementosAnual) / (res.factorEdad || 0.75)), important: false },
-                      { label: 'Porcentaje por edad de retiro', value: ((res.factorEdad || 0.75) * 100).toFixed(0) + '%', important: true },
-                      { label: 'Total de Pensión', value: fmtMXN2(res.pensionAnual), important: true },
-                      { label: 'Pensión Mínima Garantizada / año', value: fmtMXN2(sys.PMG_L73 * 12), important: false },
+                      { label: 'Cuantía total (base)', value: fmtMXN2(res.cuantiaTotal), important: false },
+                      { label: '+ Decreto Fox (×1.11) + asignaciones', value: fmtMXN2(res.totalVejez100), important: false },
+                      { label: 'Total Pensión Vejez (100%)', value: fmtMXN2(res.totalVejez100), important: false },
+                      { label: 'Porcentaje por edad de retiro', value: ((res.factorEdad || 1) * 100).toFixed(0) + '%', important: true },
+                      { label: 'Pensión anual calculada', value: fmtMXN2(res.totalVejez100 * (res.factorEdad || 1)), important: false },
+                      { label: 'PMG mensual proyectada', value: fmtMXN2(res.pmgMensual), important: false },
                     ].map(({ label, value, important }, i) => (
                       <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #F3F4F6' }}>
                         <span style={{ fontSize: '12px', color: '#6B7280' }}>{label}</span>
