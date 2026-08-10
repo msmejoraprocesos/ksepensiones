@@ -1186,7 +1186,7 @@ function CalculadoraInner() {
   }
 
   // Recalculate escenarios when sdiPromedio or mod40 changes
-  useEffect(() => { if (sdiPromedio > 0 || datos.semanas_totales > 0) recalcEscenarios() }, [sdiPromedio, datos, mod40Umas, mod40Meses, sys, simulacionLibre, simUmas, simMeses, edadRetiro, anioInicioTramite, edadIngresoAnios, edadIngresoMeses, duracionTramiteMeses, plazoCredito])
+  useEffect(() => { if (sdiPromedio > 0 || datos.semanas_totales > 0) recalcEscenarios() }, [sdiPromedio, periodos, datos, mod40Umas, mod40Meses, sys, simulacionLibre, simUmas, simMeses, edadRetiro, anioInicioTramite, edadIngresoAnios, edadIngresoMeses, duracionTramiteMeses, plazoCredito])
 
   const ETAPA_LABELS: Record<string, string> = {
     prospecto: 'Prospecto',
@@ -1374,7 +1374,7 @@ function CalculadoraInner() {
       descuento_mensual, pension_inmediata, pension_al_liquidar,
       roi_financiado, ganancia_a80_financiado, tasa_rendimiento_financiado,
       duracion_tramite_meses, plazo_segundo_fondeo: plazo_credito,
-      costo_financiamiento_banco, costo_financiamiento_segundo, monto_maximo_pago
+      costo_financiamiento_banco, costo_financiamiento_segundo: 0, monto_maximo_pago
     }
   }
 
