@@ -1321,26 +1321,23 @@ function CalculadoraInner() {
     const ganancia_a80_retro = flujosCon - flujosSin - inversion_neta_retro
     const tasa_rendimiento_retro = inversion_neta_retro > 0 ? (ganancia_a80_retro / inversion_neta_retro) * 100 : 0
 
-    // Financiamiento — FINANCIAMIENTO!C6-C11, SEGUNDO FONDEADOR!C3-C9
-    const pctBanco = (sys.pct_banco_regulado ?? 35.65) / 100  // configurable desde Admin
+    // Financiamiento — participaciones correctas
+    // El AFORE es una recuperación POSTERIOR, no reduce lo que se necesita hoy
+    const pctBanco = (sys.pct_banco_regulado ?? 35.65) / 100
     const aportacion_banco = costo_retroactivo * pctBanco
-    const aportacion_segundo_fondeo = costo_retroactivo - recuperacion_afore_retro - aportacion_banco
-    const cantidad_minima_afore = costo_retroactivo - aportacion_banco // SEGUNDO FONDEADOR!C9
+    const aportacion_segundo_fondeo = costo_retroactivo - aportacion_banco  // 64.35% — sin descontar AFORE
+    const cantidad_minima_afore = costo_retroactivo - aportacion_banco
 
-    // Costo financiamiento banco regulado — FINANCIAMIENTO!C13-C22
-    const duracion_tramite_meses = 60 // FINANCIAMIENTO!B15 — estándar IMSS
-    const tasa_banco_anual_val = (sys.tasa_banco_anual ?? 32.2) / 100  // configurable desde Admin
+    // Costo financiamiento banco regulado — duración estándar 12 meses (IMSS)
+    const duracion_tramite_meses = 12
+    const tasa_banco_anual_val = (sys.tasa_banco_anual ?? 32.2) / 100
     const tasa_banco_mensual = tasa_banco_anual_val / 12
     const cuota_banco = tasa_banco_mensual > 0
       ? aportacion_banco * (tasa_banco_mensual * Math.pow(1 + tasa_banco_mensual, duracion_tramite_meses))
         / (Math.pow(1 + tasa_banco_mensual, duracion_tramite_meses) - 1)
       : aportacion_banco / duracion_tramite_meses
     const costo_financiamiento_banco = cuota_banco * duracion_tramite_meses - aportacion_banco
-
-    // Costo segundo fondeador — SEGUNDO FONDEADOR!C4-C6
-    const plazo_segundo_fondeo = 12
-    const costo_financiamiento_segundo = aportacion_segundo_fondeo * 0.7912 // estimado SEGUNDO FONDEADOR!C5
-    const monto_maximo_pago = aportacion_segundo_fondeo + costo_financiamiento_segundo // SEGUNDO FONDEADOR!C6
+    const monto_maximo_pago = aportacion_banco + costo_financiamiento_banco
 
     const descuento_mensual = cuota_banco
     const pension_inmediata = pension - descuento_mensual
