@@ -1735,7 +1735,7 @@ function CalculadoraInner() {
 
   // ── Guardar diagnóstico
   async function guardarDiagnostico(nuevoEstatus: 'borrador' | 'autorizado', forzar = false) {
-    if (!clienteId || !userId || analisis.length === 0) return
+    if (!clienteId || !userId) return
     if (!forzar) {
       const problemas = validarDatos()
       if (problemas.length > 0) { setEstatusPendiente(nuevoEstatus); setShowValidacion(true); return }
