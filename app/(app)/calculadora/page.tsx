@@ -1630,7 +1630,58 @@ function CalculadoraInner() {
     }
   }
 
-  // ── Generar análisis IA
+  // ── Restaurar borrador ──────────────────────────────────────────
+  async function restaurarBorrador(diagId: string, cId: string) {
+    const { data: diag } = await supabase.from('diagnosticos').select('*').eq('id', diagId).single()
+    if (!diag) return
+    setClienteId(cId)
+    setDiagGuardadoId(diag.id)
+    setEstatus(diag.estatus ?? 'borrador')
+    const p = diag.params_json
+    if (p) {
+      if (p.datos) setDatos(p.datos)
+      if (p.periodos && p.periodos.length > 0) {
+        setPeriodos(p.periodos)
+        setPeriodosCompletos(p.periodos)
+        const sdi = p.sdiPromedio && p.sdiPromedio > 0
+          ? p.sdiPromedio
+          : p.periodos.reduce((s: number, per: any) => s + (per.sdi || 0) * (per.semanas || 0), 0) / 250
+        setSdiPromedio(sdi)
+      }
+      if (p.mod40Umas) setMod40Umas(p.mod40Umas)
+      if (p.mod40Meses) {
+        setMod40Meses(p.mod40Meses)
+        setMod40AniosUI(Math.floor(p.mod40Meses / 12))
+        setMod40MesesUI(p.mod40Meses % 12)
+      }
+      if (p.ingresoObjetivo) setIngresoObjetivo(p.ingresoObjetivo)
+      if (p.simulacionLibre) setSimulacionLibre(p.simulacionLibre)
+      if (p.simUmas) setSimUmas(p.simUmas)
+      if (p.simMeses) setSimMeses(p.simMeses)
+      if (typeof p.escElegidoIdx === 'number') setEscElegidoIdx(p.escElegidoIdx)
+      if (p.fechaUltimaCot) setFechaUltimaCot(p.fechaUltimaCot)
+      if (p.edadRetiro) setEdadRetiro(p.edadRetiro)
+      if (p.anioInicioTramite) setAnioInicioTramite(p.anioInicioTramite)
+      if (p.datos?.edad_actual) {
+        const anios = Math.floor(p.datos.edad_actual)
+        const meses = Math.round((p.datos.edad_actual % 1) * 12)
+        setEdadIngresoAnios(anios); setEdadIngresoMeses(meses)
+        setDefaultEdadAnios(anios); setDefaultEdadMeses(meses)
+      }
+    }
+    if (diag.analisis_narrativo) {
+      try {
+        const parsed = JSON.parse(diag.analisis_narrativo)
+        if (Array.isArray(parsed)) { setAnalisis(parsed); setModoAnalisis('ia') }
+        else if (typeof parsed === 'string') { setAnalisisManual(parsed); setModoAnalisis('manual') }
+      } catch(e) {}
+    }
+    setShowContinuarDiag(false)
+    setDiagExistente(null)
+    setPendingClienteId('')
+    setMostrarCaratula(false)
+    setTab(6)
+  }
   async function generarAnalisisIA() {
     console.log('generarAnalisisIA called', { escSel, sdiPromedio, escenarios: escenarios.length })
     const escUsar = escSel ?? escenarios[0]
@@ -2079,11 +2130,7 @@ function CalculadoraInner() {
                 ¿Deseas continuar donde lo dejaste, o iniciar un diagnóstico nuevo? Si inicias uno nuevo tendrás que cargar la constancia de nuevo.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
-                <button onClick={() => {
-                  setShowContinuarDiag(false)
-                  router.push(`/calculadora?cliente=${pendingClienteId}&diag=${diagExistente.id}`)
-                  setDiagExistente(null)
-                }}
+                <button onClick={() => restaurarBorrador(diagExistente.id, pendingClienteId)}
                   style={{ padding: '12px', background: AZUL, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
                   ✓ Continuar el diagnóstico guardado
                 </button>
