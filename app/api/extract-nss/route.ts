@@ -60,7 +60,10 @@ export async function POST(req: NextRequest) {
     tokensSalida = response.usage?.output_tokens ?? 0
 
     const text = response.content[0].type === 'text' ? response.content[0].text : ''
-    const clean = text.replace(/```json|```/g, '').trim()
+    // Extraer JSON aunque el modelo agregue texto antes o después
+    const jsonMatch = text.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) throw new Error('No se encontró JSON válido en la respuesta de la IA')
+    const clean = jsonMatch[0].trim()
     const data = JSON.parse(clean)
 
     return NextResponse.json(data)
