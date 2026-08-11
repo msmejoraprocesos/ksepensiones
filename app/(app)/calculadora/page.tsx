@@ -1063,9 +1063,9 @@ function CalculadoraInner() {
         body: JSON.stringify({ pdf: base64, asesor_id: userId, cliente_id: clienteId || null })
       })
       if (!response.ok) {
-        const errText = await response.text()
-        console.error('API error:', response.status, errText)
-        alert(`Error al extraer la constancia (${response.status}). Intenta de nuevo o usa captura manual.`)
+        const errData = await response.json().catch(() => ({ detail: response.statusText }))
+        console.error('API error:', response.status, errData)
+        alert(`Error al extraer la constancia: ${errData.detail || response.statusText}. Intenta de nuevo o usa captura manual.`)
         return
       }
       const result = await response.json()

@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     exitoso = false
     errorMsg = error?.message ?? 'Error desconocido'
     console.error('extract-nss error:', error)
-    return NextResponse.json({ error: 'Error processing PDF' }, { status: 500 })
+    return NextResponse.json({ error: 'Error processing PDF', detail: errorMsg }, { status: 500 })
   } finally {
     // Registrar uso de IA en background (no bloquea la respuesta)
     if (asesorId && (tokensEntrada > 0 || !exitoso)) {
