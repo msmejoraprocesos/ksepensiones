@@ -87,12 +87,17 @@ Responde ÚNICAMENTE con el JSON válido, sin markdown.`
     const response = await client.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 2000,
+      system: 'Eres un experto asesor en pensiones IMSS. Responde SIEMPRE con un objeto JSON válido y nada más. Sin markdown, sin texto antes o después del JSON.',
       messages: [{ role: 'user', content: prompt }]
     })
 
     const text = response.content[0].type === 'text' ? response.content[0].text : ''
+    // Intentar extraer JSON — el modelo puede agregar texto antes o después
     const jsonMatch = text.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) throw new Error('No se encontró JSON en la respuesta de Sofía IA')
+    if (!jsonMatch) {
+      console.error('Respuesta sin JSON:', text.substring(0, 200))
+      throw new Error('El modelo no devolvió JSON válido')
+    }
     const analisis = JSON.parse(jsonMatch[0])
 
     // Registrar uso de IA — fire and forget, no bloquea la respuesta
