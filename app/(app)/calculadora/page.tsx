@@ -1630,7 +1630,8 @@ function CalculadoraInner() {
 
   // ── Generar análisis IA
   async function generarAnalisisIA() {
-    if (!escSel) return
+    const escUsar = escSel ?? escenarios[0]
+    if (!escUsar && sdiPromedio <= 0) return
     setGenerandoAnalisis(true)
     try {
       const clienteObj = clientes.find(c => c.id === clienteId)
@@ -1661,13 +1662,13 @@ function CalculadoraInner() {
           e1: { pension_real: esc0?.pension_mensual ?? 0 },
           e2: { pension_real: escM10?.pension_mensual ?? esc0?.pension_mensual ?? 0 },
           e3: { pension_real: escM40?.pension_mensual ?? esc0?.pension_mensual ?? 0 },
-          e4: { pension_real: escSel.pension_mensual },
-          escRecomendado: escSel.label,
+          e4: { pension_real: escUsar?.pension_mensual ?? 0 },
+          escRecomendado: escUsar?.label ?? 'Sin Modalidad 40',
           mod10Activo: !!escM10,
-          mod40Activo: escSel.mod40_meses > 0,
-          mod40UMAs: escSel.mod40_umas,
-          mod40Anios: escSel.mod40_meses / 12,
-          mod40Costo: escSel.costo_mensual_mod40,
+          mod40Activo: (escUsar?.mod40_meses ?? 0) > 0,
+          mod40UMAs: escUsar?.mod40_umas ?? 0,
+          mod40Anios: (escUsar?.mod40_meses ?? 0) / 12,
+          mod40Costo: escUsar?.costo_mensual_mod40 ?? 0,
           tieneISSSTe: false,
           aniosISSSTe: 0,
           aforeSaldo: 0,
