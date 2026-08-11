@@ -1676,9 +1676,9 @@ function CalculadoraInner() {
         ].filter(s => s.contenido))
         setModoAnalisis('ia')
       } else {
-        console.error('Analisis error:', data.error)
-        setMensaje('Error al generar el análisis. Intenta de nuevo.')
-        setTimeout(() => setMensaje(''), 4000)
+        console.error('Analisis error:', data.error, data.raw)
+        setMensaje(`Error al generar el análisis: ${data.error}. Raw: ${data.raw ?? ''}`)
+        setTimeout(() => setMensaje(''), 6000)
       }
     } catch (e) {
       console.error('generarAnalisisIA catch:', e)

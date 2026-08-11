@@ -92,11 +92,12 @@ Responde ÚNICAMENTE con el JSON válido, sin markdown.`
     })
 
     const text = response.content[0].type === 'text' ? response.content[0].text : ''
+    console.log('Sofia response (primeros 500 chars):', text.substring(0, 500))
     // Intentar extraer JSON — el modelo puede agregar texto antes o después
     const jsonMatch = text.match(/\{[\s\S]*\}/)
     if (!jsonMatch) {
-      console.error('Respuesta sin JSON:', text.substring(0, 200))
-      throw new Error('El modelo no devolvió JSON válido')
+      console.error('Respuesta completa sin JSON:', text)
+      return NextResponse.json({ ok: false, error: 'El modelo no devolvió JSON válido', raw: text.substring(0, 300) }, { status: 500 })
     }
     const analisis = JSON.parse(jsonMatch[0])
 
