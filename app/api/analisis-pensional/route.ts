@@ -86,7 +86,7 @@ Responde ÚNICAMENTE con el JSON válido, sin markdown.`
 
     const response = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 2000,
+      max_tokens: 4000,
       system: 'Eres un experto asesor en pensiones IMSS. Responde SIEMPRE con un objeto JSON válido y nada más. Sin markdown, sin texto antes o después del JSON.',
       messages: [{ role: 'user', content: prompt }]
     })
