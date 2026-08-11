@@ -1142,16 +1142,22 @@ function CalculadoraInner() {
             return p
           })
 
-          // Recalcular semanas del período activo (sin fecha_fin) como
-          // totalSemanas − suma de semanas de períodos cerrados con fechas conocidas
+          // Recalcular semanas del período activo (sin fecha_fin):
+          // semanasActivo = totalSemanas − lo que ya cotizó en períodos CERRADOS
+          // IMPORTANTE: usar el total de semanas de cada período cerrado (no truncado a 250)
+          // ya que buildPeriodos250 se encarga de truncar. Aquí solo derivamos cuántas
+          // semanas le quedan al período activo del total de la constancia.
           const semanasTotal = result.semanas || 0
           if (semanasTotal > 0) {
-            const semanasConFecha = periodosRecalculados
-              .filter((p: any) => p.fecha_fin)
-              .reduce((s: number, p: any) => s + (p.semanas || 0), 0)
-            const semanasActivo = Math.max(0, Math.round((semanasTotal - semanasConFecha) * 100) / 100)
+            // Sumar semanas de períodos cerrados — pero solo hasta semanasTotal
+            // para evitar que períodos muy largos den negativo
+            let acumCerrados = 0
+            for (const p of periodosRecalculados) {
+              if (p.fecha_fin) acumCerrados += p.semanas || 0
+            }
+            const semanasActivo = Math.max(0, Math.round((semanasTotal - Math.min(acumCerrados, semanasTotal)) * 100) / 100)
             const idxActivo = periodosRecalculados.findIndex((p: any) => !p.fecha_fin)
-            if (idxActivo >= 0 && semanasActivo > 0) {
+            if (idxActivo >= 0) {
               periodosRecalculados[idxActivo] = { ...periodosRecalculados[idxActivo], semanas: semanasActivo }
             }
           }
