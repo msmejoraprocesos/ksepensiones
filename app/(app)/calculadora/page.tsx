@@ -1197,7 +1197,7 @@ function CalculadoraInner() {
   }
 
   // Recalculate escenarios when sdiPromedio or mod40 changes
-  useEffect(() => { if (sdiPromedio > 0 || datos.semanas_totales > 0) recalcEscenarios() }, [sdiPromedio, periodos, datos, mod40Umas, mod40Meses, sys, simulacionLibre, simUmas, simMeses, edadRetiro, anioInicioTramite, edadIngresoAnios, edadIngresoMeses, duracionTramiteMeses, plazoCredito])
+  useEffect(() => { if (sdiPromedio > 0 || datos.semanas_totales > 0) recalcEscenarios() }, [sdiPromedio, datos, mod40Umas, mod40Meses, sys, simulacionLibre, simUmas, simMeses, edadRetiro, anioInicioTramite, edadIngresoAnios, edadIngresoMeses, duracionTramiteMeses, plazoCredito])
 
   const ETAPA_LABELS: Record<string, string> = {
     prospecto: 'Prospecto',
