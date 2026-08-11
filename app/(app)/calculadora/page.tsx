@@ -1848,11 +1848,22 @@ function CalculadoraInner() {
         sys_snapshot: { ...sys, _fecha_calculo: new Date().toISOString() },
       },
     }
-    if (diagGuardadoId && nuevoEstatus === 'autorizado') {
-      // Authorize existing record
-      await supabase.from('diagnosticos').update({ estatus: 'autorizado', fecha_autorizacion: new Date().toISOString() }).eq('id', diagGuardadoId)
-      setEstatus('autorizado')
-      setMensaje('✅ Diagnóstico autorizado — el PDF oficial ya está disponible')
+    if (diagGuardadoId) {
+      // Actualizar borrador existente (no crear uno nuevo)
+      const { error } = await supabase.from('diagnosticos').update({
+        ...payload,
+        estatus: nuevoEstatus,
+        fecha_autorizacion: nuevoEstatus === 'autorizado' ? new Date().toISOString() : null,
+      }).eq('id', diagGuardadoId)
+      if (error) {
+        console.error('Error al actualizar diagnóstico:', error)
+        setMensaje('❌ Error al guardar: ' + error.message)
+        setTimeout(() => setMensaje(''), 6000)
+      } else {
+        setEstatus(nuevoEstatus)
+        setMensaje(nuevoEstatus === 'borrador' ? '💾 Borrador actualizado' : '✅ Diagnóstico autorizado')
+        setTimeout(() => setMensaje(''), 4000)
+      }
     } else {
       // Create new record (always insert — immutable history)
       const { data, error } = await supabase.from('diagnosticos').insert(payload).select('id').single()
