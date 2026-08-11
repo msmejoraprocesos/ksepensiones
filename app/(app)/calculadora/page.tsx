@@ -1630,8 +1630,12 @@ function CalculadoraInner() {
 
   // ── Generar análisis IA
   async function generarAnalisisIA() {
+    console.log('generarAnalisisIA called', { escSel, sdiPromedio, escenarios: escenarios.length })
     const escUsar = escSel ?? escenarios[0]
-    if (!escUsar && sdiPromedio <= 0) return
+    if (!escUsar && sdiPromedio <= 0) {
+      console.log('returning early — no escUsar and no sdiPromedio')
+      return
+    }
     setGenerandoAnalisis(true)
     try {
       const clienteObj = clientes.find(c => c.id === clienteId)
@@ -1691,7 +1695,11 @@ function CalculadoraInner() {
         setMensaje('Error al generar el análisis. Intenta de nuevo.')
         setTimeout(() => setMensaje(''), 4000)
       }
-    } catch (e) { console.error(e) }
+    } catch (e) {
+      console.error('generarAnalisisIA catch:', e)
+      setMensaje('Error: ' + (e instanceof Error ? e.message : String(e)))
+      setTimeout(() => setMensaje(''), 5000)
+    }
     setGenerandoAnalisis(false)
   }
 
