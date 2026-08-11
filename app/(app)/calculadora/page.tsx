@@ -4818,8 +4818,6 @@ function CalculadoraInner() {
           )
         })()}
 
-            </div>{/* fin overflowY */}
-
         {/* ══ TAB 12: MODALIDAD 10 ═══════════════════════════════════════ */}
         {tab === 12 && (() => {
           const escM10 = escenarios.find(e => e.id === 'e_m10')
@@ -4969,6 +4967,8 @@ function CalculadoraInner() {
             </div>
           )
         })()}
+
+            </div>{/* fin overflowY */}
 
             {/* ── Tab bar — pie de navegación ── */}
             <div style={{ display: 'flex', borderTop: '2px solid #E5E7EB', background: 'white', flexShrink: 0, overflowX: 'auto', alignItems: 'stretch' }}>
