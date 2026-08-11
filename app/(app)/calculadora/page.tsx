@@ -835,6 +835,13 @@ function CalculadoraInner() {
   // Tab 7 - Analisis
   const [analisis, setAnalisis] = useState<AnalisisSeccion[]>([])
   const [analisisManual, setAnalisisManual] = useState('')
+  const [analisisManualSecciones, setAnalisisManualSecciones] = useState({
+    contexto: '',
+    diagnostico: '',
+    opciones: '',
+    recomendacion: '',
+    proximos_pasos: '',
+  })
   const [modoAnalisis, setModoAnalisis] = useState<'manual' | 'ia'>('manual')
   const [generandoAnalisis, setGenerandoAnalisis] = useState(false)
   const [guardando, setGuardando] = useState(false)
@@ -1589,7 +1596,10 @@ function CalculadoraInner() {
           sdiPromedio={sdiPromedio}
           escenarios={escenarios}
           escSelIdx={idxToUse}
-          analisis={modoAnalisis === 'ia' ? analisis : analisisManual ? [{ titulo: 'Análisis del diagnóstico', contenido: analisisManual }] : []}
+          analisis={modoAnalisis === 'ia' ? analisis : Object.entries(analisisManualSecciones).filter(([,v]) => v.trim()).map(([k, v]) => ({
+            titulo: k === 'contexto' ? 'Contexto' : k === 'diagnostico' ? 'Diagnóstico actual' : k === 'opciones' ? 'Opciones disponibles' : k === 'recomendacion' ? 'Recomendación' : 'Próximos pasos',
+            contenido: v
+          }))}
           ingresoObjetivo={ingresoObjetivo || undefined}
           logoUrl={asesorPerfil?.logo_url ?? undefined}
           razonSocial={asesorPerfil?.razon_social ?? undefined}
@@ -4653,8 +4663,8 @@ function CalculadoraInner() {
                     <p style={{ fontSize: '13px', fontWeight: '700' as const, color: 'white', margin: '0 0 2px' }}>📝 Análisis del diagnóstico</p>
                     <p style={{ fontSize: '11px', color: '#DDD6FE', margin: 0 }}>Escríbelo tú o genera uno con Sofía IA</p>
                   </div>
-                  <button onClick={generarAnalisisIA} disabled={generandoAnalisis || !clienteId || sdiPromedio <= 0}
-                    style={{ padding: '8px 14px', border: '1px solid white', fontSize: '12px', fontWeight: '700' as const, color: '#7C3AED', background: 'white', fontFamily: 'inherit', cursor: clienteId && sdiPromedio > 0 ? 'pointer' : 'not-allowed', opacity: clienteId && sdiPromedio > 0 ? 1 : 0.5, borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <button onClick={generarAnalisisIA} disabled={generandoAnalisis || sdiPromedio <= 0}
+                    style={{ padding: '8px 14px', border: '1px solid white', fontSize: '12px', fontWeight: '700' as const, color: '#7C3AED', background: 'white', fontFamily: 'inherit', cursor: sdiPromedio > 0 ? 'pointer' : 'not-allowed', opacity: sdiPromedio > 0 ? 1 : 0.5, borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     {generandoAnalisis ? '⏳ Generando...' : '✨ Generar con Sofía IA'}
                   </button>
                 </div>
@@ -4674,20 +4684,29 @@ function CalculadoraInner() {
                     </div>
                   )}
 
-                  {/* Modo manual */}
+                  {/* Modo manual — 5 secciones */}
                   {(modoAnalisis === 'manual' || analisis.length === 0) && (
-                    <div>
-                      <textarea
-                        value={analisisManual}
-                        onChange={e => setAnalisisManual(e.target.value)}
-                        placeholder={`Escribe aquí tu análisis del diagnóstico pensional...\n\nPuedes incluir:\n• Situación actual del cliente\n• Recomendaciones de Modalidad 40\n• Escenario sugerido y justificación\n• Próximos pasos`}
-                        rows={8}
-                        style={{ width: '100%', padding: '12px 14px', border: '1.5px solid #DDD6FE', borderRadius: '8px', fontSize: '13px', fontFamily: 'inherit', lineHeight: 1.7, color: '#374151', resize: 'vertical' as const, boxSizing: 'border-box' as const, outline: 'none' }}
-                        onFocus={e => e.target.style.borderColor = '#7C3AED'}
-                        onBlur={e => e.target.style.borderColor = '#DDD6FE'}
-                      />
-                      <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '6px 0 0' }}>
-                        {analisisManual.length} caracteres · Este texto aparecerá en el PDF del diagnóstico
+                    <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
+                      {[
+                        { key: 'contexto', label: 'Contexto', placeholder: 'Situación general del cliente, edad, semanas cotizadas, régimen...' },
+                        { key: 'diagnostico', label: 'Diagnóstico actual', placeholder: 'Qué encontramos en su historial, SDI promedio, pensión base estimada...' },
+                        { key: 'opciones', label: 'Opciones disponibles', placeholder: 'Alternativas: Ley 73, Modalidad 40, financiamiento retroactivo...' },
+                        { key: 'recomendacion', label: 'Recomendación', placeholder: 'Qué le recomendamos y por qué, escenario sugerido...' },
+                        { key: 'proximos_pasos', label: 'Próximos pasos', placeholder: 'Acciones concretas: documentos, fechas, trámites...' },
+                      ].map(f => (
+                        <div key={f.key}>
+                          <label style={{ fontSize: '11px', fontWeight: '700' as const, color: '#5B21B6', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const, letterSpacing: '0.4px' }}>{f.label}</label>
+                          <textarea
+                            value={(analisisManualSecciones as any)[f.key]}
+                            onChange={e => setAnalisisManualSecciones(p => ({ ...p, [f.key]: e.target.value }))}
+                            placeholder={f.placeholder}
+                            rows={3}
+                            style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #DDD6FE', borderRadius: '7px', fontSize: '13px', fontFamily: 'inherit', lineHeight: 1.6, color: '#374151', resize: 'vertical' as const, boxSizing: 'border-box' as const, outline: 'none' }}
+                          />
+                        </div>
+                      ))}
+                      <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>
+                        Todos los campos son opcionales — el PDF se puede generar con solo los datos calculados
                       </p>
                     </div>
                   )}
@@ -4743,16 +4762,16 @@ function CalculadoraInner() {
 
               {/* Cierre del flujo: exportar PDF — solo cuando todo está listo */}
               {(() => {
-                const tieneAnalisis = (modoAnalisis === 'ia' && analisis.length > 0) || (modoAnalisis === 'manual' && analisisManual.trim().length > 0)
-                const listo = tieneAnalisis && !!diagGuardadoId
+                const tieneAnalisis = (modoAnalisis === 'ia' && analisis.length > 0) || (modoAnalisis === 'manual' && Object.values(analisisManualSecciones).some(v => v.trim().length > 0))
+                const listo = !!diagGuardadoId // análisis es opcional
                 return (
                 <div style={{ background: listo ? '#F0FDF4' : '#F9FAFB', border: `2px solid ${listo ? '#86EFAC' : '#E5E7EB'}`, padding: '18px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <p style={{ fontSize: '13px', fontWeight: '700' as const, color: listo ? '#065F46' : '#6B7280', margin: '0 0 4px' }}>
-                      {listo ? '✓ Diagnóstico completo — listo para exportar' : '⏳ Diagnóstico incompleto'}
+                      {listo ? (tieneAnalisis ? '✓ Diagnóstico completo — listo para exportar' : '✓ Listo para exportar (sin análisis narrativo)') : '⏳ Diagnóstico incompleto'}
                     </p>
                     <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>
-                      {!diagGuardadoId ? 'Falta guardar el diagnóstico (borrador o autorizado)' : !tieneAnalisis ? 'Falta agregar el análisis (manual o con Sofía IA)' : 'El PDF incluirá todos los datos, escenarios y el análisis generado'}
+                      {!diagGuardadoId ? 'Falta guardar el diagnóstico (borrador o autorizado)' : tieneAnalisis ? 'El PDF incluirá datos, escenarios y análisis' : 'El PDF incluirá datos y escenarios. Puedes agregar análisis arriba.'}
                     </p>
                   </div>
                   <button onClick={exportarPDF} disabled={!listo}
