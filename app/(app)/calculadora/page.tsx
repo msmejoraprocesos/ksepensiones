@@ -946,7 +946,15 @@ function CalculadoraInner() {
           const p = diag.params_json
           if (p) {
             if (p.datos) setDatos(p.datos)
-            if (p.periodos) { setPeriodos(p.periodos); setSdiPromedio(p.sdiPromedio ?? 0) }
+            if (p.periodos && p.periodos.length > 0) {
+              setPeriodos(p.periodos)
+              setPeriodosCompletos(p.periodos)
+              // Recalcular sdiPromedio desde periodos si no está guardado
+              const sdi = p.sdiPromedio && p.sdiPromedio > 0
+                ? p.sdiPromedio
+                : p.periodos.reduce((s: number, per: any) => s + (per.sdi || 0) * (per.semanas || 0), 0) / 250
+              setSdiPromedio(sdi)
+            }
             if (p.mod40Umas) setMod40Umas(p.mod40Umas)
             if (p.mod40Meses) {
               setMod40Meses(p.mod40Meses)
@@ -962,6 +970,15 @@ function CalculadoraInner() {
             if (p.edadRetiro) setEdadRetiro(p.edadRetiro)
             if (p.anioInicioTramite) setAnioInicioTramite(p.anioInicioTramite)
             else if (p.datos?.fecha_calculo) setFechaUltimaCot(p.datos.fecha_calculo)
+            // Restaurar edad de ingreso Mod 40
+            if (p.datos?.edad_actual) {
+              const anios = Math.floor(p.datos.edad_actual)
+              const meses = Math.round((p.datos.edad_actual % 1) * 12)
+              setEdadIngresoAnios(anios)
+              setEdadIngresoMeses(meses)
+              setDefaultEdadAnios(anios)
+              setDefaultEdadMeses(meses)
+            }
           } else {
             // Fallback: restore basic data from columns
             setDatos(prev => ({
