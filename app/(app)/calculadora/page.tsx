@@ -2644,6 +2644,18 @@ function CalculadoraInner() {
 {/* Contenido de la pestaña actual */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', background: '#F4F6FB', fontSize: '13px', minWidth: 0, position: 'relative' as const }}>
 
+              {/* ── Botón guardar borrador flotante — visible en todos los tabs ── */}
+              {sdiPromedio > 0 && (
+                <div style={{ position: 'sticky' as const, top: 0, zIndex: 10, display: 'flex', justifyContent: 'flex-end', marginBottom: '10px', pointerEvents: 'none' as const }}>
+                  <button
+                    onClick={() => guardarDiagnostico('borrador')}
+                    disabled={guardando}
+                    style={{ pointerEvents: 'auto' as const, padding: '7px 16px', background: diagGuardadoId ? '#F0FDF4' : AZUL, color: diagGuardadoId ? VERDE : 'white', border: `1px solid ${diagGuardadoId ? '#86EFAC' : AZUL}`, borderRadius: '8px', fontSize: '12px', fontWeight: '700' as const, cursor: guardando ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', opacity: guardando ? 0.7 : 1 }}>
+                    {guardando ? '⏳ Guardando...' : diagGuardadoId ? '✓ Borrador guardado' : '💾 Guardar borrador'}
+                  </button>
+                </div>
+              )}
+
               {/* ── Marca de agua KSE ── */}
               <div style={{ position: 'fixed' as const, inset: 0, pointerEvents: 'none' as const, zIndex: 1, overflow: 'hidden' }}>
                 <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style={{ position: 'absolute' as const, top: 0, left: 0 }}>
