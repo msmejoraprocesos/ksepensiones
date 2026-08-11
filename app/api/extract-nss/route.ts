@@ -70,25 +70,29 @@ export async function POST(req: NextRequest) {
     console.error('extract-nss error:', error)
     return NextResponse.json({ error: 'Error processing PDF', detail: errorMsg }, { status: 500 })
   } finally {
-    // Registrar uso de IA en background (no bloquea la respuesta)
+    // Registrar uso de IA sin bloquear la respuesta
     if (asesorId && (tokensEntrada > 0 || !exitoso)) {
-      try {
-        const db = getAdminClient()
-        const { data: perfil } = await db.from('perfiles_usuario').select('organizacion_id').eq('id', asesorId).single()
-        await db.from('uso_ia').insert({
-          asesor_id: asesorId,
-          organizacion_id: perfil?.organizacion_id ?? null,
-          tipo: 'extraccion_constancia',
-          tokens_entrada: tokensEntrada,
-          tokens_salida: tokensSalida,
-          modelo: 'claude-sonnet-4-6',
-          exitoso,
-          error_msg: errorMsg,
-          duracion_ms: Date.now() - inicio,
-        })
-      } catch (e) {
-        console.error('Error logging uso_ia:', e)
-      }
+      const logData = { asesorId, tokensEntrada, tokensSalida, exitoso, errorMsg, duracion: Date.now() - inicio }
+      // No await — fire and forget para no bloquear al cliente
+      Promise.resolve().then(async () => {
+        try {
+          const db = getAdminClient()
+          const { data: perfil } = await db.from('perfiles_usuario').select('organizacion_id').eq('id', logData.asesorId).single()
+          await db.from('uso_ia').insert({
+            asesor_id: logData.asesorId,
+            organizacion_id: perfil?.organizacion_id ?? null,
+            tipo: 'extraccion_constancia',
+            tokens_entrada: logData.tokensEntrada,
+            tokens_salida: logData.tokensSalida,
+            modelo: 'claude-sonnet-4-6',
+            exitoso: logData.exitoso,
+            error_msg: logData.errorMsg,
+            duracion_ms: logData.duracion,
+          })
+        } catch (e) {
+          console.error('Error logging uso_ia:', e)
+        }
+      })
     }
   }
 }
