@@ -91,8 +91,9 @@ Responde ÚNICAMENTE con el JSON válido, sin markdown.`
     })
 
     const text = response.content[0].type === 'text' ? response.content[0].text : ''
-    const clean = text.replace(/```json|```/g, '').trim()
-    const analisis = JSON.parse(clean)
+    const jsonMatch = text.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) throw new Error('No se encontró JSON en la respuesta de Sofía IA')
+    const analisis = JSON.parse(jsonMatch[0])
 
     // Registrar uso de IA — fire and forget, no bloquea la respuesta
     const asesorId = datos.asesor_id ?? null

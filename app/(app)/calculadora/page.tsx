@@ -1131,36 +1131,15 @@ function CalculadoraInner() {
         // imprecisas haciendo aritmética de fechas en texto libre; esto elimina esa imprecisión).
         if (result.periodos && Array.isArray(result.periodos)) {
           const periodosRecalculados = result.periodos.map((p: any) => {
-            // Solo recalcular semanas si ambas fechas están disponibles
-            // Si no hay fecha_fin (empleo activo), las semanas se derivan
-            // del total menos los períodos cerrados (ver buildPeriodos250)
-            if (p.fecha_inicio && p.fecha_fin) {
+            // Si la IA ya extrajo semanas válidas, usarlas directamente
+            // Solo recalcular desde fechas si semanas es 0 o falta Y hay ambas fechas
+            if ((p.semanas || 0) === 0 && p.fecha_inicio && p.fecha_fin) {
               const dias = (new Date(p.fecha_fin).getTime() - new Date(p.fecha_inicio).getTime()) / 86400000
               const semanasExactas = Math.max(0, Math.round((dias / 7) * 100) / 100)
               return { ...p, semanas: semanasExactas }
             }
             return p
           })
-
-          // Recalcular semanas del período activo (sin fecha_fin):
-          // semanasActivo = totalSemanas − lo que ya cotizó en períodos CERRADOS
-          // IMPORTANTE: usar el total de semanas de cada período cerrado (no truncado a 250)
-          // ya que buildPeriodos250 se encarga de truncar. Aquí solo derivamos cuántas
-          // semanas le quedan al período activo del total de la constancia.
-          const semanasTotal = result.semanas || 0
-          if (semanasTotal > 0) {
-            // Sumar semanas de períodos cerrados — pero solo hasta semanasTotal
-            // para evitar que períodos muy largos den negativo
-            let acumCerrados = 0
-            for (const p of periodosRecalculados) {
-              if (p.fecha_fin) acumCerrados += p.semanas || 0
-            }
-            const semanasActivo = Math.max(0, Math.round((semanasTotal - Math.min(acumCerrados, semanasTotal)) * 100) / 100)
-            const idxActivo = periodosRecalculados.findIndex((p: any) => !p.fecha_fin)
-            if (idxActivo >= 0) {
-              periodosRecalculados[idxActivo] = { ...periodosRecalculados[idxActivo], semanas: semanasActivo }
-            }
-          }
           setPeriodosCompletos(periodosRecalculados)
           buildPeriodos250(periodosRecalculados, result.semanas || 0)
         }
