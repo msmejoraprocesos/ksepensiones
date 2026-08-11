@@ -1735,7 +1735,12 @@ function CalculadoraInner() {
 
   // ── Guardar diagnóstico
   async function guardarDiagnostico(nuevoEstatus: 'borrador' | 'autorizado', forzar = false) {
-    if (!clienteId || !userId) return
+    if (!userId) return
+    if (!clienteId) {
+      setMensaje('⚠️ Vincula un cliente antes de guardar el diagnóstico')
+      setTimeout(() => setMensaje(''), 4000)
+      return
+    }
     if (!forzar) {
       const problemas = validarDatos()
       if (problemas.length > 0) { setEstatusPendiente(nuevoEstatus); setShowValidacion(true); return }
@@ -2644,8 +2649,8 @@ function CalculadoraInner() {
                   <button
                     onClick={() => guardarDiagnostico('borrador')}
                     disabled={guardando}
-                    style={{ pointerEvents: 'auto' as const, padding: '7px 16px', background: diagGuardadoId ? '#F0FDF4' : AZUL, color: diagGuardadoId ? VERDE : 'white', border: `1px solid ${diagGuardadoId ? '#86EFAC' : AZUL}`, borderRadius: '8px', fontSize: '12px', fontWeight: '700' as const, cursor: guardando ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', opacity: guardando ? 0.7 : 1 }}>
-                    {guardando ? '⏳ Guardando...' : diagGuardadoId ? '✓ Borrador guardado' : '💾 Guardar borrador'}
+                    style={{ pointerEvents: 'auto' as const, padding: '7px 16px', background: !clienteId ? '#FEF2F2' : diagGuardadoId ? '#F0FDF4' : AZUL, color: !clienteId ? '#DC2626' : diagGuardadoId ? VERDE : 'white', border: `1px solid ${!clienteId ? '#FCA5A5' : diagGuardadoId ? '#86EFAC' : AZUL}`, borderRadius: '8px', fontSize: '12px', fontWeight: '700' as const, cursor: guardando ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', opacity: guardando ? 0.7 : 1 }}>
+                    {guardando ? '⏳ Guardando...' : !clienteId ? '⚠️ Sin cliente vinculado' : diagGuardadoId ? '✓ Borrador guardado' : '💾 Guardar borrador'}
                   </button>
                 </div>
               )}
