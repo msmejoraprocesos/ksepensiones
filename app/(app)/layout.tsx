@@ -516,7 +516,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       )}
       {/* ── Sofía IA — chat flotante ── */}
-      <SofiaChat />
+      {/* <SofiaChat /> — temporalmente deshabilitado */}
 
       {/* ── Modal cambiar contraseña ── */}
       {showCambiarPwd && (
