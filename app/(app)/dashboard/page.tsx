@@ -402,7 +402,7 @@ function MiDiaInner() {
         <div onClick={() => setChartModal(null)}
           style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', backdropFilter: 'blur(2px)' }}>
           <div onClick={e => e.stopPropagation()}
-            style={{ background: 'white', borderRadius: '16px', width: '100%', maxWidth: '720px', maxHeight: '80vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.25)' }}>
+            style={{ background: 'white', borderRadius: '16px', width: '100%', maxWidth: '900px', maxHeight: '85vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.25)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid #E2E8F0' }}>
               <div>
                 <p style={{ fontSize: '14px', fontWeight: '700', color: '#111827', margin: 0 }}>{chartModal.titulo}</p>
@@ -413,7 +413,7 @@ function MiDiaInner() {
                 ✕
               </button>
             </div>
-            <div style={{ padding: '20px', minHeight: '400px', display: 'flex', flexDirection: 'column' as const }}>
+            <div style={{ padding: '20px', minHeight: '500px', display: 'flex', flexDirection: 'column' as const }}>
               <div style={{ flex: 1 }}>
                 {chartModal.contenido}
               </div>
