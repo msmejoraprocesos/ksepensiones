@@ -787,6 +787,7 @@ function CalculadoraInner() {
   ]
   // Carátula: se muestra solo cuando no hay datos cargados y no hay cliente pre-seleccionado
   const [mostrarCaratula, setMostrarCaratula] = useState(false)
+  const [modoEntrada, setModoEntrada] = useState<null | 'auto' | 'manual'>(null)
   const [appInicializado, setAppInicializado] = useState(false)
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null)
   const [showGuia, setShowGuia] = useState(false)
@@ -1021,6 +1022,7 @@ function CalculadoraInner() {
 
       // Sin ?diag: mostrar carátula normalmente
       setMostrarCaratula(true)
+      setModoEntrada(null)
       setAppInicializado(true)
     })
   }, [])
@@ -2335,9 +2337,9 @@ function CalculadoraInner() {
                 )}
               </div>
 
-              {/* Paso 2: Constancia o captura manual */}
-              <div style={{ border: `2px solid ${datos.semanas_totales > 0 ? VERDE : '#E5E7EB'}`, padding: '14px 16px', background: datos.semanas_totales > 0 ? '#F0FDF4' : 'white', transition: 'all 0.2s' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: datos.semanas_totales > 0 ? '0' : '10px' }}>
+              {/* Paso 2: Modo de entrada */}
+              <div style={{ border: `2px solid ${datos.semanas_totales > 0 ? VERDE : '#E5E7EB'}`, padding: '14px 16px', background: datos.semanas_totales > 0 ? '#F0FDF4' : 'white', borderRadius: '10px', transition: 'all 0.2s' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: datos.semanas_totales > 0 ? '0' : '12px' }}>
                   <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: datos.semanas_totales > 0 ? VERDE : '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '13px', fontWeight: '700' as const, color: 'white' }}>
                     {datos.semanas_totales > 0 ? '✓' : '2'}
                   </div>
@@ -2345,63 +2347,98 @@ function CalculadoraInner() {
                     <p style={{ margin: 0, fontSize: '13px', fontWeight: '700' as const, color: datos.semanas_totales > 0 ? VERDE : '#374151' }}>
                       {datos.semanas_totales > 0 ? `Datos cargados — ${datos.semanas_totales} semanas` : 'Datos del trabajador'}
                     </p>
-                    {datos.semanas_totales === 0 && <p style={{ margin: '1px 0 0', fontSize: '11px', color: '#94A3B8' }}>Carga la constancia PDF o captura los datos manualmente</p>}
+                    {datos.semanas_totales === 0 && !modoEntrada && <p style={{ margin: '1px 0 0', fontSize: '11px', color: '#94A3B8' }}>¿Cómo quieres ingresar los datos?</p>}
                   </div>
+                  {modoEntrada && datos.semanas_totales === 0 && (
+                    <button onClick={() => setModoEntrada(null)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', color: '#94A3B8', padding: '2px 4px' }}>← Cambiar</button>
+                  )}
                 </div>
 
                 {datos.semanas_totales === 0 && (
-                  <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
-                    {/* Opción A: Constancia PDF */}
-                    <label style={{ width: '100%', padding: '10px', background: AZUL, color: 'white', cursor: extracting ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600' as const, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxSizing: 'border-box' as const, opacity: extracting ? 0.7 : 1, borderRadius: '6px' }}>
-                      {extracting ? '⏳ Extrayendo...' : '📎 Cargar Constancia PDF (lectura automática)'}
-                      <input type="file" accept=".pdf" style={{ display: 'none' }} disabled={extracting} onChange={e => {
-                        const f = e.target.files?.[0]
-                        if (f) extraerPDF(f)
-                      }} />
-                    </label>
+                  <>
+                    {/* Pantalla A: Selección de modo */}
+                    {!modoEntrada && (
+                      <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
+                        <button onClick={() => setModoEntrada('auto')}
+                          style={{ width: '100%', padding: '14px 16px', background: '#EEF2F8', border: `1.5px solid ${AZUL}`, borderRadius: '10px', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '12px', textAlign: 'left' as const }}>
+                          <span style={{ fontSize: '24px' }}>📎</span>
+                          <div>
+                            <div style={{ fontSize: '13px', fontWeight: '700' as const, color: AZUL }}>Cargar constancia PDF</div>
+                            <div style={{ fontSize: '11px', color: '#64748B', marginTop: '2px' }}>Sofía IA extrae los datos automáticamente</div>
+                          </div>
+                          <span style={{ marginLeft: 'auto', fontSize: '18px', color: AZUL }}>→</span>
+                        </button>
+                        <button onClick={() => setModoEntrada('manual')}
+                          style={{ width: '100%', padding: '14px 16px', background: 'white', border: '1.5px solid #E2E8F0', borderRadius: '10px', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '12px', textAlign: 'left' as const }}>
+                          <span style={{ fontSize: '24px' }}>✏️</span>
+                          <div>
+                            <div style={{ fontSize: '13px', fontWeight: '700' as const, color: '#374151' }}>Captura manual</div>
+                            <div style={{ fontSize: '11px', color: '#64748B', marginTop: '2px' }}>Ingresa los datos del NSS y semanas tú mismo</div>
+                          </div>
+                          <span style={{ marginLeft: 'auto', fontSize: '18px', color: '#CBD5E1' }}>→</span>
+                        </button>
+                      </div>
+                    )}
 
-                    {/* Separador */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <div style={{ flex: 1, height: '1px', background: '#E5E7EB' }} />
-                      <span style={{ fontSize: '11px', color: '#94A3B8' }}>o captura manual</span>
-                      <div style={{ flex: 1, height: '1px', background: '#E5E7EB' }} />
-                    </div>
+                    {/* Pantalla B: Carga automática PDF */}
+                    {modoEntrada === 'auto' && (
+                      <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
+                        <p style={{ margin: '0 0 4px', fontSize: '12px', color: '#64748B' }}>
+                          Selecciona el PDF de la constancia oficial del IMSS (SISEC). Sofía IA leerá y extraerá los datos automáticamente.
+                        </p>
+                        <label style={{ width: '100%', padding: '13px', background: extracting ? '#E2E8F0' : AZUL, color: 'white', cursor: extracting ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600' as const, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxSizing: 'border-box' as const, opacity: extracting ? 0.8 : 1, borderRadius: '8px' }}>
+                          {extracting ? '⏳ Extrayendo datos...' : '📎 Seleccionar archivo PDF'}
+                          <input type="file" accept=".pdf" style={{ display: 'none' }} disabled={extracting} onChange={e => {
+                            const f = e.target.files?.[0]
+                            if (f) extraerPDF(f)
+                          }} />
+                        </label>
+                        {extracting && (
+                          <div style={{ background: '#EEF2F8', borderRadius: '8px', padding: '10px 12px', fontSize: '11px', color: AZUL }}>
+                            Sofía IA está leyendo el documento... esto toma entre 10 y 30 segundos.
+                          </div>
+                        )}
+                        <p style={{ margin: 0, fontSize: '10px', color: '#94A3B8' }}>Solo archivos PDF del portal oficial del IMSS. No funciona con fotos ni escaneos.</p>
+                      </div>
+                    )}
 
-                    {/* Opción B: Captura manual */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                      <div>
-                        <label style={{ fontSize: '10px', fontWeight: '700' as const, color: '#64748B', display: 'block', marginBottom: '3px', textTransform: 'uppercase' as const }}>Semanas cotizadas *</label>
-                        <input type="number" placeholder="Ej. 850" min={0} max={2000}
-                          onChange={e => {
-                            const val = Number(e.target.value)
-                            if (val > 0) setDatos(prev => ({ ...prev, semanas_totales: val }))
-                          }}
-                          style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '6px' }} />
+                    {/* Pantalla C: Captura manual */}
+                    {modoEntrada === 'manual' && (
+                      <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
+                        <p style={{ margin: '0 0 4px', fontSize: '12px', color: '#64748B' }}>
+                          Captura los datos principales de la constancia. Puedes completar el resto en el Tab 1.
+                        </p>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                          <div style={{ gridColumn: '1 / -1' }}>
+                            <label style={{ fontSize: '10px', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Nombre del trabajador</label>
+                            <input type="text" placeholder="Nombre completo"
+                              onChange={e => setDatos(prev => ({ ...prev, nombre_trabajador: e.target.value }))}
+                              style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '10px', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Semanas cotizadas *</label>
+                            <input type="number" placeholder="Ej. 850" min={0} max={2000}
+                              onChange={e => { const val = Number(e.target.value); if (val > 0) setDatos(prev => ({ ...prev, semanas_totales: val })) }}
+                              style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '10px', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>NSS</label>
+                            <input type="text" placeholder="11 dígitos"
+                              onChange={e => setDatos(prev => ({ ...prev, nss: e.target.value }))}
+                              style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '10px', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>SDI actual ($/día)</label>
+                            <input type="number" placeholder="Ej. 450.00" min={0}
+                              onChange={e => { const val = Number(e.target.value); if (val > 0) setDatos(prev => ({ ...prev, sdi_actual: val })) }}
+                              style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+                          </div>
+                        </div>
+                        <p style={{ margin: 0, fontSize: '10px', color: '#94A3B8' }}>* Las semanas son requeridas para habilitar el botón Continuar.</p>
                       </div>
-                      <div>
-                        <label style={{ fontSize: '10px', fontWeight: '700' as const, color: '#64748B', display: 'block', marginBottom: '3px', textTransform: 'uppercase' as const }}>SDI actual (MXN/día)</label>
-                        <input type="number" placeholder="Ej. 450.00" min={0}
-                          onChange={e => {
-                            const val = Number(e.target.value)
-                            if (val > 0) setDatos(prev => ({ ...prev, sdi_actual: val }))
-                          }}
-                          style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '6px' }} />
-                      </div>
-                      <div>
-                        <label style={{ fontSize: '10px', fontWeight: '700' as const, color: '#64748B', display: 'block', marginBottom: '3px', textTransform: 'uppercase' as const }}>NSS</label>
-                        <input type="text" placeholder="Ej. 12345678901"
-                          onChange={e => setDatos(prev => ({ ...prev, nss: e.target.value }))}
-                          style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '6px' }} />
-                      </div>
-                      <div>
-                        <label style={{ fontSize: '10px', fontWeight: '700' as const, color: '#64748B', display: 'block', marginBottom: '3px', textTransform: 'uppercase' as const }}>Nombre del trabajador</label>
-                        <input type="text" placeholder="Nombre completo"
-                          onChange={e => setDatos(prev => ({ ...prev, nombre_trabajador: e.target.value }))}
-                          style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '6px' }} />
-                      </div>
-                    </div>
-                    <p style={{ fontSize: '10px', color: '#94A3B8', margin: '2px 0 0' }}>* Al capturar las semanas se habilita el botón de continuar</p>
-                  </div>
+                    )}
+                  </>
                 )}
               </div>
 
