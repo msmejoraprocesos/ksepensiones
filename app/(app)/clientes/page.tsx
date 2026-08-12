@@ -1132,7 +1132,7 @@ function ClientesInner() {
                 <thead>
                   <tr style={{ background: '#F8FAFC', borderBottom: '2px solid #E5E7EB' }}>
                     {['Cliente', 'Urgencia', 'Etapa', 'Servicio', 'Acordado', 'Pagado', 'Saldo', 'Pago', 'Contacto', ''].map((h, i) => (
-                      <th key={i} style={{ position: 'sticky' as const, top: 0, zIndex: 2, background: '#F8FAFC', padding: '9px 12px', textAlign: 'left' as const, fontSize: '10px', fontWeight: '700' as const, color: '#6B7280', textTransform: 'uppercase' as const, letterSpacing: '0.5px', boxShadow: 'inset 0 -2px 0 #E5E7EB' }}>{h}</th>
+                      <th key={i} style={{ position: 'sticky' as const, top: 0, zIndex: 2, background: '#F8FAFC', padding: '9px 12px', textAlign: 'left' as const, fontSize: '10px', fontWeight: '700' as const, color: '#64748B', textTransform: 'uppercase' as const, letterSpacing: '0.5px', boxShadow: 'inset 0 -2px 0 #E5E7EB' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -1162,7 +1162,7 @@ function ClientesInner() {
                               rojo: { bg: '#FEF2F2', color: '#DC2626' },
                               amarillo: { bg: '#FFFBEB', color: '#D97706' },
                               verde: { bg: '#F0FDF4', color: '#16A34A' },
-                              gris: { bg: '#F9FAFB', color: '#9CA3AF' },
+                              gris: { bg: '#F9FAFB', color: '#94A3B8' },
                             }
                             const style = colors[urg.nivel]
                             return (
@@ -1347,7 +1347,7 @@ function ClientesInner() {
                       rojo: { bg: '#FEF2F2', color: '#DC2626' },
                       amarillo: { bg: '#FFFBEB', color: '#D97706' },
                       verde: { bg: '#F0FDF4', color: '#16A34A' },
-                      gris: { bg: '#F9FAFB', color: '#9CA3AF' },
+                      gris: { bg: '#F9FAFB', color: '#94A3B8' },
                     }
                     const style = colors[urg.nivel]
                     return (
@@ -1482,7 +1482,7 @@ function ClientesInner() {
                             {TIPOS_SERVICIO.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
                           </select>
                         ) : (
-                          <div style={{ fontSize: '13px', color: '#374151', padding: '7px 0' }}>
+                          <div style={{ fontSize: '13px', color: '#1E293B', padding: '7px 0' }}>
                             {TIPOS_SERVICIO.find(t => t.id === selected.tipo_servicio)?.label || <span style={{ color: '#94a3b8' }}>Sin definir</span>}
                           </div>
                         )}
@@ -1523,7 +1523,7 @@ function ClientesInner() {
                                   placeholder="Ej. 3500" style={inputSt} />
                               </div>
                             ) : (
-                              <div style={{ fontSize: '13px', color: '#374151' }}>{fmtMXN(selected.monto_acordado)}</div>
+                              <div style={{ fontSize: '13px', color: '#1E293B' }}>{fmtMXN(selected.monto_acordado)}</div>
                             )
                           ) : editando ? (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1596,7 +1596,7 @@ function ClientesInner() {
                               )}
                             </div>
                           ) : (
-                            <div style={{ fontSize: '13px', color: '#374151' }}>
+                            <div style={{ fontSize: '13px', color: '#1E293B' }}>
                               {!selected.esquema_pago && <span style={{ color: '#94a3b8' }}>Sin definir</span>}
                               {selected.esquema_pago === 'monto_acordado' && fmtMXN(selected.monto_acordado)}
                               {selected.esquema_pago === 'meses_pension' && (
@@ -2248,7 +2248,7 @@ function ClientesInner() {
                 ⚠️ La canalización requiere aprobación del org-admin. El cliente seguirá asignado a ti hasta que se apruebe.
               </div>
               <div>
-                <label style={{ fontSize: '10.5px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>Asesor destino *</label>
+                <label style={{ fontSize: '10.5px', fontWeight: '700', color: '#64748B', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>Asesor destino *</label>
                 <select value={canalizarDestino} onChange={e => setCanalizarDestino(e.target.value)}
                   style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', borderRadius: '6px', fontFamily: 'inherit', background: 'white' }}>
                   <option value="">Selecciona un asesor...</option>
@@ -2258,7 +2258,7 @@ function ClientesInner() {
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: '10.5px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>Motivo *</label>
+                <label style={{ fontSize: '10.5px', fontWeight: '700', color: '#64748B', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>Motivo *</label>
                 <textarea value={canalizarMotivo} onChange={e => setCanalizarMotivo(e.target.value)}
                   placeholder="Ej. Exceso de carga de trabajo, especialidad requerida, zona geográfica..."
                   rows={3}
@@ -2314,10 +2314,10 @@ function ClientesInner() {
               {!encuestaLink ? (
                 <>
                   <div style={{ background: '#F8FAFC', borderRadius: '10px', padding: '14px' }}>
-                    <p style={{ fontSize: '13px', color: '#374151', margin: '0 0 8px', fontWeight: '600' }}>La encuesta incluye:</p>
-                    <p style={{ fontSize: '13px', color: '#6B7280', margin: '4px 0' }}>⭐ Calificación del servicio (1-5 estrellas)</p>
-                    <p style={{ fontSize: '13px', color: '#6B7280', margin: '4px 0' }}>🔄 ¿Recomendarías el servicio?</p>
-                    <p style={{ fontSize: '13px', color: '#6B7280', margin: '4px 0' }}>💬 Comentarios (opcional)</p>
+                    <p style={{ fontSize: '13px', color: '#1E293B', margin: '0 0 8px', fontWeight: '600' }}>La encuesta incluye:</p>
+                    <p style={{ fontSize: '13px', color: '#64748B', margin: '4px 0' }}>⭐ Calificación del servicio (1-5 estrellas)</p>
+                    <p style={{ fontSize: '13px', color: '#64748B', margin: '4px 0' }}>🔄 ¿Recomendarías el servicio?</p>
+                    <p style={{ fontSize: '13px', color: '#64748B', margin: '4px 0' }}>💬 Comentarios (opcional)</p>
                   </div>
                   <button onClick={async () => {
                     setEnviandoEncuesta(true)

@@ -314,13 +314,13 @@ function MiDiaInner() {
   const totalAlertas = alertasPago.length + alertasSeguimiento.length
 
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 48px)', color: '#9CA3AF', fontSize: '14px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 48px)', color: '#94A3B8', fontSize: '14px' }}>
       Cargando tu día...
     </div>
   )
 
   const card = (content: React.ReactNode, style?: React.CSSProperties) => (
-    <div style={{ background: 'white', border: '1px solid #E5E7EB', padding: '14px 16px', display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' as const, boxShadow: '0 1px 3px rgba(0,0,0,0.04)', ...style }}>
+    <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '14px 16px', display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' as const, boxShadow: '0 1px 3px rgba(0,0,0,0.04)', ...style }}>
       {content}
     </div>
   )
@@ -328,7 +328,7 @@ function MiDiaInner() {
   const sTitle = (title: string, sub?: string) => (
     <div style={{ marginBottom: '10px', paddingBottom: '8px', borderBottom: '2px solid #F3F4F6' }}>
       <p style={{ fontSize: '12px', fontWeight: '700' as const, color: '#111827', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>{title}</p>
-      {sub && <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '2px 0 0' }}>{sub}</p>}
+      {sub && <p style={{ fontSize: '10px', color: '#94A3B8', margin: '2px 0 0' }}>{sub}</p>}
     </div>
   )
 
@@ -360,7 +360,7 @@ function MiDiaInner() {
     return (
       <span style={{ fontSize: '12px', fontWeight: '700', color: subio ? VERDE : '#DC2626', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
         {subio ? '▲' : '▼'} {Math.abs(delta).toFixed(0)}%
-        <span style={{ fontSize: '10px', fontWeight: '500', color: '#9CA3AF', marginLeft: '2px' }}>vs periodo anterior</span>
+        <span style={{ fontSize: '10px', fontWeight: '500', color: '#94A3B8', marginLeft: '2px' }}>vs periodo anterior</span>
       </span>
     )
   }
@@ -412,21 +412,21 @@ function MiDiaInner() {
         }
       `}</style>
       {/* Header */}
-      <div style={{ background: 'white', borderBottom: '2px solid #E5E7EB', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: '8px' }}>
+      <div style={{ background: '#FFFFFF', borderBottom: '2px solid #E5E7EB', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: '8px' }}>
         <div>
           <h1 style={{ fontSize: '15px', fontWeight: '700', color: '#111827', margin: 0 }}>
             Buenos días, <span style={{ color: NARANJA }}>{nombreAsesor}</span>
           </h1>
-          <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '1px 0 0', textTransform: 'capitalize' }}>{fechaStr}</p>
+          <p style={{ fontSize: '12px', color: '#94A3B8', margin: '1px 0 0', textTransform: 'capitalize' }}>{fechaStr}</p>
         </div>
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
           {/* Botón persistente para reabrir la guía, siempre disponible */}
           <button onClick={() => setShowOnboarding(true)} title="Ver guía de primeros pasos"
-            style={{ width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F4F6F9', border: '1px solid #E5E7EB', borderRadius: '50%', cursor: 'pointer', fontSize: '13px', color: AZUL, flexShrink: 0 }}>
+            style={{ width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F4F6F9', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '50%', cursor: 'pointer', fontSize: '13px', color: AZUL, flexShrink: 0 }}>
             ❓
           </button>
           {/* Filtro período */}
-          <div style={{ display: 'flex', gap: '2px', background: '#F4F6F9', border: '1px solid #E5E7EB', padding: '3px' }}>
+          <div style={{ display: 'flex', gap: '2px', background: '#F4F6F9', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '3px' }}>
             {(['mes','trimestre','año'] as const).map(p => (
               <button key={p} onClick={() => setFiltroPeriodo(p)}
                 style={{ padding: '5px 11px', border: 'none', borderLeft: filtroPeriodo === p ? `2px solid ${NARANJA}` : '2px solid transparent', background: filtroPeriodo === p ? 'white' : 'transparent', color: filtroPeriodo === p ? NARANJA : '#6B7280', fontSize: '11px', fontWeight: filtroPeriodo === p ? '700' as const : '400' as const, cursor: 'pointer', boxShadow: filtroPeriodo === p ? '0 1px 2px rgba(0,0,0,0.08)' : 'none' }}>
@@ -435,7 +435,7 @@ function MiDiaInner() {
             ))}
           </div>
           {/* Filtro tipo */}
-          <div style={{ display: 'flex', gap: '2px', background: '#F4F6F9', border: '1px solid #E5E7EB', padding: '3px' }}>
+          <div style={{ display: 'flex', gap: '2px', background: '#F4F6F9', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '3px' }}>
             {([['todos','Todos'],['mod10','Mod 10'],['mod40','Mod 40'],['combo','Combo']] as const).map(([val, label]) => (
               <button key={val} onClick={() => setFiltroTipo(val)}
                 style={{ padding: '5px 11px', border: 'none', borderLeft: filtroTipo === val ? `2px solid ${AZUL}` : '2px solid transparent', background: filtroTipo === val ? 'white' : 'transparent', color: filtroTipo === val ? AZUL : '#6B7280', fontSize: '11px', fontWeight: filtroTipo === val ? '700' as const : '400' as const, cursor: 'pointer', boxShadow: filtroTipo === val ? '0 1px 2px rgba(0,0,0,0.08)' : 'none' }}>
@@ -460,7 +460,7 @@ function MiDiaInner() {
 
             {/* Alertas accionables — pendientes que requieren atención hoy */}
             {totalAlertas > 0 && (
-              <div style={{ background: 'white', border: '1px solid #E5E7EB', borderLeft: '3px solid #DC2626', padding: '10px 14px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+              <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderLeft: '3px solid #DC2626', padding: '10px 14px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
                 <p style={{ fontSize: '11px', fontWeight: '700' as const, color: '#991B1B', margin: '0 0 8px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
                   🔔 Tienes {totalAlertas} pendiente{totalAlertas !== 1 ? 's' : ''} que requiere{totalAlertas === 1 ? '' : 'n'} atención
                 </p>
@@ -478,7 +478,7 @@ function MiDiaInner() {
                     </a>
                   ))}
                   {totalAlertas > 8 && (
-                    <span style={{ display: 'flex', alignItems: 'center', padding: '6px 10px', fontSize: '11px', color: '#9CA3AF' }}>+{totalAlertas - 8} más</span>
+                    <span style={{ display: 'flex', alignItems: 'center', padding: '6px 10px', fontSize: '11px', color: '#94A3B8' }}>+{totalAlertas - 8} más</span>
                   )}
                 </div>
               </div>
@@ -544,7 +544,7 @@ function MiDiaInner() {
                       </svg>
                       <div style={{ display: 'flex', gap: '10px', marginTop: '2px' }}>
                         {anios.map((a, i) => (
-                          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#6B7280' }}>
+                          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#64748B' }}>
                             <span style={{ width: '10px', height: '2px', background: coloresAnio[i], display: 'inline-block' }} />
                             {a}
                           </span>
@@ -572,7 +572,7 @@ function MiDiaInner() {
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly' }}>
                       {counts.map((c, i) => (
                         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontSize: '11px', color: '#6B7280', width: '70px', flexShrink: 0 }}>{c.label}</span>
+                          <span style={{ fontSize: '11px', color: '#64748B', width: '70px', flexShrink: 0 }}>{c.label}</span>
                           <div style={{ flex: 1, background: '#F4F6F9', height: '18px', position: 'relative' as const }}>
                             <div style={{ width: `${(c.n / max) * 100}%`, height: '100%', background: c.color, minWidth: c.n > 0 ? '4px' : 0 }} />
                           </div>
@@ -599,7 +599,7 @@ function MiDiaInner() {
                     value: clientesFiltrados.filter(c => c.tipo_servicio === s.id).reduce((sum, c) => sum + (c.monto_acordado || 0), 0)
                   }))
                   const sinClasificarVentas = clientesFiltrados.filter(c => !SERVICIOS_VENTAS.some(s => s.id === c.tipo_servicio)).reduce((sum, c) => sum + (c.monto_acordado || 0), 0)
-                  if (sinClasificarVentas > 0) items.push({ id: 'sin_clasificar', label: 'Sin clasificar', color: '#9CA3AF', value: sinClasificarVentas })
+                  if (sinClasificarVentas > 0) items.push({ id: 'sin_clasificar', label: 'Sin clasificar', color: '#94A3B8', value: sinClasificarVentas })
                   const total = items.reduce((s, it) => s + it.value, 0)
                   const R = 40, CIRC = 2 * Math.PI * R
                   let acc = 0
@@ -636,7 +636,7 @@ function MiDiaInner() {
                         {items.map((it, i) => (
                           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <span style={{ width: '9px', height: '9px', background: it.color, flexShrink: 0, display: 'inline-block' as const }} />
-                            <span style={{ fontSize: '11px', color: '#6B7280' }}>{it.label}</span>
+                            <span style={{ fontSize: '11px', color: '#64748B' }}>{it.label}</span>
                             <span style={{ fontSize: '10px', fontWeight: '700', color: '#374151' }}>{fmtMXN(it.value)}</span>
                           </div>
                         ))}
@@ -680,7 +680,7 @@ function MiDiaInner() {
                     { id: 'recopilacion', label: 'Recopilación', color: '#0891B2' },
                     { id: 'tramite', label: 'Trámite', color: '#0EA5E9' },
                     { id: 'cierre', label: 'Cierre', color: '#7C3AED' },
-                    { id: 'cancelado', label: 'Cancelado', color: '#9CA3AF' },
+                    { id: 'cancelado', label: 'Cancelado', color: '#94A3B8' },
                   ]
                   const datos = SERVICIOS.map(s => ({
                     ...s,
@@ -718,7 +718,7 @@ function MiDiaInner() {
                       </svg>
                       <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '10px', marginTop: '6px', paddingTop: '8px', borderTop: '1px solid #F3F4F6' }}>
                         {ETAPAS.map((e, i) => (
-                          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#6B7280' }}>
+                          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#64748B' }}>
                             <span style={{ width: '8px', height: '8px', background: e.color, display: 'inline-block' as const }} />
                             {e.label}
                           </span>
@@ -738,7 +738,7 @@ function MiDiaInner() {
                     const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
                     return (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span style={{ fontSize: '13px', color: '#6B7280', width: '76px', flexShrink: 0 }}>{r.label}</span>
+                        <span style={{ fontSize: '13px', color: '#64748B', width: '76px', flexShrink: 0 }}>{r.label}</span>
                         <div style={{ flex: 1, height: '40px', background: '#F3F4F6', overflow: 'hidden' }}>
                           <div style={{ height: '100%', width: `${diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0}%`, background: r.color }} />
                         </div>
@@ -761,20 +761,20 @@ function MiDiaInner() {
 
               {/* Sección 1/3 — Agenda */}
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-                <p style={{ fontSize: '12px', fontWeight: '700' as const, color: AZUL, margin: '0 0 10px', textAlign: 'center' as const, textTransform: 'uppercase' as const, letterSpacing: '0.5px', background: '#EEF2F8', borderLeft: `3px solid ${AZUL}`, border: '1px solid #E5E7EB', padding: '8px 0', flexShrink: 0 }}>Agenda</p>
+                <p style={{ fontSize: '12px', fontWeight: '700' as const, color: AZUL, margin: '0 0 10px', textAlign: 'center' as const, textTransform: 'uppercase' as const, letterSpacing: '0.5px', background: '#EEF2F8', borderLeft: `3px solid ${AZUL}`, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '8px 0', flexShrink: 0 }}>Agenda</p>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: agendaHoy.length === 0 ? 'center' : 'space-evenly', overflow: 'hidden' }}>
                   {agendaHoy.length === 0 ? (
-                    <p style={{ fontSize: '12px', color: '#9CA3AF', textAlign: 'center' as const }}>Día libre ✅</p>
+                    <p style={{ fontSize: '12px', color: '#94A3B8', textAlign: 'center' as const }}>Día libre ✅</p>
                   ) : (
                     agendaHoy.slice(0, 4).map(a => (
-                      <div key={a.id} style={{ padding: '7px 10px', border: '1px solid #E5E7EB', borderLeft: `2px solid ${NARANJA}`, textAlign: 'center' as const, background: '#FFFBF8' }}>
+                      <div key={a.id} style={{ padding: '7px 10px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderLeft: `2px solid ${NARANJA}`, textAlign: 'center' as const, background: '#FFFBF8' }}>
                         <div style={{ fontSize: '12px', fontWeight: '600', color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.titulo}</div>
-                        <div style={{ fontSize: '10px', color: '#9CA3AF' }}>{new Date(a.fecha_programada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</div>
+                        <div style={{ fontSize: '10px', color: '#94A3B8' }}>{new Date(a.fecha_programada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</div>
                       </div>
                     ))
                   )}
                 </div>
-                <a href="/seguimiento" style={{ display: 'block', textAlign: 'center' as const, marginTop: '8px', fontSize: '11px', color: '#6B7280', textDecoration: 'none', flexShrink: 0 }}>
+                <a href="/seguimiento" style={{ display: 'block', textAlign: 'center' as const, marginTop: '8px', fontSize: '11px', color: '#64748B', textDecoration: 'none', flexShrink: 0 }}>
                   Ver agenda completa →
                 </a>
               </div>
@@ -786,10 +786,10 @@ function MiDiaInner() {
                 <p style={{ fontSize: '11px', fontWeight: '700' as const, color: '#374151', margin: '0 0 8px', textAlign: 'center' as const, textTransform: 'uppercase' as const, letterSpacing: '0.5px', flexShrink: 0, paddingBottom: '6px', borderBottom: '1px solid #F3F4F6' }}>Financieras</p>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: financieras.length === 0 ? 'center' : 'space-evenly' }}>
                   {financieras.length === 0 ? (
-                    <p style={{ fontSize: '12px', color: '#9CA3AF', textAlign: 'center' as const }}>Sin financieras</p>
+                    <p style={{ fontSize: '12px', color: '#94A3B8', textAlign: 'center' as const }}>Sin financieras</p>
                   ) : (
                     financieras.slice(0, 5).map((fin) => (
-                      <div key={fin.id} style={{ padding: '7px 10px', border: '1px solid #E5E7EB', borderLeft: `2px solid ${VERDE}`, textAlign: 'center' as const, background: '#F9FAFB' }}>
+                      <div key={fin.id} style={{ padding: '7px 10px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderLeft: `2px solid ${VERDE}`, textAlign: 'center' as const, background: '#F9FAFB' }}>
                         <span style={{ fontSize: '12px', fontWeight: '600', color: '#374151' }}>{fin.nombre}</span>
                       </div>
                     ))
@@ -840,31 +840,31 @@ function MiDiaInner() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '12px' }}>
 
           {/* Semáforo de urgencia */}
-          <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', padding: '14px' }}>
+          <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px' }}>
             <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>🚦 Urgencia pensional</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px' }}>
               {[
                 { nivel: 'rojo', label: 'Urgente', val: diagsUrgencia.rojo, color: '#DC2626', bg: '#FEF2F2', desc: 'menos de 2 años' },
                 { nivel: 'amarillo', label: 'Pronto', val: diagsUrgencia.amarillo, color: '#D97706', bg: '#FFFBEB', desc: '3 a 5 años' },
                 { nivel: 'verde', label: 'Con tiempo', val: diagsUrgencia.verde, color: '#16A34A', bg: '#F0FDF4', desc: 'más de 5 años' },
-                { nivel: 'gris', label: 'Sin datos', val: diagsUrgencia.gris, color: '#9CA3AF', bg: '#F9FAFB', desc: 'sin diagnóstico' },
+                { nivel: 'gris', label: 'Sin datos', val: diagsUrgencia.gris, color: '#94A3B8', bg: '#F9FAFB', desc: 'sin diagnóstico' },
               ].map(s => (
                 <div key={s.nivel} style={{ background: s.bg, borderRadius: '6px', padding: '8px', borderLeft: `3px solid ${s.color}` }}>
                   <div style={{ fontSize: '18px', fontWeight: '800', color: s.color }}>{s.val}</div>
                   <div style={{ fontSize: '10px', fontWeight: '700', color: s.color }}>{s.label}</div>
-                  <div style={{ fontSize: '9px', color: '#9CA3AF' }}>{s.desc}</div>
+                  <div style={{ fontSize: '9px', color: '#94A3B8' }}>{s.desc}</div>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Actividad semanal */}
-          <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', padding: '14px' }}>
+          <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px' }}>
             <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>📞 Actividad esta semana</p>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: '12px', marginBottom: '8px' }}>
               <div>
                 <div style={{ fontSize: '32px', fontWeight: '800', color: AZUL }}>{actividadesSemana}</div>
-                <div style={{ fontSize: '11px', color: '#6B7280' }}>actividades registradas</div>
+                <div style={{ fontSize: '11px', color: '#64748B' }}>actividades registradas</div>
               </div>
               {actividadesSemanaAnt > 0 && (
                 <div style={{ fontSize: '12px', fontWeight: '700', color: actividadesSemana >= actividadesSemanaAnt ? '#16A34A' : '#DC2626' }}>
@@ -875,22 +875,22 @@ function MiDiaInner() {
             <div style={{ height: '6px', background: '#F3F4F6', borderRadius: '3px', overflow: 'hidden' }}>
               <div style={{ height: '100%', background: AZUL, borderRadius: '3px', width: `${Math.min(100, actividadesSemana * 10)}%` }} />
             </div>
-            <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '4px 0 0' }}>Meta sugerida: 10 actividades/semana</p>
+            <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0' }}>Meta sugerida: 10 actividades/semana</p>
           </div>
 
           {/* Costo IA este mes */}
-          <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', padding: '14px' }}>
+          <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px' }}>
             <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>🤖 Costo IA este mes</p>
             <div style={{ fontSize: '28px', fontWeight: '800', color: costoIA > 5 ? '#DC2626' : VERDE, marginBottom: '4px' }}>
-              ${costoIA.toFixed(2)} <span style={{ fontSize: '14px', fontWeight: '400', color: '#6B7280' }}>USD</span>
+              ${costoIA.toFixed(2)} <span style={{ fontSize: '14px', fontWeight: '400', color: '#64748B' }}>USD</span>
             </div>
-            <p style={{ fontSize: '11px', color: '#6B7280', margin: '0 0 8px' }}>
+            <p style={{ fontSize: '11px', color: '#64748B', margin: '0 0 8px' }}>
               ~${(costoIA * 17.5).toFixed(0)} MXN · límite: $10 USD/mes
             </p>
             <div style={{ height: '6px', background: '#F3F4F6', borderRadius: '3px', overflow: 'hidden' }}>
               <div style={{ height: '100%', background: costoIA > 8 ? '#DC2626' : costoIA > 5 ? '#D97706' : VERDE, borderRadius: '3px', width: `${Math.min(100, (costoIA / 10) * 100)}%` }} />
             </div>
-            <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '4px 0 0' }}>{Math.round((costoIA / 10) * 100)}% del límite mensual usado</p>
+            <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0' }}>{Math.round((costoIA / 10) * 100)}% del límite mensual usado</p>
           </div>
         </div>
 
@@ -898,7 +898,7 @@ function MiDiaInner() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
 
           {/* Clientes estancados */}
-          <div style={{ background: 'white', border: `1px solid ${clientesEstancados > 0 ? '#FCA5A5' : '#E5E7EB'}`, borderRadius: '10px', padding: '14px' }}>
+          <div style={{ background: '#FFFFFF', border: `1px solid ${clientesEstancados > 0 ? '#FCA5A5' : '#E5E7EB'}`, borderRadius: '10px', padding: '14px' }}>
             <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 6px' }}>
               ⏸ Clientes sin avance
             </p>
@@ -906,7 +906,7 @@ function MiDiaInner() {
               <div style={{ fontSize: '32px', fontWeight: '800', color: clientesEstancados > 0 ? '#DC2626' : '#16A34A' }}>
                 {clientesEstancados}
               </div>
-              <div style={{ fontSize: '12px', color: '#6B7280', paddingBottom: '4px' }}>
+              <div style={{ fontSize: '12px', color: '#64748B', paddingBottom: '4px' }}>
                 {clientesEstancados === 0 ? 'Sin clientes estancados ✓' : `cliente${clientesEstancados !== 1 ? 's' : ''} sin cambio de etapa en 60+ días`}
               </div>
             </div>
@@ -931,19 +931,19 @@ function MiDiaInner() {
               }, 0)
             const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n)
             return (
-              <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', padding: '14px' }}>
+              <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px' }}>
                 <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 6px' }}>
                   💰 Valor estimado del pipeline
                 </p>
                 <div style={{ fontSize: '28px', fontWeight: '800', color: AZUL }}>
                   {fmtMXN(valorPipeline)}
                 </div>
-                <p style={{ fontSize: '11px', color: '#6B7280', margin: '4px 0 0' }}>
+                <p style={{ fontSize: '11px', color: '#64748B', margin: '4px 0 0' }}>
                   Ingresos probables ponderados por probabilidad de cierre por etapa
                 </p>
                 <div style={{ marginTop: '8px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                   {Object.entries(probPorEtapa).filter(([k]) => !['cierre_exitoso', 'cancelado'].includes(k)).map(([etapa, prob]) => (
-                    <span key={etapa} style={{ fontSize: '9px', padding: '2px 6px', background: '#F4F6F9', color: '#6B7280', borderRadius: '4px' }}>
+                    <span key={etapa} style={{ fontSize: '9px', padding: '2px 6px', background: '#F4F6F9', color: '#64748B', borderRadius: '4px' }}>
                       {etapa.replace('_', ' ')}: {Math.round(prob * 100)}%
                     </span>
                   ))}
@@ -954,10 +954,10 @@ function MiDiaInner() {
         </div>
 
         {/* ── KPIs Satisfacción del cliente ── */}
-        <div style={{ background: 'white', border: '1px solid #E5E7EB', borderLeft: '4px solid #F59E0B', borderRadius: '10px', padding: '14px' }}>
+        <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderLeft: '4px solid #F59E0B', borderRadius: '10px', padding: '14px' }}>
           <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 12px' }}>⭐ Satisfacción del cliente — este mes</p>
           {encuestaStats.enviadas === 0 ? (
-            <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>Sin encuestas enviadas este mes. Envíalas desde el expediente de cada cliente al cerrar un caso.</p>
+            <p style={{ fontSize: '13px', color: '#94A3B8', margin: 0 }}>Sin encuestas enviadas este mes. Envíalas desde el expediente de cada cliente al cerrar un caso.</p>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
               <div style={{ textAlign: 'center' as const }}>
@@ -967,7 +967,7 @@ function MiDiaInner() {
                 <div style={{ fontSize: '16px', letterSpacing: '2px', margin: '2px 0' }}>
                   {'⭐'.repeat(Math.round(encuestaStats.promedio))}
                 </div>
-                <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '4px 0 0', textTransform: 'uppercase' as const }}>Satisfacción</p>
+                <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0', textTransform: 'uppercase' as const }}>Satisfacción</p>
               </div>
               <div style={{ textAlign: 'center' as const, borderLeft: '1px solid #F3F4F6', borderRight: '1px solid #F3F4F6' }}>
                 <div style={{ fontSize: '28px', fontWeight: '800', color: encuestaStats.nps >= 50 ? VERDE : encuestaStats.nps >= 0 ? '#D97706' : '#DC2626' }}>
@@ -976,16 +976,16 @@ function MiDiaInner() {
                 <div style={{ fontSize: '11px', color: encuestaStats.nps >= 50 ? VERDE : '#D97706', fontWeight: '600', margin: '2px 0' }}>
                   {encuestaStats.nps >= 70 ? 'Excelente' : encuestaStats.nps >= 50 ? 'Bueno' : encuestaStats.nps >= 0 ? 'Regular' : 'Malo'}
                 </div>
-                <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '4px 0 0', textTransform: 'uppercase' as const }}>NPS</p>
+                <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0', textTransform: 'uppercase' as const }}>NPS</p>
               </div>
               <div style={{ textAlign: 'center' as const }}>
                 <div style={{ fontSize: '28px', fontWeight: '800', color: AZUL }}>
-                  {encuestaStats.respondidas}<span style={{ fontSize: '16px', color: '#9CA3AF' }}>/{encuestaStats.enviadas}</span>
+                  {encuestaStats.respondidas}<span style={{ fontSize: '16px', color: '#94A3B8' }}>/{encuestaStats.enviadas}</span>
                 </div>
                 <div style={{ height: '4px', background: '#F3F4F6', borderRadius: '2px', overflow: 'hidden', margin: '6px auto', maxWidth: '60px' }}>
                   <div style={{ height: '100%', background: AZUL, width: `${encuestaStats.enviadas > 0 ? (encuestaStats.respondidas / encuestaStats.enviadas) * 100 : 0}%` }} />
                 </div>
-                <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '4px 0 0', textTransform: 'uppercase' as const }}>Respondidas</p>
+                <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0', textTransform: 'uppercase' as const }}>Respondidas</p>
               </div>
             </div>
           )}
@@ -996,7 +996,7 @@ function MiDiaInner() {
       {/* ── Onboarding — primeros pasos ── */}
       {showOnboarding && (
         <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', width: '100%', maxWidth: '460px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', borderRadius: '14px', overflow: 'hidden' }}>
+          <div style={{ background: '#FFFFFF', width: '100%', maxWidth: '460px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', borderRadius: '14px', overflow: 'hidden' }}>
             <div style={{ background: AZUL, padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <p style={{ fontSize: '18px', fontWeight: '800' as const, color: 'white', margin: '0 0 6px' }}>👋 ¡Bienvenido a KSE Pensiones!</p>
@@ -1039,5 +1039,5 @@ function MiDiaInner() {
 }
 
 export default function MiDiaPage() {
-  return <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 48px)', color: '#9CA3AF' }}>Cargando...</div>}><MiDiaInner /></Suspense>
+  return <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 48px)', color: '#94A3B8' }}>Cargando...</div>}><MiDiaInner /></Suspense>
 }

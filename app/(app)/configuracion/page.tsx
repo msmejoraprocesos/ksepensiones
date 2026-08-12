@@ -267,7 +267,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
           <button key={f.id} onClick={() => seleccionarFin(f)}
             style={{ padding: '8px 16px', background: finActiva === f.id && !showNueva ? AZUL : 'white', color: finActiva === f.id && !showNueva ? 'white' : '#374151', border: `1.5px solid ${finActiva === f.id && !showNueva ? AZUL : '#E5E7EB'}`, fontSize: '13px', fontWeight: finActiva === f.id && !showNueva ? '700' : '500', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px', opacity: f.activa ? 1 : 0.5 }}>
             🏦 {f.nombre}
-            {!f.activa && <span style={{ marginLeft: '6px', fontSize: '10px', color: '#9CA3AF' }}>(inactiva)</span>}
+            {!f.activa && <span style={{ marginLeft: '6px', fontSize: '10px', color: '#94A3B8' }}>(inactiva)</span>}
           </button>
         ))}
         <button onClick={iniciarNueva}
@@ -350,7 +350,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
                   { label: 'Teléfono', val: fin?.contacto_telefono || '—' },
                 ].map(f => (
                   <div key={f.label}>
-                    <p style={{ fontSize: '10px', fontWeight: '700', color: '#9CA3AF', margin: '0 0 3px', textTransform: 'uppercase' as const }}>{f.label}</p>
+                    <p style={{ fontSize: '10px', fontWeight: '700', color: '#94A3B8', margin: '0 0 3px', textTransform: 'uppercase' as const }}>{f.label}</p>
                     <p style={{ fontSize: '14px', color: '#111827', margin: 0, fontWeight: '600' }}>{f.val}</p>
                   </div>
                 ))}
@@ -391,7 +391,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
                       </div>
                       <div style={{ flex: 1 }}>
                         <p style={{ fontSize: '13px', fontWeight: asignado ? '700' : '500', color: asignado ? '#15803D' : '#374151', margin: '0 0 1px' }}>{doc.nombre}</p>
-                        {doc.descripcion && <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>{doc.descripcion}</p>}
+                        {doc.descripcion && <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>{doc.descripcion}</p>}
                       </div>
                     </div>
                   )
@@ -420,7 +420,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
       {financieras.length === 0 && !showNueva && (
         <div style={{ padding: '32px', textAlign: 'center' as const, background: '#F8FAFC', border: '1px dashed #D1D5DB', borderRadius: '10px' }}>
           <p style={{ fontSize: '22px', margin: '0 0 8px' }}>🏦</p>
-          <p style={{ fontSize: '13px', color: '#9CA3AF', margin: 0 }}>Agrega tu primera financiera con el botón de arriba</p>
+          <p style={{ fontSize: '13px', color: '#94A3B8', margin: 0 }}>Agrega tu primera financiera con el botón de arriba</p>
         </div>
       )}
     </div>
@@ -506,13 +506,13 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
       <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', overflow: 'hidden' }}>
         <div style={{ padding: '12px 18px', background: '#F8FAFC', borderBottom: '1px solid #E5E7EB' }}>
           <p style={{ fontSize: '13px', color: '#4B5563', margin: 0 }}>{catInfo?.desc}</p>
-          <p style={{ fontSize: '11px', color: '#9CA3AF', margin: '3px 0 0' }}>
+          <p style={{ fontSize: '11px', color: '#94A3B8', margin: '3px 0 0' }}>
             {items.filter((i: any) => i.activo).length} activas · {items.filter((i: any) => !i.activo).length} inactivas
           </p>
         </div>
         {items.length === 0 ? (
           <div style={{ padding: '32px', textAlign: 'center' as const }}>
-            <p style={{ fontSize: '14px', color: '#9CA3AF', margin: 0 }}>Aún no hay opciones — agrega la primera abajo</p>
+            <p style={{ fontSize: '14px', color: '#94A3B8', margin: 0 }}>Aún no hay opciones — agrega la primera abajo</p>
           </div>
         ) : items.map((item: any) => (
           <div key={item.id} style={{ borderBottom: '1px solid #F3F4F6', background: item.activo ? 'white' : '#F9FAFB' }}>
@@ -533,7 +533,7 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
                 <div style={{ flex: 1 }}>
                   <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827', margin: '0 0 2px' }}>{item.etiqueta}</p>
                   <div style={{ display: 'flex', gap: '6px' }}>
-                    {!item.activo && <span style={{ fontSize: '11px', color: '#9CA3AF', background: '#F3F4F6', padding: '1px 6px', borderRadius: '4px' }}>Inactiva</span>}
+                    {!item.activo && <span style={{ fontSize: '11px', color: '#94A3B8', background: '#F3F4F6', padding: '1px 6px', borderRadius: '4px' }}>Inactiva</span>}
                     {item.genera_evento && <span style={{ fontSize: '11px', color: AZUL, background: '#EEF2F8', padding: '1px 6px', borderRadius: '4px' }}>📅 Genera evento</span>}
                   </div>
                 </div>
@@ -556,7 +556,7 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
 
           {/* Selector de emojis */}
           <div style={{ marginBottom: '10px' }}>
-            <p style={{ fontSize: '11px', color: '#6B7280', margin: '0 0 6px' }}>Elige un emoji:</p>
+            <p style={{ fontSize: '11px', color: '#64748B', margin: '0 0 6px' }}>Elige un emoji:</p>
             <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '4px', background: 'white', padding: '8px', borderRadius: '8px', border: '1px solid #E5E7EB' }}>
               {(catActiva === 'tipo_contacto'
                 ? ['📞','📱','💬','📧','🤝','🏠','🏢','📝','💻','📹','🎙️','📠']
@@ -957,7 +957,7 @@ export default function ConfiguracionPage() {
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               {saveError && <p style={{ fontSize: '12px', color: '#ef4444', margin: 0, fontWeight: '600' }}>⚠️ {saveError}</p>}
               {!saveError && saved && <p style={{ fontSize: '12px', color: VERDE, margin: 0, fontWeight: '600' }}>✓ Guardado</p>}
-              {!saveError && !saved && saving && <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>⏳ Guardando...</p>}
+              {!saveError && !saved && saving && <p style={{ fontSize: '12px', color: '#64748B', margin: 0 }}>⏳ Guardando...</p>}
               {(tabActiva === 'perfil' || tabActiva === 'sistema') && (
                 <button onClick={guardar} disabled={saving}
                   style={{ padding: '9px 20px', background: saving ? '#94a3b8' : VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
@@ -965,7 +965,7 @@ export default function ConfiguracionPage() {
                 </button>
               )}
               {(tabActiva === 'financieras' || tabActiva === 'catalogos') && (
-                <span style={{ fontSize: '12px', color: '#9CA3AF', fontStyle: 'italic' }}>
+                <span style={{ fontSize: '12px', color: '#94A3B8', fontStyle: 'italic' }}>
                   Usa el botón Guardar dentro de cada sección
                 </span>
               )}
@@ -1045,7 +1045,7 @@ export default function ConfiguracionPage() {
               <input value={perfil.razon_social} onChange={e => set('razon_social', e.target.value)} placeholder="Ej. Asesoría Pensional López S.C." style={inputSt()} />
               {(perfil as any).org_nombre && (
                 <div style={{ marginTop: '8px', padding: '6px 10px', background: '#EEF2F8', border: '1px solid #BFDBFE', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ fontSize: '11px', color: '#6B7280' }}>Organización:</span>
+                  <span style={{ fontSize: '11px', color: '#64748B' }}>Organización:</span>
                   <span style={{ fontSize: '12px', fontWeight: '700' as const, color: AZUL }}>{(perfil as any).org_nombre}</span>
                 </div>
               )}
@@ -1073,7 +1073,7 @@ export default function ConfiguracionPage() {
           {/* Separador visual */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '8px 0' }}>
             <div style={{ flex: 1, height: '1px', background: '#E5E7EB' }} />
-            <span style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Seguridad</span>
+            <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Seguridad</span>
             <div style={{ flex: 1, height: '1px', background: '#E5E7EB' }} />
           </div>
 
@@ -1082,7 +1082,7 @@ export default function ConfiguracionPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 2px' }}>🔒 Contraseña de acceso</p>
-                <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>Cambia tu contraseña de acceso al sistema</p>
+                <p style={{ fontSize: '12px', color: '#64748B', margin: 0 }}>Cambia tu contraseña de acceso al sistema</p>
               </div>
               <button onClick={() => { setShowCambiarPassword(!showCambiarPassword); setMsgPassword('') }}
                 style={{ padding: '8px 16px', background: showCambiarPassword ? 'white' : 'white', color: '#374151', border: '1px solid #D1D5DB', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
@@ -1093,7 +1093,7 @@ export default function ConfiguracionPage() {
               <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                    <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280' }}>Nueva contraseña</label>
+                    <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#64748B' }}>Nueva contraseña</label>
                     <button type="button" onClick={() => {
                       const chars = 'abcdefghijkmnpqrstuvwxyz', upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ', nums = '23456789', syms = '!@#$%&*'
                       const pwd = (upper[Math.floor(Math.random()*upper.length)] + chars[Math.floor(Math.random()*chars.length)] + chars[Math.floor(Math.random()*chars.length)] + nums[Math.floor(Math.random()*nums.length)] + nums[Math.floor(Math.random()*nums.length)] + syms[Math.floor(Math.random()*syms.length)] + upper[Math.floor(Math.random()*upper.length)] + chars[Math.floor(Math.random()*chars.length)] + nums[Math.floor(Math.random()*nums.length)] + syms[Math.floor(Math.random()*syms.length)]).split('').sort(() => Math.random() - 0.5).join('')
@@ -1105,12 +1105,12 @@ export default function ConfiguracionPage() {
                     style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '6px', fontWeight: '600' }} />
                 </div>
                 <div>
-                  <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Confirmar contraseña</label>
+                  <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#64748B', display: 'block', marginBottom: '4px' }}>Confirmar contraseña</label>
                   <input type="password" value={confirmarPassword} onChange={e => setConfirmarPassword(e.target.value)}
                     placeholder="Repite la contraseña"
                     style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '6px' }} />
                 </div>
-                <div style={{ background: '#F8FAFC', borderRadius: '6px', padding: '10px 12px', fontSize: '11px', color: '#6B7280', lineHeight: 1.6 }}>
+                <div style={{ background: '#F8FAFC', borderRadius: '6px', padding: '10px 12px', fontSize: '11px', color: '#64748B', lineHeight: 1.6 }}>
                   <strong style={{ color: '#374151' }}>Criterios de seguridad:</strong>{' '}
                   {[
                     { label: '10+ caracteres', ok: nuevaPassword.length >= 10 },
