@@ -988,10 +988,8 @@ function MiDiaInner() {
           </div>
         </div>
 
-      </div>
-
-      {/* Fila: Clientes estancados + Valor del pipeline */
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+      {/* Fila: Clientes estancados + Valor del pipeline */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', padding: '0 16px 16px' }}>
 
           {/* Clientes estancados */}
           <div style={{ background: '#FFFFFF', border: `1px solid ${clientesEstancados > 0 ? '#FCA5A5' : '#E5E7EB'}`, borderRadius: '10px', padding: '14px' }}>
