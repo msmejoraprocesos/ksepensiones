@@ -337,8 +337,8 @@ function MiDiaInner() {
   // contenidoExpandido opcional — si no se pasa, usa el mismo contenido ampliado
   const MODAL_H = '380px' // altura estándar de todas las gráficas en modal
   const chartCard = (titulo: string, sub: string | undefined, contenidoCompacto: React.ReactNode, contenidoExpandido?: React.ReactNode) => (
-    <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '12px 14px', display: 'flex', flexDirection: 'column' as const }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
+    <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '12px 14px', display: 'flex', flexDirection: 'column' as const, height: '100%' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px', flexShrink: 0 }}>
         <div>
           <p style={{ fontSize: '12px', fontWeight: '700' as const, color: '#111827', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>{titulo}</p>
           {sub && <p style={{ fontSize: '10px', color: '#94A3B8', margin: '2px 0 0' }}>{sub}</p>}
@@ -349,7 +349,7 @@ function MiDiaInner() {
           ⛶
         </button>
       </div>
-      <div style={{ flex: 1, overflow: 'hidden' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, minHeight: 0 }}>
         {contenidoCompacto}
       </div>
     </div>
@@ -565,8 +565,8 @@ function MiDiaInner() {
                   const stepX = (W - padL - padR) / 11
                   const yFor = (v: number) => H - (max > 0 ? (v / max) * (H - 20) : 0) + 10
                   return (
-                    <div style={{ display: 'flex', flexDirection: 'column' as const }}>
-                      <svg viewBox={`0 0 ${W} ${H + 16}`} style={{ width: '100%', height: 'auto' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' as const, height: '100%', flex: 1 }}>
+                      <svg viewBox={`0 0 ${W} ${H + 16}`} style={{ width: '100%', flex: 1 }}>
                         {series.map((serie, si) => {
                           const puntos = serie.map((m, i) => ({ x: padL + i * stepX, y: yFor(m.total), ...m }))
                           const pathLinea = puntos.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
@@ -606,7 +606,7 @@ function MiDiaInner() {
                   const counts = etapas.map(e => ({ ...e, n: clientesFiltrados.filter(c => (c.etapa_kanban || 'prospecto') === e.id).length }))
                   const max = Math.max(...counts.map(c => c.n), 1)
                   return (
-                    <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '5px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '5px', height: '100%', justifyContent: 'space-evenly' }}>
                       {counts.map((c, i) => (
                         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <span style={{ fontSize: '10px', color: '#64748B', width: '72px', flexShrink: 0 }}>{c.label}</span>
@@ -642,7 +642,7 @@ function MiDiaInner() {
                     return { ...it, pct, dash: pct * CIRC, offset: -startAcc * CIRC }
                   })
                   return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', height: '100%' }}>
                       <svg style={{ width: '60px', height: '60px', flexShrink: 0 }} viewBox="0 0 100 100">
                         <circle cx="50" cy="50" r={R} fill="none" stroke="#F3F4F6" strokeWidth="20" />
                         {segmentos.map((it, i) => (
@@ -666,7 +666,7 @@ function MiDiaInner() {
                   )
               })())}
               {chartCard('📐 Rangos de Pensión', 'Distribución', (
-                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '4px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '4px', height: '100%', justifyContent: 'space-evenly' }}>
                   {rangos.map((r, i) => {
                     const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
                     const pct = diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0
