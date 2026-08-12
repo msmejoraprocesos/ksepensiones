@@ -27,6 +27,7 @@ function MiDiaInner() {
   const [pgErrorMsg, setPgErrorMsg] = useState<string | null>(null)
   const [diagnosticos, setDiagnosticos] = useState<any[]>([])
   const [chartModal, setChartModal] = useState<{ titulo: string; sub?: string; contenido: React.ReactNode } | null>(null)
+  const [actividades, setActividades] = useState<any[]>([])
   const [financieras, setFinancieras] = useState<any[]>([])
   const [solicitudes, setSolicitudes] = useState<any[]>([])
   const [costoIA, setCostoIA] = useState(0)
