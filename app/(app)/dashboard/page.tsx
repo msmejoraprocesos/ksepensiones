@@ -635,7 +635,7 @@ function MiDiaInner() {
                         <div key={i}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
                             <span style={{ fontSize: '14px', fontWeight: '600', color: '#374151', width: '100px', flexShrink: 0 }}>{c.label}</span>
-                            <div style={{ flex: 1, background: '#F4F6F9', height: '28px', borderRadius: '6px', overflow: 'hidden' }}>
+                            <div style={{ flex: 1, background: '#F4F6F9', height: '90px', borderRadius: '6px', overflow: 'hidden' }}>
                               <div style={{ width: `${(c.n / max) * 100}%`, height: '100%', background: c.color, minWidth: c.n > 0 ? '4px' : 0, borderRadius: '6px', display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
                                 {c.n > 0 && <span style={{ fontSize: '12px', fontWeight: '700', color: 'white' }}>{c.n}</span>}
                               </div>
@@ -696,21 +696,16 @@ function MiDiaInner() {
                     </div>
                   )
                   const expandido = (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '40px', height: '100%' }}>
-                      <div style={{ flex: '0 0 300px', display: 'flex', justifyContent: 'center' }}>{donutSVG(300, 7)}</div>
-                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, gap: '16px', justifyContent: 'center' }}>
-                        <p style={{ fontSize: '12px', color: '#94A3B8', margin: '0 0 4px', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' }}>Total: {fmtMXN(total)}</p>
+                    <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '24px', height: '100%', justifyContent: 'center', padding: '10px 0' }}>
+                      <div style={{ flex: '0 0 450px', display: 'flex', justifyContent: 'center' }}>{donutSVG(450, 7)}</div>
+                      <div style={{ display: 'flex', gap: '32px', justifyContent: 'center', flexWrap: 'wrap' as const }}>
+                        <p style={{ fontSize: '13px', color: '#94A3B8', margin: '0', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600', width: '100%', textAlign: 'center' as const }}>Total: {fmtMXN(total)}</p>
                         {items.filter(it => it.value > 0).map((it, i) => (
-                          <div key={i}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '5px' }}>
-                              <span style={{ width: '12px', height: '12px', background: it.color, borderRadius: '50%', flexShrink: 0 }} />
-                              <span style={{ fontSize: '14px', color: '#374151', flex: 1, fontWeight: '500' }}>{it.label}</span>
-                              <span style={{ fontSize: '15px', fontWeight: '700', color: '#1E293B' }}>{fmtMXN(it.value)}</span>
-                              <span style={{ fontSize: '13px', color: '#94A3B8', minWidth: '36px', textAlign: 'right' as const }}>{total > 0 ? `${Math.round(it.value/total*100)}%` : '0%'}</span>
-                            </div>
-                            <div style={{ height: '6px', background: '#F3F4F6', borderRadius: '3px', overflow: 'hidden' }}>
-                              <div style={{ height: '100%', width: `${total > 0 ? (it.value/total*100) : 0}%`, background: it.color, borderRadius: '3px' }} />
-                            </div>
+                          <div key={i} style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '6px' }}>
+                            <span style={{ width: '14px', height: '14px', background: it.color, borderRadius: '50%', flexShrink: 0 }} />
+                            <span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>{it.label}</span>
+                            <span style={{ fontSize: '16px', fontWeight: '700', color: '#1E293B' }}>{fmtMXN(it.value)}</span>
+                            <span style={{ fontSize: '13px', color: '#94A3B8' }}>{total > 0 ? `${Math.round(it.value/total*100)}%` : '0%'}</span>
                           </div>
                         ))}
                       </div>
@@ -823,7 +818,7 @@ function MiDiaInner() {
                     return (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <span style={{ fontSize: '14px', color: '#374151', fontWeight: '500', width: '120px', flexShrink: 0 }}>{r.label}</span>
-                        <div style={{ flex: 1, height: '36px', background: '#F3F4F6', borderRadius: '8px', overflow: 'hidden' }}>
+                        <div style={{ flex: 1, height: '120px', background: '#F3F4F6', borderRadius: '8px', overflow: 'hidden' }}>
                           <div style={{ height: '100%', width: `${pct}%`, background: r.color, minWidth: count > 0 ? '6px' : 0, borderRadius: '8px', display: 'flex', alignItems: 'center', paddingLeft: '12px' }}>
                             {pct > 12 && <span style={{ fontSize: '13px', fontWeight: '700', color: 'white' }}>{Math.round(pct)}%</span>}
                           </div>
