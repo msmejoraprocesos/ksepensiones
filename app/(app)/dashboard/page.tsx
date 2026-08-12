@@ -547,8 +547,8 @@ function MiDiaInner() {
               ].map((k: any, i) => kpi(k.label, k.value, k.sub, k.color, k.filled, k.delta))}
             </div>
 
-            {/* Fila 2: Tendencias | Embudo | Ventas */}
-            <div className="db-charts" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', alignItems: 'stretch' }}>
+            {/* Fila 2: Tendencias | Embudo | Ventas | Rangos de Pensión */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px', alignItems: 'stretch' }}>
 
               {/* Tendencias de ingresos */}
               {chartCard('📈 Tendencias de ingresos', 'Comparativo por año', (() => {
@@ -561,7 +561,7 @@ function MiDiaInner() {
                     total: pagos.filter(p => { const f = new Date(p.fecha_pago); return f.getFullYear() === anio && f.getMonth() === mi }).reduce((s, p) => s + (Number(p.monto) || 0), 0)
                   })))
                   const max = Math.max(...series.flatMap(s => s.map(m => m.total)), 1)
-                  const W = 320, H = 120, padL = 16, padR = 10
+                  const W = 213, H = 80, padL = 12, padR = 8
                   const stepX = (W - padL - padR) / 11
                   const yFor = (v: number) => H - (max > 0 ? (v / max) * (H - 20) : 0) + 10
                   return (
@@ -643,7 +643,7 @@ function MiDiaInner() {
                   })
                   return (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <svg style={{ width: '90px', height: '90px', flexShrink: 0 }} viewBox="0 0 100 100">
+                      <svg style={{ width: '60px', height: '60px', flexShrink: 0 }} viewBox="0 0 100 100">
                         <circle cx="50" cy="50" r={R} fill="none" stroke="#F3F4F6" strokeWidth="20" />
                         {segmentos.map((it, i) => (
                           <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="20"
@@ -665,9 +665,42 @@ function MiDiaInner() {
                     </div>
                   )
               })())}
-            </div>
-
-            {/* Fila 3: KPIs */}
+              {chartCard('📐 Rangos de Pensión', 'Distribución', (
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '4px' }}>
+                  {rangos.map((r, i) => {
+                    const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
+                    const pct = diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0
+                    return (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '9px', color: '#64748B', width: '52px', flexShrink: 0, lineHeight: 1.2 }}>{r.label}</span>
+                        <div style={{ flex: 1, height: '10px', background: '#F3F4F6', borderRadius: '2px', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: `${pct}%`, background: r.color, minWidth: count > 0 ? '3px' : 0, borderRadius: '2px' }} />
+                        </div>
+                        <span style={{ fontSize: '10px', fontWeight: '700', color: '#374151', minWidth: '14px', textAlign: 'right' as const }}>{count}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              ), (
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
+                  {rangos.map((r, i) => {
+                    const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
+                    const pct = diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0
+                    return (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span style={{ fontSize: '13px', color: '#374151', fontWeight: '500', width: '100px', flexShrink: 0 }}>{r.label}</span>
+                        <div style={{ flex: 1, height: '28px', background: '#F3F4F6', borderRadius: '6px', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: `${pct}%`, background: r.color, minWidth: count > 0 ? '6px' : 0, borderRadius: '6px', display: 'flex', alignItems: 'center', paddingLeft: '8px' }}>
+                            {pct > 15 && <span style={{ fontSize: '11px', fontWeight: '700', color: 'white' }}>{Math.round(pct)}%</span>}
+                          </div>
+                        </div>
+                        <span style={{ fontSize: '15px', fontWeight: '700', color: '#1E293B', minWidth: '28px', textAlign: 'right' as const }}>{count}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              ))}
+            </div>{/* fin Fila 2 */}
             <div className="db-kpis" style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '8px' }}>
               {[
                 { label: '$ Servicio promedio', value: fmtMXN(ticketPromedio), color: AZUL },
@@ -682,8 +715,8 @@ function MiDiaInner() {
               ].map((k, i) => kpi(k.label, k.value, undefined, k.color))}
             </div>
 
-            {/* Fila 4: Servicios activos | Rangos de Pensión */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', alignItems: 'start' }}>
+            {/* Fila 4: Servicios activos */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px', alignItems: 'start' }}>
 
               {chartCard('📦 Servicios activos', 'Por tipo de servicio y etapa', (() => {
                   const SERVICIOS = [
@@ -799,41 +832,6 @@ function MiDiaInner() {
                   )
               })())}
 
-              {chartCard('📐 Rangos de Pensión', 'Distribución de diagnósticos', (
-                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '5px' }}>
-                  {rangos.map((r, i) => {
-                    const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
-                    const pct = diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0
-                    return (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '10px', color: '#64748B', width: '70px', flexShrink: 0 }}>{r.label}</span>
-                        <div style={{ flex: 1, height: '14px', background: '#F3F4F6', borderRadius: '3px', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: `${pct}%`, background: r.color, minWidth: count > 0 ? '4px' : 0, borderRadius: '3px' }} />
-                        </div>
-                        <span style={{ fontSize: '11px', fontWeight: '700', color: '#374151', minWidth: '18px', textAlign: 'right' as const }}>{count}</span>
-                      </div>
-                    )
-                  })}
-                </div>
-              ), (
-                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
-                  {rangos.map((r, i) => {
-                    const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
-                    const pct = diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0
-                    return (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <span style={{ fontSize: '13px', color: '#374151', fontWeight: '500', width: '100px', flexShrink: 0 }}>{r.label}</span>
-                        <div style={{ flex: 1, height: '28px', background: '#F3F4F6', borderRadius: '6px', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: `${pct}%`, background: r.color, minWidth: count > 0 ? '6px' : 0, borderRadius: '6px', display: 'flex', alignItems: 'center', paddingLeft: '8px' }}>
-                            {pct > 15 && <span style={{ fontSize: '11px', fontWeight: '700', color: 'white' }}>{Math.round(pct)}%</span>}
-                          </div>
-                        </div>
-                        <span style={{ fontSize: '15px', fontWeight: '700', color: '#1E293B', minWidth: '28px', textAlign: 'right' as const }}>{count}</span>
-                      </div>
-                    )
-                  })}
-                </div>
-              ))}
             </div>{/* fin Fila 4 */}
           </div>
 
