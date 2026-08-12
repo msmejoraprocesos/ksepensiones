@@ -4,9 +4,9 @@ import { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 
-const AZUL = '#1B3A6B'
+const AZUL = '#334E7B'
 const VERDE = '#2E8B57'
-const NARANJA = '#F05B21'
+const NARANJA = '#E8724A'
 
 interface Perfil {
   nombre: string
@@ -51,7 +51,7 @@ const DEFAULTS: Perfil = {
   mod40_2029: 17.709, mod40_2030: 18.800,
   tasa_m10: 10.075, pct_actualizacion_inpc: 7.27, pct_recargos_retroactivo: 41.80,
   uma_actualizada_en: null, sm_actualizado_en: null, pmg_actualizado_en: null,
-  encabezado_color: '#1B3A6B', encabezado_titulo: 'Diagnóstico Pensional',
+  encabezado_color: '#334E7B', encabezado_titulo: 'Diagnóstico Pensional',
   encabezado_logo_size: 28, encabezado_font_size: 13,
 }
 
@@ -97,7 +97,7 @@ function formatRFC(val: string): string {
 // Componente: Financieras y Elegibilidad
 // ══════════════════════════════════════════════════════════════════
 function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabase: any }) {
-  const AZUL = '#1B3A6B', NARANJA = '#F05B21', VERDE = '#16A34A'
+  const AZUL = '#334E7B', NARANJA = '#E8724A', VERDE = '#16A34A'
   const [financieras, setFinancieras] = useState<any[]>([])
   const [catalogo, setCatalogo] = useState<any[]>([])
   const [asignaciones, setAsignaciones] = useState<Record<string, string[]>>({})
@@ -365,7 +365,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
                 <p style={{ fontSize: '13px', fontWeight: '700', color: AZUL, margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
                   📄 Documentos requeridos
                 </p>
-                <span style={{ fontSize: '12px', color: docsLocal.length === 0 ? '#DC2626' : '#6B7280', background: docsLocal.length === 0 ? '#FEF2F2' : '#F4F6FB', padding: '3px 10px', borderRadius: '6px', fontWeight: docsLocal.length === 0 ? '700' : '400' }}>
+                <span style={{ fontSize: '12px', color: docsLocal.length === 0 ? '#DC2626' : '#6B7280', background: docsLocal.length === 0 ? '#FEF2F2' : '#F4F6F9', padding: '3px 10px', borderRadius: '6px', fontWeight: docsLocal.length === 0 ? '700' : '400' }}>
                   {docsLocal.length === 0 ? '⚠️ Selecciona al menos 1' : `${docsLocal.length} de ${docsActivos.length} seleccionados`}
                   {docsModificado && docsLocal.length > 0 && <span style={{ color: NARANJA, marginLeft: '6px' }}>● sin guardar</span>}
                 </span>
@@ -435,7 +435,7 @@ const CATEGORIAS = [
 ]
 
 function CatalogosActividad({ userId, supabase }: { userId: string; supabase: any }) {
-  const AZUL = '#1B3A6B', NARANJA = '#F05B21', VERDE = '#16A34A'
+  const AZUL = '#334E7B', NARANJA = '#E8724A', VERDE = '#16A34A'
   const [catalogos, setCatalogos] = useState<Record<string, any[]>>({})
   const [catActiva, setCatActiva] = useState('tipo_contacto')
   const [nuevaEtiqueta, setNuevaEtiqueta] = useState('')
@@ -539,7 +539,7 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
                 </div>
                 <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
                   <button onClick={() => { setEditando(item.id); setEditValor(item.etiqueta) }}
-                    style={{ padding: '6px 12px', background: '#F4F6FB', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>✏️ Editar</button>
+                    style={{ padding: '6px 12px', background: '#F4F6F9', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>✏️ Editar</button>
                   <button onClick={() => toggleActivo(item.id, item.activo)}
                     style={{ padding: '6px 12px', background: item.activo ? '#FFFBEB' : '#F0FDF4', color: item.activo ? '#D97706' : VERDE, border: `1px solid ${item.activo ? '#FDE68A' : '#86EFAC'}`, fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
                     {item.activo ? '⏸ Inactivar' : '▶ Activar'}
@@ -573,7 +573,7 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
           </div>
 
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <div style={{ width: '42px', height: '42px', background: '#F4F6FB', border: '1.5px solid #D1D5DB', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>
+            <div style={{ width: '42px', height: '42px', background: '#F4F6F9', border: '1.5px solid #D1D5DB', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>
               {nuevoIcono || ICONOS_DEFAULT[catActiva] || '•'}
             </div>
             <input value={nuevaEtiqueta} onChange={e => setNuevaEtiqueta(e.target.value)}
@@ -1098,7 +1098,7 @@ export default function ConfiguracionPage() {
                       const chars = 'abcdefghijkmnpqrstuvwxyz', upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ', nums = '23456789', syms = '!@#$%&*'
                       const pwd = (upper[Math.floor(Math.random()*upper.length)] + chars[Math.floor(Math.random()*chars.length)] + chars[Math.floor(Math.random()*chars.length)] + nums[Math.floor(Math.random()*nums.length)] + nums[Math.floor(Math.random()*nums.length)] + syms[Math.floor(Math.random()*syms.length)] + upper[Math.floor(Math.random()*upper.length)] + chars[Math.floor(Math.random()*chars.length)] + nums[Math.floor(Math.random()*nums.length)] + syms[Math.floor(Math.random()*syms.length)]).split('').sort(() => Math.random() - 0.5).join('')
                       setNuevaPassword(pwd); setConfirmarPassword(pwd)
-                    }} style={{ fontSize: '11px', color: '#F05B21', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontFamily: 'inherit' }}>🎲 Generar</button>
+                    }} style={{ fontSize: '11px', color: '#E8724A', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontFamily: 'inherit' }}>🎲 Generar</button>
                   </div>
                   <input type="text" value={nuevaPassword} onChange={e => setNuevaPassword(e.target.value)}
                     placeholder="Mínimo 10 caracteres"
@@ -1127,7 +1127,7 @@ export default function ConfiguracionPage() {
                   <p style={{ fontSize: '12px', color: msgPassword.startsWith('✅') ? '#065F46' : '#DC2626', margin: 0, fontWeight: '600' }}>{msgPassword}</p>
                 )}
                 <button onClick={cambiarPassword} disabled={savingPassword || !nuevaPassword}
-                  style={{ padding: '10px', background: '#1B3A6B', color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', opacity: savingPassword || !nuevaPassword ? 0.6 : 1 }}>
+                  style={{ padding: '10px', background: '#334E7B', color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', opacity: savingPassword || !nuevaPassword ? 0.6 : 1 }}>
                   {savingPassword ? 'Actualizando...' : 'Actualizar contraseña'}
                 </button>
               </div>
@@ -1306,7 +1306,7 @@ export default function ConfiguracionPage() {
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <input type="color" value={perfil.encabezado_color} onChange={e => set('encabezado_color', e.target.value)}
                   style={{ width: '40px', height: '36px', border: '1px solid #e2e8f0', borderRadius: '6px', cursor: 'pointer', padding: '2px' }} />
-                <input value={perfil.encabezado_color} onChange={e => set('encabezado_color', e.target.value)} placeholder="#1B3A6B" style={inputSt()} />
+                <input value={perfil.encabezado_color} onChange={e => set('encabezado_color', e.target.value)} placeholder="#334E7B" style={inputSt()} />
               </div>
             </div>
             <div>
@@ -1348,7 +1348,7 @@ export default function ConfiguracionPage() {
               </div>
             </div>
             {/* Pie - NO editable */}
-            <div style={{ background: '#F4F6FB', padding: '7px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #e2e8f0' }}>
+            <div style={{ background: '#F4F6F9', padding: '7px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #e2e8f0' }}>
               <div style={{ fontSize: '10px', color: '#94a3b8' }}>Folio: KSE-2026-000001 · Documento confidencial</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <span style={{ fontSize: '10px', color: '#94a3b8' }}>Página 1 de 2 · Powered by</span>
@@ -1390,7 +1390,7 @@ export default function ConfiguracionPage() {
               </div>
             )}
             {materiales.length === 0 && materialesNuevos.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '24px', background: '#F4F6FB', borderRadius: '10px', color: '#94a3b8', fontSize: '13px' }}>
+              <div style={{ textAlign: 'center', padding: '24px', background: '#F4F6F9', borderRadius: '10px', color: '#94a3b8', fontSize: '13px' }}>
                 <div style={{ fontSize: '32px', marginBottom: '8px' }}>📄</div>
                 No hay materiales configurados.<br />
                 Agrega guías, videos o links que ayuden a tus clientes a entender el proceso.
@@ -1399,7 +1399,7 @@ export default function ConfiguracionPage() {
               <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '10px' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                   <thead>
-                    <tr style={{ background: '#F4F6FB' }}>
+                    <tr style={{ background: '#F4F6F9' }}>
                       {['ID', 'Nombre', 'Descripción', 'Adjunto', 'Fecha', ''].map((h, i) => (
                         <th key={i} style={{ padding: '8px 12px', textAlign: i === 0 ? 'center' : 'left', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.4px', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
                       ))}

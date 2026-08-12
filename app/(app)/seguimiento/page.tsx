@@ -484,7 +484,7 @@ export default function SeguimientoPage() {
                   </div>
 
                   {/* Estatus badge */}
-                  <div style={{ padding: '7px 12px', background: detalle.estatus === 'completado' ? '#f0fdf4' : '#F4F6FB', borderRadius: '8px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ padding: '7px 12px', background: detalle.estatus === 'completado' ? '#f0fdf4' : '#F4F6F9', borderRadius: '8px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{ fontSize: '16px' }}>{detalle.estatus === 'completado' ? '✅' : '⏳'}</span>
                     <span style={{ fontSize: '13px', fontWeight: '600', color: detalle.estatus === 'completado' ? VERDE : '#64748b' }}>
                       {detalle.estatus === 'completado' ? 'Completado' : 'Pendiente'}
@@ -497,7 +497,7 @@ export default function SeguimientoPage() {
                       {detalle.estatus === 'pendiente' ? '✅ Completar' : '🔄 Reabrir'}
                     </button>
                     <button onClick={() => { setDetalle(null) }}
-                      style={{ flex: 1, padding: '9px', background: '#F4F6FB', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                      style={{ flex: 1, padding: '9px', background: '#F4F6F9', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
                       ✕ Cerrar
                     </button>
                     <button onClick={() => eliminar(detalle.id)}

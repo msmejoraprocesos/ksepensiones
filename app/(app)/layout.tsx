@@ -7,8 +7,13 @@ import Link from 'next/link'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { SofiaChat } from '@/components/SofiaChat'
 
-const NARANJA = '#F05B21'
-const AZUL = '#1B3A6B'
+const NARANJA = '#E8724A'
+const AZUL = '#334E7B'
+const AZUL_DARK = '#1E3A5F'
+const VERDE = '#2E7D5A'
+const FONDO = '#F4F6F9'
+const BORDE = '#E2E8F0'
+const TEXTO2 = '#64748B'
 
 // Cache de perfil para evitar llamadas repetidas a Supabase en cada navegacion
 let _perfilCache: { nombre: string; razonSocial: string; logo: string | null; isAdmin: boolean; rol: string } | null = null
@@ -288,7 +293,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                         <p style={{ fontSize: '12px', fontWeight: '700', color: '#111827', margin: '0 0 1px' }}>{r.titulo}</p>
                         <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>{r.sub}</p>
                       </div>
-                      <span style={{ marginLeft: 'auto', fontSize: '10px', color: '#9CA3AF', background: '#F4F6FB', padding: '2px 6px', borderRadius: '4px' }}>{r.tipo}</span>
+                      <span style={{ marginLeft: 'auto', fontSize: '10px', color: '#9CA3AF', background: '#F4F6F9', padding: '2px 6px', borderRadius: '4px' }}>{r.tipo}</span>
                     </div>
                   ))
                 )}
@@ -354,7 +359,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div style={{ position: 'relative' }}>
           <button onClick={() => setShowUserMenu(p => !p)}
             style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '5px 10px', cursor: 'pointer' }}>
-            <div style={{ width: '24px', height: '24px', borderRadius: '6px', overflow: 'hidden', background: '#F4F6FB', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <div style={{ width: '24px', height: '24px', borderRadius: '6px', overflow: 'hidden', background: '#F4F6F9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               {asesorLogo
                 ? <img src={asesorLogo} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
                 : <span style={{ fontSize: '10px', fontWeight: '700', color: AZUL }}>{firstName.charAt(0).toUpperCase()}</span>

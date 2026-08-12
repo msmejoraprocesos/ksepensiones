@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 
-const AZUL = '#1B3A6B', NARANJA = '#F05B21', VERDE = '#2E8B57'
+const AZUL = '#334E7B', NARANJA = '#E8724A', VERDE = '#2E8B57'
 const fmtMXN  = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n || 0)
 const fmtMXN2 = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n || 0)
 const fmtFecha = (s: string | null) => { if (!s) return '—'; const [y,m,d] = s.split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) }
@@ -17,7 +17,7 @@ const ESTATUS_COLORS: Record<string, { bg: string; color: string; label: string 
 }
 
 function Badge({ estatus }: { estatus: string }) {
-  const c = ESTATUS_COLORS[estatus] ?? { bg: '#F4F6FB', color: '#6B7280', label: estatus }
+  const c = ESTATUS_COLORS[estatus] ?? { bg: '#F4F6F9', color: '#6B7280', label: estatus }
   return <span style={{ padding: '2px 8px', background: c.bg, color: c.color, fontSize: '11px', fontWeight: 700, border: `1px solid ${c.color}30` }}>{c.label}</span>
 }
 
@@ -28,7 +28,7 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
   clienteId: string; clienteNombre: string; instituciones: any[]; institucionId: string;
   institucionNombre: string; selFin: any; userId: string; supabase: any
 }) {
-  const AZUL = '#1B3A6B', NARANJA = '#F05B21', VERDE = '#2E8B57'
+  const AZUL = '#334E7B', NARANJA = '#E8724A', VERDE = '#2E8B57'
   const [docs, setDocs] = useState<any[]>([])
   const [catalogo, setCatalogo] = useState<any[]>([])
   const [docsRequeridos, setDocsRequeridos] = useState<any[]>([])
@@ -337,7 +337,7 @@ function FinanciamientoPage() {
   if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', color: '#9CA3AF' }}>Cargando...</div>
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F4F6FB' }}>
+    <div style={{ minHeight: '100vh', background: '#F4F6F9' }}>
       <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #E5E7EB', padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: '16px', fontWeight: '800', color: AZUL, margin: 0 }}>Financiamiento</h1>
@@ -345,7 +345,7 @@ function FinanciamientoPage() {
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>
           {(['lista', 'instituciones', 'corrida'] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)} style={{ padding: '6px 14px', background: tab === t ? AZUL : '#F4F6FB', color: tab === t ? 'white' : '#6B7280', border: `1px solid ${tab === t ? AZUL : '#E5E7EB'}`, fontSize: '12px', fontWeight: (tab === t ? '700' : '400'), cursor: 'pointer', fontFamily: 'inherit' }}>
+            <button key={t} onClick={() => setTab(t)} style={{ padding: '6px 14px', background: tab === t ? AZUL : '#F4F6F9', color: tab === t ? 'white' : '#6B7280', border: `1px solid ${tab === t ? AZUL : '#E5E7EB'}`, fontSize: '12px', fontWeight: (tab === t ? '700' : '400'), cursor: 'pointer', fontFamily: 'inherit' }}>
               {t === 'lista' ? '📋 Financiamientos' : t === 'instituciones' ? '🏦 Instituciones' : '🧮 Corrida'}
             </button>
           ))}
@@ -596,7 +596,7 @@ function FinanciamientoPage() {
               </div>
               <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                  <thead><tr style={{ background: '#1B3A6B' }}>{['#', 'Cuota', 'Interés', 'Capital', 'Saldo'].map((h, i) => <th key={i} style={{ padding: '8px 12px', color: 'white', fontWeight: '700', textAlign: (i === 0 ? 'left' : 'right') }}>{h}</th>)}</tr></thead>
+                  <thead><tr style={{ background: '#334E7B' }}>{['#', 'Cuota', 'Interés', 'Capital', 'Saldo'].map((h, i) => <th key={i} style={{ padding: '8px 12px', color: 'white', fontWeight: '700', textAlign: (i === 0 ? 'left' : 'right') }}>{h}</th>)}</tr></thead>
                   <tbody>
                     {tablaCorr.map((r, i) => (
                       <tr key={i} style={{ borderBottom: '1px solid #F3F4F6', background: i % 2 === 0 ? 'white' : '#FAFAFA' }}>

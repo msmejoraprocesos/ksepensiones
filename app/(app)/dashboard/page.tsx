@@ -4,9 +4,9 @@ import { useEffect, useState, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 
-const AZUL = '#1B3A6B'
+const AZUL = '#334E7B'
 const VERDE = '#2E8B57'
-const NARANJA = '#F05B21'
+const NARANJA = '#E8724A'
 
 const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n || 0)
 const fmtPct = (n: number) => `${Math.round(n || 0)}%`
@@ -334,7 +334,7 @@ function MiDiaInner() {
 
   const kpi = (label: string, value: string, sub?: string, color = '#374151', filled = false, delta?: number | null) => {
     const tintMap: Record<string, string> = {
-      '#1B3A6B': '#EEF2F8', '#1D4ED8': '#EFF6FF', '#0891B2': '#ECFEFF',
+      '#334E7B': '#EEF2F8', '#1D4ED8': '#EFF6FF', '#0891B2': '#ECFEFF',
       '#F59E0B': '#FFFBEB', '#16A34A': '#F0FDF4', '#DC2626': '#FEF2F2',
       [VERDE]: '#F0FDF4', [AZUL]: '#EEF2F8', [NARANJA]: '#FFF7ED',
     }
@@ -372,7 +372,7 @@ function MiDiaInner() {
   )
 
   return (
-    <div style={{ height: 'calc(100vh - 48px)', overflow: 'auto', background: '#F4F6FB' }}>
+    <div style={{ height: 'calc(100vh - 48px)', overflow: 'auto', background: '#F4F6F9' }}>
 
       {/* ── Header de bienvenida ── */}
       <div style={{ background: AZUL, padding: '14px 20px' }}>
@@ -422,11 +422,11 @@ function MiDiaInner() {
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
           {/* Botón persistente para reabrir la guía, siempre disponible */}
           <button onClick={() => setShowOnboarding(true)} title="Ver guía de primeros pasos"
-            style={{ width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F4F6FB', border: '1px solid #E5E7EB', borderRadius: '50%', cursor: 'pointer', fontSize: '13px', color: AZUL, flexShrink: 0 }}>
+            style={{ width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F4F6F9', border: '1px solid #E5E7EB', borderRadius: '50%', cursor: 'pointer', fontSize: '13px', color: AZUL, flexShrink: 0 }}>
             ❓
           </button>
           {/* Filtro período */}
-          <div style={{ display: 'flex', gap: '2px', background: '#F4F6FB', border: '1px solid #E5E7EB', padding: '3px' }}>
+          <div style={{ display: 'flex', gap: '2px', background: '#F4F6F9', border: '1px solid #E5E7EB', padding: '3px' }}>
             {(['mes','trimestre','año'] as const).map(p => (
               <button key={p} onClick={() => setFiltroPeriodo(p)}
                 style={{ padding: '5px 11px', border: 'none', borderLeft: filtroPeriodo === p ? `2px solid ${NARANJA}` : '2px solid transparent', background: filtroPeriodo === p ? 'white' : 'transparent', color: filtroPeriodo === p ? NARANJA : '#6B7280', fontSize: '11px', fontWeight: filtroPeriodo === p ? '700' as const : '400' as const, cursor: 'pointer', boxShadow: filtroPeriodo === p ? '0 1px 2px rgba(0,0,0,0.08)' : 'none' }}>
@@ -435,7 +435,7 @@ function MiDiaInner() {
             ))}
           </div>
           {/* Filtro tipo */}
-          <div style={{ display: 'flex', gap: '2px', background: '#F4F6FB', border: '1px solid #E5E7EB', padding: '3px' }}>
+          <div style={{ display: 'flex', gap: '2px', background: '#F4F6F9', border: '1px solid #E5E7EB', padding: '3px' }}>
             {([['todos','Todos'],['mod10','Mod 10'],['mod40','Mod 40'],['combo','Combo']] as const).map(([val, label]) => (
               <button key={val} onClick={() => setFiltroTipo(val)}
                 style={{ padding: '5px 11px', border: 'none', borderLeft: filtroTipo === val ? `2px solid ${AZUL}` : '2px solid transparent', background: filtroTipo === val ? 'white' : 'transparent', color: filtroTipo === val ? AZUL : '#6B7280', fontSize: '11px', fontWeight: filtroTipo === val ? '700' as const : '400' as const, cursor: 'pointer', boxShadow: filtroTipo === val ? '0 1px 2px rgba(0,0,0,0.08)' : 'none' }}>
@@ -573,7 +573,7 @@ function MiDiaInner() {
                       {counts.map((c, i) => (
                         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <span style={{ fontSize: '11px', color: '#6B7280', width: '70px', flexShrink: 0 }}>{c.label}</span>
-                          <div style={{ flex: 1, background: '#F4F6FB', height: '18px', position: 'relative' as const }}>
+                          <div style={{ flex: 1, background: '#F4F6F9', height: '18px', position: 'relative' as const }}>
                             <div style={{ width: `${(c.n / max) * 100}%`, height: '100%', background: c.color, minWidth: c.n > 0 ? '4px' : 0 }} />
                           </div>
                           <span style={{ fontSize: '12px', fontWeight: '700', color: '#374151', width: '18px', textAlign: 'right' as const, flexShrink: 0 }}>{c.n}</span>
@@ -943,7 +943,7 @@ function MiDiaInner() {
                 </p>
                 <div style={{ marginTop: '8px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                   {Object.entries(probPorEtapa).filter(([k]) => !['cierre_exitoso', 'cancelado'].includes(k)).map(([etapa, prob]) => (
-                    <span key={etapa} style={{ fontSize: '9px', padding: '2px 6px', background: '#F4F6FB', color: '#6B7280', borderRadius: '4px' }}>
+                    <span key={etapa} style={{ fontSize: '9px', padding: '2px 6px', background: '#F4F6F9', color: '#6B7280', borderRadius: '4px' }}>
                       {etapa.replace('_', ' ')}: {Math.round(prob * 100)}%
                     </span>
                   ))}

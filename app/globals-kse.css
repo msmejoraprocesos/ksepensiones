@@ -1,0 +1,21 @@
+/* KSE Design System v2 — Paleta B tenue */
+:root {
+  --kse-azul:       #334E7B;
+  --kse-azul-dark:  #1E3A5F;
+  --kse-azul-light: #EEF2F8;
+  --kse-naranja:    #E8724A;
+  --kse-naranja-bg: #FDF0EB;
+  --kse-verde:      #2E7D5A;
+  --kse-verde-bg:   #F0F7F4;
+  --kse-rojo:       #C0392B;
+  --kse-rojo-bg:    #FEF2F2;
+  --kse-fondo:      #F4F6F9;
+  --kse-card:       #FFFFFF;
+  --kse-borde:      #E2E8F0;
+  --kse-texto:      #1E293B;
+  --kse-texto2:     #64748B;
+  --kse-texto3:     #94A3B8;
+  --kse-sombra:     0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --kse-sombra-md:  0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.04);
+  --kse-radio:      10px;
+}

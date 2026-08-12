@@ -6,27 +6,33 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { pdf } from '@react-pdf/renderer'
 import { DiagnosticoPDF } from '@/app/utils/DiagnosticoPDF'
 
-const AZUL = '#1B3A6B'
-const VERDE = '#2E8B57'
-const NARANJA = '#F05B21'
+const AZUL = '#334E7B'
+const AZUL_DARK = '#1E3A5F'
+const VERDE = '#2E7D5A'
+const NARANJA = '#E8724A'
+const ROJO = '#C0392B'
+const FONDO = '#F4F6F9'
+const BORDE = '#E2E8F0'
+const TEXTO = '#1E293B'
+const TEXTO2 = '#64748B'
 const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n || 0)
 const fmtMXN2 = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n || 0)
 
 // ── Design System ──────────────────────────────────────────────────
 const DS = {
   txt: { xs: '10px', sm: '11px', base: '12px', md: '13px', lg: '14px', xl: '16px', h: '18px' },
-  col: { azul: '#1B3A6B', verde: '#2E8B57', naranja: '#F05B21', gris: '#6B7280', borde: '#D1D5DB', bg: '#F9FAFB', bgAlt: '#F4F6FB' },
+  col: { azul: '#334E7B', verde: '#2E7D5A', naranja: '#E8724A', gris: '#6B7280', borde: '#D1D5DB', bg: '#F9FAFB', bgAlt: '#F4F6F9' },
   sp: { xs: '4px', sm: '6px', md: '10px', lg: '14px', xl: '20px' },
   card: { background: 'white', border: '1px solid #E5E7EB', padding: '16px', marginBottom: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' } as React.CSSProperties,
   cardHighlight: { background: 'white', border: '2px solid #1B3A6B', padding: '16px', marginBottom: '12px', boxShadow: '0 2px 8px rgba(27,58,107,0.08)' } as React.CSSProperties,
-  tHead: { background: '#1B3A6B', color: 'white', padding: '9px 12px', fontSize: '11px', fontWeight: '700' as const, textAlign: 'left' as const, whiteSpace: 'nowrap' as const },
-  tHeadR: { background: '#1B3A6B', color: 'white', padding: '9px 12px', fontSize: '11px', fontWeight: '700' as const, textAlign: 'right' as const, whiteSpace: 'nowrap' as const },
+  tHead: { background: '#334E7B', color: 'white', padding: '9px 12px', fontSize: '11px', fontWeight: '700' as const, textAlign: 'left' as const, whiteSpace: 'nowrap' as const },
+  tHeadR: { background: '#334E7B', color: 'white', padding: '9px 12px', fontSize: '11px', fontWeight: '700' as const, textAlign: 'right' as const, whiteSpace: 'nowrap' as const },
   tCell: { padding: '8px 12px', fontSize: '12px', color: '#374151', borderBottom: '1px solid #F3F4F6' } as React.CSSProperties,
   tCellR: { padding: '8px 12px', fontSize: '12px', color: '#374151', borderBottom: '1px solid #F3F4F6', textAlign: 'right' as const } as React.CSSProperties,
-  tCellBold: { padding: '8px 12px', fontSize: '13px', color: '#1B3A6B', fontWeight: '800' as const, borderBottom: '1px solid #F3F4F6', textAlign: 'right' as const } as React.CSSProperties,
+  tCellBold: { padding: '8px 12px', fontSize: '13px', color: '#334E7B', fontWeight: '800' as const, borderBottom: '1px solid #F3F4F6', textAlign: 'right' as const } as React.CSSProperties,
   tRowAlt: (i: number) => ({ background: i % 2 === 0 ? 'white' : '#F8FAFC' }) as React.CSSProperties,
   secTitle: { fontSize: '13px', fontWeight: '700' as const, color: '#111827', margin: '0 0 14px', paddingBottom: '10px', borderBottom: '2px solid #E5E7EB' } as React.CSSProperties,
-  kpiBlock: { background: '#1B3A6B', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' } as React.CSSProperties,
+  kpiBlock: { background: '#334E7B', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' } as React.CSSProperties,
   kpiGreen: { background: '#065F46', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' } as React.CSSProperties,
   label: { fontSize: '10px', fontWeight: '600' as const, color: '#9CA3AF', marginBottom: '4px', display: 'block' as const, textTransform: 'uppercase' as const, letterSpacing: '0.5px' },
   input: { width: '100%', border: '1px solid #9CA3AF', padding: '7px 10px', fontSize: '13px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: 'white', color: '#374151', outline: 'none' } as React.CSSProperties,
@@ -425,7 +431,7 @@ const SYS_DEFAULT: SysVars = {
 // Simulador de impacto en vida real
 // ══════════════════════════════════════════════════════════════════
 function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pensionCon: number }) {
-  const AZUL = '#1B3A6B', VERDE = '#2E8B57', ROJO = '#DC2626', NARANJA = '#F05B21'
+  const AZUL = '#334E7B', VERDE = '#2E7D5A', ROJO = '#DC2626', NARANJA = '#E8724A'
   const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n || 0)
 
   const [renta, setRenta] = useState(6000)
@@ -555,7 +561,7 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
 function SemaforoElegibilidad({ clienteId, diagnosticoId, datos, escenarioSel, supabase, userId }: {
   clienteId: string; diagnosticoId: string; datos: any; escenarioSel: any; supabase: any; userId: string
 }) {
-  const AZUL = '#1B3A6B', NARANJA = '#F05B21'
+  const AZUL = '#334E7B', NARANJA = '#E8724A'
   const [financieras, setFinancieras] = useState<any[]>([])
   const [criterios, setCriterios] = useState<Record<string, any[]>>({})
   const [evaluaciones, setEvaluaciones] = useState<any[]>([])
@@ -638,7 +644,7 @@ function SemaforoElegibilidad({ clienteId, diagnosticoId, datos, escenarioSel, s
 
   return (
     <div style={{ marginTop: '4px' }}>
-      <div style={{ background: '#1B3A6B', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: '#334E7B', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <p style={{ fontSize: '12px', color: '#93C5FD', margin: '0 0 2px', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '700' }}>Elegibilidad Financiera</p>
           <p style={{ fontSize: '14px', fontWeight: '800', color: 'white', margin: 0 }}>
@@ -1995,20 +2001,20 @@ function CalculadoraInner() {
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
             <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '100%', maxWidth: '400px', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
               <div style={{ fontSize: '28px', textAlign: 'center' as const, marginBottom: '8px' }}>🎯</div>
-              <h3 style={{ fontSize: '16px', fontWeight: '700' as const, color: '#1B3A6B', margin: '0 0 10px', textAlign: 'center' as const }}>
+              <h3 style={{ fontSize: '16px', fontWeight: '700' as const, color: '#334E7B', margin: '0 0 10px', textAlign: 'center' as const }}>
                 {esAutorizacion ? '¡Diagnóstico autorizado!' : '¡Diagnóstico guardado!'}
               </h3>
               <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 16px', lineHeight: 1.6, textAlign: 'center' as const }}>
                 <strong>{clienteActual?.nombre}</strong> está en <strong>{ETAPA_LABELS[clienteActual?.etapa_kanban ?? '']}</strong>.
-                ¿Deseas moverlo a <strong style={{ color: '#2E8B57' }}>{ETAPA_LABELS[etapaSugerida]}</strong>?
+                ¿Deseas moverlo a <strong style={{ color: '#2E7D5A' }}>{ETAPA_LABELS[etapaSugerida]}</strong>?
               </p>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button onClick={() => setShowSugerirEtapa(false)}
-                  style={{ flex: 1, padding: '9px', border: '1px solid #E5E7EB', borderRadius: '8px', background: '#F4F6FB', color: '#64748b', fontSize: '13px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ flex: 1, padding: '9px', border: '1px solid #E5E7EB', borderRadius: '8px', background: '#F4F6F9', color: '#64748b', fontSize: '13px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
                   Ahora no
                 </button>
                 <button onClick={() => moverEtapa(clienteId, etapaSugerida)}
-                  style={{ flex: 2, padding: '9px', border: 'none', borderRadius: '8px', background: '#2E8B57', color: 'white', fontSize: '13px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ flex: 2, padding: '9px', border: 'none', borderRadius: '8px', background: '#2E7D5A', color: 'white', fontSize: '13px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
                   Sí, mover a {ETAPA_LABELS[etapaSugerida]}
                 </button>
               </div>
@@ -2171,7 +2177,7 @@ function CalculadoraInner() {
       {showConfirmCambio && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '100%', maxWidth: '380px', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '700' as const, color: '#1B3A6B', margin: '0 0 10px' }}>⚠️ ¿Cambiar de cliente?</h3>
+            <h3 style={{ fontSize: '16px', fontWeight: '700' as const, color: '#334E7B', margin: '0 0 10px' }}>⚠️ ¿Cambiar de cliente?</h3>
             <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 20px', lineHeight: 1.6 }}>
               {diagGuardadoId
                 ? 'El diagnóstico ya fue guardado. Puedes cambiar de cliente sin perder nada.'
@@ -2179,7 +2185,7 @@ function CalculadoraInner() {
             </p>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button onClick={() => { setShowConfirmCambio(false); setPendingClienteId('') }}
-                style={{ flex: 1, padding: '9px', border: '1px solid #E5E7EB', borderRadius: '8px', background: '#F4F6FB', color: '#64748b', fontSize: '13px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ flex: 1, padding: '9px', border: '1px solid #E5E7EB', borderRadius: '8px', background: '#F4F6F9', color: '#64748b', fontSize: '13px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
                 Cancelar
               </button>
               <button onClick={() => {
@@ -2190,7 +2196,7 @@ function CalculadoraInner() {
                 setPendingClienteId('')
                 setShowConfirmCambio(false)
               }}
-                style={{ flex: 2, padding: '9px', border: 'none', borderRadius: '8px', background: '#1B3A6B', color: 'white', fontSize: '13px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ flex: 2, padding: '9px', border: 'none', borderRadius: '8px', background: '#334E7B', color: 'white', fontSize: '13px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
                 Sí, cambiar de cliente
               </button>
             </div>
@@ -2213,7 +2219,7 @@ function CalculadoraInner() {
             </div>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
               <thead>
-                <tr style={{ background: '#F4F6FB' }}>
+                <tr style={{ background: '#F4F6F9' }}>
                   {['#', 'Fecha inicio', 'Fecha fin', 'Semanas', 'SDI diario', 'SDI mensual', 'Peso'].map((h, i) => (
                     <th key={i} style={{ padding: '8px 10px', textAlign: i > 0 ? 'right' : 'center', fontSize: '10px', fontWeight: '700' as const, color: '#64748b', textTransform: 'uppercase' as const, borderBottom: '2px solid #e2e8f0' }}>{h}</th>
                   ))}
@@ -2259,7 +2265,7 @@ function CalculadoraInner() {
             </div>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
               <thead>
-                <tr style={{ background: '#F4F6FB' }}>
+                <tr style={{ background: '#F4F6F9' }}>
                   {['#', 'Fecha inicio', 'Fecha fin', 'Semanas', 'SDI diario', 'Patrón'].map((h, i) => (
                     <th key={i} style={{ padding: '8px 10px', textAlign: i > 0 ? 'right' : 'center', fontSize: '10px', fontWeight: '700' as const, color: '#64748b', textTransform: 'uppercase' as const, borderBottom: '2px solid #e2e8f0' }}>{h}</th>
                   ))}
@@ -2670,7 +2676,7 @@ function CalculadoraInner() {
                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
                   <button
                     onClick={() => setShowGuia(!showGuia)}
-                    style={{ padding: '5px 10px', background: showGuia ? '#EEF2F8' : 'white', border: '1px solid #E5E7EB', cursor: 'pointer', fontSize: '11px', fontWeight: '600' as const, color: '#1B3A6B', fontFamily: 'inherit' }}
+                    style={{ padding: '5px 10px', background: showGuia ? '#EEF2F8' : 'white', border: '1px solid #E5E7EB', cursor: 'pointer', fontSize: '11px', fontWeight: '600' as const, color: '#334E7B', fontFamily: 'inherit' }}
                     title="Glosario de términos"
                   >
                     📖 Glosario
@@ -2682,14 +2688,14 @@ function CalculadoraInner() {
             {/* ── Panel glosario deslizable ── */}
             {showGuia && (
               <div style={{ position: 'absolute' as const, top: 0, right: 0, width: '300px', height: '100%', background: 'white', borderLeft: '2px solid #E5E7EB', zIndex: 50, overflowY: 'auto' as const, boxShadow: '-4px 0 20px rgba(0,0,0,0.1)' }}>
-                <div style={{ background: '#1B3A6B', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ background: '#334E7B', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <p style={{ fontSize: '13px', fontWeight: '700' as const, color: 'white', margin: 0 }}>📖 Glosario de Términos</p>
                   <button onClick={() => setShowGuia(false)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '18px', lineHeight: 1 }}>✕</button>
                 </div>
                 <div style={{ padding: '12px' }}>
                   {Object.entries(GLOSARIO).map(([id, g]) => (
                     <div key={id} style={{ padding: '10px 12px', marginBottom: '6px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderLeft: '3px solid #1B3A6B' }}>
-                      <p style={{ fontSize: '12px', fontWeight: '700' as const, color: '#1B3A6B', margin: '0 0 4px' }}>{g.titulo}</p>
+                      <p style={{ fontSize: '12px', fontWeight: '700' as const, color: '#334E7B', margin: '0 0 4px' }}>{g.titulo}</p>
                       <p style={{ fontSize: '13px', color: '#374151', margin: '0 0 4px', lineHeight: 1.5 }}>{g.desc}</p>
                       {g.ejemplo && <p style={{ fontSize: '10.5px', color: '#9CA3AF', margin: 0, fontStyle: 'italic' }}>Ej: {g.ejemplo}</p>}
                     </div>
@@ -2716,7 +2722,7 @@ function CalculadoraInner() {
               ))}
             </div>
 {/* Contenido de la pestaña actual */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', background: '#F4F6FB', fontSize: '13px', minWidth: 0, position: 'relative' as const }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', background: '#F4F6F9', fontSize: '13px', minWidth: 0, position: 'relative' as const }}>
 
               {/* ── Botón guardar borrador flotante — visible en todos los tabs ── */}
               {sdiPromedio > 0 && (
@@ -2735,8 +2741,8 @@ function CalculadoraInner() {
                 <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style={{ position: 'absolute' as const, top: 0, left: 0 }}>
                   <defs>
                     <pattern id="kse-wm" x="0" y="0" width="260" height="180" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)">
-                      <text x="10" y="60" fontFamily="Arial Black, sans-serif" fontSize="22" fontWeight="900" fill="#1B3A6B" fillOpacity="0.045" letterSpacing="4">KSE®</text>
-                      <text x="30" y="110" fontFamily="Arial, sans-serif" fontSize="9" fill="#1B3A6B" fillOpacity="0.04" letterSpacing="2">PENSIONES</text>
+                      <text x="10" y="60" fontFamily="Arial Black, sans-serif" fontSize="22" fontWeight="900" fill="#334E7B" fillOpacity="0.045" letterSpacing="4">KSE®</text>
+                      <text x="30" y="110" fontFamily="Arial, sans-serif" fontSize="9" fill="#334E7B" fillOpacity="0.04" letterSpacing="2">PENSIONES</text>
                     </pattern>
                   </defs>
                   <rect width="100%" height="100%" fill="url(#kse-wm)" />
@@ -2759,7 +2765,7 @@ function CalculadoraInner() {
               {/* Indicadores rápidos — estado del expediente */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px' }}>
                 {[
-                  { label: 'Semanas netas', value: sem > 0 ? sem.toLocaleString() : '—', sub: 'cotizadas', color: sem >= 500 ? '#065F46' : '#1B3A6B', bg: sem >= 500 ? '#F0FDF4' : '#EEF2F8', border: sem >= 500 ? '#86EFAC' : '#1B3A6B' },
+                  { label: 'Semanas netas', value: sem > 0 ? sem.toLocaleString() : '—', sub: 'cotizadas', color: sem >= 500 ? '#065F46' : '#334E7B', bg: sem >= 500 ? '#F0FDF4' : '#EEF2F8', border: sem >= 500 ? '#86EFAC' : '#334E7B' },
                   { label: 'Semanas faltantes', value: semFaltantes === 0 ? '✓ 0' : semFaltantes.toLocaleString(), sub: 'para 500 sem.', color: semFaltantes === 0 ? '#065F46' : semFaltantes < 100 ? '#92400E' : '#DC2626', bg: semFaltantes === 0 ? '#F0FDF4' : '#FEF2F2', border: semFaltantes === 0 ? '#86EFAC' : '#FCA5A5' },
                   { label: 'SDI promedio', value: sdiPromedio > 0 ? fmtMXN2(sdiPromedio) : '—', sub: '250 semanas', color: '#92400E', bg: '#FFFBEB', border: '#FCD34D' },
                   { label: 'Fecha del trámite', value: fechaTramite, sub: 'estimada', color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
@@ -2810,7 +2816,7 @@ function CalculadoraInner() {
                         value={ingresoObjetivo || ''}
                         onChange={e => setIngresoObjetivo(Number(e.target.value) || 0)}
                         placeholder="Ej. 25,000"
-                        style={{ ...DS.input, fontWeight: '700' as const, color: '#F05B21' }}
+                        style={{ ...DS.input, fontWeight: '700' as const, color: '#E8724A' }}
                       />
                     </div>
 
@@ -2957,7 +2963,7 @@ function CalculadoraInner() {
                     <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>Art. 167 LSS 1973 — Base real del cálculo de pensión, no el salario actual</p>
                   </div>
                   <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                    <button onClick={() => setShowDetalle250(true)} style={{ padding: '5px 10px', background: '#EEF2F8', color: '#1B3A6B', border: '1px solid #BFDBFE', fontSize: '11px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                    <button onClick={() => setShowDetalle250(true)} style={{ padding: '5px 10px', background: '#EEF2F8', color: '#334E7B', border: '1px solid #BFDBFE', fontSize: '11px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
                       Ver 250 sem.
                     </button>
                     <button onClick={() => setShowHistorialCompleto(true)} style={{ padding: '5px 10px', background: '#F0FDF4', color: '#065F46', border: '1px solid #86EFAC', fontSize: '11px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
@@ -2974,7 +2980,7 @@ function CalculadoraInner() {
                   <>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', marginBottom: '12px' }}>
                       <thead>
-                        <tr style={{ background: '#1B3A6B' }}>
+                        <tr style={{ background: '#334E7B' }}>
                           {['PERÍODO', 'SEMANAS', 'SDI DIARIO', 'SDI MENSUAL', 'PESO'].map((h, i) => (
                             <th key={i} style={{ ...DS.tHead, textAlign: i === 0 ? 'left' : 'right' as const, padding: '9px 12px' }}>{h}</th>
                           ))}
@@ -2992,7 +2998,7 @@ function CalculadoraInner() {
                               <td style={{ padding: '8px 12px', textAlign: 'right' as const }}>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
                                   <div style={{ width: '40px', height: '6px', background: '#F3F4F6', borderRadius: '3px', overflow: 'hidden' }}>
-                                    <div style={{ height: '100%', width: p.peso + '%', background: '#1B3A6B', borderRadius: '3px' }} />
+                                    <div style={{ height: '100%', width: p.peso + '%', background: '#334E7B', borderRadius: '3px' }} />
                                   </div>
                                   <span style={{ fontSize: '11px', color: '#9CA3AF', minWidth: '32px' }}>{p.peso.toFixed(1)}%</span>
                                 </div>
@@ -3000,7 +3006,7 @@ function CalculadoraInner() {
                             </tr>
                           )
                         })}
-                        <tr style={{ background: '#1B3A6B' }}>
+                        <tr style={{ background: '#334E7B' }}>
                           <td style={{ padding: '10px 12px', color: 'white', fontWeight: '700' as const }}>Promedio ponderado</td>
                           <td style={{ padding: '10px 12px', textAlign: 'right' as const, color: 'white', fontWeight: '700' as const }}>{periodos.reduce((s, p) => s + p.semanas, 0)}</td>
                           <td style={{ padding: '10px 12px', textAlign: 'right' as const, color: '#FCD34D', fontWeight: '900' as const, fontSize: '16px' }}>{fmtMXN2(sdiPromedio)}</td>
@@ -3025,7 +3031,7 @@ function CalculadoraInner() {
                       </div>
                       <div style={{ padding: '12px', background: '#EEF2F8', border: '1px solid #BFDBFE', textAlign: 'center' as const }}>
                         <div style={{ fontSize: '9.5px', color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' as const, marginBottom: '4px' }}>SDI Mensual equivalente</div>
-                        <div style={{ fontSize: '20px', fontWeight: '900' as const, color: '#1B3A6B', letterSpacing: '-0.5px' }}>{fmtMXN(sdiPromedio * 30.4167)}</div>
+                        <div style={{ fontSize: '20px', fontWeight: '900' as const, color: '#334E7B', letterSpacing: '-0.5px' }}>{fmtMXN(sdiPromedio * 30.4167)}</div>
                         <div style={{ fontSize: '10.5px', color: '#9CA3AF', marginTop: '2px' }}>× 30.4 días</div>
                       </div>
                     </div>
@@ -3035,7 +3041,7 @@ function CalculadoraInner() {
 
               {/* Siguiente */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
-                <button onClick={() => setTab(1)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>
+                <button onClick={() => setTab(1)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#334E7B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>
                   Cuantías Anuales →
                 </button>
               </div>
@@ -3082,9 +3088,9 @@ function CalculadoraInner() {
           // Chart data
           const totalAnual = res.pensionAnual
           const componentes = [
-            { label: 'Cuantía básica', val: res.cuantiaBasicaAnual, color: '#1B3A6B' },
-            { label: 'Incrementos anuales', val: res.incrementosAnual, color: '#2E8B57' },
-            { label: 'Asignaciones familiares', val: res.asignacionesAnual, color: '#F05B21' },
+            { label: 'Cuantía básica', val: res.cuantiaBasicaAnual, color: '#334E7B' },
+            { label: 'Incrementos anuales', val: res.incrementosAnual, color: '#2E7D5A' },
+            { label: 'Asignaciones familiares', val: res.asignacionesAnual, color: '#E8724A' },
             { label: 'Ayuda asistencial', val: res.ayudaAsistencialAnual, color: '#7C3AED' },
           ].filter(c => c.val > 0)
           const maxVal = Math.max(...componentes.map(c => c.val))
@@ -3094,8 +3100,8 @@ function CalculadoraInner() {
               {/* 3 KPIs principales — destacados al frente */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
                 {[
-                  { label: 'Pensión Mensual', value: fmtMXN2(res.pensionMensual), sub: 'Por mes de 30 días', color: '#1B3A6B', bg: '#EEF2F8', border: '#1B3A6B', critical: true },
-                  { label: 'Pensión Anual', value: fmtMXN2(res.pensionAnual), sub: 'Total año', color: '#065F46', bg: '#F0FDF4', border: '#2E8B57', critical: false },
+                  { label: 'Pensión Mensual', value: fmtMXN2(res.pensionMensual), sub: 'Por mes de 30 días', color: '#334E7B', bg: '#EEF2F8', border: '#334E7B', critical: true },
+                  { label: 'Pensión Anual', value: fmtMXN2(res.pensionAnual), sub: 'Total año', color: '#065F46', bg: '#F0FDF4', border: '#2E7D5A', critical: false },
                   { label: 'Aguinaldo', value: fmtMXN2(res.aguinaldoAnual), sub: 'Pago anual equivalente', color: '#92400E', bg: '#FFFBEB', border: '#F59E0B', critical: false },
                 ].map((k, i) => (
                   <div key={i} style={{ background: k.bg, border: '2px solid ' + k.border, padding: '16px', textAlign: 'center' as const }}>
@@ -3112,9 +3118,9 @@ function CalculadoraInner() {
                   <p style={DS.secTitle}>Desglose de Cuantías Anuales</p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
                     {[
-                      { label: 'Cuantía Básica de Pensión', value: fmtMXN2(res.cuantiaBasicaAnual), color: '#1B3A6B', pct: (res.cuantiaBasicaAnual / totalAnual * 100).toFixed(1) },
-                      { label: 'Incrementos Anuales', value: fmtMXN2(res.incrementosAnual), color: '#2E8B57', pct: (res.incrementosAnual / totalAnual * 100).toFixed(1) },
-                      { label: 'Asignaciones Familiares', value: fmtMXN2(res.asignacionesAnual), color: '#F05B21', pct: (res.asignacionesAnual / totalAnual * 100).toFixed(1) },
+                      { label: 'Cuantía Básica de Pensión', value: fmtMXN2(res.cuantiaBasicaAnual), color: '#334E7B', pct: (res.cuantiaBasicaAnual / totalAnual * 100).toFixed(1) },
+                      { label: 'Incrementos Anuales', value: fmtMXN2(res.incrementosAnual), color: '#2E7D5A', pct: (res.incrementosAnual / totalAnual * 100).toFixed(1) },
+                      { label: 'Asignaciones Familiares', value: fmtMXN2(res.asignacionesAnual), color: '#E8724A', pct: (res.asignacionesAnual / totalAnual * 100).toFixed(1) },
                       { label: 'Ayuda Asistencial', value: fmtMXN2(res.ayudaAsistencialAnual), color: '#7C3AED', pct: (res.ayudaAsistencialAnual / totalAnual * 100).toFixed(1) },
                     ].map(({ label, value, color, pct }, i) => (
                       <div key={i} style={{ padding: '10px 0', borderBottom: '1px solid #F3F4F6' }}>
@@ -3130,7 +3136,7 @@ function CalculadoraInner() {
                     ))}
                     <div style={{ padding: '10px 0', display: 'flex', justifyContent: 'space-between', borderTop: '2px solid #1B3A6B', marginTop: '4px' }}>
                       <span style={{ fontSize: '13px', fontWeight: '700' as const, color: '#111827' }}>TOTAL PENSIÓN ANUAL</span>
-                      <span style={{ fontSize: '16px', fontWeight: '900' as const, color: '#1B3A6B' }}>{fmtMXN2(res.pensionAnual)}</span>
+                      <span style={{ fontSize: '16px', fontWeight: '900' as const, color: '#334E7B' }}>{fmtMXN2(res.pensionAnual)}</span>
                     </div>
                   </div>
                 </div>
@@ -3149,7 +3155,7 @@ function CalculadoraInner() {
                     ].map(({ label, value, important }, i) => (
                       <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #F3F4F6' }}>
                         <span style={{ fontSize: '12px', color: '#6B7280' }}>{label}</span>
-                        <span style={{ fontSize: important ? '14px' : '12px', fontWeight: important ? '800' : '600', color: important ? '#1B3A6B' : '#374151' }}>{value}</span>
+                        <span style={{ fontSize: important ? '14px' : '12px', fontWeight: important ? '800' : '600', color: important ? '#334E7B' : '#374151' }}>{value}</span>
                       </div>
                     ))}
                     {/* PMG badge */}
@@ -3225,7 +3231,7 @@ function CalculadoraInner() {
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
           <button onClick={() => setTab(2)}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#334E7B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>
             Salario Prom. Mod 40 →
           </button>
         </div>
@@ -3259,7 +3265,7 @@ function CalculadoraInner() {
                     <p style={{ ...DS.secTitle, margin: 0 }}>⚙️ Parámetros de Cotización</p>
                     <button onClick={resetParametrosMod40}
                       title="Restituir la edad de ingreso calculada automáticamente de la constancia IMSS"
-                      style={{ padding: '5px 12px', background: '#F4F6FB', color: '#6B7280', border: '1px solid #E5E7EB', fontSize: '11px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      style={{ padding: '5px 12px', background: '#F4F6F9', color: '#6B7280', border: '1px solid #E5E7EB', fontSize: '11px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '4px' }}>
                       ↺ Restablecer sugerencia
                     </button>
                   </div>
@@ -3272,7 +3278,7 @@ function CalculadoraInner() {
                         <div>
                           <div style={{ fontSize: '9.5px', color: '#9CA3AF', marginBottom: '3px', fontWeight: '600' as const, textAlign: 'center' as const }}>AÑOS</div>
                           <select value={edadIngresoAnios} onChange={e => setEdadIngresoAnios(Number(e.target.value))}
-                            style={{ ...DS.select, textAlign: 'center' as const, fontSize: '18px', fontWeight: '800' as const, color: '#1B3A6B', borderWidth: '2px', borderColor: '#1B3A6B' }}>
+                            style={{ ...DS.select, textAlign: 'center' as const, fontSize: '18px', fontWeight: '800' as const, color: '#334E7B', borderWidth: '2px', borderColor: '#334E7B' }}>
                             {Array.from({ length: 31 }, (_, i) => i + 40).map(a => (
                               <option key={a} value={a}>{a}</option>
                             ))}
@@ -3281,7 +3287,7 @@ function CalculadoraInner() {
                         <div>
                           <div style={{ fontSize: '9.5px', color: '#9CA3AF', marginBottom: '3px', fontWeight: '600' as const, textAlign: 'center' as const }}>MESES</div>
                           <select value={edadIngresoMeses} onChange={e => setEdadIngresoMeses(Number(e.target.value))}
-                            style={{ ...DS.select, textAlign: 'center' as const, fontSize: '18px', fontWeight: '800' as const, color: '#1B3A6B', borderWidth: '2px', borderColor: '#BFDBFE' }}>
+                            style={{ ...DS.select, textAlign: 'center' as const, fontSize: '18px', fontWeight: '800' as const, color: '#334E7B', borderWidth: '2px', borderColor: '#BFDBFE' }}>
                             {Array.from({ length: 12 }, (_, i) => i).map(m => (
                               <option key={m} value={m}>{m}</option>
                             ))}
@@ -3294,7 +3300,7 @@ function CalculadoraInner() {
                     <div>
                       <label style={DS.label}>Salario a registrar en Mod. 40 (UMAs) <Tip id="uma" /></label>
                       <div style={{ position: 'relative' }}>
-                        <select value={mod40Umas} onChange={e => setMod40Umas(Number(e.target.value))} style={{ ...DS.select, paddingRight: '32px', fontWeight: '700' as const, fontSize: '14px', borderWidth: '2px', borderColor: '#F05B21' }}>
+                        <select value={mod40Umas} onChange={e => setMod40Umas(Number(e.target.value))} style={{ ...DS.select, paddingRight: '32px', fontWeight: '700' as const, fontSize: '14px', borderWidth: '2px', borderColor: '#E8724A' }}>
                           {[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25].map(u => (
                             <option key={u} value={u}>{u} UMA{u > 1 ? 's' : ''} — {fmtMXN2(u * (sys?.UMA_DIARIA ?? 113.14))}/día</option>
                           ))}
@@ -3331,7 +3337,7 @@ function CalculadoraInner() {
                             const a = Number(e.target.value)
                             setMod40AniosUI(a)
                             setMod40Meses(a * 12 + mod40MesesUI)
-                          }} style={{ ...DS.select, textAlign: 'center' as const, fontSize: '18px', fontWeight: '800' as const, color: '#1B3A6B', borderWidth: '2px', borderColor: '#1B3A6B' }}>
+                          }} style={{ ...DS.select, textAlign: 'center' as const, fontSize: '18px', fontWeight: '800' as const, color: '#334E7B', borderWidth: '2px', borderColor: '#334E7B' }}>
                             {Array.from({ length: 6 }, (_, i) => i).map(a => (
                               <option key={a} value={a}>{a}</option>
                             ))}
@@ -3343,7 +3349,7 @@ function CalculadoraInner() {
                             const m = Number(e.target.value)
                             setMod40MesesUI(m)
                             setMod40Meses(mod40AniosUI * 12 + m)
-                          }} style={{ ...DS.select, textAlign: 'center' as const, fontSize: '18px', fontWeight: '800' as const, color: '#1B3A6B', borderWidth: '2px', borderColor: '#BFDBFE' }}>
+                          }} style={{ ...DS.select, textAlign: 'center' as const, fontSize: '18px', fontWeight: '800' as const, color: '#334E7B', borderWidth: '2px', borderColor: '#BFDBFE' }}>
                             {Array.from({ length: 12 }, (_, i) => i).map(m => (
                               <option key={m} value={m}>{m}</option>
                             ))}
@@ -3383,7 +3389,7 @@ function CalculadoraInner() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {[
                         { label: 'SDI diario actual (constancia)', value: fmtMXN2(sdiPromedio), color: '#92400E', bg: '#FFFBEB', border: '#FCD34D', big: false, tip: null },
-                        { label: 'SDI registrado en Mod. 40', value: escRec?.sdi_mod40 > 0 ? fmtMXN2(escRec.sdi_mod40) : '—', color: '#F05B21', bg: '#FFF7F4', border: '#FED7AA', big: false, tip: 'sdiMod40' },
+                        { label: 'SDI registrado en Mod. 40', value: escRec?.sdi_mod40 > 0 ? fmtMXN2(escRec.sdi_mod40) : '—', color: '#E8724A', bg: '#FFF7F4', border: '#FED7AA', big: false, tip: 'sdiMod40' },
                         { label: 'Nuevo SDI promedio 250 sem.', value: escRec?.nuevo_sdi_250 > 0 ? fmtMXN2(escRec.nuevo_sdi_250) : '—', color: '#065F46', bg: '#F0FDF4', border: '#86EFAC', big: true, tip: 'nuevoSdi250' },
                         { label: 'Diferencia vs SDI actual', value: escRec?.nuevo_sdi_250 > 0 ? fmtMXN2(escRec.nuevo_sdi_250 - sdiPromedio) : '—', color: '#1D4ED8', bg: '#EFF6FF', border: '#93C5FD', big: false, tip: null },
                       ].map(({ label, value, color, bg, border, big, tip }, i) => (
@@ -3423,8 +3429,8 @@ function CalculadoraInner() {
                     <p style={{ fontSize: '12px', fontWeight: '700' as const, color: '#374151', margin: '0 0 8px' }}>Semanas cotizadas</p>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
                       {[
-                        { label: 'Actuales', value: (datos.semanas_totales - datos.semanas_descontadas).toString(), color: '#1B3A6B' },
-                        { label: 'Con Mod. 40', value: escRec?.semanas_mod40 ? Math.round(escRec.semanas_mod40).toString() : '—', color: '#F05B21' },
+                        { label: 'Actuales', value: (datos.semanas_totales - datos.semanas_descontadas).toString(), color: '#334E7B' },
+                        { label: 'Con Mod. 40', value: escRec?.semanas_mod40 ? Math.round(escRec.semanas_mod40).toString() : '—', color: '#E8724A' },
                         { label: 'Total final', value: escRec?.semanas_finales ? Math.round(escRec.semanas_finales).toString() : '—', color: '#065F46', big: true },
                       ].map(({ label, value, color }, i) => (
                         <div key={i} style={{ padding: '10px', textAlign: 'center' as const, background: '#F9FAFB', border: '1px solid #E5E7EB' }}>
@@ -3439,7 +3445,7 @@ function CalculadoraInner() {
 
               {/* Siguiente */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
-                <button onClick={() => setTab(3)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>Costo Mod 40 →</button>
+                <button onClick={() => setTab(3)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#334E7B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>Costo Mod 40 →</button>
               </div>
 
               {/* Tabla desglose 250 semanas con Mod.40 */}
@@ -3479,7 +3485,7 @@ function CalculadoraInner() {
                     <div style={{ overflowX: 'auto' as const }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '11px' }}>
                         <thead>
-                          <tr style={{ background: '#1B3A6B' }}>
+                          <tr style={{ background: '#334E7B' }}>
                             {['Periodo', 'Inicio', 'Término', 'SDI diario', 'Semanas', 'Acumulado'].map((h, i) => (
                               <th key={i} style={{ padding: '8px 10px', color: 'white', fontWeight: '700' as const, textAlign: i > 2 ? 'right' as const : 'left' as const, whiteSpace: 'nowrap' as const }}>{h}</th>
                             ))}
@@ -3488,12 +3494,12 @@ function CalculadoraInner() {
                         <tbody>
                           {/* Fila Mod.40 */}
                           <tr style={{ background: '#FFF7ED', borderBottom: '2px solid #FCD34D' }}>
-                            <td style={{ padding: '8px 10px', fontWeight: '700' as const, color: '#F05B21' }}>Mod. 40</td>
+                            <td style={{ padding: '8px 10px', fontWeight: '700' as const, color: '#E8724A' }}>Mod. 40</td>
                             <td style={{ padding: '8px 10px', color: '#374151' }}>{fmtD(escRec.fecha_ingreso_mod40)}</td>
                             <td style={{ padding: '8px 10px', color: '#374151' }}>{fmtD(escRec.fecha_baja_mod40)}</td>
-                            <td style={{ padding: '8px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: '#F05B21' }}>{fmtMXN2(sdiM40)}</td>
-                            <td style={{ padding: '8px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: '#F05B21' }}>{semM40.toFixed(2)}</td>
-                            <td style={{ padding: '8px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: '#F05B21' }}>{fmtMXN(acumM40)}</td>
+                            <td style={{ padding: '8px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: '#E8724A' }}>{fmtMXN2(sdiM40)}</td>
+                            <td style={{ padding: '8px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: '#E8724A' }}>{semM40.toFixed(2)}</td>
+                            <td style={{ padding: '8px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: '#E8724A' }}>{fmtMXN(acumM40)}</td>
                           </tr>
                           {/* Filas históricas */}
                           {filasHist.map((r, i) => (
@@ -3508,10 +3514,10 @@ function CalculadoraInner() {
                           ))}
                           {/* Totales */}
                           <tr style={{ background: '#EEF2F8', borderTop: '2px solid #1B3A6B' }}>
-                            <td colSpan={3} style={{ padding: '8px 10px', fontWeight: '700' as const, color: '#1B3A6B' }}>Total ÷ 250 semanas</td>
+                            <td colSpan={3} style={{ padding: '8px 10px', fontWeight: '700' as const, color: '#334E7B' }}>Total ÷ 250 semanas</td>
                             <td style={{ padding: '8px 10px', textAlign: 'right' as const }} />
-                            <td style={{ padding: '8px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: '#1B3A6B' }}>{totalSem.toFixed(2)}</td>
-                            <td style={{ padding: '8px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: '#1B3A6B' }}>{fmtMXN(totalAcum)}</td>
+                            <td style={{ padding: '8px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: '#334E7B' }}>{totalSem.toFixed(2)}</td>
+                            <td style={{ padding: '8px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: '#334E7B' }}>{fmtMXN(totalAcum)}</td>
                           </tr>
                           {/* Nuevo SDI */}
                           <tr style={{ background: '#F0FDF4' }}>
@@ -3575,7 +3581,7 @@ function CalculadoraInner() {
                 <p style={DS.secTitle}>💳 Desglose año por año</p>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                   <thead>
-                    <tr style={{ background: '#1B3A6B' }}>
+                    <tr style={{ background: '#334E7B' }}>
                       {['Año', 'SDI Registrado', 'Tasa Mod. 40', 'Cuota mensual', 'Cuota anual', 'Proporción'].map((h, i) => (
                         <th key={i} style={{ ...DS.tHead, textAlign: i < 1 ? 'center' : 'right' as const }}>{h}</th>
                       ))}
@@ -3584,7 +3590,7 @@ function CalculadoraInner() {
                   <tbody>
                     {rows.map((r, i) => (
                       <tr key={r.a} style={{ background: i % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
-                        <td style={{ padding: '9px 12px', textAlign: 'center' as const, fontWeight: '700' as const, color: '#1B3A6B', fontSize: '13px' }}>{r.a}</td>
+                        <td style={{ padding: '9px 12px', textAlign: 'center' as const, fontWeight: '700' as const, color: '#334E7B', fontSize: '13px' }}>{r.a}</td>
                         <td style={{ padding: '9px 12px', textAlign: 'right' as const, color: '#374151' }}>{fmtMXN2(r.sdi)}</td>
                         <td style={{ padding: '9px 12px', textAlign: 'right' as const, color: '#7C3AED', fontWeight: '700' as const }}>{r.tasa.toFixed(3)}%</td>
                         <td style={{ padding: '9px 12px', textAlign: 'right' as const, fontWeight: '700' as const, color: '#374151' }}>{fmtMXN2(r.cuotaMens)}</td>
@@ -3592,7 +3598,7 @@ function CalculadoraInner() {
                         <td style={{ padding: '9px 12px', textAlign: 'right' as const }}>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
                             <div style={{ width: '60px', height: '8px', background: '#F3F4F6', borderRadius: '4px', overflow: 'hidden' }}>
-                              <div style={{ height: '100%', width: (maxCuota > 0 ? r.cuotaAnual / maxCuota * 100 : 0) + '%', background: '#1B3A6B', borderRadius: '4px' }} />
+                              <div style={{ height: '100%', width: (maxCuota > 0 ? r.cuotaAnual / maxCuota * 100 : 0) + '%', background: '#334E7B', borderRadius: '4px' }} />
                             </div>
                             <span style={{ fontSize: '10.5px', color: '#9CA3AF', minWidth: '35px' }}>{(totalCosto > 0 ? r.cuotaAnual / totalCosto * 100 : 0).toFixed(1)}%</span>
                           </div>
@@ -3601,7 +3607,7 @@ function CalculadoraInner() {
                     ))}
                   </tbody>
                   <tfoot>
-                    <tr style={{ background: '#1B3A6B' }}>
+                    <tr style={{ background: '#334E7B' }}>
                       <td colSpan={4} style={{ padding: '10px 12px', color: 'white', fontWeight: '700' as const, textAlign: 'right' as const }}>TOTAL COSTO MOD. 40</td>
                       <td style={{ padding: '10px 12px', textAlign: 'right' as const, fontWeight: '900' as const, color: '#FCD34D', fontSize: '16px' }}>{fmtMXN2(escRec.costo_total)}</td>
                       <td style={{ padding: '10px 12px', textAlign: 'right' as const, color: '#93C5FD', fontWeight: '700' as const }}>100%</td>
@@ -3622,7 +3628,7 @@ function CalculadoraInner() {
 
               {/* Siguiente */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
-                <button onClick={() => setTab(4)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>Info. del Pensionado →</button>
+                <button onClick={() => setTab(4)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#334E7B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>Info. del Pensionado →</button>
               </div>
             </div>
           )
@@ -3641,7 +3647,7 @@ function CalculadoraInner() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
               {/* Header */}
-              <div style={{ background: '#1B3A6B', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ background: '#334E7B', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <p style={{ fontSize: '10px', color: '#93C5FD', margin: '0 0 4px', textTransform: 'uppercase' as const, letterSpacing: '0.6px', fontWeight: '600' as const }}>Información General del Pensionado</p>
                   <p style={{ fontSize: '16px', fontWeight: '800' as const, color: 'white', margin: 0 }}>Proyecto de Plan de Retiro con Modalidad 40</p>
@@ -3655,7 +3661,7 @@ function CalculadoraInner() {
               {/* 3 KPIs críticos */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
                 {[
-                  { label: 'Edad de retiro estimada', value: escRec.edad_retiro?.toFixed(2) + ' años', sub: 'al momento del trámite', color: '#1B3A6B', bg: '#EEF2F8', border: '#1B3A6B' },
+                  { label: 'Edad de retiro estimada', value: escRec.edad_retiro?.toFixed(2) + ' años', sub: 'al momento del trámite', color: '#334E7B', bg: '#EEF2F8', border: '#334E7B' },
                   { label: 'Semanas cotizadas finales', value: Math.round(escRec.semanas_finales || 0).toString(), sub: 'con Mod. 40', color: (escRec.semanas_finales || 0) >= 500 ? '#065F46' : '#DC2626', bg: (escRec.semanas_finales || 0) >= 500 ? '#F0FDF4' : '#FEF2F2', border: (escRec.semanas_finales || 0) >= 500 ? '#86EFAC' : '#FCA5A5' },
                   { label: 'Nuevo SDI promedio', value: fmtMXN2(escRec.nuevo_sdi_250), sub: 'base mejorada de pensión', color: '#92400E', bg: '#FFFBEB', border: '#FCD34D' },
                 ].map((k, i) => (
@@ -3685,7 +3691,7 @@ function CalculadoraInner() {
                       ].map(({ label, value, critical }, i) => (
                         <tr key={i} style={{ background: critical ? '#EEF2F8' : i % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
                           <td style={{ padding: '8px 12px', fontSize: '12px', color: '#6B7280' }}>{label}</td>
-                          <td style={{ padding: '8px 12px', fontSize: critical ? '15px' : '13px', fontWeight: critical ? '900' : '700', color: critical ? '#1B3A6B' : '#374151', textAlign: 'right' as const }}>{value}</td>
+                          <td style={{ padding: '8px 12px', fontSize: critical ? '15px' : '13px', fontWeight: critical ? '900' : '700', color: critical ? '#334E7B' : '#374151', textAlign: 'right' as const }}>{value}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -3721,7 +3727,7 @@ function CalculadoraInner() {
 
               {/* Siguiente */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
-                <button onClick={() => setTab(5)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>Importe de Pensión →</button>
+                <button onClick={() => setTab(5)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#334E7B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>Importe de Pensión →</button>
               </div>
             </div>
           )
@@ -3744,7 +3750,7 @@ function CalculadoraInner() {
 
               {/* 2 KPIs hero */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                <div style={{ background: '#1B3A6B', padding: '24px 20px', textAlign: 'center' as const }}>
+                <div style={{ background: '#334E7B', padding: '24px 20px', textAlign: 'center' as const }}>
                   <div style={{ fontSize: '10px', color: '#93C5FD', textTransform: 'uppercase' as const, letterSpacing: '0.8px', fontWeight: '600' as const, marginBottom: '10px' }}>PENSIÓN ANUAL CON MOD. 40</div>
                   <div style={{ fontSize: '38px', fontWeight: '900' as const, color: 'white', letterSpacing: '-2px', marginBottom: '6px' }}>{fmtMXN2(escRec.pension_mensual * 12)}</div>
                   <div style={{ fontSize: '12px', color: '#93C5FD' }}>Ley del Seguro Social 1973</div>
@@ -3770,8 +3776,8 @@ function CalculadoraInner() {
                     <div style={{ padding: '4px 10px', background: '#F0FDF4', border: '1px solid #86EFAC', fontSize: '13px', fontWeight: '800' as const, color: '#065F46' }}>+{fmtMXN2(incremento)}</div>
                   </div>
                   <div style={{ background: '#EEF2F8', border: '2px solid #1B3A6B', padding: '16px', textAlign: 'center' as const }}>
-                    <div style={{ fontSize: '10px', color: '#1B3A6B', textTransform: 'uppercase' as const, fontWeight: '700' as const, marginBottom: '6px' }}>CON MODALIDAD 40</div>
-                    <div style={{ fontSize: '28px', fontWeight: '900' as const, color: '#1B3A6B', letterSpacing: '-1px' }}>{fmtMXN2(escRec.pension_mensual)}</div>
+                    <div style={{ fontSize: '10px', color: '#334E7B', textTransform: 'uppercase' as const, fontWeight: '700' as const, marginBottom: '6px' }}>CON MODALIDAD 40</div>
+                    <div style={{ fontSize: '28px', fontWeight: '900' as const, color: '#334E7B', letterSpacing: '-1px' }}>{fmtMXN2(escRec.pension_mensual)}</div>
                     <div style={{ fontSize: '11px', color: '#6B7280', marginTop: '4px' }}>mensual mejorada</div>
                   </div>
                 </div>
@@ -3782,7 +3788,7 @@ function CalculadoraInner() {
                 <p style={DS.secTitle}>📋 Factor por Edad — ¿Cuánto recibe según la edad de retiro? <Tip id="factorEdad" /></p>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                   <thead>
-                    <tr style={{ background: '#1B3A6B' }}>
+                    <tr style={{ background: '#334E7B' }}>
                       {['Edad de Retiro', '% del Total', 'Pensión Mensual', 'Pensión Anual', 'Aguinaldo'].map((h, i) => (
                         <th key={i} style={{ padding: '9px 12px', color: 'white', fontWeight: '700' as const, textAlign: 'center' as const, fontSize: '11px' }}>{h}</th>
                       ))}
@@ -3795,11 +3801,11 @@ function CalculadoraInner() {
                       const isActive = Math.floor(escRec.edad_retiro || 62) === edad
                       return (
                         <tr key={edad} style={{ background: isActive ? '#EEF2F8' : i % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6', outline: isActive ? '2px solid #1B3A6B' : 'none' }}>
-                          <td style={{ padding: '10px 12px', textAlign: 'center' as const, fontWeight: isActive ? '800' : '500', color: isActive ? '#1B3A6B' : '#374151', fontSize: isActive ? '14px' : '12px' }}>
+                          <td style={{ padding: '10px 12px', textAlign: 'center' as const, fontWeight: isActive ? '800' : '500', color: isActive ? '#334E7B' : '#374151', fontSize: isActive ? '14px' : '12px' }}>
                             {isActive && '▶ '}{edad} años {edad >= 65 ? '(Vejez)' : '(Cesantía E.A.)'}
                           </td>
-                          <td style={{ padding: '10px 12px', textAlign: 'center' as const, fontWeight: '800' as const, color: isActive ? '#F05B21' : '#374151', fontSize: isActive ? '18px' : '14px' }}>{pct}%</td>
-                          <td style={{ padding: '10px 12px', textAlign: 'center' as const, fontWeight: isActive ? '900' : '600', color: isActive ? '#1B3A6B' : '#374151', fontSize: isActive ? '16px' : '13px' }}>{fmtMXN2(penMens)}</td>
+                          <td style={{ padding: '10px 12px', textAlign: 'center' as const, fontWeight: '800' as const, color: isActive ? '#E8724A' : '#374151', fontSize: isActive ? '18px' : '14px' }}>{pct}%</td>
+                          <td style={{ padding: '10px 12px', textAlign: 'center' as const, fontWeight: isActive ? '900' : '600', color: isActive ? '#334E7B' : '#374151', fontSize: isActive ? '16px' : '13px' }}>{fmtMXN2(penMens)}</td>
                           <td style={{ padding: '10px 12px', textAlign: 'center' as const, fontWeight: isActive ? '800' : '600', color: '#374151' }}>{fmtMXN2(penMens * 12)}</td>
                           <td style={{ padding: '10px 12px', textAlign: 'center' as const, color: '#6B7280' }}>{fmtMXN2(penMens)}</td>
                         </tr>
@@ -3811,7 +3817,7 @@ function CalculadoraInner() {
 
               {/* Siguiente */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
-                <button onClick={() => setTab(6)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>Inversión →</button>
+                <button onClick={() => setTab(6)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#334E7B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>Inversión →</button>
               </div>
             </div>
           )
@@ -3854,7 +3860,7 @@ function CalculadoraInner() {
                 {[
                   { label: 'Incremento en pensión', value: fmtMXN2(escRec.incremento_vs_base), sub: 'mensual adicional', color: '#065F46', bg: '#F0FDF4', border: '#86EFAC', critical: true },
                   { label: 'Inversión neta', value: fmtMXN2(escRec.inversion_neta), sub: 'descontando AFORE', color: '#92400E', bg: '#FFFBEB', border: '#FCD34D', critical: false },
-                  { label: 'Recuperación', value: escRec.roi_meses?.toFixed(1) + ' meses', sub: 'para recuperar inversión', color: '#1B3A6B', bg: '#EEF2F8', border: '#1B3A6B', critical: false },
+                  { label: 'Recuperación', value: escRec.roi_meses?.toFixed(1) + ' meses', sub: 'para recuperar inversión', color: '#334E7B', bg: '#EEF2F8', border: '#334E7B', critical: false },
                   { label: 'Tasa de rendimiento', value: escRec.tasa_rendimiento?.toFixed(1) + '%', sub: 'total a los 80 años', color: termRec.color, bg: termRec.bg, border: termRec.color, critical: true },
                 ].map((k, i) => (
                   <div key={i} style={{ background: k.bg, border: '2px solid ' + k.border, padding: '14px', textAlign: 'center' as const }}>
@@ -3886,7 +3892,7 @@ function CalculadoraInner() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                       <p style={{ fontSize: '13px', fontWeight: '700' as const, color: '#111827', margin: 0 }}>📈 Análisis de Flujos — Ganancia acumulada</p>
                       <div style={{ display: 'flex', gap: '16px', fontSize: '10px', color: '#6B7280' }}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><span style={{ width: '12px', height: '3px', background: '#2E8B57', display: 'inline-block' }} />Ganancia acumulada</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><span style={{ width: '12px', height: '3px', background: '#2E7D5A', display: 'inline-block' }} />Ganancia acumulada</span>
                         <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><span style={{ width: '12px', height: '2px', background: '#EF4444', display: 'inline-block', borderTop: '2px dashed #EF4444' }} />Inversión inicial</span>
                       </div>
                     </div>
@@ -3898,7 +3904,7 @@ function CalculadoraInner() {
                       {/* Gain area */}
                       <path d={gainArea} fill='#F0FDF4' opacity='0.7' />
                       {/* Gain line */}
-                      <path d={gainPath} fill='none' stroke='#2E8B57' strokeWidth='2.5' strokeLinejoin='round' />
+                      <path d={gainPath} fill='none' stroke='#2E7D5A' strokeWidth='2.5' strokeLinejoin='round' />
                       {/* Investment dashed line */}
                       <line x1={PAD.l} y1={invY} x2={W - PAD.r} y2={invY} stroke='#EF4444' strokeWidth='1.5' strokeDasharray='6,4' />
                       {/* Y axis labels */}
@@ -3914,7 +3920,7 @@ function CalculadoraInner() {
                       {/* Punto de break-even */}
                       {filas.findIndex(f => f.ganAcum >= 0) > 0 && (() => {
                         const beIdx = filas.findIndex(f => f.ganAcum >= 0)
-                        return <circle cx={xScale(beIdx)} cy={yScale(0)} r='4' fill='#F05B21' />
+                        return <circle cx={xScale(beIdx)} cy={yScale(0)} r='4' fill='#E8724A' />
                       })()}
                     </svg>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10.5px', color: '#9CA3AF', marginTop: '4px' }}>
@@ -3930,7 +3936,7 @@ function CalculadoraInner() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
                 {/* Col 1: Mejora de pensión */}
                 <div style={{ border: '1px solid #E5E7EB', background: 'white' }}>
-                  <div style={{ background: '#1B3A6B', color: 'white', padding: '6px 12px', fontSize: '12.5px', fontWeight: '700' as const, textAlign: 'center' as const }}>MEJORA DE PENSIÓN</div>
+                  <div style={{ background: '#334E7B', color: 'white', padding: '6px 12px', fontSize: '12.5px', fontWeight: '700' as const, textAlign: 'center' as const }}>MEJORA DE PENSIÓN</div>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12.5px' }}>
                     <thead>
                       <tr style={{ background: '#F0F0F0' }}>
@@ -3943,7 +3949,7 @@ function CalculadoraInner() {
                       <tr>
                         <td style={{ padding: '5px 8px', fontSize: '13px', color: '#6B7280', border: '1px solid #E5E7EB' }}>EDAD DE RETIRO</td>
                         <td style={{ padding: '5px 8px', textAlign: 'center' as const, border: '1px solid #E5E7EB', fontWeight: '700' as const }}>{edadRetBase}</td>
-                        <td style={{ padding: '5px 8px', textAlign: 'center' as const, border: '1px solid #E5E7EB', fontWeight: '700' as const, color: '#1B3A6B' }}>{Math.floor(escRec.edad_retiro || 62)}</td>
+                        <td style={{ padding: '5px 8px', textAlign: 'center' as const, border: '1px solid #E5E7EB', fontWeight: '700' as const, color: '#334E7B' }}>{Math.floor(escRec.edad_retiro || 62)}</td>
                       </tr>
                       <tr style={{ background: '#F9FAFB' }}>
                         <td style={{ padding: '5px 8px', fontSize: '13px', color: '#6B7280', border: '1px solid #E5E7EB' }}>MONTO DE MEJORA DE PENSIÓN</td>
@@ -3957,7 +3963,7 @@ function CalculadoraInner() {
                     <p style={{ fontSize: '13px', fontWeight: '700' as const, color: '#374151', margin: '0 0 6px', textTransform: 'uppercase' as const }}>ANÁLISIS DE LA INVERSIÓN</p>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
                       <span style={{ fontSize: '13px', color: '#6B7280', maxWidth: '65%', lineHeight: 1.3 }}>PERÍODOS DE RECUPERACIÓN DE LA INVERSIÓN (MESES)</span>
-                      <span style={{ fontSize: '14px', fontWeight: '800' as const, color: '#1B3A6B' }}>—</span>
+                      <span style={{ fontSize: '14px', fontWeight: '800' as const, color: '#334E7B' }}>—</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #F3F4F6', padding: '3px 0' }}>
                       <span style={{ fontSize: '13px', color: '#6B7280' }}>SIN MODALIDAD 40</span>
@@ -3965,7 +3971,7 @@ function CalculadoraInner() {
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0' }}>
                       <span style={{ fontSize: '13px', color: '#6B7280' }}>CON MODALIDAD 40</span>
-                      <span style={{ fontSize: '12.5px', fontWeight: '700' as const, color: '#1B3A6B' }}>{escRec.roi_meses.toFixed(2)}</span>
+                      <span style={{ fontSize: '12.5px', fontWeight: '700' as const, color: '#334E7B' }}>{escRec.roi_meses.toFixed(2)}</span>
                     </div>
                   </div>
                   <div style={{ padding: '8px 10px', borderTop: '1px solid #d1d5db' }}>
@@ -3992,7 +3998,7 @@ function CalculadoraInner() {
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <span style={{ fontSize: '13px', color: '#6B7280' }}>Tasa de Rendimiento Total</span>
-                        <span style={{ fontSize: '12px', fontWeight: '700' as const, color: '#1B3A6B' }}>{escRec.tasa_rendimiento.toFixed(2)}%</span>
+                        <span style={{ fontSize: '12px', fontWeight: '700' as const, color: '#334E7B' }}>{escRec.tasa_rendimiento.toFixed(2)}%</span>
                       </div>
                     </div>
                     <div style={{ background: termRec.bg, border: `1px solid ${termRec.color}`, padding: '6px 10px', marginTop: '8px', textAlign: 'center' as const }}>
@@ -4008,7 +4014,7 @@ function CalculadoraInner() {
                   <div style={{ padding: '8px 10px', borderBottom: '2px solid #1B3A6B' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontSize: '12.5px', fontWeight: '700' as const, color: '#374151' }}>INVERSIÓN TOTAL</span>
-                      <span style={{ fontSize: '16px', fontWeight: '900' as const, color: '#1B3A6B' }}>{fmtMXN(escRec.costo_retroactivo)}</span>
+                      <span style={{ fontSize: '16px', fontWeight: '900' as const, color: '#334E7B' }}>{fmtMXN(escRec.costo_retroactivo)}</span>
                     </div>
                   </div>
                   <div style={{ padding: '6px 10px' }}>
@@ -4030,7 +4036,7 @@ function CalculadoraInner() {
                       ].map(([l, v], i) => (
                         <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', borderBottom: '1px solid #F3F4F6', padding: '2px 0' }}>
                           <span style={{ color: '#374151' }}>{l}</span>
-                          <span style={{ fontWeight: '700' as const, color: '#1B3A6B' }}>{v}</span>
+                          <span style={{ fontWeight: '700' as const, color: '#334E7B' }}>{v}</span>
                         </div>
                       ))}
                     </div>
@@ -4075,7 +4081,7 @@ function CalculadoraInner() {
                   <div style={{ background: '#15803D', color: 'white', padding: '6px 12px', fontSize: '12.5px', fontWeight: '700' as const, textAlign: 'center' as const }}>ANÁLISIS DE LA INVERSIÓN</div>
                   <div style={{ padding: '6px 10px', borderBottom: '1px solid #d1d5db', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: '13px', color: '#6B7280', maxWidth: '70%', lineHeight: 1.3 }}>PERÍODOS DE RECUPERACIÓN DE LA INVERSIÓN (MESES)</span>
-                    <span style={{ fontSize: '16px', fontWeight: '900' as const, color: '#1B3A6B' }}>{escRec.roi_financiado.toFixed(2)}</span>
+                    <span style={{ fontSize: '16px', fontWeight: '900' as const, color: '#334E7B' }}>{escRec.roi_financiado.toFixed(2)}</span>
                   </div>
                   {/* Tabla año×año compacta */}
                   <div style={{ flex: 1, overflowY: 'auto', maxHeight: '200px' }}>
@@ -4093,7 +4099,7 @@ function CalculadoraInner() {
                             <td style={{ padding: '2px 4px', textAlign: 'right' as const, color: '#9CA3AF', border: '1px solid #E5E7EB' }}>{f.anio}</td>
                             <td style={{ padding: '2px 4px', textAlign: 'right' as const, fontWeight: f.edad === 80 ? '800' : '600', color: f.edad === 80 ? '#15803D' : '#374151', border: '1px solid #E5E7EB' }}>{f.edad}</td>
                             <td style={{ padding: '2px 4px', textAlign: 'right' as const, color: '#9CA3AF', border: '1px solid #E5E7EB' }}>{fmtMXN(f.penSin)}</td>
-                            <td style={{ padding: '2px 4px', textAlign: 'right' as const, color: '#1B3A6B', border: '1px solid #E5E7EB' }}>{fmtMXN(f.penCon)}</td>
+                            <td style={{ padding: '2px 4px', textAlign: 'right' as const, color: '#334E7B', border: '1px solid #E5E7EB' }}>{fmtMXN(f.penCon)}</td>
                             <td style={{ padding: '2px 4px', textAlign: 'right' as const, color: f.desc < 0 ? '#B91C1C' : '#9CA3AF', border: '1px solid #E5E7EB' }}>{f.desc < 0 ? fmtMXN(f.desc) : '—'}</td>
                             <td style={{ padding: '2px 4px', textAlign: 'right' as const, fontWeight: '600' as const, color: '#15803D', border: '1px solid #E5E7EB' }}>{fmtMXN(f.penInm)}</td>
                             <td style={{ padding: '2px 4px', textAlign: 'right' as const, color: f.ganAnio > 0 ? '#15803D' : '#B91C1C', border: '1px solid #E5E7EB' }}>{fmtMXN(f.ganAnio)}</td>
@@ -4107,7 +4113,7 @@ function CalculadoraInner() {
                     {[
                       { l: 'PENSIÓN MENSUAL INMEDIATA (DURANTE 60 MESES)', v: fmtMXN(escRec.pension_inmediata), c: '#D95B00' },
                       { l: 'PENSIÓN MENSUAL AL LIQUIDAR FINANCIAMIENTO (60 MESES)', v: fmtMXN(escRec.pension_al_liquidar), c: '#15803D' },
-                      { l: 'FLUJOS DE PENSIÓN COBRADOS HASTA LOS 80 AÑOS', v: fmtMXN(escRec.ganancia_a80_financiado + escRec.inversion_neta_retro), c: '#1B3A6B' },
+                      { l: 'FLUJOS DE PENSIÓN COBRADOS HASTA LOS 80 AÑOS', v: fmtMXN(escRec.ganancia_a80_financiado + escRec.inversion_neta_retro), c: '#334E7B' },
                     ].map((k, i) => (
                       <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #F3F4F6', padding: '4px 0' }}>
                         <span style={{ fontSize: '12.5px', color: '#6B7280', maxWidth: '55%', lineHeight: 1.3 }}>{k.l}</span>
@@ -4128,7 +4134,7 @@ function CalculadoraInner() {
         {/* ── Siguiente sección ── */}
         {tab === 6 && (
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
-            <button onClick={() => setTab(7)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>
+            <button onClick={() => setTab(7)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#334E7B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>
               Datos del Proyecto →
             </button>
           </div>
@@ -4142,7 +4148,7 @@ function CalculadoraInner() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
               {/* Header */}
-              <div style={{ background: '#1B3A6B', padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ background: '#334E7B', padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <p style={{ fontSize: '10px', color: '#93C5FD', margin: '0 0 3px', textTransform: 'uppercase' as const, letterSpacing: '0.6px', fontWeight: '600' as const }}>Resumen completo</p>
                   <p style={{ fontSize: '15px', fontWeight: '800' as const, color: 'white', margin: 0 }}>Datos del Proyecto de Pensión</p>
@@ -4159,7 +4165,7 @@ function CalculadoraInner() {
                 {/* Pensión */}
                 <div style={DS.card}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', paddingBottom: '10px', borderBottom: '2px solid #EEF2F8' }}>
-                    <div style={{ width: '4px', height: '16px', background: '#1B3A6B' }} />
+                    <div style={{ width: '4px', height: '16px', background: '#334E7B' }} />
                     <span style={{ fontSize: '12px', fontWeight: '700' as const, color: '#111827', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Pensión</span>
                   </div>
                   {[
@@ -4171,7 +4177,7 @@ function CalculadoraInner() {
                   ].map(({ label, value, critical }, i) => (
                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #F3F4F6', background: critical ? 'transparent' : 'transparent' }}>
                       <span style={{ fontSize: '12px', color: '#6B7280' }}>{label}</span>
-                      <span style={{ fontSize: critical ? '16px' : '13px', fontWeight: critical ? '900' : '700', color: critical ? '#1B3A6B' : '#374151' }}>{value}</span>
+                      <span style={{ fontSize: critical ? '16px' : '13px', fontWeight: critical ? '900' : '700', color: critical ? '#334E7B' : '#374151' }}>{value}</span>
                     </div>
                   ))}
                 </div>
@@ -4179,7 +4185,7 @@ function CalculadoraInner() {
                 {/* Modalidad 40 */}
                 <div style={DS.card}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', paddingBottom: '10px', borderBottom: '2px solid #FFFBEB' }}>
-                    <div style={{ width: '4px', height: '16px', background: '#F05B21' }} />
+                    <div style={{ width: '4px', height: '16px', background: '#E8724A' }} />
                     <span style={{ fontSize: '12px', fontWeight: '700' as const, color: '#111827', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Modalidad 40</span>
                   </div>
                   {[
@@ -4194,7 +4200,7 @@ function CalculadoraInner() {
                   ].map(({ label, value, critical }, i) => (
                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #F3F4F6' }}>
                       <span style={{ fontSize: '12px', color: '#6B7280' }}>{label}</span>
-                      <span style={{ fontSize: critical ? '14px' : '12px', fontWeight: critical ? '800' : '700', color: critical ? '#F05B21' : '#374151' }}>{value}</span>
+                      <span style={{ fontSize: critical ? '14px' : '12px', fontWeight: critical ? '800' : '700', color: critical ? '#E8724A' : '#374151' }}>{value}</span>
                     </div>
                   ))}
                 </div>
@@ -4202,7 +4208,7 @@ function CalculadoraInner() {
                 {/* Inversión */}
                 <div style={DS.card}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', paddingBottom: '10px', borderBottom: '2px solid #F0FDF4' }}>
-                    <div style={{ width: '4px', height: '16px', background: '#2E8B57' }} />
+                    <div style={{ width: '4px', height: '16px', background: '#2E7D5A' }} />
                     <span style={{ fontSize: '12px', fontWeight: '700' as const, color: '#111827', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Inversión</span>
                   </div>
                   {[
@@ -4245,7 +4251,7 @@ function CalculadoraInner() {
 
               {/* Siguiente */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
-                <button onClick={() => setTab(8)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>Escenarios →</button>
+                <button onClick={() => setTab(8)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#334E7B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>Escenarios →</button>
               </div>
             </div>
           )
@@ -4270,7 +4276,7 @@ function CalculadoraInner() {
                         ...escsConMod40.slice(0, 6).map((e, i) => ({
                           label: 'Escenario ' + (i + 1) + ' — ' + e.mod40_umas + ' UMAs · ' + (e.mod40_meses / 12).toFixed(1) + ' años',
                           value: e.pension_mensual,
-                          color: ['#1B3A6B', '#2E8B57', '#F05B21', '#7C3AED', '#0891B2', '#DC2626'][i],
+                          color: ['#334E7B', '#2E7D5A', '#E8724A', '#7C3AED', '#0891B2', '#DC2626'][i],
                           isBase: false,
                           gain: e.pension_mensual - base,
                         }))
@@ -4284,7 +4290,7 @@ function CalculadoraInner() {
                             </div>
                           </div>
                           {!sc.isBase && (sc as any).gain > 0 && (
-                            <div style={{ width: '80px', fontSize: '11px', fontWeight: '700' as const, color: '#2E8B57', textAlign: 'right' as const, flexShrink: 0 }}>+{fmtMXN2((sc as any).gain)}</div>
+                            <div style={{ width: '80px', fontSize: '11px', fontWeight: '700' as const, color: '#2E7D5A', textAlign: 'right' as const, flexShrink: 0 }}>+{fmtMXN2((sc as any).gain)}</div>
                           )}
                         </div>
                       ))
@@ -4303,8 +4309,8 @@ function CalculadoraInner() {
                   <div style={{ overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                       <thead>
-                        <tr style={{ background: '#1B3A6B' }}>
-                          <th style={{ padding: '8px 10px', color: 'white', textAlign: 'left' as const, fontWeight: '700' as const, fontSize: '11px', position: 'sticky' as const, left: 0, background: '#1B3A6B' }}>Concepto</th>
+                        <tr style={{ background: '#334E7B' }}>
+                          <th style={{ padding: '8px 10px', color: 'white', textAlign: 'left' as const, fontWeight: '700' as const, fontSize: '11px', position: 'sticky' as const, left: 0, background: '#334E7B' }}>Concepto</th>
                           <th style={{ padding: '8px 10px', color: '#93C5FD', textAlign: 'right' as const, fontWeight: '700' as const, fontSize: '11px', whiteSpace: 'nowrap' }}>Sin Mod. 40</th>
                           {escsConMod40.slice(0, 6).map((e, i) => (
                             <th key={i} style={{ padding: '8px 10px', color: 'white', textAlign: 'right' as const, fontWeight: '700' as const, fontSize: '11px', whiteSpace: 'nowrap' }}>
@@ -4331,7 +4337,7 @@ function CalculadoraInner() {
                             <td style={{ padding: '7px 10px', color: '#374151', fontWeight: row.highlight ? '700' : '400', position: 'sticky' as const, left: 0, background: row.highlight ? '#EEF2F8' : ri % 2 === 0 ? 'white' : '#F9FAFB' }}>{row.label}</td>
                             <td style={{ padding: '7px 10px', textAlign: 'right' as const, color: '#9CA3AF', fontStyle: 'italic' }}>{fmtMXN2(escenarios[0]?.pension_base ?? 0)}</td>
                             {escsConMod40.slice(0, 6).map((e, i) => (
-                              <td key={i} style={{ padding: '7px 10px', textAlign: 'right' as const, fontWeight: row.highlight ? '800' : '600', color: row.highlight ? '#1B3A6B' : '#374151' }}>{row.fn(e)}</td>
+                              <td key={i} style={{ padding: '7px 10px', textAlign: 'right' as const, fontWeight: row.highlight ? '800' : '600', color: row.highlight ? '#334E7B' : '#374151' }}>{row.fn(e)}</td>
                             ))}
                           </tr>
                         ))}
@@ -4341,7 +4347,7 @@ function CalculadoraInner() {
                 )}
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
-                <button onClick={() => setTab(9)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>Escenario 1 →</button>
+                <button onClick={() => setTab(9)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#334E7B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>Escenario 1 →</button>
               </div>
             </div>
           )
@@ -4364,7 +4370,7 @@ function CalculadoraInner() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
               {/* Hero header */}
-              <div style={{ background: '#1B3A6B', padding: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
+              <div style={{ background: '#334E7B', padding: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
                 <div style={{ textAlign: 'center' as const, borderRight: '1px solid rgba(255,255,255,0.15)', paddingRight: '20px' }}>
                   <div style={{ fontSize: '10px', color: '#93C5FD', textTransform: 'uppercase' as const, letterSpacing: '0.6px', fontWeight: '600' as const, marginBottom: '6px' }}>Pensión actual</div>
                   <div style={{ fontSize: '22px', fontWeight: '900' as const, color: '#9CA3AF', letterSpacing: '-1px' }}>{fmtMXN2(pensionActual)}</div>
@@ -4388,10 +4394,10 @@ function CalculadoraInner() {
                   <p style={DS.secTitle}>📌 Puntos Clave del Escenario</p>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
-                      <tr style={{ background: '#F4F6FB' }}>
+                      <tr style={{ background: '#F4F6F9' }}>
                         <th style={{ padding: '7px 10px', textAlign: 'left' as const, fontSize: '10px', color: '#9CA3AF', fontWeight: '700' as const, textTransform: 'uppercase' as const }}>Concepto</th>
                         <th style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: '10px', color: '#9CA3AF', fontWeight: '700' as const }}>Sin Mod. 40</th>
-                        <th style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: '10px', color: '#1B3A6B', fontWeight: '700' as const }}>Con Mod. 40</th>
+                        <th style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: '10px', color: '#334E7B', fontWeight: '700' as const }}>Con Mod. 40</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -4409,7 +4415,7 @@ function CalculadoraInner() {
                         <tr key={i} style={{ background: highlight ? '#EEF2F8' : i % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
                           <td style={{ padding: '7px 10px', fontSize: '12px', color: '#374151', fontWeight: highlight ? '600' : '400' }}>{label}</td>
                           <td style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: '12px', color: '#9CA3AF' }}>{v1}</td>
-                          <td style={{ padding: '7px 10px', textAlign: 'center' as const, fontWeight: highlight ? '800' : '600', color: highlight ? '#1B3A6B' : '#374151', fontSize: highlight ? '13px' : '12px' }}>{v2}</td>
+                          <td style={{ padding: '7px 10px', textAlign: 'center' as const, fontWeight: highlight ? '800' : '600', color: highlight ? '#334E7B' : '#374151', fontSize: highlight ? '13px' : '12px' }}>{v2}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -4422,7 +4428,7 @@ function CalculadoraInner() {
                   <div style={{ overflowY: 'auto', maxHeight: '280px', marginBottom: '10px' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                       <thead>
-                        <tr style={{ background: '#1B3A6B', position: 'sticky' as const, top: 0 }}>
+                        <tr style={{ background: '#334E7B', position: 'sticky' as const, top: 0 }}>
                           {['Año', 'SDI', 'Tasa', 'Mensual', 'Anual'].map((h, i) => (
                             <th key={i} style={{ padding: '7px 10px', color: 'white', fontWeight: '700' as const, textAlign: 'right' as const, fontSize: '10.5px' }}>{h}</th>
                           ))}
@@ -4437,7 +4443,7 @@ function CalculadoraInner() {
                           const cuotaMens = sdi * (tasa / 100) * diasAnio / 12
                           return (
                             <tr key={a} style={{ background: idx % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
-                              <td style={{ padding: '7px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: '#1B3A6B' }}>{a}</td>
+                              <td style={{ padding: '7px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: '#334E7B' }}>{a}</td>
                               <td style={{ padding: '7px 10px', textAlign: 'right' as const, color: '#374151' }}>{fmtMXN(sdi)}</td>
                               <td style={{ padding: '7px 10px', textAlign: 'right' as const, color: '#7C3AED', fontWeight: '600' as const }}>{tasa.toFixed(3)}%</td>
                               <td style={{ padding: '7px 10px', textAlign: 'right' as const, fontWeight: '700' as const }}>{fmtMXN2(cuotaMens)}</td>
@@ -4453,7 +4459,7 @@ function CalculadoraInner() {
                     {[
                       { label: 'Costo total mes a mes', value: fmtMXN2(escRec.costo_total), color: '#B91C1C', bg: '#FEF2F2' },
                       { label: 'Recuperación AFORE (20%)', value: '- ' + fmtMXN2(escRec.recuperacion_afore), color: '#065F46', bg: '#F0FDF4' },
-                      { label: 'Inversión real neta', value: fmtMXN2(escRec.inversion_neta), color: '#F05B21', bg: '#FFFBEB', big: true },
+                      { label: 'Inversión real neta', value: fmtMXN2(escRec.inversion_neta), color: '#E8724A', bg: '#FFFBEB', big: true },
                     ].map(({ label, value, color, bg, big }, i) => (
                       <div key={i} style={{ padding: '9px 12px', background: bg, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ fontSize: '12px', color: '#6B7280' }}>{label}</span>
@@ -4466,7 +4472,7 @@ function CalculadoraInner() {
 
               {/* Siguiente */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
-                <button onClick={() => setTab(10)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>Financiamiento →</button>
+                <button onClick={() => setTab(10)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#334E7B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>Financiamiento →</button>
               </div>
             </div>
           )
@@ -4485,7 +4491,7 @@ function CalculadoraInner() {
               {/* KPIs críticos */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px' }}>
                 {[
-                  { label: 'Inversión total retroactiva', value: fmtMXN(escRec.costo_retroactivo), color: '#1B3A6B', bg: '#EEF2F8', border: '#1B3A6B' },
+                  { label: 'Inversión total retroactiva', value: fmtMXN(escRec.costo_retroactivo), color: '#334E7B', bg: '#EEF2F8', border: '#334E7B' },
                   { label: 'Aportación banco (35.65%)', value: fmtMXN(escRec.aportacion_banco), color: '#1D4ED8', bg: '#EFF6FF', border: '#93C5FD' },
                   { label: 'Cuenta propia / fondeador', value: fmtMXN(escRec.aportacion_segundo_fondeo), color: '#92400E', bg: '#FFFBEB', border: '#FCD34D' },
                   { label: 'Descuento mensual a pensión', value: fmtMXN(escRec.descuento_mensual), color: '#B91C1C', bg: '#FEF2F2', border: '#FCA5A5' },
@@ -4501,9 +4507,9 @@ function CalculadoraInner() {
               {escRec.costo_retroactivo > 0 && (() => {
                 const total = escRec.costo_retroactivo
                 const slices = [
-                  { label: 'Recuperación AFORE', val: escRec.recuperacion_afore_retro, color: '#2E8B57' },
+                  { label: 'Recuperación AFORE', val: escRec.recuperacion_afore_retro, color: '#2E7D5A' },
                   { label: 'Banco regulado', val: escRec.aportacion_banco, color: '#1D4ED8' },
-                  { label: 'Cuenta propia / segundo fondeador', val: escRec.aportacion_segundo_fondeo, color: '#F05B21' },
+                  { label: 'Cuenta propia / segundo fondeador', val: escRec.aportacion_segundo_fondeo, color: '#E8724A' },
                 ]
                 const R = 60, r = 35, cx = 80, cy = 80
                 let startAngle = -90
@@ -4540,8 +4546,8 @@ function CalculadoraInner() {
                           </div>
                         ))}
                         <div style={{ marginTop: '10px', padding: '8px 10px', background: '#EEF2F8', display: 'flex', justifyContent: 'space-between' }}>
-                          <span style={{ fontSize: '12px', fontWeight: '700' as const, color: '#1B3A6B' }}>TOTAL RETROACTIVO</span>
-                          <span style={{ fontSize: '14px', fontWeight: '900' as const, color: '#1B3A6B' }}>{fmtMXN(total)}</span>
+                          <span style={{ fontSize: '12px', fontWeight: '700' as const, color: '#334E7B' }}>TOTAL RETROACTIVO</span>
+                          <span style={{ fontSize: '14px', fontWeight: '900' as const, color: '#334E7B' }}>{fmtMXN(total)}</span>
                         </div>
                       </div>
                     </div>
@@ -4554,10 +4560,10 @@ function CalculadoraInner() {
                 <div style={DS.card}>
                   <p style={DS.secTitle}>Pago Retroactivo — Participaciones</p>
                   {[
-                    { label: 'Inversión total retroactiva', value: fmtMXN(escRec.costo_retroactivo), big: true, color: '#1B3A6B' },
+                    { label: 'Inversión total retroactiva', value: fmtMXN(escRec.costo_retroactivo), big: true, color: '#334E7B' },
                     { label: 'Actualizaciones INPC (~7.27%)', value: fmtMXN(escRec.actualizaciones ?? 0), color: '#F59E0B' },
                     { label: 'Recargos por mora (~41.80%)', value: fmtMXN(escRec.recargos ?? 0), color: '#EF4444' },
-                    { label: 'Recuperación vía AFORE', value: fmtMXN(escRec.recuperacion_afore_retro), color: '#2E8B57' },
+                    { label: 'Recuperación vía AFORE', value: fmtMXN(escRec.recuperacion_afore_retro), color: '#2E7D5A' },
                     { label: 'Banco regulado (35.65%)', value: fmtMXN(escRec.aportacion_banco), color: '#3B82F6' },
                     { label: 'Segundo fondeador / ahorros', value: fmtMXN(escRec.aportacion_segundo_fondeo), color: '#F59E0B' },
                     { label: 'Cantidad mínima en AFORE', value: fmtMXN(escRec.cantidad_minima_afore ?? 0), big: true, color: '#EF4444' },
@@ -4579,7 +4585,7 @@ function CalculadoraInner() {
                   ].map(({ label, value, big }, i) => (
                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid #F3F4F6' }}>
                       <span style={{ fontSize: '13px', color: '#6B7280' }}>{label}</span>
-                      <span style={{ fontSize: big ? '14px' : '12px', fontWeight: big ? '800' : '700', color: '#1B3A6B' }}>{value}</span>
+                      <span style={{ fontSize: big ? '14px' : '12px', fontWeight: big ? '800' : '700', color: '#334E7B' }}>{value}</span>
                     </div>
                   ))}
                   <p style={{ fontSize: '11px', fontWeight: '700' as const, color: '#374151', margin: '12px 0 8px', textTransform: 'uppercase' as const }}>¿Cómo pago el banco?</p>
@@ -4591,7 +4597,7 @@ function CalculadoraInner() {
                   ].map(({ label, value, big }, i) => (
                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid #F3F4F6' }}>
                       <span style={{ fontSize: '13px', color: '#6B7280' }}>{label}</span>
-                      <span style={{ fontSize: big ? '13px' : '12px', fontWeight: big ? '800' : '600', color: big ? '#F05B21' : '#374151' }}>{value}</span>
+                      <span style={{ fontSize: big ? '13px' : '12px', fontWeight: big ? '800' : '600', color: big ? '#E8724A' : '#374151' }}>{value}</span>
                     </div>
                   ))}
                 </div>
@@ -4606,7 +4612,7 @@ function CalculadoraInner() {
                   ].map(({ label, value, big }, i) => (
                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid #F3F4F6' }}>
                       <span style={{ fontSize: '13px', color: '#6B7280' }}>{label}</span>
-                      <span style={{ fontSize: big ? '14px' : '12px', fontWeight: big ? '800' : '700', color: '#1B3A6B' }}>{value}</span>
+                      <span style={{ fontSize: big ? '14px' : '12px', fontWeight: big ? '800' : '700', color: '#334E7B' }}>{value}</span>
                     </div>
                   ))}
                   <div style={{ marginTop: '12px', padding: '12px', background: '#EEF2F8', border: '1px solid #BFDBFE' }}>
@@ -4618,14 +4624,14 @@ function CalculadoraInner() {
                     ].map(({ label, value }, i) => (
                       <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderBottom: '1px solid #DBEAFE' }}>
                         <span style={{ fontSize: '13px', color: '#6B7280' }}>{label}</span>
-                        <span style={{ fontSize: '12px', fontWeight: '700' as const, color: '#1B3A6B' }}>{value}</span>
+                        <span style={{ fontSize: '12px', fontWeight: '700' as const, color: '#334E7B' }}>{value}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
-                <button onClick={() => setTab(11)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#1B3A6B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>Resumen →</button>
+                <button onClick={() => setTab(11)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#334E7B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>Resumen →</button>
               </div>
             </div>
           )
@@ -4639,7 +4645,7 @@ function CalculadoraInner() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
               {/* Header ejecutivo */}
-              <div style={{ background: '#1B3A6B', padding: '18px 20px' }}>
+              <div style={{ background: '#334E7B', padding: '18px 20px' }}>
                 <p style={{ fontSize: '14px', fontWeight: '800' as const, color: 'white', margin: '0 0 4px' }}>Resumen Ejecutivo — Proyecto de Pensión con Modalidad 40</p>
                 <div style={{ display: 'flex', gap: '20px', fontSize: '11px', color: '#93C5FD' }}>
                   <span>{datos.nombre_trabajador || 'Trabajador'}</span>
@@ -4662,7 +4668,7 @@ function CalculadoraInner() {
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px' }}>
                     {[
                       { label: 'Pensión sin Mod. 40', value: fmtMXN2(escenarios[0]?.pension_base ?? 0), sub: 'situación actual', color: '#9CA3AF', bg: '#F9FAFB', border: '#E5E7EB' },
-                      { label: 'Pensión con Mod. 40', value: fmtMXN2(escRec?.pension_mensual ?? 0), sub: 'escenario recomendado', color: '#1B3A6B', bg: '#EEF2F8', border: '#1B3A6B' },
+                      { label: 'Pensión con Mod. 40', value: fmtMXN2(escRec?.pension_mensual ?? 0), sub: 'escenario recomendado', color: '#334E7B', bg: '#EEF2F8', border: '#334E7B' },
                       { label: 'Inversión neta', value: fmtMXN2(escRec?.inversion_neta ?? 0), sub: 'descontando AFORE', color: '#92400E', bg: '#FFFBEB', border: '#FCD34D' },
                       { label: 'Ganancia a 80 años', value: fmtMXN2(escRec?.ganancia_a80 ?? 0), sub: 'ganancia total', color: '#065F46', bg: '#F0FDF4', border: '#86EFAC' },
                     ].map((k, i) => (
@@ -4676,7 +4682,7 @@ function CalculadoraInner() {
 
                   {/* 4 tablas comparativas */}
                   {[
-                    { section: '1. Pensión y Monto Mensual', color: '#1B3A6B', rows: [
+                    { section: '1. Pensión y Monto Mensual', color: '#334E7B', rows: [
                       { label: 'Fecha ingreso Mod. 40', fn: (e: any) => e.fecha_ingreso_mod40 || '—' },
                       { label: 'Años cotizados en Mod. 40', fn: (e: any) => (e.mod40_meses / 12).toFixed(2) + ' años' },
                       { label: 'Semanas cotizadas finales', fn: (e: any) => Math.round(e.semanas_finales).toString(), highlight: true },
@@ -4684,7 +4690,7 @@ function CalculadoraInner() {
                       { label: 'Pensión mensual mejorada', fn: (e: any) => fmtMXN2(e.pension_mensual), highlight: true },
                       { label: 'Aguinaldo anual', fn: (e: any) => fmtMXN2(e.aguinaldo_anual) },
                     ]},
-                    { section: '2. Costo Modalidad 40', color: '#F05B21', rows: [
+                    { section: '2. Costo Modalidad 40', color: '#E8724A', rows: [
                       { label: 'Costo total mes a mes', fn: (e: any) => fmtMXN2(e.costo_total), highlight: true },
                       { label: 'Recuperación AFORE (20%)', fn: (e: any) => fmtMXN2(e.recuperacion_afore) },
                       { label: 'Inversión real neta', fn: (e: any) => fmtMXN2(e.inversion_neta), highlight: true },
@@ -4715,7 +4721,7 @@ function CalculadoraInner() {
                       <div style={{ overflowX: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                           <thead>
-                            <tr style={{ background: '#F4F6FB' }}>
+                            <tr style={{ background: '#F4F6F9' }}>
                               <th style={{ padding: '8px 12px', textAlign: 'left' as const, color: '#9CA3AF', fontSize: '10px', fontWeight: '700' as const, textTransform: 'uppercase' as const }}>Concepto</th>
                               <th style={{ padding: '8px 12px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: '10px', fontWeight: '700' as const }}>Sin Mod. 40</th>
                               {escsConMod40.map((_, i) => (
@@ -4861,7 +4867,7 @@ function CalculadoraInner() {
                     </p>
                   </div>
                   <button onClick={exportarPDF} disabled={!listo}
-                    style={{ padding: '12px 24px', background: listo ? '#1B3A6B' : '#D1D5DB', color: 'white', border: 'none', fontSize: '13px', fontWeight: '700' as const, cursor: listo ? 'pointer' : 'not-allowed', fontFamily: 'inherit', whiteSpace: 'nowrap' as const, flexShrink: 0 }}>
+                    style={{ padding: '12px 24px', background: listo ? '#334E7B' : '#D1D5DB', color: 'white', border: 'none', fontSize: '13px', fontWeight: '700' as const, cursor: listo ? 'pointer' : 'not-allowed', fontFamily: 'inherit', whiteSpace: 'nowrap' as const, flexShrink: 0 }}>
                     📄 Exportar PDF
                   </button>
                 </div>
@@ -4990,10 +4996,10 @@ function CalculadoraInner() {
                         <p style={DS.secTitle}>⚖️ Mod 10 vs Mod 40 — ¿Cuál conviene?</p>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                           <thead>
-                            <tr style={{ background: '#F4F6FB' }}>
+                            <tr style={{ background: '#F4F6F9' }}>
                               <th style={{ padding: '7px 10px', textAlign: 'left' as const, fontSize: '10px', color: '#9CA3AF', fontWeight: '700' }}>Concepto</th>
                               <th style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: '10px', color: '#0891B2', fontWeight: '700' }}>Mod 10</th>
-                              <th style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: '10px', color: '#1B3A6B', fontWeight: '700' }}>Mod 40</th>
+                              <th style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: '10px', color: '#334E7B', fontWeight: '700' }}>Mod 40</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -5009,7 +5015,7 @@ function CalculadoraInner() {
                               <tr key={i} style={{ background: highlight ? '#F0F9FF' : i % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
                                 <td style={{ padding: '7px 10px', fontSize: '13px', color: '#374151' }}>{label}</td>
                                 <td style={{ padding: '7px 10px', textAlign: 'center' as const, fontWeight: highlight ? '800' : '600', color: highlight ? '#0891B2' : '#374151', fontSize: highlight ? '13px' : '11.5px' }}>{m10}</td>
-                                <td style={{ padding: '7px 10px', textAlign: 'center' as const, fontWeight: highlight ? '800' : '600', color: highlight ? '#1B3A6B' : '#374151', fontSize: highlight ? '13px' : '11.5px' }}>{m40}</td>
+                                <td style={{ padding: '7px 10px', textAlign: 'center' as const, fontWeight: highlight ? '800' : '600', color: highlight ? '#334E7B' : '#374151', fontSize: highlight ? '13px' : '11.5px' }}>{m40}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -5044,17 +5050,49 @@ function CalculadoraInner() {
 
             </div>{/* fin overflowY */}
 
-            {/* ── Tab bar — pie de navegación ── */}
-            <div style={{ display: 'flex', borderTop: '2px solid #E5E7EB', background: 'white', flexShrink: 0, overflowX: 'auto', alignItems: 'stretch' }}>
-              {TABS.map((t, i) => (
-                <button key={i} onClick={() => setTab(i)}
-                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', padding: '12px 14px', border: 'none', borderBottom: '3px solid ' + (tab === i ? NARANJA : 'transparent'), cursor: 'pointer', background: tab === i ? '#FFF7F4' : 'white', fontFamily: 'inherit', flex: '1 0 auto', transition: 'all 0.15s', minWidth: '90px' }}>
-                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: i < tab ? VERDE : tab === i ? NARANJA : '#D1D5DB', transition: 'all 0.15s' }} />
-                  <span style={{ fontSize: '10.5px', fontWeight: tab === i ? '700' : '500', color: tab === i ? NARANJA : i < tab ? '#374151' : '#9CA3AF', whiteSpace: 'nowrap' as const }}>
-                    <span style={{ fontSize: '9px', opacity: 0.6 }}>{i+1} </span>{t}
-                  </span>
-                </button>
-              ))}
+            {/* ── Navegación agrupada — 4 secciones + sub-tabs ── */}
+            <div style={{ borderTop: `2px solid ${BORDE}`, background: 'white', flexShrink: 0 }}>
+              {/* Fila 1: 4 grupos principales */}
+              {(() => {
+                const grupos = [
+                  { label: 'El cliente', icon: '👤', tabs: [0,1,2,4], color: AZUL },
+                  { label: 'La pensión', icon: '💰', tabs: [5,8,9,12], color: '#2E7D5A' },
+                  { label: 'La inversión', icon: '📊', tabs: [3,6,7,10], color: '#B45309' },
+                  { label: 'El entregable', icon: '📄', tabs: [11], color: '#7C3AED' },
+                ]
+                const grupoActivo = grupos.findIndex(g => g.tabs.includes(tab))
+                return (
+                  <>
+                    {/* Grupos */}
+                    <div style={{ display: 'flex', borderBottom: `1px solid ${BORDE}` }}>
+                      {grupos.map((g, gi) => {
+                        const activo = gi === grupoActivo
+                        return (
+                          <button key={gi} onClick={() => setTab(g.tabs[0])}
+                            style={{ flex: 1, padding: '10px 8px', border: 'none', borderBottom: `3px solid ${activo ? g.color : 'transparent'}`, cursor: 'pointer', background: activo ? `${g.color}12` : 'white', fontFamily: 'inherit', transition: 'all 0.15s', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '3px' }}>
+                            <span style={{ fontSize: '16px' }}>{g.icon}</span>
+                            <span style={{ fontSize: '11px', fontWeight: activo ? '700' : '500', color: activo ? g.color : '#9CA3AF', whiteSpace: 'nowrap' as const }}>{g.label}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                    {/* Sub-tabs del grupo activo */}
+                    {grupoActivo >= 0 && (
+                      <div style={{ display: 'flex', overflowX: 'auto', background: '#FAFAFA' }}>
+                        {grupos[grupoActivo].tabs.map(i => (
+                          <button key={i} onClick={() => setTab(i)}
+                            style={{ padding: '7px 14px', border: 'none', borderBottom: `2px solid ${tab === i ? grupos[grupoActivo].color : 'transparent'}`, cursor: 'pointer', background: 'transparent', fontFamily: 'inherit', flexShrink: 0, transition: 'all 0.15s', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: i < tab ? '#2E7D5A' : tab === i ? grupos[grupoActivo].color : '#D1D5DB', flexShrink: 0 }} />
+                            <span style={{ fontSize: '11px', fontWeight: tab === i ? '700' : '400', color: tab === i ? grupos[grupoActivo].color : i < tab ? '#374151' : '#9CA3AF', whiteSpace: 'nowrap' as const }}>
+                              {TABS[i]}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )
+              })()}
             </div>
 
           </div>{/* fin panel derecho */}

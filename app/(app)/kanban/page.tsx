@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/utils/supabase/client'
 
-const AZUL = '#1B3A6B'
+const AZUL = '#334E7B'
 const VERDE = '#2E8B57'
 const NARANJA = '#F47920'
 
@@ -150,7 +150,7 @@ export default function KanbanPage() {
   const inputSt: React.CSSProperties = { display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box', outline: 'none', fontFamily: 'inherit', background: 'white' }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 56px)', background: '#F4F6FB' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 56px)', background: '#F4F6F9' }}>
       {/* Header — fijo arriba mientras se hace scroll de toda la página */}
       <div style={{ position: 'sticky' as const, top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #e2e8f0', padding: '12px 20px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '16px' }}>
         <h1 style={{ color: AZUL, fontSize: '18px', fontWeight: '800', margin: 0 }}>Pipeline de Clientes</h1>
@@ -164,7 +164,7 @@ export default function KanbanPage() {
             { label: 'Cobrado', value: fmtMXN(totalCobrado), color: VERDE },
             { label: 'Por cobrar', value: fmtMXN(totalPorCobrar), color: '#ef4444' },
           ].map((k, i) => (
-            <div key={i} style={{ background: '#F4F6FB', borderRadius: '8px', padding: '5px 12px', border: '1px solid #e2e8f0' }}>
+            <div key={i} style={{ background: '#F4F6F9', borderRadius: '8px', padding: '5px 12px', border: '1px solid #e2e8f0' }}>
               <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{k.label}</div>
               <div style={{ fontSize: '14px', fontWeight: '800', color: k.color }}>{k.value}</div>
             </div>
@@ -186,7 +186,7 @@ export default function KanbanPage() {
             {COLUMNAS.map(col => {
               const cards = clientesPorColumna(col.id)
               const isDragOver = dragOver === col.id
-              const colBg = isDragOver ? `${col.color}15` : '#F4F6FB'
+              const colBg = isDragOver ? `${col.color}15` : '#F4F6F9'
               return (
                 <div key={col.id}
                   onDragOver={e => onDragOver(e, col.id)}
@@ -337,7 +337,7 @@ export default function KanbanPage() {
             </div>
 
             {/* Info contacto */}
-            <div style={{ background: '#F4F6FB', borderRadius: '8px', padding: '12px', marginBottom: '14px' }}>
+            <div style={{ background: '#F4F6F9', borderRadius: '8px', padding: '12px', marginBottom: '14px' }}>
               {[
                 { icon: '📞', label: modal.cliente.telefono ?? '—' },
                 { icon: '✉️', label: modal.cliente.email ?? '—' },
