@@ -363,8 +363,8 @@ function MiDiaInner() {
     }
     const tint = tintMap[color] ?? '#F8FAFC'
     return (
-      <div style={{ background: filled ? color : tint, border: `1px solid ${color}22`, borderLeft: `4px solid ${color}`, padding: '8px 10px', textAlign: 'center' as const, borderRadius: '6px' }}>
-        <div style={{ fontSize: '9.5px', color: filled ? 'rgba(255,255,255,0.8)' : '#6B7280', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' as const, marginBottom: '3px' }}>{label}</div>
+      <div style={{ background: filled ? color : tint, border: `1px solid ${color}22`, borderLeft: `4px solid ${color}`, padding: '8px 10px', textAlign: 'center' as const, borderRadius: '6px', display: 'flex', flexDirection: 'column' as const, justifyContent: 'center', minHeight: '64px' }}>
+        <div style={{ fontSize: '9.5px', color: filled ? 'rgba(255,255,255,0.8)' : '#6B7280', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' as const, marginBottom: '3px', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
         <div style={{ fontSize: '18px', fontWeight: '800' as const, color: filled ? 'white' : color, letterSpacing: '-0.3px' }}>{value}</div>
         {sub && <div style={{ fontSize: '10px', color: filled ? 'rgba(255,255,255,0.75)' : '#6B7280', marginTop: '2px' }}>{sub}</div>}
         {delta !== undefined && delta !== null && (
