@@ -246,10 +246,14 @@ export default function OrgAdminPage() {
     if (password.length < 10) { setErrNuevo('La contraseña debe tener mínimo 10 caracteres'); return }
     setCreando(true)
     const { data: { session } } = await supabase.auth.getSession()
+    const { data: { session } } = await supabase.auth.getSession()
     const res = await fetch('/api/admin/usuarios', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, nombre, telefono, rol: 'asesor', organizacion_id: org.id }),
+      headers: {
+        'Content-Type': 'application/json',
+        ...(session?.access_token ? { 'Authorization': `Bearer ${session.access_token}` } : {})
+      },
+      body: JSON.stringify({ email, password, nombre, telefono, rol: formNuevo.rol || 'asesor', organizacion_id: org.id }),
     })
     const data = await res.json()
     if (!res.ok) { setErrNuevo(data.error || 'Error al crear asesor'); setCreando(false); return }

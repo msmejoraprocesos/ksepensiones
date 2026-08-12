@@ -11,31 +11,36 @@ function getAdminClient() {
   )
 }
 
-// Verifica admin usando JWT de cookies — más seguro que _uid en body
-async function verificarAdmin(): Promise<{ id: string } | null> {
+// Verifica admin usando Authorization header del request
+async function verificarAdmin(req?: NextRequest): Promise<{ id: string } | null> {
   try {
+    const admin = getAdminClient()
+
+    // Intento 1: Authorization header
+    const authHeader = req?.headers.get('Authorization') || req?.headers.get('authorization')
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.slice(7)
+      const { data: { user }, error } = await admin.auth.getUser(token)
+      if (!error && user) {
+        const { data: perfil } = await admin.from('perfiles_usuario').select('is_admin, rol').eq('id', user.id).maybeSingle()
+        if (perfil?.is_admin || ['super_admin','org_admin'].includes(perfil?.rol ?? '')) {
+          return { id: user.id }
+        }
+      }
+    }
+
+    // Intento 2: cookies del servidor
     const cookieStore = cookies()
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() { return cookieStore.getAll() },
-          setAll(cs: any[]) { try { cs.forEach(({ name, value, options }: any) => cookieStore.set(name, value, options)) } catch {} },
-        },
-      }
+      { cookies: { getAll() { return cookieStore.getAll() }, setAll(cs: any[]) { try { cs.forEach(({ name, value, options }: any) => cookieStore.set(name, value, options)) } catch {} } } }
     )
-    const { data: { user }, error } = await supabase.auth.getUser()
-    if (error || !user) return null
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
 
-    const admin = getAdminClient()
-    const { data: perfil } = await admin
-      .from('perfiles_usuario')
-      .select('is_admin, rol')
-      .eq('id', user.id)
-      .maybeSingle()
-
-    if (perfil?.is_admin || perfil?.rol === 'super_admin' || perfil?.rol === 'org_admin') {
+    const { data: perfil } = await admin.from('perfiles_usuario').select('is_admin, rol').eq('id', user.id).maybeSingle()
+    if (perfil?.is_admin || ['super_admin','org_admin'].includes(perfil?.rol ?? '')) {
       return { id: user.id }
     }
     return null
@@ -47,7 +52,7 @@ async function verificarAdmin(): Promise<{ id: string } | null> {
 
 export async function POST(req: NextRequest) {
   try {
-    const solicitante = await verificarAdmin()
+    const solicitante = await verificarAdmin(req)
     if (!solicitante) return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
 
     const body = await req.json()
@@ -167,7 +172,7 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const solicitante = await verificarAdmin()
+    const solicitante = await verificarAdmin(req)
     if (!solicitante) return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
 
     const id = req.nextUrl.searchParams.get('id')
@@ -186,7 +191,7 @@ export async function DELETE(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
-    const solicitante = await verificarAdmin()
+    const solicitante = await verificarAdmin(req)
     if (!solicitante) return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
 
     const body = await req.json()
