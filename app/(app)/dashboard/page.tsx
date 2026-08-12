@@ -618,6 +618,34 @@ function MiDiaInner() {
                       ))}
                     </div>
                   )
+              })(), (() => {
+                  const etapas = [
+                    { id: 'cierre', label: 'Cierre', color: VERDE },
+                    { id: 'tramite', label: 'Trámite', color: '#F59E0B' },
+                    { id: 'recopilacion', label: 'Recopilación', color: '#0891B2' },
+                    { id: 'diagnostico', label: 'Diagnóstico', color: '#1D4ED8' },
+                    { id: 'prospecto', label: 'Prospecto', color: AZUL },
+                  ]
+                  const counts = etapas.map(e => ({ ...e, n: clientesFiltrados.filter(c => (c.etapa_kanban || 'prospecto') === e.id).length }))
+                  const max = Math.max(...counts.map(c => c.n), 1)
+                  const total = counts.reduce((s, c) => s + c.n, 0)
+                  return (
+                    <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '20px', height: '100%', justifyContent: 'center', padding: '10px 0' }}>
+                      {counts.map((c, i) => (
+                        <div key={i}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                            <span style={{ fontSize: '14px', fontWeight: '600', color: '#374151', width: '100px', flexShrink: 0 }}>{c.label}</span>
+                            <div style={{ flex: 1, background: '#F4F6F9', height: '28px', borderRadius: '6px', overflow: 'hidden' }}>
+                              <div style={{ width: `${(c.n / max) * 100}%`, height: '100%', background: c.color, minWidth: c.n > 0 ? '4px' : 0, borderRadius: '6px', display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
+                                {c.n > 0 && <span style={{ fontSize: '12px', fontWeight: '700', color: 'white' }}>{c.n}</span>}
+                              </div>
+                            </div>
+                            <span style={{ fontSize: '13px', color: '#94A3B8', minWidth: '40px', textAlign: 'right' as const, flexShrink: 0 }}>{total > 0 ? `${Math.round(c.n/total*100)}%` : '0%'}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )
               })())}
 
               {/* Ventas — donut */}
@@ -788,19 +816,19 @@ function MiDiaInner() {
                   })}
                 </div>
               ), (
-                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '14px', height: '100%', justifyContent: 'space-evenly', padding: '10px 0' }}>
                   {rangos.map((r, i) => {
                     const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
                     const pct = diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0
                     return (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <span style={{ fontSize: '13px', color: '#374151', fontWeight: '500', width: '100px', flexShrink: 0 }}>{r.label}</span>
-                        <div style={{ flex: 1, height: '28px', background: '#F3F4F6', borderRadius: '6px', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: `${pct}%`, background: r.color, minWidth: count > 0 ? '6px' : 0, borderRadius: '6px', display: 'flex', alignItems: 'center', paddingLeft: '8px' }}>
-                            {pct > 15 && <span style={{ fontSize: '11px', fontWeight: '700', color: 'white' }}>{Math.round(pct)}%</span>}
+                        <span style={{ fontSize: '14px', color: '#374151', fontWeight: '500', width: '120px', flexShrink: 0 }}>{r.label}</span>
+                        <div style={{ flex: 1, height: '36px', background: '#F3F4F6', borderRadius: '8px', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: `${pct}%`, background: r.color, minWidth: count > 0 ? '6px' : 0, borderRadius: '8px', display: 'flex', alignItems: 'center', paddingLeft: '12px' }}>
+                            {pct > 12 && <span style={{ fontSize: '13px', fontWeight: '700', color: 'white' }}>{Math.round(pct)}%</span>}
                           </div>
                         </div>
-                        <span style={{ fontSize: '15px', fontWeight: '700', color: '#1E293B', minWidth: '28px', textAlign: 'right' as const }}>{count}</span>
+                        <span style={{ fontSize: '18px', fontWeight: '700', color: '#1E293B', minWidth: '32px', textAlign: 'right' as const }}>{count}</span>
                       </div>
                     )
                   })}
