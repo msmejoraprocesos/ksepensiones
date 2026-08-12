@@ -355,7 +355,7 @@ function MiDiaInner() {
     </div>
   )
 
-  const kpi = (label: string, value: string, sub?: string, color = '#374151', filled = false, delta?: number | null) => {
+  const kpi = (label: string, value: string, sub?: string, color = '#374151', filled = false, delta?: number | null, minH = 'auto') => {
     const tintMap: Record<string, string> = {
       '#334E7B': '#EEF2F8', '#1D4ED8': '#EFF6FF', '#0891B2': '#ECFEFF',
       '#F59E0B': '#FFFBEB', '#16A34A': '#F0FDF4', '#DC2626': '#FEF2F2',
@@ -363,7 +363,7 @@ function MiDiaInner() {
     }
     const tint = tintMap[color] ?? '#F8FAFC'
     return (
-      <div style={{ background: filled ? color : tint, border: `1px solid ${color}22`, borderLeft: `4px solid ${color}`, padding: '8px 10px', textAlign: 'center' as const, borderRadius: '6px', display: 'flex', flexDirection: 'column' as const, justifyContent: 'center', minHeight: '88px' }}>
+      <div style={{ background: filled ? color : tint, border: `1px solid ${color}22`, borderLeft: `4px solid ${color}`, padding: '8px 10px', textAlign: 'center' as const, borderRadius: '6px', display: 'flex', flexDirection: 'column' as const, justifyContent: 'center', minHeight: minH }}>
         <div style={{ fontSize: '9.5px', color: filled ? 'rgba(255,255,255,0.8)' : '#6B7280', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' as const, marginBottom: '3px', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
         <div style={{ fontSize: '18px', fontWeight: '800' as const, color: filled ? 'white' : color, letterSpacing: '-0.3px' }}>{value}</div>
         {sub && <div style={{ fontSize: '10px', color: filled ? 'rgba(255,255,255,0.75)' : '#6B7280', marginTop: '2px' }}>{sub}</div>}
@@ -843,7 +843,7 @@ function MiDiaInner() {
                 { label: 'Activos este mes', value: diagMes.length.toString(), color: '#7C3AED' },
                 { label: 'Promedio Pensión', value: pensionPromedio > 0 ? fmtMXN(pensionPromedio) : '—', color: AZUL },
                 { label: '$ Comisiones', value: fmtMXN(comisionesFinancieras), color: NARANJA },
-              ].map((k, i) => kpi(k.label, k.value, undefined, k.color))}
+              ].map((k, i) => kpi(k.label, k.value, undefined, k.color, false, undefined, '64px'))}
             </div>
           </div>
 
