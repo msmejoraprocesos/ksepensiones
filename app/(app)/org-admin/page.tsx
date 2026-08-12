@@ -246,7 +246,6 @@ export default function OrgAdminPage() {
     if (password.length < 10) { setErrNuevo('La contraseña debe tener mínimo 10 caracteres'); return }
     setCreando(true)
     const { data: { session } } = await supabase.auth.getSession()
-    const { data: { session } } = await supabase.auth.getSession()
     const res = await fetch('/api/admin/usuarios', {
       method: 'POST',
       headers: {
