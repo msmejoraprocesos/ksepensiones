@@ -621,7 +621,7 @@ function MiDiaInner() {
               })())}
 
               {/* Ventas — donut */}
-              {chartCard('🍩 Ventas', 'Monto acordado por servicio', (() => {
+              {(() => {
                   const SERVICIOS_VENTAS = [
                     { id: 'asesoria', label: 'Asesoría', color: AZUL },
                     { id: 'gestion', label: 'Trámite', color: NARANJA },
@@ -641,20 +641,21 @@ function MiDiaInner() {
                     const startAcc = acc; acc += pct
                     return { ...it, pct, dash: pct * CIRC, offset: -startAcc * CIRC }
                   })
-                  return (
+                  const donutSVG = (maxW: number, fs: number) => (
+                    <svg style={{ width: '100%', maxWidth: `${maxW}px`, height: 'auto' }} viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r={R} fill="none" stroke="#F3F4F6" strokeWidth="20" />
+                      {segmentos.map((it, i) => (
+                        <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="20"
+                          strokeDasharray={`${it.dash} ${CIRC}`} strokeDashoffset={it.offset} transform="rotate(-90 50 50)" />
+                      ))}
+                      <text x="50" y="50" textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="#334E7B">
+                        {total >= 1000 ? `${(total/1000).toFixed(0)}k` : total.toFixed(0)}
+                      </text>
+                    </svg>
+                  )
+                  const compacto = (
                     <div style={{ display: 'flex', flexDirection: 'column' as const, height: '100%', gap: '8px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'center', flexShrink: 0 }}>
-                        <svg style={{ width: '100%', maxWidth: '135px', height: 'auto' }} viewBox="0 0 100 100">
-                          <circle cx="50" cy="50" r={R} fill="none" stroke="#F3F4F6" strokeWidth="20" />
-                          {segmentos.map((it, i) => (
-                            <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="20"
-                              strokeDasharray={`${it.dash} ${CIRC}`} strokeDashoffset={it.offset} transform="rotate(-90 50 50)" />
-                          ))}
-                          <text x="50" y="50" textAnchor="middle" dominantBaseline="middle" fontSize="9" fontWeight="700" fill="#334E7B">
-                            {total >= 1000 ? `${(total/1000).toFixed(0)}k` : total.toFixed(0)}
-                          </text>
-                        </svg>
-                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'center', flexShrink: 0 }}>{donutSVG(135, 9)}</div>
                       <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, justifyContent: 'space-evenly' }}>
                         {items.filter(it => it.value > 0).map((it, i) => (
                           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -666,8 +667,29 @@ function MiDiaInner() {
                       </div>
                     </div>
                   )
-              })())}
-              {chartCard('📦 Servicios activos', 'Por servicio y etapa', (() => {
+                  const expandido = (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '40px', height: '100%' }}>
+                      <div style={{ flex: '0 0 300px', display: 'flex', justifyContent: 'center' }}>{donutSVG(300, 7)}</div>
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, gap: '16px', justifyContent: 'center' }}>
+                        <p style={{ fontSize: '12px', color: '#94A3B8', margin: '0 0 4px', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' }}>Total: {fmtMXN(total)}</p>
+                        {items.filter(it => it.value > 0).map((it, i) => (
+                          <div key={i}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '5px' }}>
+                              <span style={{ width: '12px', height: '12px', background: it.color, borderRadius: '50%', flexShrink: 0 }} />
+                              <span style={{ fontSize: '14px', color: '#374151', flex: 1, fontWeight: '500' }}>{it.label}</span>
+                              <span style={{ fontSize: '15px', fontWeight: '700', color: '#1E293B' }}>{fmtMXN(it.value)}</span>
+                              <span style={{ fontSize: '13px', color: '#94A3B8', minWidth: '36px', textAlign: 'right' as const }}>{total > 0 ? `${Math.round(it.value/total*100)}%` : '0%'}</span>
+                            </div>
+                            <div style={{ height: '6px', background: '#F3F4F6', borderRadius: '3px', overflow: 'hidden' }}>
+                              <div style={{ height: '100%', width: `${total > 0 ? (it.value/total*100) : 0}%`, background: it.color, borderRadius: '3px' }} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                  return chartCard('🍩 Ventas', 'Monto acordado por servicio', compacto, expandido)
+              })()}              {chartCard('📦 Servicios activos', 'Por servicio y etapa', (() => {
                   const SERVICIOS = [
                     { id: 'asesoria', label: 'Asesoría' },
                     { id: 'gestion', label: 'Trámite' },
