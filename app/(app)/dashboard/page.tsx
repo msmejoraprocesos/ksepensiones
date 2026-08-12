@@ -642,18 +642,20 @@ function MiDiaInner() {
                     return { ...it, pct, dash: pct * CIRC, offset: -startAcc * CIRC }
                   })
                   return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', height: '100%' }}>
-                      <svg style={{ width: '60px', height: '60px', flexShrink: 0 }} viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r={R} fill="none" stroke="#F3F4F6" strokeWidth="20" />
-                        {segmentos.map((it, i) => (
-                          <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="20"
-                            strokeDasharray={`${it.dash} ${CIRC}`} strokeDashoffset={it.offset} transform="rotate(-90 50 50)" />
-                        ))}
-                        <text x="50" y="50" textAnchor="middle" dominantBaseline="middle" fontSize="9" fontWeight="700" fill="#334E7B">
-                          {total >= 1000 ? `${(total/1000).toFixed(0)}k` : total.toFixed(0)}
-                        </text>
-                      </svg>
-                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, gap: '6px', justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' as const, height: '100%', gap: '8px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'center', flexShrink: 0 }}>
+                        <svg style={{ width: '70px', height: '70px' }} viewBox="0 0 100 100">
+                          <circle cx="50" cy="50" r={R} fill="none" stroke="#F3F4F6" strokeWidth="20" />
+                          {segmentos.map((it, i) => (
+                            <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="20"
+                              strokeDasharray={`${it.dash} ${CIRC}`} strokeDashoffset={it.offset} transform="rotate(-90 50 50)" />
+                          ))}
+                          <text x="50" y="50" textAnchor="middle" dominantBaseline="middle" fontSize="9" fontWeight="700" fill="#334E7B">
+                            {total >= 1000 ? `${(total/1000).toFixed(0)}k` : total.toFixed(0)}
+                          </text>
+                        </svg>
+                      </div>
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, justifyContent: 'space-evenly' }}>
                         {items.filter(it => it.value > 0).map((it, i) => (
                           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <span style={{ width: '10px', height: '10px', background: it.color, borderRadius: '50%', flexShrink: 0 }} />
