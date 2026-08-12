@@ -845,6 +845,67 @@ function MiDiaInner() {
                 { label: '$ Comisiones', value: fmtMXN(comisionesFinancieras), color: NARANJA },
               ].map((k, i) => kpi(k.label, k.value, undefined, k.color, false, undefined, '64px'))}
             </div>
+
+            {/* Fila 4: Urgencia + Actividad + Costo IA */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', alignItems: 'stretch' }}>
+
+              {/* Semáforo de urgencia */}
+              <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column' as const }}>
+                <p style={{ fontSize: '11px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 10px' }}>🚦 Urgencia pensional</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', flex: 1 }}>
+                  {[
+                    { nivel: 'rojo', label: 'Urgente', val: diagsUrgencia.rojo, color: '#DC2626', bg: '#FEF2F2', desc: 'menos de 2 años' },
+                    { nivel: 'amarillo', label: 'Pronto', val: diagsUrgencia.amarillo, color: '#D97706', bg: '#FFFBEB', desc: '3 a 5 años' },
+                    { nivel: 'verde', label: 'Con tiempo', val: diagsUrgencia.verde, color: '#16A34A', bg: '#F0FDF4', desc: 'más de 5 años' },
+                    { nivel: 'gris', label: 'Sin datos', val: diagsUrgencia.gris, color: '#94A3B8', bg: '#F9FAFB', desc: 'sin diagnóstico' },
+                  ].map(s => (
+                    <div key={s.nivel} style={{ background: s.bg, borderRadius: '6px', padding: '8px', borderLeft: `3px solid ${s.color}`, display: 'flex', flexDirection: 'column' as const, justifyContent: 'center' }}>
+                      <div style={{ fontSize: '18px', fontWeight: '800', color: s.color }}>{s.val}</div>
+                      <div style={{ fontSize: '10px', fontWeight: '700', color: s.color }}>{s.label}</div>
+                      <div style={{ fontSize: '9px', color: '#94A3B8' }}>{s.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Actividad semanal */}
+              <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column' as const, justifyContent: 'space-between' }}>
+                <p style={{ fontSize: '11px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 10px' }}>📞 Actividad esta semana</p>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, justifyContent: 'center', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: '12px' }}>
+                    <div>
+                      <div style={{ fontSize: '32px', fontWeight: '800', color: AZUL }}>{actividadesSemana}</div>
+                      <div style={{ fontSize: '11px', color: '#64748B' }}>actividades registradas</div>
+                    </div>
+                    {actividadesSemanaAnt > 0 && (
+                      <div style={{ fontSize: '12px', fontWeight: '700', color: actividadesSemana >= actividadesSemanaAnt ? '#16A34A' : '#DC2626' }}>
+                        {actividadesSemana >= actividadesSemanaAnt ? '↑' : '↓'} {Math.abs(actividadesSemana - actividadesSemanaAnt)} vs semana ant.
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ height: '6px', background: '#F3F4F6', borderRadius: '3px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', background: AZUL, borderRadius: '3px', width: `${Math.min(100, actividadesSemana * 10)}%` }} />
+                  </div>
+                  <p style={{ fontSize: '10px', color: '#94A3B8', margin: 0 }}>Meta sugerida: 10 actividades/semana</p>
+                </div>
+              </div>
+
+              {/* Costo IA */}
+              <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column' as const, justifyContent: 'space-between' }}>
+                <p style={{ fontSize: '11px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 10px' }}>🤖 Costo IA este mes</p>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, justifyContent: 'center', gap: '8px' }}>
+                  <div style={{ fontSize: '28px', fontWeight: '800', color: costoIA > 5 ? '#DC2626' : VERDE }}>
+                    ${costoIA.toFixed(2)} <span style={{ fontSize: '14px', fontWeight: '400', color: '#64748B' }}>USD</span>
+                  </div>
+                  <p style={{ fontSize: '11px', color: '#64748B', margin: 0 }}>~${(costoIA * 17.5).toFixed(0)} MXN · límite: $10 USD/mes</p>
+                  <div style={{ height: '6px', background: '#F3F4F6', borderRadius: '3px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', background: costoIA > 8 ? '#DC2626' : costoIA > 5 ? '#D97706' : VERDE, borderRadius: '3px', width: `${Math.min(100, (costoIA / 10) * 100)}%` }} />
+                  </div>
+                  <p style={{ fontSize: '10px', color: '#94A3B8', margin: 0 }}>{Math.round((costoIA / 10) * 100)}% del límite mensual usado</p>
+                </div>
+              </div>
+            </div>
+
           </div>
 
           {/* Divisor vertical continuo, a lo largo de las 4 filas */}
@@ -929,68 +990,7 @@ function MiDiaInner() {
 
       </div>
 
-      {/* ── NUEVOS KPIs: Urgencia, Actividad, Costo IA, Pipeline ── */}
-      <div style={{ padding: '0 16px 16px' }}>
-
-        {/* Fila: Semáforo de urgencia + Actividad semanal + Costo IA */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '12px' }}>
-
-          {/* Semáforo de urgencia */}
-          <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px' }}>
-            <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>🚦 Urgencia pensional</p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px' }}>
-              {[
-                { nivel: 'rojo', label: 'Urgente', val: diagsUrgencia.rojo, color: '#DC2626', bg: '#FEF2F2', desc: 'menos de 2 años' },
-                { nivel: 'amarillo', label: 'Pronto', val: diagsUrgencia.amarillo, color: '#D97706', bg: '#FFFBEB', desc: '3 a 5 años' },
-                { nivel: 'verde', label: 'Con tiempo', val: diagsUrgencia.verde, color: '#16A34A', bg: '#F0FDF4', desc: 'más de 5 años' },
-                { nivel: 'gris', label: 'Sin datos', val: diagsUrgencia.gris, color: '#94A3B8', bg: '#F9FAFB', desc: 'sin diagnóstico' },
-              ].map(s => (
-                <div key={s.nivel} style={{ background: s.bg, borderRadius: '6px', padding: '8px', borderLeft: `3px solid ${s.color}` }}>
-                  <div style={{ fontSize: '18px', fontWeight: '800', color: s.color }}>{s.val}</div>
-                  <div style={{ fontSize: '10px', fontWeight: '700', color: s.color }}>{s.label}</div>
-                  <div style={{ fontSize: '9px', color: '#94A3B8' }}>{s.desc}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Actividad semanal */}
-          <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px' }}>
-            <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>📞 Actividad esta semana</p>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '12px', marginBottom: '8px' }}>
-              <div>
-                <div style={{ fontSize: '32px', fontWeight: '800', color: AZUL }}>{actividadesSemana}</div>
-                <div style={{ fontSize: '11px', color: '#64748B' }}>actividades registradas</div>
-              </div>
-              {actividadesSemanaAnt > 0 && (
-                <div style={{ fontSize: '12px', fontWeight: '700', color: actividadesSemana >= actividadesSemanaAnt ? '#16A34A' : '#DC2626' }}>
-                  {actividadesSemana >= actividadesSemanaAnt ? '↑' : '↓'} {Math.abs(actividadesSemana - actividadesSemanaAnt)} vs semana ant.
-                </div>
-              )}
-            </div>
-            <div style={{ height: '6px', background: '#F3F4F6', borderRadius: '3px', overflow: 'hidden' }}>
-              <div style={{ height: '100%', background: AZUL, borderRadius: '3px', width: `${Math.min(100, actividadesSemana * 10)}%` }} />
-            </div>
-            <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0' }}>Meta sugerida: 10 actividades/semana</p>
-          </div>
-
-          {/* Costo IA este mes */}
-          <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px' }}>
-            <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>🤖 Costo IA este mes</p>
-            <div style={{ fontSize: '28px', fontWeight: '800', color: costoIA > 5 ? '#DC2626' : VERDE, marginBottom: '4px' }}>
-              ${costoIA.toFixed(2)} <span style={{ fontSize: '14px', fontWeight: '400', color: '#64748B' }}>USD</span>
-            </div>
-            <p style={{ fontSize: '11px', color: '#64748B', margin: '0 0 8px' }}>
-              ~${(costoIA * 17.5).toFixed(0)} MXN · límite: $10 USD/mes
-            </p>
-            <div style={{ height: '6px', background: '#F3F4F6', borderRadius: '3px', overflow: 'hidden' }}>
-              <div style={{ height: '100%', background: costoIA > 8 ? '#DC2626' : costoIA > 5 ? '#D97706' : VERDE, borderRadius: '3px', width: `${Math.min(100, (costoIA / 10) * 100)}%` }} />
-            </div>
-            <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0' }}>{Math.round((costoIA / 10) * 100)}% del límite mensual usado</p>
-          </div>
-        </div>
-
-        {/* Fila: Clientes estancados + Valor del pipeline */}
+      {/* Fila: Clientes estancados + Valor del pipeline */
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
 
           {/* Clientes estancados */}
