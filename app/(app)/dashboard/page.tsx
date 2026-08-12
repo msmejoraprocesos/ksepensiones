@@ -26,7 +26,7 @@ function MiDiaInner() {
   const [pagos, setPagos] = useState<any[]>([])
   const [pgErrorMsg, setPgErrorMsg] = useState<string | null>(null)
   const [diagnosticos, setDiagnosticos] = useState<any[]>([])
-  const [actividades, setActividades] = useState<any[]>([])
+  const [chartModal, setChartModal] = useState<{ titulo: string; sub?: string; contenido: React.ReactNode } | null>(null)
   const [financieras, setFinancieras] = useState<any[]>([])
   const [solicitudes, setSolicitudes] = useState<any[]>([])
   const [costoIA, setCostoIA] = useState(0)
@@ -332,6 +332,26 @@ function MiDiaInner() {
     </div>
   )
 
+  // Wrapper de gráfica con botón de maximizar
+  const chartCard = (titulo: string, sub: string | undefined, contenido: React.ReactNode, altura = '140px') => (
+    <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '12px 14px', display: 'flex', flexDirection: 'column' as const }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
+        <div>
+          <p style={{ fontSize: '12px', fontWeight: '700' as const, color: '#111827', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>{titulo}</p>
+          {sub && <p style={{ fontSize: '10px', color: '#94A3B8', margin: '2px 0 0' }}>{sub}</p>}
+        </div>
+        <button onClick={() => setChartModal({ titulo, sub, contenido })}
+          title="Maximizar"
+          style={{ background: 'none', border: '1px solid #E2E8F0', borderRadius: '6px', width: '26px', height: '26px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', color: '#94A3B8', flexShrink: 0 }}>
+          ⛶
+        </button>
+      </div>
+      <div style={{ flex: 1, overflow: 'hidden', maxHeight: altura }}>
+        {contenido}
+      </div>
+    </div>
+  )
+
   const kpi = (label: string, value: string, sub?: string, color = '#374151', filled = false, delta?: number | null) => {
     const tintMap: Record<string, string> = {
       '#334E7B': '#EEF2F8', '#1D4ED8': '#EFF6FF', '#0891B2': '#ECFEFF',
@@ -373,6 +393,29 @@ function MiDiaInner() {
 
   return (
     <div style={{ height: 'calc(100vh - 48px)', overflow: 'auto', background: '#F4F6F9' }}>
+
+      {/* ── Modal de gráfica maximizada ── */}
+      {chartModal && (
+        <div onClick={() => setChartModal(null)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', backdropFilter: 'blur(2px)' }}>
+          <div onClick={e => e.stopPropagation()}
+            style={{ background: 'white', borderRadius: '16px', width: '100%', maxWidth: '720px', maxHeight: '80vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.25)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid #E2E8F0' }}>
+              <div>
+                <p style={{ fontSize: '14px', fontWeight: '700', color: '#111827', margin: 0 }}>{chartModal.titulo}</p>
+                {chartModal.sub && <p style={{ fontSize: '11px', color: '#94A3B8', margin: '2px 0 0' }}>{chartModal.sub}</p>}
+              </div>
+              <button onClick={() => setChartModal(null)}
+                style={{ background: '#F4F6F9', border: 'none', borderRadius: '8px', width: '32px', height: '32px', cursor: 'pointer', fontSize: '16px', color: '#64748B', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                ✕
+              </button>
+            </div>
+            <div style={{ padding: '20px' }}>
+              {chartModal.contenido}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Header de bienvenida ── */}
       <div style={{ background: AZUL, padding: '14px 20px' }}>
@@ -503,9 +546,7 @@ function MiDiaInner() {
             <div className="db-charts" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', alignItems: 'stretch' }}>
 
               {/* Tendencias de ingresos */}
-              {card(<>
-                {sTitle('📈 Tendencias de ingresos', 'Comparativo por año')}
-                {(() => {
+              {chartCard('📈 Tendencias de ingresos', 'Comparativo por año', (() => {
                   const anioActual = new Date().getFullYear()
                   const anios = [anioActual - 2, anioActual - 1, anioActual]
                   const coloresAnio = ['#9CA3AF', NARANJA, AZUL]
@@ -515,50 +556,41 @@ function MiDiaInner() {
                     total: pagos.filter(p => { const f = new Date(p.fecha_pago); return f.getFullYear() === anio && f.getMonth() === mi }).reduce((s, p) => s + (Number(p.monto) || 0), 0)
                   })))
                   const max = Math.max(...series.flatMap(s => s.map(m => m.total)), 1)
-                  const W = 320, H = 200, padL = 16, padR = 10
+                  const W = 320, H = 120, padL = 16, padR = 10
                   const stepX = (W - padL - padR) / 11
-                  const yFor = (v: number) => H - (max > 0 ? (v / max) * (H - 36) : 0) + 20
+                  const yFor = (v: number) => H - (max > 0 ? (v / max) * (H - 20) : 0) + 10
                   return (
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                      <svg viewBox={`0 0 ${W} ${H + 22}`} style={{ width: '100%', height: 'auto' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' as const }}>
+                      <svg viewBox={`0 0 ${W} ${H + 16}`} style={{ width: '100%', height: 'auto' }}>
                         {series.map((serie, si) => {
                           const puntos = serie.map((m, i) => ({ x: padL + i * stepX, y: yFor(m.total), ...m }))
                           const pathLinea = puntos.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
                           return (
                             <g key={si}>
-                              <path d={pathLinea} fill="none" stroke={coloresAnio[si]} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+                              <path d={pathLinea} fill="none" stroke={coloresAnio[si]} strokeWidth={1.5} strokeLinejoin="round" strokeLinecap="round" />
                               {puntos.map((p, i) => p.total > 0 && (
-                                <g key={i}>
-                                  <circle cx={p.x} cy={p.y} r={2.5} fill={coloresAnio[si]} />
-                                  <text x={p.x} y={p.y - 6} textAnchor="middle" fontSize="8.5" fontWeight="700" fill={coloresAnio[si]}>
-                                    {p.total >= 1000 ? `${(p.total / 1000).toFixed(1)}k` : p.total.toFixed(0)}
-                                  </text>
-                                </g>
+                                <circle key={i} cx={p.x} cy={p.y} r={2} fill={coloresAnio[si]} />
                               ))}
                             </g>
                           )
                         })}
-                        {MESES_LABEL.map((label, i) => (i % 2 === 0) && (
-                          <text key={i} x={padL + i * stepX} y={H + 16} textAnchor="middle" fontSize="9.5" fill="#9CA3AF">{label}</text>
+                        {MESES_LABEL.map((label, i) => (i % 3 === 0) && (
+                          <text key={i} x={padL + i * stepX} y={H + 12} textAnchor="middle" fontSize="8" fill="#9CA3AF">{label}</text>
                         ))}
                       </svg>
-                      <div style={{ display: 'flex', gap: '10px', marginTop: '2px' }}>
+                      <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                         {anios.map((a, i) => (
-                          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#64748B' }}>
-                            <span style={{ width: '10px', height: '2px', background: coloresAnio[i], display: 'inline-block' }} />
-                            {a}
+                          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px', color: '#64748B' }}>
+                            <span style={{ width: '10px', height: '2px', background: coloresAnio[i], display: 'inline-block' }} />{a}
                           </span>
                         ))}
                       </div>
                     </div>
                   )
-                })()}
-              </>)}
+              })())}
 
               {/* Embudo de clientes */}
-              {card(<>
-                {sTitle('🔻 Embudo de Clientes', 'Por etapa del pipeline')}
-                {(() => {
+              {chartCard('🔻 Embudo de Clientes', 'Por etapa del pipeline', (() => {
                   const etapas = [
                     { id: 'cierre', label: 'Cierre', color: VERDE },
                     { id: 'tramite', label: 'Trámite', color: '#F59E0B' },
@@ -569,29 +601,25 @@ function MiDiaInner() {
                   const counts = etapas.map(e => ({ ...e, n: clientesFiltrados.filter(c => (c.etapa_kanban || 'prospecto') === e.id).length }))
                   const max = Math.max(...counts.map(c => c.n), 1)
                   return (
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-evenly' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '5px' }}>
                       {counts.map((c, i) => (
-                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontSize: '11px', color: '#64748B', width: '70px', flexShrink: 0 }}>{c.label}</span>
-                          <div style={{ flex: 1, background: '#F4F6F9', height: '18px', position: 'relative' as const }}>
-                            <div style={{ width: `${(c.n / max) * 100}%`, height: '100%', background: c.color, minWidth: c.n > 0 ? '4px' : 0 }} />
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ fontSize: '10px', color: '#64748B', width: '72px', flexShrink: 0 }}>{c.label}</span>
+                          <div style={{ flex: 1, background: '#F4F6F9', height: '14px', borderRadius: '3px', overflow: 'hidden' }}>
+                            <div style={{ width: `${(c.n / max) * 100}%`, height: '100%', background: c.color, minWidth: c.n > 0 ? '4px' : 0, borderRadius: '3px' }} />
                           </div>
-                          <span style={{ fontSize: '12px', fontWeight: '700', color: '#374151', width: '18px', textAlign: 'right' as const, flexShrink: 0 }}>{c.n}</span>
+                          <span style={{ fontSize: '11px', fontWeight: '700', color: '#374151', width: '16px', textAlign: 'right' as const, flexShrink: 0 }}>{c.n}</span>
                         </div>
                       ))}
                     </div>
                   )
-                })()}
-              </>)}
+              })())}
 
               {/* Ventas — donut */}
-              {card(<>
-                {sTitle('🍩 Ventas', 'Monto acordado por servicio')}
-                {(() => {
+              {chartCard('🍩 Ventas', 'Monto acordado por servicio', (() => {
                   const SERVICIOS_VENTAS = [
                     { id: 'asesoria', label: 'Asesoría', color: AZUL },
                     { id: 'gestion', label: 'Trámite', color: NARANJA },
-                    // financiamiento removido del combo
                     { id: 'gestoria_global', label: 'Gestoría Global', color: '#7C3AED' },
                   ]
                   const items = SERVICIOS_VENTAS.map(s => ({
@@ -601,50 +629,37 @@ function MiDiaInner() {
                   const sinClasificarVentas = clientesFiltrados.filter(c => !SERVICIOS_VENTAS.some(s => s.id === c.tipo_servicio)).reduce((sum, c) => sum + (c.monto_acordado || 0), 0)
                   if (sinClasificarVentas > 0) items.push({ id: 'sin_clasificar', label: 'Sin clasificar', color: '#94A3B8', value: sinClasificarVentas })
                   const total = items.reduce((s, it) => s + it.value, 0)
-                  const R = 40, CIRC = 2 * Math.PI * R
+                  const R = 38, CIRC = 2 * Math.PI * R
                   let acc = 0
                   const segmentos = items.filter(it => it.value > 0).map(it => {
                     const pct = total > 0 ? it.value / total : 0
-                    const startAcc = acc
-                    acc += pct
-                    const midAngleDeg = -90 + (startAcc + pct / 2) * 360
-                    const midAngleRad = (midAngleDeg * Math.PI) / 180
-                    const labelR = R
-                    return {
-                      ...it, pct, dash: pct * CIRC, offset: -startAcc * CIRC,
-                      labelX: 50 + labelR * Math.cos(midAngleRad),
-                      labelY: 50 + labelR * Math.sin(midAngleRad),
-                    }
+                    const startAcc = acc; acc += pct
+                    return { ...it, pct, dash: pct * CIRC, offset: -startAcc * CIRC }
                   })
                   return (
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '18px' }}>
-                      <div style={{ position: 'relative', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
-                        <svg style={{ width: '210px', height: '210px', maxWidth: '100%' }} viewBox="0 0 100 100">
-                          <circle cx="50" cy="50" r={R} fill="none" stroke="#F3F4F6" strokeWidth="18" />
-                          {segmentos.map((it, i) => (
-                            <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="18"
-                              strokeDasharray={`${it.dash} ${CIRC}`} strokeDashoffset={it.offset} transform="rotate(-90 50 50)" />
-                          ))}
-                          {segmentos.filter(it => it.pct >= 0.1).map((it, i) => (
-                            <text key={i} x={it.labelX} y={it.labelY} textAnchor="middle" dominantBaseline="middle" fontSize="5.2" fontWeight="700" fill="white">
-                              {it.value >= 1000 ? `${(it.value / 1000).toFixed(0)}k` : it.value.toFixed(0)}
-                            </text>
-                          ))}
-                        </svg>
-                      </div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap' as const, justifyContent: 'center', gap: '8px 14px' }}>
-                        {items.map((it, i) => (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <svg style={{ width: '90px', height: '90px', flexShrink: 0 }} viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r={R} fill="none" stroke="#F3F4F6" strokeWidth="20" />
+                        {segmentos.map((it, i) => (
+                          <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="20"
+                            strokeDasharray={`${it.dash} ${CIRC}`} strokeDashoffset={it.offset} transform="rotate(-90 50 50)" />
+                        ))}
+                        <text x="50" y="50" textAnchor="middle" dominantBaseline="middle" fontSize="9" fontWeight="700" fill="#334E7B">
+                          {total >= 1000 ? `${(total/1000).toFixed(0)}k` : total.toFixed(0)}
+                        </text>
+                      </svg>
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, gap: '5px' }}>
+                        {items.filter(it => it.value > 0).map((it, i) => (
                           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ width: '9px', height: '9px', background: it.color, flexShrink: 0, display: 'inline-block' as const }} />
-                            <span style={{ fontSize: '11px', color: '#64748B' }}>{it.label}</span>
-                            <span style={{ fontSize: '10px', fontWeight: '700', color: '#374151' }}>{fmtMXN(it.value)}</span>
+                            <span style={{ width: '8px', height: '8px', background: it.color, borderRadius: '50%', flexShrink: 0 }} />
+                            <span style={{ fontSize: '10px', color: '#64748B', flex: 1 }}>{it.label}</span>
+                            <span style={{ fontSize: '10px', fontWeight: '700', color: '#1E293B' }}>{total > 0 ? `${Math.round(it.value/total*100)}%` : '0%'}</span>
                           </div>
                         ))}
                       </div>
                     </div>
                   )
-                })()}
-              </>)}
+              })())}
             </div>
 
             {/* Fila 3: KPIs */}
