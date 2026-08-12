@@ -334,21 +334,23 @@ function MiDiaInner() {
   )
 
   // Wrapper de gráfica con botón de maximizar
-  const chartCard = (titulo: string, sub: string | undefined, contenido: React.ReactNode, altura = '140px') => (
+  // contenidoExpandido opcional — si no se pasa, usa el mismo contenido ampliado
+  const MODAL_H = '380px' // altura estándar de todas las gráficas en modal
+  const chartCard = (titulo: string, sub: string | undefined, contenidoCompacto: React.ReactNode, contenidoExpandido?: React.ReactNode) => (
     <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '12px 14px', display: 'flex', flexDirection: 'column' as const }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
         <div>
           <p style={{ fontSize: '12px', fontWeight: '700' as const, color: '#111827', margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>{titulo}</p>
           {sub && <p style={{ fontSize: '10px', color: '#94A3B8', margin: '2px 0 0' }}>{sub}</p>}
         </div>
-        <button onClick={() => setChartModal({ titulo, sub, contenido })}
+        <button onClick={() => setChartModal({ titulo, sub, contenido: contenidoExpandido ?? contenidoCompacto })}
           title="Maximizar"
           style={{ background: 'none', border: '1px solid #E2E8F0', borderRadius: '6px', width: '26px', height: '26px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', color: '#94A3B8', flexShrink: 0 }}>
           ⛶
         </button>
       </div>
-      <div style={{ flex: 1, overflow: 'hidden', maxHeight: altura }}>
-        {contenido}
+      <div style={{ flex: 1, overflow: 'hidden' }}>
+        {contenidoCompacto}
       </div>
     </div>
   )
@@ -411,8 +413,10 @@ function MiDiaInner() {
                 ✕
               </button>
             </div>
-            <div style={{ padding: '20px' }}>
-              {chartModal.contenido}
+            <div style={{ padding: '20px', minHeight: '400px', display: 'flex', flexDirection: 'column' as const }}>
+              <div style={{ flex: 1 }}>
+                {chartModal.contenido}
+              </div>
             </div>
           </div>
         </div>
@@ -679,15 +683,67 @@ function MiDiaInner() {
             </div>
 
             {/* Fila 4: Servicios activos | Rangos de Pensión */}
-            <div className="db-bottom" style={{ display: 'grid', gridTemplateColumns: '1fr 12px 320px', gap: '12px', alignItems: 'start' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', alignItems: 'start' }}>
 
-              {card(<>
-                {sTitle('📦 Servicios activos', 'Por tipo de servicio y etapa')}
-                {(() => {
+              {chartCard('📦 Servicios activos', 'Por tipo de servicio y etapa', (() => {
                   const SERVICIOS = [
                     { id: 'asesoria', label: 'Asesoría' },
                     { id: 'gestion', label: 'Trámite' },
-                    // financiamiento removido del combo
+                    { id: 'gestoria_global', label: 'G. Global' },
+                  ]
+                  const ETAPAS = [
+                    { id: 'prospecto', label: 'Prospecto', color: AZUL },
+                    { id: 'diagnostico', label: 'Diagnóstico', color: '#F59E0B' },
+                    { id: 'recopilacion', label: 'Recop.', color: '#0891B2' },
+                    { id: 'tramite', label: 'Trámite', color: '#0EA5E9' },
+                    { id: 'cierre', label: 'Cierre', color: '#7C3AED' },
+                    { id: 'cancelado', label: 'Cancelado', color: '#94A3B8' },
+                  ]
+                  const datos = SERVICIOS.map(s => ({
+                    ...s,
+                    etapas: ETAPAS.map(e => ({ ...e, n: clientesFiltrados.filter(c => c.tipo_servicio === s.id && (c.etapa_kanban || 'prospecto') === e.id).length }))
+                  }))
+                  const max = Math.max(...datos.flatMap(d => d.etapas.map(e => e.n)), 1)
+                  const W = 320, H = 80, padL = 16, padR = 10, groupGap = 14
+                  const groupW = (W - padL - padR - groupGap * (datos.length - 1)) / datos.length
+                  const barW = groupW / ETAPAS.length
+                  return (
+                    <div>
+                      <svg viewBox={`0 0 ${W} ${H + 20}`} style={{ width: '100%', height: 'auto' }}>
+                        {datos.map((g, gi) => {
+                          const gx = padL + gi * (groupW + groupGap)
+                          return (
+                            <g key={gi}>
+                              {g.etapas.map((e, ei) => {
+                                const h = (e.n / max) * (H - 12)
+                                const x = gx + ei * barW
+                                const y = H - h
+                                return (
+                                  <g key={ei}>
+                                    <rect x={x + 0.5} y={y} width={Math.max(barW - 1, 1)} height={h} rx={1} fill={e.color} />
+                                    {e.n > 0 && h > 10 && <text x={x + barW / 2} y={y - 2} textAnchor="middle" fontSize="7" fontWeight="700" fill="#374151">{e.n}</text>}
+                                  </g>
+                                )
+                              })}
+                              <text x={gx + groupW / 2} y={H + 14} textAnchor="middle" fontSize="9" fontWeight="600" fill="#6B7280">{g.label}</text>
+                            </g>
+                          )
+                        })}
+                      </svg>
+                      <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px 10px', marginTop: '4px' }}>
+                        {ETAPAS.map((e, i) => (
+                          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '9px', color: '#64748B' }}>
+                            <span style={{ width: '7px', height: '7px', background: e.color, borderRadius: '2px', display: 'inline-block' as const }} />{e.label}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )
+              })(), (() => {
+                  // Versión expandida — más grande
+                  const SERVICIOS = [
+                    { id: 'asesoria', label: 'Asesoría' },
+                    { id: 'gestion', label: 'Trámite' },
                     { id: 'gestoria_global', label: 'Gestión Global' },
                   ]
                   const ETAPAS = [
@@ -703,13 +759,13 @@ function MiDiaInner() {
                     etapas: ETAPAS.map(e => ({ ...e, n: clientesFiltrados.filter(c => c.tipo_servicio === s.id && (c.etapa_kanban || 'prospecto') === e.id).length }))
                   }))
                   const max = Math.max(...datos.flatMap(d => d.etapas.map(e => e.n)), 1)
-                  const W = 440, H = 110, padL = 24, padR = 10, groupGap = 20
+                  const W = 560, H = 220, padL = 30, padR = 10, groupGap = 30
                   const groupW = (W - padL - padR - groupGap * (datos.length - 1)) / datos.length
                   const barW = groupW / ETAPAS.length
                   return (
-                    <>
-                      <svg viewBox={`0 0 ${W} ${H + 24}`} style={{ width: '100%', height: 'auto' }}>
-                        {[0, 0.5, 1].map((f, i) => (
+                    <div>
+                      <svg viewBox={`0 0 ${W} ${H + 28}`} style={{ width: '100%', height: 'auto' }}>
+                        {[0, 0.25, 0.5, 0.75, 1].map((f, i) => (
                           <line key={i} x1={padL} x2={W - padR} y1={H - f * (H - 20)} y2={H - f * (H - 20)} stroke="#F3F4F6" strokeWidth="1" />
                         ))}
                         {datos.map((g, gi) => {
@@ -722,49 +778,63 @@ function MiDiaInner() {
                                 const y = H - h
                                 return (
                                   <g key={ei}>
-                                    <rect x={x + 1} y={y} width={barW - 2} height={h} rx={2} fill={e.color} />
-                                    {e.n > 0 && <text x={x + barW / 2} y={y - 3} textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#374151">{e.n}</text>}
+                                    <rect x={x + 1} y={y} width={barW - 2} height={h} rx={3} fill={e.color} />
+                                    {e.n > 0 && <text x={x + barW / 2} y={y - 4} textAnchor="middle" fontSize="11" fontWeight="700" fill="#374151">{e.n}</text>}
                                   </g>
                                 )
                               })}
-                              <text x={gx + groupW / 2} y={H + 16} textAnchor="middle" fontSize="11.5" fontWeight="600" fill="#6B7280">{g.label}</text>
+                              <text x={gx + groupW / 2} y={H + 18} textAnchor="middle" fontSize="13" fontWeight="600" fill="#6B7280">{g.label}</text>
                             </g>
                           )
                         })}
                       </svg>
-                      <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '10px', marginTop: '6px', paddingTop: '8px', borderTop: '1px solid #F3F4F6' }}>
+                      <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '10px', marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #F3F4F6' }}>
                         {ETAPAS.map((e, i) => (
-                          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#64748B' }}>
-                            <span style={{ width: '8px', height: '8px', background: e.color, display: 'inline-block' as const }} />
-                            {e.label}
+                          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: '#64748B' }}>
+                            <span style={{ width: '10px', height: '10px', background: e.color, borderRadius: '2px', display: 'inline-block' as const }} />{e.label}
                           </span>
                         ))}
                       </div>
-                    </>
+                    </div>
                   )
-                })()}
-              </>)}
+              })())}
 
-              <div style={{ width: '1px', background: '#E5E7EB', height: '100%', minHeight: '200px', justifySelf: 'center' }} />
-
-              {card(<>
-                {sTitle('📐 Rangos de Pensión', 'Distribución de diagnósticos')}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {chartCard('📐 Rangos de Pensión', 'Distribución de diagnósticos', (
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '5px' }}>
                   {rangos.map((r, i) => {
                     const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
+                    const pct = diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0
                     return (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span style={{ fontSize: '13px', color: '#64748B', width: '76px', flexShrink: 0 }}>{r.label}</span>
-                        <div style={{ flex: 1, height: '40px', background: '#F3F4F6', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: `${diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0}%`, background: r.color }} />
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '10px', color: '#64748B', width: '70px', flexShrink: 0 }}>{r.label}</span>
+                        <div style={{ flex: 1, height: '14px', background: '#F3F4F6', borderRadius: '3px', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: `${pct}%`, background: r.color, minWidth: count > 0 ? '4px' : 0, borderRadius: '3px' }} />
                         </div>
-                        <span style={{ fontSize: '15px', fontWeight: '700', color: '#374151', minWidth: '24px', textAlign: 'right' as const }}>{count}</span>
+                        <span style={{ fontSize: '11px', fontWeight: '700', color: '#374151', minWidth: '18px', textAlign: 'right' as const }}>{count}</span>
                       </div>
                     )
                   })}
                 </div>
-              </>)}
-            </div>
+              ), (
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
+                  {rangos.map((r, i) => {
+                    const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
+                    const pct = diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0
+                    return (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span style={{ fontSize: '13px', color: '#374151', fontWeight: '500', width: '100px', flexShrink: 0 }}>{r.label}</span>
+                        <div style={{ flex: 1, height: '28px', background: '#F3F4F6', borderRadius: '6px', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: `${pct}%`, background: r.color, minWidth: count > 0 ? '6px' : 0, borderRadius: '6px', display: 'flex', alignItems: 'center', paddingLeft: '8px' }}>
+                            {pct > 15 && <span style={{ fontSize: '11px', fontWeight: '700', color: 'white' }}>{Math.round(pct)}%</span>}
+                          </div>
+                        </div>
+                        <span style={{ fontSize: '15px', fontWeight: '700', color: '#1E293B', minWidth: '28px', textAlign: 'right' as const }}>{count}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              ))}
+            </div>{/* fin Fila 4 */}
           </div>
 
           {/* Divisor vertical continuo, a lo largo de las 4 filas */}
