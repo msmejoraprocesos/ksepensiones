@@ -547,8 +547,8 @@ function MiDiaInner() {
               ].map((k: any, i) => kpi(k.label, k.value, k.sub, k.color, k.filled, k.delta))}
             </div>
 
-            {/* Fila 2: Tendencias | Embudo | Ventas | Rangos de Pensión */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px', alignItems: 'stretch' }}>
+            {/* Fila 2: Tendencias | Embudo | Ventas | Rangos | Servicios activos */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: '8px', alignItems: 'stretch' }}>
 
               {/* Tendencias de ingresos */}
               {chartCard('📈 Tendencias de ingresos', 'Comparativo por año', (() => {
@@ -653,18 +653,100 @@ function MiDiaInner() {
                           {total >= 1000 ? `${(total/1000).toFixed(0)}k` : total.toFixed(0)}
                         </text>
                       </svg>
-                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, gap: '5px' }}>
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, gap: '6px', justifyContent: 'center' }}>
                         {items.filter(it => it.value > 0).map((it, i) => (
                           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ width: '8px', height: '8px', background: it.color, borderRadius: '50%', flexShrink: 0 }} />
-                            <span style={{ fontSize: '10px', color: '#64748B', flex: 1 }}>{it.label}</span>
-                            <span style={{ fontSize: '10px', fontWeight: '700', color: '#1E293B' }}>{total > 0 ? `${Math.round(it.value/total*100)}%` : '0%'}</span>
+                            <span style={{ width: '10px', height: '10px', background: it.color, borderRadius: '50%', flexShrink: 0 }} />
+                            <span style={{ fontSize: '11px', color: '#374151', flex: 1 }}>{it.label}</span>
+                            <span style={{ fontSize: '12px', fontWeight: '700', color: '#1E293B' }}>{total > 0 ? `${Math.round(it.value/total*100)}%` : '0%'}</span>
                           </div>
                         ))}
                       </div>
                     </div>
                   )
               })())}
+              {chartCard('📦 Servicios activos', 'Por servicio y etapa', (() => {
+                  const SERVICIOS = [
+                    { id: 'asesoria', label: 'Asesoría' },
+                    { id: 'gestion', label: 'Trámite' },
+                    { id: 'gestoria_global', label: 'G. Global' },
+                  ]
+                  const ETAPAS = [
+                    { id: 'prospecto', label: 'Prospecto', color: AZUL },
+                    { id: 'diagnostico', label: 'Diagnóstico', color: '#F59E0B' },
+                    { id: 'recopilacion', label: 'Recop.', color: '#0891B2' },
+                    { id: 'tramite', label: 'Trámite', color: '#0EA5E9' },
+                    { id: 'cierre', label: 'Cierre', color: '#7C3AED' },
+                    { id: 'cancelado', label: 'Cancelado', color: '#94A3B8' },
+                  ]
+                  const datos = SERVICIOS.map(s => ({
+                    ...s,
+                    etapas: ETAPAS.map(e => ({ ...e, n: clientesFiltrados.filter(c => c.tipo_servicio === s.id && (c.etapa_kanban || 'prospecto') === e.id).length }))
+                  }))
+                  const max = Math.max(...datos.flatMap(d => d.etapas.map(e => e.n)), 1)
+                  const W = 320, H = 80, padL = 16, padR = 10, groupGap = 14
+                  const groupW = (W - padL - padR - groupGap * (datos.length - 1)) / datos.length
+                  const barW = groupW / ETAPAS.length
+                  return (
+                    <div style={{ display: 'flex', flexDirection: 'column' as const, height: '100%' }}>
+                      <svg viewBox={`0 0 ${W} ${H + 20}`} style={{ width: '100%', flex: 1 }}>
+                        {datos.map((g, gi) => {
+                          const gx = padL + gi * (groupW + groupGap)
+                          return (
+                            <g key={gi}>
+                              {g.etapas.map((e, ei) => {
+                                const h = (e.n / max) * (H - 12)
+                                const x = gx + ei * barW
+                                const y = H - h
+                                return (
+                                  <g key={ei}>
+                                    <rect x={x + 0.5} y={y} width={Math.max(barW - 1, 1)} height={h} rx={1} fill={e.color} />
+                                    {e.n > 0 && h > 10 && <text x={x + barW / 2} y={y - 2} textAnchor="middle" fontSize="7" fontWeight="700" fill="#374151">{e.n}</text>}
+                                  </g>
+                                )
+                              })}
+                              <text x={gx + groupW / 2} y={H + 14} textAnchor="middle" fontSize="9" fontWeight="600" fill="#6B7280">{g.label}</text>
+                            </g>
+                          )
+                        })}
+                      </svg>
+                      <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '4px 8px', marginTop: '4px', flexShrink: 0 }}>
+                        {ETAPAS.map((e, i) => (
+                          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '9px', color: '#64748B' }}>
+                            <span style={{ width: '7px', height: '7px', background: e.color, borderRadius: '2px', display: 'inline-block' as const }} />{e.label}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )
+              })(), (() => {
+                  const SERVICIOS = [{ id: 'asesoria', label: 'Asesoría' }, { id: 'gestion', label: 'Trámite' }, { id: 'gestoria_global', label: 'Gestión Global' }]
+                  const ETAPAS = [
+                    { id: 'prospecto', label: 'Prospecto', color: AZUL }, { id: 'diagnostico', label: 'Diagnóstico', color: '#F59E0B' },
+                    { id: 'recopilacion', label: 'Recopilación', color: '#0891B2' }, { id: 'tramite', label: 'Trámite', color: '#0EA5E9' },
+                    { id: 'cierre', label: 'Cierre', color: '#7C3AED' }, { id: 'cancelado', label: 'Cancelado', color: '#94A3B8' },
+                  ]
+                  const datos = SERVICIOS.map(s => ({ ...s, etapas: ETAPAS.map(e => ({ ...e, n: clientesFiltrados.filter(c => c.tipo_servicio === s.id && (c.etapa_kanban || 'prospecto') === e.id).length })) }))
+                  const max = Math.max(...datos.flatMap(d => d.etapas.map(e => e.n)), 1)
+                  const W = 560, H = 220, padL = 30, padR = 10, groupGap = 30
+                  const groupW = (W - padL - padR - groupGap * (datos.length - 1)) / datos.length
+                  const barW = groupW / ETAPAS.length
+                  return (
+                    <div>
+                      <svg viewBox={`0 0 ${W} ${H + 28}`} style={{ width: '100%', height: 'auto' }}>
+                        {[0,0.25,0.5,0.75,1].map((f,i) => <line key={i} x1={padL} x2={W-padR} y1={H-f*(H-20)} y2={H-f*(H-20)} stroke="#F3F4F6" strokeWidth="1"/>)}
+                        {datos.map((g, gi) => { const gx = padL + gi * (groupW + groupGap); return (
+                          <g key={gi}>{g.etapas.map((e, ei) => { const h=(e.n/max)*(H-20),x=gx+ei*barW,y=H-h; return (<g key={ei}><rect x={x+1} y={y} width={barW-2} height={h} rx={3} fill={e.color}/>{e.n>0&&<text x={x+barW/2} y={y-4} textAnchor="middle" fontSize="11" fontWeight="700" fill="#374151">{e.n}</text>}</g>)})}
+                          <text x={gx+groupW/2} y={H+18} textAnchor="middle" fontSize="13" fontWeight="600" fill="#6B7280">{g.label}</text></g>
+                        )})}
+                      </svg>
+                      <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '10px', marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #F3F4F6' }}>
+                        {ETAPAS.map((e,i) => <span key={i} style={{ display:'flex',alignItems:'center',gap:'5px',fontSize:'12px',color:'#64748B' }}><span style={{ width:'10px',height:'10px',background:e.color,borderRadius:'2px',display:'inline-block' as const }}/>{e.label}</span>)}
+                      </div>
+                    </div>
+                  )
+              })())}
+
               {chartCard('📐 Rangos de Pensión', 'Distribución', (
                 <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '4px', height: '100%', justifyContent: 'space-evenly' }}>
                   {rangos.map((r, i) => {
@@ -701,6 +783,8 @@ function MiDiaInner() {
                 </div>
               ))}
             </div>{/* fin Fila 2 */}
+
+            {/* Fila 3: KPIs */}
             <div className="db-kpis" style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '8px' }}>
               {[
                 { label: '$ Servicio promedio', value: fmtMXN(ticketPromedio), color: AZUL },
@@ -714,125 +798,6 @@ function MiDiaInner() {
                 { label: '$ Comisiones', value: fmtMXN(comisionesFinancieras), color: NARANJA },
               ].map((k, i) => kpi(k.label, k.value, undefined, k.color))}
             </div>
-
-            {/* Fila 4: Servicios activos */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px', alignItems: 'start' }}>
-
-              {chartCard('📦 Servicios activos', 'Por tipo de servicio y etapa', (() => {
-                  const SERVICIOS = [
-                    { id: 'asesoria', label: 'Asesoría' },
-                    { id: 'gestion', label: 'Trámite' },
-                    { id: 'gestoria_global', label: 'G. Global' },
-                  ]
-                  const ETAPAS = [
-                    { id: 'prospecto', label: 'Prospecto', color: AZUL },
-                    { id: 'diagnostico', label: 'Diagnóstico', color: '#F59E0B' },
-                    { id: 'recopilacion', label: 'Recop.', color: '#0891B2' },
-                    { id: 'tramite', label: 'Trámite', color: '#0EA5E9' },
-                    { id: 'cierre', label: 'Cierre', color: '#7C3AED' },
-                    { id: 'cancelado', label: 'Cancelado', color: '#94A3B8' },
-                  ]
-                  const datos = SERVICIOS.map(s => ({
-                    ...s,
-                    etapas: ETAPAS.map(e => ({ ...e, n: clientesFiltrados.filter(c => c.tipo_servicio === s.id && (c.etapa_kanban || 'prospecto') === e.id).length }))
-                  }))
-                  const max = Math.max(...datos.flatMap(d => d.etapas.map(e => e.n)), 1)
-                  const W = 320, H = 80, padL = 16, padR = 10, groupGap = 14
-                  const groupW = (W - padL - padR - groupGap * (datos.length - 1)) / datos.length
-                  const barW = groupW / ETAPAS.length
-                  return (
-                    <div>
-                      <svg viewBox={`0 0 ${W} ${H + 20}`} style={{ width: '100%', height: 'auto' }}>
-                        {datos.map((g, gi) => {
-                          const gx = padL + gi * (groupW + groupGap)
-                          return (
-                            <g key={gi}>
-                              {g.etapas.map((e, ei) => {
-                                const h = (e.n / max) * (H - 12)
-                                const x = gx + ei * barW
-                                const y = H - h
-                                return (
-                                  <g key={ei}>
-                                    <rect x={x + 0.5} y={y} width={Math.max(barW - 1, 1)} height={h} rx={1} fill={e.color} />
-                                    {e.n > 0 && h > 10 && <text x={x + barW / 2} y={y - 2} textAnchor="middle" fontSize="7" fontWeight="700" fill="#374151">{e.n}</text>}
-                                  </g>
-                                )
-                              })}
-                              <text x={gx + groupW / 2} y={H + 14} textAnchor="middle" fontSize="9" fontWeight="600" fill="#6B7280">{g.label}</text>
-                            </g>
-                          )
-                        })}
-                      </svg>
-                      <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px 10px', marginTop: '4px' }}>
-                        {ETAPAS.map((e, i) => (
-                          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '9px', color: '#64748B' }}>
-                            <span style={{ width: '7px', height: '7px', background: e.color, borderRadius: '2px', display: 'inline-block' as const }} />{e.label}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )
-              })(), (() => {
-                  // Versión expandida — más grande
-                  const SERVICIOS = [
-                    { id: 'asesoria', label: 'Asesoría' },
-                    { id: 'gestion', label: 'Trámite' },
-                    { id: 'gestoria_global', label: 'Gestión Global' },
-                  ]
-                  const ETAPAS = [
-                    { id: 'prospecto', label: 'Prospecto', color: AZUL },
-                    { id: 'diagnostico', label: 'Diagnóstico', color: '#F59E0B' },
-                    { id: 'recopilacion', label: 'Recopilación', color: '#0891B2' },
-                    { id: 'tramite', label: 'Trámite', color: '#0EA5E9' },
-                    { id: 'cierre', label: 'Cierre', color: '#7C3AED' },
-                    { id: 'cancelado', label: 'Cancelado', color: '#94A3B8' },
-                  ]
-                  const datos = SERVICIOS.map(s => ({
-                    ...s,
-                    etapas: ETAPAS.map(e => ({ ...e, n: clientesFiltrados.filter(c => c.tipo_servicio === s.id && (c.etapa_kanban || 'prospecto') === e.id).length }))
-                  }))
-                  const max = Math.max(...datos.flatMap(d => d.etapas.map(e => e.n)), 1)
-                  const W = 560, H = 220, padL = 30, padR = 10, groupGap = 30
-                  const groupW = (W - padL - padR - groupGap * (datos.length - 1)) / datos.length
-                  const barW = groupW / ETAPAS.length
-                  return (
-                    <div>
-                      <svg viewBox={`0 0 ${W} ${H + 28}`} style={{ width: '100%', height: 'auto' }}>
-                        {[0, 0.25, 0.5, 0.75, 1].map((f, i) => (
-                          <line key={i} x1={padL} x2={W - padR} y1={H - f * (H - 20)} y2={H - f * (H - 20)} stroke="#F3F4F6" strokeWidth="1" />
-                        ))}
-                        {datos.map((g, gi) => {
-                          const gx = padL + gi * (groupW + groupGap)
-                          return (
-                            <g key={gi}>
-                              {g.etapas.map((e, ei) => {
-                                const h = (e.n / max) * (H - 20)
-                                const x = gx + ei * barW
-                                const y = H - h
-                                return (
-                                  <g key={ei}>
-                                    <rect x={x + 1} y={y} width={barW - 2} height={h} rx={3} fill={e.color} />
-                                    {e.n > 0 && <text x={x + barW / 2} y={y - 4} textAnchor="middle" fontSize="11" fontWeight="700" fill="#374151">{e.n}</text>}
-                                  </g>
-                                )
-                              })}
-                              <text x={gx + groupW / 2} y={H + 18} textAnchor="middle" fontSize="13" fontWeight="600" fill="#6B7280">{g.label}</text>
-                            </g>
-                          )
-                        })}
-                      </svg>
-                      <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '10px', marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #F3F4F6' }}>
-                        {ETAPAS.map((e, i) => (
-                          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: '#64748B' }}>
-                            <span style={{ width: '10px', height: '10px', background: e.color, borderRadius: '2px', display: 'inline-block' as const }} />{e.label}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )
-              })())}
-
-            </div>{/* fin Fila 4 */}
           </div>
 
           {/* Divisor vertical continuo, a lo largo de las 4 filas */}
