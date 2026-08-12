@@ -851,6 +851,7 @@ function CalculadoraInner() {
   const [modoAnalisis, setModoAnalisis] = useState<'manual' | 'ia'>('manual')
   const [generandoAnalisis, setGenerandoAnalisis] = useState(false)
   const [guardando, setGuardando] = useState(false)
+  const [menuAbierto, setMenuAbierto] = useState<number | null>(null)
   const [mensaje, setMensaje] = useState('')
   const [asesorPerfil, setAsesorPerfil] = useState<{razon_social?: string; nombre?: string; logo_url?: string; encabezado_color?: string; encabezado_titulo?: string; encabezado_logo_size?: number; encabezado_font_size?: number} | null>(null)
 
@@ -2703,6 +2704,89 @@ function CalculadoraInner() {
                 </div>
               </div>
             )}
+
+            {/* ── Navegación superior — 4 grupos con dropdown ── */}
+            {(() => {
+              const grupos = [
+                { label: 'El cliente',    icon: '👤', tabs: [0,1,2,4],    color: AZUL,      nombres: ['Datos básicos','Cuantías','Salario Mod.40','Info. pensionado'] },
+                { label: 'La pensión',    icon: '💰', tabs: [5,8,9,12],   color: VERDE,     nombres: ['Importe pensión','Escenario 1','Mod. 10','Cotiz. voluntaria'] },
+                { label: 'La inversión',  icon: '📊', tabs: [3,6,7,10],   color: '#B45309', nombres: ['SDI 250 sem.','Costo Mod.40','Financiamiento','Rendimiento'] },
+                { label: 'El entregable', icon: '📄', tabs: [11],         color: '#7C3AED', nombres: ['Análisis y PDF'] },
+              ]
+              const grupoActivo = grupos.findIndex(g => g.tabs.includes(tab))
+              // Número de secuencia global: todos los sub-tabs en orden
+              const todosLosTabs = grupos.flatMap(g => g.tabs)
+              return (
+                <div style={{ background: 'white', borderBottom: `1px solid ${BORDE}`, flexShrink: 0, position: 'relative' as const, zIndex: 20 }}>
+                  <div style={{ display: 'flex' }}>
+                    {grupos.map((g, gi) => {
+                      const activo = gi === grupoActivo
+                      const abierto = menuAbierto === gi
+                      // Completados: todos los tabs del grupo que ya se visitaron (tab > max de ellos)
+                      const completado = g.tabs.every(t => t < tab)
+                      const parcial = g.tabs.some(t => t < tab) && !completado
+                      return (
+                        <div key={gi} style={{ flex: 1, position: 'relative' as const }}>
+                          <button
+                            onClick={() => setMenuAbierto(abierto ? null : gi)}
+                            style={{ width: '100%', padding: '10px 6px 8px', border: 'none', borderBottom: `3px solid ${activo ? g.color : 'transparent'}`, cursor: 'pointer', background: activo ? `${g.color}0F` : 'white', fontFamily: 'inherit', transition: 'all 0.15s', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '2px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <span style={{ fontSize: '15px' }}>{g.icon}</span>
+                              {completado && <span style={{ fontSize: '9px', color: VERDE, fontWeight: '700' }}>✓</span>}
+                              {parcial && <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: g.color, display: 'inline-block' }} />}
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                              <span style={{ fontSize: '10.5px', fontWeight: activo ? '700' : '500', color: activo ? g.color : '#9CA3AF', whiteSpace: 'nowrap' as const }}>{g.label}</span>
+                              <span style={{ fontSize: '9px', color: activo ? g.color : '#CBD5E1', transition: 'transform 0.15s', display: 'inline-block', transform: abierto ? 'rotate(180deg)' : 'rotate(0deg)' }}>▾</span>
+                            </div>
+                          </button>
+
+                          {/* Dropdown */}
+                          {abierto && (
+                            <div style={{ position: 'absolute' as const, top: '100%', left: 0, minWidth: '200px', background: 'white', borderRadius: '0 0 10px 10px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', border: `1px solid ${BORDE}`, borderTop: 'none', zIndex: 100, overflow: 'hidden' }}>
+                              {/* Header del grupo */}
+                              <div style={{ background: g.color, padding: '8px 14px' }}>
+                                <span style={{ fontSize: '11px', fontWeight: '700', color: 'white', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>{g.icon} {g.label}</span>
+                              </div>
+                              {/* Sub-tabs numerados */}
+                              {g.tabs.map((tabIdx, si) => {
+                                const seqNum = todosLosTabs.indexOf(tabIdx) + 1
+                                const esCurrent = tab === tabIdx
+                                const esCompletado = tabIdx < tab
+                                return (
+                                  <button key={tabIdx}
+                                    onClick={() => { setTab(tabIdx); setMenuAbierto(null) }}
+                                    style={{ width: '100%', padding: '10px 14px', border: 'none', borderBottom: `1px solid ${BORDE}`, cursor: 'pointer', background: esCurrent ? `${g.color}0F` : 'white', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '10px', textAlign: 'left' as const, transition: 'background 0.1s' }}>
+                                    {/* Indicador de secuencia */}
+                                    <div style={{ width: '22px', height: '22px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: '700',
+                                      background: esCompletado ? VERDE : esCurrent ? g.color : '#F1F5F9',
+                                      color: esCompletado || esCurrent ? 'white' : '#94A3B8' }}>
+                                      {esCompletado ? '✓' : seqNum}
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                      <div style={{ fontSize: '12px', fontWeight: esCurrent ? '700' : '500', color: esCurrent ? g.color : esCompletado ? '#374151' : '#64748B' }}>
+                                        {g.nombres[si]}
+                                      </div>
+                                      {esCurrent && <div style={{ fontSize: '10px', color: g.color, marginTop: '1px' }}>← Estás aquí</div>}
+                                    </div>
+                                    {esCurrent && <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: g.color, flexShrink: 0 }} />}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                  {/* Overlay para cerrar el menú al hacer clic afuera */}
+                  {menuAbierto !== null && (
+                    <div onClick={() => setMenuAbierto(null)}
+                      style={{ position: 'fixed' as const, inset: 0, zIndex: 19 }} />
+                  )}
+                </div>
+              )
+            })()}
 
             {/* ── KPI bar — indicadores clave ── */}
             <div style={{ display: 'flex', background: 'white', borderBottom: `1px solid ${BORDE}`, flexShrink: 0, overflowX: 'auto' }}>
@@ -5049,51 +5133,6 @@ function CalculadoraInner() {
         })()}
 
             </div>{/* fin overflowY */}
-
-            {/* ── Navegación agrupada — 4 secciones + sub-tabs ── */}
-            <div style={{ borderTop: `2px solid ${BORDE}`, background: 'white', flexShrink: 0 }}>
-              {/* Fila 1: 4 grupos principales */}
-              {(() => {
-                const grupos = [
-                  { label: 'El cliente', icon: '👤', tabs: [0,1,2,4], color: AZUL },
-                  { label: 'La pensión', icon: '💰', tabs: [5,8,9,12], color: '#2E7D5A' },
-                  { label: 'La inversión', icon: '📊', tabs: [3,6,7,10], color: '#B45309' },
-                  { label: 'El entregable', icon: '📄', tabs: [11], color: '#7C3AED' },
-                ]
-                const grupoActivo = grupos.findIndex(g => g.tabs.includes(tab))
-                return (
-                  <>
-                    {/* Grupos */}
-                    <div style={{ display: 'flex', borderBottom: `1px solid ${BORDE}` }}>
-                      {grupos.map((g, gi) => {
-                        const activo = gi === grupoActivo
-                        return (
-                          <button key={gi} onClick={() => setTab(g.tabs[0])}
-                            style={{ flex: 1, padding: '10px 8px', border: 'none', borderBottom: `3px solid ${activo ? g.color : 'transparent'}`, cursor: 'pointer', background: activo ? `${g.color}12` : 'white', fontFamily: 'inherit', transition: 'all 0.15s', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '3px' }}>
-                            <span style={{ fontSize: '16px' }}>{g.icon}</span>
-                            <span style={{ fontSize: '11px', fontWeight: activo ? '700' : '500', color: activo ? g.color : '#9CA3AF', whiteSpace: 'nowrap' as const }}>{g.label}</span>
-                          </button>
-                        )
-                      })}
-                    </div>
-                    {/* Sub-tabs del grupo activo */}
-                    {grupoActivo >= 0 && (
-                      <div style={{ display: 'flex', overflowX: 'auto', background: '#FAFAFA' }}>
-                        {grupos[grupoActivo].tabs.map(i => (
-                          <button key={i} onClick={() => setTab(i)}
-                            style={{ padding: '7px 14px', border: 'none', borderBottom: `2px solid ${tab === i ? grupos[grupoActivo].color : 'transparent'}`, cursor: 'pointer', background: 'transparent', fontFamily: 'inherit', flexShrink: 0, transition: 'all 0.15s', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: i < tab ? '#2E7D5A' : tab === i ? grupos[grupoActivo].color : '#D1D5DB', flexShrink: 0 }} />
-                            <span style={{ fontSize: '11px', fontWeight: tab === i ? '700' : '400', color: tab === i ? grupos[grupoActivo].color : i < tab ? '#374151' : '#9CA3AF', whiteSpace: 'nowrap' as const }}>
-                              {TABS[i]}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                )
-              })()}
-            </div>
 
           </div>{/* fin panel derecho */}
         </div>
