@@ -965,7 +965,6 @@ function MiDiaInner() {
             )}
           </div>
 
-
           </div>{/* fin panel izquierdo */}
 
           {/* Divisor vertical continuo, a lo largo de las 4 filas */}
