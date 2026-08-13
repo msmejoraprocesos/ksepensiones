@@ -321,7 +321,7 @@ function MiDiaInner() {
   )
 
   const card = (content: React.ReactNode, style?: React.CSSProperties) => (
-    <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '14px 16px', display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' as const, boxShadow: '0 1px 3px rgba(0,0,0,0.04)', ...style }}>
+    <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '14px 16px', display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' as const, ...style }}>
       {content}
     </div>
   )
