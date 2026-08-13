@@ -321,7 +321,7 @@ function MiDiaInner() {
   )
 
   const card = (content: React.ReactNode, style?: React.CSSProperties) => (
-    <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '14px 16px', display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' as const, ...style }}>
+    <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '14px 16px', display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' as const, boxShadow: '0 1px 3px rgba(0,0,0,0.04)', ...style }}>
       {content}
     </div>
   )
@@ -355,7 +355,7 @@ function MiDiaInner() {
     </div>
   )
 
-  const kpi = (label: string, value: string, sub?: string, color = '#374151', filled = false, delta?: number | null, minH = 'auto') => {
+  const kpi = (label: string, value: string, sub?: string, color = '#374151', filled = false, delta?: number | null) => {
     const tintMap: Record<string, string> = {
       '#334E7B': '#EEF2F8', '#1D4ED8': '#EFF6FF', '#0891B2': '#ECFEFF',
       '#F59E0B': '#FFFBEB', '#16A34A': '#F0FDF4', '#DC2626': '#FEF2F2',
@@ -363,8 +363,8 @@ function MiDiaInner() {
     }
     const tint = tintMap[color] ?? '#F8FAFC'
     return (
-      <div style={{ background: filled ? color : tint, border: `1px solid ${color}22`, borderLeft: `4px solid ${color}`, padding: '8px 10px', textAlign: 'center' as const, borderRadius: '6px', display: 'flex', flexDirection: 'column' as const, justifyContent: 'center', minHeight: minH }}>
-        <div style={{ fontSize: '9.5px', color: filled ? 'rgba(255,255,255,0.8)' : '#6B7280', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' as const, marginBottom: '3px', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
+      <div style={{ background: filled ? color : tint, border: `1px solid ${color}22`, borderLeft: `4px solid ${color}`, padding: '8px 10px', textAlign: 'center' as const, borderRadius: '6px' }}>
+        <div style={{ fontSize: '9.5px', color: filled ? 'rgba(255,255,255,0.8)' : '#6B7280', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' as const, marginBottom: '3px' }}>{label}</div>
         <div style={{ fontSize: '18px', fontWeight: '800' as const, color: filled ? 'white' : color, letterSpacing: '-0.3px' }}>{value}</div>
         {sub && <div style={{ fontSize: '10px', color: filled ? 'rgba(255,255,255,0.75)' : '#6B7280', marginTop: '2px' }}>{sub}</div>}
         {delta !== undefined && delta !== null && (
@@ -394,6 +394,111 @@ function MiDiaInner() {
     </div>
   )
 
+  // ── Pre-compute Filas 4, 5, 6 fuera del JSX para evitar problemas con SWC ──
+  const probPorEtapaPipeline = { prospecto: 0.15, diagnostico: 0.35, propuesta_enviada: 0.50, recopilacion: 0.65, tramite: 0.80, cierre_exitoso: 1, cancelado: 0 } as {[k:string]:number}
+  const valorPipeline = clientes.filter((c: any) => c.activo !== false && !['cierre_exitoso','cancelado'].includes(c.etapa_kanban??'')).reduce((sum: number, c: any) => sum + ((c.monto_acordado??0)*(probPorEtapaPipeline[c.etapa_kanban??'prospecto']??0.2)), 0)
+
+  const fila4 = (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', alignItems: 'stretch' }}>
+      <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column' as const }}>
+        <p style={{ fontSize: '11px', fontWeight: '600' as const, color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 10px' }}>🚦 Urgencia pensional</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', flex: 1 }}>
+          {[
+            { nivel: 'rojo', label: 'Urgente', val: diagsUrgencia.rojo, color: '#DC2626', bg: '#FEF2F2', desc: 'menos de 2 años' },
+            { nivel: 'amarillo', label: 'Pronto', val: diagsUrgencia.amarillo, color: '#D97706', bg: '#FFFBEB', desc: '3 a 5 años' },
+            { nivel: 'verde', label: 'Con tiempo', val: diagsUrgencia.verde, color: '#16A34A', bg: '#F0FDF4', desc: 'más de 5 años' },
+            { nivel: 'gris', label: 'Sin datos', val: diagsUrgencia.gris, color: '#94A3B8', bg: '#F9FAFB', desc: 'sin diagnóstico' },
+          ].map(s => (
+            <div key={s.nivel} style={{ background: s.bg, borderRadius: '6px', padding: '8px', borderLeft: `3px solid ${s.color}`, display: 'flex', flexDirection: 'column' as const, justifyContent: 'center' }}>
+              <div style={{ fontSize: '18px', fontWeight: '800' as const, color: s.color }}>{s.val}</div>
+              <div style={{ fontSize: '10px', fontWeight: '700' as const, color: s.color }}>{s.label}</div>
+              <div style={{ fontSize: '9px', color: '#94A3B8' }}>{s.desc}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column' as const }}>
+        <p style={{ fontSize: '11px', fontWeight: '600' as const, color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 10px' }}>📞 Actividad esta semana</p>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, justifyContent: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '12px' }}>
+            <div>
+              <div style={{ fontSize: '32px', fontWeight: '800' as const, color: AZUL }}>{actividadesSemana}</div>
+              <div style={{ fontSize: '11px', color: '#64748B' }}>actividades registradas</div>
+            </div>
+            {actividadesSemanaAnt > 0 && <div style={{ fontSize: '12px', fontWeight: '700' as const, color: actividadesSemana >= actividadesSemanaAnt ? '#16A34A' : '#DC2626' }}>{actividadesSemana >= actividadesSemanaAnt ? '↑' : '↓'} {Math.abs(actividadesSemana - actividadesSemanaAnt)} vs semana ant.</div>}
+          </div>
+          <div style={{ height: '6px', background: '#F3F4F6', borderRadius: '3px', overflow: 'hidden' }}>
+            <div style={{ height: '100%', background: AZUL, borderRadius: '3px', width: `${Math.min(100, actividadesSemana * 10)}%` }} />
+          </div>
+          <p style={{ fontSize: '10px', color: '#94A3B8', margin: 0 }}>Meta: 10 actividades/semana</p>
+        </div>
+      </div>
+      <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column' as const }}>
+        <p style={{ fontSize: '11px', fontWeight: '600' as const, color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 10px' }}>🤖 Costo IA este mes</p>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, justifyContent: 'center', gap: '8px' }}>
+          <div style={{ fontSize: '28px', fontWeight: '800' as const, color: costoIA > 5 ? '#DC2626' : VERDE }}>${costoIA.toFixed(2)} <span style={{ fontSize: '14px', fontWeight: '400' as const, color: '#64748B' }}>USD</span></div>
+          <p style={{ fontSize: '11px', color: '#64748B', margin: 0 }}>~${(costoIA * 17.5).toFixed(0)} MXN · límite: $10 USD/mes</p>
+          <div style={{ height: '6px', background: '#F3F4F6', borderRadius: '3px', overflow: 'hidden' }}>
+            <div style={{ height: '100%', background: costoIA > 8 ? '#DC2626' : costoIA > 5 ? '#D97706' : VERDE, borderRadius: '3px', width: `${Math.min(100, (costoIA / 10) * 100)}%` }} />
+          </div>
+          <p style={{ fontSize: '10px', color: '#94A3B8', margin: 0 }}>{Math.round((costoIA / 10) * 100)}% del límite mensual</p>
+        </div>
+      </div>
+    </div>
+  )
+
+  const fila5 = (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+      <div style={{ background: '#FFFFFF', border: `1px solid ${clientesEstancados > 0 ? '#FCA5A5' : '#E5E7EB'}`, borderRadius: '10px', padding: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+        <p style={{ fontSize: '11px', fontWeight: '600' as const, color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 8px' }}>⏸ Clientes sin avance</p>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px' }}>
+          <div style={{ fontSize: '32px', fontWeight: '800' as const, color: clientesEstancados > 0 ? '#DC2626' : '#16A34A' }}>{clientesEstancados}</div>
+          <div style={{ fontSize: '12px', color: '#64748B', paddingBottom: '4px' }}>{clientesEstancados === 0 ? 'Sin clientes estancados ✓' : `cliente${clientesEstancados !== 1 ? 's' : ''} sin cambio en 60+ días`}</div>
+        </div>
+        {clientesEstancados > 0 && <p style={{ fontSize: '11px', color: '#DC2626', margin: '6px 0 0', fontWeight: '600' as const }}>⚠️ Pueden estar en riesgo de cancelación</p>}
+      </div>
+      <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px' }}>
+        <p style={{ fontSize: '11px', fontWeight: '600' as const, color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 8px' }}>💰 Valor estimado del pipeline</p>
+        <div style={{ fontSize: '28px', fontWeight: '800' as const, color: AZUL }}>{fmtMXN(valorPipeline)}</div>
+        <p style={{ fontSize: '11px', color: '#64748B', margin: '4px 0 8px' }}>Ponderado por probabilidad de cierre</p>
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const }}>
+          {Object.entries(probPorEtapaPipeline).filter(([k]) => !['cierre_exitoso','cancelado'].includes(k)).map(([e,p]) => (
+            <span key={e} style={{ fontSize: '9px', padding: '2px 6px', background: '#F4F6F9', color: '#64748B', borderRadius: '4px' }}>{e.replace('_',' ')}: {Math.round(p*100)}%</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+
+  const fila6 = (
+    <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderLeft: '4px solid #F59E0B', borderRadius: '10px', padding: '14px' }}>
+      <p style={{ fontSize: '11px', fontWeight: '600' as const, color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 12px' }}>⭐ Satisfacción del cliente — este mes</p>
+      {encuestaStats.enviadas === 0 ? (
+        <p style={{ fontSize: '13px', color: '#94A3B8', margin: 0 }}>Sin encuestas enviadas este mes.</p>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+          <div style={{ textAlign: 'center' as const }}>
+            <div style={{ fontSize: '28px', fontWeight: '800' as const, color: encuestaStats.promedio >= 4 ? VERDE : encuestaStats.promedio >= 3 ? '#D97706' : '#DC2626' }}>{encuestaStats.promedio > 0 ? encuestaStats.promedio.toFixed(1) : '—'}</div>
+            <div style={{ fontSize: '16px', letterSpacing: '2px', margin: '2px 0' }}>{'⭐'.repeat(Math.round(encuestaStats.promedio))}</div>
+            <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0', textTransform: 'uppercase' as const }}>Satisfacción</p>
+          </div>
+          <div style={{ textAlign: 'center' as const, borderLeft: '1px solid #F3F4F6', borderRight: '1px solid #F3F4F6' }}>
+            <div style={{ fontSize: '28px', fontWeight: '800' as const, color: encuestaStats.nps >= 50 ? VERDE : encuestaStats.nps >= 0 ? '#D97706' : '#DC2626' }}>{encuestaStats.respondidas > 0 ? `${encuestaStats.nps > 0 ? '+' : ''}${encuestaStats.nps}` : '—'}</div>
+            <div style={{ fontSize: '11px', color: encuestaStats.nps >= 50 ? VERDE : '#D97706', fontWeight: '600' as const, margin: '2px 0' }}>{encuestaStats.nps >= 70 ? 'Excelente' : encuestaStats.nps >= 50 ? 'Bueno' : encuestaStats.nps >= 0 ? 'Regular' : 'Malo'}</div>
+            <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0', textTransform: 'uppercase' as const }}>NPS</p>
+          </div>
+          <div style={{ textAlign: 'center' as const }}>
+            <div style={{ fontSize: '28px', fontWeight: '800' as const, color: AZUL }}>{encuestaStats.respondidas}<span style={{ fontSize: '16px', color: '#94A3B8' }}>/{encuestaStats.enviadas}</span></div>
+            <div style={{ height: '4px', background: '#F3F4F6', borderRadius: '2px', overflow: 'hidden', margin: '6px auto', maxWidth: '60px' }}>
+              <div style={{ height: '100%', background: AZUL, width: `${encuestaStats.enviadas > 0 ? (encuestaStats.respondidas/encuestaStats.enviadas)*100 : 0}%` }} />
+            </div>
+            <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0', textTransform: 'uppercase' as const }}>Respondidas</p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+
   return (
     <div style={{ height: 'calc(100vh - 48px)', overflow: 'auto', background: '#F4F6F9' }}>
 
@@ -402,7 +507,7 @@ function MiDiaInner() {
         <div onClick={() => setChartModal(null)}
           style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', backdropFilter: 'blur(2px)' }}>
           <div onClick={e => e.stopPropagation()}
-            style={{ background: 'white', borderRadius: '16px', width: '100%', maxWidth: '900px', maxHeight: '85vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.25)' }}>
+            style={{ background: 'white', borderRadius: '16px', width: '100%', maxWidth: '720px', maxHeight: '80vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.25)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid #E2E8F0' }}>
               <div>
                 <p style={{ fontSize: '14px', fontWeight: '700', color: '#111827', margin: 0 }}>{chartModal.titulo}</p>
@@ -413,7 +518,7 @@ function MiDiaInner() {
                 ✕
               </button>
             </div>
-            <div style={{ padding: '20px', minHeight: '500px', display: 'flex', flexDirection: 'column' as const }}>
+            <div style={{ padding: '20px', minHeight: '400px', display: 'flex', flexDirection: 'column' as const }}>
               <div style={{ flex: 1 }}>
                 {chartModal.contenido}
               </div>
@@ -547,8 +652,8 @@ function MiDiaInner() {
               ].map((k: any, i) => kpi(k.label, k.value, k.sub, k.color, k.filled, k.delta))}
             </div>
 
-            {/* Fila 2: Tendencias | Embudo | Ventas | Rangos | Servicios activos */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: '8px', alignItems: 'stretch' }}>
+            {/* Fila 2: Tendencias | Embudo | Ventas | Rangos de Pensión */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px', alignItems: 'stretch' }}>
 
               {/* Tendencias de ingresos */}
               {chartCard('📈 Tendencias de ingresos', 'Comparativo por año', (() => {
@@ -618,38 +723,10 @@ function MiDiaInner() {
                       ))}
                     </div>
                   )
-              })(), (() => {
-                  const etapas = [
-                    { id: 'cierre', label: 'Cierre', color: VERDE },
-                    { id: 'tramite', label: 'Trámite', color: '#F59E0B' },
-                    { id: 'recopilacion', label: 'Recopilación', color: '#0891B2' },
-                    { id: 'diagnostico', label: 'Diagnóstico', color: '#1D4ED8' },
-                    { id: 'prospecto', label: 'Prospecto', color: AZUL },
-                  ]
-                  const counts = etapas.map(e => ({ ...e, n: clientesFiltrados.filter(c => (c.etapa_kanban || 'prospecto') === e.id).length }))
-                  const max = Math.max(...counts.map(c => c.n), 1)
-                  const total = counts.reduce((s, c) => s + c.n, 0)
-                  return (
-                    <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '20px', height: '100%', justifyContent: 'center', padding: '10px 0' }}>
-                      {counts.map((c, i) => (
-                        <div key={i}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                            <span style={{ fontSize: '14px', fontWeight: '600', color: '#374151', width: '100px', flexShrink: 0 }}>{c.label}</span>
-                            <div style={{ flex: 1, background: '#F4F6F9', height: '90px', borderRadius: '6px', overflow: 'hidden' }}>
-                              <div style={{ width: `${(c.n / max) * 100}%`, height: '100%', background: c.color, minWidth: c.n > 0 ? '4px' : 0, borderRadius: '6px', display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
-                                {c.n > 0 && <span style={{ fontSize: '12px', fontWeight: '700', color: 'white' }}>{c.n}</span>}
-                              </div>
-                            </div>
-                            <span style={{ fontSize: '13px', color: '#94A3B8', minWidth: '40px', textAlign: 'right' as const, flexShrink: 0 }}>{total > 0 ? `${Math.round(c.n/total*100)}%` : '0%'}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )
               })())}
 
               {/* Ventas — donut */}
-              {(() => {
+              {chartCard('🍩 Ventas', 'Monto acordado por servicio', (() => {
                   const SERVICIOS_VENTAS = [
                     { id: 'asesoria', label: 'Asesoría', color: AZUL },
                     { id: 'gestion', label: 'Trámite', color: NARANJA },
@@ -669,50 +746,84 @@ function MiDiaInner() {
                     const startAcc = acc; acc += pct
                     return { ...it, pct, dash: pct * CIRC, offset: -startAcc * CIRC }
                   })
-                  const donutSVG = (maxW: number, fs: number) => (
-                    <svg style={{ width: '100%', maxWidth: `${maxW}px`, height: 'auto' }} viewBox="0 0 100 100">
-                      <circle cx="50" cy="50" r={R} fill="none" stroke="#F3F4F6" strokeWidth="20" />
-                      {segmentos.map((it, i) => (
-                        <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="20"
-                          strokeDasharray={`${it.dash} ${CIRC}`} strokeDashoffset={it.offset} transform="rotate(-90 50 50)" />
-                      ))}
-                      <text x="50" y="50" textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="#334E7B">
-                        {total >= 1000 ? `${(total/1000).toFixed(0)}k` : total.toFixed(0)}
-                      </text>
-                    </svg>
-                  )
-                  const compacto = (
-                    <div style={{ display: 'flex', flexDirection: 'column' as const, height: '100%', gap: '8px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'center', flexShrink: 0 }}>{donutSVG(135, 9)}</div>
-                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, justifyContent: 'space-evenly' }}>
+                  return (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', height: '100%' }}>
+                      <svg style={{ width: '60px', height: '60px', flexShrink: 0 }} viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r={R} fill="none" stroke="#F3F4F6" strokeWidth="20" />
+                        {segmentos.map((it, i) => (
+                          <circle key={i} cx="50" cy="50" r={R} fill="none" stroke={it.color} strokeWidth="20"
+                            strokeDasharray={`${it.dash} ${CIRC}`} strokeDashoffset={it.offset} transform="rotate(-90 50 50)" />
+                        ))}
+                        <text x="50" y="50" textAnchor="middle" dominantBaseline="middle" fontSize="9" fontWeight="700" fill="#334E7B">
+                          {total >= 1000 ? `${(total/1000).toFixed(0)}k` : total.toFixed(0)}
+                        </text>
+                      </svg>
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, gap: '5px' }}>
                         {items.filter(it => it.value > 0).map((it, i) => (
                           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ width: '10px', height: '10px', background: it.color, borderRadius: '50%', flexShrink: 0 }} />
-                            <span style={{ fontSize: '11px', color: '#374151', flex: 1 }}>{it.label}</span>
-                            <span style={{ fontSize: '12px', fontWeight: '700', color: '#1E293B' }}>{total > 0 ? `${Math.round(it.value/total*100)}%` : '0%'}</span>
+                            <span style={{ width: '8px', height: '8px', background: it.color, borderRadius: '50%', flexShrink: 0 }} />
+                            <span style={{ fontSize: '10px', color: '#64748B', flex: 1 }}>{it.label}</span>
+                            <span style={{ fontSize: '10px', fontWeight: '700', color: '#1E293B' }}>{total > 0 ? `${Math.round(it.value/total*100)}%` : '0%'}</span>
                           </div>
                         ))}
                       </div>
                     </div>
                   )
-                  const expandido = (
-                    <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '24px', height: '100%', justifyContent: 'center', padding: '10px 0' }}>
-                      <div style={{ flex: '0 0 450px', display: 'flex', justifyContent: 'center' }}>{donutSVG(450, 7)}</div>
-                      <div style={{ display: 'flex', gap: '32px', justifyContent: 'center', flexWrap: 'wrap' as const }}>
-                        <p style={{ fontSize: '13px', color: '#94A3B8', margin: '0', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600', width: '100%', textAlign: 'center' as const }}>Total: {fmtMXN(total)}</p>
-                        {items.filter(it => it.value > 0).map((it, i) => (
-                          <div key={i} style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '6px' }}>
-                            <span style={{ width: '14px', height: '14px', background: it.color, borderRadius: '50%', flexShrink: 0 }} />
-                            <span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>{it.label}</span>
-                            <span style={{ fontSize: '16px', fontWeight: '700', color: '#1E293B' }}>{fmtMXN(it.value)}</span>
-                            <span style={{ fontSize: '13px', color: '#94A3B8' }}>{total > 0 ? `${Math.round(it.value/total*100)}%` : '0%'}</span>
-                          </div>
-                        ))}
+              })())}
+              {chartCard('📐 Rangos de Pensión', 'Distribución', (
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '4px', height: '100%', justifyContent: 'space-evenly' }}>
+                  {rangos.map((r, i) => {
+                    const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
+                    const pct = diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0
+                    return (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '9px', color: '#64748B', width: '52px', flexShrink: 0, lineHeight: 1.2 }}>{r.label}</span>
+                        <div style={{ flex: 1, height: '10px', background: '#F3F4F6', borderRadius: '2px', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: `${pct}%`, background: r.color, minWidth: count > 0 ? '3px' : 0, borderRadius: '2px' }} />
+                        </div>
+                        <span style={{ fontSize: '10px', fontWeight: '700', color: '#374151', minWidth: '14px', textAlign: 'right' as const }}>{count}</span>
                       </div>
-                    </div>
-                  )
-                  return chartCard('🍩 Ventas', 'Monto acordado por servicio', compacto, expandido)
-              })()}              {chartCard('📦 Servicios activos', 'Por servicio y etapa', (() => {
+                    )
+                  })}
+                </div>
+              ), (
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
+                  {rangos.map((r, i) => {
+                    const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
+                    const pct = diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0
+                    return (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span style={{ fontSize: '13px', color: '#374151', fontWeight: '500', width: '100px', flexShrink: 0 }}>{r.label}</span>
+                        <div style={{ flex: 1, height: '28px', background: '#F3F4F6', borderRadius: '6px', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: `${pct}%`, background: r.color, minWidth: count > 0 ? '6px' : 0, borderRadius: '6px', display: 'flex', alignItems: 'center', paddingLeft: '8px' }}>
+                            {pct > 15 && <span style={{ fontSize: '11px', fontWeight: '700', color: 'white' }}>{Math.round(pct)}%</span>}
+                          </div>
+                        </div>
+                        <span style={{ fontSize: '15px', fontWeight: '700', color: '#1E293B', minWidth: '28px', textAlign: 'right' as const }}>{count}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              ))}
+            </div>{/* fin Fila 2 */}
+            <div className="db-kpis" style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '8px' }}>
+              {[
+                { label: '$ Servicio promedio', value: fmtMXN(ticketPromedio), color: AZUL },
+                { label: 'Conversión General', value: fmtPct(tasaConversion), color: VERDE },
+                { label: 'Éxitos gestiones', value: fmtPct(tasaExitoGestiones), color: VERDE },
+                { label: 'Bateo Diagnóstico', value: fmtPct(bateoDiag), color: '#1D4ED8' },
+                { label: 'Bateo Gestoría', value: fmtPct(bateoTramite), color: '#0891B2' },
+                { label: 'Cycle time prom.', value: fmtWeeks(cycleTime), color: '#F59E0B' },
+                { label: 'Activos este mes', value: diagMes.length.toString(), color: '#7C3AED' },
+                { label: 'Promedio Pensión', value: pensionPromedio > 0 ? fmtMXN(pensionPromedio) : '—', color: AZUL },
+                { label: '$ Comisiones', value: fmtMXN(comisionesFinancieras), color: NARANJA },
+              ].map((k, i) => kpi(k.label, k.value, undefined, k.color))}
+            </div>
+
+            {/* Fila 4: Servicios activos */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px', alignItems: 'start' }}>
+
+              {chartCard('📦 Servicios activos', 'Por tipo de servicio y etapa', (() => {
                   const SERVICIOS = [
                     { id: 'asesoria', label: 'Asesoría' },
                     { id: 'gestion', label: 'Trámite' },
@@ -735,8 +846,8 @@ function MiDiaInner() {
                   const groupW = (W - padL - padR - groupGap * (datos.length - 1)) / datos.length
                   const barW = groupW / ETAPAS.length
                   return (
-                    <div style={{ display: 'flex', flexDirection: 'column' as const, height: '100%' }}>
-                      <svg viewBox={`0 0 ${W} ${H + 20}`} style={{ width: '100%', flex: 1 }}>
+                    <div>
+                      <svg viewBox={`0 0 ${W} ${H + 20}`} style={{ width: '100%', height: 'auto' }}>
                         {datos.map((g, gi) => {
                           const gx = padL + gi * (groupW + groupGap)
                           return (
@@ -757,7 +868,7 @@ function MiDiaInner() {
                           )
                         })}
                       </svg>
-                      <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '4px 8px', marginTop: '4px', flexShrink: 0 }}>
+                      <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px 10px', marginTop: '4px' }}>
                         {ETAPAS.map((e, i) => (
                           <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '9px', color: '#64748B' }}>
                             <span style={{ width: '7px', height: '7px', background: e.color, borderRadius: '2px', display: 'inline-block' as const }} />{e.label}
@@ -767,13 +878,24 @@ function MiDiaInner() {
                     </div>
                   )
               })(), (() => {
-                  const SERVICIOS = [{ id: 'asesoria', label: 'Asesoría' }, { id: 'gestion', label: 'Trámite' }, { id: 'gestoria_global', label: 'Gestión Global' }]
-                  const ETAPAS = [
-                    { id: 'prospecto', label: 'Prospecto', color: AZUL }, { id: 'diagnostico', label: 'Diagnóstico', color: '#F59E0B' },
-                    { id: 'recopilacion', label: 'Recopilación', color: '#0891B2' }, { id: 'tramite', label: 'Trámite', color: '#0EA5E9' },
-                    { id: 'cierre', label: 'Cierre', color: '#7C3AED' }, { id: 'cancelado', label: 'Cancelado', color: '#94A3B8' },
+                  // Versión expandida — más grande
+                  const SERVICIOS = [
+                    { id: 'asesoria', label: 'Asesoría' },
+                    { id: 'gestion', label: 'Trámite' },
+                    { id: 'gestoria_global', label: 'Gestión Global' },
                   ]
-                  const datos = SERVICIOS.map(s => ({ ...s, etapas: ETAPAS.map(e => ({ ...e, n: clientesFiltrados.filter(c => c.tipo_servicio === s.id && (c.etapa_kanban || 'prospecto') === e.id).length })) }))
+                  const ETAPAS = [
+                    { id: 'prospecto', label: 'Prospecto', color: AZUL },
+                    { id: 'diagnostico', label: 'Diagnóstico', color: '#F59E0B' },
+                    { id: 'recopilacion', label: 'Recopilación', color: '#0891B2' },
+                    { id: 'tramite', label: 'Trámite', color: '#0EA5E9' },
+                    { id: 'cierre', label: 'Cierre', color: '#7C3AED' },
+                    { id: 'cancelado', label: 'Cancelado', color: '#94A3B8' },
+                  ]
+                  const datos = SERVICIOS.map(s => ({
+                    ...s,
+                    etapas: ETAPAS.map(e => ({ ...e, n: clientesFiltrados.filter(c => c.tipo_servicio === s.id && (c.etapa_kanban || 'prospecto') === e.id).length }))
+                  }))
                   const max = Math.max(...datos.flatMap(d => d.etapas.map(e => e.n)), 1)
                   const W = 560, H = 220, padL = 30, padR = 10, groupGap = 30
                   const groupW = (W - padL - padR - groupGap * (datos.length - 1)) / datos.length
@@ -781,191 +903,47 @@ function MiDiaInner() {
                   return (
                     <div>
                       <svg viewBox={`0 0 ${W} ${H + 28}`} style={{ width: '100%', height: 'auto' }}>
-                        {[0,0.25,0.5,0.75,1].map((f,i) => <line key={i} x1={padL} x2={W-padR} y1={H-f*(H-20)} y2={H-f*(H-20)} stroke="#F3F4F6" strokeWidth="1"/>)}
-                        {datos.map((g, gi) => { const gx = padL + gi * (groupW + groupGap); return (
-                          <g key={gi}>{g.etapas.map((e, ei) => { const h=(e.n/max)*(H-20),x=gx+ei*barW,y=H-h; return (<g key={ei}><rect x={x+1} y={y} width={barW-2} height={h} rx={3} fill={e.color}/>{e.n>0&&<text x={x+barW/2} y={y-4} textAnchor="middle" fontSize="11" fontWeight="700" fill="#374151">{e.n}</text>}</g>)})}
-                          <text x={gx+groupW/2} y={H+18} textAnchor="middle" fontSize="13" fontWeight="600" fill="#6B7280">{g.label}</text></g>
-                        )})}
+                        {[0, 0.25, 0.5, 0.75, 1].map((f, i) => (
+                          <line key={i} x1={padL} x2={W - padR} y1={H - f * (H - 20)} y2={H - f * (H - 20)} stroke="#F3F4F6" strokeWidth="1" />
+                        ))}
+                        {datos.map((g, gi) => {
+                          const gx = padL + gi * (groupW + groupGap)
+                          return (
+                            <g key={gi}>
+                              {g.etapas.map((e, ei) => {
+                                const h = (e.n / max) * (H - 20)
+                                const x = gx + ei * barW
+                                const y = H - h
+                                return (
+                                  <g key={ei}>
+                                    <rect x={x + 1} y={y} width={barW - 2} height={h} rx={3} fill={e.color} />
+                                    {e.n > 0 && <text x={x + barW / 2} y={y - 4} textAnchor="middle" fontSize="11" fontWeight="700" fill="#374151">{e.n}</text>}
+                                  </g>
+                                )
+                              })}
+                              <text x={gx + groupW / 2} y={H + 18} textAnchor="middle" fontSize="13" fontWeight="600" fill="#6B7280">{g.label}</text>
+                            </g>
+                          )
+                        })}
                       </svg>
                       <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '10px', marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #F3F4F6' }}>
-                        {ETAPAS.map((e,i) => <span key={i} style={{ display:'flex',alignItems:'center',gap:'5px',fontSize:'12px',color:'#64748B' }}><span style={{ width:'10px',height:'10px',background:e.color,borderRadius:'2px',display:'inline-block' as const }}/>{e.label}</span>)}
+                        {ETAPAS.map((e, i) => (
+                          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', color: '#64748B' }}>
+                            <span style={{ width: '10px', height: '10px', background: e.color, borderRadius: '2px', display: 'inline-block' as const }} />{e.label}
+                          </span>
+                        ))}
                       </div>
                     </div>
                   )
               })())}
 
-              {chartCard('📐 Rangos de Pensión', 'Distribución', (
-                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '4px', height: '100%', justifyContent: 'space-evenly' }}>
-                  {rangos.map((r, i) => {
-                    const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
-                    const pct = diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0
-                    return (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span style={{ fontSize: '9px', color: '#64748B', width: '52px', flexShrink: 0, lineHeight: 1.2 }}>{r.label}</span>
-                        <div style={{ flex: 1, height: '10px', background: '#F3F4F6', borderRadius: '2px', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: `${pct}%`, background: r.color, minWidth: count > 0 ? '3px' : 0, borderRadius: '2px' }} />
-                        </div>
-                        <span style={{ fontSize: '10px', fontWeight: '700', color: '#374151', minWidth: '14px', textAlign: 'right' as const }}>{count}</span>
-                      </div>
-                    )
-                  })}
-                </div>
-              ), (
-                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '14px', height: '100%', justifyContent: 'space-evenly', padding: '10px 0' }}>
-                  {rangos.map((r, i) => {
-                    const count = diagConResultado.filter(d => d.resultado_e4 >= r.min && d.resultado_e4 < r.max).length
-                    const pct = diagConResultado.length > 0 ? (count / diagConResultado.length) * 100 : 0
-                    return (
-                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <span style={{ fontSize: '14px', color: '#374151', fontWeight: '500', width: '120px', flexShrink: 0 }}>{r.label}</span>
-                        <div style={{ flex: 1, height: '120px', background: '#F3F4F6', borderRadius: '8px', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: `${pct}%`, background: r.color, minWidth: count > 0 ? '6px' : 0, borderRadius: '8px', display: 'flex', alignItems: 'center', paddingLeft: '12px' }}>
-                            {pct > 12 && <span style={{ fontSize: '13px', fontWeight: '700', color: 'white' }}>{Math.round(pct)}%</span>}
-                          </div>
-                        </div>
-                        <span style={{ fontSize: '18px', fontWeight: '700', color: '#1E293B', minWidth: '32px', textAlign: 'right' as const }}>{count}</span>
-                      </div>
-                    )
-                  })}
-                </div>
-              ))}
-            </div>{/* fin Fila 2 */}
+            </div>{/* fin Fila 4 */}
 
-            {/* Fila 3: KPIs */}
-            <div className="db-kpis" style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '8px' }}>
-              {[
-                { label: '$ Servicio promedio', value: fmtMXN(ticketPromedio), color: AZUL },
-                { label: 'Conversión General', value: fmtPct(tasaConversion), color: VERDE },
-                { label: 'Éxitos gestiones', value: fmtPct(tasaExitoGestiones), color: VERDE },
-                { label: 'Bateo Diagnóstico', value: fmtPct(bateoDiag), color: '#1D4ED8' },
-                { label: 'Bateo Gestoría', value: fmtPct(bateoTramite), color: '#0891B2' },
-                { label: 'Cycle time prom.', value: fmtWeeks(cycleTime), color: '#F59E0B' },
-                { label: 'Activos este mes', value: diagMes.length.toString(), color: '#7C3AED' },
-                { label: 'Promedio Pensión', value: pensionPromedio > 0 ? fmtMXN(pensionPromedio) : '—', color: AZUL },
-                { label: '$ Comisiones', value: fmtMXN(comisionesFinancieras), color: NARANJA },
-              ].map((k, i) => kpi(k.label, k.value, undefined, k.color, false, undefined, '64px'))}
-            </div>
+            {fila4}
+            {fila5}
+            {fila6}
 
-            {/* Fila 4: Urgencia + Actividad + Costo IA */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', alignItems: 'stretch' }}>
-
-              {/* Semáforo de urgencia */}
-              <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column' as const }}>
-                <p style={{ fontSize: '11px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 10px' }}>🚦 Urgencia pensional</p>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', flex: 1 }}>
-                  {[
-                    { nivel: 'rojo', label: 'Urgente', val: diagsUrgencia.rojo, color: '#DC2626', bg: '#FEF2F2', desc: 'menos de 2 años' },
-                    { nivel: 'amarillo', label: 'Pronto', val: diagsUrgencia.amarillo, color: '#D97706', bg: '#FFFBEB', desc: '3 a 5 años' },
-                    { nivel: 'verde', label: 'Con tiempo', val: diagsUrgencia.verde, color: '#16A34A', bg: '#F0FDF4', desc: 'más de 5 años' },
-                    { nivel: 'gris', label: 'Sin datos', val: diagsUrgencia.gris, color: '#94A3B8', bg: '#F9FAFB', desc: 'sin diagnóstico' },
-                  ].map(s => (
-                    <div key={s.nivel} style={{ background: s.bg, borderRadius: '6px', padding: '8px', borderLeft: `3px solid ${s.color}`, display: 'flex', flexDirection: 'column' as const, justifyContent: 'center' }}>
-                      <div style={{ fontSize: '18px', fontWeight: '800', color: s.color }}>{s.val}</div>
-                      <div style={{ fontSize: '10px', fontWeight: '700', color: s.color }}>{s.label}</div>
-                      <div style={{ fontSize: '9px', color: '#94A3B8' }}>{s.desc}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Actividad semanal */}
-              <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column' as const, justifyContent: 'space-between' }}>
-                <p style={{ fontSize: '11px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 10px' }}>📞 Actividad esta semana</p>
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, justifyContent: 'center', gap: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: '12px' }}>
-                    <div>
-                      <div style={{ fontSize: '32px', fontWeight: '800', color: AZUL }}>{actividadesSemana}</div>
-                      <div style={{ fontSize: '11px', color: '#64748B' }}>actividades registradas</div>
-                    </div>
-                    {actividadesSemanaAnt > 0 && (
-                      <div style={{ fontSize: '12px', fontWeight: '700', color: actividadesSemana >= actividadesSemanaAnt ? '#16A34A' : '#DC2626' }}>
-                        {actividadesSemana >= actividadesSemanaAnt ? '↑' : '↓'} {Math.abs(actividadesSemana - actividadesSemanaAnt)} vs semana ant.
-                      </div>
-                    )}
-                  </div>
-                  <div style={{ height: '6px', background: '#F3F4F6', borderRadius: '3px', overflow: 'hidden' }}>
-                    <div style={{ height: '100%', background: AZUL, borderRadius: '3px', width: `${Math.min(100, actividadesSemana * 10)}%` }} />
-                  </div>
-                  <p style={{ fontSize: '10px', color: '#94A3B8', margin: 0 }}>Meta sugerida: 10 actividades/semana</p>
-                </div>
-              </div>
-
-              {/* Costo IA */}
-              <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column' as const, justifyContent: 'space-between' }}>
-                <p style={{ fontSize: '11px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 10px' }}>🤖 Costo IA este mes</p>
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, justifyContent: 'center', gap: '8px' }}>
-                  <div style={{ fontSize: '28px', fontWeight: '800', color: costoIA > 5 ? '#DC2626' : VERDE }}>
-                    ${costoIA.toFixed(2)} <span style={{ fontSize: '14px', fontWeight: '400', color: '#64748B' }}>USD</span>
-                  </div>
-                  <p style={{ fontSize: '11px', color: '#64748B', margin: 0 }}>~${(costoIA * 17.5).toFixed(0)} MXN · límite: $10 USD/mes</p>
-                  <div style={{ height: '6px', background: '#F3F4F6', borderRadius: '3px', overflow: 'hidden' }}>
-                    <div style={{ height: '100%', background: costoIA > 8 ? '#DC2626' : costoIA > 5 ? '#D97706' : VERDE, borderRadius: '3px', width: `${Math.min(100, (costoIA / 10) * 100)}%` }} />
-                  </div>
-                  <p style={{ fontSize: '10px', color: '#94A3B8', margin: 0 }}>{Math.round((costoIA / 10) * 100)}% del límite mensual usado</p>
-                </div>
-              </div>
-            </div>
-
-
-
-
-          {/* Fila 5: Clientes estancados + Pipeline */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-            <div style={{ background: '#FFFFFF', border: `1px solid ${clientesEstancados > 0 ? '#FCA5A5' : '#E5E7EB'}`, borderRadius: '10px', padding: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-              <p style={{ fontSize: '11px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 8px' }}>⏸ Clientes sin avance</p>
-              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px' }}>
-                <div style={{ fontSize: '32px', fontWeight: '800', color: clientesEstancados > 0 ? '#DC2626' : '#16A34A' }}>{clientesEstancados}</div>
-                <div style={{ fontSize: '12px', color: '#64748B', paddingBottom: '4px' }}>{clientesEstancados === 0 ? 'Sin clientes estancados ✓' : `cliente${clientesEstancados !== 1 ? 's' : ''} sin cambio en 60+ días`}</div>
-              </div>
-              {clientesEstancados > 0 && <p style={{ fontSize: '11px', color: '#DC2626', margin: '6px 0 0', fontWeight: '600' }}>⚠️ Pueden estar en riesgo de cancelación</p>}
-            </div>
-            {(() => {
-              const probPorEtapa: Record<string, number> = { prospecto: 0.15, diagnostico: 0.35, propuesta_enviada: 0.50, recopilacion: 0.65, tramite: 0.80, cierre_exitoso: 1, cancelado: 0 }
-              const valorPipeline = clientes.filter((c: any) => c.activo !== false && !['cierre_exitoso','cancelado'].includes(c.etapa_kanban??'')).reduce((sum: number, c: any) => sum + ((c.monto_acordado??0)*(probPorEtapa[c.etapa_kanban??'prospecto']??0.2)), 0)
-              return (
-                <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px' }}>
-                  <p style={{ fontSize: '11px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 8px' }}>💰 Valor estimado del pipeline</p>
-                  <div style={{ fontSize: '28px', fontWeight: '800', color: AZUL }}>{fmtMXN(valorPipeline)}</div>
-                  <p style={{ fontSize: '11px', color: '#64748B', margin: '4px 0 8px' }}>Ponderado por probabilidad de cierre</p>
-                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const }}>
-                    {Object.entries(probPorEtapa).filter(([k]) => !['cierre_exitoso','cancelado'].includes(k)).map(([e,p]) => (
-                      <span key={e} style={{ fontSize: '9px', padding: '2px 6px', background: '#F4F6F9', color: '#64748B', borderRadius: '4px' }}>{e.replace('_',' ')}: {Math.round(p*100)}%</span>
-                    ))}
-                  </div>
-                </div>
-              )
-            })()}
           </div>
-
-          {/* Fila 6: Satisfacción */}
-          <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderLeft: '4px solid #F59E0B', borderRadius: '10px', padding: '14px' }}>
-            <p style={{ fontSize: '11px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 12px' }}>⭐ Satisfacción del cliente — este mes</p>
-            {encuestaStats.enviadas === 0 ? (
-              <p style={{ fontSize: '13px', color: '#94A3B8', margin: 0 }}>Sin encuestas enviadas este mes.</p>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
-                <div style={{ textAlign: 'center' as const }}>
-                  <div style={{ fontSize: '28px', fontWeight: '800', color: encuestaStats.promedio >= 4 ? VERDE : encuestaStats.promedio >= 3 ? '#D97706' : '#DC2626' }}>{encuestaStats.promedio > 0 ? encuestaStats.promedio.toFixed(1) : '—'}</div>
-                  <div style={{ fontSize: '16px', letterSpacing: '2px', margin: '2px 0' }}>{'⭐'.repeat(Math.round(encuestaStats.promedio))}</div>
-                  <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0', textTransform: 'uppercase' as const }}>Satisfacción</p>
-                </div>
-                <div style={{ textAlign: 'center' as const, borderLeft: '1px solid #F3F4F6', borderRight: '1px solid #F3F4F6' }}>
-                  <div style={{ fontSize: '28px', fontWeight: '800', color: encuestaStats.nps >= 50 ? VERDE : encuestaStats.nps >= 0 ? '#D97706' : '#DC2626' }}>{encuestaStats.respondidas > 0 ? `${encuestaStats.nps > 0 ? '+' : ''}${encuestaStats.nps}` : '—'}</div>
-                  <div style={{ fontSize: '11px', color: encuestaStats.nps >= 50 ? VERDE : '#D97706', fontWeight: '600', margin: '2px 0' }}>{encuestaStats.nps >= 70 ? 'Excelente' : encuestaStats.nps >= 50 ? 'Bueno' : encuestaStats.nps >= 0 ? 'Regular' : 'Malo'}</div>
-                  <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0', textTransform: 'uppercase' as const }}>NPS</p>
-                </div>
-                <div style={{ textAlign: 'center' as const }}>
-                  <div style={{ fontSize: '28px', fontWeight: '800', color: AZUL }}>{encuestaStats.respondidas}<span style={{ fontSize: '16px', color: '#94A3B8' }}>/{encuestaStats.enviadas}</span></div>
-                  <div style={{ height: '4px', background: '#F3F4F6', borderRadius: '2px', overflow: 'hidden', margin: '6px auto', maxWidth: '60px' }}>
-                    <div style={{ height: '100%', background: AZUL, width: `${encuestaStats.enviadas > 0 ? (encuestaStats.respondidas/encuestaStats.enviadas)*100 : 0}%` }} />
-                  </div>
-                  <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0', textTransform: 'uppercase' as const }}>Respondidas</p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          </div>{/* fin panel izquierdo */}
 
           {/* Divisor vertical continuo, a lo largo de las 4 filas */}
           <div className="db-divider" style={{ width: '1px', background: '#E5E7EB' }} />
@@ -1046,6 +1024,9 @@ function MiDiaInner() {
           )}
           </div>
         </div>
+
+      </div>
+
 
       {/* ── Onboarding — primeros pasos ── */}
       {showOnboarding && (
