@@ -988,104 +988,64 @@ function MiDiaInner() {
           </div>
         </div>
 
-      {/* Fila: Clientes estancados + Valor del pipeline */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', padding: '0 16px 16px' }}>
 
-          {/* Clientes estancados */}
-          <div style={{ background: '#FFFFFF', border: `1px solid ${clientesEstancados > 0 ? '#FCA5A5' : '#E5E7EB'}`, borderRadius: '10px', padding: '14px' }}>
-            <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 6px' }}>
-              ⏸ Clientes sin avance
-            </p>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px' }}>
-              <div style={{ fontSize: '32px', fontWeight: '800', color: clientesEstancados > 0 ? '#DC2626' : '#16A34A' }}>
-                {clientesEstancados}
+          {/* Fila 5: Clientes estancados + Pipeline */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            <div style={{ background: '#FFFFFF', border: `1px solid ${clientesEstancados > 0 ? '#FCA5A5' : '#E5E7EB'}`, borderRadius: '10px', padding: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+              <p style={{ fontSize: '11px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 8px' }}>⏸ Clientes sin avance</p>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px' }}>
+                <div style={{ fontSize: '32px', fontWeight: '800', color: clientesEstancados > 0 ? '#DC2626' : '#16A34A' }}>{clientesEstancados}</div>
+                <div style={{ fontSize: '12px', color: '#64748B', paddingBottom: '4px' }}>{clientesEstancados === 0 ? 'Sin clientes estancados ✓' : `cliente${clientesEstancados !== 1 ? 's' : ''} sin cambio en 60+ días`}</div>
               </div>
-              <div style={{ fontSize: '12px', color: '#64748B', paddingBottom: '4px' }}>
-                {clientesEstancados === 0 ? 'Sin clientes estancados ✓' : `cliente${clientesEstancados !== 1 ? 's' : ''} sin cambio de etapa en 60+ días`}
-              </div>
+              {clientesEstancados > 0 && <p style={{ fontSize: '11px', color: '#DC2626', margin: '6px 0 0', fontWeight: '600' }}>⚠️ Pueden estar en riesgo de cancelación</p>}
             </div>
-            {clientesEstancados > 0 && (
-              <p style={{ fontSize: '11px', color: '#DC2626', margin: '6px 0 0', fontWeight: '600' }}>
-                ⚠️ Revisa su seguimiento — pueden estar en riesgo de cancelación
-              </p>
+            {(() => {
+              const probPorEtapa: Record<string, number> = { prospecto: 0.15, diagnostico: 0.35, propuesta_enviada: 0.50, recopilacion: 0.65, tramite: 0.80, cierre_exitoso: 1, cancelado: 0 }
+              const valorPipeline = clientes.filter((c: any) => c.activo !== false && !['cierre_exitoso','cancelado'].includes(c.etapa_kanban??'')).reduce((sum: number, c: any) => sum + ((c.monto_acordado??0)*(probPorEtapa[c.etapa_kanban??'prospecto']??0.2)), 0)
+              return (
+                <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px' }}>
+                  <p style={{ fontSize: '11px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 8px' }}>💰 Valor estimado del pipeline</p>
+                  <div style={{ fontSize: '28px', fontWeight: '800', color: AZUL }}>{fmtMXN(valorPipeline)}</div>
+                  <p style={{ fontSize: '11px', color: '#64748B', margin: '4px 0 8px' }}>Ponderado por probabilidad de cierre</p>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const }}>
+                    {Object.entries(probPorEtapa).filter(([k]) => !['cierre_exitoso','cancelado'].includes(k)).map(([e,p]) => (
+                      <span key={e} style={{ fontSize: '9px', padding: '2px 6px', background: '#F4F6F9', color: '#64748B', borderRadius: '4px' }}>{e.replace('_',' ')}: {Math.round(p*100)}%</span>
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
+          </div>
+
+          {/* Fila 6: Satisfacción */}
+          <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderLeft: '4px solid #F59E0B', borderRadius: '10px', padding: '14px' }}>
+            <p style={{ fontSize: '11px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 12px' }}>⭐ Satisfacción del cliente — este mes</p>
+            {encuestaStats.enviadas === 0 ? (
+              <p style={{ fontSize: '13px', color: '#94A3B8', margin: 0 }}>Sin encuestas enviadas este mes.</p>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+                <div style={{ textAlign: 'center' as const }}>
+                  <div style={{ fontSize: '28px', fontWeight: '800', color: encuestaStats.promedio >= 4 ? VERDE : encuestaStats.promedio >= 3 ? '#D97706' : '#DC2626' }}>{encuestaStats.promedio > 0 ? encuestaStats.promedio.toFixed(1) : '—'}</div>
+                  <div style={{ fontSize: '16px', letterSpacing: '2px', margin: '2px 0' }}>{'⭐'.repeat(Math.round(encuestaStats.promedio))}</div>
+                  <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0', textTransform: 'uppercase' as const }}>Satisfacción</p>
+                </div>
+                <div style={{ textAlign: 'center' as const, borderLeft: '1px solid #F3F4F6', borderRight: '1px solid #F3F4F6' }}>
+                  <div style={{ fontSize: '28px', fontWeight: '800', color: encuestaStats.nps >= 50 ? VERDE : encuestaStats.nps >= 0 ? '#D97706' : '#DC2626' }}>{encuestaStats.respondidas > 0 ? `${encuestaStats.nps > 0 ? '+' : ''}${encuestaStats.nps}` : '—'}</div>
+                  <div style={{ fontSize: '11px', color: encuestaStats.nps >= 50 ? VERDE : '#D97706', fontWeight: '600', margin: '2px 0' }}>{encuestaStats.nps >= 70 ? 'Excelente' : encuestaStats.nps >= 50 ? 'Bueno' : encuestaStats.nps >= 0 ? 'Regular' : 'Malo'}</div>
+                  <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0', textTransform: 'uppercase' as const }}>NPS</p>
+                </div>
+                <div style={{ textAlign: 'center' as const }}>
+                  <div style={{ fontSize: '28px', fontWeight: '800', color: AZUL }}>{encuestaStats.respondidas}<span style={{ fontSize: '16px', color: '#94A3B8' }}>/{encuestaStats.enviadas}</span></div>
+                  <div style={{ height: '4px', background: '#F3F4F6', borderRadius: '2px', overflow: 'hidden', margin: '6px auto', maxWidth: '60px' }}>
+                    <div style={{ height: '100%', background: AZUL, width: `${encuestaStats.enviadas > 0 ? (encuestaStats.respondidas/encuestaStats.enviadas)*100 : 0}%` }} />
+                  </div>
+                  <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0', textTransform: 'uppercase' as const }}>Respondidas</p>
+                </div>
+              </div>
             )}
           </div>
 
-          {/* Valor estimado del pipeline */}
-          {(() => {
-            const probPorEtapa: Record<string, number> = {
-              prospecto: 0.15, diagnostico: 0.35, propuesta_enviada: 0.50,
-              recopilacion: 0.65, tramite: 0.80, cierre_exitoso: 1, cancelado: 0,
-            }
-            const valorPipeline = clientes
-              .filter((c: any) => c.activo !== false && !['cierre_exitoso', 'cancelado'].includes(c.etapa_kanban ?? ''))
-              .reduce((sum: number, c: any) => {
-                const prob = probPorEtapa[c.etapa_kanban ?? 'prospecto'] ?? 0.2
-                return sum + ((c.monto_acordado ?? 0) * prob)
-              }, 0)
-            const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n)
-            return (
-              <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px' }}>
-                <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 6px' }}>
-                  💰 Valor estimado del pipeline
-                </p>
-                <div style={{ fontSize: '28px', fontWeight: '800', color: AZUL }}>
-                  {fmtMXN(valorPipeline)}
-                </div>
-                <p style={{ fontSize: '11px', color: '#64748B', margin: '4px 0 0' }}>
-                  Ingresos probables ponderados por probabilidad de cierre por etapa
-                </p>
-                <div style={{ marginTop: '8px', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                  {Object.entries(probPorEtapa).filter(([k]) => !['cierre_exitoso', 'cancelado'].includes(k)).map(([etapa, prob]) => (
-                    <span key={etapa} style={{ fontSize: '9px', padding: '2px 6px', background: '#F4F6F9', color: '#64748B', borderRadius: '4px' }}>
-                      {etapa.replace('_', ' ')}: {Math.round(prob * 100)}%
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )
-          })()}
-        </div>
-
-        {/* ── KPIs Satisfacción del cliente ── */}
-        <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderLeft: '4px solid #F59E0B', borderRadius: '10px', padding: '14px' }}>
-          <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 12px' }}>⭐ Satisfacción del cliente — este mes</p>
-          {encuestaStats.enviadas === 0 ? (
-            <p style={{ fontSize: '13px', color: '#94A3B8', margin: 0 }}>Sin encuestas enviadas este mes. Envíalas desde el expediente de cada cliente al cerrar un caso.</p>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
-              <div style={{ textAlign: 'center' as const }}>
-                <div style={{ fontSize: '28px', fontWeight: '800', color: encuestaStats.promedio >= 4 ? VERDE : encuestaStats.promedio >= 3 ? '#D97706' : '#DC2626' }}>
-                  {encuestaStats.promedio > 0 ? encuestaStats.promedio.toFixed(1) : '—'}
-                </div>
-                <div style={{ fontSize: '16px', letterSpacing: '2px', margin: '2px 0' }}>
-                  {'⭐'.repeat(Math.round(encuestaStats.promedio))}
-                </div>
-                <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0', textTransform: 'uppercase' as const }}>Satisfacción</p>
-              </div>
-              <div style={{ textAlign: 'center' as const, borderLeft: '1px solid #F3F4F6', borderRight: '1px solid #F3F4F6' }}>
-                <div style={{ fontSize: '28px', fontWeight: '800', color: encuestaStats.nps >= 50 ? VERDE : encuestaStats.nps >= 0 ? '#D97706' : '#DC2626' }}>
-                  {encuestaStats.respondidas > 0 ? `${encuestaStats.nps > 0 ? '+' : ''}${encuestaStats.nps}` : '—'}
-                </div>
-                <div style={{ fontSize: '11px', color: encuestaStats.nps >= 50 ? VERDE : '#D97706', fontWeight: '600', margin: '2px 0' }}>
-                  {encuestaStats.nps >= 70 ? 'Excelente' : encuestaStats.nps >= 50 ? 'Bueno' : encuestaStats.nps >= 0 ? 'Regular' : 'Malo'}
-                </div>
-                <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0', textTransform: 'uppercase' as const }}>NPS</p>
-              </div>
-              <div style={{ textAlign: 'center' as const }}>
-                <div style={{ fontSize: '28px', fontWeight: '800', color: AZUL }}>
-                  {encuestaStats.respondidas}<span style={{ fontSize: '16px', color: '#94A3B8' }}>/{encuestaStats.enviadas}</span>
-                </div>
-                <div style={{ height: '4px', background: '#F3F4F6', borderRadius: '2px', overflow: 'hidden', margin: '6px auto', maxWidth: '60px' }}>
-                  <div style={{ height: '100%', background: AZUL, width: `${encuestaStats.enviadas > 0 ? (encuestaStats.respondidas / encuestaStats.enviadas) * 100 : 0}%` }} />
-                </div>
-                <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0', textTransform: 'uppercase' as const }}>Respondidas</p>
-              </div>
-            </div>
-          )}
-        </div>
-
-      </div>
+        </div>{/* fin panel izquierdo */}
 
       {/* ── Onboarding — primeros pasos ── */}
       {showOnboarding && (
