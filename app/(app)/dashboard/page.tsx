@@ -394,8 +394,8 @@ function MiDiaInner() {
     </div>
   )
 
-  const probPipelineEtapa: {[k:string]:number} = { prospecto: 0.15, diagnostico: 0.35, propuesta_enviada: 0.50, recopilacion: 0.65, tramite: 0.80, cierre_exitoso: 1, cancelado: 0 }
-  const valorPipelineEst = clientes.filter((c: any) => c.activo !== false && !['cierre_exitoso','cancelado'].includes(c.etapa_kanban??'')).reduce((sum: number, c: any) => sum + ((c.monto_acordado??0)*(probPipelineEtapa[c.etapa_kanban??'prospecto']??0.2)), 0)
+  const probPipelineEtapa = { prospecto: 0.15, diagnostico: 0.35, propuesta_enviada: 0.50, recopilacion: 0.65, tramite: 0.80, cierre_exitoso: 1, cancelado: 0 }
+  const valorPipelineEst = clientes.filter((c: any) => c.activo !== false && !['cierre_exitoso','cancelado'].includes(c.etapa_kanban??'')).reduce((sum: number, c: any) => sum + ((c.monto_acordado??0)*((probPipelineEtapa as any)[c.etapa_kanban??'prospecto']??0.2)), 0)
 
   return (
     <div style={{ height: 'calc(100vh - 48px)', overflow: 'auto', background: '#F4F6F9' }}>
