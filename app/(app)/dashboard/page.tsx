@@ -35,6 +35,7 @@ function MiDiaInner() {
   const [clientesEstancados, setClientesEstancados] = useState(0)
   const [actividadesSemana, setActividadesSemana] = useState(0)
   const [actividadesSemanaAnt, setActividadesSemanaAnt] = useState(0)
+  const [valorPipeline, setValorPipeline] = useState(0)
   const [encuestaStats, setEncuestaStats] = useState({ promedio: 0, nps: 0, respondidas: 0, enviadas: 0 })
 
   const hoy = new Date()
@@ -100,6 +101,10 @@ function MiDiaInner() {
       return fechaEtapa < hace60dias && !['cierre_exitoso', 'cancelado'].includes(c.etapa_kanban ?? '')
     }).length
     setClientesEstancados(estancados)
+
+    const prob: any = {prospecto:0.15,diagnostico:0.35,propuesta_enviada:0.50,recopilacion:0.65,tramite:0.80}
+    const vp = (cl ?? []).filter((c: any) => c.activo !== false && c.etapa_kanban !== 'cierre_exitoso' && c.etapa_kanban !== 'cancelado').reduce((s: number, c: any) => s + (c.monto_acordado||0)*(prob[c.etapa_kanban||'prospecto']||0.2), 0)
+    setValorPipeline(vp)
 
     // Semáforo de urgencia basado en diagnósticos
     const urgencia = { rojo: 0, amarillo: 0, verde: 0, gris: 0 }
@@ -314,8 +319,14 @@ function MiDiaInner() {
     .sort((a, b) => b.diasSinContacto - a.diasSinContacto)
   const totalAlertas = alertasPago.length + alertasSeguimiento.length
 
-  const card = (content: any, style?: React.CSSProperties) => (
-    <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '14px 16px', display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' as const, ...style }}>
+  if (loading) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 48px)', color: '#94A3B8', fontSize: '14px' }}>
+      Cargando tu día...
+    </div>
+  )
+
+  const card = (content: React.ReactNode, style?: React.CSSProperties) => (
+    <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '14px 16px', display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' as const, boxShadow: '0 1px 3px rgba(0,0,0,0.04)', ...style }}>
       {content}
     </div>
   )
@@ -327,7 +338,10 @@ function MiDiaInner() {
     </div>
   )
 
-  const chartCard = (titulo: string, sub: string | undefined, contenidoCompacto: any, contenidoExpandido?: any) => (
+  // Wrapper de gráfica con botón de maximizar
+  // contenidoExpandido opcional — si no se pasa, usa el mismo contenido ampliado
+  const MODAL_H = '380px' // altura estándar de todas las gráficas en modal
+  const chartCard = (titulo: string, sub: string | undefined, contenidoCompacto: React.ReactNode, contenidoExpandido?: React.ReactNode) => (
     <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '12px 14px', display: 'flex', flexDirection: 'column' as const, height: '100%' }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px', flexShrink: 0 }}>
         <div>
@@ -347,11 +361,11 @@ function MiDiaInner() {
   )
 
   const kpi = (label: string, value: string, sub?: string, color = '#374151', filled = false, delta?: number | null, minH = 'auto') => {
-    const tintMap = {
+    const tintMap: Record<string, string> = {
       '#334E7B': '#EEF2F8', '#1D4ED8': '#EFF6FF', '#0891B2': '#ECFEFF',
       '#F59E0B': '#FFFBEB', '#16A34A': '#F0FDF4', '#DC2626': '#FEF2F2',
       [VERDE]: '#F0FDF4', [AZUL]: '#EEF2F8', [NARANJA]: '#FFF7ED',
-    } as any
+    }
     const tint = tintMap[color] ?? '#F8FAFC'
     return (
       <div style={{ background: filled ? color : tint, border: `1px solid ${color}22`, borderLeft: `4px solid ${color}`, padding: '8px 10px', textAlign: 'center' as const, borderRadius: '6px', display: 'flex', flexDirection: 'column' as const, justifyContent: 'center', minHeight: minH }}>
@@ -367,6 +381,7 @@ function MiDiaInner() {
     )
   }
 
+  // Insignia de comparativo vs periodo anterior (↑/↓ %). null = sin datos del periodo anterior para comparar.
   const deltaBadge = (delta: number | null) => {
     if (delta === null) return <span style={{ fontSize: '11px', color: '#D1D5DB' }}>sin comparativo</span>
     const subio = delta >= 0
@@ -383,14 +398,6 @@ function MiDiaInner() {
       <div style={{ height: '100%', width: `${max > 0 ? Math.min(100, (val/max)*100) : 0}%`, background: color, transition: 'width 0.4s' }} />
     </div>
   )
-
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 48px)', color: '#94A3B8', fontSize: '14px' }}>
-        Cargando tu día...
-      </div>
-    )
-  }
 
   return (
     <div style={{ height: 'calc(100vh - 48px)', overflow: 'auto', background: '#F4F6F9' }}>
@@ -903,7 +910,7 @@ function MiDiaInner() {
                 </div>
               </div>
 
-              {/* Fila 5 col 1 — Clientes sin avance */}
+              {/* Col 1 Fila 5 — Clientes sin avance */}
               <div style={{ background: '#FFFFFF', border: `1px solid ${clientesEstancados > 0 ? '#FCA5A5' : '#E5E7EB'}`, borderRadius: '10px', padding: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column' as const }}>
                 <p style={{ fontSize: '11px', fontWeight: '600' as const, color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 10px' }}>⏸ Clientes sin avance</p>
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px', flex: 1 }}>
@@ -913,12 +920,10 @@ function MiDiaInner() {
                 {clientesEstancados > 0 && <p style={{ fontSize: '11px', color: '#DC2626', margin: '6px 0 0', fontWeight: '600' as const }}>⚠️ Pueden estar en riesgo</p>}
               </div>
 
-              {/* Fila 5 col 2 — Pipeline */}
+              {/* Col 2 Fila 5 — Pipeline */}
               <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column' as const }}>
                 <p style={{ fontSize: '11px', fontWeight: '600' as const, color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 10px' }}>💰 Valor estimado del pipeline</p>
-                <div style={{ fontSize: '28px', fontWeight: '800' as const, color: AZUL, flex: 1 }}>
-                  {fmtMXN(clientes.filter((c: any) => c.activo !== false && c.etapa_kanban !== 'cierre_exitoso' && c.etapa_kanban !== 'cancelado').reduce((s: number, c: any) => s + (c.monto_acordado||0)*({prospecto:0.15,diagnostico:0.35,propuesta_enviada:0.50,recopilacion:0.65,tramite:0.80}[c.etapa_kanban||'prospecto']||0.2), 0))}
-                </div>
+                <div style={{ fontSize: '28px', fontWeight: '800' as const, color: AZUL, flex: 1 }}>{fmtMXN(valorPipeline)}</div>
                 <p style={{ fontSize: '11px', color: '#64748B', margin: '4px 0 6px' }}>Ponderado por etapa</p>
                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' as const }}>
                   {[['prospecto','15%'],['diagnostico','35%'],['recopilacion','65%'],['tramite','80%']].map(([e,p]) => (
@@ -927,7 +932,7 @@ function MiDiaInner() {
                 </div>
               </div>
 
-              {/* Fila 5 col 3 — Satisfacción */}
+              {/* Col 3 Fila 5 — Satisfacción */}
               <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderLeft: '4px solid #F59E0B', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column' as const }}>
                 <p style={{ fontSize: '11px', fontWeight: '600' as const, color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 10px' }}>⭐ Satisfacción del cliente</p>
                 {encuestaStats.enviadas === 0 ? (
@@ -952,7 +957,9 @@ function MiDiaInner() {
                 )}
               </div>
 
-            </div>{/* fin grid Filas 4+5 */}
+            </div>
+
+          </div>
 
           {/* Divisor vertical continuo, a lo largo de las 4 filas */}
           <div className="db-divider" style={{ width: '1px', background: '#E5E7EB' }} />
@@ -1034,6 +1041,64 @@ function MiDiaInner() {
           </div>
         </div>
 
+
+          {/* Fila 5: Clientes estancados + Pipeline */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            <div style={{ background: '#FFFFFF', border: `1px solid ${clientesEstancados > 0 ? '#FCA5A5' : '#E5E7EB'}`, borderRadius: '10px', padding: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+              <p style={{ fontSize: '11px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 8px' }}>⏸ Clientes sin avance</p>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px' }}>
+                <div style={{ fontSize: '32px', fontWeight: '800', color: clientesEstancados > 0 ? '#DC2626' : '#16A34A' }}>{clientesEstancados}</div>
+                <div style={{ fontSize: '12px', color: '#64748B', paddingBottom: '4px' }}>{clientesEstancados === 0 ? 'Sin clientes estancados ✓' : `cliente${clientesEstancados !== 1 ? 's' : ''} sin cambio en 60+ días`}</div>
+              </div>
+              {clientesEstancados > 0 && <p style={{ fontSize: '11px', color: '#DC2626', margin: '6px 0 0', fontWeight: '600' }}>⚠️ Pueden estar en riesgo de cancelación</p>}
+            </div>
+            {(() => {
+              const probPorEtapa: Record<string, number> = { prospecto: 0.15, diagnostico: 0.35, propuesta_enviada: 0.50, recopilacion: 0.65, tramite: 0.80, cierre_exitoso: 1, cancelado: 0 }
+              const valorPipeline = clientes.filter((c: any) => c.activo !== false && !['cierre_exitoso','cancelado'].includes(c.etapa_kanban??'')).reduce((sum: number, c: any) => sum + ((c.monto_acordado??0)*(probPorEtapa[c.etapa_kanban??'prospecto']??0.2)), 0)
+              return (
+                <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px' }}>
+                  <p style={{ fontSize: '11px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 8px' }}>💰 Valor estimado del pipeline</p>
+                  <div style={{ fontSize: '28px', fontWeight: '800', color: AZUL }}>{fmtMXN(valorPipeline)}</div>
+                  <p style={{ fontSize: '11px', color: '#64748B', margin: '4px 0 8px' }}>Ponderado por probabilidad de cierre</p>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const }}>
+                    {Object.entries(probPorEtapa).filter(([k]) => !['cierre_exitoso','cancelado'].includes(k)).map(([e,p]) => (
+                      <span key={e} style={{ fontSize: '9px', padding: '2px 6px', background: '#F4F6F9', color: '#64748B', borderRadius: '4px' }}>{e.replace('_',' ')}: {Math.round(p*100)}%</span>
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
+          </div>
+
+          {/* Fila 6: Satisfacción */}
+          <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderLeft: '4px solid #F59E0B', borderRadius: '10px', padding: '14px' }}>
+            <p style={{ fontSize: '11px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 12px' }}>⭐ Satisfacción del cliente — este mes</p>
+            {encuestaStats.enviadas === 0 ? (
+              <p style={{ fontSize: '13px', color: '#94A3B8', margin: 0 }}>Sin encuestas enviadas este mes.</p>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+                <div style={{ textAlign: 'center' as const }}>
+                  <div style={{ fontSize: '28px', fontWeight: '800', color: encuestaStats.promedio >= 4 ? VERDE : encuestaStats.promedio >= 3 ? '#D97706' : '#DC2626' }}>{encuestaStats.promedio > 0 ? encuestaStats.promedio.toFixed(1) : '—'}</div>
+                  <div style={{ fontSize: '16px', letterSpacing: '2px', margin: '2px 0' }}>{'⭐'.repeat(Math.round(encuestaStats.promedio))}</div>
+                  <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0', textTransform: 'uppercase' as const }}>Satisfacción</p>
+                </div>
+                <div style={{ textAlign: 'center' as const, borderLeft: '1px solid #F3F4F6', borderRight: '1px solid #F3F4F6' }}>
+                  <div style={{ fontSize: '28px', fontWeight: '800', color: encuestaStats.nps >= 50 ? VERDE : encuestaStats.nps >= 0 ? '#D97706' : '#DC2626' }}>{encuestaStats.respondidas > 0 ? `${encuestaStats.nps > 0 ? '+' : ''}${encuestaStats.nps}` : '—'}</div>
+                  <div style={{ fontSize: '11px', color: encuestaStats.nps >= 50 ? VERDE : '#D97706', fontWeight: '600', margin: '2px 0' }}>{encuestaStats.nps >= 70 ? 'Excelente' : encuestaStats.nps >= 50 ? 'Bueno' : encuestaStats.nps >= 0 ? 'Regular' : 'Malo'}</div>
+                  <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0', textTransform: 'uppercase' as const }}>NPS</p>
+                </div>
+                <div style={{ textAlign: 'center' as const }}>
+                  <div style={{ fontSize: '28px', fontWeight: '800', color: AZUL }}>{encuestaStats.respondidas}<span style={{ fontSize: '16px', color: '#94A3B8' }}>/{encuestaStats.enviadas}</span></div>
+                  <div style={{ height: '4px', background: '#F3F4F6', borderRadius: '2px', overflow: 'hidden', margin: '6px auto', maxWidth: '60px' }}>
+                    <div style={{ height: '100%', background: AZUL, width: `${encuestaStats.enviadas > 0 ? (encuestaStats.respondidas/encuestaStats.enviadas)*100 : 0}%` }} />
+                  </div>
+                  <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0', textTransform: 'uppercase' as const }}>Respondidas</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+        </div>{/* fin panel izquierdo */}
 
       {/* ── Onboarding — primeros pasos ── */}
       {showOnboarding && (
