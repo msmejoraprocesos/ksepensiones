@@ -394,6 +394,9 @@ function MiDiaInner() {
     </div>
   )
 
+  const probPipelineEtapa: {[k:string]:number} = { prospecto: 0.15, diagnostico: 0.35, propuesta_enviada: 0.50, recopilacion: 0.65, tramite: 0.80, cierre_exitoso: 1, cancelado: 0 }
+  const valorPipelineEst = clientes.filter((c: any) => c.activo !== false && !['cierre_exitoso','cancelado'].includes(c.etapa_kanban??'')).reduce((sum: number, c: any) => sum + ((c.monto_acordado??0)*(probPipelineEtapa[c.etapa_kanban??'prospecto']??0.2)), 0)
+
   return (
     <div style={{ height: 'calc(100vh - 48px)', overflow: 'auto', background: '#F4F6F9' }}>
 
@@ -916,22 +919,16 @@ function MiDiaInner() {
               </div>
 
               {/* Fila 5 col 2 — Pipeline */}
-              {(() => {
-                const prob: {[k:string]:number} = { prospecto: 0.15, diagnostico: 0.35, propuesta_enviada: 0.50, recopilacion: 0.65, tramite: 0.80, cierre_exitoso: 1, cancelado: 0 }
-                const val = clientes.filter((c: any) => c.activo !== false && !['cierre_exitoso','cancelado'].includes(c.etapa_kanban??'')).reduce((sum: number, c: any) => sum + ((c.monto_acordado??0)*(prob[c.etapa_kanban??'prospecto']??0.2)), 0)
-                return (
-                  <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column' as const }}>
-                    <p style={{ fontSize: '11px', fontWeight: '600' as const, color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 10px' }}>💰 Valor estimado del pipeline</p>
-                    <div style={{ fontSize: '28px', fontWeight: '800' as const, color: AZUL, flex: 1 }}>{fmtMXN(val)}</div>
-                    <p style={{ fontSize: '11px', color: '#64748B', margin: '4px 0 6px' }}>Ponderado por etapa</p>
-                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' as const }}>
-                      {Object.entries(prob).filter(([k]) => !['cierre_exitoso','cancelado'].includes(k)).map(([e,p]) => (
-                        <span key={e} style={{ fontSize: '9px', padding: '2px 5px', background: '#F4F6F9', color: '#64748B', borderRadius: '4px' }}>{e.replace('_',' ')}: {Math.round(p*100)}%</span>
-                      ))}
-                    </div>
-                  </div>
-                )
-              })()}
+              <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column' as const }}>
+                <p style={{ fontSize: '11px', fontWeight: '600' as const, color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 10px' }}>💰 Valor estimado del pipeline</p>
+                <div style={{ fontSize: '28px', fontWeight: '800' as const, color: AZUL, flex: 1 }}>{fmtMXN(valorPipelineEst)}</div>
+                <p style={{ fontSize: '11px', color: '#64748B', margin: '4px 0 6px' }}>Ponderado por etapa</p>
+                <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' as const }}>
+                  {Object.entries(probPipelineEtapa).filter(([k]) => !['cierre_exitoso','cancelado'].includes(k)).map(([e,p]) => (
+                    <span key={e} style={{ fontSize: '9px', padding: '2px 5px', background: '#F4F6F9', color: '#64748B', borderRadius: '4px' }}>{e.replace('_',' ')}: {Math.round(p*100)}%</span>
+                  ))}
+                </div>
+              </div>
 
               {/* Fila 5 col 3 — Satisfacción */}
               <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderLeft: '4px solid #F59E0B', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column' as const }}>
