@@ -355,9 +355,6 @@ function MiDiaInner() {
     </div>
   )
 
-  const probPipelineEtapa = { prospecto: 0.15, diagnostico: 0.35, propuesta_enviada: 0.50, recopilacion: 0.65, tramite: 0.80, cierre_exitoso: 1, cancelado: 0 }
-  const valorPipelineEst = clientes.filter((c: any) => c.activo !== false && !['cierre_exitoso','cancelado'].includes(c.etapa_kanban??'')).reduce((sum: number, c: any) => sum + ((c.monto_acordado??0)*((probPipelineEtapa as any)[c.etapa_kanban??'prospecto']??0.2)), 0)
-
   const kpi = (label: string, value: string, sub?: string, color = '#374151', filled = false, delta?: number | null, minH = 'auto') => {
     const tintMap: Record<string, string> = {
       '#334E7B': '#EEF2F8', '#1D4ED8': '#EFF6FF', '#0891B2': '#ECFEFF',
@@ -921,11 +918,16 @@ function MiDiaInner() {
               {/* Fila 5 col 2 — Pipeline */}
               <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column' as const }}>
                 <p style={{ fontSize: '11px', fontWeight: '600' as const, color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 10px' }}>💰 Valor estimado del pipeline</p>
-                <div style={{ fontSize: '28px', fontWeight: '800' as const, color: AZUL, flex: 1 }}>{fmtMXN(valorPipelineEst)}</div>
+                <div style={{ fontSize: '28px', fontWeight: '800' as const, color: AZUL, flex: 1 }}>
+                  {fmtMXN(clientes.filter((c: any) => c.activo !== false && !['cierre_exitoso','cancelado'].includes(c.etapa_kanban??'')).reduce((s: number, c: any) => {
+                    const p = ({prospecto:0.15,diagnostico:0.35,propuesta_enviada:0.50,recopilacion:0.65,tramite:0.80} as any)[c.etapa_kanban??'prospecto']??0.2
+                    return s + (c.monto_acordado??0)*p
+                  }, 0))}
+                </div>
                 <p style={{ fontSize: '11px', color: '#64748B', margin: '4px 0 6px' }}>Ponderado por etapa</p>
                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' as const }}>
-                  {Object.entries(probPipelineEtapa).filter(([k]) => !['cierre_exitoso','cancelado'].includes(k)).map(([e,p]) => (
-                    <span key={e} style={{ fontSize: '9px', padding: '2px 5px', background: '#F4F6F9', color: '#64748B', borderRadius: '4px' }}>{e.replace('_',' ')}: {Math.round(p*100)}%</span>
+                  {[['prospecto','15%'],['diagnostico','35%'],['recopilacion','65%'],['tramite','80%']].map(([e,p]) => (
+                    <span key={e} style={{ fontSize: '9px', padding: '2px 5px', background: '#F4F6F9', color: '#64748B', borderRadius: '4px' }}>{e}: {p}</span>
                   ))}
                 </div>
               </div>
