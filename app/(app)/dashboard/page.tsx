@@ -990,7 +990,7 @@ function MiDiaInner() {
 
 
           {/* Fila 5: Clientes estancados + Pipeline */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', padding: '0 20px 14px' }}>
             <div style={{ background: '#FFFFFF', border: `1px solid ${clientesEstancados > 0 ? '#FCA5A5' : '#E5E7EB'}`, borderRadius: '10px', padding: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
               <p style={{ fontSize: '11px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 8px' }}>⏸ Clientes sin avance</p>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px' }}>
