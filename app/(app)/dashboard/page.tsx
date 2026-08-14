@@ -314,14 +314,8 @@ function MiDiaInner() {
     .sort((a, b) => b.diasSinContacto - a.diasSinContacto)
   const totalAlertas = alertasPago.length + alertasSeguimiento.length
 
-  if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 48px)', color: '#94A3B8', fontSize: '14px' }}>
-      Cargando tu día...
-    </div>
-  )
-
-  const card = (content: React.ReactNode, style?: React.CSSProperties) => (
-    <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '14px 16px', display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' as const, boxShadow: '0 1px 3px rgba(0,0,0,0.04)', ...style }}>
+  const card = (content: any, style?: React.CSSProperties) => (
+    <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '14px 16px', display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' as const, ...style }}>
       {content}
     </div>
   )
@@ -333,10 +327,7 @@ function MiDiaInner() {
     </div>
   )
 
-  // Wrapper de gráfica con botón de maximizar
-  // contenidoExpandido opcional — si no se pasa, usa el mismo contenido ampliado
-  const MODAL_H = '380px' // altura estándar de todas las gráficas en modal
-  const chartCard = (titulo: string, sub: string | undefined, contenidoCompacto: React.ReactNode, contenidoExpandido?: React.ReactNode) => (
+  const chartCard = (titulo: string, sub: string | undefined, contenidoCompacto: any, contenidoExpandido?: any) => (
     <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '12px 14px', display: 'flex', flexDirection: 'column' as const, height: '100%' }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px', flexShrink: 0 }}>
         <div>
@@ -356,11 +347,11 @@ function MiDiaInner() {
   )
 
   const kpi = (label: string, value: string, sub?: string, color = '#374151', filled = false, delta?: number | null, minH = 'auto') => {
-    const tintMap: Record<string, string> = {
+    const tintMap = {
       '#334E7B': '#EEF2F8', '#1D4ED8': '#EFF6FF', '#0891B2': '#ECFEFF',
       '#F59E0B': '#FFFBEB', '#16A34A': '#F0FDF4', '#DC2626': '#FEF2F2',
       [VERDE]: '#F0FDF4', [AZUL]: '#EEF2F8', [NARANJA]: '#FFF7ED',
-    }
+    } as any
     const tint = tintMap[color] ?? '#F8FAFC'
     return (
       <div style={{ background: filled ? color : tint, border: `1px solid ${color}22`, borderLeft: `4px solid ${color}`, padding: '8px 10px', textAlign: 'center' as const, borderRadius: '6px', display: 'flex', flexDirection: 'column' as const, justifyContent: 'center', minHeight: minH }}>
@@ -376,7 +367,6 @@ function MiDiaInner() {
     )
   }
 
-  // Insignia de comparativo vs periodo anterior (↑/↓ %). null = sin datos del periodo anterior para comparar.
   const deltaBadge = (delta: number | null) => {
     if (delta === null) return <span style={{ fontSize: '11px', color: '#D1D5DB' }}>sin comparativo</span>
     const subio = delta >= 0
@@ -391,6 +381,12 @@ function MiDiaInner() {
   const bar = (val: number, max: number, color: string) => (
     <div style={{ height: '5px', background: '#F3F4F6', overflow: 'hidden', marginTop: '4px' }}>
       <div style={{ height: '100%', width: `${max > 0 ? Math.min(100, (val/max)*100) : 0}%`, background: color, transition: 'width 0.4s' }} />
+    </div>
+  )
+
+  if (loading) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 48px)', color: '#94A3B8', fontSize: '14px' }}>
+      Cargando tu día...
     </div>
   )
 
@@ -919,10 +915,7 @@ function MiDiaInner() {
               <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column' as const }}>
                 <p style={{ fontSize: '11px', fontWeight: '600' as const, color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 10px' }}>💰 Valor estimado del pipeline</p>
                 <div style={{ fontSize: '28px', fontWeight: '800' as const, color: AZUL, flex: 1 }}>
-                  {fmtMXN(clientes.filter((c: any) => c.activo !== false && !['cierre_exitoso','cancelado'].includes(c.etapa_kanban??'')).reduce((s: number, c: any) => {
-                    const p = ({prospecto:0.15,diagnostico:0.35,propuesta_enviada:0.50,recopilacion:0.65,tramite:0.80} as any)[c.etapa_kanban??'prospecto']??0.2
-                    return s + (c.monto_acordado??0)*p
-                  }, 0))}
+                  {fmtMXN(clientes.filter((c: any) => c.activo !== false && c.etapa_kanban !== 'cierre_exitoso' && c.etapa_kanban !== 'cancelado').reduce((s: number, c: any) => s + (c.monto_acordado||0)*({prospecto:0.15,diagnostico:0.35,propuesta_enviada:0.50,recopilacion:0.65,tramite:0.80}[c.etapa_kanban||'prospecto']||0.2), 0))}
                 </div>
                 <p style={{ fontSize: '11px', color: '#64748B', margin: '4px 0 6px' }}>Ponderado por etapa</p>
                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' as const }}>
