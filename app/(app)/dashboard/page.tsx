@@ -384,11 +384,13 @@ function MiDiaInner() {
     </div>
   )
 
-  if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 48px)', color: '#94A3B8', fontSize: '14px' }}>
-      Cargando tu día...
-    </div>
-  )
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 48px)', color: '#94A3B8', fontSize: '14px' }}>
+        Cargando tu día...
+      </div>
+    )
+  }
 
   return (
     <div style={{ height: 'calc(100vh - 48px)', overflow: 'auto', background: '#F4F6F9' }}>
