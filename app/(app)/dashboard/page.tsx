@@ -355,6 +355,9 @@ function MiDiaInner() {
     </div>
   )
 
+  const probPipelineEtapa = { prospecto: 0.15, diagnostico: 0.35, propuesta_enviada: 0.50, recopilacion: 0.65, tramite: 0.80, cierre_exitoso: 1, cancelado: 0 }
+  const valorPipelineEst = clientes.filter((c: any) => c.activo !== false && !['cierre_exitoso','cancelado'].includes(c.etapa_kanban??'')).reduce((sum: number, c: any) => sum + ((c.monto_acordado??0)*((probPipelineEtapa as any)[c.etapa_kanban??'prospecto']??0.2)), 0)
+
   const kpi = (label: string, value: string, sub?: string, color = '#374151', filled = false, delta?: number | null, minH = 'auto') => {
     const tintMap: Record<string, string> = {
       '#334E7B': '#EEF2F8', '#1D4ED8': '#EFF6FF', '#0891B2': '#ECFEFF',
@@ -393,9 +396,6 @@ function MiDiaInner() {
       <div style={{ height: '100%', width: `${max > 0 ? Math.min(100, (val/max)*100) : 0}%`, background: color, transition: 'width 0.4s' }} />
     </div>
   )
-
-  const probPipelineEtapa = { prospecto: 0.15, diagnostico: 0.35, propuesta_enviada: 0.50, recopilacion: 0.65, tramite: 0.80, cierre_exitoso: 1, cancelado: 0 }
-  const valorPipelineEst = clientes.filter((c: any) => c.activo !== false && !['cierre_exitoso','cancelado'].includes(c.etapa_kanban??'')).reduce((sum: number, c: any) => sum + ((c.monto_acordado??0)*((probPipelineEtapa as any)[c.etapa_kanban??'prospecto']??0.2)), 0)
 
   return (
     <div style={{ height: 'calc(100vh - 48px)', overflow: 'auto', background: '#F4F6F9' }}>
