@@ -1329,9 +1329,9 @@ function ClientesInner() {
 
       {/* ── MODAL EXPEDIENTE ── */}
       {selected && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(2px)' }}
           onClick={e => { if (e.target === e.currentTarget) { if (editando) setShowConfirmClose(true); else setSelected(null) } }}>
-          <div style={{ width: '540px', height: '100vh', background: 'white', display: 'flex', flexDirection: 'column', boxShadow: '-4px 0 24px rgba(0,0,0,0.12)' }}>
+          <div style={{ width: '100%', maxWidth: '860px', height: '90vh', background: 'white', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 64px rgba(0,0,0,0.25)', borderRadius: '16px', overflow: 'hidden' }}>
             {/* Header */}
             <div style={{ padding: '18px 22px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ width: '42px', height: '42px', background: AZUL, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '16px', fontWeight: '700' }}>
@@ -1406,32 +1406,117 @@ function ClientesInner() {
               {!editando && <p style={{ fontSize: '10px', color: '#94a3b8', margin: '4px 0 0' }}>Activa el modo edición para cambiar la etapa</p>}
             </div>
 
-            {/* Tabs */}
-            <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', padding: '0 22px', alignItems: 'center' }}>
-              {(['info', 'pagos', 'diagnosticos', 'financiamiento', 'actividades'] as const).map(tab => (
-                <button key={tab} onClick={() => setModalTab(tab)}
-                  style={{ padding: '10px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: modalTab === tab ? '700' : '400', color: modalTab === tab ? AZUL : '#64748b', borderBottom: modalTab === tab ? `2px solid ${AZUL}` : '2px solid transparent', marginBottom: '-1px' }}>
-                  {tab === 'info' ? 'Datos' : tab === 'pagos' ? `💰 Pagos (${pagos.length})` : tab === 'diagnosticos' ? `Diagnósticos (${diagnosticos.length})` : tab === 'financiamiento' ? '🏦 Financiamiento' : `Actividades (${actividades.length})`}
+            {/* Tabs + botón descarga */}
+            <div style={{ borderBottom: '1px solid #e2e8f0' }}>
+              {/* Fila 1: tabs */}
+              <div style={{ display: 'flex', padding: '0 22px', overflowX: 'auto' }}>
+                {(['info', 'pagos', 'diagnosticos', 'financiamiento', 'actividades'] as const).map(t => (
+                  <button key={t} onClick={() => setModalTab(t)}
+                    style={{ padding: '11px 16px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: modalTab === t ? '700' : '400', color: modalTab === t ? AZUL : '#64748b', borderBottom: modalTab === t ? `2px solid ${AZUL}` : '2px solid transparent', marginBottom: '-1px', whiteSpace: 'nowrap' as const, flexShrink: 0 }}>
+                    {t === 'info' ? '👤 Datos' : t === 'pagos' ? `💰 Pagos (${pagos.length})` : t === 'diagnosticos' ? `📋 Diagnósticos (${diagnosticos.length})` : t === 'financiamiento' ? '🏦 Financiamiento' : `📞 Actividades (${actividades.length})`}
+                  </button>
+                ))}
+                <div style={{ flex: 1 }} />
+                {/* Botón descarga PDF */}
+                <button onClick={async () => {
+                    const { jsPDF } = await import('jspdf')
+                    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+                    const AZULPDF = [51, 78, 123]
+                    const GRIS = [100, 116, 139]
+                    const BORDE = [226, 232, 240]
+                    let y = 20
+
+                    // Header
+                    doc.setFillColor(...(AZULPDF as [number,number,number]))
+                    doc.rect(0, 0, 210, 30, 'F')
+                    doc.setTextColor(255, 255, 255)
+                    doc.setFontSize(16); doc.setFont('helvetica', 'bold')
+                    doc.text('KSE Pensiones — Expediente del cliente', 14, 13)
+                    doc.setFontSize(10); doc.setFont('helvetica', 'normal')
+                    doc.text(`Generado el ${new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}`, 14, 22)
+                    y = 40
+
+                    // Datos del cliente
+                    doc.setTextColor(0, 0, 0)
+                    doc.setFontSize(13); doc.setFont('helvetica', 'bold')
+                    doc.text(selected.nombre, 14, y); y += 7
+                    doc.setFontSize(9); doc.setFont('helvetica', 'normal')
+                    doc.setTextColor(...(GRIS as [number,number,number]))
+                    const datosCl = [
+                      ['Teléfono', selected.telefono || '—'],
+                      ['Email', selected.email || '—'],
+                      ['Etapa', selected.etapa_kanban || 'Prospecto'],
+                      ['Servicio', selected.tipo_servicio || '—'],
+                      ['NSS', selected.nss || '—'],
+                      ['Fecha de alta', new Date(selected.created_at).toLocaleDateString('es-MX')],
+                    ]
+                    datosCl.forEach(([k, v]) => {
+                      doc.setFont('helvetica', 'bold'); doc.setTextColor(51, 65, 85)
+                      doc.text(`${k}:`, 14, y)
+                      doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 116, 139)
+                      doc.text(String(v), 60, y)
+                      y += 6
+                    })
+                    y += 4
+
+                    // Diagnósticos
+                    if (diagnosticos.length > 0) {
+                      doc.setDrawColor(...(BORDE as [number,number,number]))
+                      doc.line(14, y, 196, y); y += 6
+                      doc.setFontSize(11); doc.setFont('helvetica', 'bold'); doc.setTextColor(51, 78, 123)
+                      doc.text(`Diagnósticos (${diagnosticos.length})`, 14, y); y += 7
+                      diagnosticos.slice(0, 5).forEach((d: any) => {
+                        doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(51, 65, 85)
+                        doc.text(`• ${new Date(d.created_at).toLocaleDateString('es-MX')} — ${d.estatus || 'borrador'}`, 16, y); y += 5
+                      })
+                      y += 4
+                    }
+
+                    // Actividades
+                    if (actividades.length > 0) {
+                      doc.line(14, y, 196, y); y += 6
+                      doc.setFontSize(11); doc.setFont('helvetica', 'bold'); doc.setTextColor(51, 78, 123)
+                      doc.text(`Actividades (${actividades.length})`, 14, y); y += 7
+                      actividades.slice(0, 8).forEach((a: any) => {
+                        if (y > 265) { doc.addPage(); y = 20 }
+                        doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(51, 65, 85)
+                        doc.text(`• ${new Date(a.fecha).toLocaleDateString('es-MX')} — ${a.tipo_contacto || ''}${a.resultado ? ` (${a.resultado})` : ''}`, 16, y); y += 5
+                        if (a.notas) {
+                          doc.setTextColor(100, 116, 139)
+                          const lines = doc.splitTextToSize(`  ${a.notas}`, 165)
+                          doc.text(lines, 18, y); y += lines.length * 4.5
+                        }
+                      })
+                      y += 4
+                    }
+
+                    // Pagos
+                    if (pagos.length > 0) {
+                      if (y > 240) { doc.addPage(); y = 20 }
+                      doc.line(14, y, 196, y); y += 6
+                      doc.setFontSize(11); doc.setFont('helvetica', 'bold'); doc.setTextColor(51, 78, 123)
+                      doc.text(`Pagos (${pagos.length})`, 14, y); y += 7
+                      pagos.forEach((p: any) => {
+                        if (y > 270) { doc.addPage(); y = 20 }
+                        doc.setFontSize(9); doc.setFont('helvetica', 'normal'); doc.setTextColor(51, 65, 85)
+                        doc.text(`• ${new Date(p.fecha_pago).toLocaleDateString('es-MX')} — $${Number(p.monto).toLocaleString('es-MX')} MXN${p.concepto ? ` (${p.concepto})` : ''}`, 16, y); y += 5
+                      })
+                    }
+
+                    // Footer
+                    const totalPages = doc.getNumberOfPages()
+                    for (let i = 1; i <= totalPages; i++) {
+                      doc.setPage(i)
+                      doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(148, 163, 184)
+                      doc.text(`KSE Pensiones · Expediente confidencial · Pág. ${i}/${totalPages}`, 14, 290)
+                    }
+
+                    doc.save(`expediente_${selected.nombre.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.pdf`)
+                  }}
+                  style={{ margin: '6px 0', padding: '6px 14px', background: AZUL, color: 'white', border: 'none', borderRadius: '6px', fontSize: '11px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0, alignSelf: 'center' }}>
+                  📥 Descargar PDF
                 </button>
-              ))}
-              <div style={{ flex: 1 }} />
-              <button onClick={() => {
-                  const expediente = {
-                    cliente: selected,
-                    diagnosticos, pagos, actividades, servicios,
-                    exportado_en: new Date().toISOString(),
-                  }
-                  const blob = new Blob([JSON.stringify(expediente, null, 2)], { type: 'application/json' })
-                  const url = URL.createObjectURL(blob)
-                  const a = document.createElement('a')
-                  a.href = url
-                  a.download = `expediente_${selected.nombre.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.json`
-                  a.click()
-                  URL.revokeObjectURL(url)
-                }}
-                style={{ padding: '6px 12px', background: '#F8FAFC', color: AZUL, border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '11px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0 }}>
-                📥 Descargar expediente
-              </button>
+              </div>
             </div>
 
             {/* Tab content */}
