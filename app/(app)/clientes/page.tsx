@@ -2098,10 +2098,10 @@ function ClientesInner() {
                             {/* ── TAB DIAGNÓSTICOS ── */}
               {modalTab === 'diagnosticos' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <a href={`/calculadora?cliente=${selected.id}`}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px', background: AZUL, color: 'white', borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: '700' }}>
+                  <button onClick={() => { setSelected(null); router.push(`/calculadora?cliente=${selected.id}`) }}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px', background: AZUL, color: 'white', borderRadius: '8px', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', width: '100%' }}>
                     🧮 Nuevo diagnóstico para {selected.nombre.split(' ')[0]}
-                  </a>
+                  </button>
                   {diagnosticos.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '32px', color: '#94a3b8', fontSize: '13px', background: '#F8FAFC', borderRadius: '10px', border: '1px dashed #e2e8f0' }}>
                       Sin diagnósticos aún — corre la calculadora para generar el primero
@@ -2176,10 +2176,10 @@ function ClientesInner() {
                         {/* Acciones */}
                         <div style={{ display: 'flex', gap: '6px' }}>
                           {esBorrador && (
-                            <a href={`/calculadora?cliente=${selected.id}&diag=${d.id}`}
-                              style={{ flex: 1, padding: '7px', background: '#EEF2F8', color: AZUL, border: 'none', borderRadius: '7px', fontSize: '11px', fontWeight: '600', cursor: 'pointer', textAlign: 'center', textDecoration: 'none' }}>
+                            <button onClick={() => { setSelected(null); router.push(`/calculadora?cliente=${selected.id}&diag=${d.id}`) }}
+                              style={{ flex: 1, padding: '7px', background: '#EEF2F8', color: AZUL, border: 'none', borderRadius: '7px', fontSize: '11px', fontWeight: '600', cursor: 'pointer', textAlign: 'center' as const, fontFamily: 'inherit' }}>
                               🔄 Cargar en calculadora
-                            </a>
+                            </button>
                           )}
                           {esAutorizado && (
                             <div style={{ flex: 1, padding: '7px', background: '#dcfce7', color: '#15803d', borderRadius: '7px', fontSize: '11px', fontWeight: '600', textAlign: 'center' }}>
