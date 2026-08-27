@@ -266,7 +266,7 @@ export const DiagnosticoPDF = ({
           {/* ── BLOQUE 3: Con Modalidad 40 (si aplica) ── */}
           {tieneMod40 && (
             <>
-              <View style={s.divider} />
+              <View break />
               <Text style={s.seccionLabelVerde}>Con Modalidad 40 — opción recomendada</Text>
               <View style={s.kpiRow}>
                 <View style={s.kpiCardVerde}>
