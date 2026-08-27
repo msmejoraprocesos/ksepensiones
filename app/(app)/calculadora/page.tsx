@@ -2745,68 +2745,63 @@ function CalculadoraInner() {
             {/* ── Navegación superior — 4 grupos con dropdown ── */}
             {(() => {
               const grupos = [
-                { label: 'El cliente',    icon: '👤', tabs: [0,1,2,4],    color: AZUL,      nombres: ['Datos básicos','Cuantías','Salario Mod.40','Info. pensionado'] },
-                { label: 'La pensión',    icon: '💰', tabs: [5,8,9,12],   color: VERDE,     nombres: ['Importe pensión','Escenario 1','Mod. 10','Cotiz. voluntaria'] },
-                { label: 'La inversión',  icon: '📊', tabs: [3,6,7,10],   color: '#B45309', nombres: ['SDI 250 sem.','Costo Mod.40','Financiamiento','Rendimiento'] },
-                { label: 'El entregable', icon: '📄', tabs: [11],         color: '#7C3AED', nombres: ['Análisis y PDF'] },
+                { label: 'El cliente',    tiIcon: 'ti-user',      tabs: [0,1,2,4],    color: AZUL,      nombres: ['Datos básicos','Cuantías','Salario Mod.40','Info. pensionado'] },
+                { label: 'La pensión',    tiIcon: 'ti-coin',      tabs: [5,8,9,12],   color: VERDE,     nombres: ['Importe pensión','Escenario 1','Mod. 10','Cotiz. voluntaria'] },
+                { label: 'La inversión',  tiIcon: 'ti-chart-bar', tabs: [3,6,7,10],   color: '#B45309', nombres: ['SDI 250 sem.','Costo Mod.40','Financiamiento','Rendimiento'] },
+                { label: 'El entregable', tiIcon: 'ti-file-text', tabs: [11],         color: '#7C3AED', nombres: ['Análisis y PDF'] },
               ]
               const grupoActivo = grupos.findIndex(g => g.tabs.includes(tab))
-              // Número de secuencia global: todos los sub-tabs en orden
               const todosLosTabs = grupos.flatMap(g => g.tabs)
               return (
-                <div style={{ background: 'white', borderBottom: `1px solid ${BORDE}`, flexShrink: 0, position: 'relative' as const, zIndex: 20 }}>
-                  <div style={{ display: 'flex' }}>
+                <div style={{ background: '#F4F6F9', borderBottom: `1px solid ${BORDE}`, flexShrink: 0, position: 'relative' as const, zIndex: 20, padding: '6px 8px' }}>
+                  <div style={{ display: 'flex', gap: '6px' }}>
                     {grupos.map((g, gi) => {
                       const activo = gi === grupoActivo
                       const abierto = menuAbierto === gi
-                      // Completados: todos los tabs del grupo que ya se visitaron (tab > max de ellos)
                       const completado = g.tabs.every(t => t < tab)
-                      const parcial = g.tabs.some(t => t < tab) && !completado
                       return (
                         <div key={gi} style={{ flex: 1, position: 'relative' as const }}>
                           <button
                             onClick={() => setMenuAbierto(abierto ? null : gi)}
-                            style={{ width: '100%', padding: '10px 6px 8px', border: 'none', borderBottom: `3px solid ${activo ? g.color : 'transparent'}`, cursor: 'pointer', background: activo ? `${g.color}0F` : 'white', fontFamily: 'inherit', transition: 'all 0.15s', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '2px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <span style={{ fontSize: '15px' }}>{g.icon}</span>
-                              {completado && <span style={{ fontSize: '9px', color: VERDE, fontWeight: '700' }}>✓</span>}
-                              {parcial && <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: g.color, display: 'inline-block' }} />}
-                            </div>
+                            style={{ width: '100%', padding: '10px 8px', border: 'none', borderRadius: '8px', cursor: 'pointer', background: activo ? AZUL : 'white', fontFamily: 'inherit', transition: 'all 0.15s', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '4px', boxShadow: activo ? '0 2px 8px rgba(51,78,123,0.3)' : '0 1px 2px rgba(0,0,0,0.06)' }}>
+                            {/* Ícono grande */}
+                            <span style={{ fontSize: '22px', lineHeight: 1, display: 'block' }}>
+                              <i className={`ti ${g.tiIcon}`} style={{ color: activo ? 'white' : '#94A3B8', fontSize: '22px' }} />
+                            </span>
+                            {/* Label */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                              <span style={{ fontSize: '10.5px', fontWeight: activo ? '700' : '500', color: activo ? g.color : '#9CA3AF', whiteSpace: 'nowrap' as const }}>{g.label}</span>
-                              <span style={{ fontSize: '9px', color: activo ? g.color : '#CBD5E1', transition: 'transform 0.15s', display: 'inline-block', transform: abierto ? 'rotate(180deg)' : 'rotate(0deg)' }}>▾</span>
+                              <span style={{ fontSize: '11px', fontWeight: activo ? '700' : '500', color: activo ? 'white' : '#9CA3AF', whiteSpace: 'nowrap' as const }}>{g.label}</span>
+                              <span style={{ fontSize: '9px', color: activo ? 'rgba(255,255,255,0.7)' : '#CBD5E1', display: 'inline-block', transform: abierto ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.15s' }}>▾</span>
                             </div>
+                            {/* Indicador completado */}
+                            {completado && !activo && (
+                              <span style={{ position: 'absolute' as const, top: '6px', right: '8px', fontSize: '9px', color: VERDE, fontWeight: '700' }}>✓</span>
+                            )}
                           </button>
 
                           {/* Dropdown */}
                           {abierto && (
-                            <div style={{ position: 'absolute' as const, top: '100%', left: 0, minWidth: '200px', background: 'white', borderRadius: '0 0 10px 10px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', border: `1px solid ${BORDE}`, borderTop: 'none', zIndex: 100, overflow: 'hidden' }}>
-                              {/* Header del grupo */}
-                              <div style={{ background: g.color, padding: '8px 14px' }}>
-                                <span style={{ fontSize: '11px', fontWeight: '700', color: 'white', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>{g.icon} {g.label}</span>
+                            <div style={{ position: 'absolute' as const, top: 'calc(100% + 4px)', left: 0, minWidth: '210px', background: 'white', borderRadius: '10px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', border: `1px solid ${BORDE}`, zIndex: 100, overflow: 'hidden' }}>
+                              <div style={{ background: AZUL, padding: '8px 14px' }}>
+                                <span style={{ fontSize: '11px', fontWeight: '700', color: 'white', textTransform: 'uppercase' as const, letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                  <i className={`ti ${g.tiIcon}`} style={{ fontSize: '13px' }} /> {g.label}
+                                </span>
                               </div>
-                              {/* Sub-tabs numerados */}
                               {g.tabs.map((tabIdx, si) => {
-                                const seqNum = todosLosTabs.indexOf(tabIdx) + 1
                                 const esCurrent = tab === tabIdx
                                 const esCompletado = tabIdx < tab
                                 return (
                                   <button key={tabIdx}
                                     onClick={() => { setTab(tabIdx); setMenuAbierto(null) }}
-                                    style={{ width: '100%', padding: '10px 14px', border: 'none', borderBottom: `1px solid ${BORDE}`, cursor: 'pointer', background: esCurrent ? `${g.color}0F` : 'white', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '10px', textAlign: 'left' as const, transition: 'background 0.1s' }}>
-                                    {/* Indicador de secuencia */}
-                                    <div style={{ width: '22px', height: '22px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: '700',
-                                      background: esCompletado ? VERDE : esCurrent ? g.color : '#F1F5F9',
-                                      color: esCompletado || esCurrent ? 'white' : '#94A3B8' }}>
-                                      {esCompletado ? '✓' : seqNum}
+                                    style={{ width: '100%', padding: '10px 14px', border: 'none', borderBottom: `1px solid ${BORDE}`, cursor: 'pointer', background: esCurrent ? '#EEF2F8' : 'white', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '10px', textAlign: 'left' as const, transition: 'background 0.1s' }}>
+                                    <div style={{ width: '22px', height: '22px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: '700', background: esCompletado ? VERDE : esCurrent ? AZUL : '#F1F5F9', color: esCompletado || esCurrent ? 'white' : '#94A3B8' }}>
+                                      {esCompletado ? '✓' : si + 1}
                                     </div>
                                     <div style={{ flex: 1 }}>
-                                      <div style={{ fontSize: '12px', fontWeight: esCurrent ? '700' : '500', color: esCurrent ? g.color : esCompletado ? '#374151' : '#64748B' }}>
-                                        {g.nombres[si]}
-                                      </div>
-                                      {esCurrent && <div style={{ fontSize: '10px', color: g.color, marginTop: '1px' }}>← Estás aquí</div>}
+                                      <div style={{ fontSize: '12px', fontWeight: esCurrent ? '700' : '500', color: esCurrent ? AZUL : esCompletado ? '#374151' : '#64748B' }}>{g.nombres[si]}</div>
+                                      {esCurrent && <div style={{ fontSize: '10px', color: AZUL, marginTop: '1px' }}>← Estás aquí</div>}
                                     </div>
-                                    {esCurrent && <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: g.color, flexShrink: 0 }} />}
+                                    {esCurrent && <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: AZUL, flexShrink: 0 }} />}
                                   </button>
                                 )
                               })}
@@ -2816,10 +2811,8 @@ function CalculadoraInner() {
                       )
                     })}
                   </div>
-                  {/* Overlay para cerrar el menú al hacer clic afuera */}
                   {menuAbierto !== null && (
-                    <div onClick={() => setMenuAbierto(null)}
-                      style={{ position: 'fixed' as const, inset: 0, zIndex: 19 }} />
+                    <div onClick={() => setMenuAbierto(null)} style={{ position: 'fixed' as const, inset: 0, zIndex: 19 }} />
                   )}
                 </div>
               )
