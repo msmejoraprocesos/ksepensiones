@@ -4969,21 +4969,34 @@ function CalculadoraInner() {
               {/* Cierre del flujo: exportar PDF — solo cuando todo está listo */}
               {(() => {
                 const tieneAnalisis = (modoAnalisis === 'ia' && analisis.length > 0) || (modoAnalisis === 'manual' && Object.values(analisisManualSecciones).some(v => v.trim().length > 0))
-                const listo = !!diagGuardadoId // análisis es opcional
+                const listo = !!diagGuardadoId
                 return (
-                <div style={{ background: listo ? '#F0FDF4' : '#F9FAFB', border: `2px solid ${listo ? '#86EFAC' : '#E5E7EB'}`, padding: '18px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
+                <div style={{ background: listo ? '#F0FDF4' : '#F9FAFB', border: `2px solid ${listo ? '#86EFAC' : '#E5E7EB'}`, padding: '18px 20px', borderRadius: '10px' }}>
+                  <div style={{ marginBottom: '14px' }}>
                     <p style={{ fontSize: '13px', fontWeight: '700' as const, color: listo ? '#065F46' : '#6B7280', margin: '0 0 4px' }}>
                       {listo ? (tieneAnalisis ? '✓ Diagnóstico completo — listo para exportar' : '✓ Listo para exportar (sin análisis narrativo)') : '⏳ Diagnóstico incompleto'}
                     </p>
                     <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>
-                      {!diagGuardadoId ? 'Falta guardar el diagnóstico (borrador o autorizado)' : tieneAnalisis ? 'El PDF incluirá datos, escenarios y análisis' : 'El PDF incluirá datos y escenarios. Puedes agregar análisis arriba.'}
+                      {!diagGuardadoId ? 'Falta guardar el diagnóstico antes de exportar' : tieneAnalisis ? 'El PDF incluirá datos, escenarios y análisis de Sofía IA' : 'El PDF incluirá datos y escenarios. Puedes agregar análisis arriba.'}
                     </p>
                   </div>
-                  <button onClick={exportarPDF} disabled={!listo}
-                    style={{ padding: '12px 24px', background: listo ? '#334E7B' : '#D1D5DB', color: 'white', border: 'none', fontSize: '13px', fontWeight: '700' as const, cursor: listo ? 'pointer' : 'not-allowed', fontFamily: 'inherit', whiteSpace: 'nowrap' as const, flexShrink: 0 }}>
-                    📄 Exportar PDF
-                  </button>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    {/* Borrador — secundario */}
+                    <button onClick={exportarPDF} disabled={!listo}
+                      style={{ flex: 1, padding: '11px 16px', background: listo ? 'white' : '#F3F4F6', color: listo ? '#64748B' : '#9CA3AF', border: `1.5px solid ${listo ? '#E2E8F0' : '#E5E7EB'}`, borderRadius: '8px', fontSize: '12px', fontWeight: '600' as const, cursor: listo ? 'pointer' : 'not-allowed', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                      📄 Exportar borrador
+                    </button>
+                    {/* Autorizar + exportar — CTA principal */}
+                    <button onClick={async () => { await guardarDiagnostico('autorizado'); exportarPDF() }} disabled={!listo}
+                      style={{ flex: 2, padding: '11px 20px', background: listo ? '#2E7D5A' : '#D1D5DB', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700' as const, cursor: listo ? 'pointer' : 'not-allowed', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: listo ? '0 2px 8px rgba(46,125,90,0.3)' : 'none' }}>
+                      ✅ Autorizar y exportar PDF
+                    </button>
+                  </div>
+                  {estatus === 'autorizado' && (
+                    <p style={{ fontSize: '11px', color: '#2E7D5A', margin: '10px 0 0', fontWeight: '600' as const, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      ✓ Este diagnóstico ya está autorizado
+                    </p>
+                  )}
                 </div>
                 )
               })()}
