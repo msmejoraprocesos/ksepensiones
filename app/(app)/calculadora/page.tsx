@@ -710,7 +710,7 @@ function CalculadoraInner() {
   const [clienteId, setClienteId] = useState('')
 
   // Tab state
-  const [tab, setTab] = useState(0)
+  const [tab, setTab] = useState(-1)
   // ── Glosario de términos ─────────────────────────────────────
   const GLOSARIO: Record<string, { titulo: string; desc: string; ejemplo?: string }> = {
     sdi: { titulo: 'SDI — Salario Diario Integrado', desc: 'El salario real que considera IMSS para el cálculo de la pensión. Incluye sueldo base, partes proporcionales de aguinaldo, vacaciones y prima vacacional.', ejemplo: 'Si ganas $15,000/mes tu SDI diario es aprox. $547/día.' },
@@ -2535,166 +2535,7 @@ function CalculadoraInner() {
       {(!mostrarCaratula || clienteId) && (
         <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
 
-          {/* ── Panel izquierdo fijo ── */}
-          <div style={{ width: '585px', flexShrink: 0, background: '#FAFBFC', borderRight: '2px solid #E5E7EB', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-
-            {/* Header */}
-            <div style={{ background: AZUL, padding: '14px 18px', flexShrink: 0 }}>
-              <h2 style={{ fontSize: '14px', fontWeight: '800' as const, color: 'white', margin: '0 0 2px', letterSpacing: '0.3px' }}>CALCULADORA DE PENSIÓN</h2>
-              <p style={{ fontSize: '11px', color: '#93C5FD', margin: 0 }}>Ley del Seguro Social 1973</p>
-            </div>
-
-            <div style={{ padding: '10px 16px', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
-
-              {/* ── Identificación */}
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                  <div style={{ width: '3px', height: '14px', background: AZUL, flexShrink: 0 }} />
-                  <span style={{ fontSize: '10px', fontWeight: '700' as const, color: AZUL, textTransform: 'uppercase' as const, letterSpacing: '0.8px' }}>Identificación</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <div>
-                    <span style={{ fontSize: '9.5px', color: '#94A3B8', fontWeight: '600' as const, textTransform: 'uppercase' as const, letterSpacing: '0.4px' }}>Cliente / Asesorado</span>
-                    <div style={{ padding: '7px 10px', background: clienteId ? '#EEF2F8' : '#F9FAFB', border: '1px solid ' + (clienteId ? '#BFDBFE' : '#E5E7EB'), fontSize: '13px', fontWeight: clienteId ? '600' : '400', color: clienteId ? AZUL : '#9CA3AF', fontStyle: clienteId ? 'normal' : 'italic' }}>
-                      {clientes.find(c => c.id === clienteId)?.nombre || 'Sin cliente seleccionado'}
-                    </div>
-                  </div>
-                  <div>
-                    <span style={{ fontSize: '9.5px', color: '#94A3B8', fontWeight: '600' as const, textTransform: 'uppercase' as const, letterSpacing: '0.4px' }}>Nombre del trabajador</span>
-                    <div style={{ padding: '7px 10px', background: datos.nombre_trabajador ? 'white' : '#F9FAFB', border: '1px solid ' + (datos.nombre_trabajador ? '#D1D5DB' : '#E5E7EB'), fontSize: '13px', fontWeight: datos.nombre_trabajador ? '500' : '400', color: datos.nombre_trabajador ? '#111827' : '#9CA3AF', fontStyle: datos.nombre_trabajador ? 'normal' : 'italic', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      {datos.nombre_trabajador ? (<><span style={{ fontSize: '9px', background: '#D1FAE5', color: '#065F46', padding: '1px 5px', fontWeight: '700' as const, fontStyle: 'normal' }}>IMSS</span>{datos.nombre_trabajador}</>) : 'Se extrae de la constancia IMSS'}
-                    </div>
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
-                    {[
-                      { label: 'NSS', value: datos.nss },
-                      { label: 'Régimen', value: datos.ley ? 'Ley ' + datos.ley : '' },
-                      { label: 'Fecha de nacimiento', value: datos.fecha_nacimiento },
-                      { label: 'Edad actual', value: datos.edad_actual ? datos.edad_actual.toFixed(1) + ' años' : '' },
-                    ].map(({ label, value }, i) => (
-                      <div key={i}>
-                        <span style={{ fontSize: '9.5px', color: '#94A3B8', fontWeight: '600' as const, textTransform: 'uppercase' as const, letterSpacing: '0.3px' }}>{label}</span>
-                        <div style={{ padding: '6px 8px', background: value ? 'white' : '#F9FAFB', border: '1px solid ' + (value ? '#D1D5DB' : '#E5E7EB'), fontSize: '12px', color: value ? '#111827' : '#CBD5E1', fontStyle: value ? 'normal' : 'italic', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          {value ? (<><span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#10B981', flexShrink: 0, display: 'inline-block' as const }} />{value}</>) : '—'}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ borderTop: '1px solid #E5E7EB' }} />
-
-              {/* ── Cotización */}
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                  <div style={{ width: '3px', height: '14px', background: NARANJA, flexShrink: 0 }} />
-                  <span style={{ fontSize: '10px', fontWeight: '700' as const, color: '#374151', textTransform: 'uppercase' as const, letterSpacing: '0.8px' }}>Cotización</span>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px', marginBottom: '6px' }}>
-                  <div>
-                    <span style={{ fontSize: '9px', color: '#94A3B8', fontWeight: '600' as const, textTransform: 'uppercase' as const }}>Total semanas</span>
-                    <div style={{ padding: '8px', background: datos.semanas_totales ? '#FFFBEB' : '#F9FAFB', border: '1px solid ' + (datos.semanas_totales ? '#FCD34D' : '#E5E7EB'), fontSize: '18px', fontWeight: '900' as const, color: datos.semanas_totales ? '#92400E' : '#CBD5E1', textAlign: 'center' as const }}>
-                      {datos.semanas_totales || '—'}
-                    </div>
-                  </div>
-                  <div>
-                    <span style={{ fontSize: '9px', color: '#94A3B8', fontWeight: '600' as const, textTransform: 'uppercase' as const }}>Descontadas</span>
-                    <div style={{ padding: '8px', background: 'white', border: '1px solid #E5E7EB', fontSize: '18px', fontWeight: '900' as const, color: datos.semanas_descontadas > 0 ? '#DC2626' : '#CBD5E1', textAlign: 'center' as const }}>
-                      {datos.semanas_descontadas > 0 ? datos.semanas_descontadas : '—'}
-                    </div>
-                  </div>
-                  <div>
-                    <span style={{ fontSize: '9px', color: '#94A3B8', fontWeight: '600' as const, textTransform: 'uppercase' as const }}>Netas</span>
-                    <div style={{ padding: '8px', background: datos.semanas_totales ? '#EEF2F8' : '#F9FAFB', border: '1px solid ' + (datos.semanas_totales ? AZUL : '#E5E7EB'), fontSize: '18px', fontWeight: '900' as const, color: datos.semanas_totales ? AZUL : '#CBD5E1', textAlign: 'center' as const }}>
-                      {datos.semanas_totales ? (datos.semanas_totales - datos.semanas_descontadas) : '—'}
-                    </div>
-                  </div>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
-                  <div>
-                    <span style={{ fontSize: '9px', color: '#94A3B8', fontWeight: '600' as const, textTransform: 'uppercase' as const }}>Vigencia</span>
-                    <div style={{ padding: '6px 8px', background: conservacion.vigente ? '#F0FDF4' : datos.semanas_totales ? '#FEF2F2' : '#F9FAFB', border: '1px solid ' + (conservacion.vigente ? '#86EFAC' : datos.semanas_totales ? '#FCA5A5' : '#E5E7EB'), fontSize: '13px', fontWeight: '700' as const, color: conservacion.vigente ? '#15803D' : datos.semanas_totales ? '#DC2626' : '#CBD5E1', textAlign: 'center' as const }}>
-                      {datos.semanas_totales ? (conservacion.vigente ? '✓ Vigente' : '✕ Vencida') : '—'}
-                    </div>
-                  </div>
-                  <div>
-                    <span style={{ fontSize: '9px', color: '#94A3B8', fontWeight: '600' as const, textTransform: 'uppercase' as const }}>Cotizando</span>
-                    <div style={{ padding: '6px 8px', background: 'white', border: '1px solid #E5E7EB', fontSize: '13px', fontWeight: '600' as const, color: '#374151', textAlign: 'center' as const }}>
-                      {datos.sigue_cotizando ? '✓ Sí' : '✕ No'}
-                    </div>
-                  </div>
-                  <div>
-                    <span style={{ fontSize: '9px', color: '#94A3B8', fontWeight: '600' as const, textTransform: 'uppercase' as const }}>Art. 165</span>
-                    <div style={{ padding: '6px 8px', background: 'white', border: '1px solid #E5E7EB', fontSize: '13px', fontWeight: '600' as const, color: '#374151', textAlign: 'center' as const }}>
-                      {datos.tiene_ayuda_asistencial ? '✓ Aplica' : 'No'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ borderTop: '1px solid #E5E7EB' }} />
-
-              {/* ── Familia */}
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                  <div style={{ width: '3px', height: '14px', background: VERDE, flexShrink: 0 }} />
-                  <span style={{ fontSize: '10px', fontWeight: '700' as const, color: '#374151', textTransform: 'uppercase' as const, letterSpacing: '0.8px' }}>Familia y beneficiarios</span>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
-                  {[
-                    { label: 'Cónyuge', value: datos.tiene_conyuge ? 'Sí' : 'No', ok: datos.tiene_conyuge },
-                    { label: 'Hijos < 16', value: String(datos.num_hijos), ok: datos.num_hijos > 0 },
-                    { label: 'Padres dep.', value: String(datos.num_padres), ok: datos.num_padres > 0 },
-                  ].map(({ label, value, ok }, i) => (
-                    <div key={i} style={{ textAlign: 'center' as const, padding: '10px 6px', background: 'white', border: '1px solid #E5E7EB' }}>
-                      <div style={{ fontSize: '20px', fontWeight: '800' as const, color: ok ? VERDE : '#9CA3AF' }}>{value}</div>
-                      <div style={{ fontSize: '9.5px', color: '#94A3B8', marginTop: '2px', textTransform: 'uppercase' as const, letterSpacing: '0.3px' }}>{label}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ borderTop: '1px solid #E5E7EB' }} />
-
-              {/* ── Tabla factores edad */}
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                  <div style={{ width: '3px', height: '14px', background: '#7C3AED', flexShrink: 0 }} />
-                  <span style={{ fontSize: '10px', fontWeight: '700' as const, color: '#374151', textTransform: 'uppercase' as const, letterSpacing: '0.8px' }}>% pensión por edad de retiro (Ley 73)</span>
-                </div>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr style={{ background: AZUL }}>
-                      {['Edad', '% Cuantía', 'Tipo de pensión'].map((h, i) => (
-                        <th key={i} style={{ padding: '7px 10px', color: 'white', fontSize: '10.5px', fontWeight: '700' as const, textAlign: i === 0 ? 'center' as const : i === 1 ? 'center' as const : 'left' as const }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[[60,'75%','Cesantía en Edad Avanzada'],[61,'80%','Cesantía en Edad Avanzada'],[62,'85%','Cesantía en Edad Avanzada'],[63,'90%','Cesantía en Edad Avanzada'],[64,'95%','Cesantía en Edad Avanzada']].map(([edad, pct, tipo], i) => {
-                      const isActive = datos.edad_actual && Math.floor(datos.edad_actual) === Number(edad)
-                      return (
-                        <tr key={i} style={{ background: isActive ? '#EEF2F8' : i % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
-                          <td style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: '12px', fontWeight: isActive ? '800' : '500', color: isActive ? AZUL : '#374151' }}>{edad} años</td>
-                          <td style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: '14px', fontWeight: '800' as const, color: isActive ? AZUL : '#374151' }}>{pct}</td>
-                          <td style={{ padding: '7px 10px', fontSize: '11px', color: '#64748B' }}>{tipo as string}</td>
-                        </tr>
-                      )
-                    })}
-                    <tr style={{ background: VERDE }}>
-                      <td style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: '12px', fontWeight: '800' as const, color: 'white' }}>65+ años</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: '14px', fontWeight: '900' as const, color: 'white' }}>100%</td>
-                      <td style={{ padding: '7px 10px', fontSize: '11px', color: 'white', fontWeight: '600' as const }}>Vejez (IDEL)</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-            </div>
-          </div>
-
-          {/* ── Panel derecho dinámico ── */}
+          {/* ── Panel único dinámico (ocupa todo el ancho) ── */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
             {/* Barra de KPIs + acciones superior */}
@@ -2745,6 +2586,7 @@ function CalculadoraInner() {
             {/* ── Navegación superior — 4 grupos con dropdown ── */}
             {(() => {
               const grupos = [
+                { label: 'Datos generales', tiIcon: 'ti-clipboard-list', tabs: [-1],      color: '#64748B', nombres: ['Resumen del trabajador'] },
                 { label: 'El cliente',    tiIcon: 'ti-user',      tabs: [0,1,2,4],    color: AZUL,      nombres: ['Datos básicos','Cuantías','Salario Mod.40','Info. pensionado'] },
                 { label: 'La pensión',    tiIcon: 'ti-coin',      tabs: [5,8,9,12],   color: VERDE,     nombres: ['Importe pensión','Escenario 1','Mod. 10','Cotiz. voluntaria'] },
                 { label: 'La inversión',  tiIcon: 'ti-chart-bar', tabs: [3,6,7,10],   color: '#B45309', nombres: ['SDI 250 sem.','Costo Mod.40','Financiamiento','Rendimiento'] },
@@ -2862,6 +2704,117 @@ function CalculadoraInner() {
                   <rect width="100%" height="100%" fill="url(#kse-wm)" />
                 </svg>
               </div>
+
+            {/* ── Tab -1: Datos generales ── */}
+            {tab === -1 && (
+              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
+
+                {/* Card Identificación — borde azul */}
+                <div style={{ background: 'white', borderRadius: '10px', borderLeft: `4px solid ${AZUL}`, padding: '14px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <span style={{ fontSize: '9px', fontWeight: '600' as const, textTransform: 'uppercase' as const, letterSpacing: '0.6px', background: '#EEF2F8', color: AZUL, padding: '3px 8px', borderRadius: '4px' }}>Identificación</span>
+                    <span style={{ fontSize: '11px', color: '#94A3B8' }}>{clientes.find(c => c.id === clienteId)?.nombre || 'Sin cliente'}</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    {[
+                      { label: 'Nombre del trabajador', value: datos.nombre_trabajador, highlight: true },
+                      { label: 'NSS', value: datos.nss },
+                      { label: 'Fecha de nacimiento', value: datos.fecha_nacimiento },
+                      { label: 'Edad actual / Régimen', value: datos.edad_actual ? `${datos.edad_actual.toFixed(1)} años${datos.ley ? ' · Ley ' + datos.ley : ''}` : '' },
+                    ].map((k, i) => (
+                      <div key={i}>
+                        <div style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.4px', marginBottom: '3px' }}>{k.label}</div>
+                        <div style={{ padding: '7px 10px', background: k.highlight && k.value ? '#EEF2F8' : k.value ? 'white' : '#F9FAFB', border: `1px solid ${k.highlight && k.value ? '#BFDBFE' : k.value ? '#E2E8F0' : '#E5E7EB'}`, borderRadius: '6px', fontSize: '13px', fontWeight: k.highlight ? '600' : '400' as const, color: k.highlight && k.value ? AZUL : k.value ? '#1E293B' : '#9CA3AF', fontStyle: k.value ? 'normal' : 'italic' }}>
+                          {k.value || '—'}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Card Cotización — borde naranja */}
+                <div style={{ background: 'white', borderRadius: '10px', borderLeft: `4px solid ${NARANJA}`, padding: '14px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <span style={{ fontSize: '9px', fontWeight: '600' as const, textTransform: 'uppercase' as const, letterSpacing: '0.6px', background: '#FFF7ED', color: '#B45309', padding: '3px 8px', borderRadius: '4px' }}>Cotización</span>
+                    <span style={{ fontSize: '11px', fontWeight: '600' as const, color: conservacion.vigente ? VERDE : '#DC2626' }}>{datos.semanas_totales ? (conservacion.vigente ? '✓ Vigente' : '✕ Vencida') : '—'}</span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginBottom: '10px' }}>
+                    {[
+                      { label: 'Total semanas', value: datos.semanas_totales || '—', bg: '#FFFBEB', color: '#92400E', border: '#FCD34D' },
+                      { label: 'Descontadas', value: datos.semanas_descontadas > 0 ? datos.semanas_descontadas : '—', bg: 'white', color: datos.semanas_descontadas > 0 ? '#DC2626' : '#CBD5E1', border: '#E2E8F0' },
+                      { label: 'Netas', value: datos.semanas_totales ? (datos.semanas_totales - datos.semanas_descontadas) : '—', bg: '#EEF2F8', color: AZUL, border: AZUL },
+                    ].map((k, i) => (
+                      <div key={i} style={{ textAlign: 'center' as const, padding: '10px 8px', background: k.bg, border: `1px solid ${k.border}`, borderRadius: '8px' }}>
+                        <div style={{ fontSize: '24px', fontWeight: '800' as const, color: k.color, lineHeight: 1 }}>{k.value}</div>
+                        <div style={{ fontSize: '9px', color: '#94A3B8', marginTop: '4px', textTransform: 'uppercase' as const, letterSpacing: '0.4px' }}>{k.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                    {[
+                      { label: 'Cotizando actualmente', value: datos.sigue_cotizando ? '✓ Sí' : '✕ No', color: datos.sigue_cotizando ? VERDE : '#94A3B8' },
+                      { label: 'Art. 165 (Asistencial)', value: datos.tiene_ayuda_asistencial ? '✓ Aplica' : 'No aplica', color: datos.tiene_ayuda_asistencial ? VERDE : '#94A3B8' },
+                      { label: 'Edad de pensión', value: `${datos.edad_min_pension || 60} años`, color: AZUL },
+                    ].map((k, i) => (
+                      <div key={i} style={{ padding: '8px 10px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '6px', textAlign: 'center' as const }}>
+                        <div style={{ fontSize: '13px', fontWeight: '600' as const, color: k.color }}>{k.value}</div>
+                        <div style={{ fontSize: '9px', color: '#94A3B8', marginTop: '3px', textTransform: 'uppercase' as const, letterSpacing: '0.3px' }}>{k.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  {/* Card Familia — borde verde */}
+                  <div style={{ background: 'white', borderRadius: '10px', borderLeft: `4px solid ${VERDE}`, padding: '14px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+                    <span style={{ fontSize: '9px', fontWeight: '600' as const, textTransform: 'uppercase' as const, letterSpacing: '0.6px', background: '#F0F7F4', color: VERDE, padding: '3px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '12px' }}>Familia y beneficiarios</span>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
+                      {[
+                        { label: 'Cónyuge', value: datos.tiene_conyuge ? 'Sí' : 'No', ok: datos.tiene_conyuge },
+                        { label: 'Hijos < 16', value: String(datos.num_hijos), ok: datos.num_hijos > 0 },
+                        { label: 'Padres dep.', value: String(datos.num_padres), ok: datos.num_padres > 0 },
+                      ].map(({ label, value, ok }, i) => (
+                        <div key={i} style={{ textAlign: 'center' as const, padding: '10px 6px', background: ok ? '#F0F7F4' : '#F8FAFC', border: `1px solid ${ok ? '#86EFAC' : '#E2E8F0'}`, borderRadius: '8px' }}>
+                          <div style={{ fontSize: '22px', fontWeight: '800' as const, color: ok ? VERDE : '#9CA3AF' }}>{value}</div>
+                          <div style={{ fontSize: '9px', color: '#94A3B8', marginTop: '3px', textTransform: 'uppercase' as const, letterSpacing: '0.3px' }}>{label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Card Tabla edad — borde morado */}
+                  <div style={{ background: 'white', borderRadius: '10px', borderLeft: '4px solid #7C3AED', padding: '14px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+                    <span style={{ fontSize: '9px', fontWeight: '600' as const, textTransform: 'uppercase' as const, letterSpacing: '0.6px', background: '#F5F3FF', color: '#7C3AED', padding: '3px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '12px' }}>% Pensión por edad (Ley 73)</span>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '11px' }}>
+                      <thead>
+                        <tr style={{ background: AZUL }}>
+                          {['Edad', '% Cuantía', 'Tipo'].map((h, i) => (
+                            <th key={i} style={{ padding: '6px 8px', color: 'white', fontSize: '9px', fontWeight: '600' as const, textAlign: i === 0 ? 'center' as const : i === 1 ? 'center' as const : 'left' as const, textTransform: 'uppercase' as const, letterSpacing: '0.4px' }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[[60,'75%','Cesantía'],[61,'80%','Cesantía'],[62,'85%','Cesantía'],[63,'90%','Cesantía'],[64,'95%','Cesantía']].map(([edad, pct, tipo], i) => {
+                          const isActive = datos.edad_actual && Math.floor(datos.edad_actual) === Number(edad)
+                          return (
+                            <tr key={i} style={{ background: isActive ? '#EEF2F8' : i % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
+                              <td style={{ padding: '6px 8px', textAlign: 'center' as const, fontWeight: isActive ? '700' : '400' as const, color: isActive ? AZUL : '#374151' }}>{edad} años</td>
+                              <td style={{ padding: '6px 8px', textAlign: 'center' as const, fontSize: '13px', fontWeight: '700' as const, color: isActive ? AZUL : '#374151' }}>{pct}</td>
+                              <td style={{ padding: '6px 8px', color: '#64748B', fontSize: '10px' }}>{tipo as string}</td>
+                            </tr>
+                          )
+                        })}
+                        <tr style={{ background: VERDE }}>
+                          <td style={{ padding: '6px 8px', textAlign: 'center' as const, fontWeight: '700' as const, color: 'white' }}>65+ años</td>
+                          <td style={{ padding: '6px 8px', textAlign: 'center' as const, fontSize: '13px', fontWeight: '700' as const, color: 'white' }}>100%</td>
+                          <td style={{ padding: '6px 8px', color: 'white', fontSize: '10px', fontWeight: '600' as const }}>Vejez (IDEL)</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
 
         {/* ══ TAB 0: DATOS GENERALES ══════════════════════════════════ */}
         {tab === 0 && (() => {
