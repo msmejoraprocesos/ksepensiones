@@ -25,7 +25,20 @@ const DS = {
   txt: { xs: '10px', sm: '11px', base: '12px', md: '13px', lg: '14px', xl: '16px', h: '18px' },
   col: { azul: '#334E7B', verde: '#2E7D5A', naranja: '#E8724A', gris: '#64748B', borde: '#E2E8F0', bg: '#F4F6F9', bgAlt: '#FAFAFA' },
   sp: { xs: '4px', sm: '6px', md: '10px', lg: '16px', xl: '22px' },
-  card: { background: 'white', borderRadius: '12px', padding: '18px 20px', marginBottom: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)' } as React.CSSProperties,
+
+  // ── Sistema de color semántico ────────────────────────────────────
+  // Azul   = Dato IMSS (extraído de constancia, no editable)
+  // Naranja = Captura manual del asesor (subjetivo, configurable)
+  // Verde  = Decisión estratégica Mod. 40 (parámetros elegidos)
+  // Morado = Resultado calculado automáticamente (read-only)
+  semantic: {
+    imss:     { bg: '#EEF2F8', border: '#334E7B', text: '#1E3A5F', badge: '#BFDBFE', label: 'Dato IMSS' },
+    manual:   { bg: '#FFF3ED', border: '#E8724A', text: '#92400E', badge: '#FED7AA', label: 'Captura manual' },
+    strategy: { bg: '#F0F7F4', border: '#2E7D5A', text: '#1A5C40', badge: '#86EFAC', label: 'Decisión estratégica' },
+    result:   { bg: '#F5F3FF', border: '#7C3AED', text: '#4C1D95', badge: '#DDD6FE', label: 'Calculado' },
+  },
+
+  card: { background: 'white', borderRadius: '12px', padding: '18px 20px', marginBottom: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' } as React.CSSProperties,
   cardHighlight: { background: 'white', borderRadius: '12px', padding: '18px 20px', marginBottom: '14px', boxShadow: '0 0 0 2px #334E7B, 0 4px 12px rgba(51,78,123,0.1)' } as React.CSSProperties,
   tHead: { background: '#334E7B', color: 'white', padding: '9px 12px', fontSize: '11px', fontWeight: '600' as const, textAlign: 'left' as const, whiteSpace: 'nowrap' as const },
   tHeadR: { background: '#334E7B', color: 'white', padding: '9px 12px', fontSize: '11px', fontWeight: '600' as const, textAlign: 'right' as const, whiteSpace: 'nowrap' as const },
@@ -37,9 +50,16 @@ const DS = {
   kpiBlock: { background: '#334E7B', borderRadius: '10px', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' } as React.CSSProperties,
   kpiGreen: { background: '#2E7D5A', borderRadius: '10px', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' } as React.CSSProperties,
   label: { fontSize: '11px', fontWeight: '500' as const, color: '#94A3B8', marginBottom: '5px', display: 'block' as const, textTransform: 'uppercase' as const, letterSpacing: '0.5px' },
-  input: { width: '100%', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '8px 12px', fontSize: '13px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: 'white', color: '#1E293B', outline: 'none' } as React.CSSProperties,
-  inputReadonly: { width: '100%', border: '1px solid #F1F5F9', borderRadius: '8px', padding: '8px 12px', fontSize: '13px', background: '#F8FAFC', color: '#64748B', fontFamily: 'inherit', boxSizing: 'border-box' as const } as React.CSSProperties,
-  select: { width: '100%', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '8px 12px', fontSize: '13px', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const, color: '#1E293B' } as React.CSSProperties,
+  input: { width: '100%', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: 'white', color: '#1E293B', outline: 'none', height: '44px' } as React.CSSProperties,
+  inputReadonly: { width: '100%', border: '1px solid #F1F5F9', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', background: '#F8FAFC', color: '#64748B', fontFamily: 'inherit', boxSizing: 'border-box' as const, height: '44px' } as React.CSSProperties,
+  // Inputs semánticos: fondo de color según tipo de dato
+  inputImss:     { width: '100%', border: '1.5px solid #BFDBFE', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#EEF2F8', color: '#1E3A5F', fontWeight: '500' as const, height: '44px' } as React.CSSProperties,
+  inputManual:   { width: '100%', border: '1.5px solid #FED7AA', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#FFF3ED', color: '#92400E', height: '44px' } as React.CSSProperties,
+  inputStrategy: { width: '100%', border: '2px solid #2E7D5A', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#F0F7F4', color: '#1A5C40', fontWeight: '500' as const, height: '44px' } as React.CSSProperties,
+  inputResult:   { width: '100%', border: '1px solid #DDD6FE', borderRadius: '8px', padding: '9px 12px', fontSize: '14px', background: '#F5F3FF', color: '#4C1D95', fontWeight: '600' as const, height: '44px', boxSizing: 'border-box' as const } as React.CSSProperties,
+  select: { width: '100%', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const, color: '#1E293B', height: '44px' } as React.CSSProperties,
+  selectManual:  { width: '100%', border: '1.5px solid #FED7AA', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', background: '#FFF3ED', color: '#92400E', boxSizing: 'border-box' as const, height: '44px' } as React.CSSProperties,
+  selectStrategy:{ width: '100%', border: '2px solid #2E7D5A', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', background: '#F0F7F4', color: '#1A5C40', fontWeight: '500' as const, boxSizing: 'border-box' as const, height: '44px' } as React.CSSProperties,
   criticalNum: { fontSize: '26px', fontWeight: '800' as const, letterSpacing: '-0.5px', lineHeight: 1 } as React.CSSProperties,
   bigNum: { fontSize: '20px', fontWeight: '700' as const, letterSpacing: '-0.5px' } as React.CSSProperties,
 }
@@ -244,20 +264,22 @@ function calcPensionLey73(semanas: number, sdi: number, edadRetiro: number, sys:
 
   const baseConFactorYEdad = (cuantiaBasicaAnual + incrementosTotalAnual) * FACTOR_111 * factorEdad
 
-  // Asignaciones familiares (15% cónyuge + 10% por hijo + 10% por padre dependiente, sobre la cuantía total cruda)
+  // Asignaciones familiares — Art. 164 LSS Ley 73
+  // "En adición a su pensión" → NO se reducen por factor_edad (cesantía/vejez)
+  // Fórmula: Asig = cuantía_total × % × 1.11  (factor_edad solo aplica a pensión base)
   const hayBeneficiarios = tieneConyuge || numHijos > 0
   const asignConyuge = tieneConyuge ? cuantiaTotalRaw * 0.15 : 0
   const asignHijos = numHijos > 0 ? cuantiaTotalRaw * 0.10 * numHijos : 0
   const asignPadres = (!hayBeneficiarios && numPadres > 0) ? cuantiaTotalRaw * 0.10 * numPadres : 0
-  const asignaciones = (asignConyuge + asignHijos + asignPadres) * FACTOR_111 * factorEdad
+  const asignaciones = (asignConyuge + asignHijos + asignPadres) * FACTOR_111
 
-  // Ayuda asistencial (Art. 165 LSS — solo si no hay cónyuge, hijos, ni padres, Y el campo fue marcado por el asesor)
+  // Ayuda asistencial — Art. 165 LSS (igual que asignaciones: sin factor_edad)
   const sinBeneficiarios = !tieneConyuge && numHijos === 0 && numPadres === 0
   const soloUnPadre = !tieneConyuge && numHijos === 0 && numPadres === 1
   const pctAyuda = tieneAyudaAsistencial && sinBeneficiarios ? 0.15 : tieneAyudaAsistencial && soloUnPadre ? 0.10 : 0
   const ayudaAsistencial = pctAyuda > 0
     ? Math.max(0, Math.min(
-        cuantiaTotalRaw * pctAyuda * FACTOR_111 * factorEdad,
+        cuantiaTotalRaw * pctAyuda * FACTOR_111,
         Math.max(0, sys.UMA_DIARIA * 25 * 365 - (baseConFactorYEdad + asignaciones)),
         sdi * 365 * FACTOR_111 - (baseConFactorYEdad + asignaciones)
       ))
@@ -1313,14 +1335,16 @@ function CalculadoraInner() {
     const inversion_neta = costo_total - recuperacion_afore
     const roi = incr > 0 ? Math.ceil(inversion_neta / incr) : 0
 
-    // Ganancia a los 80 años y tasa de rendimiento — INVERSION!D46/F46
-    // Meses hasta los 80 años — usando diferencia de edad decimal para mayor precisión
+    // Ganancia a los 80 años — factor 1.54 del Excel
+    // = 13 pagos/año (aguinaldo incluido) × INPC acumulado ≈ (1.045)^10
+    // El IMSS actualiza pensiones por INPC anualmente (Art. 214 LSS)
+    const FACTOR_FLUJOS_80 = 1.54
     const anosHasta80 = Math.max(0, 80 - edadR)
     const mesesHasta80 = Math.round(anosHasta80 * 12)
     const anosHasta80base = Math.max(0, 80 - Math.max(edadRetiro, datos.edad_actual || 60))
     const mesesHasta80base = Math.round(anosHasta80base * 12)
-    const flujosCon = pension * mesesHasta80
-    const flujosSin = pensionBase * mesesHasta80base
+    const flujosCon = pension * mesesHasta80 * FACTOR_FLUJOS_80
+    const flujosSin = pensionBase * mesesHasta80base * FACTOR_FLUJOS_80
     const ganancia_a80 = flujosCon - flujosSin - inversion_neta
     const tasa_rendimiento = inversion_neta > 0 ? (ganancia_a80 / inversion_neta) * 100 : 0
 
@@ -2591,7 +2615,7 @@ function CalculadoraInner() {
               const grupos = [
                 { label: 'Datos generales', tiIcon: 'ti-clipboard-list', tabs: [-1],       color: '#64748B', nombres: ['Resumen del trabajador'] },
                 { label: 'El cliente',       tiIcon: 'ti-user',           tabs: [0,1,2],    color: AZUL,      nombres: ['Datos y perfil','Cuantías anuales','Salario Mod.40'] },
-                { label: 'La pensión',       tiIcon: 'ti-coin',           tabs: [5,8,12],   color: VERDE,     nombres: ['Importe de pensión','Escenarios','Modalidad 10'] },
+                { label: 'La pensión',       tiIcon: 'ti-coin',           tabs: [5,8],      color: VERDE,     nombres: ['Importe de pensión','Escenarios'] },
                 { label: 'La inversión',     tiIcon: 'ti-chart-bar',      tabs: [3,6,10],   color: '#B45309', nombres: ['SDI 250 sem.','Inversión y proyecto','Financiamiento'] },
                 { label: 'El entregable',    tiIcon: 'ti-file-text',      tabs: [11],       color: '#7C3AED', nombres: ['Análisis y PDF'] },
               ]
@@ -2659,26 +2683,42 @@ function CalculadoraInner() {
                   {menuAbierto !== null && (
                     <div onClick={() => setMenuAbierto(null)} style={{ position: 'fixed' as const, inset: 0, zIndex: 19 }} />
                   )}
+
+                  {/* Opciones adicionales — regímenes alternativos */}
+                  <div style={{ marginLeft: 'auto', display: 'flex', gap: '6px', alignItems: 'center' }}>
+                    <span style={{ fontSize: '10px', color: '#94A3B8', whiteSpace: 'nowrap' as const }}>Opciones:</span>
+                    <button onClick={() => setTab(12)}
+                      style={{ padding: '6px 12px', borderRadius: '6px', border: `1px solid ${tab === 12 ? '#0891B2' : '#E2E8F0'}`, background: tab === 12 ? '#ECFEFF' : 'white', color: tab === 12 ? '#0891B2' : '#64748B', fontSize: '11px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' as const }}>
+                      <i className="ti ti-droplet" style={{ fontSize: '12px', marginRight: '4px' }} />Mod. 10 / Ley 97
+                    </button>
+                  </div>
                 </div>
               )
             })()}
 
-            {/* ── KPI bar — indicadores clave ── */}
+            {/* ── KPI bar semántica — puntos de color indican origen del dato ── */}
             <div style={{ display: 'flex', background: 'white', borderBottom: `1px solid ${BORDE}`, flexShrink: 0, overflowX: 'auto' }}>
               {[
-                { label: 'Semanas cotizadas', value: datos.semanas_totales > 0 ? (datos.semanas_totales - datos.semanas_descontadas).toLocaleString() : '—', color: (datos.semanas_totales - datos.semanas_descontadas) >= 500 ? VERDE : AZUL },
-                { label: 'Régimen', value: datos.ley ? 'Ley ' + datos.ley : '—', color: AZUL },
-                { label: 'Edad pensión', value: (datos.edad_min_pension || 60) + ' años', color: AZUL },
-                { label: 'SDI 250 sem.', value: sdiPromedio > 0 ? fmtMXN2(sdiPromedio) : '—', color: VERDE },
-                { label: 'Sem. faltantes', value: datos.semanas_totales > 0 ? String(Math.max(0, 500 - (datos.semanas_totales - datos.semanas_descontadas))) : '—', color: Math.max(0, 500 - (datos.semanas_totales - datos.semanas_descontadas)) === 0 ? VERDE : '#C0392B' },
-                { label: 'Total sem. c/Mod40', value: escenarios.find(e => e.recomendado)?.semanas_finales ? String(Math.round(escenarios.find(e => e.recomendado)!.semanas_finales)) : '—', color: AZUL },
-                { label: 'Fecha del trámite', value: datos.fecha_nacimiento ? (() => { const d = new Date(datos.fecha_nacimiento); d.setFullYear(d.getFullYear() + (datos.edad_min_pension || 60)); return d.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' }) })() : '—', color: '#7C3AED' },
-              ].map((k, i) => (
-                <div key={i} style={{ flex: '1 1 0', padding: '10px 14px', borderRight: `1px solid ${BORDE}`, borderBottom: `2px solid ${k.color}`, background: 'white', minWidth: '100px', maxWidth: '160px' }}>
-                  <div style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.6px', whiteSpace: 'nowrap', marginBottom: '4px', fontWeight: '600' as const }}>{k.label}</div>
-                  <div style={{ fontSize: '13px', fontWeight: '700' as const, color: k.color, whiteSpace: 'nowrap' }}>{k.value}</div>
-                </div>
-              ))}
+                { label: 'Semanas netas', value: datos.semanas_totales > 0 ? (datos.semanas_totales - datos.semanas_descontadas).toLocaleString() : '—', tipo: 'imss', accent: (datos.semanas_totales - datos.semanas_descontadas) >= 500 ? VERDE : AZUL },
+                { label: 'Régimen', value: datos.ley ? 'Ley ' + datos.ley : '—', tipo: 'imss', accent: AZUL },
+                { label: 'SDI promedio', value: sdiPromedio > 0 ? fmtMXN2(sdiPromedio) : '—', tipo: 'result', accent: '#7C3AED' },
+                { label: 'Sem. faltantes', value: datos.semanas_totales > 0 ? String(Math.max(0, 500 - (datos.semanas_totales - datos.semanas_descontadas))) : '—', tipo: Math.max(0, 500 - (datos.semanas_totales - datos.semanas_descontadas)) === 0 ? 'result' : 'manual', accent: Math.max(0, 500 - (datos.semanas_totales - datos.semanas_descontadas)) === 0 ? VERDE : '#DC2626' },
+                { label: 'Edad de pensión', value: (datos.edad_min_pension || 60) + ' años', tipo: 'manual', accent: '#E8724A' },
+                { label: 'Sem. con Mod. 40', value: escenarios.find(e => e.recomendado)?.semanas_finales ? String(Math.round(escenarios.find(e => e.recomendado)!.semanas_finales)) : '—', tipo: 'strategy', accent: VERDE },
+                { label: 'Pensión actual', value: (() => { const r = calcPensionLey73(datos.semanas_totales - datos.semanas_descontadas, sdiPromedio, datos.edad_min_pension || 60, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, undefined, datos.tiene_ayuda_asistencial); return r.pensionMensual > 0 ? fmtMXN(r.pensionMensual) + '/mes' : '—' })(), tipo: 'result', accent: '#7C3AED' },
+              ].map((k, i) => {
+                const dotColors: any = { imss: '#334E7B', manual: '#E8724A', strategy: '#2E7D5A', result: '#7C3AED' }
+                const dotColor = dotColors[k.tipo] || '#94A3B8'
+                return (
+                  <div key={i} style={{ flex: '1 1 0', padding: '8px 12px', borderRight: `1px solid ${BORDE}`, borderBottom: `3px solid ${k.accent}`, background: 'white', minWidth: '90px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '3px' }}>
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: dotColor, flexShrink: 0, display: 'inline-block' }} />
+                      <span style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' as const, whiteSpace: 'nowrap' as const }}>{k.label}</span>
+                    </div>
+                    <div style={{ fontSize: '13px', fontWeight: '700' as const, color: k.accent, whiteSpace: 'nowrap' as const }}>{k.value}</div>
+                  </div>
+                )
+              })}
             </div>
 {/* Contenido de la pestaña actual */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', background: '#F4F6F9', fontSize: '13px', minWidth: 0, position: 'relative' as const }}>

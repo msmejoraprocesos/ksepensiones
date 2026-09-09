@@ -4,20 +4,49 @@ import React from 'react'
 const AZUL = '#334E7B'
 const VERDE = '#2E7D5A'
 const NARANJA = '#E8724A'
+const MORADO = '#7C3AED'
 const BORDE = '#E2E8F0'
 
-const DS = {
-  label: { fontSize: '10px', fontWeight: '500' as const, color: '#94A3B8', marginBottom: '4px', display: 'block' as const, textTransform: 'uppercase' as const, letterSpacing: '0.5px' },
-  input: { width: '100%', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '8px 12px', fontSize: '13px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: 'white', color: '#1E293B', outline: 'none' } as React.CSSProperties,
-  select: { width: '100%', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '8px 12px', fontSize: '13px', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const, color: '#1E293B' } as React.CSSProperties,
-  tHead: { background: '#334E7B', color: 'white', padding: '7px 10px', fontSize: '10px', fontWeight: '600' as const, textAlign: 'left' as const },
-  tCellR: { padding: '7px 10px', fontSize: '11px', color: '#1E293B', borderBottom: '1px solid #F1F5F9', textAlign: 'right' as const } as React.CSSProperties,
-  tCellBold: { padding: '7px 10px', fontSize: '13px', color: '#334E7B', fontWeight: '700' as const, borderBottom: '1px solid #F1F5F9', textAlign: 'right' as const } as React.CSSProperties,
-  tCell: { padding: '7px 10px', fontSize: '11px', color: '#1E293B', borderBottom: '1px solid #F1F5F9' } as React.CSSProperties,
+// Sistema semántico de colores
+const SEM = {
+  imss:     { bg: '#EEF2F8', border: '#334E7B', text: '#1E3A5F', dot: '#334E7B', badgeBg: '#DBEAFE', label: 'Dato IMSS' },
+  manual:   { bg: '#FFF3ED', border: '#E8724A', text: '#92400E', dot: '#E8724A', badgeBg: '#FED7AA', label: 'Captura manual' },
+  strategy: { bg: '#F0F7F4', border: '#2E7D5A', text: '#1A5C40', dot: '#2E7D5A', badgeBg: '#BBF7D0', label: 'Decisión estratégica' },
+  result:   { bg: '#F5F3FF', border: '#7C3AED', text: '#4C1D95', dot: '#7C3AED', badgeBg: '#DDD6FE', label: 'Calculado' },
 }
 
 const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n)
 const fmtMXN2 = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
+
+// Input semántico con dot de color
+const Field = ({ label, tipo, children, fullWidth }: { label: string; tipo: keyof typeof SEM; children: React.ReactNode; fullWidth?: boolean }) => (
+  <div style={{ gridColumn: fullWidth ? '1 / -1' : undefined }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '5px' }}>
+      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: SEM[tipo].dot, flexShrink: 0, display: 'inline-block' }} />
+      <label style={{ fontSize: '10px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>{label}</label>
+    </div>
+    {children}
+  </div>
+)
+
+const inputBase = (tipo: keyof typeof SEM): React.CSSProperties => ({
+  width: '100%', height: '44px', border: `1.5px solid ${SEM[tipo].border}`,
+  borderRadius: '8px', padding: '0 12px', fontSize: '13px', fontFamily: 'inherit',
+  boxSizing: 'border-box' as const, background: SEM[tipo].bg, color: SEM[tipo].text,
+  fontWeight: tipo === 'imss' || tipo === 'strategy' ? '500' : '400',
+  outline: 'none',
+})
+
+const CardSection = ({ tipo, title, children }: { tipo: keyof typeof SEM; title: string; children: React.ReactNode }) => (
+  <div style={{ background: 'white', borderRadius: '12px', borderLeft: `4px solid ${SEM[tipo].border}`, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+    <div style={{ padding: '10px 14px', background: SEM[tipo].bg, borderBottom: `1px solid ${BORDE}`, display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: SEM[tipo].dot, display: 'inline-block' }} />
+      <span style={{ fontSize: '10px', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: '0.6px', color: SEM[tipo].text }}>{title}</span>
+      <span style={{ marginLeft: 'auto', fontSize: '9px', color: SEM[tipo].text, opacity: 0.6 }}>{SEM[tipo].label}</span>
+    </div>
+    <div style={{ padding: '14px 16px' }}>{children}</div>
+  </div>
+)
 
 interface Props {
   datos: any
@@ -55,183 +84,184 @@ export default function TabCliente({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
-      {/* KPIs rápidos */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
-        {[
-          { label: 'Semanas netas', value: sem > 0 ? sem.toLocaleString() : '—', color: sem >= 500 ? VERDE : AZUL, bg: sem >= 500 ? '#F0FDF4' : '#EEF2F8', border: sem >= 500 ? '#86EFAC' : AZUL },
-          { label: 'Sem. faltantes', value: semFaltantes === 0 ? '✓ Listo' : String(semFaltantes), color: semFaltantes === 0 ? VERDE : '#DC2626', bg: semFaltantes === 0 ? '#F0FDF4' : '#FEF2F2', border: semFaltantes === 0 ? '#86EFAC' : '#FCA5A5' },
-          { label: 'SDI promedio', value: sdiPromedio > 0 ? fmtMXN2(sdiPromedio) : '—', color: '#92400E', bg: '#FFFBEB', border: '#FCD34D' },
-          { label: 'Fecha trámite', value: fechaTramite, color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
-        ].map((k, i) => (
-          <div key={i} style={{ background: k.bg, border: `2px solid ${k.border}`, padding: '10px 12px', textAlign: 'center', borderRadius: '8px' }}>
-            <div style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600', marginBottom: '4px' }}>{k.label}</div>
-            <div style={{ fontSize: '16px', fontWeight: '800', color: k.color }}>{k.value}</div>
+      {/* ── Leyenda de colores ── */}
+      <div style={{ display: 'flex', gap: '12px', padding: '8px 12px', background: 'white', borderRadius: '8px', border: `1px solid ${BORDE}`, flexWrap: 'wrap' as const }}>
+        {Object.entries(SEM).map(([k, v]) => (
+          <div key={k} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: v.dot, display: 'inline-block' }} />
+            <span style={{ fontSize: '10px', color: '#64748B' }}>{v.label}</span>
           </div>
         ))}
       </div>
 
-      {/* Grid 2 columnas */}
+      {/* ── KPIs resumen ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+        {[
+          { label: 'Semanas netas', value: sem > 0 ? sem.toLocaleString() : '—', tipo: 'imss' as const, accent: sem >= 500 ? VERDE : AZUL },
+          { label: 'Sem. faltantes', value: semFaltantes === 0 ? '✓ Listo' : String(semFaltantes), tipo: 'result' as const, accent: semFaltantes === 0 ? VERDE : '#DC2626' },
+          { label: 'SDI promedio', value: sdiPromedio > 0 ? fmtMXN2(sdiPromedio) : '—', tipo: 'result' as const, accent: MORADO },
+          { label: 'Fecha trámite', value: fechaTramite, tipo: 'result' as const, accent: MORADO },
+        ].map((k, i) => (
+          <div key={i} style={{ background: 'white', border: `1.5px solid ${k.accent}22`, borderTop: `3px solid ${k.accent}`, padding: '10px 12px', borderRadius: '8px', textAlign: 'center' as const }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginBottom: '4px' }}>
+              <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: SEM[k.tipo].dot, display: 'inline-block' }} />
+              <span style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' }}>{k.label}</span>
+            </div>
+            <div style={{ fontSize: '16px', fontWeight: '800', color: k.accent }}>{k.value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Grid 2 columnas: Parámetros + Familia ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
 
-        {/* Card Parámetros */}
-        <div style={{ background: 'white', borderRadius: '10px', borderLeft: `4px solid ${AZUL}`, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-          <span style={{ fontSize: '9px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.6px', background: '#EEF2F8', color: AZUL, padding: '3px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '10px' }}>Parámetros de retiro</span>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-              <div>
-                <label style={DS.label}>¿Seguirá cotizando?</label>
-                <select value={datos.sigue_cotizando ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, sigue_cotizando: e.target.value === 'si' }))} style={DS.select}>
+        <CardSection tipo="manual" title="Parámetros de retiro">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <Field label="¿Seguirá cotizando?" tipo="manual">
+                <select value={datos.sigue_cotizando ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, sigue_cotizando: e.target.value === 'si' }))} style={inputBase('manual')}>
                   <option value="si">✓ Sí</option>
                   <option value="no">✕ No</option>
                 </select>
-              </div>
-              <div>
-                <label style={DS.label}>Edad de pensión <Tip id="factorEdad" /></label>
-                <select value={datos.edad_min_pension || 60} onChange={e => { const v = parseInt(e.target.value); setDatos(p => ({ ...p, edad_min_pension: v })); setEdadRetiro(v) }} style={DS.select}>
+              </Field>
+              <Field label="Edad de pensión" tipo="manual">
+                <select value={datos.edad_min_pension || 60} onChange={e => { const v = parseInt(e.target.value); setDatos(p => ({ ...p, edad_min_pension: v })); setEdadRetiro(v) }} style={inputBase('manual')}>
                   {[60,61,62,63,64,65].map(a => <option key={a} value={a}>{a} años — {75+(a-60)*5}%</option>)}
                 </select>
-              </div>
+              </Field>
             </div>
-            <div>
-              <label style={DS.label}>Ingreso objetivo / mes <Tip id="ingresoObjetivo" /></label>
-              <input type="number" value={ingresoObjetivo || ''} onChange={e => setIngresoObjetivo(Number(e.target.value) || 0)} placeholder="Ej. 25,000" style={{ ...DS.input, fontWeight: '700', color: NARANJA }} />
-            </div>
-            <div>
-              <label style={DS.label}>Fecha de cálculo</label>
-              <input type="date" value={datos.fecha_calculo} onChange={e => setDatos(p => ({ ...p, fecha_calculo: e.target.value }))} style={DS.input} />
-            </div>
+            <Field label={<>Ingreso objetivo / mes <Tip id="ingresoObjetivo" /></> as any} tipo="manual">
+              <input type="number" value={ingresoObjetivo || ''} onChange={e => setIngresoObjetivo(Number(e.target.value) || 0)} placeholder="Ej. 25,000" style={{ ...inputBase('manual'), fontWeight: '600', fontSize: '14px' }} />
+            </Field>
+            <Field label="Fecha de cálculo" tipo="manual">
+              <input type="date" value={datos.fecha_calculo} onChange={e => setDatos(p => ({ ...p, fecha_calculo: e.target.value }))} style={inputBase('manual')} />
+            </Field>
           </div>
-        </div>
+        </CardSection>
 
-        {/* Card Familia */}
-        <div style={{ background: 'white', borderRadius: '10px', borderLeft: `4px solid ${VERDE}`, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-          <span style={{ fontSize: '9px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.6px', background: '#F0F7F4', color: VERDE, padding: '3px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '10px' }}>Familia y beneficiarios</span>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-              <div>
-                <label style={DS.label}>Cónyuge / concubino <Tip id="conyuge" /></label>
-                <select value={datos.tiene_conyuge ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, tiene_conyuge: e.target.value === 'si' }))} style={DS.select}>
+        <CardSection tipo="imss" title="Familia y beneficiarios">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <Field label="Cónyuge / concubino" tipo="manual">
+                <select value={datos.tiene_conyuge ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, tiene_conyuge: e.target.value === 'si' }))} style={inputBase('manual')}>
                   <option value="no">✕ No</option>
                   <option value="si">✓ Sí</option>
                 </select>
-              </div>
-              <div>
-                <label style={DS.label}>Hijos {'<'} 16 años <Tip id="numHijos" /></label>
-                <select value={datos.num_hijos} onChange={e => setDatos(p => ({ ...p, num_hijos: parseInt(e.target.value) }))} style={DS.select}>
+              </Field>
+              <Field label="Hijos menores 16" tipo="manual">
+                <select value={datos.num_hijos} onChange={e => setDatos(p => ({ ...p, num_hijos: parseInt(e.target.value) }))} style={inputBase('manual')}>
                   {[0,1,2,3,4,5].map(n => <option key={n} value={n}>{n} {n === 0 ? '(ninguno)' : n === 1 ? 'hijo' : 'hijos'}</option>)}
                 </select>
-              </div>
+              </Field>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-              <div>
-                <label style={DS.label}>Padres dependientes <Tip id="numPadres" /></label>
-                <select value={datos.num_padres} onChange={e => setDatos(p => ({ ...p, num_padres: parseInt(e.target.value) }))} style={DS.select}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <Field label="Padres dependientes" tipo="manual">
+                <select value={datos.num_padres} onChange={e => setDatos(p => ({ ...p, num_padres: parseInt(e.target.value) }))} style={inputBase('manual')}>
                   {[0,1,2].map(n => <option key={n} value={n}>{n} {n === 0 ? '(ninguno)' : n === 1 ? 'padre' : 'padres'}</option>)}
                 </select>
-              </div>
-              <div>
-                <label style={DS.label}>Art. 165 Asistencial</label>
-                <div style={{ padding: '8px 10px', background: datos.tiene_ayuda_asistencial ? '#F0FDF4' : '#F8FAFC', border: `1px solid ${datos.tiene_ayuda_asistencial ? '#86EFAC' : BORDE}`, borderRadius: '7px', fontSize: '12px', fontWeight: '600', color: datos.tiene_ayuda_asistencial ? VERDE : '#94A3B8', textAlign: 'center' }}>
+              </Field>
+              <Field label="Art. 165 Asistencial" tipo="result">
+                <div style={{ ...inputBase('result'), display: 'flex', alignItems: 'center', fontSize: '12px', fontWeight: '600' }}>
                   {datos.tiene_ayuda_asistencial ? `✓ +${datos.pct_ayuda_asistencial || 0}%` : 'No aplica'}
                 </div>
-              </div>
+              </Field>
             </div>
+            {/* Resumen visual beneficiarios */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
               {[
                 { label: 'Cónyuge', value: datos.tiene_conyuge ? 'Sí' : 'No', ok: datos.tiene_conyuge },
                 { label: 'Hijos', value: String(datos.num_hijos), ok: datos.num_hijos > 0 },
                 { label: 'Padres', value: String(datos.num_padres), ok: datos.num_padres > 0 },
               ].map(({ label, value, ok }, i) => (
-                <div key={i} style={{ textAlign: 'center', padding: '8px 4px', background: ok ? '#F0F7F4' : '#F8FAFC', border: `1px solid ${ok ? '#86EFAC' : BORDE}`, borderRadius: '6px' }}>
+                <div key={i} style={{ textAlign: 'center' as const, padding: '8px 4px', background: ok ? '#F0F7F4' : '#F8FAFC', border: `1px solid ${ok ? '#86EFAC' : BORDE}`, borderRadius: '8px' }}>
                   <div style={{ fontSize: '18px', fontWeight: '800', color: ok ? VERDE : '#9CA3AF' }}>{value}</div>
-                  <div style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.3px' }}>{label}</div>
+                  <div style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.3px' }}>{label}</div>
                 </div>
               ))}
             </div>
           </div>
-        </div>
+        </CardSection>
       </div>
 
-      {/* Card SDI 250 semanas */}
-      <div style={{ background: 'white', borderRadius: '10px', borderLeft: `4px solid ${NARANJA}`, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-          <span style={{ fontSize: '9px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.6px', background: '#FFF7ED', color: '#B45309', padding: '3px 8px', borderRadius: '4px' }}>SDI promedio 250 semanas</span>
+      {/* ── SDI 250 semanas ── */}
+      <CardSection tipo="result" title="SDI promedio · últimas 250 semanas">
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '10px' }}>
+          <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>Art. 167 LSS 1973 — Base real del cálculo de pensión</p>
           <div style={{ display: 'flex', gap: '6px' }}>
-            <button onClick={() => setShowDetalle250(true)} style={{ padding: '4px 10px', background: '#EEF2F8', color: AZUL, border: `1px solid #BFDBFE`, borderRadius: '5px', fontSize: '10px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>Ver 250 sem.</button>
-            <button onClick={() => setShowHistorialCompleto(true)} style={{ padding: '4px 10px', background: '#F0FDF4', color: '#065F46', border: '1px solid #86EFAC', borderRadius: '5px', fontSize: '10px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>Historial ({periodosCompletos.length})</button>
+            <button onClick={() => setShowDetalle250(true)} style={{ padding: '5px 10px', background: '#EEF2F8', color: AZUL, border: `1px solid #BFDBFE`, borderRadius: '6px', fontSize: '10px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>Ver 250 sem.</button>
+            <button onClick={() => setShowHistorialCompleto(true)} style={{ padding: '5px 10px', background: '#F0FDF4', color: '#065F46', border: '1px solid #86EFAC', borderRadius: '6px', fontSize: '10px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>Historial ({periodosCompletos.length})</button>
           </div>
         </div>
         {periodos.length === 0 ? (
-          <div style={{ padding: '20px', textAlign: 'center', color: '#94A3B8', background: '#F9FAFB', border: '1px dashed #E5E7EB', borderRadius: '8px' }}>
+          <div style={{ padding: '24px', textAlign: 'center' as const, color: '#94A3B8', background: '#F9FAFB', border: '1px dashed #E5E7EB', borderRadius: '8px' }}>
             <p style={{ fontSize: '13px', margin: 0 }}>Carga la constancia IMSS para ver el cálculo del SDI</p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px', alignItems: 'start' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 140px', gap: '12px', alignItems: 'start' }}>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '11px' }}>
                 <thead>
                   <tr style={{ background: AZUL }}>
                     {['Período','Sem.','SDI diario','Peso'].map((h,i) => (
-                      <th key={i} style={{ ...DS.tHead, textAlign: i > 0 ? 'right' : 'left' as any }}>{h}</th>
+                      <th key={i} style={{ padding: '7px 10px', color: 'white', fontSize: '10px', fontWeight: '600', textAlign: i > 0 ? 'right' as const : 'left' as const }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {periodos.map((p: any, i: number) => (
-                    <tr key={i} style={{ background: i === 0 ? '#FFFBEB' : i % 2 === 0 ? 'white' : '#F9FAFB' }}>
-                      <td style={DS.tCell}>{p.fecha_inicio?.slice(0,7)} → {p.fecha_fin?.slice(0,7)}</td>
-                      <td style={DS.tCellR}>{p.semanas}</td>
-                      <td style={DS.tCellBold}>{fmtMXN2(p.sdi)}</td>
-                      <td style={DS.tCellR}>{p.peso.toFixed(1)}%</td>
+                    <tr key={i} style={{ background: i === 0 ? '#FFFBEB' : i % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
+                      <td style={{ padding: '7px 10px', fontSize: '11px', color: '#374151' }}>{p.fecha_inicio?.slice(0,7)} → {p.fecha_fin?.slice(0,7)}</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right' as const, fontSize: '11px' }}>{p.semanas}</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right' as const, fontWeight: '700', color: '#B45309' }}>{fmtMXN2(p.sdi)}</td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right' as const, color: '#64748B', fontSize: '11px' }}>{p.peso.toFixed(1)}%</td>
                     </tr>
                   ))}
                   <tr style={{ background: AZUL }}>
-                    <td style={{ padding: '8px 10px', color: 'white', fontWeight: '700', fontSize: '11px' }}>Promedio ponderado</td>
-                    <td style={{ padding: '8px 10px', color: 'white', fontWeight: '700', textAlign: 'right', fontSize: '11px' }}>{periodos.reduce((s: number, p: any) => s + p.semanas, 0)}</td>
-                    <td style={{ padding: '8px 10px', color: '#FCD34D', fontWeight: '900', textAlign: 'right', fontSize: '14px' }}>{fmtMXN2(sdiPromedio)}</td>
-                    <td style={{ padding: '8px 10px', color: 'white', fontWeight: '700', textAlign: 'right', fontSize: '11px' }}>100%</td>
+                    <td style={{ padding: '8px 10px', color: 'white', fontWeight: '600', fontSize: '11px' }}>Promedio ponderado</td>
+                    <td style={{ padding: '8px 10px', color: 'white', fontWeight: '600', textAlign: 'right' as const, fontSize: '11px' }}>{periodos.reduce((s: number, p: any) => s + p.semanas, 0)}</td>
+                    <td style={{ padding: '8px 10px', color: '#FCD34D', fontWeight: '800', textAlign: 'right' as const, fontSize: '15px' }}>{fmtMXN2(sdiPromedio)}</td>
+                    <td style={{ padding: '8px 10px', color: 'white', fontWeight: '600', textAlign: 'right' as const, fontSize: '11px' }}>100%</td>
                   </tr>
                 </tbody>
               </table>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: '140px' }}>
-              <div style={{ padding: '10px', background: '#FFFBEB', border: '2px solid #FCD34D', borderRadius: '8px', textAlign: 'center' }}>
-                <div style={{ fontSize: '9px', color: '#94A3B8', marginBottom: '3px', textTransform: 'uppercase' }}>SDI diario</div>
-                <div style={{ fontSize: '18px', fontWeight: '900', color: '#92400E' }}>{fmtMXN2(sdiPromedio)}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div style={{ padding: '10px', background: SEM.result.bg, border: `1.5px solid ${SEM.result.border}`, borderRadius: '8px', textAlign: 'center' as const }}>
+                <div style={{ fontSize: '9px', color: SEM.result.text, textTransform: 'uppercase' as const, marginBottom: '3px', opacity: 0.7 }}>SDI diario</div>
+                <div style={{ fontSize: '20px', fontWeight: '800', color: MORADO }}>{fmtMXN2(sdiPromedio)}</div>
               </div>
-              <div style={{ padding: '10px', background: '#EEF2F8', border: `1px solid #BFDBFE`, borderRadius: '8px', textAlign: 'center' }}>
-                <div style={{ fontSize: '9px', color: '#94A3B8', marginBottom: '3px', textTransform: 'uppercase' }}>SDI mensual</div>
-                <div style={{ fontSize: '15px', fontWeight: '800', color: AZUL }}>{fmtMXN(sdiPromedio * 30.4167)}</div>
+              <div style={{ padding: '10px', background: SEM.imss.bg, border: `1px solid ${SEM.imss.border}22`, borderRadius: '8px', textAlign: 'center' as const }}>
+                <div style={{ fontSize: '9px', color: AZUL, textTransform: 'uppercase' as const, marginBottom: '3px', opacity: 0.7 }}>SDI mensual</div>
+                <div style={{ fontSize: '15px', fontWeight: '700', color: AZUL }}>{fmtMXN(sdiPromedio * 30.4167)}</div>
               </div>
             </div>
           </div>
         )}
-      </div>
+      </CardSection>
 
-      {/* Perfil del pensionado si hay escenario */}
+      {/* ── Perfil del pensionado (si hay escenario) ── */}
       {escRec && escRec.mod40_meses > 0 && (
-        <div style={{ background: 'white', borderRadius: '10px', borderLeft: '4px solid #7C3AED', padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-          <span style={{ fontSize: '9px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.6px', background: '#F5F3FF', color: '#7C3AED', padding: '3px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '10px' }}>Perfil del pensionado — escenario recomendado</span>
+        <CardSection tipo="strategy" title="Perfil del pensionado — escenario recomendado">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
             {[
               { label: 'Edad de retiro', value: escRec.edad_retiro?.toFixed(1) + ' años', color: AZUL },
               { label: 'Semanas finales', value: Math.round(escRec.semanas_finales || 0).toLocaleString(), color: (escRec.semanas_finales || 0) >= 500 ? VERDE : '#DC2626' },
-              { label: 'Nuevo SDI prom.', value: fmtMXN2(escRec.nuevo_sdi_250), color: '#92400E' },
-              { label: 'Duración Mod. 40', value: `${escRec.mod40_meses} meses`, color: '#7C3AED' },
+              { label: 'Nuevo SDI prom.', value: fmtMXN2(escRec.nuevo_sdi_250), color: MORADO },
+              { label: 'Duración Mod. 40', value: `${escRec.mod40_meses} meses`, color: VERDE },
             ].map((k, i) => (
-              <div key={i} style={{ padding: '10px', background: '#F8FAFC', border: `1px solid ${BORDE}`, borderRadius: '8px', textAlign: 'center' }}>
-                <div style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '4px' }}>{k.label}</div>
+              <div key={i} style={{ padding: '10px', background: SEM.strategy.bg, border: `1px solid ${SEM.strategy.border}33`, borderRadius: '8px', textAlign: 'center' as const }}>
+                <div style={{ fontSize: '9px', color: SEM.strategy.text, textTransform: 'uppercase' as const, letterSpacing: '0.4px', marginBottom: '4px', opacity: 0.7 }}>{k.label}</div>
                 <div style={{ fontSize: '15px', fontWeight: '800', color: k.color }}>{k.value}</div>
               </div>
             ))}
           </div>
-        </div>
+        </CardSection>
       )}
 
       {/* Siguiente */}
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <button onClick={() => setTab(1)} style={{ padding: '9px 20px', background: AZUL, color: 'white', border: 'none', borderRadius: '7px', cursor: 'pointer', fontSize: '12px', fontWeight: '700', fontFamily: 'inherit' }}>
-          Cuantías anuales →
+        <button onClick={() => setTab(1)} style={{ padding: '10px 22px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: '700', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          Cuantías anuales <i className="ti ti-arrow-right" style={{ fontSize: '14px' }} />
         </button>
       </div>
     </div>
