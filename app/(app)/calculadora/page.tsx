@@ -5,6 +5,8 @@ import { createClient } from '@/utils/supabase/client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { pdf } from '@react-pdf/renderer'
 import { DiagnosticoPDF } from '@/app/utils/DiagnosticoPDF'
+import TabCliente from './components/TabCliente'
+import TabEntregable from './components/TabEntregable'
 
 const AZUL = '#334E7B'
 const AZUL_DARK = '#1E3A5F'
@@ -852,7 +854,8 @@ function CalculadoraInner() {
   const [modoAnalisis, setModoAnalisis] = useState<'manual' | 'ia'>('manual')
   const [generandoAnalisis, setGenerandoAnalisis] = useState(false)
   const [guardando, setGuardando] = useState(false)
-  const [menuAbierto, setMenuAbierto] = useState<number | null>(null)
+  const [menuAbierto, setMenuAbierto] = useState(null as number | null)
+  const [subTabEntregable, setSubTabEntregable] = useState('analisis')
   const [mensaje, setMensaje] = useState('')
   const [asesorPerfil, setAsesorPerfil] = useState<{razon_social?: string; nombre?: string; logo_url?: string; encabezado_color?: string; encabezado_titulo?: string; encabezado_logo_size?: number; encabezado_font_size?: number} | null>(null)
 
@@ -2816,308 +2819,29 @@ function CalculadoraInner() {
               </div>
             )}
 
-        {/* ══ TAB 0: DATOS GENERALES ══════════════════════════════════ */}
-        {tab === 0 && (() => {
-          const sem = datos.semanas_totales - datos.semanas_descontadas
-          const semFaltantes = Math.max(0, 500 - sem)
-          const fechaTramite = datos.fecha_nacimiento ? (() => {
-            const d = new Date(datos.fecha_nacimiento)
-            d.setFullYear(d.getFullYear() + (datos.edad_min_pension || 60))
-            return d.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })
-          })() : '—'
-          const totalSemCot = escenarios.find(e => e.recomendado)?.semanas_finales?.toFixed(0) ?? sem.toFixed(0)
-          return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-
-              {/* Indicadores rápidos — estado del expediente */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px' }}>
-                {[
-                  { label: 'Semanas netas', value: sem > 0 ? sem.toLocaleString() : '—', sub: 'cotizadas', color: sem >= 500 ? '#065F46' : '#334E7B', bg: sem >= 500 ? '#F0FDF4' : '#EEF2F8', border: sem >= 500 ? '#86EFAC' : '#334E7B' },
-                  { label: 'Semanas faltantes', value: semFaltantes === 0 ? '✓ 0' : semFaltantes.toLocaleString(), sub: 'para 500 sem.', color: semFaltantes === 0 ? '#065F46' : semFaltantes < 100 ? '#92400E' : '#DC2626', bg: semFaltantes === 0 ? '#F0FDF4' : '#FEF2F2', border: semFaltantes === 0 ? '#86EFAC' : '#FCA5A5' },
-                  { label: 'SDI promedio', value: sdiPromedio > 0 ? fmtMXN2(sdiPromedio) : '—', sub: '250 semanas', color: '#92400E', bg: '#FFFBEB', border: '#FCD34D' },
-                  { label: 'Fecha del trámite', value: fechaTramite, sub: 'estimada', color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
-                ].map((k, i) => (
-                  <div key={i} style={{ background: k.bg, border: '2px solid ' + k.border, padding: '12px 14px', textAlign: 'center' as const }}>
-                    <div style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' as const, marginBottom: '5px' }}>{k.label}</div>
-                    <div style={{ fontSize: '18px', fontWeight: '800' as const, color: k.color, letterSpacing: '-0.5px', marginBottom: '2px' }}>{k.value}</div>
-                    <div style={{ fontSize: '10px', color: '#94A3B8' }}>{k.sub}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Ficha técnica — layout 2 columnas */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-
-                {/* Columna 1: Datos de cotización */}
-                <div style={DS.card}>
-                  <p style={DS.secTitle}>📋 Parámetros de Retiro</p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <div>
-                      <label style={DS.label}>Fecha de cálculo del proyecto</label>
-                      <input type="date" value={datos.fecha_calculo} onChange={e => setDatos(p => ({ ...p, fecha_calculo: e.target.value }))} style={DS.input} />
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                      <div>
-                        <label style={DS.label}>¿Seguirás cotizando? <Tip id="sigueCotizando" /></label>
-                        <select value={datos.sigue_cotizando ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, sigue_cotizando: e.target.value === 'si' }))} style={DS.select}>
-                          <option value="si">✓ Sí</option>
-                          <option value="no">✕ No</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label style={DS.label}>Edad de pensión <Tip id="factorEdad" /></label>
-                        <select value={datos.edad_min_pension || 60} onChange={e => { const v = parseInt(e.target.value); setDatos(p => ({ ...p, edad_min_pension: v })); setEdadRetiro(v) }} style={DS.select}>
-                          {[60,61,62,63,64,65].map(a => <option key={a} value={a}>{a} años — {75+(a-60)*5}%{a===65?' (Vejez)':''}</option>)}
-                        </select>
-                        {(datos.edad_actual || 0) < 60 && (
-                          <p style={{ fontSize: '11px', color: '#D97706', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '4px', padding: '4px 8px', margin: '4px 0 0' }}>
-                            ⚠️ El cliente tiene {Math.floor(datos.edad_actual || 0)} años. La edad mínima legal para pensionarse es 60 (cesantía). Los cálculos se hacen a partir de los 60 años.
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <div>
-                      <label style={DS.label}>Ingreso objetivo / mes <Tip id="ingresoObjetivo" /></label>
-                      <input
-                        type="number"
-                        value={ingresoObjetivo || ''}
-                        onChange={e => setIngresoObjetivo(Number(e.target.value) || 0)}
-                        placeholder="Ej. 25,000"
-                        style={{ ...DS.input, fontWeight: '700' as const, color: '#E8724A' }}
-                      />
-                    </div>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                      <div>
-                        <label style={DS.label}>Cónyuge / concubino <Tip id="conyuge" /></label>
-                        <select value={datos.tiene_conyuge ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, tiene_conyuge: e.target.value === 'si' }))} style={DS.select}>
-                          <option value="no">✕ No</option>
-                          <option value="si">✓ Sí</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label style={DS.label}>Hijos menores 16 años <Tip id="numHijos" /></label>
-                        <select value={datos.num_hijos} onChange={e => setDatos(p => ({ ...p, num_hijos: parseInt(e.target.value) }))} style={DS.select}>
-                          {[0,1,2,3,4,5].map(n => <option key={n} value={n}>{n} {n === 0 ? '(ninguno)' : n === 1 ? 'hijo' : 'hijos'}</option>)}
-                        </select>
-                      </div>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                      <div>
-                        <label style={DS.label}>Padres dependientes <Tip id="numPadres" /></label>
-                        <select value={datos.num_padres} onChange={e => setDatos(p => ({ ...p, num_padres: parseInt(e.target.value) }))} style={DS.select}>
-                          {[0,1,2].map(n => <option key={n} value={n}>{n} {n === 0 ? '(ninguno)' : n === 1 ? 'padre' : 'padres'}</option>)}
-                        </select>
-                      </div>
-                      <div>
-                        {/* ── Ayuda Asistencial — derivada automáticamente de beneficiarios ── */}
-                        {(() => {
-                          const sinBenef = !datos.tiene_conyuge && datos.num_hijos === 0 && datos.num_padres === 0
-                          const soloUnPadre = !datos.tiene_conyuge && datos.num_hijos === 0 && datos.num_padres === 1
-                          const pctEsperado = sinBenef ? 15 : soloUnPadre ? 10 : 0
-                          const alertaPendiente = pctEsperado > 0 && !datos.tiene_ayuda_asistencial
-                          const noAplica = pctEsperado === 0
-
-                          return (
-                            <>
-                              <label style={{ ...DS.label, color: alertaPendiente ? '#C2410C' : noAplica ? '#9CA3AF' : DS.label.color }}>
-                                Ayuda asistencial (Art. 165)
-                                {pctEsperado > 0 && (
-                                  <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, background: '#FFF7ED', color: '#C2410C', border: '1px solid #FED7AA', borderRadius: 4, padding: '1px 5px' }}>
-                                    {pctEsperado}% disponible
-                                  </span>
-                                )}
-                              </label>
-
-                              {/* Campo deshabilitado visualmente si no aplica */}
-                              <select
-                                value={datos.tiene_ayuda_asistencial ? 'si' : 'no'}
-                                onChange={e => setDatos(p => ({ ...p, tiene_ayuda_asistencial: e.target.value === 'si' }))}
-                                disabled={noAplica}
-                                style={{
-                                  ...DS.select,
-                                  opacity: noAplica ? 0.45 : 1,
-                                  cursor: noAplica ? 'not-allowed' : 'pointer',
-                                  borderColor: alertaPendiente ? '#F97316' : noAplica ? '#E5E7EB' : DS.select?.borderColor,
-                                  background: alertaPendiente ? '#FFF7ED' : noAplica ? '#F9FAFB' : undefined,
-                                }}
-                              >
-                                <option value="no">{noAplica ? '— No aplica (tiene beneficiarios)' : '✕ No confirmada'}</option>
-                                <option value="si">✓ Confirmada y aplica</option>
-                              </select>
-
-                              {/* Alerta cuando aplica pero el asesor aún no la confirmó */}
-                              {alertaPendiente && (
-                                <div style={{
-                                  marginTop: 6, padding: '8px 10px', background: '#FFF7ED',
-                                  border: '1px solid #FED7AA', borderLeft: '3px solid #F97316',
-                                  borderRadius: 4, display: 'flex', alignItems: 'flex-start', gap: 6,
-                                }}>
-                                  <span style={{ fontSize: 14, flexShrink: 0 }}>⚠️</span>
-                                  <div>
-                                    <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: '#C2410C' }}>
-                                      Posible beneficio no capturado
-                                    </p>
-                                    <p style={{ margin: '2px 0 0', fontSize: 11, color: '#9A3412', lineHeight: 1.4 }}>
-                                      {sinBenef
-                                        ? 'El cliente no tiene beneficiarios → puede recibir Ayuda Asistencial del 15% (Art. 165 LSS). Confírmala si aplica.'
-                                        : 'Tiene solo 1 padre dependiente → puede recibir Ayuda Asistencial del 10% (Art. 165 LSS). Confírmala si aplica.'
-                                      }
-                                    </p>
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* Confirmación positiva cuando sí está marcada */}
-                              {datos.tiene_ayuda_asistencial && pctEsperado > 0 && (
-                                <div style={{
-                                  marginTop: 6, padding: '6px 10px', background: '#F0FDF4',
-                                  border: '1px solid #86EFAC', borderRadius: 4,
-                                  fontSize: 11, color: '#065F46', display: 'flex', alignItems: 'center', gap: 5,
-                                }}>
-                                  <span>✅</span>
-                                  <span>Ayuda asistencial del <strong>{pctEsperado}%</strong> incluida en el cálculo</span>
-                                </div>
-                              )}
-                            </>
-                          )
-                        })()}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Columna 2: Datos calculados automáticamente */}
-                <div style={DS.card}>
-                  <p style={DS.secTitle}>⚙️ Datos Calculados Automáticamente</p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {[
-                      { label: 'Semanas restantes por cotizar', value: semFaltantes === 0 ? '✓ Completo (≥ 500)' : semFaltantes + ' semanas', highlight: semFaltantes === 0 },
-                      { label: 'Fecha estimada del trámite', value: fechaTramite, highlight: false },
-                      { label: 'Total semanas para el cálculo', value: totalSemCot + ' semanas', highlight: false },
-                    ].map(({ label, value, highlight }, i) => (
-                      <div key={i} style={{ padding: '10px 12px', background: highlight ? '#F0FDF4' : '#F9FAFB', border: '1px solid ' + (highlight ? '#86EFAC' : '#E5E7EB'), display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '12px', color: '#64748B' }}>{label}</span>
-                        <span style={{ fontSize: '13px', fontWeight: '700' as const, color: highlight ? '#065F46' : '#374151' }}>{value}</span>
-                      </div>
-                    ))}
-                    {/* Vigencia visual */}
-                    <div style={{ padding: '12px', background: conservacion.vigente ? '#F0FDF4' : '#FEF2F2', border: '2px solid ' + (conservacion.vigente ? '#86EFAC' : '#FCA5A5'), textAlign: 'center' as const }}>
-                      <div style={{ fontSize: '22px', fontWeight: '900' as const, color: conservacion.vigente ? '#065F46' : '#DC2626', marginBottom: '2px' }}>
-                        {datos.semanas_totales > 0 ? (conservacion.vigente ? '✓ Derechos Vigentes' : '✕ Derechos Vencidos') : '—'}
-                      </div>
-                      <div style={{ fontSize: '11px', color: '#94A3B8' }}>
-                        {datos.semanas_totales > 0 ? (conservacion.vigente ? 'Puede tramitar su pensión' : 'Requiere verificación con IMSS') : 'Carga la constancia IMSS'}
-                      </div>
-                    </div>
-                    {/* SDI destacado */}
-                    {sdiPromedio > 0 && (
-                      <div style={{ padding: '12px', background: '#FFFBEB', border: '2px solid #FCD34D', textAlign: 'center' as const }}>
-                        <div style={{ fontSize: '10px', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' as const, marginBottom: '4px' }}>SDI Promedio — Base oficial de la pensión <Tip id="sdi250" /></div>
-                        <div style={{ fontSize: '26px', fontWeight: '900' as const, color: '#92400E', letterSpacing: '-1px' }}>{fmtMXN2(sdiPromedio)}</div>
-                        <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>Equivalente mensual: {fmtMXN(sdiPromedio * 30.4167)}</div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Tabla 250 semanas */}
-              <div style={DS.card}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-                  <div>
-                    <p style={{ fontSize: '13px', fontWeight: '700' as const, color: '#111827', margin: '0 0 3px' }}>📊 Salario Promedio de las Últimas 250 Semanas Cotizadas</p>
-                    <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>Art. 167 LSS 1973 — Base real del cálculo de pensión, no el salario actual</p>
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                    <button onClick={() => setShowDetalle250(true)} style={{ padding: '5px 10px', background: '#EEF2F8', color: '#334E7B', border: '1px solid #BFDBFE', fontSize: '11px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
-                      Ver 250 sem.
-                    </button>
-                    <button onClick={() => setShowHistorialCompleto(true)} style={{ padding: '5px 10px', background: '#F0FDF4', color: '#065F46', border: '1px solid #86EFAC', fontSize: '11px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
-                      Historial ({periodosCompletos.length})
-                    </button>
-                  </div>
-                </div>
-                {periodos.length === 0 ? (
-                  <div style={{ padding: '24px', textAlign: 'center' as const, color: '#94A3B8', background: '#F9FAFB', border: '1px dashed #E5E7EB' }}>
-                    <div style={{ fontSize: '32px', marginBottom: '8px' }}>📄</div>
-                    <p style={{ fontSize: '13px', margin: 0 }}>Carga la constancia IMSS para ver el cálculo del SDI</p>
-                  </div>
-                ) : (
-                  <>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', marginBottom: '12px' }}>
-                      <thead>
-                        <tr style={{ background: '#334E7B' }}>
-                          {['PERÍODO', 'SEMANAS', 'SDI DIARIO', 'SDI MENSUAL', 'PESO'].map((h, i) => (
-                            <th key={i} style={{ ...DS.tHead, textAlign: i === 0 ? 'left' : 'right' as const, padding: '9px 12px' }}>{h}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {periodos.map((p, i) => {
-                          const isRecent = i === 0
-                          return (
-                            <tr key={i} style={{ background: isRecent ? '#FFFBEB' : i % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
-                              <td style={{ padding: '8px 12px', color: '#374151', fontWeight: isRecent ? '600' : '400' }}>{p.fecha_inicio?.slice(0,7)} → {p.fecha_fin?.slice(0,7)}</td>
-                              <td style={{ padding: '8px 12px', textAlign: 'right' as const, fontWeight: '600' as const }}>{p.semanas}</td>
-                              <td style={{ padding: '8px 12px', textAlign: 'right' as const, fontWeight: '800' as const, color: '#D95B00', fontSize: '13px' }}>{fmtMXN2(p.sdi)}</td>
-                              <td style={{ padding: '8px 12px', textAlign: 'right' as const, color: '#374151' }}>{fmtMXN(p.sdi * 30.4167)}</td>
-                              <td style={{ padding: '8px 12px', textAlign: 'right' as const }}>
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
-                                  <div style={{ width: '40px', height: '6px', background: '#F3F4F6', borderRadius: '3px', overflow: 'hidden' }}>
-                                    <div style={{ height: '100%', width: p.peso + '%', background: '#334E7B', borderRadius: '3px' }} />
-                                  </div>
-                                  <span style={{ fontSize: '11px', color: '#94A3B8', minWidth: '32px' }}>{p.peso.toFixed(1)}%</span>
-                                </div>
-                              </td>
-                            </tr>
-                          )
-                        })}
-                        <tr style={{ background: '#334E7B' }}>
-                          <td style={{ padding: '10px 12px', color: 'white', fontWeight: '700' as const }}>Promedio ponderado</td>
-                          <td style={{ padding: '10px 12px', textAlign: 'right' as const, color: 'white', fontWeight: '700' as const }}>{periodos.reduce((s, p) => s + p.semanas, 0)}</td>
-                          <td style={{ padding: '10px 12px', textAlign: 'right' as const, color: '#FCD34D', fontWeight: '900' as const, fontSize: '16px' }}>{fmtMXN2(sdiPromedio)}</td>
-                          <td style={{ padding: '10px 12px', textAlign: 'right' as const, color: 'white', fontWeight: '700' as const }}>{fmtMXN(sdiPromedio * 30.4167)}</td>
-                          <td style={{ padding: '10px 12px', textAlign: 'right' as const, color: 'white', fontWeight: '700' as const }}>100%</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                    {/* 3 KPIs resumen */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
-                      <div style={{ padding: '12px', background: '#F9FAFB', border: '1px solid #E5E7EB', textAlign: 'center' as const }}>
-                        <div style={{ fontSize: '9.5px', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' as const, marginBottom: '4px' }}>Período cubierto</div>
-                        <div style={{ fontSize: '13px', fontWeight: '700' as const, color: '#374151' }}>
-                          {periodos.length > 0 ? periodos[0]?.fecha_inicio?.slice(0,7) + ' → ' + periodos[periodos.length-1]?.fecha_fin?.slice(0,7) : '—'}
-                        </div>
-                        <div style={{ fontSize: '10.5px', color: '#94A3B8', marginTop: '2px' }}>250 semanas hacia atrás</div>
-                      </div>
-                      <div style={{ padding: '12px', background: '#FFFBEB', border: '2px solid #FCD34D', textAlign: 'center' as const }}>
-                        <div style={{ fontSize: '9.5px', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' as const, marginBottom: '4px' }}>SDI Promedio 250 sem.<Tip id="sdi250" /></div>
-                        <div style={{ fontSize: '22px', fontWeight: '900' as const, color: '#92400E', letterSpacing: '-1px' }}>{fmtMXN2(sdiPromedio)}</div>
-                        <div style={{ fontSize: '10.5px', color: '#94A3B8', marginTop: '2px' }}>Base oficial de la pensión</div>
-                      </div>
-                      <div style={{ padding: '12px', background: '#EEF2F8', border: '1px solid #BFDBFE', textAlign: 'center' as const }}>
-                        <div style={{ fontSize: '9.5px', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' as const, marginBottom: '4px' }}>SDI Mensual equivalente</div>
-                        <div style={{ fontSize: '20px', fontWeight: '900' as const, color: '#334E7B', letterSpacing: '-0.5px' }}>{fmtMXN(sdiPromedio * 30.4167)}</div>
-                        <div style={{ fontSize: '10.5px', color: '#94A3B8', marginTop: '2px' }}>× 30.4 días</div>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Siguiente */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
-                <button onClick={() => setTab(1)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 22px', background: '#334E7B', color: 'white', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit' }}>
-                  Cuantías Anuales →
-                </button>
-              </div>
-            </div>
-          )
-        })()}
+        {/* ══ TAB 0: DATOS Y PERFIL — componente externo ══ */}
+        {tab === 0 && (
+          <TabCliente
+            datos={datos}
+            setDatos={setDatos}
+            ingresoObjetivo={ingresoObjetivo}
+            setIngresoObjetivo={setIngresoObjetivo}
+            setEdadRetiro={setEdadRetiro}
+            sdiPromedio={sdiPromedio}
+            periodos={periodos}
+            periodosCompletos={periodosCompletos}
+            conservacion={conservacion}
+            escenarios={escenarios}
+            clientes={clientes}
+            clienteId={clienteId}
+            setShowDetalle250={setShowDetalle250}
+            setShowHistorialCompleto={setShowHistorialCompleto}
+            Tip={Tip}
+            setTab={setTab}
+          />
+        )}
 
 
-        {/* Análisis de IA — visible en tab 0 */}
         {tab === 1 && (() => {
           const semBase = datos.semanas_totales - datos.semanas_descontadas
           const edadRet = datos.edad_min_pension || 60
@@ -4370,15 +4094,13 @@ function CalculadoraInner() {
           )
         })()}
 
-        {/* ══ TAB 11: RESUMEN ══════════════════════════════════════════ */}
+        {/* ══ TAB 11: EL ENTREGABLE — componente externo ══ */}
         {tab === 11 && (() => {
           const escsConMod40 = escenarios.filter(e => e.mod40_meses > 0).slice(0, 3)
           const escRec = escsConMod40[0] ?? null
-          return (
+          const resumenNode = (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-
-              {/* Header ejecutivo */}
-              <div style={{ background: '#334E7B', padding: '18px 20px' }}>
+              <div style={{ background: AZUL, padding: '16px 20px', borderRadius: '8px' }}>
                 <p style={{ fontSize: '14px', fontWeight: '800' as const, color: 'white', margin: '0 0 4px' }}>Resumen Ejecutivo — Proyecto de Pensión con Modalidad 40</p>
                 <div style={{ display: 'flex', gap: '20px', fontSize: '11px', color: '#93C5FD' }}>
                   <span>{datos.nombre_trabajador || 'Trabajador'}</span>
@@ -4387,262 +4109,72 @@ function CalculadoraInner() {
                   {escRec && <span>{escsConMod40.length} escenario{escsConMod40.length > 1 ? 's' : ''} analizados</span>}
                 </div>
               </div>
-
               {escsConMod40.length === 0 ? (
-                <div style={DS.card}>
-                  <div style={{ textAlign: 'center' as const, padding: '40px', color: '#94A3B8' }}>
-                    <div style={{ fontSize: '48px', marginBottom: '12px' }}>📋</div>
-                    <p style={{ fontSize: '14px' }}>Configura al menos un escenario de Modalidad 40 para ver el resumen.</p>
-                  </div>
+                <div style={{ padding: '40px', textAlign: 'center' as const, color: '#94A3B8' }}>
+                  <p>Completa los escenarios en La pensión para ver el resumen.</p>
                 </div>
               ) : (
-                <>
-                  {/* KPIs top — el mejor escenario */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px' }}>
-                    {[
-                      { label: 'Pensión sin Mod. 40', value: fmtMXN2(escenarios[0]?.pension_base ?? 0), sub: 'situación actual', color: '#94A3B8', bg: '#F9FAFB', border: '#E5E7EB' },
-                      { label: 'Pensión con Mod. 40', value: fmtMXN2(escRec?.pension_mensual ?? 0), sub: 'escenario recomendado', color: '#334E7B', bg: '#EEF2F8', border: '#334E7B' },
-                      { label: 'Inversión neta', value: fmtMXN2(escRec?.inversion_neta ?? 0), sub: 'descontando AFORE', color: '#92400E', bg: '#FFFBEB', border: '#FCD34D' },
-                      { label: 'Ganancia a 80 años', value: fmtMXN2(escRec?.ganancia_a80 ?? 0), sub: 'ganancia total', color: '#065F46', bg: '#F0FDF4', border: '#86EFAC' },
-                    ].map((k, i) => (
-                      <div key={i} style={{ background: k.bg, border: '2px solid ' + k.border, padding: '14px', textAlign: 'center' as const }}>
-                        <div style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' as const, marginBottom: '5px' }}>{k.label}</div>
-                        <div style={{ fontSize: '18px', fontWeight: '900' as const, color: k.color, letterSpacing: '-0.5px', marginBottom: '2px' }}>{k.value}</div>
-                        <div style={{ fontSize: '10px', color: '#94A3B8' }}>{k.sub}</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                  {escsConMod40.map((esc: any, i: number) => (
+                    <div key={i} style={{ background: esc.recomendado ? VERDE : 'white', border: esc.recomendado ? 'none' : '1.5px solid #E2E8F0', borderRadius: '10px', padding: '14px', textAlign: 'center' as const, boxShadow: esc.recomendado ? '0 4px 12px rgba(46,125,90,0.2)' : '0 1px 3px rgba(0,0,0,0.06)' }}>
+                      {esc.recomendado && <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.8)', marginBottom: '6px', fontWeight: '600' as const }}>⭐ RECOMENDADO</div>}
+                      <div style={{ fontSize: '11px', color: esc.recomendado ? 'rgba(255,255,255,0.7)' : '#94A3B8', marginBottom: '4px' }}>{esc.mod40_meses} meses Mod. 40</div>
+                      <div style={{ fontSize: '24px', fontWeight: '800' as const, color: esc.recomendado ? 'white' : AZUL, letterSpacing: '-0.5px' }}>
+                        {fmtMXN(esc.pension_mensual)}
                       </div>
-                    ))}
-                  </div>
-
-                  {/* 4 tablas comparativas */}
-                  {[
-                    { section: '1. Pensión y Monto Mensual', color: '#334E7B', rows: [
-                      { label: 'Fecha ingreso Mod. 40', fn: (e: any) => e.fecha_ingreso_mod40 || '—' },
-                      { label: 'Años cotizados en Mod. 40', fn: (e: any) => (e.mod40_meses / 12).toFixed(2) + ' años' },
-                      { label: 'Semanas cotizadas finales', fn: (e: any) => Math.round(e.semanas_finales).toString(), highlight: true },
-                      { label: 'Nuevo SDI promedio', fn: (e: any) => fmtMXN2(e.nuevo_sdi_250) },
-                      { label: 'Pensión mensual mejorada', fn: (e: any) => fmtMXN2(e.pension_mensual), highlight: true },
-                      { label: 'Aguinaldo anual', fn: (e: any) => fmtMXN2(e.aguinaldo_anual) },
-                    ]},
-                    { section: '2. Costo Modalidad 40', color: '#E8724A', rows: [
-                      { label: 'Costo total mes a mes', fn: (e: any) => fmtMXN2(e.costo_total), highlight: true },
-                      { label: 'Recuperación AFORE (20%)', fn: (e: any) => fmtMXN2(e.recuperacion_afore) },
-                      { label: 'Inversión real neta', fn: (e: any) => fmtMXN2(e.inversion_neta), highlight: true },
-                      { label: 'Meses para recuperar', fn: (e: any) => (e.roi_meses != null ? e.roi_meses.toFixed(1) + ' meses' : '—') },
-                      { label: 'Ganancia a 80 años', fn: (e: any) => fmtMXN2(e.ganancia_a80), highlight: true },
-                      { label: 'Tasa de rendimiento', fn: (e: any) => (e.tasa_rendimiento != null ? e.tasa_rendimiento.toFixed(2) + '%' : '—') },
-                    ]},
-                    { section: '3. Costo Retroactivo', color: '#7C3AED', rows: [
-                      { label: 'Costo retroactivo estimado', fn: (e: any) => fmtMXN2(e.costo_retroactivo), highlight: true },
-                      { label: 'Actualizaciones INPC', fn: (e: any) => fmtMXN2(e.actualizaciones ?? 0) },
-                      { label: 'Recargos por mora', fn: (e: any) => fmtMXN2(e.recargos ?? 0) },
-                      { label: 'Recuperación AFORE retroactivo', fn: (e: any) => fmtMXN2(e.recuperacion_afore_retro) },
-                      { label: 'Inversión neta retroactiva', fn: (e: any) => fmtMXN2(e.inversion_neta_retro), highlight: true },
-                    ]},
-                    { section: '4. Financiamiento', color: '#0891B2', rows: [
-                      { label: 'Aportación banco (35.65%)', fn: (e: any) => fmtMXN2(e.aportacion_banco) },
-                      { label: 'Cuenta propia / fondeador', fn: (e: any) => fmtMXN2(e.aportacion_segundo_fondeo) },
-                      { label: 'Pago mensual crédito (60m)', fn: (e: any) => fmtMXN2(e.descuento_mensual) },
-                      { label: 'Pensión inmediata (con banco)', fn: (e: any) => fmtMXN2(e.pension_inmediata), highlight: true },
-                      { label: 'Pensión al liquidar banco', fn: (e: any) => fmtMXN2(e.pension_al_liquidar) },
-                    ]},
-                  ].map(({ section, color, rows }, si) => (
-                    <div key={si} style={DS.card}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', paddingBottom: '10px', borderBottom: '2px solid #F3F4F6' }}>
-                        <div style={{ width: '4px', height: '18px', background: color }} />
-                        <span style={{ fontSize: '12px', fontWeight: '700' as const, color: '#111827', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>{section}</span>
+                      <div style={{ fontSize: '11px', color: esc.recomendado ? 'rgba(255,255,255,0.7)' : '#64748B', marginTop: '2px' }}>mensual</div>
+                      <div style={{ fontSize: '13px', fontWeight: '700' as const, color: esc.recomendado ? 'white' : '#92400E', marginTop: '8px' }}>
+                        {fmtMXN(esc.aportacion_banco || esc.costo_total || 0)}
                       </div>
-                      <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-                          <thead>
-                            <tr style={{ background: '#F4F6F9' }}>
-                              <th style={{ padding: '8px 12px', textAlign: 'left' as const, color: '#94A3B8', fontSize: '10px', fontWeight: '700' as const, textTransform: 'uppercase' as const }}>Concepto</th>
-                              <th style={{ padding: '8px 12px', textAlign: 'center' as const, color: '#94A3B8', fontSize: '10px', fontWeight: '700' as const }}>Sin Mod. 40</th>
-                              {escsConMod40.map((_, i) => (
-                                <th key={i} style={{ padding: '8px 12px', textAlign: 'center' as const, color, fontSize: '10px', fontWeight: '700' as const }}>Escenario {i + 1}</th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {rows.map((row, ri) => (
-                              <tr key={ri} style={{ background: row.highlight ? '#F8FAFF' : ri % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
-                                <td style={{ padding: '8px 12px', color: '#374151', fontWeight: row.highlight ? '600' : '400', borderLeft: row.highlight ? '3px solid ' + color : 'none' }}>{row.label}</td>
-                                <td style={{ padding: '8px 12px', textAlign: 'center' as const, color: '#94A3B8', fontStyle: 'italic', fontSize: '13px' }}>—</td>
-                                {escsConMod40.map((e, i) => (
-                                  <td key={i} style={{ padding: '8px 12px', textAlign: 'center' as const, fontWeight: row.highlight ? '800' : '600', color: row.highlight ? color : '#374151', fontSize: row.highlight ? '13px' : '12px' }}>{row.fn(e)}</td>
-                                ))}
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  ))}
-                </>
-              )}
-
-              {/* Análisis — Manual o IA */}
-              <div style={{ background: 'white', border: '1px solid #DDD6FE', borderRadius: '8px', overflow: 'hidden' }}>
-                {/* Header */}
-                <div style={{ background: '#7C3AED', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div>
-                    <p style={{ fontSize: '13px', fontWeight: '700' as const, color: 'white', margin: '0 0 2px' }}>📝 Análisis del diagnóstico</p>
-                    <p style={{ fontSize: '11px', color: '#DDD6FE', margin: 0 }}>Escríbelo tú o genera uno con Sofía IA</p>
-                  </div>
-                  <button onClick={generarAnalisisIA} disabled={generandoAnalisis || sdiPromedio <= 0}
-                    style={{ padding: '8px 14px', border: '1px solid white', fontSize: '12px', fontWeight: '700' as const, color: '#7C3AED', background: 'white', fontFamily: 'inherit', cursor: sdiPromedio > 0 ? 'pointer' : 'not-allowed', opacity: sdiPromedio > 0 ? 1 : 0.5, borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    {generandoAnalisis ? '⏳ Generando...' : '✨ Generar con Sofía IA'}
-                  </button>
-                </div>
-
-                <div style={{ padding: '14px 16px' }}>
-                  {/* Toggle manual / IA */}
-                  {analisis.length > 0 && (
-                    <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-                      <button onClick={() => setModoAnalisis('manual')}
-                        style={{ padding: '5px 14px', background: modoAnalisis === 'manual' ? '#7C3AED' : '#F5F3FF', color: modoAnalisis === 'manual' ? 'white' : '#7C3AED', border: '1px solid #DDD6FE', fontSize: '12px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
-                        ✍️ Manual
-                      </button>
-                      <button onClick={() => setModoAnalisis('ia')}
-                        style={{ padding: '5px 14px', background: modoAnalisis === 'ia' ? '#7C3AED' : '#F5F3FF', color: modoAnalisis === 'ia' ? 'white' : '#7C3AED', border: '1px solid #DDD6FE', fontSize: '12px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
-                        ✨ Sofía IA
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Modo manual — 5 secciones */}
-                  {(modoAnalisis === 'manual' || analisis.length === 0) && (
-                    <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
-                      {[
-                        { key: 'contexto', label: 'Contexto', placeholder: 'Situación general del cliente, edad, semanas cotizadas, régimen...' },
-                        { key: 'diagnostico', label: 'Diagnóstico actual', placeholder: 'Qué encontramos en su historial, SDI promedio, pensión base estimada...' },
-                        { key: 'opciones', label: 'Opciones disponibles', placeholder: 'Alternativas: Ley 73, Modalidad 40, financiamiento retroactivo...' },
-                        { key: 'recomendacion', label: 'Recomendación', placeholder: 'Qué le recomendamos y por qué, escenario sugerido...' },
-                        { key: 'proximos_pasos', label: 'Próximos pasos', placeholder: 'Acciones concretas: documentos, fechas, trámites...' },
-                      ].map(f => (
-                        <div key={f.key}>
-                          <label style={{ fontSize: '11px', fontWeight: '700' as const, color: '#5B21B6', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const, letterSpacing: '0.4px' }}>{f.label}</label>
-                          <textarea
-                            value={(analisisManualSecciones as any)[f.key]}
-                            onChange={e => setAnalisisManualSecciones(p => ({ ...p, [f.key]: e.target.value }))}
-                            placeholder={f.placeholder}
-                            rows={3}
-                            style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #DDD6FE', borderRadius: '7px', fontSize: '13px', fontFamily: 'inherit', lineHeight: 1.6, color: '#374151', resize: 'vertical' as const, boxSizing: 'border-box' as const, outline: 'none' }}
-                          />
-                        </div>
-                      ))}
-                      <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>
-                        Todos los campos son opcionales — el PDF se puede generar con solo los datos calculados
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Modo IA */}
-                  {modoAnalisis === 'ia' && analisis.length > 0 && (
-                    <div>
-                      {analisis.map((sec, i) => (
-                        <div key={i} style={{ background: '#F5F3FF', border: '1px solid #DDD6FE', borderLeft: '3px solid #7C3AED', padding: '12px 14px', marginBottom: '8px', borderRadius: '6px' }}>
-                          <p style={{ fontSize: '12px', fontWeight: '700' as const, color: '#5B21B6', margin: '0 0 6px' }}>{sec.titulo}</p>
-                          <p style={{ fontSize: '13px', color: '#1E293B', margin: 0, lineHeight: 1.7 }}>{sec.contenido}</p>
-                        </div>
-                      ))}
-                      <button onClick={() => { setModoAnalisis('manual'); setAnalisisManual(analisis.map(s => `${s.titulo}\n${s.contenido}`).join('\n\n')) }}
-                        style={{ fontSize: '12px', color: '#7C3AED', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0, marginTop: '4px' }}>
-                        ✏️ Editar manualmente
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Estado vacío */}
-                  {analisis.length === 0 && !analisisManual && (
-                    <p style={{ fontSize: '12px', color: '#94A3B8', textAlign: 'center' as const, margin: '8px 0 0' }}>
-                      Escribe el análisis arriba o usa el botón <strong>✨ Generar con Sofía IA</strong>
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Ficha técnica — parámetros usados en este cálculo */}
-              <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', padding: '12px 16px' }}>
-                <p style={{ fontSize: '10.5px', fontWeight: '700' as const, color: '#64748B', margin: '0 0 8px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
-                  🔖 Ficha técnica — Parámetros usados en este cálculo
-                </p>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
-                  {[
-                    { label: 'UMA diaria', value: fmtMXN2(sys.UMA_DIARIA) },
-                    { label: 'PMG Ley 73', value: fmtMXN2(sys.PMG_L73) },
-                    { label: '% Recup. AFORE', value: (sys.pct_afore_mod40 ?? 20) + '%' },
-                    { label: 'Tasa banco anual', value: (sys.tasa_banco_anual ?? 32.2) + '%' },
-                    { label: 'Fecha de cálculo', value: new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) },
-                  ].map((p, i) => (
-                    <div key={i}>
-                      <div style={{ fontSize: '9.5px', color: '#94A3B8' }}>{p.label}</div>
-                      <div style={{ fontSize: '12px', fontWeight: '700' as const, color: '#374151' }}>{p.value}</div>
+                      <div style={{ fontSize: '10px', color: esc.recomendado ? 'rgba(255,255,255,0.6)' : '#94A3B8' }}>inversión total</div>
                     </div>
                   ))}
                 </div>
-                <p style={{ fontSize: '10px', color: '#94A3B8', margin: '8px 0 0', lineHeight: 1.5 }}>
-                  Estos valores quedan congelados en este diagnóstico — si se actualizan en Admin Fórmulas después, este registro conserva los valores originales con que fue calculado.
-                </p>
-              </div>
-
-              {/* Cierre del flujo: exportar PDF — solo cuando todo está listo */}
-              {(() => {
-                const tieneAnalisis = (modoAnalisis === 'ia' && analisis.length > 0) || (modoAnalisis === 'manual' && Object.values(analisisManualSecciones).some(v => v.trim().length > 0))
-                const listo = !!diagGuardadoId
-                return (
-                <div style={{ background: listo ? '#F0FDF4' : '#F9FAFB', border: `2px solid ${listo ? '#86EFAC' : '#E5E7EB'}`, padding: '18px 20px', borderRadius: '10px' }}>
-                  <div style={{ marginBottom: '14px' }}>
-                    <p style={{ fontSize: '13px', fontWeight: '700' as const, color: listo ? '#065F46' : '#6B7280', margin: '0 0 4px' }}>
-                      {listo ? (tieneAnalisis ? '✓ Diagnóstico completo — listo para exportar' : '✓ Listo para exportar (sin análisis narrativo)') : '⏳ Diagnóstico incompleto'}
-                    </p>
-                    <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>
-                      {!diagGuardadoId ? 'Falta guardar el diagnóstico antes de exportar' : tieneAnalisis ? 'El PDF incluirá datos, escenarios y análisis de Sofía IA' : 'El PDF incluirá datos y escenarios. Puedes agregar análisis arriba.'}
-                    </p>
-                  </div>
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    {/* Borrador — secundario */}
-                    <button onClick={exportarPDF} disabled={!listo}
-                      style={{ flex: 1, padding: '11px 16px', background: listo ? 'white' : '#F3F4F6', color: listo ? '#64748B' : '#9CA3AF', border: `1.5px solid ${listo ? '#E2E8F0' : '#E5E7EB'}`, borderRadius: '8px', fontSize: '12px', fontWeight: '600' as const, cursor: listo ? 'pointer' : 'not-allowed', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                      📄 Exportar borrador
-                    </button>
-                    {/* Autorizar + exportar — CTA principal */}
-                    <button onClick={async () => { await guardarDiagnostico('autorizado'); exportarPDF() }} disabled={!listo}
-                      style={{ flex: 2, padding: '11px 20px', background: listo ? '#2E7D5A' : '#D1D5DB', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700' as const, cursor: listo ? 'pointer' : 'not-allowed', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: listo ? '0 2px 8px rgba(46,125,90,0.3)' : 'none' }}>
-                      ✅ Autorizar y exportar PDF
-                    </button>
-                  </div>
-                  {estatus === 'autorizado' && (
-                    <p style={{ fontSize: '11px', color: '#2E7D5A', margin: '10px 0 0', fontWeight: '600' as const, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      ✓ Este diagnóstico ya está autorizado
-                    </p>
-                  )}
-                </div>
-                )
-              })()}
-
-              {/* ══ SEMÁFORO DE ELEGIBILIDAD FINANCIERA ══ */}
-              {diagGuardadoId && clienteId && (
-                <SemaforoElegibilidad
-                  clienteId={clienteId}
-                  diagnosticoId={diagGuardadoId}
-                  datos={datos}
-                  escenarioSel={escSel}
-                  supabase={supabase}
-                  userId={userId}
-                />
               )}
-
-              {/* ══ SIMULADOR DE IMPACTO EN VIDA REAL ══ */}
-              {escSel && (
-                <SimuladorVidaReal
-                  pensionSin={datos.pension_sin_mod40 ?? 0}
-                  pensionCon={escSel.pension_mensual ?? 0}
-                />
-              )}
-
             </div>
           )
+          const semaforoNode = diagGuardadoId && clienteId ? (
+            <SemaforoElegibilidad
+              clienteId={clienteId}
+              diagnosticoId={diagGuardadoId}
+              datos={datos}
+              escenarioSel={escSel}
+              supabase={supabase}
+              userId={userId}
+            />
+          ) : null
+          const simuladorNode = escSel ? (
+            <SimuladorVidaReal
+              pensionSin={datos.pension_sin_mod40 ?? 0}
+              pensionCon={escSel.pension_mensual ?? 0}
+            />
+          ) : null
+          return (
+            <TabEntregable
+              subTab={subTabEntregable}
+              setSubTab={setSubTabEntregable}
+              escenarios={escenarios}
+              datos={datos}
+              diagGuardadoId={diagGuardadoId}
+              estatus={estatus}
+              analisis={analisis}
+              analisisManualSecciones={analisisManualSecciones}
+              modoAnalisis={modoAnalisis}
+              setModoAnalisis={setModoAnalisis}
+              setAnalisisManualSecciones={setAnalisisManualSecciones}
+              generandoAnalisis={generandoAnalisis}
+              generarAnalisisIA={generarAnalisisIA}
+              exportarPDF={exportarPDF}
+              guardarDiagnostico={guardarDiagnostico}
+              resumenContent={resumenNode}
+              semaforoContent={semaforoNode}
+              simuladorContent={simuladorNode}
+              fmtMXN={fmtMXN}
+              fmtMXN2={fmtMXN2}
+            />
+          )
         })()}
+
 
         {/* ══ TAB 12: MODALIDAD 10 ═══════════════════════════════════════ */}
         {tab === 12 && (() => {
