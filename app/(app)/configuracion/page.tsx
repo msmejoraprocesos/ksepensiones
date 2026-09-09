@@ -46,7 +46,7 @@ const DEFAULTS: Perfil = {
   nombre: '', razon_social: '', rfc: '', telefono: '', email_contacto: '',
   direccion: '', logo_url: null, banner_url: null, vigencia_propuesta: 30,
   uma_diaria: 117.31, salario_minimo: 315.04, pmg_mensual: 10636.54,
-  pmg_l97: 4345.72, rendimiento_afore_default: 6, inflacion_uma: 4.5, pct_afore_mod40: 20,
+  pmg_l97: 4345.72, rendimiento_afore_default: 6, inflacion_uma: 4.82, pct_afore_mod40: 19.85,
   mod40_2026: 14.438, mod40_2027: 15.528, mod40_2028: 16.619,
   mod40_2029: 17.709, mod40_2030: 18.800,
   tasa_m10: 10.075, pct_actualizacion_inpc: 7.27, pct_recargos_retroactivo: 41.80,
@@ -1202,8 +1202,8 @@ export default function ConfiguracionPage() {
               {
                 key: 'pmg_mensual', label: 'PMG Ley 73', unit: '$/mes',
                 placeholder: '10636.54',
-                help: 'Pensión Mínima Garantizada para trabajadores bajo Ley 73. Es el piso mínimo que el IMSS garantiza independientemente del cálculo.',
-                badge: 'Ley 73', badgeColor: AZUL
+                help: 'Pensión Mínima Garantizada Ley 73. Fórmula de validación: Salario Mínimo × 365 × 1.11 / 12. Con salmin $315.04: $315.04 × 365 × 1.11 / 12 = $10,636.54/mes. Actualizar cada febrero cuando cambia el salario mínimo.',
+                badge: 'Validar: salmin×365×1.11/12', badgeColor: AZUL
               },
               {
                 key: 'pmg_l97', label: 'Pensión Garantizada Ley 97', unit: '$/mes',
@@ -1218,16 +1218,16 @@ export default function ConfiguracionPage() {
                 badge: 'Default conservador', badgeColor: VERDE
               },
               {
-                key: 'inflacion_uma', label: 'Inflación estimada', unit: '% anual',
-                placeholder: '4.5',
-                help: 'Tasa de inflación anual para convertir pensiones futuras a pesos de hoy (poder adquisitivo actual). Permite comparar de forma justa.',
-                badge: 'Para pesos de hoy', badgeColor: NARANJA
+                key: 'inflacion_uma', label: 'Inflación UMA proyección', unit: '% anual',
+                placeholder: '4.82',
+                help: 'Tasa de crecimiento anual de la UMA para proyectar su valor futuro en cálculos de Mod.40. Basado en promedio histórico 2019-2026: 4.82%. La UMA crece con inflación (INPC) y se actualiza cada febrero por INEGI.',
+                badge: 'Promedio hist. 4.82%', badgeColor: NARANJA
               },
               {
                 key: 'pct_afore_mod40', label: '% de Mod 40 que regresa AFORE', unit: '%',
-                placeholder: '20',
-                help: 'De cada cuota mensual de Modalidad 40, este porcentaje se deposita en la subcuenta de Retiro 97 y se regresa al trabajador en una sola exhibición al pensionarse (el resto financia el seguro de Cesantía/Vejez). Estimado de mercado ~20% — verifica periódicamente en CONSAR (gob.mx/consar), ya que no hay una tasa única oficial publicada y puede variar según el caso.',
-                badge: 'Validar periódicamente', badgeColor: '#0891b2'
+                placeholder: '19.85',
+                help: 'De cada cuota de Modalidad 40, este porcentaje se deposita en subcuenta de Retiro y regresa al trabajador al pensionarse. El Excel de referencia usa 19.85%. Verificar periódicamente en CONSAR.',
+                badge: 'Excel usa 19.85%', badgeColor: '#0891b2'
               },
               {
                 key: 'tasa_m10', label: 'Tasa cuotas Modalidad 10', unit: '% anual',
@@ -1263,6 +1263,38 @@ export default function ConfiguracionPage() {
                 <p style={{ fontSize: '10px', color: '#64748b', margin: 0, lineHeight: 1.5 }}>{f.help}</p>
               </div>
             ))}
+          </div>
+
+          {/* Tabla UMA histórica — referencia para validar proyecciones */}
+          <div style={{ background: '#EEF2F8', borderRadius: '10px', padding: '16px', border: '1px solid #BFDBFE' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <div>
+                <p style={{ fontSize: '13px', fontWeight: '700', color: '#1E3A5F', margin: 0 }}>📊 Historial UMA — referencia de proyecciones</p>
+                <p style={{ fontSize: '11px', color: '#334E7B', margin: '2px 0 0' }}>
+                  Promedio crecimiento 2019-2026: <strong>4.82% anual</strong>. Actualiza "Inflación UMA" con este dato para proyecciones exactas.
+                </p>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '6px' }}>
+              {[
+                { year: 2019, uma: 84.49 }, { year: 2020, uma: 86.88 }, { year: 2021, uma: 89.62 },
+                { year: 2022, uma: 96.22 }, { year: 2023, uma: 103.74 }, { year: 2024, uma: 108.57 },
+                { year: 2025, uma: 113.14 }, { year: 2026, uma: 117.31 },
+              ].map((d, i, arr) => {
+                const pct = i > 0 ? ((d.uma - arr[i-1].uma) / arr[i-1].uma * 100).toFixed(1) : null
+                const isCurrent = d.year === 2026
+                return (
+                  <div key={d.year} style={{ background: isCurrent ? '#334E7B' : 'white', borderRadius: '6px', padding: '8px 6px', textAlign: 'center', border: isCurrent ? 'none' : '1px solid #BFDBFE' }}>
+                    <div style={{ fontSize: '9px', fontWeight: '600', color: isCurrent ? 'rgba(255,255,255,0.7)' : '#64748B', marginBottom: '2px' }}>{d.year}</div>
+                    <div style={{ fontSize: '12px', fontWeight: '700', color: isCurrent ? 'white' : '#334E7B' }}>${d.uma}</div>
+                    {pct && <div style={{ fontSize: '9px', color: isCurrent ? '#93C5FD' : '#2E7D5A' }}>+{pct}%</div>}
+                  </div>
+                )
+              })}
+            </div>
+            <p style={{ fontSize: '10px', color: '#64748B', margin: '8px 0 0' }}>
+              Fuente: INEGI. Actualización: febrero de cada año. La fórmula de validación PMG = Salario Mín. × 365 × 1.11 / 12 debe verificarse con el DOF.
+            </p>
           </div>
 
           {/* Porcentajes Mod 40 — ahora editables */}
