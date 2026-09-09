@@ -60,9 +60,6 @@ export async function POST(req: NextRequest) {
 
     const admin = getAdmin()
     let generadas = 0
-    let waEnviados = 0
-
-    const wa = await import('@/app/utils/whatsapp').catch(() => null)
 
     // 1. Clientes sin contacto en 30+ días
     const { data: asesores } = await admin
@@ -133,10 +130,6 @@ export async function POST(req: NextRequest) {
             url_destino: '/seguimiento',
           })
           generadas++
-          if (wa && asesor.telefono) {
-            await wa.notifActividadPendiente(asesor.telefono, asesor.nombre, actsPendientes.length)
-            waEnviados++
-          }
         }
       }
 
@@ -174,31 +167,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 4. Suscripciones por vencer en 5 días
-    const en5 = new Date()
-    en5.setDate(en5.getDate() + 5)
-    const { data: orgsPorVencer } = await admin
-      .from('organizaciones')
-      .select('id, nombre, vigencia_hasta')
-      .eq('activo', true)
-      .lt('vigencia_hasta', en5.toISOString())
-      .gt('vigencia_hasta', new Date().toISOString())
-
-    for (const org of orgsPorVencer ?? []) {
-      const { data: adminOrg } = await admin
-        .from('perfiles_usuario')
-        .select('nombre, telefono')
-        .eq('organizacion_id', org.id)
-        .eq('rol', 'org_admin')
-        .single()
-      const diasRest = Math.ceil((new Date(org.vigencia_hasta).getTime() - Date.now()) / 86400000)
-      if (wa && adminOrg?.telefono) {
-        await wa.notifSuscripcionVence(adminOrg.telefono, org.nombre, diasRest)
-        waEnviados++
-      }
-    }
-
-    return NextResponse.json({ ok: true, generadas, waEnviados })
+    return NextResponse.json({ ok: true, generadas })
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 })
   }
