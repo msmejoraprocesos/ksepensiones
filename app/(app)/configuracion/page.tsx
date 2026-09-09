@@ -40,6 +40,9 @@ interface Perfil {
   encabezado_titulo: string
   encabezado_logo_size: number
   encabezado_font_size: number
+  tasa_banco_anual?: number
+  pct_banco_regulado?: number
+  mod40_pct?: number
 }
 
 const DEFAULTS: Perfil = {
@@ -453,7 +456,7 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
     proximo_paso: 'Ej: Enviar propuesta, Agendar cita, Solicitar constancia...',
   }
 
-  useEffect(() => { if (!userId) return; supabase.auth.getSession().then(({ data: { session } }) => { if (session) cargar() }) }, [userId])
+  useEffect(() => { if (!userId) return; supabase.auth.getSession().then(({ data: { session } }: { data: { session: any } }) => { if (session) cargar() }) }, [userId])
 
   async function cargar() {
     const { data } = await supabase.from('catalogos_actividad').select('*').eq('asesor_id', userId).order('orden')

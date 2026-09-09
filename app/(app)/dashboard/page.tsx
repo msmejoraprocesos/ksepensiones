@@ -326,7 +326,7 @@ function MiDiaInner() {
   )
 
   const card = (content: React.ReactNode, style?: React.CSSProperties) => (
-    <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '14px 16px', display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' as const, boxShadow: '0 1px 3px rgba(0,0,0,0.04)', ...style }}>
+    <div style={{ background: '#FFFFFF', padding: '14px 16px', display: 'flex', flexDirection: 'column', height: '100%', boxSizing: 'border-box' as const, boxShadow: '0 1px 3px rgba(0,0,0,0.04)', ...style }}>
       {content}
     </div>
   )
@@ -364,7 +364,7 @@ function MiDiaInner() {
     const tintMap: Record<string, string> = {
       '#334E7B': '#EEF2F8', '#1D4ED8': '#EFF6FF', '#0891B2': '#ECFEFF',
       '#F59E0B': '#FFFBEB', '#16A34A': '#F0FDF4', '#DC2626': '#FEF2F2',
-      [VERDE]: '#F0FDF4', [AZUL]: '#EEF2F8', [NARANJA]: '#FFF7ED',
+      [VERDE]: '#F0FDF4', [NARANJA]: '#FFF7ED', '#7C3AED': '#F5F3FF',
     }
     const tint = tintMap[color] ?? '#F8FAFC'
     return (
@@ -439,7 +439,7 @@ function MiDiaInner() {
 
       {/* ── Barra de alertas ── */}
       {totalAlertas > 0 && (
-        <a href="/clientes" style={{ textDecoration: 'none', display: 'block', background: '#FEF2F2', borderBottom: '1px solid #FECACA', padding: '8px 20px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+        <a href="/clientes" style={{ textDecoration: 'none', background: '#FEF2F2', borderBottom: '1px solid #FECACA', padding: '8px 20px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
           <span style={{ fontSize: '14px' }}>🔔</span>
           <span style={{ fontSize: '12px', color: '#991B1B', fontWeight: '600' }}>
             Tienes {totalAlertas} pendiente{totalAlertas !== 1 ? 's' : ''} que requiere{totalAlertas !== 1 ? 'n' : ''} atención
@@ -513,7 +513,7 @@ function MiDiaInner() {
 
             {/* Alertas accionables — pendientes que requieren atención hoy */}
             {totalAlertas > 0 && (
-              <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderLeft: '3px solid #DC2626', padding: '10px 14px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
+              <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.04)', borderLeft: '3px solid #DC2626', padding: '10px 14px' }}>
                 <p style={{ fontSize: '11px', fontWeight: '700' as const, color: '#991B1B', margin: '0 0 8px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
                   🔔 Tienes {totalAlertas} pendiente{totalAlertas !== 1 ? 's' : ''} que requiere{totalAlertas === 1 ? '' : 'n'} atención
                 </p>

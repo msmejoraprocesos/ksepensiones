@@ -60,15 +60,17 @@ export async function POST(req: NextRequest) {
 
     const admin = getAdmin()
     let generadas = 0
+    let waEnviados = 0
+
+    const wa = await import('@/app/utils/whatsapp').catch(() => null)
 
     // 1. Clientes sin contacto en 30+ días
     const { data: asesores } = await admin
       .from('perfiles_usuario')
-      .select('id')
+      .select('id, nombre, telefono')
       .eq('activo', true)
 
     for (const asesor of asesores ?? []) {
-      // Clientes sin actividad en 30 días
       const hace30 = new Date()
       hace30.setDate(hace30.getDate() - 30)
 
@@ -81,7 +83,6 @@ export async function POST(req: NextRequest) {
         .limit(5)
 
       if (clientesSinContacto && clientesSinContacto.length > 0) {
-        // Verificar que no exista ya esta notificación hoy
         const hoy = new Date().toISOString().slice(0, 10)
         const { count } = await admin
           .from('notificaciones')
@@ -95,7 +96,7 @@ export async function POST(req: NextRequest) {
             usuario_id: asesor.id,
             tipo: 'cliente_sin_contacto',
             titulo: `${clientesSinContacto.length} cliente(s) sin contacto`,
-            mensaje: `Tienes ${clientesSinContacto.length} cliente(s) sin actividad en más de 30 días: ${clientesSinContacto.map((c: any) => c.nombre).join(', ')}.`,
+            mensaje: `Tienes ${clientesSinContacto.length} cliente(s) sin actividad en más de 30 días.`,
             url_destino: '/clientes',
           })
           generadas++
@@ -108,7 +109,7 @@ export async function POST(req: NextRequest) {
 
       const { data: actsPendientes } = await admin
         .from('actividades')
-        .select('id, titulo, fecha_programada')
+        .select('id, titulo')
         .eq('asesor_id', asesor.id)
         .eq('estatus', 'pendiente')
         .lt('fecha_programada', ayer.toISOString())
@@ -127,11 +128,15 @@ export async function POST(req: NextRequest) {
           await admin.from('notificaciones').insert({
             usuario_id: asesor.id,
             tipo: 'actividad_pendiente',
-            titulo: `${actsPendientes.length} actividad(es) pendiente(s) vencida(s)`,
-            mensaje: `Tienes ${actsPendientes.length} actividad(es) que debían completarse y siguen pendientes.`,
+            titulo: `${actsPendientes.length} actividad(es) vencida(s)`,
+            mensaje: `Tienes ${actsPendientes.length} actividad(es) pendientes vencidas.`,
             url_destino: '/seguimiento',
           })
           generadas++
+          if (wa && asesor.telefono) {
+            await wa.notifActividadPendiente(asesor.telefono, asesor.nombre, actsPendientes.length)
+            waEnviados++
+          }
         }
       }
 
@@ -141,7 +146,7 @@ export async function POST(req: NextRequest) {
 
       const { data: finsPorVencer } = await admin
         .from('financiamientos')
-        .select('id, clientes(nombre)')
+        .select('id')
         .eq('asesor_id', asesor.id)
         .eq('estatus', 'activo')
         .lt('fecha_fin', en30.toISOString())
@@ -161,7 +166,7 @@ export async function POST(req: NextRequest) {
             usuario_id: asesor.id,
             tipo: 'financiamiento_por_vencer',
             titulo: `${finsPorVencer.length} financiamiento(s) por vencer`,
-            mensaje: `Tienes ${finsPorVencer.length} financiamiento(s) que vencen en menos de 30 días.`,
+            mensaje: `Tienes ${finsPorVencer.length} financiamiento(s) que vencen en 30 días.`,
             url_destino: '/financiamiento',
           })
           generadas++
@@ -169,7 +174,31 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ ok: true, generadas })
+    // 4. Suscripciones por vencer en 5 días
+    const en5 = new Date()
+    en5.setDate(en5.getDate() + 5)
+    const { data: orgsPorVencer } = await admin
+      .from('organizaciones')
+      .select('id, nombre, vigencia_hasta')
+      .eq('activo', true)
+      .lt('vigencia_hasta', en5.toISOString())
+      .gt('vigencia_hasta', new Date().toISOString())
+
+    for (const org of orgsPorVencer ?? []) {
+      const { data: adminOrg } = await admin
+        .from('perfiles_usuario')
+        .select('nombre, telefono')
+        .eq('organizacion_id', org.id)
+        .eq('rol', 'org_admin')
+        .single()
+      const diasRest = Math.ceil((new Date(org.vigencia_hasta).getTime() - Date.now()) / 86400000)
+      if (wa && adminOrg?.telefono) {
+        await wa.notifSuscripcionVence(adminOrg.telefono, org.nombre, diasRest)
+        waEnviados++
+      }
+    }
+
+    return NextResponse.json({ ok: true, generadas, waEnviados })
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 })
   }

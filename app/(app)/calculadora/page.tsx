@@ -82,8 +82,12 @@ interface SysVars {
   RENDIMIENTO_DEFAULT: number
   mod40_pct?: number
   pct_afore_mod40?: number
-  pct_banco_regulado?: number   // FINANCIAMIENTO!C10
-  tasa_banco_anual?: number     // FINANCIAMIENTO!G32
+  pct_banco_regulado?: number
+  tasa_banco_anual?: number
+  tasa_m10?: number
+  inflacion_uma?: number
+  pct_actualizacion_inpc?: number
+  pct_recargos_retroactivo?: number
 }
 
 interface Cliente { id: string; nombre: string; etapa_kanban?: string; telefono?: string; tipo_servicio?: string }
@@ -114,6 +118,8 @@ interface DatosGenerales {
   edad_min_pension: number           // DATOS GEN.!E6 — configurable por asesor (60-65)
   ley: '73' | '97' | ''
   nss: string
+  pension_sin_mod40?: number
+  pct_ayuda_asistencial?: number
 }
 
 interface Escenario {
@@ -172,6 +178,17 @@ interface Escenario {
   costo_financiamiento_banco: number // intereses del crédito bancario
   costo_financiamiento_segundo: number // SEGUNDO FONDEADOR!C5
   monto_maximo_pago: number          // SEGUNDO FONDEADOR!C6
+  // Campos adicionales para display y compatibilidad
+  roi: number                          // alias de roi_meses
+  cuantia_basica_anual: number
+  incrementos_anual: number
+  asignaciones_anual: number
+  ayuda_asistencial_anual: number
+  edadAlConcluir: number
+  pension_sin_mod40: number
+  nueva_pension: number
+  cuota_banco: number
+  nueva_pension_inmediata: number
 }
 
 interface AnalisisSeccion {
@@ -251,8 +268,8 @@ const FACTOR_111 = 1.11
 const DIAS_AGUINALDO = 15
 
 // ── FÓRMULAS OFICIALES (Art. 167-171 LSS) — replica fiel del Excel de referencia ──────────
-function calcPensionLey73(semanas: number, sdi: number, edadRetiro: number, sys: SysVars, tieneConyuge: boolean, numHijos: number, numPadres: number, anioRetiro?: number, tieneAyudaAsistencial = false): { monto: number; pmg_aplica: boolean; pensionMensual: number; pensionAnual: number; cuantiaBasicaAnual: number; incrementosAnual: number; asignacionesAnual: number; ayudaAsistencialAnual: number; aguinaldoAnual: number; factorEdad: number; vecesUMA: number; pctBasica: number; pctIncremento: number; numIncrementos: number } {
-  if (semanas < 500) return { monto: 0, pmg_aplica: false, pensionMensual: 0, pensionAnual: 0, cuantiaBasicaAnual: 0, incrementosAnual: 0, asignacionesAnual: 0, ayudaAsistencialAnual: 0, aguinaldoAnual: 0, factorEdad: 0, vecesUMA: 0, pctBasica: 0, pctIncremento: 0, numIncrementos: 0 }
+function calcPensionLey73(semanas: number, sdi: number, edadRetiro: number, sys: SysVars, tieneConyuge: boolean, numHijos: number, numPadres: number, anioRetiro?: number, tieneAyudaAsistencial = false): { monto: number; pmg_aplica: boolean; pensionMensual: number; pensionAnual: number; cuantiaBasicaAnual: number; incrementosAnual: number; asignacionesAnual: number; ayudaAsistencialAnual: number; aguinaldoAnual: number; factorEdad: number; vecesUMA: number; pctBasica: number; pctIncremento: number; numIncrementos: number; cuantiaTotal: number; totalVejez100: number; pmgMensual: number; pensionSinPMG: number } {
+  if (semanas < 500) return { monto: 0, pmg_aplica: false, pensionMensual: 0, pensionAnual: 0, cuantiaBasicaAnual: 0, incrementosAnual: 0, asignacionesAnual: 0, ayudaAsistencialAnual: 0, aguinaldoAnual: 0, factorEdad: 0, vecesUMA: 0, pctBasica: 0, pctIncremento: 0, numIncrementos: 0, cuantiaTotal: 0, totalVejez100: 0, pmgMensual: 0, pensionSinPMG: 0 }
 
   const vecesUMA = sdi / sys.UMA_DIARIA
   const { basica: pctBasica, incremento: pctIncremento } = buscarCuantiaPorUMA(vecesUMA)
@@ -1518,6 +1535,9 @@ function CalculadoraInner() {
       costo_financiamiento_banco: r.costo_financiamiento_banco,
       costo_financiamiento_segundo: r.costo_financiamiento_segundo,
       monto_maximo_pago: r.monto_maximo_pago,
+      roi: r.roi, edadAlConcluir: r.edadAlConcluir,
+      pension_sin_mod40: pensionBase, nueva_pension: r.pension,
+      cuota_banco: r.monto_maximo_pago, nueva_pension_inmediata: r.pension_inmediata,
     })
 
     // Edad de retiro efectiva — mínimo legal: 60 años (cesantía en edad avanzada)
@@ -1545,6 +1565,8 @@ function CalculadoraInner() {
       semanas_mod40: 0, sdi_mod40: 0, actualizaciones: 0, recargos: 0,
       duracion_tramite_meses: 60, plazo_segundo_fondeo: 12,
       costo_financiamiento_banco: 0, costo_financiamiento_segundo: 0, monto_maximo_pago: 0,
+      roi: 0, edadAlConcluir: edadRetiroEfectiva, pension_sin_mod40: pensionBase,
+      nueva_pension: pensionBase, cuota_banco: 0, nueva_pension_inmediata: pensionBase,
     }]
 
     // E1: Modalidad 10 · 12 meses
@@ -1587,6 +1609,8 @@ function CalculadoraInner() {
       roi_financiado: 0, ganancia_a80_financiado: 0, tasa_rendimiento_financiado: 0,
       duracion_tramite_meses: 60, plazo_segundo_fondeo: 12,
       costo_financiamiento_banco: 0, costo_financiamiento_segundo: 0, monto_maximo_pago: 0,
+      edadAlConcluir: 65,
+      cuantia_basica_anual: 0, incrementos_anual: 0, asignaciones_anual: 0, ayuda_asistencial_anual: 0,
     }
     escs.push(makeEsc('e_m10', 'Modalidad 10 · 12 meses', 'Cobertura integral + semanas (independiente)', 12, mod40Umas, r0))
 
@@ -3137,12 +3161,12 @@ function CalculadoraInner() {
               analisis={analisis}
               analisisManualSecciones={analisisManualSecciones}
               modoAnalisis={modoAnalisis}
-              setModoAnalisis={setModoAnalisis}
+              setModoAnalisis={(m: string) => setModoAnalisis(m as "manual" | "ia")}
               setAnalisisManualSecciones={setAnalisisManualSecciones}
               generandoAnalisis={generandoAnalisis}
               generarAnalisisIA={generarAnalisisIA}
               exportarPDF={exportarPDF}
-              guardarDiagnostico={guardarDiagnostico}
+              guardarDiagnostico={(estatus: string) => guardarDiagnostico(estatus as "borrador" | "autorizado")}
               resumenContent={resumenNode}
               semaforoContent={semaforoNode}
               simuladorContent={simuladorNode}

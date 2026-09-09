@@ -179,7 +179,7 @@ export default function OrgAdminPage() {
 
   // Nuevo asesor
   const [showNuevo, setShowNuevo] = useState(false)
-  const [formNuevo, setFormNuevo] = useState({ nombre: '', email: '', password: '', telefono: '', envio: 'whatsapp' as 'email'|'whatsapp'|'ambos' })
+  const [formNuevo, setFormNuevo] = useState({ nombre: '', email: '', password: '', telefono: '', envio: 'whatsapp' as 'email'|'whatsapp'|'ambos', rol: 'asesor' as string })
   const [creando, setCreando] = useState(false)
   const [errNuevo, setErrNuevo] = useState('')
 
@@ -260,7 +260,7 @@ export default function OrgAdminPage() {
       abrirWhatsApp(nombre, email, password, telefono)
     }
     setShowNuevo(false)
-    setFormNuevo({ nombre: '', email: '', password: '', telefono: '', envio: 'whatsapp' })
+    setFormNuevo({ nombre: '', email: '', password: '', telefono: '', envio: 'whatsapp', rol: 'asesor' })
     await loadAll(org.id)
     setCreando(false)
   }
@@ -436,7 +436,7 @@ export default function OrgAdminPage() {
 
         {/* ── TAB: MI EQUIPO ── */}
         {tab === 'canalizaciones' && (
-          <PanelCanalizaciones supabase={supabase} userId={userId} asesores={asesores} />
+          <PanelCanalizaciones supabase={supabase} userId={myId} asesores={asesores} />
         )}
 
         {tab === 'equipo' && (
@@ -611,7 +611,7 @@ export default function OrgAdminPage() {
                 </div>
               </div>
               <div style={{ display:'flex', gap:'8px', marginTop:'4px' }}>
-                <button onClick={() => { setShowNuevo(false); setErrNuevo(''); setFormNuevo({ nombre:'', email:'', password:'', telefono:'', envio:'whatsapp' }) }}
+                <button onClick={() => { setShowNuevo(false); setErrNuevo(''); setFormNuevo({ nombre:'', email:'', password:'', telefono:'', envio:'whatsapp', rol:'asesor' }) }}
                   style={{ flex:1, padding:'10px', background:'#F8FAFC', color:'#374151', border:'1px solid #E5E7EB', fontSize:'12px', fontWeight:'600', cursor:'pointer', fontFamily:'inherit', borderRadius:'4px' }}>Cancelar</button>
                 <button onClick={crearAsesor} disabled={creando}
                   style={{ flex:1, padding:'10px', background:NARANJA, color:'white', border:'none', fontSize:'12px', fontWeight:'700', cursor:'pointer', fontFamily:'inherit', borderRadius:'4px', opacity:creando?0.6:1 }}>
