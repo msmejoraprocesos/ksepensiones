@@ -244,25 +244,20 @@ function calcPensionLey73(semanas: number, sdi: number, edadRetiro: number, sys:
 
   const baseConFactorYEdad = (cuantiaBasicaAnual + incrementosTotalAnual) * FACTOR_111 * factorEdad
 
-  // Asignaciones familiares (15% cónyuge + 10% por hijo + 10% por padre dependiente)
-  // IMPORTANTE: Las asignaciones NO se reducen por factor_edad (cesantía)
-  // Fórmula Excel: Pensión_anual = Pensión_base × Factor_edad + Asignaciones (separadas)
-  // Art. 164 LSS Ley 73 — las asignaciones familiares son sobre la cuantía total anual × 1.11
-  // sin aplicar el factor de cesantía/vejez
+  // Asignaciones familiares (15% cónyuge + 10% por hijo + 10% por padre dependiente, sobre la cuantía total cruda)
   const hayBeneficiarios = tieneConyuge || numHijos > 0
   const asignConyuge = tieneConyuge ? cuantiaTotalRaw * 0.15 : 0
   const asignHijos = numHijos > 0 ? cuantiaTotalRaw * 0.10 * numHijos : 0
   const asignPadres = (!hayBeneficiarios && numPadres > 0) ? cuantiaTotalRaw * 0.10 * numPadres : 0
-  const asignaciones = (asignConyuge + asignHijos + asignPadres) * FACTOR_111  // sin factor_edad
+  const asignaciones = (asignConyuge + asignHijos + asignPadres) * FACTOR_111 * factorEdad
 
-  // Ayuda asistencial (Art. 165 LSS — solo si no hay cónyuge, hijos, ni padres)
-  // Igual que asignaciones: NO se aplica factor_edad
+  // Ayuda asistencial (Art. 165 LSS — solo si no hay cónyuge, hijos, ni padres, Y el campo fue marcado por el asesor)
   const sinBeneficiarios = !tieneConyuge && numHijos === 0 && numPadres === 0
   const soloUnPadre = !tieneConyuge && numHijos === 0 && numPadres === 1
   const pctAyuda = tieneAyudaAsistencial && sinBeneficiarios ? 0.15 : tieneAyudaAsistencial && soloUnPadre ? 0.10 : 0
   const ayudaAsistencial = pctAyuda > 0
     ? Math.max(0, Math.min(
-        cuantiaTotalRaw * pctAyuda * FACTOR_111,
+        cuantiaTotalRaw * pctAyuda * FACTOR_111 * factorEdad,
         Math.max(0, sys.UMA_DIARIA * 25 * 365 - (baseConFactorYEdad + asignaciones)),
         sdi * 365 * FACTOR_111 - (baseConFactorYEdad + asignaciones)
       ))
@@ -1313,22 +1308,19 @@ function CalculadoraInner() {
     const incr = pension - pensionBase
 
     // Inversión neta y ROI — Datos-proyecto!C20, C21
-    // Excel usa 19.85% de recuperación AFORE (no 20%)
-    const pctAfore = (sys.pct_afore_mod40 ?? 19.85) / 100
+    const pctAfore = (sys.pct_afore_mod40 ?? 20) / 100
     const recuperacion_afore = costo_total * pctAfore
     const inversion_neta = costo_total - recuperacion_afore
     const roi = incr > 0 ? Math.ceil(inversion_neta / incr) : 0
 
     // Ganancia a los 80 años y tasa de rendimiento — INVERSION!D46/F46
-    // Excel usa 13 pagos anuales (12 mensualidades + aguinaldo) y factor de ajuste por INPC
-    // Factor 1.54 del Excel ≈ 13/12 pagos × (1.045)^10 (midpoint de 20 años)
-    const FACTOR_FLUJOS_EXCEL = (13 / 12) * Math.pow(1 + (sys.inflacion_uma ?? 4) / 100, 10)
+    // Meses hasta los 80 años — usando diferencia de edad decimal para mayor precisión
     const anosHasta80 = Math.max(0, 80 - edadR)
     const mesesHasta80 = Math.round(anosHasta80 * 12)
     const anosHasta80base = Math.max(0, 80 - Math.max(edadRetiro, datos.edad_actual || 60))
     const mesesHasta80base = Math.round(anosHasta80base * 12)
-    const flujosCon = pension * mesesHasta80 * FACTOR_FLUJOS_EXCEL
-    const flujosSin = pensionBase * mesesHasta80base * FACTOR_FLUJOS_EXCEL
+    const flujosCon = pension * mesesHasta80
+    const flujosSin = pensionBase * mesesHasta80base
     const ganancia_a80 = flujosCon - flujosSin - inversion_neta
     const tasa_rendimiento = inversion_neta > 0 ? (ganancia_a80 / inversion_neta) * 100 : 0
 
