@@ -380,8 +380,6 @@ function ClientesInner() {
           sdiPromedio={p.sdiPromedio || 0}
           escenarios={p.escenarios || []}
           escSelIdx={p.escElegidoIdx ?? 0}
-          analisis={Array.isArray(analisisParsed) ? analisisParsed : []}
-          ingresoObjetivo={p.ingresoObjetivo || undefined}
           logoUrl={asesorPerfil?.logo_url ?? undefined}
           razonSocial={asesorPerfil?.razon_social ?? undefined}
           asesorNombre={asesorPerfil?.nombre ?? undefined}

@@ -898,6 +898,8 @@ function CalculadoraInner() {
     proximos_pasos: '',
   })
   const [modoAnalisis, setModoAnalisis] = useState<'manual' | 'ia'>('manual')
+  const [sofiaOutput, setSofiaOutput] = useState<any>(null)
+  const [generandoSofia, setGenerandoSofia] = useState(false)
   const [generandoAnalisis, setGenerandoAnalisis] = useState(false)
   const [guardando, setGuardando] = useState(false)
   const [menuAbierto, setMenuAbierto] = useState(null as number | null)
@@ -905,6 +907,7 @@ function CalculadoraInner() {
   const [mensaje, setMensaje] = useState('')
   const [asesorPerfil, setAsesorPerfil] = useState<{razon_social?: string; nombre?: string; logo_url?: string; encabezado_color?: string; encabezado_titulo?: string; encabezado_logo_size?: number; encabezado_font_size?: number} | null>(null)
 
+  const pdfConfig = (asesorPerfil as any)?.pdf_config ? (() => { try { return JSON.parse((asesorPerfil as any).pdf_config) } catch { return null } })() : null
   const [showAllMonths, setShowAllMonths] = useState(false)
   const [showClienteModal, setShowClienteModal] = useState(false)
   const [showSugerirEtapa, setShowSugerirEtapa] = useState(false)
@@ -1641,15 +1644,10 @@ function CalculadoraInner() {
   const conservacion = calcConservacion(datos.semanas_totales, fechaUltimaCot ? Math.floor((Date.now() - new Date(fechaUltimaCot).getTime()) / (30 * 86400000)) : 0)
 
   // ── Generar PDF completo
-  async function exportarPDF() {
+  async function exportarPDF(sofiaOutputArg?: any) {
     if (!diagGuardadoId) {
-      setMensaje('⚠️ Primero guarda el diagnóstico (borrador o autorizado) antes de generar el PDF')
+      setMensaje('⚠️ Primero guarda el diagnóstico antes de generar el PDF')
       setTimeout(() => setMensaje(''), 4000)
-      return
-    }
-    if (analisis.length === 0) {
-      setMensaje('⚠️ Genera el análisis de Sofía IA (pestaña Resumen) antes de exportar el PDF — es el cierre del diagnóstico, no un paso intermedio')
-      setTimeout(() => setMensaje(''), 5000)
       return
     }
     const esBorrador = estatus === 'borrador'
@@ -1658,6 +1656,7 @@ function CalculadoraInner() {
     if (!escToUse) { setMensaje('⚠️ Selecciona un escenario antes de generar el PDF'); setTimeout(() => setMensaje(''), 4000); return }
     try {
       setMensaje('⏳ Generando PDF...')
+      const sfOutput = sofiaOutputArg ?? sofiaOutput
       const elemento = (
         <DiagnosticoPDF
           datos={datos}
@@ -1665,11 +1664,6 @@ function CalculadoraInner() {
           sdiPromedio={sdiPromedio}
           escenarios={escenarios}
           escSelIdx={idxToUse}
-          analisis={modoAnalisis === 'ia' ? analisis : Object.entries(analisisManualSecciones).filter(([,v]) => v.trim()).map(([k, v]) => ({
-            titulo: k === 'contexto' ? 'Contexto' : k === 'diagnostico' ? 'Diagnóstico actual' : k === 'opciones' ? 'Opciones disponibles' : k === 'recomendacion' ? 'Recomendación' : 'Próximos pasos',
-            contenido: v
-          }))}
-          ingresoObjetivo={ingresoObjetivo || undefined}
           logoUrl={asesorPerfil?.logo_url ?? undefined}
           razonSocial={asesorPerfil?.razon_social ?? undefined}
           asesorNombre={asesorPerfil?.nombre ?? undefined}
@@ -1677,6 +1671,8 @@ function CalculadoraInner() {
           encabezadoTitulo={asesorPerfil?.encabezado_titulo ?? undefined}
           esBorrador={esBorrador}
           umaDiaria={sys.UMA_DIARIA}
+          pdfConfig={pdfConfig}
+          sofiaOutput={sfOutput}
         />
       )
       const blob = await pdf(elemento).toBlob()
@@ -3152,26 +3148,22 @@ function CalculadoraInner() {
           ) : null
           return (
             <TabEntregable
-              subTab={subTabEntregable}
-              setSubTab={setSubTabEntregable}
               escenarios={escenarios}
               datos={datos}
+              periodos={periodos}
+              sdiPromedio={sdiPromedio}
+              sys={sys as any}
               diagGuardadoId={diagGuardadoId}
               estatus={estatus}
-              analisis={analisis}
-              analisisManualSecciones={analisisManualSecciones}
-              modoAnalisis={modoAnalisis}
-              setModoAnalisis={(m: string) => setModoAnalisis(m as "manual" | "ia")}
-              setAnalisisManualSecciones={setAnalisisManualSecciones}
-              generandoAnalisis={generandoAnalisis}
-              generarAnalisisIA={generarAnalisisIA}
-              exportarPDF={exportarPDF}
+              pdfConfig={pdfConfig}
+              sofiaOutput={sofiaOutput}
+              setSofiaOutput={setSofiaOutput}
+              generandoSofia={generandoSofia}
+              setGenerandoSofia={setGenerandoSofia}
+              exportarPDF={(so?: any) => exportarPDF(so)}
               guardarDiagnostico={(estatus: string) => guardarDiagnostico(estatus as "borrador" | "autorizado")}
-              resumenContent={resumenNode}
-              semaforoContent={semaforoNode}
-              simuladorContent={simuladorNode}
-              fmtMXN={fmtMXN}
-              fmtMXN2={fmtMXN2}
+              userId={userId}
+              clienteId={clienteId}
             />
           )
         })()}
