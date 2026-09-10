@@ -104,7 +104,9 @@ export function calcPensionLey73(
   const asignConyuge = tieneConyuge ? cuantiaTotalRaw * 0.15 : 0
   const asignHijos = numHijos > 0 ? cuantiaTotalRaw * 0.10 * numHijos : 0
   const asignPadres = (!hayBeneficiarios && numPadres > 0) ? cuantiaTotalRaw * 0.10 * numPadres : 0
-  const asignaciones = (asignConyuge + asignHijos + asignPadres) * FACTOR_111 * factorEdad
+  // Art. 164 LSS: las asignaciones familiares NO se reducen por factor de edad
+  // (aplican sobre la cuantía básica antes de factorEdad)
+  const asignaciones = (asignConyuge + asignHijos + asignPadres) * FACTOR_111
 
   const sinBeneficiarios = !tieneConyuge && numHijos === 0 && numPadres === 0
   const soloUnPadre = !tieneConyuge && numHijos === 0 && numPadres === 1

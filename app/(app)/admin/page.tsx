@@ -623,7 +623,13 @@ function AdminFormulasInner() {
                       <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 2px' }}>{org.nombre}</p>
                       <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>
                         {org.plan} · <span style={{ color: pct >= 90 ? '#DC2626' : '#374151', fontWeight: '600' }}>{asesoresOrg.length}/{org.asientos} asientos</span>
-                        {org.fecha_vencimiento && ` · Vence ${org.fecha_vencimiento}`}
+                        {' · '}
+                        {org.vigencia_hasta
+                          ? new Date(org.vigencia_hasta) > new Date()
+                            ? <span style={{ color: '#16A34A', fontWeight: '600' }}>✓ Activo hasta {new Date(org.vigencia_hasta).toLocaleDateString('es-MX', { day:'2-digit', month:'short', year:'numeric' })}</span>
+                            : <span style={{ color: '#DC2626', fontWeight: '600' }}>⚠ Vencido {new Date(org.vigencia_hasta).toLocaleDateString('es-MX', { day:'2-digit', month:'short' })}</span>
+                          : <span style={{ color: '#94A3B8' }}>Sin vigencia</span>
+                        }
                       </p>
                     </div>
                     {/* Barra de asientos */}
@@ -632,7 +638,22 @@ function AdminFormulasInner() {
                         <div style={{ width: `${Math.min(100, pct)}%`, height: '100%', background: pct >= 90 ? '#DC2626' : AZUL }} />
                       </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '4px' }}>
+                    <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                      {/* Access management: set vigencia_hasta */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }} onClick={e => e.stopPropagation()}>
+                        <input
+                          type="date"
+                          defaultValue={org.vigencia_hasta ? org.vigencia_hasta.slice(0,10) : ''}
+                          onBlur={async e => {
+                            const v = e.target.value
+                            if (!v) return
+                            await supabase.from('organizaciones').update({ vigencia_hasta: v + 'T23:59:59Z', activo: true }).eq('id', org.id)
+                            setOrganizaciones(prev => prev.map(o => o.id === org.id ? { ...o, vigencia_hasta: v, activo: true } : o))
+                          }}
+                          style={{ padding: '3px 6px', border: '1px solid #E5E7EB', borderRadius: '4px', fontSize: '10px', fontFamily: 'inherit', color: '#374151' }}
+                        />
+                        <span style={{ fontSize: '9px', color: '#94A3B8' }}>acceso hasta</span>
+                      </div>
                       <button onClick={e => { e.stopPropagation(); toggleOrgActivo(org.id, org.activo) }}
                         style={{ padding: '3px 8px', background: org.activo ? '#FEF2F2' : '#F0FDF4', color: org.activo ? '#DC2626' : '#065F46', border: `1px solid ${org.activo ? '#FCA5A5' : '#86EFAC'}`, fontSize: '10px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
                         {org.activo ? 'Desactivar' : 'Activar'}

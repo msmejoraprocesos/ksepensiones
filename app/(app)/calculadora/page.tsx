@@ -2779,6 +2779,41 @@ function CalculadoraInner() {
             {tab === -1 && (
               <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
 
+                {/* Hero KPIs — resumen del caso */}
+                {(escenarios[0]?.pension_mensual || sdiPromedio > 0) && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+                    {[
+                      { label: 'Pensión sin Mod.40', value: escenarios[0]?.pension_mensual ? new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN',maximumFractionDigits:0}).format(escenarios[0].pension_mensual) : '—', color: '#DC2626', bg: '#FEF2F2', border: '#FCA5A5', dot: '#7C3AED' },
+                      { label: 'Semanas netas', value: datos.semanas_totales ? (datos.semanas_totales - (datos.semanas_descontadas||0)).toString() : '—', color: AZUL, bg: '#EEF2F8', border: AZUL, dot: AZUL },
+                      { label: 'SDI promedio 250 sem.', value: sdiPromedio > 0 ? fmtMXN2(sdiPromedio)+'/día' : '—', color: '#B45309', bg: '#FFF7ED', border: '#FCD34D', dot: NARANJA },
+                      { label: 'Edad / Régimen', value: datos.edad_actual ? `${datos.edad_actual.toFixed(0)} años · Ley ${datos.ley||'73'}` : '—', color: '#374151', bg: '#F8FAFC', border: '#E2E8F0', dot: AZUL },
+                    ].map((k, i) => (
+                      <div key={i} style={{ background: k.bg, border: `1px solid ${k.border}`, borderTop: `3px solid ${k.dot}`, borderRadius: '8px', padding: '10px 12px', textAlign: 'center' as const }}>
+                        <div style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginBottom: '5px', fontWeight: '600' as const }}>{k.label}</div>
+                        <div style={{ fontSize: '16px', fontWeight: '800' as const, color: k.color }}>{k.value}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Leyenda del sistema de colores */}
+                <div style={{ display: 'flex', gap: '6px', padding: '8px 12px', background: '#F4F6F9', borderRadius: '8px', flexWrap: 'wrap' as const }}>
+                  <span style={{ fontSize: '9px', color: '#94A3B8', fontWeight: '600' as const, textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginRight: '4px' }}>Referencias:</span>
+                  {[
+                    { color: AZUL, label: 'Dato IMSS (constancia)' },
+                    { color: NARANJA, label: 'Captura manual' },
+                    { color: VERDE, label: 'Decisión estratégica' },
+                    { color: '#7C3AED', label: 'Resultado calculado' },
+                  ].map((item, i) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color, display: 'inline-block', flexShrink: 0 }} />
+                      <span style={{ fontSize: '10px', color: '#64748B' }}>{item.label}</span>
+                    </div>
+                  ))}
+                </div>
+
+
+
                 {/* Card Identificación — borde azul */}
                 <div style={{ background: 'white', borderRadius: '10px', borderLeft: `4px solid ${AZUL}`, padding: '14px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
