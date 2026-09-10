@@ -3,6 +3,8 @@
 
 import React from 'react'
 import { Document, Page, View, Text, Image, StyleSheet } from '@react-pdf/renderer'
+import { mergePDFConfig } from '@/app/utils/pdf-config'
+import type { PDFConfig } from '@/app/utils/pdf-config'
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
 interface DatosTrabajador {
@@ -32,6 +34,7 @@ interface PDFProps {
   escSelIdx: number; analisis: SeccionAnalisis[]; ingresoObjetivo?: number
   logoUrl?: string; razonSocial?: string; asesorNombre?: string
   encabezadoColor?: string; encabezadoTitulo?: string; esBorrador?: boolean; umaDiaria?: number
+  pdfConfig?: any
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -130,9 +133,11 @@ const SofiaBox = ({ tipo, texto }: { tipo: 'azul' | 'amarillo' | 'verde', texto:
 export const DiagnosticoPDF = ({
   datos, periodos, sdiPromedio, escenarios, escSelIdx, analisis,
   ingresoObjetivo, logoUrl, razonSocial, asesorNombre, encabezadoColor,
-  encabezadoTitulo, esBorrador, umaDiaria,
+  encabezadoTitulo, esBorrador, umaDiaria, pdfConfig,
 }: PDFProps) => {
-  const COLOR = encabezadoColor ?? C.azul
+  const cfg = mergePDFConfig(pdfConfig)
+  const COLOR = cfg.color_primario || encabezadoColor || C.azul
+  const ACCENT = cfg.color_acento || C.naranja
   const esc0 = escenarios[0]
   const escRec = escenarios.find(e => e.recomendado) ?? escenarios[escSelIdx] ?? escenarios[escenarios.length - 1]
   const nombre = datos.nombre_trabajador || datos.nombre || 'Cliente'
@@ -164,10 +169,12 @@ export const DiagnosticoPDF = ({
   const mejora = escRec && esc0 ? escRec.pension_mensual - esc0.pension_mensual : 0
   const tieneMod40 = escRec && escRec.mod40_meses > 0
 
+  const footerTexto = cfg.footer_texto || 'Este diagnóstico es informativo y no constituye asesoría legal o garantía de montos.'
+
   return (
     <Document>
       <Page size="A4" style={s.page}>
-        {esBorrador && <Text style={s.watermark}>BORRADOR</Text>}
+        {(esBorrador && cfg.mostrar_watermark) && <Text style={s.watermark}>BORRADOR</Text>}
 
         {/* ── ENCABEZADO ─────────────────────────────────────────── */}
         <View style={[s.header, { backgroundColor: COLOR }]}>
@@ -191,7 +198,7 @@ export const DiagnosticoPDF = ({
             )}
           </View>
         </View>
-        <View style={s.dividerNaranja} />
+        <View style={[s.dividerNaranja, { backgroundColor: ACCENT }]} />
 
         {/* ── CUERPO ─────────────────────────────────────────────── */}
         <View style={s.body}>
@@ -266,7 +273,7 @@ export const DiagnosticoPDF = ({
           {/* ── BLOQUE 3: Con Modalidad 40 (si aplica) ── */}
           {tieneMod40 && (
             <>
-              <View break />
+              {cfg.pagina_break_antes_mod40 && <View break />}
               <Text style={s.seccionLabelVerde}>Con Modalidad 40 — opción recomendada</Text>
               <View style={s.kpiRow}>
                 <View style={s.kpiCardVerde}>
@@ -370,7 +377,7 @@ export const DiagnosticoPDF = ({
               {razonSocial || 'KSE Pensiones'}{asesorNombre ? ` · ${asesorNombre}` : ''}
             </Text>
             <Text style={s.footerText}>
-              Este diagnóstico es informativo y no constituye asesoría legal o garantía de montos.
+              {footerTexto}
             </Text>
           </View>
 

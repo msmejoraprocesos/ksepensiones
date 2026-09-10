@@ -32,3 +32,10 @@ SELECT
   END AS estado_suscripcion,
   activo
 FROM organizaciones;
+
+-- ── PDF Config — columna en perfiles_usuario ──────────────────────────────
+ALTER TABLE perfiles_usuario
+  ADD COLUMN IF NOT EXISTS pdf_config JSONB;
+
+COMMENT ON COLUMN perfiles_usuario.pdf_config IS 
+  'Configuración visual del PDF de diagnóstico (secciones, colores, opciones). Ver app/utils/pdf-config.ts';

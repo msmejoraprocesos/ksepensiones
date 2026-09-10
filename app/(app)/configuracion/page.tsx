@@ -3,6 +3,9 @@
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
+import PDFConfigurador from '@/components/PDFConfigurador'
+import { PDF_CONFIG_DEFAULT, mergePDFConfig } from '@/app/utils/pdf-config'
+import type { PDFConfig } from '@/app/utils/pdf-config'
 
 const AZUL = '#334E7B'
 const VERDE = '#2E8B57'
@@ -621,7 +624,9 @@ export default function ConfiguracionPage() {
   const [materialError, setMaterialError] = useState<string | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
-  const [tabActiva, setTabActiva] = useState<'perfil' | 'sistema' | 'financieras' | 'catalogos'>('perfil')
+  const [tabActiva, setTabActiva] = useState('perfil' as 'perfil' | 'sistema' | 'financieras' | 'catalogos' | 'pdf')
+  const [pdfConfig, setPdfConfig] = useState<PDFConfig>(PDF_CONFIG_DEFAULT)
+  const [savingPdf, setSavingPdf] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -633,6 +638,9 @@ export default function ConfiguracionPage() {
           if (data) {
             const loaded = { ...DEFAULTS, ...data, org_nombre: null }
             setPerfil(loaded)
+            if (data.pdf_config) {
+              try { setPdfConfig(mergePDFConfig(JSON.parse(data.pdf_config))) } catch {}
+            }
             if (!data.nombre && !data.razon_social) { setIsFirstTime(true) }
           } else {
             setIsFirstTime(true)
@@ -978,10 +986,11 @@ export default function ConfiguracionPage() {
           {/* Tabs de navegación */}
           <div style={{ display: 'flex', padding: '4px', gap: '2px' }}>
             {([
-              { id: 'perfil', label: '👤 Perfil', desc: 'Identidad y seguridad' },
-              { id: 'sistema', label: '⚙️ Sistema', desc: 'Variables y fórmulas' },
-              { id: 'financieras', label: '💳 Financieras', desc: 'Elegibilidad y docs' },
-              { id: 'catalogos', label: '📋 Catálogos', desc: 'Tipos de actividad' },
+              { id: 'perfil',     label: '👤 Perfil',     desc: 'Identidad y seguridad' },
+              { id: 'sistema',    label: '⚙️ Sistema',     desc: 'Variables y fórmulas' },
+              { id: 'pdf',        label: '📄 PDF',         desc: 'Diseño del diagnóstico' },
+              { id: 'financieras',label: '💳 Financieras', desc: 'Elegibilidad y docs' },
+              { id: 'catalogos',  label: '📋 Catálogos',   desc: 'Tipos de actividad' },
             ] as const).map(t => (
               <button key={t.id} onClick={() => setTabActiva(t.id)}
                 style={{ flex: 1, padding: '9px 8px', background: tabActiva === t.id ? AZUL : 'transparent', color: tabActiva === t.id ? 'white' : '#6B7280', border: 'none', borderRadius: '7px', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center' as const }}>
@@ -1586,6 +1595,37 @@ export default function ConfiguracionPage() {
           {sectionTitle('📋', 'Catálogos de actividad', 'Personaliza las opciones que aparecen al registrar una actividad con un cliente')}
           <CatalogosActividad userId={userId} supabase={supabase} />
         </div>
+
+        {/* ── TAB: PDF ── */}
+        {tabActiva === 'pdf' && (
+          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
+            {sectionTitle('📄', 'Diseño del diagnóstico PDF', 'Personaliza cómo se ve el PDF que recibe tu cliente — el preview se actualiza en tiempo real')}
+
+            <PDFConfigurador
+              config={pdfConfig}
+              onChange={setPdfConfig}
+              logoUrl={perfil.logo_url}
+              asesorNombre={perfil.nombre}
+              razonSocial={perfil.razon_social}
+            />
+
+            {/* Botón guardar */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #E2E8F0', gap: '10px' }}>
+              <button onClick={() => setPdfConfig(PDF_CONFIG_DEFAULT)}
+                style={{ padding: '9px 18px', background: '#F8FAFC', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
+                Restablecer defaults
+              </button>
+              <button onClick={async () => {
+                setSavingPdf(true)
+                await supabase.from('perfiles_usuario').update({ pdf_config: JSON.stringify(pdfConfig) }).eq('id', userId)
+                setSavingPdf(false)
+              }} disabled={savingPdf}
+                style={{ padding: '9px 22px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', opacity: savingPdf ? 0.7 : 1 }}>
+                {savingPdf ? 'Guardando...' : '💾 Guardar configuración de PDF'}
+              </button>
+            </div>
+          </div>
+        )}
 
         </>)}
 
