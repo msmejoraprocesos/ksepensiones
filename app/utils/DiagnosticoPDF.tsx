@@ -136,7 +136,7 @@ export const DiagnosticoPDF = ({
   encabezadoTitulo, esBorrador, umaDiaria, pdfConfig,
 }: PDFProps) => {
   const cfg = mergePDFConfig(pdfConfig)
-  const COLOR = cfg.color_primario || encabezadoColor || C.azul
+  const COLOR = encabezadoColor || C.azul
   const ACCENT = cfg.color_acento || C.naranja
   const esc0 = escenarios[0]
   const escRec = escenarios.find(e => e.recomendado) ?? escenarios[escSelIdx] ?? escenarios[escenarios.length - 1]

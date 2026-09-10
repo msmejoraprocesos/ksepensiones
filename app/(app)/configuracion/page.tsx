@@ -1607,6 +1607,9 @@ export default function ConfiguracionPage() {
               logoUrl={perfil.logo_url}
               asesorNombre={perfil.nombre}
               razonSocial={perfil.razon_social}
+              encabezadoColor={perfil.encabezado_color}
+              encabezadoTitulo={perfil.encabezado_titulo}
+              encabezadoLogoSize={perfil.encabezado_logo_size}
             />
 
             {/* Botón guardar */}
