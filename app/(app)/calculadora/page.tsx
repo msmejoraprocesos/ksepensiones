@@ -2134,7 +2134,7 @@ function CalculadoraInner() {
           <div style={{ background: 'white', borderRadius: '14px', padding: '24px', maxWidth: '700px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <p style={{ fontSize: '14px', fontWeight: '700' as const, color: AZUL, margin: 0 }}>📖 Glosario de términos</p>
-              <button onClick={() => setShowGlosario(false)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
+              <button onClick={() => setShowGlosario(false)} aria-label="Cerrar" style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {[

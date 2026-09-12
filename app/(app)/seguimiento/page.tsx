@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/utils/supabase/client'
+import { avisoError } from '@/app/utils/avisos'
 
 const AZUL = '#1F3A5F'
 const VERDE = '#2E8B57'
@@ -78,12 +79,24 @@ export default function SeguimientoPage() {
 
   async function loadData(uid: string) {
     setCargando(true)
-    const [{ data: acts }, { data: clis }] = await Promise.all([
+    const [rActs, rClis] = await Promise.all([
       supabase.from('actividades').select('*, clientes(nombre)').eq('asesor_id', uid).order('fecha_programada'),
       supabase.from('clientes').select('id, nombre').eq('asesor_id', uid).order('nombre'),
     ])
-    setActividades((acts as Actividad[]) ?? [])
-    setClientes((clis as Cliente[]) ?? [])
+    /* Sin este manejo, una consulta fallida — sin red, sesión vencida,
+       permisos — dejaba la agenda vacía y el asesor concluía que no tenía
+       citas ese día. Un error silencioso que se confunde con un dato válido
+       es peor que un error visible. */
+    if (rActs.error) {
+      avisoError('No se pudo cargar la agenda', 'Revisa tu conexión y vuelve a intentar. Si persiste, cierra sesión y entra de nuevo.')
+      setCargando(false)
+      return
+    }
+    if (rClis.error) {
+      avisoError('No se pudo cargar la lista de clientes', 'La agenda se muestra, pero no podrás vincular actividades a un cliente hasta recargar.')
+    }
+    setActividades((rActs.data as Actividad[]) ?? [])
+    setClientes((rClis.data as Cliente[]) ?? [])
     setCargando(false)
   }
 
@@ -97,7 +110,7 @@ export default function SeguimientoPage() {
       const local = new Date(yr, mo-1, dy, hh, mm, 0)
       fechaCompleta = local.toISOString()
     }
-    const { data } = await supabase.from('actividades').insert({
+    const { data, error } = await supabase.from('actividades').insert({
       asesor_id: userId, titulo: form.titulo, tipo: form.tipo,
       fecha_programada: fechaCompleta,
       notas: form.notas || null,
@@ -105,11 +118,16 @@ export default function SeguimientoPage() {
       estatus: 'pendiente',
       comentario: null,
     }).select('*, clientes(nombre)').single()
-    if (data) {
-      setActividades(prev => [...prev, data as Actividad])
-      setMensaje('✓ Actividad creada')
-      setTimeout(() => setMensaje(''), 3000)
+    if (error || !data) {
+      /* El modal se cerraba aunque el guardado fallara: el asesor creía que
+         su actividad quedó registrada y no aparecía por ningún lado. */
+      avisoError('No se pudo crear la actividad', error?.message ?? 'Inténtalo de nuevo en un momento.')
+      setGuardando(false)
+      return
     }
+    setActividades(prev => [...prev, data as Actividad])
+    setMensaje('Actividad creada')
+    setTimeout(() => setMensaje(''), 3000)
     setShowModal(false)
     setForm({ tipo: 'llamada', titulo: '', cliente_id: '', notas: '' })
     setGuardando(false)
@@ -117,14 +135,27 @@ export default function SeguimientoPage() {
 
   async function completar(act: Actividad) {
     const nuevoEstatus = act.estatus === 'pendiente' ? 'completado' : 'pendiente'
-    await supabase.from('actividades').update({ estatus: nuevoEstatus }).eq('id', act.id)
+    const { error } = await supabase.from('actividades').update({ estatus: nuevoEstatus }).eq('id', act.id)
+    /* El estado local cambiaba aunque la base rechazara: la actividad se veía
+       completada hasta recargar, y entonces reaparecía pendiente. */
+    if (error) {
+      avisoError('No se pudo actualizar la actividad', error.message)
+      return
+    }
     setActividades(prev => prev.map(a => a.id === act.id ? { ...a, estatus: nuevoEstatus } : a))
     setDetalle(null)
   }
 
   async function eliminar(id: string) {
-    // Direct delete - no confirm needed as user clicked delete button
-    await supabase.from('actividades').delete().eq('id', id)
+    /* Borrar es irreversible y el botón está junto a los de editar: un clic
+       de más no debería costar una actividad. */
+    const act = actividades.find(a => a.id === id)
+    if (!window.confirm(`¿Eliminar "${act?.titulo ?? 'esta actividad'}"? No se puede deshacer.`)) return
+    const { error } = await supabase.from('actividades').delete().eq('id', id)
+    if (error) {
+      avisoError('No se pudo eliminar la actividad', error.message)
+      return
+    }
     setActividades(prev => prev.filter(a => a.id !== id))
     setDetalle(null)
   }
@@ -413,7 +444,7 @@ export default function SeguimientoPage() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-              <button onClick={() => setShowModal(false)}
+              <button onClick={() => setShowModal(false)} aria-label="Cerrar"
                 style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
                 Cancelar
               </button>
@@ -443,7 +474,7 @@ export default function SeguimientoPage() {
                       <div style={{ fontSize: '15px', fontWeight: '700', color: '#1e293b' }}>{detalle.titulo}</div>
                       <div style={{ fontSize: '15px', color: cfg.color, fontWeight: '600' }}>{cfg.label}</div>
                     </div>
-                    <button onClick={() => setDetalle(null)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
+                    <button onClick={() => setDetalle(null)} aria-label="Cerrar" style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
                     {detalle.fecha_programada && (

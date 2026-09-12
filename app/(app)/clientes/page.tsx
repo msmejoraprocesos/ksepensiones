@@ -2587,7 +2587,7 @@ function ClientesInner() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={e => { if (e.target === e.currentTarget) setShowGuia(false) }}>
           <div style={{ background: 'white', borderRadius: '14px', padding: '24px', maxWidth: '920px', width: '100%', maxHeight: '90vh', overflow: 'auto', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', position: 'relative' }}>
-            <button onClick={() => setShowGuia(false)}
+            <button onClick={() => setShowGuia(false)} aria-label="Cerrar"
               style={{ position: 'absolute', top: '14px', right: '14px', width: '32px', height: '32px', borderRadius: '50%', border: 'none', background: '#F4F6F9', color: '#64748b', fontSize: '16px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               ✕
             </button>
