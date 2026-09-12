@@ -5,6 +5,9 @@ import { createClient } from '@/utils/supabase/client'
 import { pdf } from '@react-pdf/renderer'
 import { DiagnosticoPDF } from '@/app/utils/DiagnosticoPDF'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { useTablaOrdenada } from '@/app/hooks/useTablaOrdenada'
+import ThOrdenable from '@/components/tabla/ThOrdenable'
+import Paginador from '@/components/tabla/Paginador'
 
 const AZUL = '#334E7B'
 const VERDE = '#2E8B57'
@@ -1024,6 +1027,7 @@ function ClientesInner() {
   })
 
   const clientesPorColumna = (colId: string) => filtered.filter(c => (c.etapa_kanban || 'prospecto') === colId)
+
   const totalCobrado = clientes.reduce((s, c) => s + (c.total_pagado ?? 0), 0)
   const totalPorCobrar = clientes.reduce((s, c) => s + Math.max(0, (c.monto_acordado ?? 0) - (c.total_pagado ?? 0)), 0)
   const filtered = clientes.filter(c => {
@@ -1033,6 +1037,17 @@ function ClientesInner() {
     if (filtroServicio && c.tipo_servicio !== filtroServicio) return false
     if (filtroPago && calcEstatus(c.monto_acordado, c.total_pagado ?? 0) !== filtroPago) return false
     return true
+  })
+
+  /* Ordenamiento y paginación de la vista de tabla. El kanban no se pagina:
+     ahí el valor está en ver el tablero completo de un vistazo. */
+  const tabla = useTablaOrdenada<any>(filtered, {
+    porPagina: 25,
+    valorDe: (c: any, campo: any) => {
+      if (campo === 'saldo') return Math.max(0, (c.monto_acordado ?? 0) - (c.total_pagado ?? 0))
+      if (campo === 'etapa_kanban') return c.etapa_kanban || 'prospecto'
+      return c[campo]
+    },
   })
 
   const fmt = (d: string | null) => d ? new Date(d).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'
@@ -1129,14 +1144,26 @@ function ClientesInner() {
             <div style={{ background: 'white', border: '1px solid #E5E7EB', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
-                  <tr style={{ background: '#F8FAFC', borderBottom: '2px solid #E5E7EB' }}>
-                    {['Cliente', 'Urgencia', 'Etapa', 'Servicio', 'Acordado', 'Pagado', 'Saldo', 'Pago', 'Contacto', ''].map((h, i) => (
-                      <th key={i} style={{ position: 'sticky' as const, top: 0, zIndex: 2, background: '#F8FAFC', padding: '9px 12px', textAlign: 'left' as const, fontSize: '10px', fontWeight: '700' as const, color: '#64748B', textTransform: 'uppercase' as const, letterSpacing: '0.5px', boxShadow: 'inset 0 -2px 0 #E5E7EB' }}>{h}</th>
+                  <tr>
+                    {([
+                      ['Cliente', 'nombre'], ['Urgencia', 'urgencia'], ['Etapa', 'etapa_kanban'],
+                      ['Servicio', 'servicio'], ['Acordado', 'monto_acordado'], ['Pagado', 'total_pagado'],
+                      ['Saldo', 'saldo'], ['Pago', 'fecha_ultimo_pago'], ['Contacto', null], ['', null],
+                    ] as [string, string | null][]).map(([h, campo], i) => (
+                      <ThOrdenable
+                        key={i}
+                        label={h}
+                        campo={campo ?? undefined}
+                        campoActivo={tabla.campo as string | null}
+                        direccion={tabla.direccion}
+                        onOrdenar={tabla.ordenarPor}
+                        alinear={['Acordado', 'Pagado', 'Saldo'].includes(h) ? 'right' : 'left'}
+                      />
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((c, i) => {
+                  {tabla.visibles.map((c, i) => {
                     const col = COLUMNAS.find(col => col.id === (c.etapa_kanban || 'prospecto'))
                     const estatus = calcEstatus(c.monto_acordado, c.total_pagado ?? 0)
                     const sem = SEMAFORO[estatus]
@@ -1228,6 +1255,15 @@ function ClientesInner() {
                   )}
                 </tbody>
               </table>
+              <Paginador
+                pagina={tabla.pagina}
+                totalPaginas={tabla.totalPaginas}
+                setPagina={tabla.setPagina}
+                desde={tabla.desde}
+                hasta={tabla.hasta}
+                total={tabla.total}
+                etiqueta="clientes"
+              />
             </div>
           )}
         </div>
