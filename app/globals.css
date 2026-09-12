@@ -13,6 +13,20 @@ a {
 button, input, textarea, select {
   font-family: inherit;
 }
+
+/* Inter tiene métricas distintas a Segoe UI: sus dígitos proporcionales son
+   más anchos y hacen "bailar" las columnas cuando un valor cambia. En una
+   aplicación de cifras eso se nota mucho, así que todas las tablas usan
+   numerales tabulares por defecto — ancho fijo por dígito. */
+table {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Inter incluye alternativas que separan visualmente l, I y 1. Sin ellas,
+   "1,177" y "l,l77" se parecen demasiado en cifras pequeñas. */
+body {
+  font-feature-settings: 'cv05' 1, 'ss01' 1;
+}
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }

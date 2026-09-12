@@ -1,22 +1,13 @@
 'use client'
 import React, { useState } from 'react'
+import { K, nw, num } from '@/lib/design-tokens'
 
 const AZUL = '#334E7B'
 const VERDE = '#2E7D5A'
 const NARANJA = '#E8724A'
 const BORDE = '#E2E8F0'
 
-/* Tokens — docs/rediseno/SISTEMA-DISENO.md */
-const K = {
-  navy900: '#0D2440', navy800: '#14375F', navy600: '#245287',
-  orange: '#E8622C', orangeSoft: '#FDF0E9', gold: '#F2B544',
-  green: '#12855C', greenSoft: '#E6F4EE', purple: '#6D3BD4', purpleSoft: '#F3EEFE',
-  red: '#B91C1C', redSoft: '#FEF2F2',
-  paper: '#F5F7FA', card: '#FFFFFF',
-  ink: '#132135', muted: '#66738A', line: '#E1E7F0',
-}
-const nw = { whiteSpace: 'nowrap' as const }
-const num = { fontVariantNumeric: 'tabular-nums' as const }
+
 
 const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n || 0)
 const fmtMXN2 = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n || 0)

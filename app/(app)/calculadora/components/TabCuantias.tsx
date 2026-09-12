@@ -1,21 +1,12 @@
 'use client'
 import React, { useState, useEffect } from 'react'
+import { K, nw, num } from '@/lib/design-tokens'
 
-/* Tokens — docs/rediseno/SISTEMA-DISENO.md */
-const K = {
-  navy900: '#0D2440', navy800: '#14375F', navy600: '#245287',
-  orange: '#E8622C', orangeSoft: '#FDF0E9', gold: '#F2B544',
-  green: '#12855C', greenLt: '#1FA873', greenSoft: '#E6F4EE',
-  purple: '#6D3BD4', red: '#DC2626', redSoft: '#FEF2F2',
-  paper: '#F5F7FA', card: '#FFFFFF',
-  ink: '#132135', muted: '#66738A', line: '#E1E7F0',
-}
+
 
 const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n)
 const fmtMXN2 = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
 
-const nw = { whiteSpace: 'nowrap' as const }
-const num = { fontVariantNumeric: 'tabular-nums' as const }
 const EDADES = [60, 61, 62, 63, 64, 65]
 const factorPorEdad = (e: number) => (e >= 65 ? 1.0 : 0.75 + (e - 60) * 0.05)
 
