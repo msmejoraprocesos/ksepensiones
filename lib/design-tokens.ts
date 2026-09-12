@@ -143,3 +143,37 @@ export function getTermometro(mesesRecuperacion: number): TramoRecuperacion {
   return TERMOMETRO_RECUPERACION.find(t => mesesRecuperacion <= t.max)
     ?? TERMOMETRO_RECUPERACION[TERMOMETRO_RECUPERACION.length - 1]
 }
+
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Retorno sobre lo invertido — base de cálculo
+
+   El libro de referencia del IMSS usa cuatro denominadores distintos bajo la
+   misma etiqueta "Tasa de Rendimiento Total", según la hoja:
+
+     INVERSION              costo total, antes de AFORE          24.02x
+     MOD 40 REC. VS RETRO.  inversión neta (recurrente)          30.57x
+     MOD 40 REC. VS RETRO.  neta retroactiva                     19.63x
+     PENSIÓN SIN-CON FIN.   con financiamiento                   22.81x
+
+   La app usa INVERSIÓN NETA — costo total menos recuperación de AFORE.
+
+   Razón: las aportaciones de Modalidad 40 cubren retiro, cesantía y vejez, y
+   el pensionado por Ley 73 recibe de vuelta el saldo de su subcuenta de
+   Retiro en una sola exhibición al resolverse la pensión. Ese dinero regresa,
+   así que no es costo. Medir el retorno contra una cifra que incluye dinero
+   devuelto subestima el rendimiento real.
+
+   Salvedad que conviene tener presente: la AFORE llega al final del trámite,
+   no durante. Para "cuánto rinde" la base correcta es la neta; para "cuánto
+   necesito juntar" es el costo total. Son dos preguntas distintas y por eso
+   la pantalla de Costo Mod. 40 muestra ambas cifras por separado.
+   ────────────────────────────────────────────────────────────────────────── */
+
+export const BASE_RETORNO = 'inversion_neta' as const
+
+/** Retorno como múltiplo. Devuelve 0 si no hay inversión neta positiva. */
+export function calcularRetorno(gananciaAcumulada: number, inversionNeta: number): number {
+  if (inversionNeta <= 0) return 0
+  return gananciaAcumulada / inversionNeta
+}

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { esEscenarioMod40, ID_ESCENARIO_MOD10 } from '../app/utils/formulas'
 import { evaluarElegibilidad } from '../lib/elegibilidad'
-import { getTermometro, TERMOMETRO_RECUPERACION, HORIZONTE_MESES } from '../lib/design-tokens'
+import { getTermometro, TERMOMETRO_RECUPERACION, HORIZONTE_MESES, calcularRetorno, BASE_RETORNO } from '../lib/design-tokens'
 
 /**
  * Regresiones — cada bloque corresponde a un bug real encontrado en revisión.
@@ -275,5 +275,34 @@ describe('advertencias de riesgo en Modalidad 40', () => {
   it('no muestra advertencias de Mod. 40 cuando la vía está bloqueada', () => {
     const r = evaluarElegibilidad({ ...viable, cotizando_actualmente: true })
     expect(r.hallazgos.some(h => /fallece/i.test(h.titulo))).toBe(false)
+  })
+})
+
+// ── 9. Base de cálculo del retorno ────────────────────────────────────────
+// El Excel de referencia usa cuatro denominadores distintos bajo la misma
+// etiqueta. La app fija uno: inversión neta, porque la recuperación de AFORE
+// es dinero que regresa y por tanto no es costo.
+describe('retorno sobre lo invertido', () => {
+  it('divide entre inversión neta, no entre costo total', () => {
+    const ganancia = 11_462_978
+    const costoTotal = 579_047.97
+    const afore = 115_809.59
+    const neta = costoTotal - afore
+    expect(calcularRetorno(ganancia, neta)).toBeCloseTo(ganancia / neta, 6)
+    expect(calcularRetorno(ganancia, neta)).not.toBeCloseTo(ganancia / costoTotal, 2)
+  })
+
+  it('la base declarada es inversion_neta', () => {
+    expect(BASE_RETORNO).toBe('inversion_neta')
+  })
+
+  it('no divide entre cero', () => {
+    expect(calcularRetorno(1_000_000, 0)).toBe(0)
+    expect(calcularRetorno(1_000_000, -5)).toBe(0)
+  })
+
+  it('usar el costo total subestimaría el retorno', () => {
+    const g = 11_462_978, total = 579_047.97, neta = 463_238.38
+    expect(calcularRetorno(g, neta)).toBeGreaterThan(g / total)
   })
 })
