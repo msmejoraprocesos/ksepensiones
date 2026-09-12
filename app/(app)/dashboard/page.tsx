@@ -351,7 +351,7 @@ function MiDiaInner() {
         </div>
         <button onClick={() => setChartModal({ titulo, sub, contenido: contenidoExpandido ?? contenidoCompacto })}
           title="Maximizar"
-          style={{ background: 'none', border: '1px solid #E2E8F0', borderRadius: '6px', width: '26px', height: '26px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', color: '#66738A', flexShrink: 0 }}>
+          style={{ background: 'none', border: '1px solid #E2E8F0', borderRadius: '10px', width: '26px', height: '26px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', color: '#66738A', flexShrink: 0 }}>
           ⛶
         </button>
       </div>
@@ -412,7 +412,7 @@ function MiDiaInner() {
                 {chartModal.sub && <p style={{ fontSize: '15px', color: '#66738A', margin: '2px 0 0' }}>{chartModal.sub}</p>}
               </div>
               <button onClick={() => setChartModal(null)}
-                style={{ background: '#F4F6F9', border: 'none', borderRadius: '8px', width: '32px', height: '32px', cursor: 'pointer', fontSize: '16px', color: '#66738A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                style={{ background: '#F4F6F9', border: 'none', borderRadius: '10px', width: '32px', height: '32px', cursor: 'pointer', fontSize: '16px', color: '#66738A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 ✕
               </button>
             </div>
@@ -638,8 +638,8 @@ function MiDiaInner() {
                         <div key={i}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
                             <span style={{ fontSize: '14px', fontWeight: '600', color: '#374151', width: '100px', flexShrink: 0 }}>{c.label}</span>
-                            <div style={{ flex: 1, background: '#F4F6F9', height: '90px', borderRadius: '6px', overflow: 'hidden' }}>
-                              <div style={{ width: `${(c.n / max) * 100}%`, height: '100%', background: c.color, minWidth: c.n > 0 ? '4px' : 0, borderRadius: '6px', display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
+                            <div style={{ flex: 1, background: '#F4F6F9', height: '90px', borderRadius: '10px', overflow: 'hidden' }}>
+                              <div style={{ width: `${(c.n / max) * 100}%`, height: '100%', background: c.color, minWidth: c.n > 0 ? '4px' : 0, borderRadius: '10px', display: 'flex', alignItems: 'center', paddingLeft: '10px' }}>
                                 {c.n > 0 && <span style={{ fontSize: '15px', fontWeight: '700', color: 'white' }}>{c.n}</span>}
                               </div>
                             </div>
@@ -821,8 +821,8 @@ function MiDiaInner() {
                     return (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <span style={{ fontSize: '14px', color: '#374151', fontWeight: '500', width: '120px', flexShrink: 0 }}>{r.label}</span>
-                        <div style={{ flex: 1, height: '120px', background: '#F3F4F6', borderRadius: '8px', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: `${pct}%`, background: r.color, minWidth: count > 0 ? '6px' : 0, borderRadius: '8px', display: 'flex', alignItems: 'center', paddingLeft: '12px' }}>
+                        <div style={{ flex: 1, height: '120px', background: '#F3F4F6', borderRadius: '10px', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: `${pct}%`, background: r.color, minWidth: count > 0 ? '6px' : 0, borderRadius: '10px', display: 'flex', alignItems: 'center', paddingLeft: '12px' }}>
                             {pct > 12 && <span style={{ fontSize: '13px', fontWeight: '700', color: 'white' }}>{Math.round(pct)}%</span>}
                           </div>
                         </div>
@@ -862,7 +862,7 @@ function MiDiaInner() {
                     { nivel: 'verde', label: 'Con tiempo', val: diagsUrgencia.verde, color: '#16A34A', bg: '#F0FDF4', desc: 'más de 5 años' },
                     { nivel: 'gris', label: 'Sin datos', val: diagsUrgencia.gris, color: '#66738A', bg: '#F9FAFB', desc: 'sin diagnóstico' },
                   ].map(s => (
-                    <div key={s.nivel} style={{ background: s.bg, borderRadius: '6px', padding: '8px', borderLeft: `3px solid ${s.color}`, display: 'flex', flexDirection: 'column' as const, justifyContent: 'center' }}>
+                    <div key={s.nivel} style={{ background: s.bg, borderRadius: '10px', padding: '8px', borderLeft: `3px solid ${s.color}`, display: 'flex', flexDirection: 'column' as const, justifyContent: 'center' }}>
                       <div style={{ fontSize: '18px', fontWeight: '800', color: s.color }}>{s.val}</div>
                       <div style={{ fontSize: '13px', fontWeight: '700', color: s.color }}>{s.label}</div>
                       <div style={{ fontSize: '13px', color: '#66738A' }}>{s.desc}</div>
@@ -904,12 +904,12 @@ function MiDiaInner() {
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
                     {/* KPIs principales */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                      <div style={{ background: '#F4F6F9', borderRadius: '8px', padding: '12px', textAlign: 'center' as const }}>
+                      <div style={{ background: '#F4F6F9', borderRadius: '10px', padding: '12px', textAlign: 'center' as const }}>
                         <div style={{ fontSize: '32px', fontWeight: '800' as const, color: encuestaStats.promedio >= 4 ? VERDE : '#D97706', lineHeight: 1 }}>{encuestaStats.promedio > 0 ? encuestaStats.promedio.toFixed(1) : '—'}</div>
                         <div style={{ fontSize: '14px', letterSpacing: '2px', margin: '4px 0 2px' }}>{'⭐'.repeat(Math.round(encuestaStats.promedio))}</div>
                         <p style={{ fontSize: '13px', color: '#66738A', margin: 0, textTransform: 'uppercase' as const }}>Satisfacción</p>
                       </div>
-                      <div style={{ background: '#F4F6F9', borderRadius: '8px', padding: '12px', textAlign: 'center' as const }}>
+                      <div style={{ background: '#F4F6F9', borderRadius: '10px', padding: '12px', textAlign: 'center' as const }}>
                         <div style={{ fontSize: '32px', fontWeight: '800' as const, color: encuestaStats.nps >= 50 ? VERDE : encuestaStats.nps >= 0 ? '#D97706' : '#DC2626', lineHeight: 1 }}>{encuestaStats.respondidas > 0 ? `${encuestaStats.nps > 0 ? '+' : ''}${encuestaStats.nps}` : '—'}</div>
                         <div style={{ fontSize: '15px', color: encuestaStats.nps >= 50 ? VERDE : '#D97706', fontWeight: '600' as const, margin: '4px 0 2px' }}>{encuestaStats.nps >= 70 ? 'Excelente' : encuestaStats.nps >= 50 ? 'Bueno' : encuestaStats.nps >= 0 ? 'Regular' : 'Malo'}</div>
                         <p style={{ fontSize: '13px', color: '#66738A', margin: 0, textTransform: 'uppercase' as const }}>NPS</p>
@@ -1075,7 +1075,7 @@ function MiDiaInner() {
                 <p style={{ fontSize: '13px', color: '#93C5FD', margin: 0, lineHeight: 1.4 }}>Estos son tus primeros pasos para empezar a trabajar</p>
               </div>
               <button onClick={() => setShowOnboarding(false)}
-                style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', fontSize: '16px', lineHeight: 1, padding: '6px 8px', borderRadius: '6px', flexShrink: 0 }}>✕</button>
+                style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', fontSize: '16px', lineHeight: 1, padding: '6px 8px', borderRadius: '10px', flexShrink: 0 }}>✕</button>
             </div>
             <div style={{ padding: '22px 24px' }}>
               {[
@@ -1085,7 +1085,7 @@ function MiDiaInner() {
                 { n: 4, icon: '📊', title: 'Da seguimiento desde Mi Día', desc: 'Aquí verás tus pendientes, alertas de pago y el progreso de todo tu pipeline cada día.' },
               ].map(s => (
                 <div key={s.n} style={{ display: 'flex', gap: '14px', marginBottom: '16px', alignItems: 'flex-start' }}>
-                  <div style={{ width: '34px', height: '34px', background: '#EEF2F8', border: `2px solid ${AZUL}`, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '15px', fontWeight: '800' as const, color: AZUL }}>{s.n}</div>
+                  <div style={{ width: '34px', height: '34px', background: '#EEF2F8', border: `2px solid ${AZUL}`, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '15px', fontWeight: '800' as const, color: AZUL }}>{s.n}</div>
                   <div style={{ flex: 1 }}>
                     <p style={{ fontSize: '14px', fontWeight: '700' as const, color: '#111827', margin: '0 0 3px' }}>{s.icon} {s.title}</p>
                     <p style={{ fontSize: '13px', color: '#4B5563', margin: 0, lineHeight: 1.5 }}>{s.desc}</p>
@@ -1099,7 +1099,7 @@ function MiDiaInner() {
               </label>
 
               <button onClick={() => { if (noVolverAMostrar) localStorage.setItem('kse_onboarding_oculto', '1'); setShowOnboarding(false) }}
-                style={{ width: '100%', padding: '13px', background: NARANJA, color: 'white', border: 'none', fontSize: '14px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
+                style={{ width: '100%', padding: '13px', background: NARANJA, color: 'white', border: 'none', fontSize: '14px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                 Entendido, ¡empecemos! →
               </button>
             </div>

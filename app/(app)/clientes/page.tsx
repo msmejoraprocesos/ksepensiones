@@ -1058,7 +1058,7 @@ function ClientesInner() {
     const diff = Math.floor((Date.now() - new Date(d).getTime()) / 86400000)
     if (diff === 0) return 'Hoy'; if (diff === 1) return 'Ayer'; return `hace ${diff}d`
   }
-  const inputSt: React.CSSProperties = { display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box', outline: 'none', fontFamily: 'inherit', background: 'white' }
+  const inputSt: React.CSSProperties = { display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '13px', boxSizing: 'border-box', outline: 'none', fontFamily: 'inherit', background: 'white' }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)', background: '#F4F6F9', overflow: 'hidden' }}>
@@ -1068,7 +1068,7 @@ function ClientesInner() {
         <h1 style={{ color: '#132135', fontSize: '26px', fontWeight: 700, margin: 0, flexShrink: 0, letterSpacing: '-0.015em' }}>
           Clientes <span style={{ color: '#94a3b8', fontWeight: '600', fontSize: '14px' }}>({clientesFiltrados.length})</span>
         </h1>
-        <div style={{ display: 'flex', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', flexShrink: 0 }}>
+        <div style={{ display: 'flex', border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden', flexShrink: 0 }}>
           {(['lista', 'pipeline'] as const).map(v => (
             <button key={v} onClick={() => setVista(v)}
               style={{ padding: '6px 14px', background: vista === v ? AZUL : 'white', color: vista === v ? 'white' : '#64748b', border: 'none', cursor: 'pointer', fontSize: '15px', fontWeight: '600' }}>
@@ -1079,19 +1079,19 @@ function ClientesInner() {
         {(vista === 'lista' || vista === 'pipeline') && (
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', flex: 1, minWidth: '820px' }}>
             <input placeholder="Buscar..." value={search} onChange={e => setSearch(e.target.value)}
-              style={{ padding: '7px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '15px', width: '130px', minWidth: '100px', outline: 'none' }} />
+              style={{ padding: '7px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '15px', width: '130px', minWidth: '100px', outline: 'none' }} />
             <select value={filtroEtapa} onChange={e => setFiltroEtapa(e.target.value)}
-              style={{ padding: '7px 8px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '15px', outline: 'none', background: 'white', color: filtroEtapa ? '#374151' : '#94a3b8', maxWidth: '125px' }}>
+              style={{ padding: '7px 8px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '15px', outline: 'none', background: 'white', color: filtroEtapa ? '#374151' : '#94a3b8', maxWidth: '125px' }}>
               <option value="">Todas las etapas</option>
               {COLUMNAS.map(col => <option key={col.id} value={col.id}>{col.label}</option>)}
             </select>
             <select value={filtroServicio} onChange={e => setFiltroServicio(e.target.value)}
-              style={{ padding: '7px 8px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '15px', outline: 'none', background: 'white', color: filtroServicio ? '#374151' : '#94a3b8', maxWidth: '125px' }}>
+              style={{ padding: '7px 8px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '15px', outline: 'none', background: 'white', color: filtroServicio ? '#374151' : '#94a3b8', maxWidth: '125px' }}>
               <option value="">Todos los servicios</option>
               {TIPOS_SERVICIO.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
             </select>
             <select value={filtroPago} onChange={e => setFiltroPago(e.target.value)}
-              style={{ padding: '7px 8px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '15px', outline: 'none', background: 'white', color: filtroPago ? '#374151' : '#94a3b8', maxWidth: '115px' }}>
+              style={{ padding: '7px 8px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '15px', outline: 'none', background: 'white', color: filtroPago ? '#374151' : '#94a3b8', maxWidth: '115px' }}>
               <option value="">Todos los pagos</option>
               <option value="Pendiente">🔴 Pendiente</option>
               <option value="Parcial">🟡 Parcial</option>
@@ -1099,11 +1099,11 @@ function ClientesInner() {
             </select>
             {(filtroEtapa || filtroServicio || filtroPago || search) && (
               <button onClick={() => { setFiltroEtapa(''); setFiltroServicio(''); setFiltroPago(''); setSearch('') }}
-                style={{ padding: '7px 10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '15px', background: '#F4F6F9', color: '#64748b', cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ padding: '7px 10px', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '15px', background: '#F4F6F9', color: '#64748b', cursor: 'pointer', fontFamily: 'inherit' }}>
                 ✕ Limpiar
               </button>
             )}
-            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '15px', color: '#64748b', cursor: 'pointer', userSelect: 'none' as const, padding: '7px 10px', border: '1.5px solid #e2e8f0', borderRadius: '8px', background: mostrarArchivados ? '#F4F6F9' : 'white', flexShrink: 0 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '15px', color: '#64748b', cursor: 'pointer', userSelect: 'none' as const, padding: '7px 10px', border: '1.5px solid #e2e8f0', borderRadius: '10px', background: mostrarArchivados ? '#F4F6F9' : 'white', flexShrink: 0 }}>
               <input type="checkbox" checked={mostrarArchivados}
                 onChange={e => { setMostrarArchivados(e.target.checked); if (e.target.checked && userIdRef.current) loadArchivados(userIdRef.current) }} />
               📦 Archivados {clientesArchivados.length > 0 ? `(${clientesArchivados.length})` : ''}
@@ -1126,7 +1126,7 @@ function ClientesInner() {
               + Nuevo cliente
             </button>
             <button onClick={() => setShowGuia(true)}
-              style={{ background: '#F4F6F9', color: AZUL, border: '1px solid #e2e8f0', borderRadius: '8px', padding: '7px 12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', flexShrink: 0 }}>
+              style={{ background: '#F4F6F9', color: AZUL, border: '1px solid #e2e8f0', borderRadius: '10px', padding: '7px 12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', flexShrink: 0 }}>
               📖 Guía
             </button>
           </div>
@@ -1195,21 +1195,21 @@ function ClientesInner() {
                             }
                             const style = colors[urg.nivel]
                             return (
-                              <span title={urg.razon} style={{ display: 'inline-block', padding: '2px 8px', background: style.bg, color: style.color, fontSize: '15px', fontWeight: '700', borderRadius: '6px', cursor: 'help', whiteSpace: 'nowrap' as const }}>
+                              <span title={urg.razon} style={{ display: 'inline-block', padding: '2px 8px', background: style.bg, color: style.color, fontSize: '15px', fontWeight: '700', borderRadius: '10px', cursor: 'help', whiteSpace: 'nowrap' as const }}>
                                 {urg.label}
                               </span>
                             )
                           })()}
                         </td>
                         <td style={{ padding: '10px 12px' }}>
-                          <span style={{ fontSize: '13px', padding: '2px 7px', borderRadius: '8px', fontWeight: '600', background: col?.bg ?? '#F4F6F9', color: col?.color ?? '#6B7280' }}>{col?.label ?? '—'}</span>
+                          <span style={{ fontSize: '13px', padding: '2px 7px', borderRadius: '10px', fontWeight: '600', background: col?.bg ?? '#F4F6F9', color: col?.color ?? '#6B7280' }}>{col?.label ?? '—'}</span>
                         </td>
                         <td style={{ padding: '10px 12px', fontSize: '15px', color: '#64748b' }}>{TIPOS_SERVICIO.find(t => t.id === c.tipo_servicio)?.label ?? '—'}</td>
                         <td style={{ padding: '10px 12px', fontSize: '15px', fontWeight: '600', color: AZUL }}>{fmtMXN(c.monto_acordado)}</td>
                         <td style={{ padding: '10px 12px', fontSize: '15px', fontWeight: '600', color: VERDE }}>{fmtMXN(c.total_pagado ?? 0)}</td>
                         <td style={{ padding: '10px 12px', fontSize: '15px', fontWeight: '600', color: saldo > 0 ? '#ef4444' : VERDE }}>{saldo > 0 ? fmtMXN(saldo) : '✅'}</td>
                         <td style={{ padding: '10px 12px' }}>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: sem.bg, border: `1px solid ${sem.border}`, borderRadius: '8px', padding: '2px 7px' }}>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: sem.bg, border: `1px solid ${sem.border}`, borderRadius: '10px', padding: '2px 7px' }}>
                             <span style={{ fontSize: '15px' }}>{sem.icon}</span>
                             <span style={{ fontSize: '13px', color: sem.color, fontWeight: '700' }}>{estatus}</span>
                           </span>
@@ -1248,7 +1248,7 @@ function ClientesInner() {
                           <td style={{ padding: '10px 12px', fontSize: '15px', color: '#94a3b8' }}>{fmtDias(c.ultimo_contacto)}</td>
                           <td style={{ padding: '10px 12px' }}>
                             <button onClick={() => reactivarCliente(c.id)}
-                              style={{ padding: '4px 10px', border: '1px solid #c7d2fe', borderRadius: '6px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', background: '#EEF2F8', color: AZUL }}>
+                              style={{ padding: '4px 10px', border: '1px solid #c7d2fe', borderRadius: '10px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', background: '#EEF2F8', color: AZUL }}>
                               ↩️ Reactivar
                             </button>
                           </td>
@@ -1326,18 +1326,18 @@ function ClientesInner() {
                             <span style={{ fontSize: '15px', fontWeight: '700', color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cliente.nombre}</span>
                           </div>
                           {cliente.tipo_servicio && (
-                            <span style={{ fontSize: '13px', padding: '1px 6px', borderRadius: '8px', background: col.bg, color: col.color, fontWeight: '700', display: 'inline-block', marginBottom: '4px' }}>{TIPOS_SERVICIO.find(t => t.id === cliente.tipo_servicio)?.label ?? cliente.tipo_servicio}</span>
+                            <span style={{ fontSize: '13px', padding: '1px 6px', borderRadius: '10px', background: col.bg, color: col.color, fontWeight: '700', display: 'inline-block', marginBottom: '4px' }}>{TIPOS_SERVICIO.find(t => t.id === cliente.tipo_servicio)?.label ?? cliente.tipo_servicio}</span>
                           )}
                           {cliente.monto_acordado && (
                             <div style={{ fontSize: '15px', color: AZUL, fontWeight: '700', marginBottom: '3px' }}>💰 {fmtMXN(cliente.monto_acordado)}</div>
                           )}
-                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: sem.bg, border: `1px solid ${sem.border}`, borderRadius: '6px', padding: '1px 6px', marginBottom: '3px' }}>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: sem.bg, border: `1px solid ${sem.border}`, borderRadius: '10px', padding: '1px 6px', marginBottom: '3px' }}>
                             <span style={{ fontSize: '13px' }}>{sem.icon}</span>
                             <span style={{ fontSize: '13px', color: sem.color, fontWeight: '700' }}>{estatus}</span>
                           </div>
                           {/* Mini historial de pagos */}
                           {(cliente.total_pagado ?? 0) > 0 && (
-                            <div style={{ marginTop: '4px', padding: '4px 6px', background: '#f0fdf4', borderRadius: '6px', border: '1px solid #bbf7d0' }}>
+                            <div style={{ marginTop: '4px', padding: '4px 6px', background: '#f0fdf4', borderRadius: '10px', border: '1px solid #bbf7d0' }}>
                               <div style={{ fontSize: '13px', color: VERDE, fontWeight: '700' }}>
                                 💰 {fmtMXN(cliente.total_pagado ?? 0)} pagado
                               </div>
@@ -1353,7 +1353,7 @@ function ClientesInner() {
                       )
                     })}
                     {cards.length === 0 && (
-                      <div style={{ border: `2px dashed ${isDragOver && canDrop ? col.color : '#e2e8f0'}`, borderRadius: '8px', padding: '16px 8px', textAlign: 'center', color: isDragOver && canDrop ? col.color : '#cbd5e1', fontSize: '13px' }}>
+                      <div style={{ border: `2px dashed ${isDragOver && canDrop ? col.color : '#e2e8f0'}`, borderRadius: '10px', padding: '16px 8px', textAlign: 'center', color: isDragOver && canDrop ? col.color : '#cbd5e1', fontSize: '13px' }}>
                         {isDragOver && canDrop ? 'Suelta aquí' : isDragOver && !canDrop ? '🚫 No permitido' : 'Vacío'}
                       </div>
                     )}
@@ -1389,7 +1389,7 @@ function ClientesInner() {
                     }
                     const style = colors[urg.nivel]
                     return (
-                      <span title={urg.razon} style={{ padding: '1px 8px', background: style.bg, color: style.color, fontSize: '15px', fontWeight: '700', borderRadius: '6px', cursor: 'help' }}>
+                      <span title={urg.razon} style={{ padding: '1px 8px', background: style.bg, color: style.color, fontSize: '15px', fontWeight: '700', borderRadius: '10px', cursor: 'help' }}>
                         {urg.label} — {urg.razon}
                       </span>
                     )
@@ -1398,18 +1398,18 @@ function ClientesInner() {
               </div>
               <button onClick={() => { setNuevoClienteData({ id: selected.id, nombre: selected.nombre, telefono: selected.telefono }); setMaterialesSeleccionados([]); setShowWappModal(true) }}
                 title="Enviar material de apoyo"
-                style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 10px', background: '#dcfce7', color: '#15803d', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}>
+                style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 10px', background: '#dcfce7', color: '#15803d', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}>
                 💬 Material
               </button>
               <button onClick={() => setShowEncuestaModal(true)}
                 title="Enviar encuesta de satisfacción"
-                style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 10px', background: '#FFF7ED', color: '#C2410C', border: '1px solid #FED7AA', borderRadius: '8px', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}>
+                style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 10px', background: '#FFF7ED', color: '#C2410C', border: '1px solid #FED7AA', borderRadius: '10px', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}>
                 ⭐ Encuesta
               </button>
               {userRol === 'asesor' && (
                 <button onClick={() => setShowCanalizarModal(selected)}
                   title="Solicitar canalización"
-                  style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 10px', background: '#EEF2F8', color: AZUL, border: `1px solid ${AZUL}`, borderRadius: '8px', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}>
+                  style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 10px', background: '#EEF2F8', color: AZUL, border: `1px solid ${AZUL}`, borderRadius: '10px', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}>
                   🔄 Canalizar
                 </button>
               )}
@@ -1437,7 +1437,7 @@ function ClientesInner() {
                   {COLUMNAS.map(col => <option key={col.id} value={col.id}>{col.label}</option>)}
                 </select>
               ) : (
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '6px', border: `1.5px solid ${(COLUMNAS.find(c => c.id === (selected.etapa_kanban || 'prospecto'))?.color) || '#e2e8f0'}`, background: (COLUMNAS.find(c => c.id === (selected.etapa_kanban || 'prospecto'))?.bg) || 'white', color: (COLUMNAS.find(c => c.id === (selected.etapa_kanban || 'prospecto'))?.color) || '#64748b', fontSize: '15px', fontWeight: '700' }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 12px', borderRadius: '10px', border: `1.5px solid ${(COLUMNAS.find(c => c.id === (selected.etapa_kanban || 'prospecto'))?.color) || '#e2e8f0'}`, background: (COLUMNAS.find(c => c.id === (selected.etapa_kanban || 'prospecto'))?.bg) || 'white', color: (COLUMNAS.find(c => c.id === (selected.etapa_kanban || 'prospecto'))?.color) || '#64748b', fontSize: '15px', fontWeight: '700' }}>
                   {COLUMNAS.find(c => c.id === (selected.etapa_kanban || 'prospecto'))?.label}
                 </div>
               )}
@@ -1551,7 +1551,7 @@ function ClientesInner() {
 
                     doc.save(`expediente_${selected.nombre.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.pdf`)
                   }}
-                  style={{ margin: '6px 0', padding: '6px 14px', background: AZUL, color: 'white', border: 'none', borderRadius: '6px', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0, alignSelf: 'center' }}>
+                  style={{ margin: '6px 0', padding: '6px 14px', background: AZUL, color: 'white', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0, alignSelf: 'center' }}>
                   📥 Descargar PDF
                 </button>
               </div>
@@ -1618,14 +1618,14 @@ function ClientesInner() {
                         if (!yaEnDiagnostico) return null
                         if (selected.esquema_pago === 'meses_pension' && !selected.monto_pension_mensual) {
                           return (
-                            <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px', padding: '8px 10px', fontSize: '15px', color: '#92400e', lineHeight: 1.5 }}>
+                            <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '10px', padding: '8px 10px', fontSize: '15px', color: '#92400e', lineHeight: 1.5 }}>
                               📌 Aún no has definido el <strong>monto de pensión mensual</strong> de este cliente. Captúralo en cuanto lo sepas (sección "Esquema de pago" abajo).
                             </div>
                           )
                         }
                         if (selected.esquema_pago === 'porcentaje_recuperado' && !selected.monto_recuperado) {
                           return (
-                            <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px', padding: '8px 10px', fontSize: '15px', color: '#92400e', lineHeight: 1.5 }}>
+                            <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '10px', padding: '8px 10px', fontSize: '15px', color: '#92400e', lineHeight: 1.5 }}>
                               📌 Aún no has definido el <strong>monto recuperado</strong> de este cliente. Captúralo en cuanto lo sepas (sección "Esquema de pago" abajo).
                             </div>
                           )
@@ -1663,7 +1663,7 @@ function ClientesInner() {
                                   {ESQUEMAS_PAGO.map(e => <option key={e.id} value={e.id}>{e.label}</option>)}
                                 </select>
                                 {pagos.length > 0 && (
-                                  <p style={{ fontSize: '13px', color: '#92400e', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '6px', padding: '6px 8px', margin: '6px 0 0', lineHeight: 1.5 }}>
+                                  <p style={{ fontSize: '13px', color: '#92400e', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '10px', padding: '6px 8px', margin: '6px 0 0', lineHeight: 1.5 }}>
                                     🔒 Este cliente ya tiene pagos registrados ({pagos.length}), por lo que no se puede cambiar el esquema de pago. Si necesitas renegociar los términos: cancela este registro indicando el motivo, crea un nuevo cliente con el esquema correcto, y registra lo ya cobrado como anticipo.
                                   </p>
                                 )}
@@ -1741,18 +1741,18 @@ function ClientesInner() {
                   {!editando ? (
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <button onClick={() => abrirEditar(selected)}
-                        style={{ flex: 1, padding: '9px', background: '#F4F6F9', color: AZUL, border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                        style={{ flex: 1, padding: '9px', background: '#F4F6F9', color: AZUL, border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
                         ✏️ Editar datos
                       </button>
                       <button onClick={() => setShowConfirmDelete(true)}
-                        style={{ padding: '9px 14px', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                        style={{ padding: '9px 14px', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '10px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
                         📦 Archivar
                       </button>
                     </div>
                   ) : (
                     <div style={{ display: 'flex', gap: '8px' }}>
-                      <button onClick={() => setEditando(false)} style={{ flex: 1, padding: '9px', background: '#F4F6F9', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
-                      <button onClick={guardarEdicion} style={{ flex: 2, padding: '9px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>Guardar cambios</button>
+                      <button onClick={() => setEditando(false)} style={{ flex: 1, padding: '9px', background: '#F4F6F9', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
+                      <button onClick={guardarEdicion} style={{ flex: 2, padding: '9px', background: AZUL, color: 'white', border: 'none', borderRadius: '10px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>Guardar cambios</button>
                     </div>
                   )}
                 </div>
@@ -1787,7 +1787,7 @@ function ClientesInner() {
                 return (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                     {/* Info banner */}
-                    <div style={{ padding: '10px 14px', background: '#EEF2F8', border: '1px solid #bfdbfe', borderRadius: '8px', fontSize: '15px', color: '#245287', lineHeight: 1.6 }}>
+                    <div style={{ padding: '10px 14px', background: '#EEF2F8', border: '1px solid #bfdbfe', borderRadius: '10px', fontSize: '15px', color: '#245287', lineHeight: 1.6 }}>
                       Si el cliente no puede pagar la Modalidad 40 de contado, una financiera puede adelantar el capital. La pensión obtenida debe superar la cuota mensual del crédito.
                     </div>
 
@@ -1797,14 +1797,14 @@ function ClientesInner() {
                         1. Selecciona el diagnóstico base
                       </label>
                       {diagnosticos.filter(d => (d.inversion_mod40 ?? 0) > 0).length === 0 ? (
-                        <div style={{ padding: '12px 14px', background: '#FFF7ED', border: '1px solid #fed7aa', borderRadius: '8px', fontSize: '15px', color: '#92400e' }}>
+                        <div style={{ padding: '12px 14px', background: '#FFF7ED', border: '1px solid #fed7aa', borderRadius: '10px', fontSize: '15px', color: '#92400e' }}>
                           Ningún diagnóstico tiene inversión de Mod 40 registrada. Corre la calculadora y guarda un diagnóstico con escenario de Modalidad 40.
                         </div>
                       ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                           {diagnosticos.filter(d => (d.inversion_mod40 ?? 0) > 0).map((d, i) => (
                             <button key={d.id} onClick={() => setDiagFinId(d.id)}
-                              style={{ padding: '10px 14px', border: `2px solid ${diagFinId === d.id ? '#245287' : '#e2e8f0'}`, borderRadius: '8px', background: diagFinId === d.id ? '#EEF2F8' : 'white', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit' }}>
+                              style={{ padding: '10px 14px', border: `2px solid ${diagFinId === d.id ? '#245287' : '#e2e8f0'}`, borderRadius: '10px', background: diagFinId === d.id ? '#EEF2F8' : 'white', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit' }}>
                               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                   <span style={{ fontSize: '15px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px', background: d.estatus === 'autorizado' ? '#dcfce7' : '#f1f5f9', color: d.estatus === 'autorizado' ? '#15803d' : '#64748b' }}>
@@ -1851,7 +1851,7 @@ function ClientesInner() {
                           <div>
                             <label style={{ fontSize: '13px', fontWeight: '700', color: '#475569', display: 'block', marginBottom: '4px', textTransform: 'uppercase' }}>Financiera aliada</label>
                             <select value={finSelId} onChange={e => setFinSelId(e.target.value)}
-                              style={{ width: '100%', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontFamily: 'inherit' }}>
+                              style={{ width: '100%', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '13px', fontFamily: 'inherit' }}>
                               {financieras.map(f => <option key={f.id} value={f.id}>{f.nombre} — {f.tasa_anual}% anual</option>)}
                             </select>
                           </div>
@@ -1879,7 +1879,7 @@ function ClientesInner() {
                                 { label: 'Saldo neto', value: fmtM(pensionBase - corrida.cuota), sub: 'pensión − cuota', color: pensionBase > corrida.cuota ? '#2E8B57' : '#ef4444' },
                                 { label: 'Total a pagar', value: fmtM(corrida.totalPagado), sub: 'capital + intereses', color: '#64748b' },
                               ].map((k, i) => (
-                                <div key={i} style={{ background: 'white', borderRadius: '8px', padding: '10px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+                                <div key={i} style={{ background: 'white', borderRadius: '10px', padding: '10px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
                                   <p style={{ fontSize: '13px', color: '#94a3b8', margin: '0 0 4px' }}>{k.label}</p>
                                   <p style={{ fontSize: '15px', fontWeight: '700', color: k.color, margin: '0 0 2px' }}>{k.value}</p>
                                   <p style={{ fontSize: '13px', color: '#94a3b8', margin: 0 }}>{k.sub}</p>
@@ -1891,7 +1891,7 @@ function ClientesInner() {
                                 [corrida.cuota < pensionBase, corrida.cuota < pensionBase ? 'La pensión cubre la cuota mensual del crédito ✅' : 'La cuota supera la pensión — revisa el plazo o el escenario ⚠️'],
                                 [pensionBase - corrida.cuota > 2000, pensionBase - corrida.cuota > 2000 ? `Margen cómodo: ${fmtM(pensionBase - corrida.cuota)}/mes sobrante ✅` : 'Margen ajustado — evalúa con el cliente ⚠️'],
                               ].map(([ok, txt], i) => (
-                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '15px', padding: '6px 10px', background: ok ? '#f0fdf4' : '#fff7ed', borderRadius: '6px', color: ok ? '#15803d' : '#92400e' }}>
+                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '15px', padding: '6px 10px', background: ok ? '#f0fdf4' : '#fff7ed', borderRadius: '10px', color: ok ? '#15803d' : '#92400e' }}>
                                   {txt as string}
                                 </div>
                               ))}
@@ -1903,7 +1903,7 @@ function ClientesInner() {
                         {corrida && (
                           <div>
                             <p style={{ fontSize: '15px', fontWeight: '700', color: '#475569', margin: '0 0 8px', textTransform: 'uppercase' }}>Tabla de amortización — primeros 6 meses de {finPlazo}</p>
-                            <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                            <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '10px' }}>
                               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }}>
                                 <thead>
                                   <tr style={{ background: '#F4F6F9' }}>
@@ -1960,7 +1960,7 @@ function ClientesInner() {
                                 { label: 'Pagado', value: fmtMXN(totalPagado), color: VERDE, bg: '#f0fdf4' },
                                 { label: 'Saldo', value: fmtMXN(saldo), color: saldo > 0 ? '#ef4444' : VERDE, bg: saldo > 0 ? '#fef2f2' : '#f0fdf4' },
                               ].map((k, i) => (
-                                <div key={i} style={{ background: k.bg, borderRadius: '8px', padding: '10px 12px', border: '1px solid #e2e8f0' }}>
+                                <div key={i} style={{ background: k.bg, borderRadius: '10px', padding: '10px 12px', border: '1px solid #e2e8f0' }}>
                                   <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '3px' }}>{k.label}</div>
                                   <div style={{ fontSize: '15px', fontWeight: '800', color: k.color }}>{k.value}</div>
                                 </div>
@@ -1985,7 +1985,7 @@ function ClientesInner() {
                           <div key={pago.id} style={{ background: pago.pagado ? '#f0fdf4' : '#F5F7FA', borderRadius: '10px', border: `1px solid ${pago.pagado ? '#bbf7d0' : '#e2e8f0'}` }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px' }}>
                               <button onClick={() => marcarPagoProgramado(pago, !pago.pagado)}
-                                style={{ width: '22px', height: '22px', borderRadius: '6px', border: `2px solid ${pago.pagado ? VERDE : '#cbd5e1'}`, background: pago.pagado ? VERDE : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, transition: 'all 0.15s' }}>
+                                style={{ width: '22px', height: '22px', borderRadius: '10px', border: `2px solid ${pago.pagado ? VERDE : '#cbd5e1'}`, background: pago.pagado ? VERDE : 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, transition: 'all 0.15s' }}>
                                 {pago.pagado && <span style={{ color: 'white', fontSize: '15px', fontWeight: '700' }}>✓</span>}
                               </button>
                               <div style={{ flex: 1 }}>
@@ -2001,11 +2001,11 @@ function ClientesInner() {
                               {pago.pagado && (
                                 pago.comprobante_url ? (
                                   <a href={pago.comprobante_url} target="_blank" rel="noopener noreferrer"
-                                    style={{ fontSize: '13px', color: AZUL, textDecoration: 'none', background: '#EEF2F8', padding: '3px 8px', borderRadius: '6px', fontWeight: '600' }}>
+                                    style={{ fontSize: '13px', color: AZUL, textDecoration: 'none', background: '#EEF2F8', padding: '3px 8px', borderRadius: '10px', fontWeight: '600' }}>
                                     📎 Ver
                                   </a>
                                 ) : (
-                                  <label style={{ fontSize: '13px', color: '#94a3b8', cursor: 'pointer', background: '#F4F6F9', padding: '3px 8px', borderRadius: '6px', border: '1px dashed #e2e8f0' }}>
+                                  <label style={{ fontSize: '13px', color: '#94a3b8', cursor: 'pointer', background: '#F4F6F9', padding: '3px 8px', borderRadius: '10px', border: '1px dashed #e2e8f0' }}>
                                     {uploadingProgComp === pago.id ? '⏳' : '📎'}
                                     <input type="file" accept="image/*,.pdf" onChange={e => { const f = e.target.files?.[0]; if (f) uploadCompProgPago(pago.id, f) }} style={{ display: 'none' }} disabled={uploadingProgComp === pago.id} />
                                   </label>
@@ -2031,7 +2031,7 @@ function ClientesInner() {
                               { label: 'Pagado', value: fmtMXN(totalPagado), color: VERDE, bg: '#f0fdf4', border: '#bbf7d0' },
                               { label: 'Saldo', value: fmtMXN(saldo), color: sem.color, bg: sem.bg, border: sem.border, extra: `${sem.icon} ${estatus}` },
                             ].map((k, i) => (
-                              <div key={i} style={{ background: k.bg, borderRadius: '8px', padding: '10px 12px', border: `1px solid ${k.border}` }}>
+                              <div key={i} style={{ background: k.bg, borderRadius: '10px', padding: '10px 12px', border: `1px solid ${k.border}` }}>
                                 <div style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '3px' }}>{k.label}</div>
                                 <div style={{ fontSize: '16px', fontWeight: '800', color: k.color }}>{k.value}</div>
                                 {k.extra && <div style={{ fontSize: '13px', fontWeight: '700', color: k.color, marginTop: '2px' }}>{k.extra}</div>}
@@ -2049,18 +2049,18 @@ function ClientesInner() {
                         return (
                           <div style={{ display: 'flex', gap: '8px' }}>
                             {liquidado ? (
-                              <div style={{ flex: 1, padding: '11px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', textAlign: 'center', fontSize: '13px', fontWeight: '700', color: VERDE }}>
+                              <div style={{ flex: 1, padding: '11px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', textAlign: 'center', fontSize: '13px', fontWeight: '700', color: VERDE }}>
                                 🟢 Cuenta liquidada — pago completo
                               </div>
                             ) : (
                               <button onClick={() => { setTipoMovimiento('pago'); setFormPago(p => ({ ...p, concepto })); setShowPago(true) }}
-                                style={{ flex: 1, padding: '11px', background: VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+                                style={{ flex: 1, padding: '11px', background: VERDE, color: 'white', border: 'none', borderRadius: '10px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
                                 + Registrar {concepto.toLowerCase()} {saldo > 0 ? `— ${fmtMXN(saldo)} pendiente` : ''}
                               </button>
                             )}
                             {(selected.total_pagado ?? 0) > 0 && (
                               <button onClick={() => { setTipoMovimiento('devolucion'); setFormPago(p => ({ ...p, concepto: '', monto: '', notas: '' })); setShowPago(true) }}
-                                style={{ padding: '11px 14px', background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                                style={{ padding: '11px 14px', background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', borderRadius: '10px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                                 ↩️ Devolución
                               </button>
                             )}
@@ -2085,11 +2085,11 @@ function ClientesInner() {
                                 <span style={{ fontSize: '15px', color: '#64748b', flex: 1 }}>{fmt(pago.fecha_pago)}</span>
                                 {pago.comprobante_url ? (
                                   <a href={pago.comprobante_url} target="_blank" rel="noopener noreferrer"
-                                    style={{ fontSize: '15px', color: AZUL, textDecoration: 'none', background: '#EEF2F8', padding: '3px 10px', borderRadius: '6px', fontWeight: '600' }}>
+                                    style={{ fontSize: '15px', color: AZUL, textDecoration: 'none', background: '#EEF2F8', padding: '3px 10px', borderRadius: '10px', fontWeight: '600' }}>
                                     📎 Ver comprobante
                                   </a>
                                 ) : (
-                                  <label style={{ fontSize: '15px', color: '#94a3b8', cursor: 'pointer', background: '#F4F6F9', padding: '3px 10px', borderRadius: '6px', border: '1px dashed #e2e8f0' }}>
+                                  <label style={{ fontSize: '15px', color: '#94a3b8', cursor: 'pointer', background: '#F4F6F9', padding: '3px 10px', borderRadius: '10px', border: '1px dashed #e2e8f0' }}>
                                     {uploadingComp === pago.id ? '⏳ Subiendo...' : '📎 Adjuntar'}
                                     <input type="file" accept="image/*,.pdf" onChange={e => { const f = e.target.files?.[0]; if (f) uploadComprobantePago(pago.id, f) }} style={{ display: 'none' }} disabled={uploadingComp === pago.id} />
                                   </label>
@@ -2099,7 +2099,7 @@ function ClientesInner() {
                               </div>
                             </div>
                           )})}
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#F4F6F9', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#F4F6F9', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
                             <span style={{ fontSize: '15px', fontWeight: '700', color: '#64748b' }}>Total pagado ({pagos.length} pago{pagos.length !== 1 ? 's' : ''})</span>
                             <span style={{ fontSize: '15px', fontWeight: '800', color: VERDE }}>{fmtMXN(pagos.reduce((s,p) => s + p.monto, 0))}</span>
                           </div>
@@ -2121,11 +2121,11 @@ function ClientesInner() {
                     </p>
                     <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
                       <button onClick={() => setConfirmDelPago(null)}
-                        style={{ padding: '8px 16px', border: '1.5px solid #e2e8f0', borderRadius: '8px', background: 'white', color: '#64748b', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
+                        style={{ padding: '8px 16px', border: '1.5px solid #e2e8f0', borderRadius: '10px', background: 'white', color: '#64748b', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
                         Cancelar
                       </button>
                       <button onClick={() => { eliminarPago(confirmDelPago.id, confirmDelPago.monto); setConfirmDelPago(null) }}
-                        style={{ padding: '8px 16px', border: 'none', borderRadius: '8px', background: '#ef4444', color: 'white', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>
+                        style={{ padding: '8px 16px', border: 'none', borderRadius: '10px', background: '#ef4444', color: 'white', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>
                         🗑️ Eliminar
                       </button>
                     </div>
@@ -2137,7 +2137,7 @@ function ClientesInner() {
               {modalTab === 'diagnosticos' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <button onClick={() => { setSelected(null); router.push(`/calculadora?cliente=${selected.id}`) }}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px', background: AZUL, color: 'white', borderRadius: '8px', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', width: '100%' }}>
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px', background: AZUL, color: 'white', borderRadius: '10px', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', width: '100%' }}>
                     🧮 Nuevo diagnóstico para {selected.nombre.split(' ')[0]}
                   </button>
                   {diagnosticos.length === 0 ? (
@@ -2168,7 +2168,7 @@ function ClientesInner() {
                             {esAutorizado && d.fecha_autorizacion && (
                               <span style={{ fontSize: '13px', color: '#15803d' }}>· Autorizado {fmt(d.fecha_autorizacion)}</span>
                             )}
-                            {analisis && <span style={{ fontSize: '13px', background: '#f0fdf4', color: VERDE, padding: '1px 6px', borderRadius: '6px', fontWeight: '600' }}>📝 Análisis</span>}
+                            {analisis && <span style={{ fontSize: '13px', background: '#f0fdf4', color: VERDE, padding: '1px 6px', borderRadius: '10px', fontWeight: '600' }}>📝 Análisis</span>}
                           </div>
                           <div style={{ fontSize: '15px', color: '#64748b', marginTop: '4px' }}>
                             {d.semanas} semanas
@@ -2185,14 +2185,14 @@ function ClientesInner() {
                             { label: 'Sin modalidad', value: d.pension_sin_mod40, color: '#94a3b8' },
                             { label: 'Escenario elegido', value: d.pension_con_mod40, color: esAutorizado ? VERDE : NARANJA },
                           ].map((e, i) => (
-                            <div key={i} style={{ background: 'white', borderRadius: '6px', padding: '8px 10px', border: `1px solid ${i === 1 && esAutorizado ? '#bbf7d0' : '#e2e8f0'}` }}>
+                            <div key={i} style={{ background: 'white', borderRadius: '10px', padding: '8px 10px', border: `1px solid ${i === 1 && esAutorizado ? '#bbf7d0' : '#e2e8f0'}` }}>
                               <div style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '2px' }}>{e.label}</div>
                               <div style={{ fontSize: '14px', fontWeight: '700', color: e.color }}>{e.value ? fmtMXN(e.value) : '—'}<span style={{ fontSize: '13px', fontWeight: '400' }}>/mes</span></div>
                             </div>
                           ))}
                         </div>
                         {(d.inversion_mod40 ?? 0) > 0 && (
-                          <div style={{ fontSize: '15px', color: '#64748b', marginBottom: '8px', padding: '5px 8px', background: 'white', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                          <div style={{ fontSize: '15px', color: '#64748b', marginBottom: '8px', padding: '5px 8px', background: 'white', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
                             💰 Inversión Mod 40: {fmtMXN(d.inversion_mod40 ?? 0)} total
                             {d.mod40_umas && d.mod40_meses && <span> · {d.mod40_umas} UMAs · {d.mod40_meses} meses</span>}
                           </div>
@@ -2204,7 +2204,7 @@ function ClientesInner() {
                           const snap = pj?.sys_snapshot
                           if (!snap) return null
                           return (
-                            <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '8px', padding: '5px 8px', background: '#F9FAFB', borderRadius: '6px', border: '1px solid #e2e8f0', display: 'flex', gap: '10px', flexWrap: 'wrap' as const }}>
+                            <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '8px', padding: '5px 8px', background: '#F9FAFB', borderRadius: '10px', border: '1px solid #e2e8f0', display: 'flex', gap: '10px', flexWrap: 'wrap' as const }}>
                               <span>🔖 UMA: <strong>{fmtMXN(snap.UMA_DIARIA ?? 0)}</strong></span>
                               <span>PMG L73: <strong>{fmtMXN(snap.PMG_L73 ?? 0)}</strong></span>
                               <span>% AFORE: <strong>{snap.pct_afore_mod40 ?? '—'}%</strong></span>
@@ -2242,7 +2242,7 @@ function ClientesInner() {
               {modalTab === 'actividades' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <button onClick={() => setShowNuevaActividad(p => !p)}
-                    style={{ padding: '9px', background: NARANJA, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+                    style={{ padding: '9px', background: NARANJA, color: 'white', border: 'none', borderRadius: '10px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
                     + Registrar actividad
                   </button>
 
@@ -2255,7 +2255,7 @@ function ClientesInner() {
                         <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
                           {catalogos.tipo_contacto.map((c: any) => (
                             <button key={c.valor} type="button" onClick={() => setFormActividad(p => ({ ...p, tipo_contacto: c.valor }))}
-                              style={{ padding: '5px 10px', background: formActividad.tipo_contacto === c.valor ? AZUL : 'white', color: formActividad.tipo_contacto === c.valor ? 'white' : '#374151', border: `1px solid ${formActividad.tipo_contacto === c.valor ? AZUL : '#E1E7F0'}`, fontSize: '15px', fontWeight: formActividad.tipo_contacto === c.valor ? '700' : '400', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                              style={{ padding: '5px 10px', background: formActividad.tipo_contacto === c.valor ? AZUL : 'white', color: formActividad.tipo_contacto === c.valor ? 'white' : '#374151', border: `1px solid ${formActividad.tipo_contacto === c.valor ? AZUL : '#E1E7F0'}`, fontSize: '15px', fontWeight: formActividad.tipo_contacto === c.valor ? '700' : '400', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                               {c.icono} {c.etiqueta}
                             </button>
                           ))}
@@ -2269,7 +2269,7 @@ function ClientesInner() {
                           <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
                             {catalogos.resultado.map((c: any) => (
                               <button key={c.valor} type="button" onClick={() => setFormActividad(p => ({ ...p, resultado: c.valor }))}
-                                style={{ padding: '5px 10px', background: formActividad.resultado === c.valor ? '#374151' : 'white', color: formActividad.resultado === c.valor ? 'white' : '#374151', border: `1px solid ${formActividad.resultado === c.valor ? '#374151' : '#E1E7F0'}`, fontSize: '15px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                                style={{ padding: '5px 10px', background: formActividad.resultado === c.valor ? '#374151' : 'white', color: formActividad.resultado === c.valor ? 'white' : '#374151', border: `1px solid ${formActividad.resultado === c.valor ? '#374151' : '#E1E7F0'}`, fontSize: '15px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                                 {c.icono} {c.etiqueta}
                               </button>
                             ))}
@@ -2284,7 +2284,7 @@ function ClientesInner() {
                           <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
                             {catalogos.proximo_paso.map((c: any) => (
                               <button key={c.valor} type="button" onClick={() => setFormActividad(p => ({ ...p, proximo_paso: c.valor }))}
-                                style={{ padding: '5px 10px', background: formActividad.proximo_paso === c.valor ? NARANJA : 'white', color: formActividad.proximo_paso === c.valor ? 'white' : '#374151', border: `1px solid ${formActividad.proximo_paso === c.valor ? NARANJA : '#E1E7F0'}`, fontSize: '15px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                                style={{ padding: '5px 10px', background: formActividad.proximo_paso === c.valor ? NARANJA : 'white', color: formActividad.proximo_paso === c.valor ? 'white' : '#374151', border: `1px solid ${formActividad.proximo_paso === c.valor ? NARANJA : '#E1E7F0'}`, fontSize: '15px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                                 {c.icono} {c.etiqueta}
                                 {c.genera_evento && <span style={{ marginLeft: '4px', fontSize: '13px', opacity: 0.7 }}>📅</span>}
                                 {c.abre_materiales && <span style={{ marginLeft: '4px', fontSize: '13px', opacity: 0.7 }}>📎</span>}
@@ -2292,12 +2292,12 @@ function ClientesInner() {
                             ))}
                           </div>
                           {formActividad.proximo_paso && catalogos.proximo_paso.find((c: any) => c.valor === formActividad.proximo_paso)?.genera_evento && (
-                            <div style={{ marginTop: '8px', padding: '8px 10px', background: '#EEF2F8', borderRadius: '6px', fontSize: '15px', color: AZUL }}>
+                            <div style={{ marginTop: '8px', padding: '8px 10px', background: '#EEF2F8', borderRadius: '10px', fontSize: '15px', color: AZUL }}>
                               📅 Se creará automáticamente un evento en tu calendario para este próximo paso
                             </div>
                           )}
                           {formActividad.proximo_paso && catalogos.proximo_paso.find((c: any) => c.valor === formActividad.proximo_paso)?.abre_materiales && (
-                            <div style={{ marginTop: '8px', padding: '8px 10px', background: '#FFF7ED', borderRadius: '6px', fontSize: '15px', color: '#92400E' }}>
+                            <div style={{ marginTop: '8px', padding: '8px 10px', background: '#FFF7ED', borderRadius: '10px', fontSize: '15px', color: '#92400E' }}>
                               📎 Al guardar se abrirá el catálogo de materiales para enviar información
                             </div>
                           )}
@@ -2326,7 +2326,7 @@ function ClientesInner() {
                       Sin actividades registradas
                     </div>
                   ) : actividades.map(a => (
-                    <div key={a.id} style={{ display: 'flex', gap: '10px', padding: '10px 12px', background: a.estatus === 'completado' ? '#f0fdf4' : '#F5F7FA', borderRadius: '8px', border: `1px solid ${a.estatus === 'completado' ? '#bbf7d0' : '#e2e8f0'}` }}>
+                    <div key={a.id} style={{ display: 'flex', gap: '10px', padding: '10px 12px', background: a.estatus === 'completado' ? '#f0fdf4' : '#F5F7FA', borderRadius: '10px', border: `1px solid ${a.estatus === 'completado' ? '#bbf7d0' : '#e2e8f0'}` }}>
                       <div style={{ fontSize: '16px' }}>{TIPO_ICONS[a.tipo] ?? '📌'}</div>
                       <div style={{ flex: 1 }}>
                         <div style={{ fontSize: '13px', fontWeight: '600', color: '#1e293b' }}>{a.titulo}</div>
@@ -2339,7 +2339,7 @@ function ClientesInner() {
                         </span>
                         {a.estatus !== 'completado' && (
                           <button onClick={() => completarActividad(a.id)}
-                            style={{ fontSize: '13px', padding: '2px 7px', borderRadius: '6px', background: '#f0fdf4', color: VERDE, border: '1px solid #bbf7d0', cursor: 'pointer', fontWeight: '600' }}>
+                            style={{ fontSize: '13px', padding: '2px 7px', borderRadius: '10px', background: '#f0fdf4', color: VERDE, border: '1px solid #bbf7d0', cursor: 'pointer', fontWeight: '600' }}>
                             ✓ Completar
                           </button>
                         )}
@@ -2367,13 +2367,13 @@ function ClientesInner() {
                 style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '20px' }}>✕</button>
             </div>
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
-              <div style={{ background: '#FFF7ED', border: '1px solid #FDE68A', borderRadius: '8px', padding: '10px 12px', fontSize: '15px', color: '#92400E' }}>
+              <div style={{ background: '#FFF7ED', border: '1px solid #FDE68A', borderRadius: '10px', padding: '10px 12px', fontSize: '15px', color: '#92400E' }}>
                 ⚠️ La canalización requiere aprobación del org-admin. El cliente seguirá asignado a ti hasta que se apruebe.
               </div>
               <div>
                 <label style={{ fontSize: '14px', fontWeight: '700', color: '#66738A', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>Asesor destino *</label>
                 <select value={canalizarDestino} onChange={e => setCanalizarDestino(e.target.value)}
-                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', borderRadius: '6px', fontFamily: 'inherit', background: 'white' }}>
+                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', borderRadius: '10px', fontFamily: 'inherit', background: 'white' }}>
                   <option value="">Selecciona un asesor...</option>
                   {asesoresEquipo.map((a: any) => (
                     <option key={a.id} value={a.id}>{a.nombre}</option>
@@ -2385,11 +2385,11 @@ function ClientesInner() {
                 <textarea value={canalizarMotivo} onChange={e => setCanalizarMotivo(e.target.value)}
                   placeholder="Ej. Exceso de carga de trabajo, especialidad requerida, zona geográfica..."
                   rows={3}
-                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', borderRadius: '6px', fontFamily: 'inherit', resize: 'none' as const, boxSizing: 'border-box' as const }} />
+                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', borderRadius: '10px', fontFamily: 'inherit', resize: 'none' as const, boxSizing: 'border-box' as const }} />
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button onClick={() => { setShowCanalizarModal(null); setCanalizarDestino(''); setCanalizarMotivo('') }}
-                  style={{ flex: 1, padding: '10px', background: '#F5F7FA', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                  style={{ flex: 1, padding: '10px', background: '#F5F7FA', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                   Cancelar
                 </button>
                 <button disabled={!canalizarDestino || !canalizarMotivo.trim() || canalizarLoading}
@@ -2412,7 +2412,7 @@ function ClientesInner() {
                     setCanalizarMotivo('')
                     avisoExito('Solicitud enviada', 'El administrador de tu equipo recibirá una notificación para aprobarla.')
                   }}
-                  style={{ flex: 2, padding: '10px', background: !canalizarDestino || !canalizarMotivo.trim() ? '#E1E7F0' : AZUL, color: !canalizarDestino || !canalizarMotivo.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: !canalizarDestino || !canalizarMotivo.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                  style={{ flex: 2, padding: '10px', background: !canalizarDestino || !canalizarMotivo.trim() ? '#E1E7F0' : AZUL, color: !canalizarDestino || !canalizarMotivo.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: !canalizarDestino || !canalizarMotivo.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                   {canalizarLoading ? 'Enviando...' : '🔄 Enviar solicitud'}
                 </button>
               </div>
@@ -2431,7 +2431,7 @@ function ClientesInner() {
                 <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.65)', margin: '2px 0 0' }}>{selected.nombre}</p>
               </div>
               <button onClick={() => { setShowEncuestaModal(false); setEncuestaLink('') }}
-                style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', fontSize: '18px', padding: '4px 8px', borderRadius: '6px' }}>✕</button>
+                style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', fontSize: '18px', padding: '4px 8px', borderRadius: '10px' }}>✕</button>
             </div>
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
               {!encuestaLink ? (
@@ -2455,13 +2455,13 @@ function ClientesInner() {
                     if (data) setEncuestaLink(`${process.env.NEXT_PUBLIC_APP_URL}/encuesta/${data.token}`)
                     setEnviandoEncuesta(false)
                   }} disabled={enviandoEncuesta}
-                    style={{ padding: '12px', background: AZUL, color: 'white', border: 'none', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
+                    style={{ padding: '12px', background: AZUL, color: 'white', border: 'none', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                     {enviandoEncuesta ? 'Generando...' : '🔗 Generar link de encuesta'}
                   </button>
                 </>
               ) : (
                 <>
-                  <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: '8px', padding: '12px' }}>
+                  <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: '10px', padding: '12px' }}>
                     <p style={{ fontSize: '15px', color: '#15803D', fontWeight: '700', margin: '0 0 6px', textTransform: 'uppercase' as const }}>Link generado</p>
                     <p style={{ fontSize: '15px', color: '#374151', margin: 0, wordBreak: 'break-all' as const }}>{encuestaLink}</p>
                   </div>
@@ -2469,11 +2469,11 @@ function ClientesInner() {
                     const tel = selected.telefono?.replace(/\D/g,'') || ''
                     const msg = encodeURIComponent(`Hola ${selected.nombre.split(' ')[0]} 👋 Me gustaría conocer tu opinión sobre el servicio de asesoría pensional. ¿Podrías tomarte 2 minutos para responder esta breve encuesta? 📋\n\n${encuestaLink}\n\n¡Muchas gracias!`)
                     window.open(`https://wa.me/52${tel}?text=${msg}`, '_blank')
-                  }} style={{ padding: '12px', background: '#16A34A', color: 'white', border: 'none', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  }} style={{ padding: '12px', background: '#16A34A', color: 'white', border: 'none', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                     📱 Enviar por WhatsApp
                   </button>
                   <button onClick={() => { navigator.clipboard.writeText(encuestaLink) }}
-                    style={{ padding: '10px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
+                    style={{ padding: '10px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                     📋 Copiar link
                   </button>
                 </>
@@ -2531,7 +2531,7 @@ function ClientesInner() {
 
             <div style={{ display: 'flex', gap: '8px' }}>
               <button onClick={() => { setShowWappModal(false); setNuevoClienteData(null); setMaterialesSeleccionados([]) }}
-                style={{ flex: 1, padding: '11px', background: '#F4F6F9', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ flex: 1, padding: '11px', background: '#F4F6F9', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
                 {materialesSeleccionados.length > 0 ? 'Cancelar' : 'Cerrar'}
               </button>
               {materialesSeleccionados.length > 0 && (() => {
@@ -2549,7 +2549,7 @@ function ClientesInner() {
                 return (
                   <a href={wappUrl} target="_blank" rel="noopener noreferrer"
                     onClick={() => setTimeout(() => { setShowWappModal(false); setNuevoClienteData(null); setMaterialesSeleccionados([]) }, 300)}
-                    style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '11px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', textDecoration: 'none' }}>
+                    style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '11px', background: '#22c55e', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', textDecoration: 'none' }}>
                     💬 Enviar {materialesSeleccionados.length} por WhatsApp
                   </a>
                 )
@@ -2570,11 +2570,11 @@ function ClientesInner() {
             </p>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button onClick={() => setShowConfirmClose(false)}
-                style={{ flex: 1, padding: '11px', background: '#F4F6F9', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                style={{ flex: 1, padding: '11px', background: '#F4F6F9', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
                 Seguir editando
               </button>
               <button onClick={() => { setShowConfirmClose(false); setSelected(null) }}
-                style={{ flex: 1, padding: '11px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>
+                style={{ flex: 1, padding: '11px', background: AZUL, color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>
                 Cerrar
               </button>
             </div>
@@ -2664,7 +2664,7 @@ function ClientesInner() {
               {bloqueoMsg}
             </p>
             <button onClick={() => setBloqueoMsg(null)}
-              style={{ width: '100%', padding: '11px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
+              style={{ width: '100%', padding: '11px', background: AZUL, color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
               Entendido
             </button>
           </div>
@@ -2681,11 +2681,11 @@ function ClientesInner() {
               Moverás a <strong style={{ color: '#374151' }}>{showConfirmEtapa.nombre}</strong> de
             </p>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', margin: '0 0 20px' }}>
-              <span style={{ padding: '4px 12px', borderRadius: '8px', background: '#EEF2F8', color: AZUL, fontSize: '13px', fontWeight: '700' }}>
+              <span style={{ padding: '4px 12px', borderRadius: '10px', background: '#EEF2F8', color: AZUL, fontSize: '13px', fontWeight: '700' }}>
                 {COLUMNAS.find(c => c.id === showConfirmEtapa.etapaActual)?.label ?? showConfirmEtapa.etapaActual}
               </span>
               <span style={{ fontSize: '18px', color: '#94a3b8' }}>→</span>
-              <span style={{ padding: '4px 12px', borderRadius: '8px', background: showConfirmEtapa.etapaNueva === 'cancelado' ? '#fef2f2' : '#f0fdf4', color: showConfirmEtapa.etapaNueva === 'cancelado' ? '#ef4444' : VERDE, fontSize: '13px', fontWeight: '700' }}>
+              <span style={{ padding: '4px 12px', borderRadius: '10px', background: showConfirmEtapa.etapaNueva === 'cancelado' ? '#fef2f2' : '#f0fdf4', color: showConfirmEtapa.etapaNueva === 'cancelado' ? '#ef4444' : VERDE, fontSize: '13px', fontWeight: '700' }}>
                 {COLUMNAS.find(c => c.id === showConfirmEtapa.etapaNueva)?.label ?? showConfirmEtapa.etapaNueva}
               </span>
             </div>
@@ -2695,13 +2695,13 @@ function ClientesInner() {
                 <textarea value={notaCancelacion} onChange={e => setNotaCancelacion(e.target.value)}
                   placeholder="Ej. No califica por semanas, Cliente no interesado..."
                   rows={3}
-                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontFamily: 'inherit', resize: 'vertical' as const, boxSizing: 'border-box' as const }} />
+                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '13px', fontFamily: 'inherit', resize: 'vertical' as const, boxSizing: 'border-box' as const }} />
                 {!notaCancelacion.trim() && <p style={{ fontSize: '15px', color: '#ef4444', margin: '4px 0 0' }}>El motivo es obligatorio para cancelar.</p>}
               </div>
             )}
             <div style={{ display: 'flex', gap: '8px' }}>
               <button onClick={() => { setShowConfirmEtapa(null); setNotaCancelacion('') }}
-                style={{ flex: 1, padding: '11px', background: '#F4F6F9', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                style={{ flex: 1, padding: '11px', background: '#F4F6F9', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
                 Cancelar
               </button>
               <button disabled={showConfirmEtapa.etapaNueva === 'cancelado' && !notaCancelacion.trim()}
@@ -2711,7 +2711,7 @@ function ClientesInner() {
                   setNotaCancelacion('')
                   setShowConfirmEtapa(null)
                 }
-              }} style={{ flex: 1, padding: '11px', background: VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>
+              }} style={{ flex: 1, padding: '11px', background: VERDE, color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}>
                 Sí, mover
               </button>
             </div>
@@ -2745,16 +2745,16 @@ function ClientesInner() {
                 </div>
               ))}
             </div>
-            <div style={{ background: '#EEF2F8', border: '1px solid #c7d2fe', borderRadius: '8px', padding: '10px 12px', marginBottom: '16px', fontSize: '15px', color: '#1e3a8a' }}>
+            <div style={{ background: '#EEF2F8', border: '1px solid #c7d2fe', borderRadius: '10px', padding: '10px 12px', marginBottom: '16px', fontSize: '15px', color: '#1e3a8a' }}>
               ℹ️ Esta acción es reversible — el cliente y su historial (pagos, diagnósticos, actividades) permanecen guardados y se puede reactivar más adelante.
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button onClick={() => setShowConfirmDelete(false)}
-                style={{ flex: 1, padding: '11px', background: '#F4F6F9', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                style={{ flex: 1, padding: '11px', background: '#F4F6F9', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
                 Cancelar
               </button>
               <button onClick={() => setShowConfirmArchivar(true)} disabled={deletingCliente}
-                style={{ flex: 1, padding: '11px', background: deletingCliente ? '#94a3b8' : '#dc2626', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: deletingCliente ? 'not-allowed' : 'pointer' }}>
+                style={{ flex: 1, padding: '11px', background: deletingCliente ? '#94a3b8' : '#dc2626', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '700', cursor: deletingCliente ? 'not-allowed' : 'pointer' }}>
                 {deletingCliente ? 'Archivando...' : 'Sí, archivar'}
               </button>
             </div>
@@ -2773,11 +2773,11 @@ function ClientesInner() {
             </p>
             <div style={{ display: 'flex', gap: '10px' }}>
               <button onClick={() => setShowConfirmArchivar(false)}
-                style={{ flex: 1, padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#F4F6F9', color: '#64748b', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ flex: 1, padding: '10px', border: '1px solid #e2e8f0', borderRadius: '10px', background: '#F4F6F9', color: '#64748b', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
                 Cancelar
               </button>
               <button onClick={() => { setShowConfirmArchivar(false); archivarCliente() }} disabled={deletingCliente}
-                style={{ flex: 1, padding: '10px', border: 'none', borderRadius: '8px', background: '#dc2626', color: 'white', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ flex: 1, padding: '10px', border: 'none', borderRadius: '10px', background: '#dc2626', color: 'white', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
                 {deletingCliente ? 'Archivando...' : '📦 Sí, archivar'}
               </button>
             </div>
@@ -2803,11 +2803,11 @@ function ClientesInner() {
             {/* Toggle pago / devolución */}
             <div style={{ display: 'flex', gap: '6px', marginBottom: '14px' }}>
               <button onClick={() => { setTipoMovimiento('pago'); setFormPago(p => ({ ...p, monto: '' })) }}
-                style={{ flex: 1, padding: '7px', borderRadius: '8px', border: `1.5px solid ${tipoMovimiento === 'pago' ? VERDE : '#e2e8f0'}`, background: tipoMovimiento === 'pago' ? '#f0fdf4' : 'white', color: tipoMovimiento === 'pago' ? VERDE : '#94a3b8', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}>
+                style={{ flex: 1, padding: '7px', borderRadius: '10px', border: `1.5px solid ${tipoMovimiento === 'pago' ? VERDE : '#e2e8f0'}`, background: tipoMovimiento === 'pago' ? '#f0fdf4' : 'white', color: tipoMovimiento === 'pago' ? VERDE : '#94a3b8', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}>
                 💰 Pago
               </button>
               <button onClick={() => { setTipoMovimiento('devolucion'); setFormPago(p => ({ ...p, monto: '', concepto: '' })) }}
-                style={{ flex: 1, padding: '7px', borderRadius: '8px', border: `1.5px solid ${tipoMovimiento === 'devolucion' ? '#ef4444' : '#e2e8f0'}`, background: tipoMovimiento === 'devolucion' ? '#fef2f2' : 'white', color: tipoMovimiento === 'devolucion' ? '#ef4444' : '#94a3b8', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}>
+                style={{ flex: 1, padding: '7px', borderRadius: '10px', border: `1.5px solid ${tipoMovimiento === 'devolucion' ? '#ef4444' : '#e2e8f0'}`, background: tipoMovimiento === 'devolucion' ? '#fef2f2' : 'white', color: tipoMovimiento === 'devolucion' ? '#ef4444' : '#94a3b8', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}>
                 ↩️ Devolución
               </button>
             </div>
@@ -2816,11 +2816,11 @@ function ClientesInner() {
           if (tipoMovimiento === 'devolucion') {
             return (
               <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
-                <div style={{ flex: 1, background: '#f0fdf4', borderRadius: '8px', padding: '8px 12px' }}>
+                <div style={{ flex: 1, background: '#f0fdf4', borderRadius: '10px', padding: '8px 12px' }}>
                   <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase' }}>Total pagado</div>
                   <div style={{ fontSize: '13px', fontWeight: '700', color: VERDE }}>{fmtMXN(selected.total_pagado ?? 0)}</div>
                 </div>
-                <div style={{ flex: 1, background: '#fef2f2', borderRadius: '8px', padding: '8px 12px', border: '1px solid #fecaca' }}>
+                <div style={{ flex: 1, background: '#fef2f2', borderRadius: '10px', padding: '8px 12px', border: '1px solid #fecaca' }}>
                   <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase' }}>Devolución máxima</div>
                   <div style={{ fontSize: '13px', fontWeight: '800', color: '#ef4444' }}>{fmtMXN(selected.total_pagado ?? 0)}</div>
                 </div>
@@ -2829,15 +2829,15 @@ function ClientesInner() {
           }
           return (
             <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
-              <div style={{ flex: 1, background: '#F4F6F9', borderRadius: '8px', padding: '8px 12px' }}>
+              <div style={{ flex: 1, background: '#F4F6F9', borderRadius: '10px', padding: '8px 12px' }}>
                 <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase' }}>Acordado</div>
                 <div style={{ fontSize: '13px', fontWeight: '700', color: AZUL }}>{fmtMXN(selected.monto_acordado)}</div>
               </div>
-              <div style={{ flex: 1, background: '#f0fdf4', borderRadius: '8px', padding: '8px 12px' }}>
+              <div style={{ flex: 1, background: '#f0fdf4', borderRadius: '10px', padding: '8px 12px' }}>
                 <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase' }}>Pagado</div>
                 <div style={{ fontSize: '13px', fontWeight: '700', color: VERDE }}>{fmtMXN(selected.total_pagado ?? 0)}</div>
               </div>
-              <div style={{ flex: 1, background: saldo > 0 ? '#fff5f5' : '#f0fdf4', borderRadius: '8px', padding: '8px 12px', border: `1px solid ${saldo > 0 ? '#fecaca' : '#bbf7d0'}` }}>
+              <div style={{ flex: 1, background: saldo > 0 ? '#fff5f5' : '#f0fdf4', borderRadius: '10px', padding: '8px 12px', border: `1px solid ${saldo > 0 ? '#fecaca' : '#bbf7d0'}` }}>
                 <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase' }}>Saldo máximo</div>
                 <div style={{ fontSize: '13px', fontWeight: '800', color: saldo > 0 ? '#ef4444' : VERDE }}>{fmtMXN(saldo)}</div>
               </div>
@@ -2881,7 +2881,7 @@ function ClientesInner() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Concepto</label>
-                  <div style={{ padding: '10px 12px', background: tipoMovimiento === 'devolucion' ? '#fef2f2' : '#EEF2F8', borderRadius: '8px', border: `1px solid ${tipoMovimiento === 'devolucion' ? '#fecaca' : '#bfdbfe'}`, fontSize: '13px', fontWeight: '700', color: tipoMovimiento === 'devolucion' ? '#ef4444' : AZUL }}>
+                  <div style={{ padding: '10px 12px', background: tipoMovimiento === 'devolucion' ? '#fef2f2' : '#EEF2F8', borderRadius: '10px', border: `1px solid ${tipoMovimiento === 'devolucion' ? '#fecaca' : '#bfdbfe'}`, fontSize: '13px', fontWeight: '700', color: tipoMovimiento === 'devolucion' ? '#ef4444' : AZUL }}>
                     {tipoMovimiento === 'devolucion' ? 'Devolución' : (formPago.concepto || 'Automático')}
                   </div>
                 </div>
@@ -2896,7 +2896,7 @@ function ClientesInner() {
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Comprobante (opcional)</label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', border: `2px dashed ${compFile ? VERDE : '#e2e8f0'}`, borderRadius: '8px', cursor: 'pointer', background: compFile ? '#f0fdf4' : '#FAFBFC', transition: 'all 0.15s' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', border: `2px dashed ${compFile ? VERDE : '#e2e8f0'}`, borderRadius: '10px', cursor: 'pointer', background: compFile ? '#f0fdf4' : '#FAFBFC', transition: 'all 0.15s' }}>
                   <span style={{ fontSize: '18px' }}>{compFile ? '✅' : '📎'}</span>
                   <span style={{ fontSize: '15px', color: compFile ? VERDE : '#94a3b8', fontWeight: '600' }}>
                     {compFile ? compFile.name : 'Adjuntar ficha de depósito o transferencia'}
@@ -2911,7 +2911,7 @@ function ClientesInner() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
-              <button onClick={() => setShowPago(false)} style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
+              <button onClick={() => setShowPago(false)} style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
               <button onClick={guardarPago} disabled={
                   savingPago || !formPago.monto ||
                   (tipoMovimiento === 'devolucion'
@@ -2923,7 +2923,7 @@ function ClientesInner() {
                     (tipoMovimiento === 'devolucion'
                       ? (!formPago.notas.trim() || parseFloat(formPago.monto) > (selected.total_pagado ?? 0))
                       : (selected.monto_acordado != null && parseFloat(formPago.monto||'0') > Math.max(0, selected.monto_acordado - (selected.total_pagado ?? 0))))
-                  ) ? '#94a3b8' : (tipoMovimiento === 'devolucion' ? '#ef4444' : VERDE), color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: savingPago ? 'not-allowed' : 'pointer' }}>
+                  ) ? '#94a3b8' : (tipoMovimiento === 'devolucion' ? '#ef4444' : VERDE), color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '700', cursor: savingPago ? 'not-allowed' : 'pointer' }}>
                 {savingPago ? 'Guardando...' : (tipoMovimiento === 'devolucion' ? '↩️ Registrar devolución' : '💰 Registrar pago')}
               </button>
             </div>
@@ -2946,7 +2946,7 @@ function ClientesInner() {
                 <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>NSS — Número de Seguridad Social</label>
                 <input value={form.nss} onChange={e => { setForm(p => ({ ...p, nss: e.target.value })); buscarPorNSS(e.target.value) }} placeholder="Ej. 12345678901" maxLength={11} style={inputSt} />
                 {nssAlerta && (
-                  <div style={{ marginTop: '6px', padding: '10px 12px', background: nssAlerta.tipo === 'activo' ? '#FEF2F2' : '#EFF6FF', border: `1px solid ${nssAlerta.tipo === 'activo' ? '#FCA5A5' : '#93C5FD'}`, borderRadius: '6px' }}>
+                  <div style={{ marginTop: '6px', padding: '10px 12px', background: nssAlerta.tipo === 'activo' ? '#FEF2F2' : '#EFF6FF', border: `1px solid ${nssAlerta.tipo === 'activo' ? '#FCA5A5' : '#93C5FD'}`, borderRadius: '10px' }}>
                     <p style={{ fontSize: '13px', color: nssAlerta.tipo === 'activo' ? '#991B1B' : '#1D4ED8', fontWeight: '600', margin: '0 0 6px' }}>{nssAlerta.mensaje}</p>
                     {nssAlerta.clienteId && nssAlerta.textoAccion && (
                       <button onClick={() => {
@@ -3042,7 +3042,7 @@ function ClientesInner() {
 
                   {/* Esquema 3: Tarifa por etapa */}
                   {form.esquema_pago === 'tarifa_etapa' && (
-                    <div style={{ marginTop: '10px', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
+                    <div style={{ marginTop: '10px', border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }}>
                         <thead>
                           <tr style={{ background: '#F4F6F9' }}>
@@ -3063,7 +3063,7 @@ function ClientesInner() {
                                 <td style={{ padding: '6px 10px', textAlign: 'right' }}>
                                   <input type="number" value={fila.monto} disabled={!fila.cobrar}
                                     onChange={e => setForm(p => ({ ...p, tarifas_etapa: { ...(p.tarifas_etapa as any), [col.id]: { ...fila, monto: e.target.value } } }))}
-                                    placeholder="0" style={{ width: '90px', padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '15px', textAlign: 'right', background: fila.cobrar ? 'white' : '#f8fafc', fontFamily: 'inherit' }} />
+                                    placeholder="0" style={{ width: '90px', padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '15px', textAlign: 'right', background: fila.cobrar ? 'white' : '#f8fafc', fontFamily: 'inherit' }} />
                                 </td>
                               </tr>
                             )
@@ -3090,9 +3090,9 @@ function ClientesInner() {
             </div>
             <p style={{ fontSize: '15px', color: '#94a3b8', margin: '12px 0 0' }}>💡 Los pagos se registran desde el expediente del cliente</p>
             <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-              <button onClick={() => { setShowNuevo(false); setFormErrors({}); setForm({ nombre: '', nss: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', tipo_servicio: '', esquema_pago: '', monto_acordado: '', monto_pension_mensual: '', numero_meses_cobro: '', porcentaje_recuperacion: '', tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } } }) }} style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
+              <button onClick={() => { setShowNuevo(false); setFormErrors({}); setForm({ nombre: '', nss: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', tipo_servicio: '', esquema_pago: '', monto_acordado: '', monto_pension_mensual: '', numero_meses_cobro: '', porcentaje_recuperacion: '', tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } } }) }} style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
               <button onClick={guardarNuevo} disabled={saving || !form.nombre.trim() || form.telefono.replace(/\D/g,'').length !== 10 || !form.tipo_servicio || ((form.tipo_servicio === 'asesoria' && (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0)) || (form.tipo_servicio && form.tipo_servicio !== 'asesoria' && (!form.esquema_pago || (form.esquema_pago === 'monto_acordado' && (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0)) || (form.esquema_pago === 'tarifa_etapa' && (Object.values(form.tarifas_etapa as any).every((v: any) => !v.cobrar) || Object.values(form.tarifas_etapa as any).some((v: any) => v.cobrar && (!v.monto || parseFloat(v.monto) <= 0)))) || (form.esquema_pago === 'meses_pension' && (!form.numero_meses_cobro || parseInt(form.numero_meses_cobro) <= 0)) || (form.esquema_pago === 'porcentaje_recuperado' && (!form.porcentaje_recuperacion || parseFloat(form.porcentaje_recuperacion) <= 0))))) || !!formErrors.telefono || !!formErrors.email}
-                style={{ flex: 2, padding: '10px', background: saving || !form.nombre.trim() || form.telefono.replace(/\D/g,'').length !== 10 || !form.tipo_servicio || ((form.tipo_servicio === 'asesoria' && (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0)) || (form.tipo_servicio && form.tipo_servicio !== 'asesoria' && (!form.esquema_pago || (form.esquema_pago === 'monto_acordado' && (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0)) || (form.esquema_pago === 'tarifa_etapa' && (Object.values(form.tarifas_etapa as any).every((v: any) => !v.cobrar) || Object.values(form.tarifas_etapa as any).some((v: any) => v.cobrar && (!v.monto || parseFloat(v.monto) <= 0)))) || (form.esquema_pago === 'meses_pension' && (!form.numero_meses_cobro || parseInt(form.numero_meses_cobro) <= 0)) || (form.esquema_pago === 'porcentaje_recuperado' && (!form.porcentaje_recuperacion || parseFloat(form.porcentaje_recuperacion) <= 0))))) || !!formErrors.telefono || !!formErrors.email ? '#94a3b8' : AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer' }}>
+                style={{ flex: 2, padding: '10px', background: saving || !form.nombre.trim() || form.telefono.replace(/\D/g,'').length !== 10 || !form.tipo_servicio || ((form.tipo_servicio === 'asesoria' && (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0)) || (form.tipo_servicio && form.tipo_servicio !== 'asesoria' && (!form.esquema_pago || (form.esquema_pago === 'monto_acordado' && (!form.monto_acordado || parseFloat(form.monto_acordado) <= 0)) || (form.esquema_pago === 'tarifa_etapa' && (Object.values(form.tarifas_etapa as any).every((v: any) => !v.cobrar) || Object.values(form.tarifas_etapa as any).some((v: any) => v.cobrar && (!v.monto || parseFloat(v.monto) <= 0)))) || (form.esquema_pago === 'meses_pension' && (!form.numero_meses_cobro || parseInt(form.numero_meses_cobro) <= 0)) || (form.esquema_pago === 'porcentaje_recuperado' && (!form.porcentaje_recuperacion || parseFloat(form.porcentaje_recuperacion) <= 0))))) || !!formErrors.telefono || !!formErrors.email ? '#94a3b8' : AZUL, color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer' }}>
                 {saving ? 'Guardando...' : 'Guardar cliente'}
               </button>
             </div>

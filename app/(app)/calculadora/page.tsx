@@ -60,15 +60,15 @@ const DS = {
   kpiGreen: { background: '#12855C', borderRadius: '12px', padding: '18px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' } as React.CSSProperties,
   label: { fontSize: '15px', fontWeight: 500, color: '#66738A', marginBottom: '6px', display: 'block' as const },
   input: { width: '100%', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '12px 14px', fontSize: '17px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: 'white', color: '#1E293B', outline: 'none', height: '48px' } as React.CSSProperties,
-  inputReadonly: { width: '100%', border: '1px solid #F1F5F9', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', background: '#F8FAFC', color: '#64748B', fontFamily: 'inherit', boxSizing: 'border-box' as const, height: '48px' } as React.CSSProperties,
+  inputReadonly: { width: '100%', border: '1px solid #F1F5F9', borderRadius: '10px', padding: '9px 12px', fontSize: '13px', background: '#F8FAFC', color: '#64748B', fontFamily: 'inherit', boxSizing: 'border-box' as const, height: '48px' } as React.CSSProperties,
   // Inputs semánticos: fondo de color según tipo de dato
   inputImss:     { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '12px 14px', fontSize: '17px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#EEF2F8', color: '#1E3A5F', fontWeight: '500' as const, height: '48px' } as React.CSSProperties,
   inputManual:   { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '12px 14px', fontSize: '17px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#FFF3ED', color: '#92400E', height: '48px' } as React.CSSProperties,
   inputStrategy: { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '12px 14px', fontSize: '17px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#F0F7F4', color: '#1A5C40', fontWeight: '500' as const, height: '48px' } as React.CSSProperties,
-  inputResult:   { width: '100%', border: '1px solid #E1E7F0', borderRadius: '8px', padding: '9px 12px', fontSize: '14px', background: '#F5F3FF', color: '#4C1D95', fontWeight: '600' as const, height: '44px', boxSizing: 'border-box' as const } as React.CSSProperties,
-  select: { width: '100%', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const, color: '#1E293B', height: '48px' } as React.CSSProperties,
-  selectManual:  { width: '100%', border: '1px solid #E1E7F0', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', background: '#FFF3ED', color: '#92400E', boxSizing: 'border-box' as const, height: '48px' } as React.CSSProperties,
-  selectStrategy:{ width: '100%', border: '1px solid #E1E7F0', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', background: '#F0F7F4', color: '#1A5C40', fontWeight: '500' as const, boxSizing: 'border-box' as const, height: '48px' } as React.CSSProperties,
+  inputResult:   { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '9px 12px', fontSize: '14px', background: '#F5F3FF', color: '#4C1D95', fontWeight: '600' as const, height: '44px', boxSizing: 'border-box' as const } as React.CSSProperties,
+  select: { width: '100%', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const, color: '#1E293B', height: '48px' } as React.CSSProperties,
+  selectManual:  { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', background: '#FFF3ED', color: '#92400E', boxSizing: 'border-box' as const, height: '48px' } as React.CSSProperties,
+  selectStrategy:{ width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', background: '#F0F7F4', color: '#1A5C40', fontWeight: '500' as const, boxSizing: 'border-box' as const, height: '48px' } as React.CSSProperties,
   criticalNum: { fontSize: '26px', fontWeight: '800' as const, letterSpacing: '-0.5px', lineHeight: 1 } as React.CSSProperties,
   bigNum: { fontSize: '20px', fontWeight: '700' as const, letterSpacing: '-0.5px' } as React.CSSProperties,
 }
@@ -573,7 +573,7 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
         </div>
 
         {/* Comparativa visual */}
-        <div style={{ background: '#F8FAFC', borderRadius: '8px', padding: '14px' }}>
+        <div style={{ background: '#F8FAFC', borderRadius: '10px', padding: '14px' }}>
           <p style={{ fontSize: '15px', fontWeight: '700', color: '#374151', margin: '0 0 12px' }}>
             Comparativa
           </p>
@@ -597,7 +597,7 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
 
         {/* Resultado */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-          <div style={{ padding: '12px', background: excedenteSin >= 0 ? '#F0FDF4' : '#FEF2F2', borderRadius: '8px', borderLeft: `3px solid ${excedenteSin >= 0 ? VERDE : ROJO}` }}>
+          <div style={{ padding: '12px', background: excedenteSin >= 0 ? '#F0FDF4' : '#FEF2F2', borderRadius: '10px', borderLeft: `3px solid ${excedenteSin >= 0 ? VERDE : ROJO}` }}>
             <p style={{ fontSize: '14px', color: '#64748B', margin: '0 0 4px' }}>Sin Modalidad 40</p>
             <p style={{ fontSize: '16px', fontWeight: '800', color: excedenteSin >= 0 ? VERDE : ROJO, margin: '0 0 2px' }}>
               {excedenteSin >= 0 ? `+${fmtMXN(excedenteSin)}` : fmtMXN(excedenteSin)}
@@ -606,7 +606,7 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
               {excedenteSin >= 0 ? 'sobraría al mes' : 'faltaría al mes'}
             </p>
           </div>
-          <div style={{ padding: '12px', background: excedenteCon >= 0 ? '#F0FDF4' : '#FEF2F2', borderRadius: '8px', borderLeft: `3px solid ${excedenteCon >= 0 ? VERDE : ROJO}` }}>
+          <div style={{ padding: '12px', background: excedenteCon >= 0 ? '#F0FDF4' : '#FEF2F2', borderRadius: '10px', borderLeft: `3px solid ${excedenteCon >= 0 ? VERDE : ROJO}` }}>
             <p style={{ fontSize: '14px', color: '#64748B', margin: '0 0 4px' }}>Con Modalidad 40</p>
             <p style={{ fontSize: '16px', fontWeight: '800', color: excedenteCon >= 0 ? VERDE : ROJO, margin: '0 0 2px' }}>
               {excedenteCon >= 0 ? `+${fmtMXN(excedenteCon)}` : fmtMXN(excedenteCon)}
@@ -618,7 +618,7 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
         </div>
 
         {/* Mensaje de impacto */}
-        <div style={{ padding: '12px 14px', background: '#EEF2F8', borderRadius: '8px', borderLeft: `3px solid ${AZUL}` }}>
+        <div style={{ padding: '12px 14px', background: '#EEF2F8', borderRadius: '10px', borderLeft: `3px solid ${AZUL}` }}>
           <p style={{ fontSize: '12px', color: AZUL, fontWeight: '700', margin: '0 0 4px' }}>
             {mejora > 0 ? `Con Modalidad 40 tu pensión mejora ${mejora}%` : 'Completa el diagnóstico para ver la mejora'}
           </p>
@@ -2039,7 +2039,7 @@ function CalculadoraInner() {
 
   const inputSt: React.CSSProperties = {
     display: 'block', width: '100%', padding: '8px 10px',
-    border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '13px',
+    border: '1px solid #E5E7EB', borderRadius: '10px', fontSize: '13px',
     boxSizing: 'border-box', fontFamily: 'inherit', background: 'white',
     color: '#1e293b', outline: 'none',
   }
@@ -2114,11 +2114,11 @@ function CalculadoraInner() {
               </p>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button onClick={() => setShowSugerirEtapa(false)}
-                  style={{ flex: 1, padding: '9px', border: '1px solid #E5E7EB', borderRadius: '8px', background: '#F4F6F9', color: '#64748b', fontSize: '13px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ flex: 1, padding: '9px', border: '1px solid #E5E7EB', borderRadius: '10px', background: '#F4F6F9', color: '#64748b', fontSize: '13px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
                   Ahora no
                 </button>
                 <button onClick={() => moverEtapa(clienteId, etapaSugerida)}
-                  style={{ flex: 2, padding: '9px', border: 'none', borderRadius: '8px', background: '#2E7D5A', color: 'white', fontSize: '13px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ flex: 2, padding: '9px', border: 'none', borderRadius: '10px', background: '#2E7D5A', color: 'white', fontSize: '13px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
                   Sí, mover a {ETAPA_LABELS[etapaSugerida]}
                 </button>
               </div>
@@ -2178,7 +2178,7 @@ function CalculadoraInner() {
                 <li>Un cliente que cumple 61 años en <strong>noviembre</strong> de 2027, si decide esperar a "cumplir 61" antes de iniciar, también arranca en 2027 — pero si su cumpleaños cae en <strong>diciembre</strong>, fácilmente termina iniciando ya en <strong>enero del año siguiente</strong>, con una UMA distinta.</li>
               </ul>
               <p>Por eso el campo pide <strong>años y meses exactos</strong> desde tu fecha de nacimiento: con esa precisión calculamos el mes y año calendario real en que cumplirías esa edad, y usamos la UMA proyectada de <strong>ese</strong> año — no la de un año aproximado.</p>
-              <p style={{ margin: '10px 0 0', padding: '8px 10px', background: '#EFF6FF', borderRadius: '6px', color: AZUL, fontWeight: '600' as const }}>
+              <p style={{ margin: '10px 0 0', padding: '8px 10px', background: '#EFF6FF', borderRadius: '10px', color: AZUL, fontWeight: '600' as const }}>
                 En corto: un mes de diferencia en la fecha de inicio puede mover el "Año de inicio del trámite" un año completo, y eso cambia el costo y la pensión proyectada.
               </p>
             </div>
@@ -2198,7 +2198,7 @@ function CalculadoraInner() {
               </div>
               <button onClick={() => setShowTooltipCuantia(false)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
             </div>
-            <div style={{ overflowX: 'auto', border: '1px solid #E5E7EB', borderRadius: '8px', marginBottom: '12px' }}>
+            <div style={{ overflowX: 'auto', border: '1px solid #E5E7EB', borderRadius: '10px', marginBottom: '12px' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                 <thead>
                   <tr style={{ background: AZUL }}>
@@ -2220,11 +2220,11 @@ function CalculadoraInner() {
               </table>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', marginBottom: '12px' }}>
-              <div style={{ background: '#FFF7ED', borderRadius: '8px', padding: '10px 12px', border: '1px solid #fed7aa' }}>
+              <div style={{ background: '#FFF7ED', borderRadius: '10px', padding: '10px 12px', border: '1px solid #fed7aa' }}>
                 <p style={{ fontSize: '14px', color: '#92400e', margin: '0 0 3px', fontWeight: '700' as const }}>CESANTÍA (60-64 años)</p>
                 <p style={{ fontSize: '15px', color: '#92400e', margin: 0, lineHeight: 1.5 }}>Se aplica un factor reductor: 75% a los 60, 80% a los 61, 85% a los 62, 90% a los 63, 95% a los 64 años. Se requiere acreditar haber dejado de trabajar.</p>
               </div>
-              <div style={{ background: '#F0FDF4', borderRadius: '8px', padding: '10px 12px', border: '1px solid #bbf7d0' }}>
+              <div style={{ background: '#F0FDF4', borderRadius: '10px', padding: '10px 12px', border: '1px solid #bbf7d0' }}>
                 <p style={{ fontSize: '14px', color: '#15803d', margin: '0 0 3px', fontWeight: '700' as const }}>VEJEZ (65+ años)</p>
                 <p style={{ fontSize: '15px', color: '#15803d', margin: 0, lineHeight: 1.5 }}>Factor del 100%. No requiere acreditar cesantía. Es la modalidad más conveniente si el cliente puede esperar hasta los 65 años.</p>
               </div>
@@ -2289,7 +2289,7 @@ function CalculadoraInner() {
             </p>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button onClick={() => { setShowConfirmCambio(false); setPendingClienteId('') }}
-                style={{ flex: 1, padding: '9px', border: '1px solid #E5E7EB', borderRadius: '8px', background: '#F4F6F9', color: '#64748b', fontSize: '13px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ flex: 1, padding: '9px', border: '1px solid #E5E7EB', borderRadius: '10px', background: '#F4F6F9', color: '#64748b', fontSize: '13px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
                 Cancelar
               </button>
               <button onClick={() => {
@@ -2300,7 +2300,7 @@ function CalculadoraInner() {
                 setPendingClienteId('')
                 setShowConfirmCambio(false)
               }}
-                style={{ flex: 2, padding: '9px', border: 'none', borderRadius: '8px', background: '#334E7B', color: 'white', fontSize: '13px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ flex: 2, padding: '9px', border: 'none', borderRadius: '10px', background: '#334E7B', color: 'white', fontSize: '13px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
                 Sí, cambiar de cliente
               </button>
             </div>
@@ -2488,7 +2488,7 @@ function CalculadoraInner() {
                         <p style={{ margin: '0 0 6px', fontSize: '15px', color: '#66738A', lineHeight: 1.55 }}>
                           Debe ser el PDF que emite SISEC, no una foto ni un escaneo. Sofía lee el documento y llena los datos.
                         </p>
-                        <label style={{ width: '100%', padding: '15px', background: extracting ? '#E1E7F0' : NARANJA, color: extracting ? '#66738A' : 'white', boxShadow: extracting ? 'none' : '0 3px 10px rgba(232,98,44,0.34)', cursor: extracting ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600' as const, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxSizing: 'border-box' as const, opacity: extracting ? 0.8 : 1, borderRadius: '8px' }}>
+                        <label style={{ width: '100%', padding: '15px', background: extracting ? '#E1E7F0' : NARANJA, color: extracting ? '#66738A' : 'white', boxShadow: extracting ? 'none' : '0 3px 10px rgba(232,98,44,0.34)', cursor: extracting ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600' as const, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxSizing: 'border-box' as const, opacity: extracting ? 0.8 : 1, borderRadius: '10px' }}>
                           {extracting ? 'Extrayendo datos…' : 'Seleccionar archivo PDF'}
                           <input type="file" accept=".pdf" style={{ display: 'none' }} disabled={extracting} onChange={e => {
                             const f = e.target.files?.[0]
@@ -2515,25 +2515,25 @@ function CalculadoraInner() {
                             <label style={{ fontSize: '14px', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px' }}>Nombre del trabajador</label>
                             <input type="text" placeholder="Nombre completo"
                               onChange={e => setDatos(prev => ({ ...prev, nombre_trabajador: e.target.value }))}
-                              style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+                              style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
                           </div>
                           <div>
                             <label style={{ fontSize: '14px', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px' }}>Semanas cotizadas *</label>
                             <input type="number" placeholder="Ej. 850" min={0} max={2000}
                               onChange={e => { const val = Number(e.target.value); if (val > 0) setDatos(prev => ({ ...prev, semanas_totales: val })) }}
-                              style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+                              style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
                           </div>
                           <div>
                             <label style={{ fontSize: '14px', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px' }}>NSS</label>
                             <input type="text" placeholder="11 dígitos"
                               onChange={e => setDatos(prev => ({ ...prev, nss: e.target.value }))}
-                              style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+                              style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
                           </div>
                           <div>
                             <label style={{ fontSize: '14px', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px' }}>SDI actual ($/día)</label>
                             <input type="number" placeholder="Ej. 450.00" min={0}
                               onChange={e => { const val = Number(e.target.value); if (val > 0) setDatos(prev => ({ ...prev, sdi_actual: val })) }}
-                              style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+                              style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
                           </div>
                         </div>
                         <p style={{ margin: 0, fontSize: '14px', color: '#94A3B8' }}>* Las semanas son requeridas para habilitar el botón Continuar.</p>
@@ -2670,7 +2670,7 @@ function CalculadoraInner() {
               <div style={{ position: 'absolute' as const, top: 0, right: 0, width: '360px', maxWidth: '92vw', height: '100%', background: 'white', borderLeft: '1px solid #E1E7F0', zIndex: 50, overflowY: 'auto' as const, boxShadow: '-8px 0 32px rgba(13,36,64,0.14)' }}>
                 <div style={{ background: '#0D2440', padding: '20px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky' as const, top: 0, zIndex: 1 }}>
                   <p style={{ fontSize: '20px', fontWeight: 700, color: 'white', margin: 0 }}>Glosario</p>
-                  <button onClick={() => setShowGuia(false)} aria-label="Cerrar" style={{ background: 'rgba(255,255,255,.12)', border: 'none', color: 'white', cursor: 'pointer', fontSize: '16px', lineHeight: 1, width: '32px', height: '32px', borderRadius: '8px' }}>✕</button>
+                  <button onClick={() => setShowGuia(false)} aria-label="Cerrar" style={{ background: 'rgba(255,255,255,.12)', border: 'none', color: 'white', cursor: 'pointer', fontSize: '16px', lineHeight: 1, width: '32px', height: '32px', borderRadius: '10px' }}>✕</button>
                 </div>
                 <div style={{ padding: '16px' }}>
                   {Object.entries(GLOSARIO).map(([id, g]) => (
@@ -2722,7 +2722,7 @@ function CalculadoraInner() {
                         <div key={gi} className="kse-riel-item" style={{ flex: 1, position: 'relative' as const }}>
                           <button
                             onClick={() => setMenuAbierto(abierto ? null : gi)}
-                            style={{ width: '100%', padding: '10px 8px', border: 'none', borderRadius: '8px', cursor: 'pointer', background: activo ? AZUL : 'white', fontFamily: 'inherit', transition: 'all 0.15s', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '4px', boxShadow: activo ? '0 2px 8px rgba(51,78,123,0.3)' : '0 1px 2px rgba(0,0,0,0.06)' }}>
+                            style={{ width: '100%', padding: '10px 8px', border: 'none', borderRadius: '10px', cursor: 'pointer', background: activo ? AZUL : 'white', fontFamily: 'inherit', transition: 'all 0.15s', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '4px', boxShadow: activo ? '0 2px 8px rgba(51,78,123,0.3)' : '0 1px 2px rgba(0,0,0,0.06)' }}>
                             {/* Ícono grande */}
                             <span style={{ fontSize: '22px', lineHeight: 1, display: 'block' }}>
                               <i className={`ti ${g.tiIcon}`} style={{ color: activo ? 'white' : '#94A3B8', fontSize: '22px' }} />
@@ -2778,7 +2778,7 @@ function CalculadoraInner() {
                   <div style={{ marginLeft: 'auto', display: 'flex', gap: '6px', alignItems: 'center' }}>
                     <span style={{ fontSize: '14px', color: '#94A3B8', whiteSpace: 'nowrap' as const }}>Opciones:</span>
                     <button onClick={() => setTab(12)}
-                      style={{ padding: '6px 12px', borderRadius: '6px', border: `1px solid ${tab === 12 ? '#0891B2' : '#E2E8F0'}`, background: tab === 12 ? '#ECFEFF' : 'white', color: tab === 12 ? '#0891B2' : '#64748B', fontSize: '15px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' as const }}>
+                      style={{ padding: '6px 12px', borderRadius: '10px', border: `1px solid ${tab === 12 ? '#0891B2' : '#E2E8F0'}`, background: tab === 12 ? '#ECFEFF' : 'white', color: tab === 12 ? '#0891B2' : '#64748B', fontSize: '15px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' as const }}>
                       <i className="ti ti-droplet" style={{ fontSize: '12px', marginRight: '4px' }} />Mod. 10 / Ley 97
                     </button>
                   </div>
@@ -2819,7 +2819,7 @@ function CalculadoraInner() {
                   <button
                     onClick={() => guardarDiagnostico('borrador')}
                     disabled={guardando}
-                    style={{ pointerEvents: 'auto' as const, padding: '10px 18px', background: !clienteId ? '#FEF2F2' : diagGuardadoId ? '#F0FDF4' : AZUL, color: !clienteId ? '#DC2626' : diagGuardadoId ? VERDE : 'white', border: `1px solid ${!clienteId ? '#FCA5A5' : diagGuardadoId ? '#86EFAC' : AZUL}`, borderRadius: '8px', fontSize: '12px', fontWeight: '700' as const, cursor: guardando ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', opacity: guardando ? 0.7 : 1 }}>
+                    style={{ pointerEvents: 'auto' as const, padding: '10px 18px', background: !clienteId ? '#FEF2F2' : diagGuardadoId ? '#F0FDF4' : AZUL, color: !clienteId ? '#DC2626' : diagGuardadoId ? VERDE : 'white', border: `1px solid ${!clienteId ? '#FCA5A5' : diagGuardadoId ? '#86EFAC' : AZUL}`, borderRadius: '10px', fontSize: '12px', fontWeight: '700' as const, cursor: guardando ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', opacity: guardando ? 0.7 : 1 }}>
                     {guardando ? 'Guardando…' : !clienteId ? 'Sin cliente vinculado' : diagGuardadoId ? 'Borrador guardado' : 'Guardar borrador'}
                   </button>
                 </div>
@@ -2920,7 +2920,7 @@ function CalculadoraInner() {
                       { label: 'Descontadas', value: datos.semanas_descontadas > 0 ? datos.semanas_descontadas : '—', bg: 'white', color: datos.semanas_descontadas > 0 ? '#DC2626' : '#CBD5E1', border: '#E2E8F0' },
                       { label: 'Netas', value: datos.semanas_totales ? (datos.semanas_totales - datos.semanas_descontadas) : '—', bg: '#EEF2F8', color: AZUL, border: AZUL },
                     ].map((k, i) => (
-                      <div key={i} style={{ textAlign: 'center' as const, padding: '10px 8px', background: k.bg, border: `1px solid ${k.border}`, borderRadius: '8px' }}>
+                      <div key={i} style={{ textAlign: 'center' as const, padding: '10px 8px', background: k.bg, border: `1px solid ${k.border}`, borderRadius: '10px' }}>
                         <div style={{ fontSize: '24px', fontWeight: '800' as const, color: k.color, lineHeight: 1 }}>{k.value}</div>
                         <div style={{ fontSize: '13px', color: '#94A3B8', marginTop: '4px' }}>{k.label}</div>
                       </div>
@@ -2932,7 +2932,7 @@ function CalculadoraInner() {
                       { label: 'Art. 165 (Asistencial)', value: datos.tiene_ayuda_asistencial ? '✓ Aplica' : 'No aplica', color: datos.tiene_ayuda_asistencial ? VERDE : '#94A3B8' },
                       { label: 'Edad de pensión', value: `${datos.edad_min_pension || 60} años`, color: AZUL },
                     ].map((k, i) => (
-                      <div key={i} style={{ padding: '8px 10px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '6px', textAlign: 'center' as const }}>
+                      <div key={i} style={{ padding: '8px 10px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', textAlign: 'center' as const }}>
                         <div style={{ fontSize: '13px', fontWeight: '600' as const, color: k.color }}>{k.value}</div>
                         <div style={{ fontSize: '13px', color: '#94A3B8', marginTop: '3px' }}>{k.label}</div>
                       </div>
@@ -2950,7 +2950,7 @@ function CalculadoraInner() {
                         { label: 'Hijos < 16', value: String(datos.num_hijos), ok: datos.num_hijos > 0 },
                         { label: 'Padres dep.', value: String(datos.num_padres), ok: datos.num_padres > 0 },
                       ].map(({ label, value, ok }, i) => (
-                        <div key={i} style={{ textAlign: 'center' as const, padding: '10px 6px', background: ok ? '#F0F7F4' : '#F8FAFC', border: `1px solid ${ok ? '#86EFAC' : '#E2E8F0'}`, borderRadius: '8px' }}>
+                        <div key={i} style={{ textAlign: 'center' as const, padding: '10px 6px', background: ok ? '#F0F7F4' : '#F8FAFC', border: `1px solid ${ok ? '#86EFAC' : '#E2E8F0'}`, borderRadius: '10px' }}>
                           <div style={{ fontSize: '22px', fontWeight: '800' as const, color: ok ? VERDE : '#9CA3AF' }}>{value}</div>
                           <div style={{ fontSize: '13px', color: '#94A3B8', marginTop: '3px' }}>{label}</div>
                         </div>
@@ -3122,7 +3122,7 @@ function CalculadoraInner() {
           const escRec = escsConMod40[0] ?? null
           const resumenNode = (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <div style={{ background: AZUL, padding: '16px 20px', borderRadius: '8px' }}>
+              <div style={{ background: AZUL, padding: '16px 20px', borderRadius: '10px' }}>
                 <p style={{ fontSize: '14px', fontWeight: '800' as const, color: 'white', margin: '0 0 4px' }}>Resumen Ejecutivo — Proyecto de Pensión con Modalidad 40</p>
                 <div style={{ display: 'flex', gap: '20px', fontSize: '15px', color: '#93C5FD' }}>
                   <span>{datos.nombre_trabajador || 'Trabajador'}</span>
