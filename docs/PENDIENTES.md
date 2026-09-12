@@ -34,18 +34,17 @@ El módulo de suscripción con Stripe se eliminó en esta fase. Lo que quedó en
 
 ## Transversal
 
-
-- [x] Paginación y ordenamiento en Clientes y Reportes. *(Seguimiento resultó ser vista de calendario, no tabla: no aplica.)*
-- [ ] Reemplazar los 16 `alert()` y mensajes genéricos por errores específicos.
-- [ ] Skeletons de carga. No existe ninguno.
-- [ ] Manifest PWA. La app no es instalable.
-- [ ] Responsividad fuera de la calculadora: dashboard, clientes, seguimiento. *(La paleta y la tipografía ya están alineadas; falta el comportamiento en pantallas angostas.)*
-- [ ] Validación en tiempo real en formularios. Hoy solo valida al enviar.
-- [ ] Confirmación al cerrar modales con datos capturados.
+- [x] Paginación y ordenamiento en Clientes y Reportes.
+- [x] Mensajes de error específicos. Cero `alert()` en la aplicación.
+- [x] Skeletons de carga en Cartera y Dashboard.
+- [x] Manifest PWA. La aplicación es instalable.
+- [x] Responsividad general fuera de la calculadora.
+- [x] Validación en tiempo real (`useValidacion`), aplicada en Alta de cliente.
+- [x] Confirmación al cerrar modales con datos capturados (`useConfirmarCierre`).
 
 ## Calidad
 
-- [ ] **Tests de renderizado.** Los 104 actuales son de lógica pura. Ninguno prueba que un tab monte sin reventar con datos vacíos, que es donde más se rompe una app.
+- [x] Tests de resistencia a datos vacíos e incompletos. Encontraron un bug real: una fecha ilegible producía NaN y de ahí un estado de cobranza impredecible.
 
 ## Cerrados en la sesión del 12 sep 2026
 

@@ -4,6 +4,7 @@ import { createClient } from '@/utils/supabase/client'
 import AltaCliente from './AltaCliente'
 import RegistrarPago from './RegistrarPago'
 import Acuerdos from './Acuerdos'
+import { TablaSkeleton } from '@/components/Skeleton'
 import { K, nw, num, tarjeta, botonPrimario, franja, halo } from '@/lib/design-tokens'
 import {
   cotizar, normalizarTramos, validarTramos, TRAMOS_DEFAULT,
@@ -232,7 +233,7 @@ export default function CarteraPage() {
             </thead>
             <tbody>
               {cargando ? (
-                <tr><td colSpan={6} style={{ padding: 30, textAlign: 'center', color: K.muted }}>Cargando…</td></tr>
+                <tr><td colSpan={6} style={{ padding: 0 }}><TablaSkeleton filas={4} columnas={6} /></td></tr>
               ) : cartera.length === 0 ? (
                 <tr><td colSpan={6} style={{ padding: '36px 20px', textAlign: 'center', color: K.muted }}>
                   <p style={{ fontSize: 17, margin: 0 }}>Todavía no hay clientes registrados.</p>

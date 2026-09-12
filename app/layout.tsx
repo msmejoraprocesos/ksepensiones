@@ -24,7 +24,11 @@ const inter = Inter({
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
+  /* Se permite el acercamiento hasta 5x: bloquearlo en una aplicación llena
+     de cifras deja fuera a quien necesita ampliar para leerlas. */
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: '#0D2440',
 }
 
 export const metadata: Metadata = {
@@ -34,6 +38,14 @@ export const metadata: Metadata = {
     icon: '/favicon.svg',
     shortcut: '/favicon.svg',
     apple: '/favicon.svg',
+  },
+  /* Instalable: en la tablet o el teléfono del asesor abre sin barra del
+     navegador, que en pantallas chicas roba altura útil. */
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    title: 'KSE Pensiones',
+    statusBarStyle: 'black-translucent',
   },
 }
 

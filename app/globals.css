@@ -77,3 +77,53 @@ input:focus, select:focus, textarea:focus {
 
 /* Transiciones suaves */
 button { transition: all 0.15s ease !important }
+
+
+/* ── Responsividad general ─────────────────────────────────────────────────
+   La calculadora recibió tratamiento propio; el resto de los módulos seguían
+   asumiendo un ancho de escritorio. Estas reglas evitan los dos fallos más
+   comunes en pantallas angostas: retículas que aprietan las columnas hasta
+   volverlas ilegibles, y tablas que desbordan el viewport y obligan a
+   desplazar la página entera de lado.                                      */
+
+@media (max-width: 900px) {
+  /* Cualquier retícula de dos o más columnas fijas pasa a una sola. */
+  [style*="grid-template-columns: 1fr 1fr"],
+  [style*="gridTemplateColumns: '1fr 1fr'"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 760px) {
+  /* Las tablas se desplazan dentro de su contenedor, no arrastran la página. */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+  /* Los diálogos ocupan la pantalla en lugar de flotar a medias. */
+  [role="dialog"] {
+    max-width: 100% !important;
+    border-radius: 14px 14px 0 0 !important;
+  }
+}
+
+@media (max-width: 560px) {
+  /* Botones lado a lado que ya no caben se apilan a ancho completo. */
+  .kse-acciones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .kse-acciones > button {
+    width: 100%;
+  }
+}
+
+/* Áreas táctiles: en móvil, cualquier control interactivo alcanza los 44px
+   que recomienda la guía de accesibilidad. */
+@media (pointer: coarse) {
+  button, select, input[type="date"], input[type="number"], input[type="text"], input[type="email"] {
+    min-height: 44px;
+  }
+}

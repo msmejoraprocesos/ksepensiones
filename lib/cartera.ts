@@ -34,7 +34,10 @@ export function evaluarCobranza(
   diasTolerancia = 5,
   hoy: Date | string = new Date()
 ): EstadoCobranza {
-  if (!vigenciaHasta) {
+  /* Una fecha vacía o ilegible no debe producir NaN: eso se propaga a los
+     estados y termina suspendiendo —o dejando activo— a quien no toca.
+     Ante un dato que no se puede interpretar, se trata como sin contrato. */
+  if (!vigenciaHasta || isNaN(Date.parse(vigenciaHasta))) {
     return { estado: 'sin_contrato', diasRestantes: 0, diasVencido: 0, limiteAcceso: null }
   }
 

@@ -1,6 +1,7 @@
 'use client' // v6-etapas
 
 import { useEffect, useState, useRef, Suspense } from 'react'
+import { avisoError, avisoExito } from '@/app/utils/avisos'
 import { createClient } from '@/utils/supabase/client'
 import { pdf } from '@react-pdf/renderer'
 import { DiagnosticoPDF } from '@/app/utils/DiagnosticoPDF'
@@ -403,7 +404,7 @@ function ClientesInner() {
       URL.revokeObjectURL(url)
     } catch (err) {
       console.error('Error generando PDF desde diagnóstico:', err)
-      alert('Error al generar el PDF. Intenta desde la calculadora.')
+      avisoError('No se pudo generar el PDF', 'Abre el diagnóstico desde la calculadora y expórtalo desde ahí.')
     }
   }
 
@@ -773,7 +774,7 @@ function ClientesInner() {
     if (!esDevolucion) {
       const saldoPendiente = Math.max(0, (selected.monto_acordado ?? 0) - (selected.total_pagado ?? 0))
       if (selected.monto_acordado && montoNuevo > saldoPendiente) {
-        alert(`El pago de ${fmtMXN(montoNuevo)} excede el saldo pendiente de ${fmtMXN(saldoPendiente)}`)
+        avisoError('El pago excede el saldo', `Se intentó registrar ${fmtMXN(montoNuevo)} y solo quedan ${fmtMXN(saldoPendiente)} por cobrar. Ajusta el monto o revisa el acordado.`)
         setSavingPago(false)
         return
       }
@@ -781,7 +782,7 @@ function ClientesInner() {
       // Validar que la devolución no exceda lo ya pagado
       const totalPagado = selected.total_pagado ?? 0
       if (montoAbs > totalPagado) {
-        alert(`La devolución de ${fmtMXN(montoAbs)} excede el total pagado de ${fmtMXN(totalPagado)}`)
+        avisoError('La devolución excede lo pagado', `Se intentó devolver ${fmtMXN(montoAbs)} y el cliente solo ha pagado ${fmtMXN(totalPagado)}.`)
         setSavingPago(false)
         return
       }
@@ -2407,7 +2408,7 @@ function ClientesInner() {
                     setShowCanalizarModal(null)
                     setCanalizarDestino('')
                     setCanalizarMotivo('')
-                    alert('✅ Solicitud enviada. El org-admin recibirá una notificación para aprobarla.')
+                    avisoExito('Solicitud enviada', 'El administrador de tu equipo recibirá una notificación para aprobarla.')
                   }}
                   style={{ flex: 2, padding: '10px', background: !canalizarDestino || !canalizarMotivo.trim() ? '#E1E7F0' : AZUL, color: !canalizarDestino || !canalizarMotivo.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: !canalizarDestino || !canalizarMotivo.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
                   {canalizarLoading ? 'Enviando...' : '🔄 Enviar solicitud'}

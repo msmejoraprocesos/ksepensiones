@@ -3,6 +3,8 @@ import React, { useMemo, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { K, nw, num, botonPrimario } from '@/lib/design-tokens'
 import { cotizar, calcularNuevaVigencia, type TramoPrecio } from '@/lib/cartera'
+import { useValidacion, reglas } from '@/app/hooks/useValidacion'
+import { useConfirmarCierre } from '@/app/hooks/useConfirmarCierre'
 
 const mxn = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n)
 
@@ -42,14 +44,24 @@ export default function AltaCliente({ tramos, onCreado, onCerrar }: Props) {
 
   const cot = useMemo(() => cotizar(usuarios, periodicidad, tramos), [usuarios, periodicidad, tramos])
 
-  const falta =
-    !empresa.trim() ? 'Falta el nombre de la empresa.'
-    : !adminNombre.trim() ? 'Falta el nombre del administrador.'
-    : !/^\S+@\S+\.\S+$/.test(adminEmail) ? 'El correo del administrador no es válido.'
-    : null
+  const v = useValidacion(
+    { empresa, adminNombre, adminEmail, adminTel, usuarios },
+    {
+      empresa:     [reglas.requerido('El nombre de la empresa')],
+      adminNombre: [reglas.requerido('El nombre del administrador')],
+      adminEmail:  [reglas.requerido('El correo'), reglas.correo()],
+      adminTel:    [reglas.telefono(10)],
+      usuarios:    [reglas.minimo(1, 'Los usuarios contratados')],
+    }
+  )
+
+  /* Cerrar por error tras llenar el formulario obliga a recapturar todo.
+     Se confirma solo si ya hay algo escrito. */
+  const hayDatos = !!(empresa.trim() || adminNombre.trim() || adminEmail.trim() || adminTel.trim())
+  const intentarCerrar = useConfirmarCierre(hayDatos, onCerrar)
 
   async function crear() {
-    if (falta) { setError(falta); return }
+    if (!v.validarAntesDeEnviar()) return
     setGuardando(true); setError('')
 
     /* El orden importa: si el alta del usuario falla, no debe quedar una
@@ -123,7 +135,7 @@ export default function AltaCliente({ tramos, onCreado, onCerrar }: Props) {
   )
 
   return (
-    <div onClick={onCerrar} style={{ position: 'fixed', inset: 0, background: 'rgba(13,36,64,.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+    <div onClick={intentarCerrar} style={{ position: 'fixed', inset: 0, background: 'rgba(13,36,64,.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <div onClick={e => e.stopPropagation()} style={{ background: K.card, borderRadius: 16, width: '100%', maxWidth: 640, maxHeight: '92vh', overflowY: 'auto' }}>
 
         <div style={{ padding: '22px 26px', borderBottom: `1px solid ${K.line}` }}>
@@ -136,7 +148,9 @@ export default function AltaCliente({ tramos, onCreado, onCerrar }: Props) {
         <div style={{ padding: '22px 26px' }}>
           <label style={{ display: 'block', marginBottom: 16 }}>
             <Etq>Nombre de la empresa o persona</Etq>
-            <input value={empresa} onChange={e => setEmpresa(e.target.value)} style={campo} placeholder="Ej. Despacho Hernández" />
+            <input value={empresa} onChange={e => setEmpresa(e.target.value)} onBlur={() => v.tocar('empresa')}
+              style={{ ...campo, borderColor: v.errorDe('empresa') ? K.red : K.line }} placeholder="Ej. Despacho Hernández" />
+            {v.errorDe('empresa') && <span style={{ display: 'block', fontSize: 13, color: K.red, marginTop: 5 }}>{v.errorDe('empresa')}</span>}
           </label>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: 12, marginBottom: 16 }}>
@@ -171,9 +185,21 @@ export default function AltaCliente({ tramos, onCreado, onCerrar }: Props) {
           </p>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 12 }}>
-            <label><Etq>Nombre</Etq><input value={adminNombre} onChange={e => setAdminNombre(e.target.value)} style={campo} /></label>
-            <label><Etq>Correo</Etq><input type="email" value={adminEmail} onChange={e => setAdminEmail(e.target.value)} style={campo} /></label>
-            <label><Etq>WhatsApp</Etq><input value={adminTel} onChange={e => setAdminTel(e.target.value)} style={campo} placeholder="10 dígitos" /></label>
+            <label><Etq>Nombre</Etq>
+              <input value={adminNombre} onChange={e => setAdminNombre(e.target.value)} onBlur={() => v.tocar('adminNombre')}
+                style={{ ...campo, borderColor: v.errorDe('adminNombre') ? K.red : K.line }} />
+              {v.errorDe('adminNombre') && <span style={{ display: 'block', fontSize: 13, color: K.red, marginTop: 5 }}>{v.errorDe('adminNombre')}</span>}
+            </label>
+            <label><Etq>Correo</Etq>
+              <input type="email" value={adminEmail} onChange={e => setAdminEmail(e.target.value)} onBlur={() => v.tocar('adminEmail')}
+                style={{ ...campo, borderColor: v.errorDe('adminEmail') ? K.red : K.line }} />
+              {v.errorDe('adminEmail') && <span style={{ display: 'block', fontSize: 13, color: K.red, marginTop: 5 }}>{v.errorDe('adminEmail')}</span>}
+            </label>
+            <label><Etq>WhatsApp</Etq>
+              <input value={adminTel} onChange={e => setAdminTel(e.target.value)} onBlur={() => v.tocar('adminTel')}
+                style={{ ...campo, borderColor: v.errorDe('adminTel') ? K.red : K.line }} placeholder="10 dígitos" />
+              {v.errorDe('adminTel') && <span style={{ display: 'block', fontSize: 13, color: K.red, marginTop: 5 }}>{v.errorDe('adminTel')}</span>}
+            </label>
           </div>
 
           <div style={{ marginTop: 14, background: K.paper, borderRadius: 10, padding: '14px 16px' }}>
@@ -191,19 +217,19 @@ export default function AltaCliente({ tramos, onCreado, onCerrar }: Props) {
             </span>
           </label>
 
-          {(error || falta) && (
+          {error && (
             <div style={{ marginTop: 16, background: K.redSoft, border: `1px solid ${K.red}33`, borderRadius: 10, padding: '12px 14px' }}>
-              <p style={{ fontSize: 15, color: K.red, margin: 0, lineHeight: 1.5 }}>{error || falta}</p>
+              <p style={{ fontSize: 15, color: K.red, margin: 0, lineHeight: 1.5 }}>{error}</p>
             </div>
           )}
         </div>
 
         <div style={{ padding: '18px 26px', borderTop: `1px solid ${K.line}`, display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-          <button onClick={onCerrar} style={{ padding: '13px 20px', borderRadius: 10, border: `1px solid ${K.line}`, background: 'transparent', color: K.muted, fontSize: 17, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+          <button onClick={intentarCerrar} style={{ padding: '13px 20px', borderRadius: 10, border: `1px solid ${K.line}`, background: 'transparent', color: K.muted, fontSize: 17, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
             Cancelar
           </button>
-          <button onClick={crear} disabled={guardando || !!falta}
-            style={{ ...botonPrimario, opacity: guardando || falta ? .5 : 1, cursor: guardando || falta ? 'default' : 'pointer' }}>
+          <button onClick={crear} disabled={guardando}
+            style={{ ...botonPrimario, opacity: guardando ? .5 : 1, cursor: guardando ? 'default' : 'pointer' }}>
             {guardando ? 'Creando…' : 'Crear cliente'}
           </button>
         </div>

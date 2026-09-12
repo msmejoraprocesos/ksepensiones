@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
+import { TarjetasSkeleton } from '@/components/Skeleton'
 
 const AZUL = '#245287'
 const VERDE = '#2E8B57'
@@ -1113,5 +1114,13 @@ function MiDiaInner() {
 }
 
 export default function MiDiaPage() {
-  return <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'calc(100vh - 48px)', color: '#66738A' }}>Cargando...</div>}><MiDiaInner /></Suspense>
+  return (
+    <Suspense fallback={
+      <div style={{ padding: '20px 24px' }}>
+        <TarjetasSkeleton n={4} />
+      </div>
+    }>
+      <MiDiaInner />
+    </Suspense>
+  )
 }
