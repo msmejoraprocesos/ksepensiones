@@ -57,7 +57,7 @@ export default function TabImporte({ escenarios, datos, setTab, Tip }: Props) {
   const pctHoy = escRec.pension_mensual > 0 ? (pensionActual / escRec.pension_mensual) * 100 : 0
 
   const DESGLOSE = [
-    { label: 'Cuantia basica anual', value: escRec.cuantia_basica_anual ?? 0, color: K.navy600 },
+    { label: 'Cuantía básica anual', value: escRec.cuantia_basica_anual ?? 0, color: K.navy600 },
     { label: 'Incrementos anuales', value: escRec.incrementos_anual ?? 0, color: K.green },
     { label: 'Asignaciones familiares', value: escRec.asignaciones_anual ?? 0, color: K.orange },
   ]
@@ -89,9 +89,9 @@ export default function TabImporte({ escenarios, datos, setTab, Tip }: Props) {
 
           <div style={{ background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.13)', borderRadius: '14px', padding: '22px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <span style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)' }}>HOY</span>
-            <p style={{ fontSize: '15px', color: 'rgba(255,255,255,.78)', margin: '8px 0 0', ...nw }}>Su pension sin Modalidad 40</p>
+            <p style={{ fontSize: '15px', color: 'rgba(255,255,255,.78)', margin: '8px 0 0', ...nw }}>Su pensión sin Modalidad 40</p>
             <p style={{ fontSize: '40px', fontWeight: 700, color: 'white', margin: '8px 0 0', lineHeight: 1, letterSpacing: '-.025em', ...nw, ...num }}>{fmtMXN(pensionActual)}</p>
-            <p style={{ fontSize: '13px', color: 'rgba(255,255,255,.5)', margin: '10px 0 0', ...nw, ...num }}>{fmtMXN(pensionActual * 12)} al anio</p>
+            <p style={{ fontSize: '13px', color: 'rgba(255,255,255,.5)', margin: '10px 0 0', ...nw, ...num }}>{fmtMXN(pensionActual * 12)} al año</p>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -110,7 +110,7 @@ export default function TabImporte({ escenarios, datos, setTab, Tip }: Props) {
 
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingLeft: '30px', minWidth: 0 }}>
             <span style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: K.gold }}>CON MODALIDAD 40</span>
-            <p style={{ fontSize: '15px', color: 'rgba(255,255,255,.8)', margin: '8px 0 0' }}>Su pension mensual, de por vida</p>
+            <p style={{ fontSize: '15px', color: 'rgba(255,255,255,.8)', margin: '8px 0 0' }}>Su pensión mensual, de por vida</p>
             <p style={{ fontSize: 'clamp(46px, 5.6vw, 78px)', fontWeight: 800, color: 'white', letterSpacing: '-.038em', margin: '6px 0 0', lineHeight: 1, ...nw, ...num }}>
               {fmtMXN2(escRec.pension_mensual)}
             </p>
@@ -119,7 +119,7 @@ export default function TabImporte({ escenarios, datos, setTab, Tip }: Props) {
                 +{fmtMXN2(incremento)} cada mes
               </span>
               <span style={{ background: 'transparent', color: 'white', fontSize: '15px', fontWeight: 600, padding: '10px 17px', borderRadius: 999, border: '1px solid rgba(255,255,255,.26)', ...nw }}>
-                {multiplo.toFixed(1)}x su pension actual
+                {multiplo.toFixed(1)}x su pensión actual
               </span>
               <span style={{ background: 'transparent', color: 'white', fontSize: '15px', fontWeight: 600, padding: '10px 17px', borderRadius: 999, border: '1px solid rgba(255,255,255,.26)', ...nw }}>
                 +{pctMejora.toFixed(1)}%
@@ -131,7 +131,7 @@ export default function TabImporte({ escenarios, datos, setTab, Tip }: Props) {
         {/* Barra de proporcion */}
         <div style={{ position: 'relative', padding: '0 34px 30px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '9px', fontSize: '13px' }}>
-            <span style={{ color: 'rgba(255,255,255,.62)' }}>Proporcion real entre ambas pensiones</span>
+            <span style={{ color: 'rgba(255,255,255,.62)' }}>Proporción real entre ambas pensiones</span>
             <span style={{ color: K.gold, fontWeight: 700 }}>Modalidad 40 aporta {(100 - pctHoy).toFixed(0)}% del total</span>
           </div>
           <div style={{ display: 'flex', height: '16px', borderRadius: 999, overflow: 'hidden', background: 'rgba(255,255,255,.08)' }}>
@@ -153,7 +153,7 @@ export default function TabImporte({ escenarios, datos, setTab, Tip }: Props) {
 
         {/* ── Desglose ──────────────────────────────────────────── */}
         <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px' }}>
-          <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 18px' }}>Como se arma la pension</p>
+          <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 18px' }}>Cómo se arma la pensión</p>
 
           {totalDesglose > 0 && (
             <div style={{ display: 'flex', height: '42px', borderRadius: '9px', overflow: 'hidden', marginBottom: '20px' }}>
@@ -179,13 +179,13 @@ export default function TabImporte({ escenarios, datos, setTab, Tip }: Props) {
           </div>
 
           <div style={{ marginTop: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px', background: K.navy900, borderRadius: '10px', padding: '16px 20px' }}>
-            <span style={{ fontSize: '17px', color: 'rgba(255,255,255,.78)' }}>Pension anual total</span>
+            <span style={{ fontSize: '17px', color: 'rgba(255,255,255,.78)' }}>Pensión anual total</span>
             <span style={{ fontSize: '24px', fontWeight: 700, color: 'white', ...nw, ...num }}>{fmtMXN2(escRec.pension_mensual * 12)}</span>
           </div>
 
           <div style={{ marginTop: '10px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <div style={{ flex: 1, minWidth: '150px', background: K.greenSoft, borderRadius: '10px', padding: '14px 16px' }}>
-              <p style={{ fontSize: '13px', color: K.muted, margin: 0 }}>Pension mensual</p>
+              <p style={{ fontSize: '13px', color: K.muted, margin: 0 }}>Pensión mensual</p>
               <p style={{ fontSize: '22px', fontWeight: 700, color: K.green, margin: '2px 0 0', ...nw, ...num }}>{fmtMXN2(escRec.pension_mensual)}</p>
             </div>
             <div style={{ flex: 1, minWidth: '150px', background: K.orangeSoft, borderRadius: '10px', padding: '14px 16px' }}>
@@ -198,9 +198,9 @@ export default function TabImporte({ escenarios, datos, setTab, Tip }: Props) {
         {/* ── Factor por edad, con curva ────────────────────────── */}
         <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px' }}>
           <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>
-            Si se pensiona mas tarde <Tip id="factorEdad" />
+            Si se pensiona más tarde <Tip id="factorEdad" />
           </p>
-          <p style={{ fontSize: '13px', color: K.muted, margin: '0 0 14px' }}>Toque un anio para comparar</p>
+          <p style={{ fontSize: '13px', color: K.muted, margin: '0 0 14px' }}>Toque un año para comparar</p>
 
           {(() => {
             const w = 560, h = 170, pad = 42

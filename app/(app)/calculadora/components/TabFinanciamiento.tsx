@@ -43,7 +43,7 @@ export default function TabFinanciamiento({
   if (!escRec || escRec.mod40_meses === 0) return (
     <div style={{ textAlign: 'center', padding: '60px', color: K.muted }}>
       <i className="ti ti-building-bank" style={{ fontSize: '48px', display: 'block', marginBottom: '12px' }} />
-      <p style={{ fontSize: '15px' }}>Completa las pestanias anteriores para ver el financiamiento</p>
+      <p style={{ fontSize: '15px' }}>Completa las pestañas anteriores para ver el financiamiento</p>
     </div>
   )
 
@@ -64,7 +64,7 @@ export default function TabFinanciamiento({
 
   const slices = [
     { label: 'Banco regulado', val: escRec.aportacion_banco ?? 0, pct: pctBanco, color: K.navy600 },
-    { label: 'AFORE (recuperacion)', val: escRec.recuperacion_afore_retro ?? escRec.recuperacion_afore ?? 0, pct: pctAfore, color: K.green },
+    { label: 'AFORE (recuperación)', val: escRec.recuperacion_afore_retro ?? escRec.recuperacion_afore ?? 0, pct: pctAfore, color: K.green },
     { label: 'Cuenta propia / fondeador', val: escRec.aportacion_segundo_fondeo ?? 0, pct: Math.max(0, 100 - pctBanco - pctAfore), color: K.orange },
   ]
 
@@ -98,7 +98,7 @@ export default function TabFinanciamiento({
           </div>
           {sobrecosto > 0 && (
             <p style={{ fontSize: '15px', color: 'rgba(255,255,255,.68)', margin: '10px 0 0' }}>
-              Pagar retroactivo agrega actualizaciones y recargos: {fmtMXN(total - costoBase)} mas que cotizar desde hoy.
+              Pagar retroactivo agrega actualizaciones y recargos: {fmtMXN(total - costoBase)} más que cotizar desde hoy.
             </p>
           )}
         </div>
@@ -106,9 +106,9 @@ export default function TabFinanciamiento({
         <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1px', background: 'rgba(255,255,255,.11)' }}>
           {[
             { label: `Banco regulado (${pctBanco}%)`, value: fmtMXN(escRec.aportacion_banco ?? 0), sub: `${tasaBanco}% anual`, color: 'white' },
-            { label: 'Cuenta propia / fondeador', value: fmtMXN(escRec.aportacion_segundo_fondeo ?? 0), sub: 'aportacion directa', color: K.gold },
+            { label: 'Cuenta propia / fondeador', value: fmtMXN(escRec.aportacion_segundo_fondeo ?? 0), sub: 'aportación directa', color: K.gold },
             { label: 'Descuento mensual', value: fmtMXN2(descuento), sub: `durante ${plazoCredito} meses`, color: '#FCA5A5' },
-            { label: 'Pension al liquidar', value: fmtMXN2(pensionFinal), sub: 'libre de descuento', color: K.greenLt },
+            { label: 'Pensión al liquidar', value: fmtMXN2(pensionFinal), sub: 'libre de descuento', color: K.greenLt },
           ].map((k, i) => (
             <div key={i} style={{ background: K.navy900, padding: '18px 24px' }}>
               <p style={{ fontSize: '13px', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k.label}</p>
@@ -123,8 +123,8 @@ export default function TabFinanciamiento({
 
         {/* ── Distribucion del pago ──────────────────────────────── */}
         <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px' }}>
-          <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>De donde sale el dinero</p>
-          <p style={{ fontSize: '13px', color: K.muted, margin: '0 0 18px' }}>Distribucion del pago retroactivo</p>
+          <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>De dónde sale el dinero</p>
+          <p style={{ fontSize: '13px', color: K.muted, margin: '0 0 18px' }}>Distribución del pago retroactivo</p>
 
           <div style={{ display: 'flex', height: '42px', borderRadius: '9px', overflow: 'hidden', marginBottom: '20px' }}>
             {slices.map((s, i) => (
@@ -157,10 +157,10 @@ export default function TabFinanciamiento({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
           <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px' }}>
-            <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 16px' }}>Parametros del credito</p>
+            <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 16px' }}>Parámetros del crédito</p>
             {[
-              { label: 'Duracion del tramite', value: duracionTramiteMeses, onChange: setDuracionTramiteMeses, options: [12, 18, 24, 30, 36, 48, 60], fmt: (v: number) => `${v} meses` },
-              { label: 'Plazo del credito', value: plazoCredito, onChange: setPlazoCredito, options: [12, 24, 36, 48, 60, 72, 84, 96, 108, 120], fmt: (v: number) => `${v} meses (${(v / 12).toFixed(1)} anios)` },
+              { label: 'Duración del trámite', value: duracionTramiteMeses, onChange: setDuracionTramiteMeses, options: [12, 18, 24, 30, 36, 48, 60], fmt: (v: number) => `${v} meses` },
+              { label: 'Plazo del crédito', value: plazoCredito, onChange: setPlazoCredito, options: [12, 24, 36, 48, 60, 72, 84, 96, 108, 120], fmt: (v: number) => `${v} meses (${(v / 12).toFixed(1)} anios)` },
             ].map((f, i) => (
               <div key={i} style={{ marginBottom: '14px' }}>
                 <label style={{ display: 'block', fontSize: '15px', color: K.muted, marginBottom: '6px' }}>{f.label}</label>
@@ -177,13 +177,13 @@ export default function TabFinanciamiento({
           </div>
 
           <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px' }}>
-            <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Que cobra en cada etapa</p>
-            <p style={{ fontSize: '13px', color: K.muted, margin: '0 0 18px' }}>Pension mensual disponible</p>
+            <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Qué cobra en cada etapa</p>
+            <p style={{ fontSize: '13px', color: K.muted, margin: '0 0 18px' }}>Pensión mensual disponible</p>
 
             {[
               { label: 'Sin Mod. 40 (hoy)', value: pensionBase, color: '#9AA7B8', nota: '' },
-              { label: 'Durante el credito', value: pensionDurante, color: K.orange, nota: `descuento de ${fmtMXN2(descuento)}/mes` },
-              { label: 'Al liquidar el credito', value: pensionFinal, color: K.green, nota: 'de por vida' },
+              { label: 'Durante el crédito', value: pensionDurante, color: K.orange, nota: `descuento de ${fmtMXN2(descuento)}/mes` },
+              { label: 'Al liquidar el crédito', value: pensionFinal, color: K.green, nota: 'de por vida' },
             ].map((e, i) => (
               <div key={i} style={{ marginBottom: '14px' }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '10px', marginBottom: '6px' }}>

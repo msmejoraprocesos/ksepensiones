@@ -21,7 +21,7 @@ const BORDE = K.line
 const SEM = {
   imss:     { bg: K.card, border: K.line, text: K.ink, dot: K.navy600, badgeBg: '#DBEAFE', label: 'Dato IMSS' },
   manual:   { bg: K.card, border: K.line, text: K.ink, dot: K.orange,  badgeBg: '#FED7AA', label: 'Captura manual' },
-  strategy: { bg: K.card, border: K.line, text: K.ink, dot: K.green,   badgeBg: '#BBF7D0', label: 'Decision estrategica' },
+  strategy: { bg: K.card, border: K.line, text: K.ink, dot: K.green,   badgeBg: '#BBF7D0', label: 'Decisión estratégica' },
   result:   { bg: K.paper, border: K.line, text: K.ink, dot: K.purple, badgeBg: '#DDD6FE', label: 'Calculado' },
 }
 

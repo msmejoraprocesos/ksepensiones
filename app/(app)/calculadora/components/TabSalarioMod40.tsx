@@ -87,7 +87,7 @@ export default function TabSalarioMod40({
         <div style={{ position: 'absolute', width: 440, height: 440, right: -150, top: -190, borderRadius: 999, pointerEvents: 'none', background: `radial-gradient(circle, ${K.orange}33 0%, transparent 68%)` }} />
         <div style={{ position: 'relative', padding: '28px 34px 22px' }}>
           <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>
-            PENSION PROYECTADA CON ESTOS PARAMETROS
+            PENSIÓN PROYECTADA CON ESTOS PARÁMETROS
           </p>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap', marginTop: '8px' }}>
             <p style={{ fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
@@ -100,15 +100,15 @@ export default function TabSalarioMod40({
             )}
           </div>
           <p style={{ fontSize: '15px', color: 'rgba(255,255,255,.68)', margin: '10px 0 0' }}>
-            Cotizando {mod40Umas} UMAs durante {mod40Meses} meses a partir de los {edadIngresoAnios} anios {edadIngresoMeses} meses.
+            Cotizando {mod40Umas} UMAs durante {mod40Meses} meses a partir de los {edadIngresoAnios} años {edadIngresoMeses} meses.
           </p>
         </div>
         <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1px', background: 'rgba(255,255,255,.11)' }}>
           {[
             ['SDI a registrar', `${fmtMXN2(sdiMod40)}/dia`, `${mod40Umas} UMAs x ${fmtMXN2(umaDiaria)}`, K.gold],
-            ['Duracion', `${mod40Meses} meses`, `${(mod40Meses / 12).toFixed(1)} anios de cotizacion`, 'white'],
-            ['Inversion neta', escRec ? fmtMXN(escRec.inversion_neta) : '\u2014', 'descontando AFORE', K.gold],
-            ['Recuperacion', escRec ? `${escRec.roi} meses` : '\u2014', 'de pension mejorada', K.greenLt],
+            ['Duración', `${mod40Meses} meses`, `${(mod40Meses / 12).toFixed(1)} años de cotización`, 'white'],
+            ['Inversión neta', escRec ? fmtMXN(escRec.inversion_neta) : '\u2014', 'descontando AFORE', K.gold],
+            ['Recuperación', escRec ? `${escRec.roi} meses` : '\u2014', 'de pensión mejorada', K.greenLt],
           ].map((k, i) => (
             <div key={i} style={{ background: K.navy900, padding: '18px 24px' }}>
               <p style={{ fontSize: '13px', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k[0]}</p>
@@ -121,10 +121,10 @@ export default function TabSalarioMod40({
 
       <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) minmax(300px, 1.15fr)', gap: '20px' }}>
 
-        {/* ── Decision estrategica ──────────────────────────────── */}
+        {/* ── Decisión estratégica ──────────────────────────────── */}
         <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '18px' }}>
-            <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: 0 }}>Decision estrategica</p>
+            <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: 0 }}>Decisión estratégica</p>
             <button onClick={resetParametrosMod40}
               style={{ padding: '8px 14px', background: 'transparent', color: K.muted, border: `1px solid ${K.line}`, borderRadius: '8px', fontSize: '15px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', ...nw }}>
               Restablecer
@@ -135,7 +135,7 @@ export default function TabSalarioMod40({
             <Etiqueta>Edad de ingreso a Mod. 40 <Tip id="duracionMod40" /></Etiqueta>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
               <div>
-                <p style={{ fontSize: '13px', color: K.muted, margin: '0 0 4px' }}>Anios</p>
+                <p style={{ fontSize: '13px', color: K.muted, margin: '0 0 4px' }}>Años</p>
                 <select value={edadIngresoAnios} onChange={e => setEdadIngresoAnios(Number(e.target.value))} style={{ ...campo, fontSize: '20px', fontWeight: 800 }}>
                   {Array.from({ length: 31 }, (_, i) => i + 40).map(a => <option key={a} value={a}>{a}</option>)}
                 </select>
@@ -148,7 +148,7 @@ export default function TabSalarioMod40({
               </div>
             </div>
             <p style={{ fontSize: '13px', color: K.muted, margin: '6px 0 0' }}>
-              Precargado de la constancia. Ajusta si el cliente quiere entrar despues.
+              Precargado de la constancia. Ajusta si el cliente quiere entrar después.
             </p>
           </div>
 
@@ -180,11 +180,11 @@ export default function TabSalarioMod40({
           </div>
 
           <div>
-            <Etiqueta>Tramite retroactivo <Tip id="retroactivo" /></Etiqueta>
+            <Etiqueta>Trámite retroactivo <Tip id="retroactivo" /></Etiqueta>
             <select value={tieneAtraso ? 'si' : 'no'} onChange={e => setTieneAtraso(e.target.value === 'si')}
               style={{ ...campo, borderColor: tieneAtraso ? K.orange : K.line, background: tieneAtraso ? K.orangeSoft : K.card, color: tieneAtraso ? K.orange : K.ink }}>
-              <option value="no">No — cotizacion mensual normal</option>
-              <option value="si">Si — pago retroactivo con recargos</option>
+              <option value="no">No — cotización mensual normal</option>
+              <option value="si">Sí — pago retroactivo con recargos</option>
             </select>
             {tieneAtraso && (
               <div style={{ marginTop: '10px', background: K.orangeSoft, borderRadius: '10px', padding: '12px 14px' }}>
@@ -206,7 +206,7 @@ export default function TabSalarioMod40({
 
           {escs.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px 20px', color: K.muted }}>
-              <p style={{ fontSize: '15px', margin: 0 }}>Ajusta los parametros para generar escenarios</p>
+              <p style={{ fontSize: '15px', margin: 0 }}>Ajusta los parámetros para generar escenarios</p>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -229,8 +229,8 @@ export default function TabSalarioMod40({
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                       {[
                         ['Mejora', '+' + fmtMXN(incr), K.green],
-                        ['Inversion neta', fmtMXN(esc.inversion_neta), K.amber],
-                        ['Recuperacion', `${esc.roi} meses`, K.navy600],
+                        ['Inversión neta', fmtMXN(esc.inversion_neta), K.amber],
+                        ['Recuperación', `${esc.roi} meses`, K.navy600],
                       ].map(([l, v, col], mi) => (
                         <div key={mi}>
                           <p style={{ fontSize: '13px', color: K.muted, margin: 0 }}>{l}</p>

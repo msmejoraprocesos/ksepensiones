@@ -26,7 +26,7 @@ const TERMOMETRO = [
 ]
 const getTermometro = (meses: number) => TERMOMETRO.find(t => meses <= t.max) ?? TERMOMETRO[TERMOMETRO.length - 1]
 
-/* Horizonte de cobro de la linea de tiempo: 60 -> 80 anios */
+/* Horizonte de cobro de la linea de tiempo: 60 -> 80 años */
 const HORIZONTE_MESES = 240
 
 const nw = { whiteSpace: 'nowrap' as const }
@@ -73,12 +73,12 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
   const colorSel = COLORES[idxSel] || K.navy600
 
   const CAMPOS = (e: any) => [
-    { label: 'Duracion Mod. 40', value: `${e.mod40_meses} meses (${(e.mod40_meses / 12).toFixed(1)} anios)` },
+    { label: 'Duración Mod. 40', value: `${e.mod40_meses} meses (${(e.mod40_meses / 12).toFixed(1)} anios)` },
     { label: 'UMAs registradas', value: String(e.mod40_umas) },
     { label: 'Costo total de Mod. 40', value: fmtMXN2(e.costo_total) },
-    { label: 'Menos recuperacion AFORE', value: '- ' + fmtMXN2(e.recuperacion_afore) },
-    { label: 'Inversion neta', value: fmtMXN2(e.inversion_neta), fuerte: true },
-    { label: 'Ganancia acumulada a los 80 anios', value: fmtMXN2(e.ganancia_a80), fuerte: true },
+    { label: 'Menos recuperación AFORE', value: '- ' + fmtMXN2(e.recuperacion_afore) },
+    { label: 'Inversión neta', value: fmtMXN2(e.inversion_neta), fuerte: true },
+    { label: 'Ganancia acumulada a los 80 años', value: fmtMXN2(e.ganancia_a80), fuerte: true },
     { label: 'Retorno sobre lo invertido', value: `${((e.tasa_rendimiento ?? 0) / 100).toFixed(1)} veces`, fuerte: true },
     { label: 'Aguinaldo anual', value: fmtMXN2(e.aguinaldo_anual) },
   ]
@@ -147,7 +147,7 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
                   {esc.mod40_umas} UMAs &middot; {esc.mod40_meses} meses
                 </p>
                 <p style={{ fontSize: '12px', color: K.muted, margin: '2px 0 0', ...nw, ...num }}>
-                  Inversion neta {fmtMXN(esc.inversion_neta)}
+                  Inversión neta {fmtMXN(esc.inversion_neta)}
                 </p>
               </button>
             )
@@ -159,7 +159,7 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
         <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1.35fr) minmax(280px, 1fr)', gap: '20px' }}>
 
           <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px' }}>
-            <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Comparativo visual de pension mensual</p>
+            <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Comparativo visual de pensión mensual</p>
             <p style={{ fontSize: '13px', color: K.muted, margin: '0 0 18px' }}>Toque una barra para ver el escenario en detalle</p>
 
             {[{ label: 'Sin Mod. 40', value: pensionBase, color: '#9AA7B8', idx: -1, rec: false },
@@ -200,7 +200,7 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
               <p style={{ fontSize: '38px', fontWeight: 800, color: 'white', margin: '8px 0 0', lineHeight: 1, letterSpacing: '-0.03em', ...nw, ...num }}>
                 {fmtMXN2(escSel.pension_mensual)}
               </p>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', margin: '4px 0 0' }}>pension mensual</p>
+              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', margin: '4px 0 0' }}>pensión mensual</p>
             </div>
 
             <div style={{ background: K.greenSoft, padding: '14px 22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
@@ -257,15 +257,15 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
               </thead>
               <tbody>
                 {[
-                  { label: 'Pension mensual', fn: (e: any) => fmtMXN2(e.pension_mensual), base: fmtMXN2(pensionBase), h: true },
+                  { label: 'Pensión mensual', fn: (e: any) => fmtMXN2(e.pension_mensual), base: fmtMXN2(pensionBase), h: true },
                   { label: 'Mejora mensual', fn: (e: any) => '+' + fmtMXN2(e.pension_mensual - pensionBase), base: '-', h: true },
-                  { label: 'Duracion Mod. 40', fn: (e: any) => `${e.mod40_meses} meses`, base: '-' },
+                  { label: 'Duración Mod. 40', fn: (e: any) => `${e.mod40_meses} meses`, base: '-' },
                   { label: 'UMAs registradas', fn: (e: any) => String(e.mod40_umas), base: '-' },
                   { label: 'Costo total de Mod. 40', fn: (e: any) => fmtMXN2(e.costo_total), base: '-' },
-                  { label: 'Menos recuperacion AFORE', fn: (e: any) => '- ' + fmtMXN2(e.recuperacion_afore), base: '-' },
-                  { label: 'Inversion neta', fn: (e: any) => fmtMXN2(e.inversion_neta), base: '-', h: true },
+                  { label: 'Menos recuperación AFORE', fn: (e: any) => '- ' + fmtMXN2(e.recuperacion_afore), base: '-' },
+                  { label: 'Inversión neta', fn: (e: any) => fmtMXN2(e.inversion_neta), base: '-', h: true },
                   { label: 'Meses para recuperar', fn: (e: any) => `${e.roi} meses`, base: '-' },
-                  { label: 'Ganancia acumulada a los 80 anios', fn: (e: any) => fmtMXN2(e.ganancia_a80), base: '-', h: true },
+                  { label: 'Ganancia acumulada a los 80 años', fn: (e: any) => fmtMXN2(e.ganancia_a80), base: '-', h: true },
                   { label: 'Retorno sobre lo invertido', fn: (e: any) => `${((e.tasa_rendimiento ?? 0) / 100).toFixed(1)}x`, base: '-' },
                   { label: 'Aguinaldo anual', fn: (e: any) => fmtMXN2(e.aguinaldo_anual), base: '-' },
                 ].map((row, ri) => {

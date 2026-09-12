@@ -22,7 +22,7 @@ const num = { fontVariantNumeric: 'tabular-nums' as const }
    cualquier escenario caia siempre en "Excelente". */
 const termometroRetorno = (multiplo: number) =>
   multiplo >= 25 ? { label: 'Excelente', color: '#15803D', bg: '#F0FDF4' }
-  : multiplo >= 18 ? { label: 'Buena inversion', color: '#0369A1', bg: '#F0F9FF' }
+  : multiplo >= 18 ? { label: 'Buena inversión', color: '#0369A1', bg: '#F0F9FF' }
   : multiplo >= 12 ? { label: 'Moderada', color: '#B45309', bg: '#FFFBEB' }
   : { label: 'Riesgo moderado', color: '#B91C1C', bg: '#FEF2F2' }
 
@@ -46,7 +46,7 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
   if (!escRec || escRec.mod40_meses === 0) return (
     <div style={{ textAlign: 'center', padding: '60px', color: K.muted }}>
       <i className="ti ti-chart-line" style={{ fontSize: '48px', display: 'block', marginBottom: '12px' }} />
-      <p style={{ fontSize: '15px' }}>Completa las pestanias anteriores para continuar</p>
+      <p style={{ fontSize: '15px' }}>Completa las pestañas anteriores para continuar</p>
     </div>
   )
 
@@ -64,9 +64,9 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
     const penCon = escRec.pension_mensual * Math.pow(1 + inflacion, i)
     const desc = i <= 5 && escRec.descuento_mensual > 0 ? -escRec.descuento_mensual : 0
     const penInm = penCon + desc
-    const ganAnio = (penInm - penSin) * 12
-    ganAcum += ganAnio
-    filas.push({ anio: i, edad, penSin, penCon, desc, penInm, ganAnio, ganAcum })
+    const ganAño = (penInm - penSin) * 12
+    ganAcum += ganAño
+    filas.push({ anio: i, edad, penSin, penCon, desc, penInm, ganAño, ganAcum })
     if (edad >= 81) break
   }
 
@@ -89,6 +89,13 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
         @media (max-width: 700px) {
           .kse-tabla-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
         }
+        /* En pantallas bajas una grafica fija se comeria la vista entera */
+        @media (max-height: 700px), (max-width: 700px) {
+          .kse-curva-sticky { position: static !important; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .kse-curva-sticky { position: static !important; }
+        }
       `}</style>
 
       {/* ── Franja de cifras ───────────────────────────────────── */}
@@ -96,7 +103,7 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
         <div style={{ position: 'absolute', width: 460, height: 460, right: -150, top: -190, borderRadius: 999, pointerEvents: 'none', background: `radial-gradient(circle, ${K.orange}33 0%, transparent 68%)` }} />
         <div style={{ position: 'relative', padding: '28px 34px 22px' }}>
           <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>
-            LO QUE ACUMULA HASTA LOS 80 ANIOS
+            LO QUE ACUMULA HASTA LOS 80 AÑOS
           </p>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap', marginTop: '8px' }}>
             <p style={{ fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
@@ -107,16 +114,16 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
             </span>
           </div>
           <p style={{ fontSize: '15px', color: 'rgba(255,255,255,.68)', margin: '10px 0 0' }}>
-            Sobre una inversion neta de {fmtMXN(escRec.inversion_neta)}, recuperada en {escRec.roi} meses.
+            Sobre una inversión neta de {fmtMXN(escRec.inversion_neta)}, recuperada en {escRec.roi} meses.
           </p>
         </div>
 
         <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1px', background: 'rgba(255,255,255,.11)' }}>
           {[
-            { label: 'Incremento de pension', value: fmtMXN2(incr), sub: 'mensual adicional', color: K.greenLt },
-            { label: 'Inversion neta', value: fmtMXN2(escRec.inversion_neta), sub: 'descontando AFORE', color: K.gold },
-            { label: 'Recuperacion', value: `${escRec.roi} meses`, sub: termRec.label, color: 'white' },
-            { label: 'Actualizacion anual', value: `${(inflacion * 100).toFixed(1)}%`, sub: 'INPC, Art. 214 LSS', color: 'white' },
+            { label: 'Incremento de pensión', value: fmtMXN2(incr), sub: 'mensual adicional', color: K.greenLt },
+            { label: 'Inversión neta', value: fmtMXN2(escRec.inversion_neta), sub: 'descontando AFORE', color: K.gold },
+            { label: 'Recuperación', value: `${escRec.roi} meses`, sub: termRec.label, color: 'white' },
+            { label: 'Actualización anual', value: `${(inflacion * 100).toFixed(1)}%`, sub: 'INPC, Art. 214 LSS', color: 'white' },
           ].map((k, i) => (
             <div key={i} style={{ background: K.navy900, padding: '18px 24px' }}>
               <p style={{ fontSize: '13px', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k.label}</p>
@@ -127,12 +134,16 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
         </div>
       </section>
 
-      {/* ── La curva ───────────────────────────────────────────── */}
-      <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px' }}>
+      {/* ── La curva ───────────────────────────────────────────────
+           Queda fija al desplazarse: la tabla tiene 20 filas y, sin esto,
+           seleccionar una fila mueve la linea fuera del campo de vision.
+           El usuario tenia que bajar, tocar, subir a ver el efecto y volver
+           a bajar — lo que en la practica cancela la exploracion.          */}
+      <div className="kse-curva-sticky" style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px', position: 'sticky', top: 0, zIndex: 5 }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap', marginBottom: '6px' }}>
           <div>
-            <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: 0 }}>Como evoluciona su pension</p>
-            <p style={{ fontSize: '13px', color: K.muted, margin: '4px 0 0' }}>Toque un anio para ver el detalle</p>
+            <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: 0 }}>Cómo evoluciona su pensión</p>
+            <p style={{ fontSize: '13px', color: K.muted, margin: '4px 0 0' }}>Toque un año para ver el detalle</p>
           </div>
           <div style={{ display: 'flex', gap: '18px', flexWrap: 'wrap', fontSize: '13px' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '7px', color: K.muted }}>
@@ -143,7 +154,7 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
             </span>
             {hayDescuento && (
               <span style={{ display: 'flex', alignItems: 'center', gap: '7px', color: K.orange, fontWeight: 600 }}>
-                <span style={{ width: 14, height: 3, borderRadius: 2, background: K.orange }} />Disponible durante el credito
+                <span style={{ width: 14, height: 3, borderRadius: 2, background: K.orange }} />Disponible durante el crédito
               </span>
             )}
           </div>
@@ -183,10 +194,10 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
         {filaSel && (
           <div style={{ marginTop: '10px', background: K.orangeSoft, borderRadius: '10px', padding: '14px 18px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px' }}>
             {[
-              ['Anio / edad', `${filaSel.anio} / ${filaSel.edad} anios`],
+              ['Año / edad', `${filaSel.anio} / ${filaSel.edad} anios`],
               ['Sin Mod. 40', fmtMXN2(filaSel.penSin)],
               ['Con Mod. 40', fmtMXN2(filaSel.penCon)],
-              ...(filaSel.desc < 0 ? [['Descuento credito', fmtMXN2(filaSel.desc)] as [string, string]] : []),
+              ...(filaSel.desc < 0 ? [['Descuento crédito', fmtMXN2(filaSel.desc)] as [string, string]] : []),
               ['Disponible', fmtMXN2(filaSel.penInm)],
               ['Ganancia acumulada', fmtMXN(filaSel.ganAcum)],
             ].map(([k, v]) => (
@@ -202,16 +213,16 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
       {/* ── Tabla completa ─────────────────────────────────────── */}
       <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', overflow: 'hidden' }}>
         <div style={{ padding: '18px 24px', borderBottom: `1px solid ${K.line}` }}>
-          <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: 0 }}>Proyeccion de flujos anio por anio</p>
+          <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: 0 }}>Proyección de flujos año por año</p>
           <p style={{ fontSize: '13px', color: K.muted, margin: '4px 0 0' }}>
-            Pensiones actualizadas {(inflacion * 100).toFixed(1)}% cada anio conforme al INPC
+            Pensiones actualizadas {(inflacion * 100).toFixed(1)}% cada año conforme al INPC
           </p>
         </div>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }}>
             <thead>
               <tr style={{ background: K.navy900 }}>
-                {['Anio', 'Edad', 'Sin Mod. 40', 'Con Mod. 40', 'Desc. credito', 'Disponible', 'Ganancia anio', 'Ganancia acum.'].map((hd, i) => (
+                {['Año', 'Edad', 'Sin Mod. 40', 'Con Mod. 40', 'Desc. crédito', 'Disponible', 'Ganancia año', 'Ganancia acum.'].map((hd, i) => (
                   <th key={hd} style={{ padding: '12px 14px', color: 'white', fontWeight: 600, textAlign: i < 2 ? 'center' : 'right', fontSize: '13px', ...nw }}>{hd}</th>
                 ))}
               </tr>
@@ -222,13 +233,13 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
                 return (
                   <tr key={i} onClick={() => setSel(on ? null : f.anio)}
                     style={{ background: on ? K.orangeSoft : f.edad === 80 ? '#EEF2F8' : i % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: `1px solid ${K.line}`, cursor: 'pointer' }}>
-                    <td style={{ padding: '11px 14px', textAlign: 'center', fontWeight: 700, color: on ? K.orange : K.navy600, ...num }}>{f.anio}</td>
+                    <td style={{ padding: '11px 14px', textAlign: 'center', fontWeight: 700, color: on ? K.orange : K.navy600, borderLeft: `3px solid ${on ? K.orange : 'transparent'}`, ...num }}>{f.anio}</td>
                     <td style={{ padding: '11px 14px', textAlign: 'center', color: K.ink, ...num }}>{f.edad}</td>
                     <td style={{ padding: '11px 14px', textAlign: 'right', color: K.muted, ...nw, ...num }}>{fmtMXN2(f.penSin)}</td>
                     <td style={{ padding: '11px 14px', textAlign: 'right', color: K.navy600, fontWeight: 600, ...nw, ...num }}>{fmtMXN2(f.penCon)}</td>
                     <td style={{ padding: '11px 14px', textAlign: 'right', color: f.desc < 0 ? K.red : K.muted, ...nw, ...num }}>{f.desc < 0 ? fmtMXN2(f.desc) : '\u2014'}</td>
                     <td style={{ padding: '11px 14px', textAlign: 'right', color: K.green, fontWeight: 700, ...nw, ...num }}>{fmtMXN2(f.penInm)}</td>
-                    <td style={{ padding: '11px 14px', textAlign: 'right', color: f.ganAnio >= 0 ? K.green : K.red, ...nw, ...num }}>{fmtMXN(f.ganAnio)}</td>
+                    <td style={{ padding: '11px 14px', textAlign: 'right', color: f.ganAño >= 0 ? K.green : K.red, ...nw, ...num }}>{fmtMXN(f.ganAño)}</td>
                     <td style={{ padding: '11px 14px', textAlign: 'right', color: f.ganAcum >= 0 ? K.green : K.red, fontWeight: 700, ...nw, ...num }}>{fmtMXN(f.ganAcum)}</td>
                   </tr>
                 )

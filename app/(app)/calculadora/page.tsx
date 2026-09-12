@@ -2818,7 +2818,7 @@ function CalculadoraInner() {
                     <div style={{ position: 'absolute' as const, width: 440, height: 440, right: -150, top: -190, borderRadius: 999, pointerEvents: 'none' as const, background: 'radial-gradient(circle, #E8622C33 0%, transparent 68%)' }} />
                     <div style={{ position: 'relative' as const, padding: '28px 34px 22px' }}>
                       <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>
-                        SU PENSION HOY, SIN MODALIDAD 40
+                        SU PENSIÓN HOY, SIN MODALIDAD 40
                       </p>
                       <p style={{ fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 800, color: 'white', margin: '8px 0 0', lineHeight: 1, letterSpacing: '-.035em', whiteSpace: 'nowrap' as const, fontVariantNumeric: 'tabular-nums' as const }}>
                         {escenarios[0]?.pension_mensual
@@ -2826,15 +2826,15 @@ function CalculadoraInner() {
                           : '—'}
                       </p>
                       <p style={{ fontSize: '15px', color: 'rgba(255,255,255,.68)', margin: '10px 0 0' }}>
-                        {datos.nombre_trabajador || 'Trabajador'} — la constancia del IMSS es la base de todo el calculo.
+                        {datos.nombre_trabajador || 'Trabajador'} — la constancia del IMSS es la base de todo el cálculo.
                       </p>
                     </div>
                     <div style={{ position: 'relative' as const, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1px', background: 'rgba(255,255,255,.11)' }}>
                       {[
                         { label: 'Semanas netas', value: datos.semanas_totales ? (datos.semanas_totales - (datos.semanas_descontadas || 0)).toLocaleString() : '—', sub: 'cotizadas ante el IMSS', color: '#1FA873' },
-                        { label: 'SDI promedio 250 sem.', value: sdiPromedio > 0 ? fmtMXN2(sdiPromedio) + '/dia' : '—', sub: 'base real del calculo', color: '#F2B544' },
-                        { label: 'Edad actual', value: datos.edad_actual ? `${datos.edad_actual.toFixed(1)} anios` : '—', sub: 'al dia de hoy', color: 'white' },
-                        { label: 'Regimen', value: `Ley ${datos.ley || '73'}`, sub: datos.ley === '97' ? 'cuenta individual' : 'pension por cuantia', color: 'white' },
+                        { label: 'SDI promedio 250 sem.', value: sdiPromedio > 0 ? fmtMXN2(sdiPromedio) + '/dia' : '—', sub: 'base real del cálculo', color: '#F2B544' },
+                        { label: 'Edad actual', value: datos.edad_actual ? `${datos.edad_actual.toFixed(1)} años` : '—', sub: 'al día de hoy', color: 'white' },
+                        { label: 'Régimen', value: `Ley ${datos.ley || '73'}`, sub: datos.ley === '97' ? 'cuenta individual' : 'pensión por cuantía', color: 'white' },
                       ].map((k, i) => (
                         <div key={i} style={{ background: '#0D2440', padding: '18px 24px' }}>
                           <p style={{ fontSize: '13px', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k.label}</p>

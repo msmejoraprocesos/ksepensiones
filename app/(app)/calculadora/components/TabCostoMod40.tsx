@@ -73,8 +73,8 @@ export default function TabCostoMod40({ escenarios, sys, getMod40Pct, setTab }: 
 
   const rows = Array.from(mapa.entries()).sort((a, b) => a[0] - b[0]).map(([a, meses]) => {
     const tasa = getMod40Pct(a)
-    const diasAnio = a % 4 === 0 && (a % 100 !== 0 || a % 400 === 0) ? 366 : 365
-    const cuotaMens = sdi * (tasa / 100) * diasAnio / 12
+    const diasAño = a % 4 === 0 && (a % 100 !== 0 || a % 400 === 0) ? 366 : 365
+    const cuotaMens = sdi * (tasa / 100) * diasAño / 12
     return { a, meses, tasa, cuotaMens, subtotal: cuotaMens * meses }
   })
 
@@ -102,7 +102,7 @@ export default function TabCostoMod40({ escenarios, sys, getMod40Pct, setTab }: 
             <p style={{ fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
               {fmtMXN2(escRec.inversion_neta)}
             </p>
-            <span style={{ fontSize: '17px', color: 'rgba(255,255,255,.7)' }}>de inversion neta</span>
+            <span style={{ fontSize: '17px', color: 'rgba(255,255,255,.7)' }}>de inversión neta</span>
           </div>
 
           {/* Costo total -> AFORE -> neta, a escala */}
@@ -127,8 +127,8 @@ export default function TabCostoMod40({ escenarios, sys, getMod40Pct, setTab }: 
         <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1px', background: 'rgba(255,255,255,.11)' }}>
           {[
             { label: 'Costo total de Mod. 40', value: fmtMXN2(escRec.costo_total), sub: `${totalMeses} meses de cuotas`, color: 'white' },
-            { label: `Recuperacion AFORE (${pctAfore}%)`, value: '- ' + fmtMXN2(escRec.recuperacion_afore), sub: 'se devuelve al resolver', color: K.greenLt },
-            { label: 'Cuota mensual promedio', value: fmtMXN2(cuotaPromedio), sub: 'varia cada anio', color: K.gold },
+            { label: `Recuperación AFORE (${pctAfore}%)`, value: '- ' + fmtMXN2(escRec.recuperacion_afore), sub: 'se devuelve al resolver', color: K.greenLt },
+            { label: 'Cuota mensual promedio', value: fmtMXN2(cuotaPromedio), sub: 'varía cada año', color: K.gold },
             { label: 'Se recupera en', value: `${escRec.roi} meses`, sub: t.label, color: K.greenLt },
           ].map((k, i) => (
             <div key={i} style={{ background: K.navy900, padding: '18px 24px' }}>
@@ -144,15 +144,15 @@ export default function TabCostoMod40({ escenarios, sys, getMod40Pct, setTab }: 
 
         {/* ── Desglose anio por anio ─────────────────────────────── */}
         <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px' }}>
-          <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Cuanto se paga cada anio</p>
+          <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Cuánto se paga cada año</p>
           <p style={{ fontSize: '13px', color: K.muted, margin: '0 0 18px' }}>
-            La tasa sube cada anio por decreto, asi que la cuota tambien
+            La tasa sube cada año por decreto, así que la cuota también
           </p>
 
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }}>
             <thead>
               <tr style={{ borderBottom: `1px solid ${K.line}` }}>
-                {['Anio', 'Meses', 'Tasa', 'Cuota mensual', 'Subtotal'].map((h, i) => (
+                {['Año', 'Meses', 'Tasa', 'Cuota mensual', 'Subtotal'].map((h, i) => (
                   <th key={h} style={{ padding: '10px 12px', fontSize: '13px', color: K.muted, fontWeight: 500, textAlign: i ? 'right' : 'left' }}>{h}</th>
                 ))}
               </tr>
@@ -202,7 +202,7 @@ export default function TabCostoMod40({ escenarios, sys, getMod40Pct, setTab }: 
               </div>
             ))}
             <div style={{ marginTop: '10px', background: K.orangeSoft, borderRadius: '10px', padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-              <span style={{ fontSize: '15px', color: K.ink, fontWeight: 600 }}>Inversion neta final</span>
+              <span style={{ fontSize: '15px', color: K.ink, fontWeight: 600 }}>Inversión neta final</span>
               <span style={{ fontSize: '20px', fontWeight: 800, color: K.orange, ...nw, ...num }}>{fmtMXN2(escRec.inversion_neta)}</span>
             </div>
           </div>
@@ -210,7 +210,7 @@ export default function TabCostoMod40({ escenarios, sys, getMod40Pct, setTab }: 
           <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px' }}>
             <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 14px' }}>Rentabilidad</p>
             {[
-              { label: 'Ganancia acumulada a los 80 anios', value: fmtMXN(escRec.ganancia_a80), color: K.green, fuerte: true },
+              { label: 'Ganancia acumulada a los 80 años', value: fmtMXN(escRec.ganancia_a80), color: K.green, fuerte: true },
               { label: 'Retorno sobre lo invertido', value: `${((escRec.tasa_rendimiento ?? 0) / 100).toFixed(1)} veces`, color: K.green, fuerte: true },
               { label: 'Meses para recuperar', value: `${escRec.roi} meses`, color: K.ink },
               { label: 'Meses de cobro hasta los 80', value: `${Math.round((80 - (escRec.edad_retiro ?? 60)) * 12)}`, color: K.ink },
@@ -230,7 +230,7 @@ export default function TabCostoMod40({ escenarios, sys, getMod40Pct, setTab }: 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <button onClick={() => setTab(5)}
           style={{ padding: '13px 24px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '17px', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
-          Importe de pension <i className="ti ti-arrow-right" style={{ fontSize: '16px' }} />
+          Importe de pensión <i className="ti ti-arrow-right" style={{ fontSize: '16px' }} />
         </button>
       </div>
     </div>
