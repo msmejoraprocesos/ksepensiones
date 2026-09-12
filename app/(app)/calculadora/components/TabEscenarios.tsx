@@ -91,6 +91,10 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
       <style>{`
         @media (max-width: 1000px) {
           .kse-2col { grid-template-columns: 1fr !important; }
+          /* Apilado, el detalle quedaba debajo de la grafica: tocar una
+             tarjeta dejaba el resultado dos pantallas abajo. Sube a quedar
+             pegado a las tarjetas, que es desde donde se selecciona. */
+          .kse-2col > .kse-detalle { order: -1; }
         }
         @media (max-width: 860px) {
           .kse-hero3 { grid-template-columns: 1fr !important; gap: 16px !important; padding: 26px 22px !important; }
@@ -187,7 +191,7 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
             })}
           </div>
 
-          <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', overflow: 'hidden', alignSelf: 'start' }}>
+          <div className="kse-detalle" style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', overflow: 'hidden', alignSelf: 'start' }}>
             <div style={{ background: colorSel, padding: '20px 22px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
                 <span style={{ fontSize: '13px', fontWeight: 700, color: 'rgba(255,255,255,0.85)', ...nw }}>

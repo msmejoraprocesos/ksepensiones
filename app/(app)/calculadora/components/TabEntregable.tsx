@@ -285,18 +285,35 @@ export default function TabEntregable({
 
           {/* Resumen ejecutivo compacto */}
           {escRec && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-              {[
-                { label: 'Pensión actual', value: fmtMXN(escBase?.pension_mensual || 0), color: '#DC2626' },
-                { label: 'Pensión con Mod.40', value: fmtMXN(escRec.pension_mensual), color: VERDE },
-                { label: 'Mejora mensual', value: '+' + fmtMXN(escRec.pension_mensual - (escBase?.pension_mensual || 0)), color: AZUL },
-              ].map((k, i) => (
-                <div key={i} style={{ background: 'white', border: `1px solid ${BORDE}`, borderTop: `3px solid ${k.color}`, padding: '10px 14px', borderRadius: '8px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px', fontWeight: '600' }}>{k.label}</div>
-                  <div style={{ fontSize: '18px', fontWeight: '800', color: k.color }}>{k.value}</div>
+            <section style={{ position: 'relative', overflow: 'hidden', borderRadius: '18px', background: 'linear-gradient(118deg, #0D2440 0%, #14375F 60%, #245287 100%)' }}>
+              <div style={{ position: 'absolute', width: 420, height: 420, right: -150, top: -180, borderRadius: 999, pointerEvents: 'none', background: 'radial-gradient(circle, #E8622C33 0%, transparent 68%)' }} />
+              <div style={{ position: 'relative', padding: '26px 32px 20px' }}>
+                <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>
+                  LO QUE VA EN EL DIAGNÓSTICO
+                </p>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px', flexWrap: 'wrap', marginTop: '8px' }}>
+                  <p style={{ fontSize: 'clamp(36px, 4.4vw, 56px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+                    {fmtMXN(escRec.pension_mensual)}
+                  </p>
+                  <span style={{ background: '#12855C', color: 'white', fontSize: '17px', fontWeight: 700, padding: '9px 16px', borderRadius: 999, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+                    +{fmtMXN(escRec.pension_mensual - (escBase?.pension_mensual || 0))} cada mes
+                  </span>
                 </div>
-              ))}
-            </div>
+              </div>
+              <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1px', background: 'rgba(255,255,255,.11)' }}>
+                {[
+                  { label: 'Pensión actual', value: fmtMXN(escBase?.pension_mensual || 0), sub: 'sin Modalidad 40', color: 'rgba(255,255,255,.72)' },
+                  { label: 'Pensión con Mod. 40', value: fmtMXN(escRec.pension_mensual), sub: 'de por vida', color: '#1FA873' },
+                  { label: 'Inversión neta', value: fmtMXN(escRec.inversion_neta || 0), sub: 'descontando AFORE', color: '#F2B544' },
+                ].map((k, i) => (
+                  <div key={i} style={{ background: '#0D2440', padding: '18px 24px' }}>
+                    <p style={{ fontSize: '13px', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k.label}</p>
+                    <p style={{ fontSize: '23px', fontWeight: 700, color: k.color, margin: '3px 0 0', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>{k.value}</p>
+                    <p style={{ fontSize: '13px', color: 'rgba(255,255,255,.44)', margin: '2px 0 0' }}>{k.sub}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
           )}
 
           {/* Panel de exportación */}

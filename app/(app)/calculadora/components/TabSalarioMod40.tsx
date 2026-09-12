@@ -21,6 +21,23 @@ const num = { fontVariantNumeric: 'tabular-nums' as const }
 
 const CSS = `
 @media (max-width: 1000px) { .kse-2col { grid-template-columns: 1fr !important; } }
+
+/* En movil el orden queda: resultado arriba, controles en medio. Al cambiar
+   un selector la pension proyectada -- que es justo la retroalimentacion que
+   se busca -- sale del campo de vision. Una franja compacta se fija al tope
+   mientras se manipulan los controles. */
+.kse-resumen-fijo { display: none; }
+@media (max-width: 1000px) {
+  .kse-resumen-fijo {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 6;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kse-resumen-fijo { position: static; }
+}
 `
 
 interface Props {
@@ -118,6 +135,23 @@ export default function TabSalarioMod40({
           ))}
         </div>
       </section>
+
+      {/* Resumen fijo — solo en movil, ver CSS arriba */}
+      <div className="kse-resumen-fijo" style={{ alignItems: 'center', justifyContent: 'space-between', gap: '12px', background: K.navy900, borderRadius: '12px', padding: '14px 18px', boxShadow: '0 4px 16px rgba(13,36,64,.22)' }}>
+        <div style={{ minWidth: 0 }}>
+          <p style={{ fontSize: '13px', color: 'rgba(255,255,255,.56)', margin: 0 }}>
+            {mod40Umas} UMAs · {mod40Meses} meses
+          </p>
+          <p style={{ fontSize: '24px', fontWeight: 800, color: 'white', margin: '2px 0 0', ...nw, ...num }}>
+            {escRec ? fmtMXN2(escRec.pension_mensual) : '—'}
+          </p>
+        </div>
+        {escRec && pensionActual > 0 && (
+          <span style={{ background: K.green, color: 'white', fontSize: '15px', fontWeight: 700, padding: '8px 14px', borderRadius: 999, flexShrink: 0, ...nw, ...num }}>
+            +{fmtMXN(escRec.pension_mensual - pensionActual)}
+          </span>
+        )}
+      </div>
 
       <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) minmax(300px, 1.15fr)', gap: '20px' }}>
 

@@ -1789,7 +1789,7 @@ function CalculadoraInner() {
           salarioMensual: sdiPromedio * 30.4,
           edadActual: datos.edad_actual,
           edadRetiro: edadRetiro,
-          tipoPension: edadRetiro >= 65 ? 'Vejez' : 'Cesantia en edad avanzada',
+          tipoPension: edadRetiro >= 65 ? 'Vejez' : 'Cesantía en edad avanzada',
           factorEdad: (FACTOR_EDAD_RETIRO[edadRetiro] ?? 1) * 100,
           anioInicioTramite: anioInicioTramite,
           aniosRetiro: Math.max(0, edadRetiro - datos.edad_actual),
@@ -3230,19 +3230,34 @@ function CalculadoraInner() {
               {/* KPIs si hay datos */}
               {escM10 && (
                 <>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '10px' }}>
-                    {[
-                      { label: 'Pensión sin Mod 10', value: fmtMXN2(pensionActual), color: '#94A3B8', bg: '#F9FAFB', border: '#E5E7EB' },
-                      { label: 'Pensión con Mod 10', value: fmtMXN2(escM10.pension_mensual), color: '#0891B2', bg: '#F0F9FF', border: '#0891B2' },
-                      { label: 'Costo total (12 meses)', value: fmtMXN2(escM10.costo_total), color: '#92400E', bg: '#FFFBEB', border: '#FCD34D' },
-                      { label: 'Recuperación AFORE', value: fmtMXN2(escM10.recuperacion_afore), color: '#065F46', bg: '#F0FDF4', border: '#86EFAC' },
-                    ].map((k, i) => (
-                      <div key={i} style={{ background: k.bg, border: '2px solid ' + k.border, padding: '14px', textAlign: 'center' as const }}>
-                        <div style={{ fontSize: '9.5px', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600', marginBottom: '6px' }}>{k.label}</div>
-                        <div style={{ fontSize: '18px', fontWeight: '900', color: k.color, letterSpacing: '-0.5px' }}>{k.value}</div>
-                      </div>
-                    ))}
-                  </div>
+                  <section style={{ position: 'relative' as const, overflow: 'hidden', borderRadius: '18px', background: 'linear-gradient(118deg, #0D2440 0%, #14375F 60%, #0891B2 100%)' }}>
+                    <div style={{ position: 'absolute' as const, width: 420, height: 420, right: -150, top: -180, borderRadius: 999, pointerEvents: 'none' as const, background: 'radial-gradient(circle, #0891B244 0%, transparent 68%)' }} />
+                    <div style={{ position: 'relative' as const, padding: '28px 34px 22px' }}>
+                      <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>
+                        SU PENSIÓN CON MODALIDAD 10
+                      </p>
+                      <p style={{ fontSize: 'clamp(38px, 4.6vw, 58px)', fontWeight: 800, color: 'white', margin: '8px 0 0', lineHeight: 1, letterSpacing: '-.035em', whiteSpace: 'nowrap' as const, fontVariantNumeric: 'tabular-nums' as const }}>
+                        {fmtMXN2(escM10.pension_mensual)}
+                      </p>
+                      <p style={{ fontSize: '15px', color: 'rgba(255,255,255,.68)', margin: '10px 0 0' }}>
+                        Vía alterna del Art. 13 fr. I LSS. No exige cotización previa y conserva cobertura médica.
+                      </p>
+                    </div>
+                    <div style={{ position: 'relative' as const, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1px', background: 'rgba(255,255,255,.11)' }}>
+                      {[
+                        { label: 'Pensión sin Mod. 10', value: fmtMXN2(pensionActual), sub: 'situación actual', color: 'rgba(255,255,255,.72)' },
+                        { label: 'Costo total (12 meses)', value: fmtMXN2(escM10.costo_total), sub: 'tasa ~22% del SBC', color: '#F2B544' },
+                        { label: 'Recuperación AFORE', value: '− ' + fmtMXN2(escM10.recuperacion_afore), sub: 'se devuelve al resolver', color: '#1FA873' },
+                        { label: 'Cobertura médica', value: 'Incluida', sub: 'trabajador y familia', color: 'white' },
+                      ].map((k, i) => (
+                        <div key={i} style={{ background: '#0D2440', padding: '18px 24px' }}>
+                          <p style={{ fontSize: '13px', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k.label}</p>
+                          <p style={{ fontSize: '23px', fontWeight: 700, color: k.color, margin: '3px 0 0', whiteSpace: 'nowrap' as const, fontVariantNumeric: 'tabular-nums' as const }}>{k.value}</p>
+                          <p style={{ fontSize: '13px', color: 'rgba(255,255,255,.44)', margin: '2px 0 0' }}>{k.sub}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
 
                   {/* Detalle del cálculo */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>

@@ -71,8 +71,8 @@ Ver `docs/rediseno/` — ninguna pantalla se migra hasta cubrir todos los campos
 | La inversión | Costo Mod. 40 | migrada |
 | La inversión | Proyección | migrada |
 | La inversión | Financiamiento | migrada |
-| Modalidad 10 | Vía alterna | pendiente |
-| El entregable | Resumen | pendiente |
+| Modalidad 10 | Vía alterna | migrada |
+| El entregable | Resumen | migrada |
 
 ## Responsividad
 
@@ -82,10 +82,19 @@ Ver `docs/rediseno/` — ninguna pantalla se migra hasta cubrir todos los campos
 - **Hero de tres columnas** (Importe): se apila por debajo de 860px y el conector vertical gira a horizontal.
 - **Tablas anchas**: contenedor con desplazamiento horizontal, nunca rompen el layout.
 
+## Retroalimentación fuera de pantalla
+
+Regla: el elemento que cambia debe quedar visible desde donde se controla.
+Casos detectados y resueltos:
+
+- **Proyección** — tabla de 20 filas bajo la curva. La curva queda fija () mientras se recorre la tabla; se desactiva por debajo de 700px de alto o ancho, y con .
+- **Salario Mod. 40** — en móvil los controles quedan bajo el resultado. Franja compacta fija al tope con la pensión proyectada y la mejora.
+- **Escenarios** — apilado en móvil, el panel de detalle sube antes de la gráfica () para quedar pegado a las tarjetas desde donde se selecciona.
+- **Cuantías / Importe** — curva y tabla de 6 filas en la misma tarjeta, contiguas. No requieren tratamiento.
+
 ## Pendientes conocidos
 
-1. Modalidad 10 y El entregable sin migrar.
-2. Los tokens siguen duplicados en cada componente (objeto `K`). Extraer a `lib/design-tokens.ts`.
+1. Los tokens siguen duplicados en cada componente (objeto `K`). Extraer a `lib/design-tokens.ts`.
 3. Dos termómetros con criterios distintos: uno por meses de recuperación (Escenarios, Costo) y otro por retorno (Proyección). Unificar.
 4. `TabCliente` recibió restyle, no rediseño de estructura: conserva su composición original.
 5. Fuente Inter no configurada vía `next/font`; el sistema la asume.
