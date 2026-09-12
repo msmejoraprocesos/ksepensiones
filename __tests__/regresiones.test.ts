@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { esEscenarioMod40, ID_ESCENARIO_MOD10 } from '../app/utils/formulas'
 import { evaluarElegibilidad } from '../lib/elegibilidad'
+import { getTermometro, TERMOMETRO_RECUPERACION, HORIZONTE_MESES } from '../lib/design-tokens'
 
 /**
  * Regresiones — cada bloque corresponde a un bug real encontrado en revisión.
@@ -201,5 +202,48 @@ describe('elegibilidad Mod. 40 / Mod. 10', () => {
 
   it('no recomienda Modalidad 10 si ya se superaron las 500', () => {
     expect(evaluarElegibilidad(base).mod10_recomendada).toBe(false)
+  })
+})
+
+// ── 7. Termómetro unificado ───────────────────────────────────────────────
+// Antes convivían dos criterios con las mismas etiquetas: meses de
+// recuperación en Escenarios/Costo, y retorno como múltiplo en Proyección.
+// El mismo caso podía decir "Excelente" en una pantalla y "Moderada" en otra.
+describe('termómetro de recuperación', () => {
+  it('un caso de 11 meses da Excelente', () => {
+    expect(getTermometro(11).label).toBe('Excelente')
+  })
+
+  it('los cinco tramos son alcanzables', () => {
+    const etiquetas = [6, 18, 36, 72, 150].map(m => getTermometro(m).label)
+    expect(new Set(etiquetas).size).toBe(5)
+  })
+
+  it('los umbrales caen en el tramo correcto, no en el siguiente', () => {
+    expect(getTermometro(12).label).toBe('Excelente')
+    expect(getTermometro(13).label).toBe('Muy buena')
+    expect(getTermometro(24).label).toBe('Muy buena')
+    expect(getTermometro(25).label).toBe('Buena')
+    expect(getTermometro(96).label).toBe('Aceptable')
+    expect(getTermometro(97).label).toBe('Requiere análisis')
+  })
+
+  it('nunca devuelve indefinido, por grande que sea el valor', () => {
+    expect(getTermometro(99999).label).toBe('Requiere análisis')
+  })
+
+  it('cada tramo trae una frase que el asesor puede decir', () => {
+    TERMOMETRO_RECUPERACION.forEach(t => {
+      expect(t.explica.length).toBeGreaterThan(20)
+    })
+  })
+
+  it('el horizonte de cobro son 240 meses (60 a 80 años)', () => {
+    expect(HORIZONTE_MESES).toBe((80 - 60) * 12)
+  })
+
+  it('el corte de alarma deja más de un tercio del horizonte en pagar', () => {
+    const alarma = TERMOMETRO_RECUPERACION[TERMOMETRO_RECUPERACION.length - 2].max
+    expect(alarma / HORIZONTE_MESES).toBeGreaterThan(0.33)
   })
 })

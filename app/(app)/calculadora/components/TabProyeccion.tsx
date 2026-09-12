@@ -1,21 +1,12 @@
 'use client'
 import React, { useState, useEffect } from 'react'
-import { K, nw, num } from '@/lib/design-tokens'
+import { K, nw, num, getTermometro, HORIZONTE_MESES } from '@/lib/design-tokens'
 
 
 
 const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n)
 const fmtMXN2 = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
 
-
-/* Umbrales sobre el RETORNO COMO MULTIPLO (ganancia / inversion neta).
-   Antes se comparaba contra tasa_rendimiento, que viene x100, por lo que
-   cualquier escenario caia siempre en "Excelente". */
-const termometroRetorno = (multiplo: number) =>
-  multiplo >= 25 ? { label: 'Excelente', color: '#15803D', bg: '#F0FDF4' }
-  : multiplo >= 18 ? { label: 'Buena inversión', color: '#0369A1', bg: '#F0F9FF' }
-  : multiplo >= 12 ? { label: 'Moderada', color: '#B45309', bg: '#FFFBEB' }
-  : { label: 'Riesgo moderado', color: '#B91C1C', bg: '#FEF2F2' }
 
 interface Props {
   escenarios: any[]
@@ -43,7 +34,7 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
 
   const inflacion = (sys?.inflacion_pension ?? sys?.inflacion_uma ?? 4.5) / 100
   const multiplo = escRec.inversion_neta > 0 ? escRec.ganancia_a80 / escRec.inversion_neta : 0
-  const termRec = termometroRetorno(multiplo)
+  const termRec = getTermometro(escRec.roi)
   const incr = (escRec.pension_mensual ?? 0) - (escRec.pension_base ?? 0)
   const edadInicio = Math.floor(escRec.edad_retiro || 62)
 

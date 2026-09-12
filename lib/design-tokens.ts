@@ -99,3 +99,47 @@ export const botonPrimario = {
   gap: '8px',
   boxShadow: '0 3px 10px rgba(232,98,44,0.34)',
 } as const
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Termómetro de recuperación — fuente única.
+
+   Antes convivían dos criterios con las mismas etiquetas: uno por meses de
+   recuperación (Escenarios, Costo Mod. 40) y otro por retorno como múltiplo
+   (Proyección). El mismo caso podía decir "Excelente" en una pantalla y
+   "Moderada" en otra, sin explicación visible para el asesor.
+
+   Se unifica en meses de recuperación porque es la métrica que el cliente
+   puede verificar dentro del primer año. El múltiplo depende de llegar a los
+   80 años: es una proyección, y obliga a hablar de esperanza de vida al
+   momento de cerrar.
+
+   Umbrales anclados a años cumplidos, no a números redondos arbitrarios.
+   El corte de 96 meses funciona como alarma: sobre un horizonte de cobro de
+   240 meses (60 → 80 años), recuperar en más de 96 significa que el 40% de
+   la vida pensionada se va en pagar la inversión.
+   ────────────────────────────────────────────────────────────────────────── */
+
+export interface TramoRecuperacion {
+  max: number
+  label: string
+  color: string
+  bg: string
+  /** Frase lista para que el asesor la diga frente al cliente. */
+  explica: string
+}
+
+export const TERMOMETRO_RECUPERACION: TramoRecuperacion[] = [
+  { max: 12,       label: 'Excelente',        color: '#059669', bg: '#D1FAE5', explica: 'Recupera lo invertido antes de cumplir un año de pensionado.' },
+  { max: 24,       label: 'Muy buena',        color: '#16A34A', bg: '#DCFCE7', explica: 'En dos años ya recuperó toda la inversión.' },
+  { max: 48,       label: 'Buena',            color: '#CA8A04', bg: '#FEF9C3', explica: 'Cuatro años para recuperar, y el resto del horizonte es ganancia.' },
+  { max: 96,       label: 'Aceptable',        color: '#D97706', bg: '#FEF3C7', explica: 'Ocho años para recuperar. Conviene revisar si hay un escenario más corto.' },
+  { max: Infinity, label: 'Requiere análisis', color: '#B91C1C', bg: '#FEE2E2', explica: 'Más de ocho años: casi la mitad de la vida pensionada se va en pagar la inversión.' },
+]
+
+/** Horizonte de cobro usado en las líneas de tiempo: 60 → 80 años. */
+export const HORIZONTE_MESES = 240
+
+export function getTermometro(mesesRecuperacion: number): TramoRecuperacion {
+  return TERMOMETRO_RECUPERACION.find(t => mesesRecuperacion <= t.max)
+    ?? TERMOMETRO_RECUPERACION[TERMOMETRO_RECUPERACION.length - 1]
+}

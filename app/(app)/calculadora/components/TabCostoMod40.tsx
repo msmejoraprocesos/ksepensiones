@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react'
-import { K, nw, num } from '@/lib/design-tokens'
+import { K, nw, num, getTermometro } from '@/lib/design-tokens'
 
 
 
@@ -8,14 +8,6 @@ const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency'
 const fmtMXN2 = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
 
 
-const TERMOMETRO = [
-  { max: 16, label: 'Excelente', color: '#059669', bg: '#D1FAE5' },
-  { max: 24, label: 'Buena', color: '#16A34A', bg: '#DCFCE7' },
-  { max: 36, label: 'Aceptable', color: '#CA8A04', bg: '#FEF9C3' },
-  { max: 48, label: 'Riesgo moderado', color: '#D97706', bg: '#FEF3C7' },
-  { max: 60, label: 'Riesgo alto', color: '#DC2626', bg: '#FEE2E2' },
-  { max: Infinity, label: 'Requiere cautela', color: '#991B1B', bg: '#FEE2E2' },
-]
 
 interface Props {
   escenarios: any[]
@@ -44,7 +36,7 @@ export default function TabCostoMod40({ escenarios, sys, getMod40Pct, setTab }: 
     </div>
   )
 
-  const t = TERMOMETRO.find(x => escRec.roi <= x.max) ?? TERMOMETRO[TERMOMETRO.length - 1]
+  const t = getTermometro(escRec.roi)
   const pctAfore = sys?.pct_afore_mod40 ?? 19.85
 
   /* Desglose anio por anio, prorrateando los meses reales que caen en cada
@@ -211,8 +203,9 @@ export default function TabCostoMod40({ escenarios, sys, getMod40Pct, setTab }: 
                 <span style={{ fontSize: r.fuerte ? '19px' : '17px', fontWeight: 700, color: r.color, ...nw, ...num }}>{r.value}</span>
               </div>
             ))}
-            <div style={{ marginTop: '12px', textAlign: 'right' }}>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: t.color, background: t.bg, padding: '5px 12px', borderRadius: '7px', ...nw }}>{t.label}</span>
+            <div style={{ marginTop: '14px', background: t.bg, borderRadius: '10px', padding: '14px 16px' }}>
+              <p style={{ fontSize: '15px', fontWeight: 700, color: t.color, margin: 0 }}>{t.label}</p>
+              <p style={{ fontSize: '15px', color: K.ink, margin: '4px 0 0', lineHeight: 1.55 }}>{t.explica}</p>
             </div>
           </div>
         </div>

@@ -1,25 +1,14 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { esEscenarioMod40 } from '@/app/utils/formulas'
-import { K, nw, num, COLORES_SERIE as COLORES } from '@/lib/design-tokens'
+import { K, nw, num, COLORES_SERIE as COLORES, getTermometro, HORIZONTE_MESES } from '@/lib/design-tokens'
 
 
 
 const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n)
 const fmtMXN2 = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
 
-const TERMOMETRO = [
-  { max: 16, label: 'Excelente', color: '#059669', bg: '#D1FAE5' },
-  { max: 24, label: 'Buena', color: '#16A34A', bg: '#DCFCE7' },
-  { max: 36, label: 'Aceptable', color: '#CA8A04', bg: '#FEF9C3' },
-  { max: 48, label: 'Riesgo moderado', color: '#D97706', bg: '#FEF3C7' },
-  { max: 60, label: 'Riesgo alto', color: '#DC2626', bg: '#FEE2E2' },
-  { max: Infinity, label: 'Requiere cautela', color: '#991B1B', bg: '#FEE2E2' },
-]
-const getTermometro = (meses: number) => TERMOMETRO.find(t => meses <= t.max) ?? TERMOMETRO[TERMOMETRO.length - 1]
 
-/* Horizonte de cobro de la linea de tiempo: 60 -> 80 años */
-const HORIZONTE_MESES = 240
 
 
 interface Props {
@@ -226,8 +215,9 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
                   {Math.max(0, HORIZONTE_MESES - escSel.roi)} meses de ganancia neta
                 </span>
               </div>
-              <div style={{ marginTop: '10px', textAlign: 'right' }}>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: t.color, background: t.bg, padding: '4px 10px', borderRadius: '6px', ...nw }}>{t.label}</span>
+              <div style={{ marginTop: '12px', background: t.bg, borderRadius: '9px', padding: '12px 14px' }}>
+                <p style={{ fontSize: '13px', fontWeight: 700, color: t.color, margin: 0 }}>{t.label}</p>
+                <p style={{ fontSize: '13px', color: K.ink, margin: '4px 0 0', lineHeight: 1.5 }}>{t.explica}</p>
               </div>
             </div>
           </div>
