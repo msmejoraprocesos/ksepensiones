@@ -7,7 +7,9 @@ Lo que queda abierto, ordenado por impacto. Cerrar la línea al terminar.
 - [ ] **Validación visual de la app.** Diecisiete commits sin ver la aplicación corriendo. El cambio de fuente y el barrido de tipografía (82 sustituciones automáticas) tocan cada pixel y ningún test los juzga.
 - [ ] **Confirmar deploy en Vercel.** El build falla localmente por variables de Supabase ausentes; nadie ha verificado que allá pase.
 - [ ] **Sustento del pago retroactivo.** No se encontró fundamento legal para esa mecánica en la LSS. El Art. 219 fija plazo para *solicitar*, no para pagar hacia atrás, y el Art. 220 termina la continuación a los dos meses sin pago. Es el escenario más caro que ofrece la herramienta.
-- [ ] **Correr la migración** `supabase/migraciones/20260912_parametros_configurables.sql`. Sin ella, Admin Fórmulas no persiste recargos ni INPC.
+- [x] Migraciones aplicadas en KSE: parámetros configurables y cartera.
+- [ ] **Regenerar `types/database.ts`** desde Supabase. Las tablas de cartera no están tipadas y la página usa un cast temporal.
+- [ ] **Políticas RLS en las tablas de cartera.** La migración dio permisos a `authenticated`: cualquier usuario con sesión podría leer y escribir contratos y pagos. Limitar la escritura al super-admin.
 
 ## Producto
 

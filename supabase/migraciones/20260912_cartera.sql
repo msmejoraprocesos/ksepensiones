@@ -75,7 +75,7 @@ create unique index if not exists idx_tramo_abierto_unico
   on public.tramos_precio ((hasta is null)) where hasta is null;
 
 insert into public.tramos_precio (hasta, precio_usuario)
-select * from (values (1, 1200), (5, 1000), (15, 850), (30, 700), (null, 600)) as v(hasta, precio)
+select * from (values (1, 1200), (5, 1000), (15, 850), (30, 700), (null::int, 600)) as v(hasta, precio)
 where not exists (select 1 from public.tramos_precio);
 
 grant select, insert, update, delete on public.tramos_precio to service_role, authenticated;
