@@ -835,7 +835,14 @@ function ClientesInner() {
   }
 
   async function eliminarPago(pagoId: string, monto: number) {
-    await supabase.from('pagos').delete().eq('id', pagoId)
+    /* Borrar un pago altera el saldo del cliente y no se puede deshacer.
+       El monto va en la pregunta para que se note qué se está quitando. */
+    if (!window.confirm(`¿Eliminar el pago de ${fmtMXN(monto)}? El saldo del cliente se recalculará y no se puede deshacer.`)) return
+    const { error } = await supabase.from('pagos').delete().eq('id', pagoId)
+    if (error) {
+      avisoError('No se pudo eliminar el pago', error.message)
+      return
+    }
     setPagos(prev => prev.filter(p => p.id !== pagoId))
     const uid = userIdRef.current
     if (uid) await loadClientes(uid)

@@ -697,6 +697,8 @@ export default function ConfiguracionPage() {
   }
 
   async function eliminarMaterial(id: string) {
+    const m = materiales.find((x: any) => x.id === id)
+    if (!window.confirm(`¿Eliminar "${m?.nombre ?? 'este material'}"? Dejará de estar disponible para todo el equipo.`)) return
     const { error } = await supabase.from('materiales_apoyo').delete().eq('id', id)
     if (error) { setMaterialError('Error al eliminar: ' + error.message); return }
     setMateriales(prev => prev.filter(m => m.id !== id))

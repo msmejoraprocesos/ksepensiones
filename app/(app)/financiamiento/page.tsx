@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
+import { avisoError } from '@/app/utils/avisos'
 
 const AZUL = '#245287', NARANJA = '#E8622C', VERDE = '#2E8B57'
 const fmtMXN  = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n || 0)
@@ -51,7 +52,8 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
   }, [clienteId, userId, institucionId])
 
   async function actualizarEstatus(docId: string, estatus: string) {
-    await supabase.from('documentos_cliente').update({ estatus, updated_at: new Date().toISOString() }).eq('id', docId)
+    const { error: eUpd } = await supabase.from('documentos_cliente').update({ estatus, updated_at: new Date().toISOString() }).eq('id', docId)
+    if (eUpd) { avisoError('No se pudo cambiar el estatus del documento', eUpd.message); return }
     const { data } = await supabase.from('documentos_cliente').select('*, documentos_catalogo(nombre)').eq('cliente_id', clienteId).eq('asesor_id', userId)
     setDocs(data ?? [])
   }
@@ -169,6 +171,7 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
                   {Object.entries(ESTATUS).map(([v, { label }]) => <option key={v} value={v}>{label}</option>)}
                 </select>
                 <button onClick={async () => {
+                  if (!window.confirm(`¿Eliminar el documento "${d.nombre ?? 'sin nombre'}"? No se puede deshacer.`)) return
                   await supabase.from('documentos_cliente').delete().eq('id', d.id)
                   const { data } = await supabase.from('documentos_cliente').select('*, documentos_catalogo(nombre)').eq('cliente_id', clienteId).eq('asesor_id', userId)
                   setDocs(data ?? [])
@@ -279,9 +282,10 @@ function FinanciamientoPage() {
   }, [])
 
   async function loadFinanciamientos(uid: string) {
-    const { data } = await supabase.from('financiamientos')
+    const { data, error: eCarga } = await supabase.from('financiamientos')
       .select('*, clientes(nombre), instituciones_financieras(nombre)')
       .eq('asesor_id', uid).order('created_at', { ascending: false })
+    if (eCarga) { avisoError('No se pudieron cargar los financiamientos', 'Revisa tu conexión y vuelve a intentar.'); return }
     if (data) setFinanciamientos(data.map((f: any) => ({ ...f, cliente_nombre: f.clientes?.nombre ?? '—', institucion_nombre: f.instituciones_financieras?.nombre ?? '—' })))
   }
 
@@ -298,7 +302,8 @@ function FinanciamientoPage() {
   }
 
   async function cambiarEstatus(id: string, estatus: string) {
-    await supabase.from('financiamientos').update({ estatus, updated_at: new Date().toISOString() }).eq('id', id)
+    const { error: eFin } = await supabase.from('financiamientos').update({ estatus, updated_at: new Date().toISOString() }).eq('id', id)
+    if (eFin) { avisoError('No se pudo cambiar el estatus del financiamiento', eFin.message); return }
     await loadFinanciamientos(userId)
     setSelFin((prev: any) => prev ? { ...prev, estatus } : null)
   }
@@ -522,7 +527,7 @@ function FinanciamientoPage() {
                         <td style={{ padding: '10px 12px', textAlign: 'right', color: '#374151' }}>{inst.plazo_max_meses} meses</td>
                         <td style={{ padding: '10px 12px', textAlign: 'right' }}><span style={{ padding: '2px 8px', background: inst.activo ? '#F0FDF4' : '#F3F4F6', color: inst.activo ? VERDE : '#9CA3AF', fontSize: '15px', fontWeight: 700 }}>{inst.activo ? 'Activa' : 'Inactiva'}</span></td>
                         <td style={{ padding: '10px 12px', textAlign: 'right' }}>
-                          <button onClick={async () => { if (!confirm('¿Eliminar?')) return; await supabase.from('instituciones_financieras').delete().eq('id', inst.id); await loadInstituciones(userId) }} style={{ padding: '4px 10px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FCA5A5', fontSize: '14px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>Eliminar</button>
+                          <button onClick={async () => { if (!window.confirm(`¿Eliminar la institución "${inst.nombre}"? Los financiamientos que la referencien quedarán sin institución.`)) return; await supabase.from('instituciones_financieras').delete().eq('id', inst.id); await loadInstituciones(userId) }} style={{ padding: '4px 10px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FCA5A5', fontSize: '14px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>Eliminar</button>
                         </td>
                       </tr>
                     ))}
