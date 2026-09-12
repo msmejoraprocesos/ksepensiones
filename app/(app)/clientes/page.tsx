@@ -872,14 +872,22 @@ function ClientesInner() {
   async function moverCliente(clienteId: string, etapaActual: string, nuevaEtapa: string, notaCancel?: string) {
     const updates: any = { etapa_kanban: nuevaEtapa, ultimo_contacto: new Date().toISOString(), fecha_etapa: new Date().toISOString() }
     if (nuevaEtapa === 'cancelado' && notaCancel) updates.nota_cancelacion = notaCancel
-    await supabase.from('clientes').update(updates).eq('id', clienteId)
+    const { error } = await supabase.from('clientes').update(updates).eq('id', clienteId)
+    if (error) {
+      /* Sin esto la tarjeta se quedaba en la columna nueva y al recargar
+         volvía a la anterior, sin que nada explicara el salto. */
+      avisoError('No se pudo mover el cliente', 'La tarjeta vuelve a su columna. ' + error.message)
+      setDragging(null); setDragOver(null)
+      return
+    }
     setClientes(prev => prev.map(c => c.id === clienteId ? { ...c, ...updates } : c))
     if (selected?.id === clienteId) setSelected(prev => prev ? { ...prev, ...updates } : prev)
     setDragging(null); setDragOver(null)
   }
 
   async function actualizarCliente(id: string, campos: Partial<Cliente>) {
-    await supabase.from('clientes').update(campos).eq('id', id)
+    const { error } = await supabase.from('clientes').update(campos).eq('id', id)
+    if (error) { avisoError('No se pudieron guardar los cambios', error.message); return }
     setClientes(prev => prev.map(c => c.id === id ? { ...c, ...campos } : c))
     if (selected?.id === id) setSelected(prev => prev ? { ...prev, ...campos } : prev)
   }
@@ -887,7 +895,12 @@ function ClientesInner() {
   async function archivarCliente() {
     if (!selected) return
     setDeletingCliente(true)
-    await supabase.from('clientes').update({ activo: false }).eq('id', selected.id)
+    const { error } = await supabase.from('clientes').update({ activo: false }).eq('id', selected.id)
+    if (error) {
+      avisoError('No se pudo archivar el cliente', error.message)
+      setDeletingCliente(false)
+      return
+    }
     setClientes(prev => prev.filter(c => c.id !== selected.id))
     setDeletingCliente(false)
     setShowConfirmDelete(false)
@@ -921,20 +934,57 @@ function ClientesInner() {
       else if (periodo === 'quincenal') fecha.setDate(fecha.getDate() + 15)
       else fecha.setMonth(fecha.getMonth() + 1)
     }
-    await supabase.from('pagos_programados').delete().eq('cliente_id', clienteId)
-    await supabase.from('pagos_programados').insert(pagosArr)
+    /* Borrar antes de insertar deja una ventana peligrosa: si el borrado pasa
+       y la inserción falla, el cliente se queda sin calendario de pagos y
+       nadie se entera hasta que alguien lo busca.
+
+       Se guarda el calendario anterior para poder restaurarlo. Postgres no
+       expone transacciones desde el cliente de Supabase, así que esta es la
+       compensación posible sin mover la lógica a una función de base. */
+    const { data: anterior } = await supabase
+      .from('pagos_programados').select('*').eq('cliente_id', clienteId)
+
+    const { error: eBorrado } = await supabase
+      .from('pagos_programados').delete().eq('cliente_id', clienteId)
+    if (eBorrado) {
+      avisoError('No se pudo regenerar el calendario de pagos', eBorrado.message)
+      return
+    }
+
+    const { error: eInsert } = await supabase.from('pagos_programados').insert(pagosArr)
+    if (eInsert) {
+      if (anterior && anterior.length > 0) {
+        await supabase.from('pagos_programados').insert(anterior)
+        avisoError('No se pudo generar el nuevo calendario', 'Se restauró el anterior. Revisa los datos del plan de pagos e inténtalo de nuevo.')
+      } else {
+        avisoError('No se pudo generar el calendario de pagos', eInsert.message)
+      }
+      return
+    }
     loadPagosProgramados(clienteId)
   }
 
   async function marcarPagoProgramado(pago: PagoProgramado, pagado: boolean) {
-    await supabase.from('pagos_programados').update({
+    /* Son dos escrituras encadenadas: el pago y el saldo del cliente. Si la
+       primera pasa y la segunda falla, el pago queda marcado pero el saldo no
+       se actualiza, y el cliente aparece debiendo algo que ya pagó. */
+    const { error: ePP } = await supabase.from('pagos_programados').update({
       pagado,
       fecha_pago_real: pagado ? new Date().toISOString().split('T')[0] : null
     }).eq('id', pago.id)
+    if (ePP) { avisoError('No se pudo marcar el pago', ePP.message); return }
     const updatedPagos = pagosProgramados.map(p => p.id === pago.id ? { ...p, pagado, fecha_pago_real: pagado ? new Date().toISOString().split('T')[0] : null } : p)
     setPagosProgramados(updatedPagos)
     const total = updatedPagos.filter(p => p.pagado).reduce((s, p) => s + p.monto_programado, 0)
-    await supabase.from('clientes').update({ total_pagado: total }).eq('id', pago.cliente_id)
+    const { error: eSaldo } = await supabase.from('clientes').update({ total_pagado: total }).eq('id', pago.cliente_id)
+    if (eSaldo) {
+      /* El pago sí quedó marcado; lo que falló es el saldo. Se revierte para
+         no dejar los dos datos en desacuerdo. */
+      await supabase.from('pagos_programados').update({ pagado: !pagado, fecha_pago_real: null }).eq('id', pago.id)
+      setPagosProgramados(pagosProgramados)
+      avisoError('No se pudo actualizar el saldo del cliente', 'El pago se revirtió para que el saldo y el calendario no queden en desacuerdo. Inténtalo de nuevo.')
+      return
+    }
     setClientes(prev => prev.map(c => c.id === pago.cliente_id ? { ...c, total_pagado: total } : c))
     if (selected?.id === pago.cliente_id) setSelected(p => p ? { ...p, total_pagado: total } : p)
   }
@@ -2409,7 +2459,7 @@ function ClientesInner() {
                     const { data: { session } } = await supabase.auth.getSession()
                     if (!session) { setCanalizarLoading(false); return }
                     const perfil = await supabase.from('perfiles_usuario').select('organizacion_id').eq('id', session.user.id).single()
-                    await supabase.from('solicitudes_canalizacion').insert({
+                    const { error: eCanal } = await supabase.from('solicitudes_canalizacion').insert({
                       cliente_id: showCanalizarModal.id,
                       asesor_origen_id: session.user.id,
                       asesor_destino_id: canalizarDestino,
@@ -2418,6 +2468,13 @@ function ClientesInner() {
                       estatus: 'pendiente',
                     })
                     setCanalizarLoading(false)
+                    if (eCanal) {
+                      /* El modal se cerraba y decía "enviada" aunque fallara:
+                         el asesor daba por canalizado un cliente que nadie
+                         recibió. */
+                      avisoError('No se pudo enviar la solicitud', eCanal.message)
+                      return
+                    }
                     setShowCanalizarModal(null)
                     setCanalizarDestino('')
                     setCanalizarMotivo('')
@@ -2457,14 +2514,20 @@ function ClientesInner() {
                     setEnviandoEncuesta(true)
                     const { data: { session } } = await supabase.auth.getSession()
                     if (!session) { setEnviandoEncuesta(false); return }
-                    const { data } = await supabase.from('encuestas_satisfaccion').insert({
+                    const { data, error: eEnc } = await supabase.from('encuestas_satisfaccion').insert({
                       asesor_id: session.user.id,
                       cliente_id: selected.id,
                       cliente_nombre: selected.nombre,
                       cliente_telefono: selected.telefono,
                     }).select('token').single()
-                    if (data) setEncuestaLink(`${process.env.NEXT_PUBLIC_APP_URL}/encuesta/${data.token}`)
                     setEnviandoEncuesta(false)
+                    if (eEnc || !data) {
+                      /* Sin esto el botón volvía a su estado normal y no
+                         aparecía ningún link: parecía que no hizo nada. */
+                      avisoError('No se pudo generar la encuesta', eEnc?.message ?? 'Inténtalo de nuevo en un momento.')
+                      return
+                    }
+                    setEncuestaLink(`${process.env.NEXT_PUBLIC_APP_URL}/encuesta/${data.token}`)
                   }} disabled={enviandoEncuesta}
                     style={{ padding: '12px', background: AZUL, color: 'white', border: 'none', fontSize: '14px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                     {enviandoEncuesta ? 'Generando...' : '🔗 Generar link de encuesta'}
