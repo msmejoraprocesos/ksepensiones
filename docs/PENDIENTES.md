@@ -11,9 +11,17 @@ Lo que queda abierto, ordenado por impacto. Cerrar la línea al terminar.
 
 ## Producto
 
-- [ ] **Eliminar el módulo de Facturación.** No aporta valor. Revisar dependencias: rutas en el sidebar, `app/(app)/billing`, tablas asociadas en Supabase.
 - [ ] **Auditar rutas que usan `service_role`.** Se restauraron los GRANT tras encontrar un revoke masivo, pero nunca se verificó qué llevaba tiempo fallando en silencio.
 - [ ] **Denominador oficial del retorno.** La app divide entre inversión neta, el Excel entre costo total. Documentado en `lib/design-tokens.ts`; falta confirmación formal.
+
+## Si se retoma el cobro
+
+El módulo de suscripción con Stripe se eliminó en esta fase. Lo que quedó en pie por si se retoma:
+
+- Columnas en `organizaciones`: `plan`, `asientos`, `vigencia_hasta`, `dias_gracia`, `cancelar_al_periodo`, `stripe_customer_id`, `stripe_subscription_id`. No se borraron: eliminar datos es irreversible y no estorban.
+- El acceso nunca dependió de Stripe. `vigencia_hasta` se administra a mano desde Admin por organización y solo se muestra informativamente.
+- Variables de entorno en Vercel (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, los `STRIPE_PRICE_*`) quedaron sin uso. Conviene retirarlas.
+- Si hay un webhook configurado en el panel de Stripe apuntando a `/api/stripe/webhook`, ya no existe: desactivarlo para que deje de reintentar.
 
 ## Transversal
 
