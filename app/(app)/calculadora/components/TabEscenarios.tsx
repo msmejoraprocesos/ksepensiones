@@ -94,10 +94,10 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
                     { label: 'Duración Mod. 40', value: `${esc.mod40_meses} meses (${(esc.mod40_meses/12).toFixed(1)} años)` },
                     { label: 'UMAs registradas', value: String(esc.mod40_umas) },
                     { label: 'Inversión total', value: fmtMXN2(esc.costo_total) },
-                    { label: 'Recuperación AFORE', value: fmtMXN2(esc.recuperacion_afore) },
+                    { label: 'Menos recuperación AFORE', value: '− ' + fmtMXN2(esc.recuperacion_afore) },
                     { label: 'Inversión neta', value: fmtMXN2(esc.inversion_neta), bold: true },
-                    { label: 'Ganancia a 80 años', value: fmtMXN2(esc.ganancia_a80), bold: true },
-                    { label: 'Tasa de rendimiento', value: `${esc.tasa_rendimiento?.toFixed(1)}%`, bold: true },
+                    { label: 'Ganancia acumulada a los 80 años', value: fmtMXN2(esc.ganancia_a80), bold: true },
+                    { label: 'Retorno sobre lo invertido', value: `${((esc.tasa_rendimiento ?? 0) / 100).toFixed(1)} veces`, bold: true },
                   ].map((r, ri) => (
                     <div key={ri} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', borderBottom: ri < 6 ? `1px solid ${BORDE}` : 'none' }}>
                       <span style={{ fontSize: '10px', color: '#64748B' }}>{r.label}</span>
@@ -140,11 +140,11 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
                   { label: 'Duración Mod. 40', fn: (e: any) => `${e.mod40_meses} meses` },
                   { label: 'UMAs', fn: (e: any) => String(e.mod40_umas) },
                   { label: 'Costo total', fn: (e: any) => fmtMXN2(e.costo_total) },
-                  { label: 'Recuperación AFORE', fn: (e: any) => fmtMXN2(e.recuperacion_afore) },
+                  { label: 'Menos recuperación AFORE', fn: (e: any) => '− ' + fmtMXN2(e.recuperacion_afore) },
                   { label: 'Inversión neta', fn: (e: any) => fmtMXN2(e.inversion_neta), h: true },
                   { label: 'Meses recuperación', fn: (e: any) => `${e.roi} meses` },
-                  { label: 'Ganancia a 80 años', fn: (e: any) => fmtMXN2(e.ganancia_a80), h: true },
-                  { label: 'Rendimiento', fn: (e: any) => `${e.tasa_rendimiento?.toFixed(1)}%` },
+                  { label: 'Ganancia acumulada a los 80 años', fn: (e: any) => fmtMXN2(e.ganancia_a80), h: true },
+                  { label: 'Retorno', fn: (e: any) => `${((e.tasa_rendimiento ?? 0) / 100).toFixed(1)}×` },
                   { label: 'Aguinaldo anual', fn: (e: any) => fmtMXN2(e.aguinaldo_anual) },
                 ].map((row, ri) => (
                   <tr key={ri} style={{ background: row.h ? '#EEF2F8' : ri % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: `1px solid ${BORDE}` }}>

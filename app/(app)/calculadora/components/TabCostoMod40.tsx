@@ -129,8 +129,8 @@ export default function TabCostoMod40({ escenarios, sys, getMod40Pct, setTab }: 
           <div style={{ background: 'white', borderRadius: '12px', borderLeft: `4px solid ${VERDE}`, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '14px' }}>
             <div style={{ fontSize: '10px', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: '0.5px', color: VERDE, marginBottom: '10px' }}>Rentabilidad</div>
             {[
-              { label: 'Ganancia a 80 años', value: fmtMXN(escRec.ganancia_a80), color: VERDE, big: true },
-              { label: 'Tasa de rendimiento', value: `${escRec.tasa_rendimiento?.toFixed(1)}%`, color: VERDE, big: false },
+              { label: 'Ganancia acumulada a los 80 años', value: fmtMXN(escRec.ganancia_a80), color: VERDE, big: true },
+              { label: 'Retorno sobre lo invertido', value: `${((escRec.tasa_rendimiento ?? 0) / 100).toFixed(1)} veces`, color: VERDE, big: false },
               { label: 'ROI mensual', value: `${escRec.roi} meses`, color: AZUL, big: false },
               { label: 'Meses a 80 años', value: `${Math.round((80 - (escRec.edad_retiro ?? 60)) * 12)}`, color: '#64748B', big: false },
             ].map((r, i) => (

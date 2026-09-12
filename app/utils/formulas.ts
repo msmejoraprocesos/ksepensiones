@@ -32,6 +32,8 @@ export interface SysVars {
   pct_afore_mod40: number      // Estimado de recuperación AFORE (~20%) — configurable
   mod40_pct: number            // Tasa Mod40 del año actual — configurable
   RENDIMIENTO_DEFAULT: number  // Tasa de rendimiento AFORE para proyecciones — configurable
+  inflacion_pension?: number   // % anual de actualización de pensiones por INPC (Art. 214 LSS) — configurable
+  inflacion_uma?: number       // % anual de actualización de la UMA — configurable
 }
 
 export interface PeriodoSalarial {

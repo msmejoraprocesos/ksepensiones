@@ -86,6 +86,7 @@ interface SysVars {
   tasa_banco_anual?: number
   tasa_m10?: number
   inflacion_uma?: number
+  inflacion_pension?: number   // % anual de actualizacion de pensiones por INPC (Art. 214 LSS)
   pct_actualizacion_inpc?: number
   pct_recargos_retroactivo?: number
 }
@@ -470,6 +471,7 @@ const SYS_DEFAULT: SysVars = {
   UMA_DIARIA: 117.31, SALARIO_MIN: 315.04,
   PMG_L73: 10636.54, PMG_L97: 4345.72,
   RENDIMIENTO_DEFAULT: 6, mod40_pct: 14.438, pct_afore_mod40: 20,
+  inflacion_pension: 4.5,          // INPC anual para actualizacion de pensiones
   tasa_m10: 22,                    // 22% tasa anual Modalidad 10
   pct_actualizacion_inpc: 7.27,    // % INPC acumulado retroactivo
   pct_recargos_retroactivo: 41.80  // % recargos SAT retroactivo
@@ -1362,16 +1364,30 @@ function CalculadoraInner() {
     const inversion_neta = costo_total - recuperacion_afore
     const roi = incr > 0 ? Math.ceil(inversion_neta / incr) : 0
 
-    // Ganancia a los 80 años — factor 1.54 del Excel
-    // = 13 pagos/año (aguinaldo incluido) × INPC acumulado ≈ (1.045)^10
-    // El IMSS actualiza pensiones por INPC anualmente (Art. 214 LSS)
-    const FACTOR_FLUJOS_80 = 1.54
+    // Ganancia a los 80 años — flujo acumulado con actualización anual por INPC.
+    // El IMSS actualiza las pensiones cada febrero conforme al INPC (Art. 214 LSS)
+    // y paga 13 mensualidades al año (12 + aguinaldo, Art. 218-A).
+    //
+    // Antes se usaba un factor plano de 1.54 tomado del Excel. Era incorrecto
+    // aplicarlo a ambos flujos: el factor de acumulación depende de cuántos años
+    // cobra cada uno, y el escenario con Mod. 40 suele retirarse más tarde que el
+    // escenario base, por lo que sus horizontes NO son iguales.
+    //
+    //   flujo = mensual × 13 × Σ(1+i)^t  para t = 0..años-1
+    //         = mensual × 13 × ((1+i)^años − 1) / i
+    const PAGOS_POR_ANIO = 13
+    const iINPC = (sys.inflacion_pension ?? sys.inflacion_uma ?? 4.5) / 100
+    const flujoAcumulado = (mensual: number, anios: number) => {
+      if (mensual <= 0 || anios <= 0) return 0
+      const factor = iINPC === 0 ? anios : (Math.pow(1 + iINPC, anios) - 1) / iINPC
+      return mensual * PAGOS_POR_ANIO * factor
+    }
     const anosHasta80 = Math.max(0, 80 - edadR)
     const mesesHasta80 = Math.round(anosHasta80 * 12)
     const anosHasta80base = Math.max(0, 80 - Math.max(edadRetiro, datos.edad_actual || 60))
     const mesesHasta80base = Math.round(anosHasta80base * 12)
-    const flujosCon = pension * mesesHasta80 * FACTOR_FLUJOS_80
-    const flujosSin = pensionBase * mesesHasta80base * FACTOR_FLUJOS_80
+    const flujosCon = flujoAcumulado(pension, anosHasta80)
+    const flujosSin = flujoAcumulado(pensionBase, anosHasta80base)
     const ganancia_a80 = flujosCon - flujosSin - inversion_neta
     const tasa_rendimiento = inversion_neta > 0 ? (ganancia_a80 / inversion_neta) * 100 : 0
 
@@ -2733,7 +2749,7 @@ function CalculadoraInner() {
                 { label: 'Sem. faltantes', value: datos.semanas_totales > 0 ? String(Math.max(0, 500 - (datos.semanas_totales - datos.semanas_descontadas))) : '—', tipo: Math.max(0, 500 - (datos.semanas_totales - datos.semanas_descontadas)) === 0 ? 'result' : 'manual', accent: Math.max(0, 500 - (datos.semanas_totales - datos.semanas_descontadas)) === 0 ? VERDE : '#DC2626' },
                 { label: 'Edad de pensión', value: (datos.edad_min_pension || 60) + ' años', tipo: 'manual', accent: '#E8724A' },
                 { label: 'Sem. con Mod. 40', value: escenarios.find(e => e.recomendado)?.semanas_finales ? String(Math.round(escenarios.find(e => e.recomendado)!.semanas_finales)) : '—', tipo: 'strategy', accent: VERDE },
-                { label: 'Pensión actual', value: (() => { const r = calcPensionLey73(datos.semanas_totales - datos.semanas_descontadas, sdiPromedio, datos.edad_min_pension || 60, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, undefined, datos.tiene_ayuda_asistencial); return r.pensionMensual > 0 ? fmtMXN(r.pensionMensual) + '/mes' : '—' })(), tipo: 'result', accent: '#7C3AED' },
+                { label: 'Pensión actual', value: (() => { const r = calcPensionLey73(datos.semanas_totales - datos.semanas_descontadas, sdiPromedio, datos.edad_min_pension || 60, sys, datos.tiene_conyuge, datos.num_hijos, datos.num_padres, undefined, datos.tiene_ayuda_asistencial); return r.pensionMensual > 0 ? fmtMXN(r.pensionMensual) + (r.pmg_aplica ? '/mes (PMG)' : '/mes') : '—' })(), tipo: 'result', accent: '#7C3AED' },
               ].map((k, i) => {
                 const dotColors: any = { imss: '#334E7B', manual: '#E8724A', strategy: '#2E7D5A', result: '#7C3AED' }
                 const dotColor = dotColors[k.tipo] || '#94A3B8'
