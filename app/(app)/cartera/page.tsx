@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useMemo, useState } from 'react'
-import { supabaseClient } from '@/lib/supabase'
+import { createClient } from '@/utils/supabase/client'
 import { K, nw, num, tarjeta, botonPrimario, franja, halo } from '@/lib/design-tokens'
 import {
   cotizar, normalizarTramos, validarTramos, TRAMOS_DEFAULT,
@@ -24,9 +24,7 @@ const campo: React.CSSProperties = {
 }
 
 export default function CarteraPage() {
-  /* Las tablas de cartera son nuevas y aún no están en types/database.
-     Al regenerar los tipos desde Supabase, este cast sale sobrando. */
-  const supabase = useMemo(() => supabaseClient() as any, [])
+  const supabase = useMemo(() => createClient(), [])
   const [tramos, setTramos] = useState<TramoPrecio[]>(TRAMOS_DEFAULT)
   const [guardando, setGuardando] = useState(false)
   const [msg, setMsg] = useState('')
