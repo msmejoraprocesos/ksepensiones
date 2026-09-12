@@ -1,11 +1,17 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { esEscenarioMod40 } from '@/app/utils/formulas'
 
-const AZUL = '#334E7B'
-const VERDE = '#2E7D5A'
-const NARANJA = '#E8724A'
-const BORDE = '#E2E8F0'
+/* Tokens — docs/rediseno/SISTEMA-DISENO.md */
+const K = {
+  navy900: '#0D2440', navy800: '#14375F', navy600: '#245287',
+  orange: '#E8622C', orangeSoft: '#FDF0E9', gold: '#F2B544',
+  green: '#12855C', greenLt: '#1FA873', greenSoft: '#E6F4EE',
+  purple: '#6D3BD4', cyan: '#0891B2',
+  paper: '#F5F7FA', card: '#FFFFFF',
+  ink: '#132135', muted: '#66738A', line: '#E1E7F0',
+}
+const COLORES = [K.navy600, K.green, K.orange, K.purple, K.cyan, K.navy800]
 
 const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n)
 const fmtMXN2 = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
@@ -18,8 +24,13 @@ const TERMOMETRO = [
   { max: 60, label: 'Riesgo alto', color: '#DC2626', bg: '#FEE2E2' },
   { max: Infinity, label: 'Requiere cautela', color: '#991B1B', bg: '#FEE2E2' },
 ]
-
 const getTermometro = (meses: number) => TERMOMETRO.find(t => meses <= t.max) ?? TERMOMETRO[TERMOMETRO.length - 1]
+
+/* Horizonte de cobro de la linea de tiempo: 60 -> 80 anios */
+const HORIZONTE_MESES = 240
+
+const nw = { whiteSpace: 'nowrap' as const }
+const num = { fontVariantNumeric: 'tabular-nums' as const }
 
 interface Props {
   escenarios: any[]
@@ -29,170 +40,241 @@ interface Props {
 
 export default function TabEscenarios({ escenarios, setTab }: Props) {
   const [vista, setVista] = useState<'cards' | 'tabla'>('cards')
+  const [sel, setSel] = useState(0)
+  const [anim, setAnim] = useState(false)
+
   const escsConMod40 = escenarios.filter(esEscenarioMod40)
   const pensionBase = escenarios[0]?.pension_base ?? 0
 
+  useEffect(() => {
+    const idx = escsConMod40.findIndex(e => e.recomendado)
+    if (idx >= 0) setSel(idx)
+  }, [escenarios.length]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setAnim(true); return }
+    const t = setTimeout(() => setAnim(true), 200)
+    return () => clearTimeout(t)
+  }, [])
+
   if (escsConMod40.length === 0) return (
-    <div style={{ textAlign: 'center', padding: '60px', color: '#94A3B8' }}>
+    <div style={{ textAlign: 'center', padding: '60px', color: K.muted }}>
       <i className="ti ti-chart-bar-off" style={{ fontSize: '48px', display: 'block', marginBottom: '12px' }} />
-      <p style={{ fontSize: '14px' }}>Completa el Salario Mod. 40 para generar escenarios comparativos</p>
-      <button onClick={() => setTab(2)} style={{ marginTop: '12px', padding: '8px 20px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>
+      <p style={{ fontSize: '15px' }}>Completa el Salario Mod. 40 para generar escenarios comparativos</p>
+      <button onClick={() => setTab(2)} style={{ marginTop: '14px', padding: '11px 22px', background: K.navy800, color: 'white', border: 'none', borderRadius: '9px', cursor: 'pointer', fontSize: '15px', fontWeight: 600, fontFamily: 'inherit' }}>
         Ir a Salario Mod. 40
       </button>
     </div>
   )
 
   const maxPension = Math.max(...escsConMod40.map(e => e.pension_mensual))
+  const idxSel = Math.min(sel, escsConMod40.length - 1)
+  const escSel = escsConMod40[idxSel]
+  const colorSel = COLORES[idxSel] || K.navy600
+
+  const CAMPOS = (e: any) => [
+    { label: 'Duracion Mod. 40', value: `${e.mod40_meses} meses (${(e.mod40_meses / 12).toFixed(1)} anios)` },
+    { label: 'UMAs registradas', value: String(e.mod40_umas) },
+    { label: 'Costo total de Mod. 40', value: fmtMXN2(e.costo_total) },
+    { label: 'Menos recuperacion AFORE', value: '- ' + fmtMXN2(e.recuperacion_afore) },
+    { label: 'Inversion neta', value: fmtMXN2(e.inversion_neta), fuerte: true },
+    { label: 'Ganancia acumulada a los 80 anios', value: fmtMXN2(e.ganancia_a80), fuerte: true },
+    { label: 'Retorno sobre lo invertido', value: `${((e.tasa_rendimiento ?? 0) / 100).toFixed(1)} veces`, fuerte: true },
+    { label: 'Aguinaldo anual', value: fmtMXN2(e.aguinaldo_anual) },
+  ]
+
+  const t = getTermometro(escSel.roi)
+  const pctRec = Math.min(100, (escSel.roi / HORIZONTE_MESES) * 100)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-      {/* Header con toggle */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
         <div>
-          <p style={{ fontSize: '13px', fontWeight: '600', color: '#111827', margin: 0 }}>Comparativa de escenarios</p>
-          <p style={{ fontSize: '11px', color: '#94A3B8', margin: '2px 0 0' }}>Base actual: {fmtMXN2(pensionBase)}/mes sin Mod. 40</p>
+          <h2 style={{ fontSize: '24px', fontWeight: 700, color: K.ink, margin: 0, letterSpacing: '-0.015em' }}>
+            Comparativa de escenarios
+          </h2>
+          <p style={{ fontSize: '15px', color: K.muted, margin: '4px 0 0' }}>
+            Base actual: <strong style={{ color: K.ink, ...num }}>{fmtMXN2(pensionBase)}</strong>/mes sin Mod. 40
+          </p>
         </div>
-        <div style={{ display: 'flex', gap: '4px', background: '#F4F6F9', borderRadius: '8px', padding: '4px' }}>
+        <div style={{ display: 'flex', gap: '2px', background: K.card, borderRadius: '10px', padding: '3px', border: `1px solid ${K.line}` }}>
           {(['cards', 'tabla'] as const).map(v => (
             <button key={v} onClick={() => setVista(v)}
-              style={{ padding: '5px 12px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '11px', fontWeight: '600', background: vista === v ? 'white' : 'transparent', color: vista === v ? AZUL : '#94A3B8', boxShadow: vista === v ? '0 1px 2px rgba(0,0,0,0.06)' : 'none' }}>
-              {v === 'cards' ? 'Cards' : 'Tabla'}
+              style={{ padding: '8px 18px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '15px', fontWeight: 600, background: vista === v ? K.navy800 : 'transparent', color: vista === v ? 'white' : K.muted, ...nw }}>
+              {v === 'cards' ? 'Tarjetas' : 'Tabla'}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Vista Cards — columnas comparativas */}
       {vista === 'cards' && (
-        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(escsConMod40.length, 3)}, 1fr)`, gap: '10px' }}>
-          {escsConMod40.slice(0, 3).map((esc, i) => {
-            const isRec = esc.recomendado
-            const incr = esc.pension_mensual - pensionBase
-            const t = getTermometro(esc.roi)
-            const colors = [AZUL, VERDE, NARANJA]
-            const c = colors[i] || AZUL
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
+          {escsConMod40.slice(0, 6).map((esc, i) => {
+            const on = i === idxSel
+            const c = COLORES[i] || K.navy600
             return (
-              <div key={i} style={{ background: 'white', borderRadius: '12px', border: isRec ? `2px solid ${VERDE}` : `1px solid ${BORDE}`, boxShadow: isRec ? '0 4px 16px rgba(46,125,90,0.15)' : '0 1px 3px rgba(0,0,0,0.06)', overflow: 'hidden', position: 'relative' }}>
-                {/* Header */}
-                <div style={{ background: isRec ? VERDE : c, padding: '14px 16px' }}>
-                  {isRec && <div style={{ fontSize: '9px', fontWeight: '700', color: 'rgba(255,255,255,0.8)', letterSpacing: '0.8px', marginBottom: '4px' }}>⭐ RECOMENDADO</div>}
-                  <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.8)', marginBottom: '4px' }}>Escenario {i + 1}</div>
-                  <div style={{ fontSize: '26px', fontWeight: '800', color: 'white', letterSpacing: '-0.5px', lineHeight: 1 }}>{fmtMXN2(esc.pension_mensual)}</div>
-                  <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', marginTop: '2px' }}>mensual</div>
+              <button key={i} onClick={() => setSel(i)}
+                style={{ textAlign: 'left', cursor: 'pointer', borderRadius: '13px', padding: '18px', background: K.card, fontFamily: 'inherit', border: on ? `2px solid ${c}` : `1px solid ${K.line}`, boxShadow: on ? `0 4px 16px ${c}26` : '0 1px 3px rgba(19,33,53,0.06)', transform: on ? 'translateY(-2px)' : 'none', transition: 'all .2s' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 700, color: c, ...nw }}>
+                    {esc.recomendado && '* '}Escenario {i + 1}
+                  </span>
+                  <span style={{ width: 9, height: 9, borderRadius: 999, background: c, flexShrink: 0, opacity: on ? 1 : 0.35 }} />
                 </div>
-
-                {/* Ganancia vs base */}
-                <div style={{ padding: '10px 14px', background: isRec ? '#F0F7F4' : '#F8FAFC', borderBottom: `1px solid ${BORDE}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '11px', color: '#64748B' }}>Mejora vs sin Mod. 40</span>
-                  <span style={{ fontSize: '14px', fontWeight: '800', color: VERDE }}>+{fmtMXN2(incr)}/mes</span>
-                </div>
-
-                {/* Parámetros */}
-                <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {[
-                    { label: 'Duración Mod. 40', value: `${esc.mod40_meses} meses (${(esc.mod40_meses/12).toFixed(1)} años)` },
-                    { label: 'UMAs registradas', value: String(esc.mod40_umas) },
-                    { label: 'Inversión total', value: fmtMXN2(esc.costo_total) },
-                    { label: 'Menos recuperación AFORE', value: '− ' + fmtMXN2(esc.recuperacion_afore) },
-                    { label: 'Inversión neta', value: fmtMXN2(esc.inversion_neta), bold: true },
-                    { label: 'Ganancia acumulada a los 80 años', value: fmtMXN2(esc.ganancia_a80), bold: true },
-                    { label: 'Retorno sobre lo invertido', value: `${((esc.tasa_rendimiento ?? 0) / 100).toFixed(1)} veces`, bold: true },
-                  ].map((r, ri) => (
-                    <div key={ri} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', borderBottom: ri < 6 ? `1px solid ${BORDE}` : 'none' }}>
-                      <span style={{ fontSize: '10px', color: '#64748B' }}>{r.label}</span>
-                      <span style={{ fontSize: '11px', fontWeight: r.bold ? '700' : '500', color: r.bold ? c : '#374151' }}>{r.value}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Termómetro */}
-                <div style={{ padding: '10px 14px', background: t.bg, borderTop: `1px solid ${BORDE}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '10px', color: t.color, fontWeight: '600' }}>Recuperación en {esc.roi} meses</span>
-                  <span style={{ fontSize: '11px', fontWeight: '700', color: t.color, padding: '2px 8px', background: 'white', borderRadius: '4px' }}>{t.label}</span>
-                </div>
-              </div>
+                <p style={{ fontSize: '25px', fontWeight: 800, color: K.ink, margin: '7px 0 0', letterSpacing: '-0.025em', ...nw, ...num }}>
+                  {fmtMXN(esc.pension_mensual)}
+                </p>
+                <p style={{ fontSize: '13px', color: K.green, fontWeight: 700, margin: '3px 0 0', ...nw, ...num }}>
+                  +{fmtMXN(esc.pension_mensual - pensionBase)}/mes
+                </p>
+                <p style={{ fontSize: '12px', color: K.muted, margin: '8px 0 0', ...nw }}>
+                  {esc.mod40_umas} UMAs &middot; {esc.mod40_meses} meses
+                </p>
+                <p style={{ fontSize: '12px', color: K.muted, margin: '2px 0 0', ...nw, ...num }}>
+                  Inversion neta {fmtMXN(esc.inversion_neta)}
+                </p>
+              </button>
             )
           })}
         </div>
       )}
 
-      {/* Vista Tabla */}
+      {vista === 'cards' && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1.35fr) minmax(280px, 1fr)', gap: '20px' }}>
+
+          <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px' }}>
+            <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Comparativo visual de pension mensual</p>
+            <p style={{ fontSize: '13px', color: K.muted, margin: '0 0 18px' }}>Toque una barra para ver el escenario en detalle</p>
+
+            {[{ label: 'Sin Mod. 40', value: pensionBase, color: '#9AA7B8', idx: -1, rec: false },
+              ...escsConMod40.slice(0, 6).map((e, i) => ({
+                label: `Esc. ${i + 1} - ${e.mod40_umas} UMAs`,
+                value: e.pension_mensual, color: COLORES[i] || K.navy600, idx: i, rec: !!e.recomendado,
+              }))].map((f, i) => {
+              const on = f.idx === idxSel
+              const pct = maxPension > 0 ? (f.value / maxPension) * 100 : 0
+              return (
+                <button key={i} onClick={() => { if (f.idx >= 0) setSel(f.idx) }}
+                  style={{ display: 'block', width: '100%', background: 'none', border: 'none', padding: '7px 0', cursor: f.idx >= 0 ? 'pointer' : 'default', textAlign: 'left', fontFamily: 'inherit' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span style={{ width: '168px', flexShrink: 0, fontSize: '13px', color: on ? K.ink : K.muted, fontWeight: on || f.rec ? 700 : 500, textAlign: 'right', overflow: 'hidden', textOverflow: 'ellipsis', ...nw }}>
+                      {f.rec && '* '}{f.label}
+                    </span>
+                    <span style={{ flex: 1, height: '30px', background: K.paper, borderRadius: '6px', position: 'relative', overflow: 'hidden' }}>
+                      <span style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: anim ? `${pct}%` : '0%', background: f.color, borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '10px', opacity: f.idx >= 0 && !on ? 0.45 : 1, transition: 'width .9s cubic-bezier(.22,1,.36,1), opacity .25s' }}>
+                        <span style={{ fontSize: '13px', fontWeight: 700, color: 'white', ...nw, ...num }}>{fmtMXN2(f.value)}</span>
+                      </span>
+                    </span>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+
+          <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', overflow: 'hidden', alignSelf: 'start' }}>
+            <div style={{ background: colorSel, padding: '20px 22px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+                <span style={{ fontSize: '13px', fontWeight: 700, color: 'rgba(255,255,255,0.85)', ...nw }}>
+                  {escSel.recomendado && '* '}Escenario {idxSel + 1}
+                </span>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: 'white', background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: 999, ...nw }}>
+                  {escSel.mod40_umas} UMAs &middot; {escSel.mod40_meses} meses
+                </span>
+              </div>
+              <p style={{ fontSize: '38px', fontWeight: 800, color: 'white', margin: '8px 0 0', lineHeight: 1, letterSpacing: '-0.03em', ...nw, ...num }}>
+                {fmtMXN2(escSel.pension_mensual)}
+              </p>
+              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)', margin: '4px 0 0' }}>pension mensual</p>
+            </div>
+
+            <div style={{ background: K.greenSoft, padding: '14px 22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+              <span style={{ fontSize: '15px', color: K.ink }}>Mejora vs sin Mod. 40</span>
+              <span style={{ fontSize: '20px', fontWeight: 700, color: K.green, ...nw, ...num }}>
+                +{fmtMXN2(escSel.pension_mensual - pensionBase)}/mes
+              </span>
+            </div>
+
+            <div style={{ padding: '6px 22px 16px' }}>
+              {CAMPOS(escSel).map((r, ri) => (
+                <div key={ri} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px', padding: '12px 0', borderTop: ri ? `1px solid ${K.line}` : 'none' }}>
+                  <span style={{ fontSize: '15px', color: K.muted }}>{r.label}</span>
+                  <span style={{ fontSize: '17px', fontWeight: 700, color: r.fuerte ? colorSel : K.ink, ...nw, ...num }}>{r.value}</span>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ background: K.paper, borderTop: `1px solid ${K.line}`, padding: '16px 22px' }}>
+              <div style={{ display: 'flex', height: '10px', borderRadius: 999, overflow: 'hidden', background: 'rgba(0,0,0,0.06)' }}>
+                <span style={{ width: `${pctRec}%`, background: K.muted }} />
+                <span style={{ flex: 1, background: K.greenLt }} />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', marginTop: '10px', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '13px', color: K.muted }}>
+                  <strong style={{ color: K.ink }}>{escSel.roi} meses</strong> para recuperar
+                </span>
+                <span style={{ fontSize: '13px', color: K.green, fontWeight: 700, ...nw }}>
+                  {Math.max(0, HORIZONTE_MESES - escSel.roi)} meses de ganancia neta
+                </span>
+              </div>
+              <div style={{ marginTop: '10px', textAlign: 'right' }}>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: t.color, background: t.bg, padding: '4px 10px', borderRadius: '6px', ...nw }}>{t.label}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {vista === 'tabla' && (
-        <div style={{ background: 'white', borderRadius: '12px', border: `1px solid ${BORDE}`, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+        <div style={{ background: K.card, borderRadius: '14px', border: `1px solid ${K.line}`, overflow: 'hidden', boxShadow: '0 1px 3px rgba(19,33,53,0.06)' }}>
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }}>
               <thead>
-                <tr style={{ background: AZUL }}>
-                  <th style={{ padding: '9px 12px', color: 'white', textAlign: 'left', fontWeight: '600', fontSize: '11px', position: 'sticky', left: 0, background: AZUL }}>Concepto</th>
-                  <th style={{ padding: '9px 12px', color: '#93C5FD', textAlign: 'right', fontWeight: '600', fontSize: '11px', whiteSpace: 'nowrap' }}>Sin Mod. 40</th>
+                <tr style={{ background: K.navy900 }}>
+                  <th style={{ padding: '13px 16px', color: 'white', textAlign: 'left', fontWeight: 600, fontSize: '13px', position: 'sticky', left: 0, background: K.navy900 }}>Concepto</th>
+                  <th style={{ padding: '13px 16px', color: 'rgba(255,255,255,0.6)', textAlign: 'right', fontWeight: 600, fontSize: '13px', ...nw }}>Sin Mod. 40</th>
                   {escsConMod40.slice(0, 6).map((e, i) => (
-                    <th key={i} style={{ padding: '9px 12px', color: e.recomendado ? '#FCD34D' : 'white', textAlign: 'right', fontWeight: '700', fontSize: '11px', whiteSpace: 'nowrap' }}>
-                      Esc. {i+1} {e.recomendado ? '⭐' : ''}
+                    <th key={i} onClick={() => setSel(i)} style={{ padding: '13px 16px', color: i === idxSel ? K.gold : 'white', textAlign: 'right', fontWeight: 700, fontSize: '13px', cursor: 'pointer', ...nw }}>
+                      {e.recomendado && '* '}Esc. {i + 1}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {[
-                  { label: 'Pensión mensual', fn: (e: any) => fmtMXN2(e.pension_mensual), h: true },
-                  { label: 'Mejora mensual', fn: (e: any) => '+' + fmtMXN2(e.pension_mensual - pensionBase), h: true },
-                  { label: 'Duración Mod. 40', fn: (e: any) => `${e.mod40_meses} meses` },
-                  { label: 'UMAs', fn: (e: any) => String(e.mod40_umas) },
-                  { label: 'Costo total', fn: (e: any) => fmtMXN2(e.costo_total) },
-                  { label: 'Menos recuperación AFORE', fn: (e: any) => '− ' + fmtMXN2(e.recuperacion_afore) },
-                  { label: 'Inversión neta', fn: (e: any) => fmtMXN2(e.inversion_neta), h: true },
-                  { label: 'Meses recuperación', fn: (e: any) => `${e.roi} meses` },
-                  { label: 'Ganancia acumulada a los 80 años', fn: (e: any) => fmtMXN2(e.ganancia_a80), h: true },
-                  { label: 'Retorno', fn: (e: any) => `${((e.tasa_rendimiento ?? 0) / 100).toFixed(1)}×` },
-                  { label: 'Aguinaldo anual', fn: (e: any) => fmtMXN2(e.aguinaldo_anual) },
-                ].map((row, ri) => (
-                  <tr key={ri} style={{ background: row.h ? '#EEF2F8' : ri % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: `1px solid ${BORDE}` }}>
-                    <td style={{ padding: '8px 12px', color: '#374151', fontWeight: row.h ? '700' : '400', position: 'sticky', left: 0, background: row.h ? '#EEF2F8' : ri % 2 === 0 ? 'white' : '#F9FAFB', fontSize: '11px' }}>{row.label}</td>
-                    <td style={{ padding: '8px 12px', textAlign: 'right', color: '#94A3B8', fontStyle: 'italic', fontSize: '11px' }}>
-                      {ri === 0 ? fmtMXN2(pensionBase) : ri === 1 ? '—' : '—'}
-                    </td>
-                    {escsConMod40.slice(0, 6).map((e, i) => (
-                      <td key={i} style={{ padding: '8px 12px', textAlign: 'right', fontWeight: row.h ? '700' : '500', color: row.h ? AZUL : '#374151', fontSize: '11px' }}>{row.fn(e)}</td>
-                    ))}
-                  </tr>
-                ))}
+                  { label: 'Pension mensual', fn: (e: any) => fmtMXN2(e.pension_mensual), base: fmtMXN2(pensionBase), h: true },
+                  { label: 'Mejora mensual', fn: (e: any) => '+' + fmtMXN2(e.pension_mensual - pensionBase), base: '-', h: true },
+                  { label: 'Duracion Mod. 40', fn: (e: any) => `${e.mod40_meses} meses`, base: '-' },
+                  { label: 'UMAs registradas', fn: (e: any) => String(e.mod40_umas), base: '-' },
+                  { label: 'Costo total de Mod. 40', fn: (e: any) => fmtMXN2(e.costo_total), base: '-' },
+                  { label: 'Menos recuperacion AFORE', fn: (e: any) => '- ' + fmtMXN2(e.recuperacion_afore), base: '-' },
+                  { label: 'Inversion neta', fn: (e: any) => fmtMXN2(e.inversion_neta), base: '-', h: true },
+                  { label: 'Meses para recuperar', fn: (e: any) => `${e.roi} meses`, base: '-' },
+                  { label: 'Ganancia acumulada a los 80 anios', fn: (e: any) => fmtMXN2(e.ganancia_a80), base: '-', h: true },
+                  { label: 'Retorno sobre lo invertido', fn: (e: any) => `${((e.tasa_rendimiento ?? 0) / 100).toFixed(1)}x`, base: '-' },
+                  { label: 'Aguinaldo anual', fn: (e: any) => fmtMXN2(e.aguinaldo_anual), base: '-' },
+                ].map((row, ri) => {
+                  const bg = row.h ? '#EEF2F8' : ri % 2 === 0 ? 'white' : '#F9FAFB'
+                  return (
+                    <tr key={ri} style={{ background: bg, borderBottom: `1px solid ${K.line}` }}>
+                      <td style={{ padding: '12px 16px', color: K.ink, fontWeight: row.h ? 700 : 400, position: 'sticky', left: 0, background: bg, fontSize: '15px' }}>{row.label}</td>
+                      <td style={{ padding: '12px 16px', textAlign: 'right', color: K.muted, fontSize: '15px', ...nw, ...num }}>{row.base}</td>
+                      {escsConMod40.slice(0, 6).map((e, i) => (
+                        <td key={i} onClick={() => setSel(i)} style={{ padding: '12px 16px', textAlign: 'right', fontWeight: row.h ? 700 : 500, color: row.h ? K.navy800 : K.ink, fontSize: '15px', cursor: 'pointer', background: i === idxSel ? K.orangeSoft : 'transparent', ...nw, ...num }}>{row.fn(e)}</td>
+                      ))}
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
         </div>
       )}
 
-      {/* Barra visual de pensiones */}
-      <div style={{ background: 'white', borderRadius: '12px', border: `1px solid ${BORDE}`, padding: '14px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-        <p style={{ fontSize: '10px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px', margin: '0 0 10px' }}>Comparativo visual de pensión mensual</p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {[
-            { label: 'Sin Mod. 40', value: pensionBase, color: '#94A3B8' },
-            ...escsConMod40.slice(0, 6).map((e, i) => ({
-              label: `Esc. ${i+1} — ${e.mod40_umas} UMAs · ${(e.mod40_meses/12).toFixed(1)} años`,
-              value: e.pension_mensual,
-              color: [AZUL, VERDE, NARANJA, '#7C3AED', '#0891B2'][i] || AZUL,
-              rec: e.recomendado,
-            }))
-          ].map((sc, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ width: '160px', fontSize: '10px', color: i === 0 ? '#94A3B8' : '#374151', fontWeight: (sc as any).rec ? '700' : '400', textAlign: 'right', flexShrink: 0 }}>
-                {(sc as any).rec ? '⭐ ' : ''}{sc.label}
-              </div>
-              <div style={{ flex: 1, height: '24px', background: '#F3F4F6', borderRadius: '4px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${sc.value / maxPension * 100}%`, background: sc.color, display: 'flex', alignItems: 'center', paddingLeft: '8px', minWidth: '4px', borderRadius: '4px' }}>
-                  <span style={{ fontSize: '11px', fontWeight: '700', color: 'white', whiteSpace: 'nowrap' }}>{fmtMXN2(sc.value)}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <button onClick={() => setTab(10)} style={{ padding: '10px 22px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: '700', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          Financiamiento <i className="ti ti-arrow-right" style={{ fontSize: '14px' }} />
+        <button onClick={() => setTab(10)}
+          style={{ padding: '13px 24px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '17px', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
+          Financiamiento <i className="ti ti-arrow-right" style={{ fontSize: '16px' }} />
         </button>
       </div>
     </div>
