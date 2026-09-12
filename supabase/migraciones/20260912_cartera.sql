@@ -60,3 +60,22 @@ create trigger trg_acuerdo_recordatorio
   for each row execute function public.acuerdo_recordatorio_default();
 
 grant select, insert, update, delete on public.contratos, public.pagos_contrato, public.acuerdos to service_role, authenticated;
+
+-- Tabla de precios por volumen, editable desde la interfaz.
+-- `hasta = null` marca el tramo abierto: "de aquí en adelante".
+create table if not exists public.tramos_precio (
+  id             uuid primary key default gen_random_uuid(),
+  hasta          int check (hasta is null or hasta > 0),
+  precio_usuario numeric(12,2) not null check (precio_usuario >= 0),
+  actualizado_en timestamptz not null default now()
+);
+
+-- Solo puede existir un tramo abierto: dos harían ambiguo el precio.
+create unique index if not exists idx_tramo_abierto_unico
+  on public.tramos_precio ((hasta is null)) where hasta is null;
+
+insert into public.tramos_precio (hasta, precio_usuario)
+select * from (values (1, 1200), (5, 1000), (15, 850), (30, 700), (null, 600)) as v(hasta, precio)
+where not exists (select 1 from public.tramos_precio);
+
+grant select, insert, update, delete on public.tramos_precio to service_role, authenticated;

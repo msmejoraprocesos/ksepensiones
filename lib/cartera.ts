@@ -83,20 +83,64 @@ export function calcularNuevaVigencia(
 
 /* ── Cotizador ──────────────────────────────────────────────────────────── */
 
+export interface TramoPrecio {
+  /** Tope de usuarios del tramo. `null` significa "de aquí en adelante". */
+  hasta: number | null
+  precioUsuario: number
+}
+
 /**
- * Precio por usuario según volumen. Los tramos y montos son provisionales:
- * falta definir la tabla comercial real.
+ * Tramos por defecto. Se usan solo si no hay nada capturado en la base:
+ * los reales se editan desde la interfaz y viven en `tramos_precio`.
  */
-export const TRAMOS_PRECIO = [
-  { hasta: 1,        precioUsuario: 1200 },
-  { hasta: 5,        precioUsuario: 1000 },
-  { hasta: 15,       precioUsuario: 850 },
-  { hasta: 30,       precioUsuario: 700 },
-  { hasta: Infinity, precioUsuario: 600 },
-] as const
+export const TRAMOS_DEFAULT: TramoPrecio[] = [
+  { hasta: 1,    precioUsuario: 1200 },
+  { hasta: 5,    precioUsuario: 1000 },
+  { hasta: 15,   precioUsuario: 850 },
+  { hasta: 30,   precioUsuario: 700 },
+  { hasta: null, precioUsuario: 600 },
+]
 
 /** Descuento por pago anual: se cobran 10 meses en lugar de 12. */
 export const MESES_COBRADOS_ANUAL = 10
+
+/**
+ * Ordena los tramos y garantiza que exista uno abierto al final.
+ *
+ * Sin el tramo abierto, una cotización de 500 usuarios no encontraría precio.
+ * Si el administrador borra el último tramo o deja todos con tope, el mayor
+ * se vuelve abierto en lugar de fallar.
+ */
+export function normalizarTramos(tramos: TramoPrecio[]): TramoPrecio[] {
+  const limpios = tramos
+    .filter(t => t.precioUsuario >= 0)
+    .sort((a, b) => (a.hasta ?? Infinity) - (b.hasta ?? Infinity))
+  if (limpios.length === 0) return TRAMOS_DEFAULT
+  if (limpios[limpios.length - 1].hasta !== null) {
+    limpios[limpios.length - 1] = { ...limpios[limpios.length - 1], hasta: null }
+  }
+  return limpios
+}
+
+/** Valida la coherencia de la tabla antes de guardarla. */
+export function validarTramos(tramos: TramoPrecio[]): string[] {
+  const errores: string[] = []
+  const orden = normalizarTramos(tramos)
+  orden.forEach((t, i) => {
+    if (t.precioUsuario <= 0) errores.push(`El tramo ${i + 1} no tiene precio.`)
+    if (t.hasta !== null && t.hasta <= 0) errores.push(`El tope del tramo ${i + 1} debe ser mayor que cero.`)
+    if (i > 0) {
+      const prev = orden[i - 1]
+      if (t.hasta !== null && prev.hasta !== null && t.hasta === prev.hasta) {
+        errores.push(`Dos tramos terminan en ${t.hasta} usuarios.`)
+      }
+      if (t.precioUsuario > prev.precioUsuario) {
+        errores.push(`El tramo ${i + 1} cuesta más por usuario que el anterior: a mayor volumen debería bajar.`)
+      }
+    }
+  })
+  return errores
+}
 
 export interface Cotizacion {
   usuarios: number
@@ -108,9 +152,14 @@ export interface Cotizacion {
   totalPeriodo: number
 }
 
-export function cotizar(usuarios: number, periodicidad: 'mensual' | 'anual' = 'mensual'): Cotizacion {
+export function cotizar(
+  usuarios: number,
+  periodicidad: 'mensual' | 'anual' = 'mensual',
+  tramos: TramoPrecio[] = TRAMOS_DEFAULT
+): Cotizacion {
   const n = Math.max(1, Math.floor(usuarios || 1))
-  const tramo = TRAMOS_PRECIO.find(t => n <= t.hasta) ?? TRAMOS_PRECIO[TRAMOS_PRECIO.length - 1]
+  const orden = normalizarTramos(tramos)
+  const tramo = orden.find(t => t.hasta === null || n <= t.hasta) ?? orden[orden.length - 1]
   const totalMensual = tramo.precioUsuario * n
   const totalAnual = totalMensual * MESES_COBRADOS_ANUAL
   return {

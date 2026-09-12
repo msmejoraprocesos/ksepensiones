@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { evaluarCobranza, calcularNuevaVigencia, cotizar, diasEntre, DIAS_AVISO_PREVIO } from '../lib/cartera'
+import { evaluarCobranza, calcularNuevaVigencia, cotizar, diasEntre, DIAS_AVISO_PREVIO, normalizarTramos, validarTramos, TRAMOS_DEFAULT } from '../lib/cartera'
 
 const HOY = '2026-09-12'
 
@@ -118,5 +118,53 @@ describe('diferencia en días', () => {
   })
   it('es negativa hacia atrás', () => {
     expect(diasEntre('2026-09-12', '2026-09-10')).toBe(-2)
+  })
+})
+
+describe('tramos de precio editables', () => {
+  it('ordena los tramos aunque se capturen desordenados', () => {
+    const r = normalizarTramos([
+      { hasta: 30, precioUsuario: 700 },
+      { hasta: 5, precioUsuario: 1000 },
+      { hasta: null, precioUsuario: 600 },
+    ])
+    expect(r.map(t => t.hasta)).toEqual([5, 30, null])
+  })
+
+  it('convierte el último tramo en abierto si todos tienen tope', () => {
+    // Sin esto, cotizar 500 usuarios no encontraría precio.
+    const r = normalizarTramos([{ hasta: 5, precioUsuario: 1000 }, { hasta: 30, precioUsuario: 700 }])
+    expect(r[r.length - 1].hasta).toBeNull()
+  })
+
+  it('una tabla vacía cae a los valores por defecto', () => {
+    expect(normalizarTramos([])).toEqual(TRAMOS_DEFAULT)
+  })
+
+  it('cotiza con los tramos que se le pasen, no con los de fábrica', () => {
+    const propios = [{ hasta: 10, precioUsuario: 500 }, { hasta: null, precioUsuario: 300 }]
+    expect(cotizar(3, 'mensual', propios).precioUsuario).toBe(500)
+    expect(cotizar(50, 'mensual', propios).precioUsuario).toBe(300)
+  })
+
+  it('detecta un precio que sube al crecer el volumen', () => {
+    const errores = validarTramos([
+      { hasta: 5, precioUsuario: 500 },
+      { hasta: null, precioUsuario: 900 },
+    ])
+    expect(errores.some(e => /cuesta más por usuario/.test(e))).toBe(true)
+  })
+
+  it('detecta dos tramos con el mismo tope', () => {
+    const errores = validarTramos([
+      { hasta: 5, precioUsuario: 900 },
+      { hasta: 5, precioUsuario: 800 },
+      { hasta: null, precioUsuario: 700 },
+    ])
+    expect(errores.some(e => /terminan en 5/.test(e))).toBe(true)
+  })
+
+  it('los tramos por defecto son válidos', () => {
+    expect(validarTramos(TRAMOS_DEFAULT)).toEqual([])
   })
 })
