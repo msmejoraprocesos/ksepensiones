@@ -28,12 +28,11 @@ Se reutiliza `organizaciones` (ya tiene `plan`, `asientos`, `vigencia_hasta`,
 |---|---|---|
 | id | uuid | |
 | organizacion_id | uuid | FK. Una persona física también es una organización de 1 asiento |
-| tipo | text | `renta` \| `compra` |
-| periodicidad | text | `mensual` \| `anual` \| `unico` — `unico` solo para compra |
+| periodicidad | text | `mensual` \| `anual` |
 | monto | numeric | Por periodo |
 | asientos | int | Cuántos usuarios cubre |
 | fecha_inicio | date | |
-| fecha_fin | date | Null en compra |
+| fecha_fin | date | |
 | dias_tolerancia | int | Default 5 |
 | estado | text | `activo` \| `vencido` \| `cancelado` |
 | notas | text | |
@@ -43,7 +42,7 @@ Se reutiliza `organizaciones` (ya tiene `plan`, `asientos`, `vigencia_hasta`,
 |---|---|---|
 | id | uuid | |
 | contrato_id | uuid | FK |
-| monto | numeric | Permite pagos parciales |
+| monto | numeric | Sin pagos parciales: un pago cubre un periodo completo |
 | fecha_pago | date | |
 | metodo | text | transferencia, efectivo, etc. |
 | periodo_cubierto_hasta | date | Lo que este pago extiende |
@@ -82,9 +81,39 @@ pantalla de cuenta suspendida con datos de contacto.
 Semáforo por días de atraso, con totales arriba: vigentes, por vencer, en
 tolerancia, vencidos, y monto total por cobrar.
 
-## Decisiones pendientes de confirmar
+## Decisiones tomadas
 
-1. ¿La compra da acceso perpetuo, o también tiene vigencia de soporte?
-2. ¿Los pagos parciales extienden proporcionalmente o solo al completar?
-3. Al suspender, ¿se cortan todos los usuarios de la organización o hay excepciones?
-4. ¿Quién puede registrar pagos: solo super-admin o también admin de organización?
+- **Solo renta.** No hay compra ni acceso perpetuo. Todo contrato vence y se renueva.
+- **Sin pagos parciales.** Un pago cubre un periodo completo. Esto simplifica el cálculo de vigencia: no hay prorrateos ni saldos a favor.
+- **Todos los pagos los registra el super-admin.** El admin de organización no puede registrar pagos propios.
+
+## Acuerdos de palabra
+
+Caso real del negocio: se concede acceso antes de que el pago entre, por
+acuerdo verbal. Hoy eso vive en la memoria del administrador y por eso se
+olvida cobrar.
+
+### `acuerdos`
+| Campo | Tipo | Nota |
+|---|---|---|
+| id | uuid | |
+| organizacion_id | uuid | FK |
+| descripcion | text | Qué se acordó, en palabras del administrador |
+| monto_comprometido | numeric | |
+| fecha_compromiso | date | Cuándo se prometió pagar |
+| recordar_el | date | Cuándo avisar. Default: fecha_compromiso |
+| estado | text | `pendiente` \| `cumplido` \| `incumplido` |
+| pago_id | uuid | Se llena al cumplirse |
+
+Un acuerdo vencido y no cumplido aparece en el tablero junto a los vencidos,
+con la distinción visible: no es que no pagó, es que **prometió y no cumplió**.
+La suspensión sigue siendo manual y con confirmación.
+
+## Cotizador
+
+Para empresas con N usuarios. Entrada: número de usuarios y periodicidad.
+Salida: precio por usuario, total por periodo y total anual. Debe permitir
+generar el contrato directamente desde la cotización, sin recapturar.
+
+Pendiente de definir: la tabla de precios por volumen (a partir de cuántos
+usuarios baja el precio unitario y en qué proporción).

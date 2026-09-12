@@ -3,6 +3,9 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import * as XLSX from 'xlsx'
+import { useTablaOrdenada } from '@/app/hooks/useTablaOrdenada'
+import ThOrdenable from '@/components/tabla/ThOrdenable'
+import Paginador from '@/components/tabla/Paginador'
 
 const AZUL = '#1B3A6B', NARANJA = '#F05B21'
 const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n || 0)
@@ -27,6 +30,11 @@ export default function ReportesPage() {
   })
   const [fechaFin, setFechaFin] = useState(() => new Date().toISOString().slice(0, 10))
   const [datos, setDatos] = useState<any[]>([])
+
+  /* La tabla cortaba en slice(0, 50) sin avisar: con 200 registros el usuario
+     veía 50 y nada se lo decía. Ahora pagina y declara el total. La exportación
+     sigue usando `datos` completo, no la página visible. */
+  const tabla = useTablaOrdenada<any>(datos, { porPagina: 50 })
   const [cargando, setCargando] = useState(false)
   const [generando, setGenerando] = useState<'excel' | 'pdf' | null>(null)
 
@@ -280,14 +288,19 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
                 <thead>
                   <tr style={{ background: AZUL }}>
                     {cols.map((col, i) => (
-                      <th key={i} style={{ padding: '8px 12px', textAlign: 'left' as const, color: 'white', fontWeight: '700', fontSize: '10px', textTransform: 'uppercase' as const, letterSpacing: '0.5px', whiteSpace: 'nowrap' as const }}>
-                        {col.label}
-                      </th>
+                      <ThOrdenable
+                        key={i}
+                        label={col.label}
+                        campo={col.key}
+                        campoActivo={tabla.campo as string | null}
+                        direccion={tabla.direccion}
+                        onOrdenar={tabla.ordenarPor}
+                      />
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {datos.slice(0, 50).map((row, i) => (
+                  {tabla.visibles.map((row: any, i: number) => (
                     <tr key={i} style={{ borderBottom: '1px solid #F3F4F6', background: i % 2 === 0 ? 'white' : '#FAFAFA' }}>
                       {cols.map((col, j) => {
                         const val = row[col.key]
@@ -298,6 +311,15 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
                   ))}
                 </tbody>
               </table>
+              <Paginador
+                pagina={tabla.pagina}
+                totalPaginas={tabla.totalPaginas}
+                setPagina={tabla.setPagina}
+                desde={tabla.desde}
+                hasta={tabla.hasta}
+                total={tabla.total}
+                etiqueta="registros"
+              />
             </div>
             {datos.length > 50 && (
               <div style={{ padding: '10px 16px', background: '#F8FAFC', borderTop: '1px solid #E5E7EB', fontSize: '12px', color: '#6B7280', textAlign: 'center' as const }}>

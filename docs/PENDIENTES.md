@@ -14,6 +14,14 @@ Lo que queda abierto, ordenado por impacto. Cerrar la línea al terminar.
 - [ ] **Auditar rutas que usan `service_role`.** Se restauraron los GRANT tras encontrar un revoke masivo, pero nunca se verificó qué llevaba tiempo fallando en silencio.
 - [ ] **Denominador oficial del retorno.** La app divide entre inversión neta, el Excel entre costo total. Documentado en `lib/design-tokens.ts`; falta confirmación formal.
 
+## Módulo de cartera — en construcción
+
+Diseño en `docs/MODULO-CARTERA.md`. Hecho: migración de `contratos`, `pagos_contrato` y `acuerdos`; lógica de vigencias y cotizador en `lib/cartera.ts` con 22 tests.
+
+Falta: la interfaz (alta de contrato, registro de pago, tablero de cartera, cotizador), y **la validación de acceso** — hoy `organizaciones.activo` no bloquea nada, así que suspender no tiene efecto real.
+
+Pendiente de definir: la tabla de precios por volumen. Los tramos actuales en `TRAMOS_PRECIO` son provisionales.
+
 ## Si se retoma el cobro
 
 El módulo de suscripción con Stripe se eliminó en esta fase. Lo que quedó en pie por si se retoma:
@@ -27,7 +35,7 @@ El módulo de suscripción con Stripe se eliminó en esta fase. Lo que quedó en
 
 - [ ] Los iconos del sidebar son emojis (💳 ⚙ 🔬 📊). Se ven distintos en cada sistema operativo y conviven mal con el rediseño.
 
-- [ ] Paginación y ordenamiento en Clientes, Seguimiento y Reportes. Hoy cargan todo sin ordenar.
+- [x] Paginación y ordenamiento en Clientes y Reportes. *(Seguimiento resultó ser vista de calendario, no tabla: no aplica.)*
 - [ ] Reemplazar los 16 `alert()` y mensajes genéricos por errores específicos.
 - [ ] Skeletons de carga. No existe ninguno.
 - [ ] Manifest PWA. La app no es instalable.
