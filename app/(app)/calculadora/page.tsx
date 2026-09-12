@@ -2439,20 +2439,20 @@ function CalculadoraInner() {
               </div>
 
               {/* Paso 2: Modo de entrada */}
-              <div style={{ border: `2px solid ${datos.semanas_totales > 0 ? VERDE : '#E5E7EB'}`, padding: '14px 16px', background: datos.semanas_totales > 0 ? '#F0FDF4' : 'white', borderRadius: '10px', transition: 'all 0.2s' }}>
+              <div style={{ border: `1px solid ${datos.semanas_totales > 0 ? VERDE + '44' : '#E1E7F0'}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '22px 24px', background: datos.semanas_totales > 0 ? '#E6F4EE' : 'white', transition: 'all 0.2s' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: datos.semanas_totales > 0 ? '0' : '12px' }}>
-                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: datos.semanas_totales > 0 ? VERDE : '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '13px', fontWeight: '700' as const, color: 'white' }}>
+                  <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: datos.semanas_totales > 0 ? VERDE : '#F5F7FA', color: datos.semanas_totales > 0 ? 'white' : '#66738A', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '15px' }}>
                     {datos.semanas_totales > 0 ? '✓' : '2'}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ margin: 0, fontSize: '13px', fontWeight: '700' as const, color: datos.semanas_totales > 0 ? VERDE : '#374151' }}>
+                    <p style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: '#132135' }}>
                       {datos.semanas_totales > 0 ? `Datos cargados — ${datos.semanas_totales} semanas` : 'Datos del trabajador'}
                     </p>
-                    {datos.semanas_totales === 0 && !modoEntrada && <p style={{ margin: '1px 0 0', fontSize: '15px', color: '#94A3B8' }}>¿Cómo quieres ingresar los datos?</p>}
+                    {datos.semanas_totales === 0 && !modoEntrada && <p style={{ margin: '4px 0 0', fontSize: '15px', color: '#66738A' }}>¿Cómo quieres ingresar los datos?</p>}
                   </div>
                   {modoEntrada && datos.semanas_totales === 0 && (
                     <button onClick={() => setModoEntrada(null)}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', color: '#94A3B8', padding: '2px 4px' }}>← Cambiar</button>
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '15px', color: '#66738A', padding: '6px 8px', fontFamily: 'inherit' }}>‹ Cambiar</button>
                   )}
                 </div>
 
@@ -2460,24 +2460,24 @@ function CalculadoraInner() {
                   <>
                     {/* Pantalla A: Selección de modo */}
                     {!modoEntrada && (
-                      <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '12px' }}>
                         <button onClick={() => setModoEntrada('auto')}
-                          style={{ width: '100%', padding: '14px 16px', background: '#EEF2F8', border: `1.5px solid ${AZUL}`, borderRadius: '10px', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '12px', textAlign: 'left' as const }}>
-                          <span style={{ fontSize: '24px' }}>📎</span>
+                          style={{ width: '100%', padding: '20px', background: 'white', border: `2px solid ${NARANJA}`, borderRadius: '14px', cursor: 'pointer', boxShadow: '0 4px 16px rgba(232,98,44,0.14)', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '12px', textAlign: 'left' as const }}>
+                          <span style={{ width: 42, height: 42, borderRadius: '50%', flexShrink: 0, background: '#FDF0E9', color: NARANJA, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>⇪</span>
                           <div>
-                            <div style={{ fontSize: '13px', fontWeight: '700' as const, color: AZUL }}>Cargar constancia PDF</div>
-                            <div style={{ fontSize: '15px', color: '#64748B', marginTop: '2px' }}>Sofía IA extrae los datos automáticamente</div>
+                            <div style={{ fontSize: '17px', fontWeight: 700, color: '#132135' }}>Cargar constancia del IMSS</div>
+                            <div style={{ fontSize: '15px', color: '#66738A', marginTop: '3px', lineHeight: 1.5 }}>Sofía lee el PDF y llena los datos sola. Es la vía recomendada: evita errores de captura.</div>
                           </div>
-                          <span style={{ marginLeft: 'auto', fontSize: '18px', color: AZUL }}>→</span>
+                          <span style={{ marginLeft: 'auto', fontSize: '20px', color: NARANJA, alignSelf: 'center' }}>›</span>
                         </button>
                         <button onClick={() => setModoEntrada('manual')}
-                          style={{ width: '100%', padding: '14px 16px', background: 'white', border: '1.5px solid #E2E8F0', borderRadius: '10px', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '12px', textAlign: 'left' as const }}>
-                          <span style={{ fontSize: '24px' }}>✏️</span>
+                          style={{ width: '100%', padding: '20px', background: 'white', border: '1px solid #E1E7F0', borderRadius: '14px', cursor: 'pointer', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '12px', textAlign: 'left' as const }}>
+                          <span style={{ width: 42, height: 42, borderRadius: '50%', flexShrink: 0, background: '#F5F7FA', color: '#66738A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>✎</span>
                           <div>
-                            <div style={{ fontSize: '13px', fontWeight: '700' as const, color: '#374151' }}>Captura manual</div>
-                            <div style={{ fontSize: '15px', color: '#64748B', marginTop: '2px' }}>Ingresa los datos del NSS y semanas tú mismo</div>
+                            <div style={{ fontSize: '17px', fontWeight: 700, color: '#132135' }}>Capturar a mano</div>
+                            <div style={{ fontSize: '15px', color: '#66738A', marginTop: '3px', lineHeight: 1.5 }}>Para cuando no tienes el PDF o la constancia es un escaneo.</div>
                           </div>
-                          <span style={{ marginLeft: 'auto', fontSize: '18px', color: '#CBD5E1' }}>→</span>
+                          <span style={{ marginLeft: 'auto', fontSize: '20px', color: '#C7D0DD', alignSelf: 'center' }}>›</span>
                         </button>
                       </div>
                     )}
@@ -2485,19 +2485,19 @@ function CalculadoraInner() {
                     {/* Pantalla B: Carga automática PDF */}
                     {modoEntrada === 'auto' && (
                       <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
-                        <p style={{ margin: '0 0 4px', fontSize: '12px', color: '#64748B' }}>
-                          Selecciona el PDF de la constancia oficial del IMSS (SISEC). Sofía IA leerá y extraerá los datos automáticamente.
+                        <p style={{ margin: '0 0 6px', fontSize: '15px', color: '#66738A', lineHeight: 1.55 }}>
+                          Debe ser el PDF que emite SISEC, no una foto ni un escaneo. Sofía lee el documento y llena los datos.
                         </p>
-                        <label style={{ width: '100%', padding: '13px', background: extracting ? '#E2E8F0' : AZUL, color: 'white', cursor: extracting ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600' as const, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxSizing: 'border-box' as const, opacity: extracting ? 0.8 : 1, borderRadius: '8px' }}>
-                          {extracting ? '⏳ Extrayendo datos...' : '📎 Seleccionar archivo PDF'}
+                        <label style={{ width: '100%', padding: '15px', background: extracting ? '#E1E7F0' : NARANJA, color: extracting ? '#66738A' : 'white', boxShadow: extracting ? 'none' : '0 3px 10px rgba(232,98,44,0.34)', cursor: extracting ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600' as const, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxSizing: 'border-box' as const, opacity: extracting ? 0.8 : 1, borderRadius: '8px' }}>
+                          {extracting ? 'Extrayendo datos…' : 'Seleccionar archivo PDF'}
                           <input type="file" accept=".pdf" style={{ display: 'none' }} disabled={extracting} onChange={e => {
                             const f = e.target.files?.[0]
                             if (f) extraerPDF(f)
                           }} />
                         </label>
                         {extracting && (
-                          <div style={{ background: '#EEF2F8', borderRadius: '8px', padding: '10px 12px', fontSize: '15px', color: AZUL }}>
-                            Sofía IA está leyendo el documento... esto toma entre 10 y 30 segundos.
+                          <div style={{ background: '#F5F7FA', borderRadius: '10px', padding: '14px 16px', fontSize: '15px', color: '#132135', lineHeight: 1.55 }}>
+                            Sofía está leyendo el documento. Suele tomar entre 10 y 30 segundos.
                           </div>
                         )}
                         <p style={{ margin: 0, fontSize: '14px', color: '#94A3B8' }}>Solo archivos PDF del portal oficial del IMSS. No funciona con fotos ni escaneos.</p>
