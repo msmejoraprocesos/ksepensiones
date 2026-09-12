@@ -171,9 +171,9 @@ export default function SeguimientoPage() {
     return (
       <div style={{ flex: 1, overflow: 'auto', padding: '0' }}>
         {/* Cabecera días */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '1px solid #E1E7F0' }}>
           {DIAS.map(d => (
-            <div key={d} style={{ padding: '8px 0', textAlign: 'center', fontSize: '15px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>{d}</div>
+            <div key={d} style={{ padding: '8px 0', textAlign: 'center', fontSize: '15px', fontWeight: '700', color: '#94a3b8' }}>{d}</div>
           ))}
         </div>
         {/* Semanas */}
@@ -227,14 +227,14 @@ export default function SeguimientoPage() {
     return (
       <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         {/* Cabecera días */}
-        <div style={{ display: 'grid', gridTemplateColumns: `56px repeat(${dias.length}, 1fr)`, borderBottom: '1px solid #e2e8f0', background: 'white', flexShrink: 0 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: `56px repeat(${dias.length}, 1fr)`, borderBottom: '1px solid #E1E7F0', background: 'white', flexShrink: 0 }}>
           <div />
           {dias.map((d, i) => {
             const esHoy = isSameDay(d, hoy)
             return (
               <div key={i} onClick={() => { setFecha(d); if (vista === 'semana') setVista('dia') }}
                 style={{ padding: '8px 4px', textAlign: 'center', cursor: 'pointer', borderLeft: '1px solid #f1f5f9' }}>
-                <div style={{ fontSize: '15px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: '600' }}>{DIAS[d.getDay()]}</div>
+                <div style={{ fontSize: '15px', color: '#94a3b8', fontWeight: '600' }}>{DIAS[d.getDay()]}</div>
                 <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: esHoy ? AZUL : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: esHoy ? '700' : '500', color: esHoy ? 'white' : '#374151', margin: '2px auto 0' }}>
                   {d.getDate()}
                 </div>
@@ -302,19 +302,19 @@ export default function SeguimientoPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)', background: 'white', overflow: 'hidden' }}>
       {/* Header */}
-      <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '10px 20px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div style={{ background: 'white', borderBottom: '1px solid #E1E7F0', padding: '10px 20px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
         {/* Nav */}
-        <button onClick={() => navegar(-1)} style={{ width: '28px', height: '28px', borderRadius: '10px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>‹</button>
-        <button onClick={() => setFecha(new Date())} style={{ padding: '4px 12px', borderRadius: '10px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', fontSize: '15px', fontWeight: '600', color: '#374151' }}>Hoy</button>
+        <button onClick={() => navegar(-1)} style={{ width: '28px', height: '28px', borderRadius: '10px', border: '1px solid #E1E7F0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>‹</button>
+        <button onClick={() => setFecha(new Date())} style={{ padding: '4px 12px', borderRadius: '10px', border: '1px solid #E1E7F0', background: 'white', cursor: 'pointer', fontSize: '15px', fontWeight: '600', color: '#374151' }}>Hoy</button>
         <button onClick={() => { setFechaBuscar(fecha.toISOString().split('T')[0]); setShowBuscarFecha(true) }}
           title="Buscar fecha"
-          style={{ width: '28px', height: '28px', borderRadius: '10px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>📅</button>
-        <button onClick={() => navegar(1)} style={{ width: '28px', height: '28px', borderRadius: '10px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>›</button>
+          style={{ width: '28px', height: '28px', borderRadius: '10px', border: '1px solid #E1E7F0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>📅</button>
+        <button onClick={() => navegar(1)} style={{ width: '28px', height: '28px', borderRadius: '10px', border: '1px solid #E1E7F0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>›</button>
 
         <h2 style={{ fontSize: '15px', fontWeight: '700', color: AZUL, margin: 0, flex: 1, textTransform: 'capitalize' }}>{titulo()}</h2>
 
         {/* Vista toggles */}
-        <div style={{ display: 'flex', border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', border: '1px solid #E1E7F0', borderRadius: '10px', overflow: 'hidden' }}>
           {(['mes', 'semana', 'dia'] as const).map(v => (
             <button key={v} onClick={() => setVista(v)}
               style={{ padding: '6px 12px', background: vista === v ? AZUL : 'white', color: vista === v ? 'white' : '#64748b', border: 'none', cursor: 'pointer', fontSize: '15px', fontWeight: '600', textTransform: 'capitalize' }}>
@@ -441,7 +441,7 @@ export default function SeguimientoPage() {
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: '15px', fontWeight: '700', color: '#1e293b' }}>{detalle.titulo}</div>
-                      <div style={{ fontSize: '15px', color: cfg.color, fontWeight: '600', textTransform: 'uppercase' }}>{cfg.label}</div>
+                      <div style={{ fontSize: '15px', color: cfg.color, fontWeight: '600' }}>{cfg.label}</div>
                     </div>
                     <button onClick={() => setDetalle(null)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
                   </div>
@@ -497,7 +497,7 @@ export default function SeguimientoPage() {
                       {detalle.estatus === 'pendiente' ? '✅ Completar' : '🔄 Reabrir'}
                     </button>
                     <button onClick={() => { setDetalle(null) }}
-                      style={{ flex: 1, padding: '9px', background: '#F4F6F9', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                      style={{ flex: 1, padding: '9px', background: '#F4F6F9', color: '#64748b', border: '1px solid #E1E7F0', borderRadius: '10px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
                       ✕ Cerrar
                     </button>
                     <button onClick={() => eliminar(detalle.id)}

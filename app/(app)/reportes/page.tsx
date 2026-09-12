@@ -226,11 +226,11 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr auto auto', gap: '12px', alignItems: 'flex-end' }}>
 
           <div>
-            <label style={{ fontSize: '10.5px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>Tipo de reporte</label>
+            <label style={{ fontSize: '10.5px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Tipo de reporte</label>
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const }}>
               {REPORTES.map(r => (
                 <button key={r.id} onClick={() => { setTipoReporte(r.id as Reporte); setDatos([]) }}
-                  style={{ padding: '6px 12px', background: tipoReporte === r.id ? AZUL : 'white', color: tipoReporte === r.id ? 'white' : '#374151', border: `1px solid ${tipoReporte === r.id ? AZUL : '#E5E7EB'}`, fontSize: '12px', fontWeight: tipoReporte === r.id ? '700' : '400', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
+                  style={{ padding: '6px 12px', background: tipoReporte === r.id ? AZUL : 'white', color: tipoReporte === r.id ? 'white' : '#374151', border: `1px solid ${tipoReporte === r.id ? AZUL : '#E5E7EB'}`, fontSize: '13px', fontWeight: tipoReporte === r.id ? '700' : '400', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                   {r.label}
                 </button>
               ))}
@@ -240,12 +240,12 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
           {tipoReporte !== 'cartera' && (
             <>
               <div>
-                <label style={{ fontSize: '10.5px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>Desde</label>
+                <label style={{ fontSize: '10.5px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Desde</label>
                 <input type="date" value={fechaInicio} onChange={e => setFechaInicio(e.target.value)}
                   style={{ width: '100%', padding: '7px 10px', border: '1px solid #D1D5DB', fontSize: '13px', borderRadius: '10px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
               </div>
               <div>
-                <label style={{ fontSize: '10.5px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>Hasta</label>
+                <label style={{ fontSize: '10.5px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Hasta</label>
                 <input type="date" value={fechaFin} onChange={e => setFechaFin(e.target.value)}
                   style={{ width: '100%', padding: '7px 10px', border: '1px solid #D1D5DB', fontSize: '13px', borderRadius: '10px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
               </div>
@@ -271,11 +271,11 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
             </p>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button onClick={exportarExcel} disabled={generando === 'excel'}
-                style={{ padding: '7px 14px', background: '#16A34A', color: 'white', border: 'none', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', opacity: generando === 'excel' ? 0.7 : 1 }}>
+                style={{ padding: '7px 14px', background: '#16A34A', color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', opacity: generando === 'excel' ? 0.7 : 1 }}>
                 {generando === 'excel' ? 'Generando...' : '📊 Exportar Excel'}
               </button>
               <button onClick={exportarPDF} disabled={generando === 'pdf'}
-                style={{ padding: '7px 14px', background: NARANJA, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', opacity: generando === 'pdf' ? 0.7 : 1 }}>
+                style={{ padding: '7px 14px', background: NARANJA, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', opacity: generando === 'pdf' ? 0.7 : 1 }}>
                 {generando === 'pdf' ? 'Generando...' : '📄 Exportar PDF'}
               </button>
             </div>
@@ -284,7 +284,7 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
           {/* Tabla de preview */}
           <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', overflow: 'hidden' }}>
             <div style={{ overflowX: 'auto' as const }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '12px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '13px' }}>
                 <thead>
                   <tr style={{ background: AZUL }}>
                     {cols.map((col, i) => (
@@ -322,7 +322,7 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
               />
             </div>
             {datos.length > 50 && (
-              <div style={{ padding: '10px 16px', background: '#F8FAFC', borderTop: '1px solid #E5E7EB', fontSize: '12px', color: '#6B7280', textAlign: 'center' as const }}>
+              <div style={{ padding: '10px 16px', background: '#F8FAFC', borderTop: '1px solid #E5E7EB', fontSize: '13px', color: '#6B7280', textAlign: 'center' as const }}>
                 Mostrando 50 de {datos.length} registros — el archivo exportado incluye todos
               </div>
             )}

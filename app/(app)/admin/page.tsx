@@ -569,7 +569,7 @@ function AdminFormulasInner() {
                 <div className="af-wrap">
                   {Object.entries(FACTOR_EDAD_RETIRO).filter(([e]) => parseInt(e) <= 65).map(([edad, factor]) => (
                     <div key={edad} style={{ flex: '1 0 80px', padding: '12px', background: parseInt(edad) === 65 ? '#F0FDF4' : '#F9FAFB', border: '1px solid ' + (parseInt(edad) === 65 ? '#86EFAC' : '#E1E7F0'), textAlign: 'center' }}>
-                      <div style={{ fontSize: '13px', color: '#9CA3AF', fontWeight: '600', textTransform: 'uppercase', marginBottom: '4px' }}>{edad} años</div>
+                      <div style={{ fontSize: '13px', color: '#9CA3AF', fontWeight: '600', marginBottom: '4px' }}>{edad} años</div>
                       <div style={{ fontSize: '22px', fontWeight: '900', color: parseInt(edad) === 65 ? '#065F46' : AZUL }}>{(factor * 100).toFixed(0)}%</div>
                       <div style={{ fontSize: '9.5px', color: '#9CA3AF', marginTop: '2px' }}>{parseInt(edad) === 65 ? 'Vejez' : 'Cesantía'}</div>
                     </div>

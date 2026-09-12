@@ -1173,7 +1173,7 @@ function ClientesInner() {
                     const saldo = Math.max(0, (c.monto_acordado ?? 0) - (c.total_pagado ?? 0))
                     return (
                       <tr key={c.id} style={{ borderBottom: i < filtered.length - 1 ? '1px solid #f1f5f9' : 'none', cursor: 'pointer' }} onClick={() => openExpediente(c)}>
-                        <td style={{ padding: '10px 12px', borderLeft: `4px solid ${SERVICIO_COLORS[c.tipo_servicio || ''] || 'transparent'}` }}>
+                        <td style={{ padding: '10px 12px', border: '1px solid #E1E7F0' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <div style={{ width: '30px', height: '30px', background: AZUL, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '15px', fontWeight: '700', flexShrink: 0 }}>
                               {c.nombre.charAt(0).toUpperCase()}
@@ -1318,7 +1318,7 @@ function ClientesInner() {
                           onDragStart={e => { if (!col.esFinal) { setDragging(cliente.id); e.dataTransfer.effectAllowed = 'move' } }}
                           onDragEnd={() => { setDragging(null); setDragOver(null) }}
                           onClick={() => openExpediente(cliente)}
-                          style={{ background: 'white', borderRadius: '10px', padding: '11px', border: `1px solid ${dragging === cliente.id ? col.color : '#e2e8f0'}`, borderLeft: `4px solid ${SERVICIO_COLORS[cliente.tipo_servicio || ''] || '#e2e8f0'}`, cursor: col.esFinal ? 'pointer' : 'grab', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', opacity: dragging === cliente.id ? 0.5 : 1 }}>
+                          style={{ background: 'white', borderRadius: '10px', padding: '11px', border: `1px solid ${dragging === cliente.id ? col.color : '#E1E7F0'}`, cursor: col.esFinal ? 'pointer' : 'grab', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', opacity: dragging === cliente.id ? 0.5 : 1 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                             <div style={{ width: '26px', height: '26px', borderRadius: '50%', background: AZUL, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '13px', fontWeight: '700', flexShrink: 0 }}>
                               {cliente.nombre.charAt(0).toUpperCase()}
@@ -1586,12 +1586,12 @@ function ClientesInner() {
                         { label: 'Email', key: 'email', type: 'email', placeholder: 'correo@ejemplo.com' },
                       ].map((f, i) => (
                         <div key={i}>
-                          <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>{f.label}</label>
+                          <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '4px' }}>{f.label}</label>
                           <input type={f.type} value={(formEdit as any)[f.key]} onChange={e => setFormEdit(p => ({ ...p, [f.key]: e.target.value }))} placeholder={f.placeholder} style={inputSt} />
                         </div>
                       ))}
                       <div>
-                        <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Notas</label>
+                        <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '4px' }}>Notas</label>
                         <textarea value={formEdit.notas} onChange={e => setFormEdit(p => ({ ...p, notas: e.target.value }))} rows={2} style={{ ...inputSt, resize: 'none' }} />
                       </div>
                     </div>
@@ -1640,7 +1640,7 @@ function ClientesInner() {
                           {selected.tipo_servicio === 'asesoria' ? (
                             editando ? (
                               <div>
-                                <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Monto acordado ($)</label>
+                                <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '4px' }}>Monto acordado ($)</label>
                                 <input type="number" defaultValue={selected.monto_acordado ?? ''}
                                   onBlur={e => actualizarCliente(selected.id, { monto_acordado: e.target.value ? parseFloat(e.target.value) : null, esquema_pago: 'monto_acordado' })}
                                   placeholder="Ej. 3500" style={inputSt} />
@@ -1651,7 +1651,7 @@ function ClientesInner() {
                           ) : editando ? (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                               <div>
-                                <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Esquema</label>
+                                <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '4px' }}>Esquema</label>
                                 <select defaultValue={selected.esquema_pago ?? ''}
                                   disabled={pagos.length > 0}
                                   onChange={e => actualizarCliente(selected.id, {
@@ -1671,7 +1671,7 @@ function ClientesInner() {
 
                               {selected.esquema_pago === 'monto_acordado' && (
                                 <div>
-                                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Monto acordado ($)</label>
+                                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '4px' }}>Monto acordado ($)</label>
                                   <input type="number" defaultValue={selected.monto_acordado ?? ''}
                                     onBlur={e => actualizarCliente(selected.id, { monto_acordado: e.target.value ? parseFloat(e.target.value) : null })}
                                     placeholder="Ej. 18000" style={inputSt} />
@@ -1681,13 +1681,13 @@ function ClientesInner() {
                               {selected.esquema_pago === 'meses_pension' && (
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                                   <div>
-                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Pensión mensual ($)</label>
+                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '4px' }}>Pensión mensual ($)</label>
                                     <input type="number" defaultValue={selected.monto_pension_mensual ?? ''}
                                       onBlur={e => actualizarCliente(selected.id, { monto_pension_mensual: e.target.value ? parseFloat(e.target.value) : null })}
                                       placeholder="Ej. 8000" style={inputSt} />
                                   </div>
                                   <div>
-                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Meses a cobrar</label>
+                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '4px' }}>Meses a cobrar</label>
                                     <input type="number" defaultValue={selected.numero_meses_cobro ?? ''}
                                       onBlur={e => actualizarCliente(selected.id, { numero_meses_cobro: e.target.value ? parseInt(e.target.value) : null })}
                                       placeholder="Ej. 2" style={inputSt} />
@@ -1704,13 +1704,13 @@ function ClientesInner() {
                               {selected.esquema_pago === 'porcentaje_recuperado' && (
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                                   <div>
-                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>% a cobrar</label>
+                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '4px' }}>% a cobrar</label>
                                     <input type="number" defaultValue={selected.porcentaje_recuperacion ?? ''}
                                       onBlur={e => actualizarCliente(selected.id, { porcentaje_recuperacion: e.target.value ? parseFloat(e.target.value) : null })}
                                       placeholder="Ej. 10" style={inputSt} />
                                   </div>
                                   <div>
-                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' }}>Monto recuperado ($)</label>
+                                    <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '4px' }}>Monto recuperado ($)</label>
                                     <input type="number" defaultValue={selected.monto_recuperado ?? ''}
                                       onBlur={e => actualizarCliente(selected.id, { monto_recuperado: e.target.value ? parseFloat(e.target.value) : null })}
                                       placeholder="Se define al cierre" style={inputSt} />
@@ -1828,12 +1828,12 @@ function ClientesInner() {
                     {diagSel && (
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                         <div style={{ background: '#F5F7FA', borderRadius: '10px', padding: '12px', border: '1px solid #e2e8f0' }}>
-                          <p style={{ fontSize: '13px', color: '#94a3b8', margin: '0 0 4px', textTransform: 'uppercase', fontWeight: '700' }}>Capital a financiar (Mod 40)</p>
+                          <p style={{ fontSize: '13px', color: '#94a3b8', margin: '0 0 4px', fontWeight: '700' }}>Capital a financiar (Mod 40)</p>
                           <p style={{ fontSize: '20px', fontWeight: '700', color: '#245287', margin: 0 }}>{fmtM(capitalBase)}</p>
                           <p style={{ fontSize: '13px', color: '#94a3b8', margin: '3px 0 0' }}>Del diagnóstico seleccionado</p>
                         </div>
                         <div style={{ background: '#F0FDF4', borderRadius: '10px', padding: '12px', border: '1px solid #bbf7d0' }}>
-                          <p style={{ fontSize: '13px', color: '#94a3b8', margin: '0 0 4px', textTransform: 'uppercase', fontWeight: '700' }}>Pensión estimada</p>
+                          <p style={{ fontSize: '13px', color: '#94a3b8', margin: '0 0 4px', fontWeight: '700' }}>Pensión estimada</p>
                           <p style={{ fontSize: '20px', fontWeight: '700', color: '#2E8B57', margin: 0 }}>{fmtM(pensionBase)}/mes</p>
                           <p style={{ fontSize: '13px', color: '#94a3b8', margin: '3px 0 0' }}>Escenario elegido en el diagnóstico</p>
                         </div>
@@ -1849,14 +1849,14 @@ function ClientesInner() {
                         {/* Configuración */}
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                           <div>
-                            <label style={{ fontSize: '13px', fontWeight: '700', color: '#475569', display: 'block', marginBottom: '4px', textTransform: 'uppercase' }}>Financiera aliada</label>
+                            <label style={{ fontSize: '13px', fontWeight: '700', color: '#475569', display: 'block', marginBottom: '4px' }}>Financiera aliada</label>
                             <select value={finSelId} onChange={e => setFinSelId(e.target.value)}
                               style={{ width: '100%', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '13px', fontFamily: 'inherit' }}>
                               {financieras.map(f => <option key={f.id} value={f.id}>{f.nombre} — {f.tasa_anual}% anual</option>)}
                             </select>
                           </div>
                           <div>
-                            <label style={{ fontSize: '13px', fontWeight: '700', color: '#475569', display: 'block', marginBottom: '4px', textTransform: 'uppercase' }}>Plazo</label>
+                            <label style={{ fontSize: '13px', fontWeight: '700', color: '#475569', display: 'block', marginBottom: '4px' }}>Plazo</label>
                             <div style={{ display: 'flex', gap: '6px' }}>
                               {finSel && [12, 24, 36, 48].filter(p => p >= finSel.plazo_min && p <= finSel.plazo_max).map(p => (
                                 <button key={p} onClick={() => setFinPlazo(p)}
@@ -1871,7 +1871,7 @@ function ClientesInner() {
                         {/* KPIs viabilidad */}
                         {corrida && (
                           <div style={{ background: '#F5F7FA', borderRadius: '10px', border: `2px solid ${corrida.cuota < pensionBase ? '#bbf7d0' : '#fecaca'}`, padding: '14px' }}>
-                            <p style={{ fontSize: '15px', fontWeight: '700', color: '#475569', margin: '0 0 10px', textTransform: 'uppercase' }}>Análisis de viabilidad</p>
+                            <p style={{ fontSize: '15px', fontWeight: '700', color: '#475569', margin: '0 0 10px' }}>Análisis de viabilidad</p>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '12px' }}>
                               {[
                                 { label: 'Cuota mensual', value: fmtM(corrida.cuota), sub: `${finSel?.tasa_anual}% · ${finPlazo}m`, color: '#E8622C' },
@@ -1902,13 +1902,13 @@ function ClientesInner() {
                         {/* Tabla amortización */}
                         {corrida && (
                           <div>
-                            <p style={{ fontSize: '15px', fontWeight: '700', color: '#475569', margin: '0 0 8px', textTransform: 'uppercase' }}>Tabla de amortización — primeros 6 meses de {finPlazo}</p>
+                            <p style={{ fontSize: '15px', fontWeight: '700', color: '#475569', margin: '0 0 8px' }}>Tabla de amortización — primeros 6 meses de {finPlazo}</p>
                             <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '10px' }}>
                               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }}>
                                 <thead>
                                   <tr style={{ background: '#F4F6F9' }}>
                                     {['#', 'Cuota', 'Capital', 'Interés', 'Saldo'].map((h, i) => (
-                                      <th key={i} style={{ padding: '7px 10px', textAlign: i === 0 ? 'center' : 'right', fontSize: '13px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
+                                      <th key={i} style={{ padding: '7px 10px', textAlign: i === 0 ? 'center' : 'right', fontSize: '13px', fontWeight: '700', color: '#64748b', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
                                     ))}
                                   </tr>
                                 </thead>
@@ -1961,7 +1961,7 @@ function ClientesInner() {
                                 { label: 'Saldo', value: fmtMXN(saldo), color: saldo > 0 ? '#ef4444' : VERDE, bg: saldo > 0 ? '#fef2f2' : '#f0fdf4' },
                               ].map((k, i) => (
                                 <div key={i} style={{ background: k.bg, borderRadius: '10px', padding: '10px 12px', border: '1px solid #e2e8f0' }}>
-                                  <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase', marginBottom: '3px' }}>{k.label}</div>
+                                  <div style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '3px' }}>{k.label}</div>
                                   <div style={{ fontSize: '15px', fontWeight: '800', color: k.color }}>{k.value}</div>
                                 </div>
                               ))}
@@ -2251,7 +2251,7 @@ function ClientesInner() {
 
                       {/* Tipo de contacto */}
                       <div style={{ marginBottom: '10px' }}>
-                        <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '6px', textTransform: 'uppercase' as const }}>¿Cómo fue el contacto? *</label>
+                        <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '6px' }}>¿Cómo fue el contacto? *</label>
                         <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
                           {catalogos.tipo_contacto.map((c: any) => (
                             <button key={c.valor} type="button" onClick={() => setFormActividad(p => ({ ...p, tipo_contacto: c.valor }))}
@@ -2265,7 +2265,7 @@ function ClientesInner() {
                       {/* Resultado */}
                       {formActividad.tipo_contacto && (
                         <div style={{ marginBottom: '10px' }}>
-                          <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '6px', textTransform: 'uppercase' as const }}>¿Cuál fue el resultado?</label>
+                          <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '6px' }}>¿Cuál fue el resultado?</label>
                           <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
                             {catalogos.resultado.map((c: any) => (
                               <button key={c.valor} type="button" onClick={() => setFormActividad(p => ({ ...p, resultado: c.valor }))}
@@ -2280,7 +2280,7 @@ function ClientesInner() {
                       {/* Próximo paso */}
                       {formActividad.resultado && (
                         <div style={{ marginBottom: '10px' }}>
-                          <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '6px', textTransform: 'uppercase' as const }}>¿Cuál es el próximo paso?</label>
+                          <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '6px' }}>¿Cuál es el próximo paso?</label>
                           <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
                             {catalogos.proximo_paso.map((c: any) => (
                               <button key={c.valor} type="button" onClick={() => setFormActividad(p => ({ ...p, proximo_paso: c.valor }))}
@@ -2306,7 +2306,7 @@ function ClientesInner() {
 
                       {/* Nota opcional */}
                       <div style={{ marginBottom: '10px' }}>
-                        <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '4px', textTransform: 'uppercase' as const }}>Nota adicional (opcional)</label>
+                        <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '4px' }}>Nota adicional (opcional)</label>
                         <input value={formActividad.notas} onChange={e => setFormActividad(p => ({ ...p, notas: e.target.value }))} placeholder="Detalles relevantes de la conversación..." style={inputSt} />
                       </div>
 
@@ -2371,7 +2371,7 @@ function ClientesInner() {
                 ⚠️ La canalización requiere aprobación del org-admin. El cliente seguirá asignado a ti hasta que se apruebe.
               </div>
               <div>
-                <label style={{ fontSize: '14px', fontWeight: '700', color: '#66738A', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>Asesor destino *</label>
+                <label style={{ fontSize: '14px', fontWeight: '700', color: '#66738A', display: 'block', marginBottom: '4px' }}>Asesor destino *</label>
                 <select value={canalizarDestino} onChange={e => setCanalizarDestino(e.target.value)}
                   style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', borderRadius: '10px', fontFamily: 'inherit', background: 'white' }}>
                   <option value="">Selecciona un asesor...</option>
@@ -2381,7 +2381,7 @@ function ClientesInner() {
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: '14px', fontWeight: '700', color: '#66738A', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>Motivo *</label>
+                <label style={{ fontSize: '14px', fontWeight: '700', color: '#66738A', display: 'block', marginBottom: '4px' }}>Motivo *</label>
                 <textarea value={canalizarMotivo} onChange={e => setCanalizarMotivo(e.target.value)}
                   placeholder="Ej. Exceso de carga de trabajo, especialidad requerida, zona geográfica..."
                   rows={3}
@@ -2462,7 +2462,7 @@ function ClientesInner() {
               ) : (
                 <>
                   <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: '10px', padding: '12px' }}>
-                    <p style={{ fontSize: '15px', color: '#15803D', fontWeight: '700', margin: '0 0 6px', textTransform: 'uppercase' as const }}>Link generado</p>
+                    <p style={{ fontSize: '15px', color: '#15803D', fontWeight: '700', margin: '0 0 6px' }}>Link generado</p>
                     <p style={{ fontSize: '15px', color: '#374151', margin: 0, wordBreak: 'break-all' as const }}>{encuestaLink}</p>
                   </div>
                   <button onClick={() => {
@@ -2817,11 +2817,11 @@ function ClientesInner() {
             return (
               <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
                 <div style={{ flex: 1, background: '#f0fdf4', borderRadius: '10px', padding: '8px 12px' }}>
-                  <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase' }}>Total pagado</div>
+                  <div style={{ fontSize: '13px', color: '#94a3b8' }}>Total pagado</div>
                   <div style={{ fontSize: '13px', fontWeight: '700', color: VERDE }}>{fmtMXN(selected.total_pagado ?? 0)}</div>
                 </div>
                 <div style={{ flex: 1, background: '#fef2f2', borderRadius: '10px', padding: '8px 12px', border: '1px solid #fecaca' }}>
-                  <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase' }}>Devolución máxima</div>
+                  <div style={{ fontSize: '13px', color: '#94a3b8' }}>Devolución máxima</div>
                   <div style={{ fontSize: '13px', fontWeight: '800', color: '#ef4444' }}>{fmtMXN(selected.total_pagado ?? 0)}</div>
                 </div>
               </div>
@@ -2830,15 +2830,15 @@ function ClientesInner() {
           return (
             <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
               <div style={{ flex: 1, background: '#F4F6F9', borderRadius: '10px', padding: '8px 12px' }}>
-                <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase' }}>Acordado</div>
+                <div style={{ fontSize: '13px', color: '#94a3b8' }}>Acordado</div>
                 <div style={{ fontSize: '13px', fontWeight: '700', color: AZUL }}>{fmtMXN(selected.monto_acordado)}</div>
               </div>
               <div style={{ flex: 1, background: '#f0fdf4', borderRadius: '10px', padding: '8px 12px' }}>
-                <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase' }}>Pagado</div>
+                <div style={{ fontSize: '13px', color: '#94a3b8' }}>Pagado</div>
                 <div style={{ fontSize: '13px', fontWeight: '700', color: VERDE }}>{fmtMXN(selected.total_pagado ?? 0)}</div>
               </div>
               <div style={{ flex: 1, background: saldo > 0 ? '#fff5f5' : '#f0fdf4', borderRadius: '10px', padding: '8px 12px', border: `1px solid ${saldo > 0 ? '#fecaca' : '#bbf7d0'}` }}>
-                <div style={{ fontSize: '13px', color: '#94a3b8', textTransform: 'uppercase' }}>Saldo máximo</div>
+                <div style={{ fontSize: '13px', color: '#94a3b8' }}>Saldo máximo</div>
                 <div style={{ fontSize: '13px', fontWeight: '800', color: saldo > 0 ? '#ef4444' : VERDE }}>{fmtMXN(saldo)}</div>
               </div>
             </div>
@@ -3046,9 +3046,9 @@ function ClientesInner() {
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }}>
                         <thead>
                           <tr style={{ background: '#F4F6F9' }}>
-                            <th style={{ padding: '6px 10px', textAlign: 'left', fontSize: '13px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Etapa</th>
-                            <th style={{ padding: '6px 10px', textAlign: 'center', fontSize: '13px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Cobrar</th>
-                            <th style={{ padding: '6px 10px', textAlign: 'right', fontSize: '13px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Monto ($)</th>
+                            <th style={{ padding: '6px 10px', textAlign: 'left', fontSize: '13px', fontWeight: '700', color: '#64748b' }}>Etapa</th>
+                            <th style={{ padding: '6px 10px', textAlign: 'center', fontSize: '13px', fontWeight: '700', color: '#64748b' }}>Cobrar</th>
+                            <th style={{ padding: '6px 10px', textAlign: 'right', fontSize: '13px', fontWeight: '700', color: '#64748b' }}>Monto ($)</th>
                           </tr>
                         </thead>
                         <tbody>

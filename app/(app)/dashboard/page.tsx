@@ -427,7 +427,7 @@ function MiDiaInner() {
 
       {/* ── Header de bienvenida ── */}
       <div style={{ background: AZUL, padding: '14px 20px' }}>
-        <div style={{ fontSize: '15px', color: 'rgba(255,255,255,0.55)', letterSpacing: '0.5px', marginBottom: '2px' }}>
+        <div style={{ fontSize: '15px', color: 'rgba(255,255,255,0.55)', marginBottom: '2px' }}>
           {new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
         </div>
         <div style={{ fontSize: '17px', fontWeight: '700', color: 'white' }}>
@@ -907,12 +907,12 @@ function MiDiaInner() {
                       <div style={{ background: '#F4F6F9', borderRadius: '10px', padding: '12px', textAlign: 'center' as const }}>
                         <div style={{ fontSize: '32px', fontWeight: '800' as const, color: encuestaStats.promedio >= 4 ? VERDE : '#D97706', lineHeight: 1 }}>{encuestaStats.promedio > 0 ? encuestaStats.promedio.toFixed(1) : '—'}</div>
                         <div style={{ fontSize: '14px', letterSpacing: '2px', margin: '4px 0 2px' }}>{'⭐'.repeat(Math.round(encuestaStats.promedio))}</div>
-                        <p style={{ fontSize: '13px', color: '#66738A', margin: 0, textTransform: 'uppercase' as const }}>Satisfacción</p>
+                        <p style={{ fontSize: '13px', color: '#66738A', margin: 0 }}>Satisfacción</p>
                       </div>
                       <div style={{ background: '#F4F6F9', borderRadius: '10px', padding: '12px', textAlign: 'center' as const }}>
                         <div style={{ fontSize: '32px', fontWeight: '800' as const, color: encuestaStats.nps >= 50 ? VERDE : encuestaStats.nps >= 0 ? '#D97706' : '#DC2626', lineHeight: 1 }}>{encuestaStats.respondidas > 0 ? `${encuestaStats.nps > 0 ? '+' : ''}${encuestaStats.nps}` : '—'}</div>
                         <div style={{ fontSize: '15px', color: encuestaStats.nps >= 50 ? VERDE : '#D97706', fontWeight: '600' as const, margin: '4px 0 2px' }}>{encuestaStats.nps >= 70 ? 'Excelente' : encuestaStats.nps >= 50 ? 'Bueno' : encuestaStats.nps >= 0 ? 'Regular' : 'Malo'}</div>
-                        <p style={{ fontSize: '13px', color: '#66738A', margin: 0, textTransform: 'uppercase' as const }}>NPS</p>
+                        <p style={{ fontSize: '13px', color: '#66738A', margin: 0 }}>NPS</p>
                       </div>
                     </div>
                     {/* Barra de respuesta */}

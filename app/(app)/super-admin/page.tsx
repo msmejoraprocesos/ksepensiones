@@ -117,7 +117,7 @@ export default function SuperAdminDashboard() {
 
   if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '80vh', color: '#9CA3AF' }}>Cargando dashboard...</div>
 
-  const CARD = { background: 'white', border: '1px solid #E5E7EB', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }
+  const CARD = { background: 'white', border: '1px solid #E1E7F0', padding: '16px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)' }
   const LABEL = { fontSize: '13px', color: '#9CA3AF', marginBottom: '4px' }
 
   return (
@@ -126,7 +126,7 @@ export default function SuperAdminDashboard() {
       {/* Header */}
       <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #E5E7EB', padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: '20px', fontWeight: 700, color: AZUL, margin: 0 }}>🏠 Dashboard de Negocio</h1>
+          <h1 style={{ fontSize: '26px', fontWeight: 700, color: AZUL, margin: 0 }}>🏠 Dashboard de Negocio</h1>
           <p style={{ fontSize: '15px', color: '#9CA3AF', margin: 0 }}>Solo visible para ti — super_admin</p>
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>

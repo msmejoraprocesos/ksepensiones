@@ -323,7 +323,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
                   { label: 'Teléfono', key: 'telefono', placeholder: '10 dígitos sin espacios' },
                 ].map(f => (
                   <div key={f.key}>
-                    <label style={{ fontSize: '15px', fontWeight: '700', color: errores[f.key] ? '#DC2626' : '#6B7280', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>{f.label}</label>
+                    <label style={{ fontSize: '15px', fontWeight: '700', color: errores[f.key] ? '#DC2626' : '#6B7280', display: 'block', marginBottom: '4px' }}>{f.label}</label>
                     <input value={(form as any)[f.key]}
                       onChange={e => { setForm(p => ({ ...p, [f.key]: e.target.value })); setErrores(p => ({ ...p, [f.key]: '' })) }}
                       onBlur={e => {
@@ -339,7 +339,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
                 <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px' }}>
                   {!showNueva && (
                     <button onClick={() => setEditando(false)}
-                      style={{ padding: '9px 18px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
+                      style={{ padding: '9px 18px', background: 'white', color: '#374151', border: '1px solid #E1E7F0', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                       Cancelar
                     </button>
                   )}
@@ -356,7 +356,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
                   { label: 'Teléfono', val: fin?.contacto_telefono || '—' },
                 ].map(f => (
                   <div key={f.label}>
-                    <p style={{ fontSize: '13px', fontWeight: '700', color: '#66738A', margin: '0 0 3px', textTransform: 'uppercase' as const }}>{f.label}</p>
+                    <p style={{ fontSize: '13px', fontWeight: '700', color: '#66738A', margin: '0 0 3px' }}>{f.label}</p>
                     <p style={{ fontSize: '14px', color: '#111827', margin: 0, fontWeight: '600' }}>{f.val}</p>
                   </div>
                 ))}
@@ -509,7 +509,7 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
           </button>
         ))}
       </div>
-      <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', overflow: 'hidden' }}>
+      <div style={{ background: 'white', border: '1px solid #E1E7F0', borderRadius: '10px', overflow: 'hidden' }}>
         <div style={{ padding: '12px 18px', background: '#F5F7FA', borderBottom: '1px solid #E5E7EB' }}>
           <p style={{ fontSize: '13px', color: '#4B5563', margin: 0 }}>{catInfo?.desc}</p>
           <p style={{ fontSize: '15px', color: '#66738A', margin: '3px 0 0' }}>
@@ -531,7 +531,7 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
                 <button onClick={() => guardarEdicion(item.id)}
                   style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>Guardar</button>
                 <button onClick={() => setEditando(null)}
-                  style={{ padding: '8px 14px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>Cancelar</button>
+                  style={{ padding: '8px 14px', background: 'white', color: '#374151', border: '1px solid #E1E7F0', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>Cancelar</button>
               </div>
             ) : (
               <div style={{ padding: '12px 18px', display: 'flex', alignItems: 'center', gap: '12px', opacity: item.activo ? 1 : 0.5 }}>
@@ -545,7 +545,7 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
                 </div>
                 <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
                   <button onClick={() => { setEditando(item.id); setEditValor(item.etiqueta) }}
-                    style={{ padding: '6px 12px', background: '#F4F6F9', color: '#374151', border: '1px solid #E5E7EB', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>✏️ Editar</button>
+                    style={{ padding: '6px 12px', background: '#F4F6F9', color: '#374151', border: '1px solid #E1E7F0', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>✏️ Editar</button>
                   <button onClick={() => toggleActivo(item.id, item.activo)}
                     style={{ padding: '6px 12px', background: item.activo ? '#FFFBEB' : '#F0FDF4', color: item.activo ? '#D97706' : VERDE, border: `1px solid ${item.activo ? '#FDE68A' : '#86EFAC'}`, fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                     {item.activo ? '⏸ Inactivar' : '▶ Activar'}
@@ -563,7 +563,7 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
           {/* Selector de emojis */}
           <div style={{ marginBottom: '10px' }}>
             <p style={{ fontSize: '15px', color: '#66738A', margin: '0 0 6px' }}>Elige un emoji:</p>
-            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '4px', background: 'white', padding: '8px', borderRadius: '10px', border: '1px solid #E5E7EB' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '4px', background: 'white', padding: '8px', borderRadius: '10px', border: '1px solid #E1E7F0' }}>
               {(catActiva === 'tipo_contacto'
                 ? ['📞','📱','💬','📧','🤝','🏠','🏢','📝','💻','📹','🎙️','📠']
                 : catActiva === 'resultado'
@@ -887,7 +887,7 @@ export default function ConfiguracionPage() {
 
   const disabledSt: React.CSSProperties = {
     display: 'block', width: '100%', padding: '10px 14px',
-    border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '14px',
+    border: '1px solid #E1E7F0', borderRadius: '10px', fontSize: '14px',
     boxSizing: 'border-box' as const, fontFamily: 'inherit',
     background: '#F5F7FA', color: '#374151', cursor: 'default',
     opacity: 1,
@@ -903,7 +903,7 @@ export default function ConfiguracionPage() {
   const labelSt: React.CSSProperties = {
     display: 'block', fontSize: '15px', fontWeight: '700',
     color: '#475569', marginBottom: '5px',
-    textTransform: 'uppercase' as const, letterSpacing: '0.5px',
+    letterSpacing: '0.5px',
   }
 
   const errorMsg = (key: keyof Perfil) => errors[key] ? (
@@ -930,8 +930,8 @@ export default function ConfiguracionPage() {
 
         {cargando ? (
           <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
-            <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E5E7EB', padding: '16px 20px', height: '76px', opacity: 0.5 }} />
-            <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E5E7EB', padding: '24px', height: '300px', opacity: 0.3 }} />
+            <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: '16px 20px', height: '76px', opacity: 0.5 }} />
+            <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: '24px', height: '300px', opacity: 0.3 }} />
           </div>
         ) : (<>
 
@@ -953,7 +953,7 @@ export default function ConfiguracionPage() {
         )}
 
         {/* ── Header con tabs y botones de acción ── */}
-        <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E5E7EB', overflow: 'hidden' }}>
+        <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', overflow: 'hidden' }}>
           {/* Título + botones */}
           <div style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #F3F4F6' }}>
             <div>
@@ -1002,7 +1002,7 @@ export default function ConfiguracionPage() {
         </div>
         {/* ── TAB: PERFIL ── */}
         {tabActiva === 'perfil' && (
-        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
+        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #E1E7F0' }}>
           {sectionTitle('👤', 'Identidad del asesor', 'Esta información aparece en el encabezado de tus propuestas PDF')}
 
           {/* Logo: subir (izq) + mini preview (der) */}
@@ -1013,7 +1013,7 @@ export default function ConfiguracionPage() {
                 Aparece en el PDF de propuesta junto a tu nombre. PNG con fondo transparente recomendado, mínimo 200×80px.
               </p>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: uploadingLogo ? '#f1f5f9' : '#EEF2F8', border: '1px solid #e2e8f0', borderRadius: '10px', cursor: uploadingLogo ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600', color: AZUL }}>
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: uploadingLogo ? '#f1f5f9' : '#EEF2F8', border: '1px solid #E1E7F0', borderRadius: '10px', cursor: uploadingLogo ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600', color: AZUL }}>
                     {uploadingLogo ? '⏳ Subiendo...' : '📁 Subir logo'}
                     <input ref={fileRef} type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) uploadLogo(f) }} style={{ display: 'none' }} disabled={uploadingLogo} />
                   </label>
@@ -1090,14 +1090,14 @@ export default function ConfiguracionPage() {
           </div>
 
           {/* Cambiar contraseña */}
-          <div style={{ padding: '16px', background: '#F5F7FA', border: '1px solid #E5E7EB', borderRadius: '10px' }}>
+          <div style={{ padding: '16px', background: '#F5F7FA', border: '1px solid #E1E7F0', borderRadius: '10px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 2px' }}>🔒 Contraseña de acceso</p>
                 <p style={{ fontSize: '15px', color: '#66738A', margin: 0 }}>Cambia tu contraseña de acceso al sistema</p>
               </div>
               <button onClick={() => { setShowCambiarPassword(!showCambiarPassword); setMsgPassword('') }}
-                style={{ padding: '8px 16px', background: showCambiarPassword ? 'white' : 'white', color: '#374151', border: '1px solid #D1D5DB', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
+                style={{ padding: '8px 16px', background: showCambiarPassword ? 'white' : 'white', color: '#374151', border: '1px solid #E1E7F0', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                 {showCambiarPassword ? '✕ Cancelar' : '🔑 Cambiar contraseña'}
               </button>
             </div>
@@ -1114,13 +1114,13 @@ export default function ConfiguracionPage() {
                   </div>
                   <input type="text" value={nuevaPassword} onChange={e => setNuevaPassword(e.target.value)}
                     placeholder="Mínimo 10 caracteres"
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '10px', fontWeight: '600' }} />
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #E1E7F0', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '10px', fontWeight: '600' }} />
                 </div>
                 <div>
                   <label style={{ fontSize: '14px', fontWeight: '600', color: '#66738A', display: 'block', marginBottom: '4px' }}>Confirmar contraseña</label>
                   <input type="password" value={confirmarPassword} onChange={e => setConfirmarPassword(e.target.value)}
                     placeholder="Repite la contraseña"
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '10px' }} />
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #E1E7F0', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '10px' }} />
                 </div>
                 <div style={{ background: '#F5F7FA', borderRadius: '10px', padding: '10px 12px', fontSize: '15px', color: '#66738A', lineHeight: 1.6 }}>
                   <strong style={{ color: '#374151' }}>Criterios de seguridad:</strong>{' '}
@@ -1152,7 +1152,7 @@ export default function ConfiguracionPage() {
         {tabActiva === 'sistema' && (
         <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '20px' }}>
 
-        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
+        <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #E1E7F0' }}>
           {sectionTitle('📊', 'Variables del sistema 2026', 'Valores oficiales que usa la calculadora para todos los diagnósticos')}
         {(() => {
             const today = new Date()
@@ -1260,7 +1260,7 @@ export default function ConfiguracionPage() {
                 badge: 'Verificar en SAT', badgeColor: '#dc2626'
               },
             ].map(f => (
-              <div key={f.key} style={{ background: '#F5F7FA', borderRadius: '10px', padding: '14px', border: '1px solid #e2e8f0' }}>
+              <div key={f.key} style={{ background: '#F5F7FA', borderRadius: '10px', padding: '14px', border: '1px solid #E1E7F0' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <label style={{ ...labelSt, marginBottom: 0, flex: 1 }}>{f.label} {tooltip(f.help)}</label>
                   <span style={{ fontSize: '13px', fontWeight: '700', padding: '2px 6px', borderRadius: '10px', background: f.badgeColor + '15', color: f.badgeColor, whiteSpace: 'nowrap', marginLeft: '4px' }}>{f.badge}</span>
@@ -1321,7 +1321,7 @@ export default function ConfiguracionPage() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '10px' }}>
               {[2026, 2027, 2028, 2029, 2030].map(year => (
                 <div key={year}>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#92400e', marginBottom: '4px', textTransform: 'uppercase' }}>{year}</label>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#92400e', marginBottom: '4px' }}>{year}</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
                     <input type="number" step="0.001"
                       value={(perfil as any)[`mod40_${year}`]}
@@ -1336,7 +1336,7 @@ export default function ConfiguracionPage() {
         </div>
 
         {/* ── SECCIÓN 3: Preview PDF (dentro del tab sistema) ── */}
-        <div id="encabezado" style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
+        <div id="encabezado" style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #E1E7F0' }}>
           {sectionTitle('🎨', 'Encabezado de propuestas PDF', 'Personaliza cómo se ve el encabezado en tus documentos')}
 
           {/* Configuración del encabezado */}
@@ -1349,7 +1349,7 @@ export default function ConfiguracionPage() {
               <label style={labelSt}>Color del encabezado {tooltip('Color en formato hexadecimal (#RRGGBB). Define el color de la barra superior del PDF')}</label>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <input type="color" value={perfil.encabezado_color} onChange={e => set('encabezado_color', e.target.value)}
-                  style={{ width: '40px', height: '36px', border: '1px solid #e2e8f0', borderRadius: '10px', cursor: 'pointer', padding: '2px' }} />
+                  style={{ width: '40px', height: '36px', border: '1px solid #E1E7F0', borderRadius: '10px', cursor: 'pointer', padding: '2px' }} />
                 <input value={perfil.encabezado_color} onChange={e => set('encabezado_color', e.target.value)} placeholder="#334E7B" style={inputSt()} />
               </div>
             </div>
@@ -1369,7 +1369,7 @@ export default function ConfiguracionPage() {
 
           {/* Vista previa */}
           <p style={{ fontSize: '15px', fontWeight: '700', color: '#94a3b8', marginBottom: '8px' }}>Vista previa</p>
-          <div style={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
+          <div style={{ border: '1px solid #E1E7F0', borderRadius: '10px', overflow: 'hidden' }}>
             <div style={{ background: perfil.encabezado_color, padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 {perfil.logo_url && (
@@ -1392,7 +1392,7 @@ export default function ConfiguracionPage() {
               </div>
             </div>
             {/* Pie - NO editable */}
-            <div style={{ background: '#F4F6F9', padding: '7px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #e2e8f0' }}>
+            <div style={{ background: '#F4F6F9', padding: '7px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #E1E7F0' }}>
               <div style={{ fontSize: '13px', color: '#94a3b8' }}>Folio: KSE-2026-000001 · Documento confidencial</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <span style={{ fontSize: '13px', color: '#94a3b8' }}>Página 1 de 2 · Powered by</span>
@@ -1411,7 +1411,7 @@ export default function ConfiguracionPage() {
         </div>
 
         {/* ── MATERIALES DE APOYO ── */}
-          <div id="materiales" style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '20px' }}>
+          <div id="materiales" style={{ background: 'white', border: '1px solid #E1E7F0', borderRadius: '14px', padding: '20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
               <div>
                 <p style={{ fontSize: '14px', fontWeight: '700', color: '#1e293b', margin: '0 0 2px' }}>📚 Catálogo de materiales de apoyo</p>
@@ -1440,12 +1440,12 @@ export default function ConfiguracionPage() {
                 Agrega guías, videos o links que ayuden a tus clientes a entender el proceso.
               </div>
             ) : (
-              <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '10px' }}>
+              <div style={{ overflowX: 'auto', border: '1px solid #E1E7F0', borderRadius: '10px' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }}>
                   <thead>
                     <tr style={{ background: '#F4F6F9' }}>
                       {['ID', 'Nombre', 'Descripción', 'Adjunto', 'Fecha', ''].map((h, i) => (
-                        <th key={i} style={{ padding: '8px 12px', textAlign: i === 0 ? 'center' : 'left', fontSize: '13px', fontWeight: '700', color: '#64748b', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
+                        <th key={i} style={{ padding: '8px 12px', textAlign: i === 0 ? 'center' : 'left', fontSize: '13px', fontWeight: '700', color: '#64748b', borderBottom: '1px solid #E1E7F0' }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -1456,7 +1456,7 @@ export default function ConfiguracionPage() {
                         <td style={{ padding: '8px 12px' }}>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             <select value={fila.tipo} onChange={e => setMaterialesNuevos(prev => prev.map(f => f.tempId === fila.tempId ? { ...f, tipo: e.target.value } : f))}
-                              style={{ padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '15px', fontFamily: 'inherit', background: 'white' }}>
+                              style={{ padding: '4px 6px', border: '1px solid #E1E7F0', borderRadius: '10px', fontSize: '15px', fontFamily: 'inherit', background: 'white' }}>
                               <option value="general">📄 General</option>
                               <option value="guia">📋 Guía / Manual</option>
                               <option value="video">🎥 Video</option>
@@ -1464,13 +1464,13 @@ export default function ConfiguracionPage() {
                             </select>
                             <input value={fila.nombre} onChange={e => setMaterialesNuevos(prev => prev.map(f => f.tempId === fila.tempId ? { ...f, nombre: e.target.value } : f))}
                               placeholder="Nombre del material *"
-                              style={{ padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '15px', fontFamily: 'inherit', fontWeight: '600' }} />
+                              style={{ padding: '4px 6px', border: '1px solid #E1E7F0', borderRadius: '10px', fontSize: '15px', fontFamily: 'inherit', fontWeight: '600' }} />
                           </div>
                         </td>
                         <td style={{ padding: '8px 12px' }}>
                           <input value={fila.descripcion} onChange={e => setMaterialesNuevos(prev => prev.map(f => f.tempId === fila.tempId ? { ...f, descripcion: e.target.value } : f))}
                             placeholder="Descripción (opcional)"
-                            style={{ width: '100%', padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '15px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
+                            style={{ width: '100%', padding: '4px 6px', border: '1px solid #E1E7F0', borderRadius: '10px', fontSize: '15px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
                         </td>
                         <td style={{ padding: '8px 12px' }}>
                           {fila.archivo_url ? (
@@ -1564,7 +1564,7 @@ export default function ConfiguracionPage() {
                         <td style={{ padding: '10px 12px', textAlign: 'right' }}>
                                                       <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
                               <button onClick={() => toggleMaterial(m.id, !m.activo)}
-                                style={{ padding: '4px 8px', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '13px', cursor: 'pointer', background: 'white', color: '#64748b', whiteSpace: 'nowrap' }}>
+                                style={{ padding: '4px 8px', border: '1px solid #E1E7F0', borderRadius: '10px', fontSize: '13px', cursor: 'pointer', background: 'white', color: '#64748b', whiteSpace: 'nowrap' }}>
                                 {m.activo ? 'Desactivar' : 'Activar'}
                               </button>
                               <button onClick={() => eliminarMaterial(m.id)}
@@ -1585,20 +1585,20 @@ export default function ConfiguracionPage() {
         )} {/* fin tab sistema */}
 
         {/* ── TAB: FINANCIERAS ── */}
-        <div style={{ display: tabActiva === 'financieras' ? 'block' : 'none', background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
+        <div style={{ display: tabActiva === 'financieras' ? 'block' : 'none', background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #E1E7F0' }}>
           {sectionTitle('💳', 'Financieras y elegibilidad', 'Configura las instituciones con las que trabajas y sus criterios de elegibilidad')}
           <FinancierasElegibilidad userId={userId} supabase={supabase} />
         </div>
 
         {/* ── TAB: CATÁLOGOS ── */}
-        <div style={{ display: tabActiva === 'catalogos' ? 'block' : 'none', background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
+        <div style={{ display: tabActiva === 'catalogos' ? 'block' : 'none', background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #E1E7F0' }}>
           {sectionTitle('📋', 'Catálogos de actividad', 'Personaliza las opciones que aparecen al registrar una actividad con un cliente')}
           <CatalogosActividad userId={userId} supabase={supabase} />
         </div>
 
         {/* ── TAB: PDF ── */}
         {tabActiva === 'pdf' && (
-          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #e2e8f0' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', border: '1px solid #E1E7F0' }}>
             {sectionTitle('📄', 'Diseño del diagnóstico PDF', 'Personaliza cómo se ve el PDF que recibe tu cliente — el preview se actualiza en tiempo real')}
 
             <PDFConfigurador

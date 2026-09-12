@@ -540,7 +540,7 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
   return (
     <div style={{ background: 'white', border: '1px solid #E5E7EB', marginTop: '4px' }}>
       <div style={{ background: AZUL, padding: '12px 16px' }}>
-        <p style={{ fontSize: '12px', color: '#93C5FD', margin: '0 0 2px', fontWeight: '700' }}>
+        <p style={{ fontSize: '13px', color: '#93C5FD', margin: '0 0 2px', fontWeight: '700' }}>
           Simulador de vida real
         </p>
         <p style={{ fontSize: '14px', fontWeight: '800', color: 'white', margin: 0 }}>
@@ -586,7 +586,7 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
             <div key={i} style={{ marginBottom: '10px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                 <span style={{ fontSize: '15px', color: '#374151' }}>{b.label}</span>
-                <span style={{ fontSize: '12px', fontWeight: '700', color: b.color }}>{fmtMXN(b.val)}</span>
+                <span style={{ fontSize: '13px', fontWeight: '700', color: b.color }}>{fmtMXN(b.val)}</span>
               </div>
               <div style={{ height: '10px', background: '#E5E7EB', borderRadius: '5px', overflow: 'hidden' as const }}>
                 <div style={{ height: '100%', background: b.color, borderRadius: '5px', width: `${barPct(b.val)}%`, transition: 'width 0.3s' }} />
@@ -619,7 +619,7 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
 
         {/* Mensaje de impacto */}
         <div style={{ padding: '12px 14px', background: '#EEF2F8', borderRadius: '10px', borderLeft: `3px solid ${AZUL}` }}>
-          <p style={{ fontSize: '12px', color: AZUL, fontWeight: '700', margin: '0 0 4px' }}>
+          <p style={{ fontSize: '13px', color: AZUL, fontWeight: '700', margin: '0 0 4px' }}>
             {mejora > 0 ? `Con Modalidad 40 tu pensión mejora ${mejora}%` : 'Completa el diagnóstico para ver la mejora'}
           </p>
           <p style={{ fontSize: '15px', color: '#64748B', margin: 0 }}>
@@ -725,7 +725,7 @@ function SemaforoElegibilidad({ clienteId, diagnosticoId, datos, escenarioSel, s
     <div style={{ marginTop: '4px' }}>
       <div style={{ background: '#334E7B', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <p style={{ fontSize: '12px', color: '#93C5FD', margin: '0 0 2px', fontWeight: '700' }}>Elegibilidad Financiera</p>
+          <p style={{ fontSize: '13px', color: '#93C5FD', margin: '0 0 2px', fontWeight: '700' }}>Elegibilidad Financiera</p>
           <p style={{ fontSize: '14px', fontWeight: '800', color: 'white', margin: 0 }}>
             {viables > 0 ? `✅ Viable en ${viables} de ${financieras.length} financiera${financieras.length !== 1 ? 's' : ''}` :
              condicionales > 0 ? `⚠️ Condicional en ${condicionales} de ${financieras.length} financiera${financieras.length !== 1 ? 's' : ''}` :
@@ -833,13 +833,13 @@ function CalculadoraInner() {
       <span style={{ position: 'relative' as const, display: 'inline-block' }}>
         <button
           onClick={() => setActiveTooltip(activeTooltip === id ? null : id)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3B82F6', fontSize: '12px', padding: '0 2px', lineHeight: 1, fontFamily: 'inherit', verticalAlign: 'middle' }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3B82F6', fontSize: '13px', padding: '0 2px', lineHeight: 1, fontFamily: 'inherit', verticalAlign: 'middle' }}
           title={g.titulo}
         >ⓘ</button>
         {activeTooltip === id && (
           <div style={{ position: 'absolute' as const, left: '50%', bottom: '120%', transform: 'translateX(-50%)', background: '#1e293b', color: 'white', padding: '10px 14px', fontSize: '13px', lineHeight: 1.6, width: '260px', zIndex: 999, boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}
             onClick={e => e.stopPropagation()}>
-            <p style={{ fontWeight: '700' as const, margin: '0 0 6px', color: '#93C5FD', fontSize: '12px' }}>{g.titulo}</p>
+            <p style={{ fontWeight: '700' as const, margin: '0 0 6px', color: '#93C5FD', fontSize: '13px' }}>{g.titulo}</p>
             <p style={{ margin: '0 0 4px', color: '#E2E8F0' }}>{g.desc}</p>
             {g.ejemplo && <p style={{ margin: 0, color: '#94A3B8', fontStyle: 'italic' }}>Ejemplo: {g.ejemplo}</p>}
             <div style={{ position: 'absolute' as const, bottom: '-6px', left: '50%', transform: 'translateX(-50%)', width: '12px', height: '12px', background: '#1e293b', clipPath: 'polygon(0 0, 100% 0, 50% 100%)' }} />
@@ -2030,7 +2030,7 @@ function CalculadoraInner() {
 
   // ── Styles
   const tabSt = (i: number): React.CSSProperties => ({
-    padding: '8px 14px', fontSize: '12px', fontWeight: tab === i ? '600' : '400',
+    padding: '8px 14px', fontSize: '13px', fontWeight: tab === i ? '600' : '400',
     color: tab === i ? NARANJA : '#64748b', cursor: 'pointer',
     whiteSpace: 'nowrap', background: 'none', border: 'none',
     borderBottom: `2px solid ${tab === i ? NARANJA : 'transparent'}`,
@@ -2073,7 +2073,7 @@ function CalculadoraInner() {
               <div style={{ padding: '16px 20px', maxHeight: '320px', overflowY: 'auto' as const }}>
                 {problemas.map((p, i) => (
                   <div key={i} style={{ padding: '10px 12px', marginBottom: '8px', background: p.nivel === 'error' ? '#FEF2F2' : '#FFFBEB', border: `1px solid ${p.nivel === 'error' ? '#FCA5A5' : '#FCD34D'}`, borderLeft: `3px solid ${p.nivel === 'error' ? '#DC2626' : '#F59E0B'}` }}>
-                    <p style={{ fontSize: '12px', fontWeight: '700' as const, color: p.nivel === 'error' ? '#991B1B' : '#92400E', margin: '0 0 3px' }}>
+                    <p style={{ fontSize: '13px', fontWeight: '700' as const, color: p.nivel === 'error' ? '#991B1B' : '#92400E', margin: '0 0 3px' }}>
                       {p.nivel === 'error' ? '⛔' : '⚠️'} {p.campo}
                     </p>
                     <p style={{ fontSize: '13px', color: '#1E293B', margin: 0, lineHeight: 1.5 }}>{p.mensaje}</p>
@@ -2153,7 +2153,7 @@ function CalculadoraInner() {
               ].map((item, i) => (
                 <div key={i} style={{ paddingBottom: '10px', borderBottom: i < 7 ? '1px solid #f1f5f9' : 'none' }}>
                   <p style={{ fontSize: '12.5px', fontWeight: '700' as const, color: '#1e293b', margin: '0 0 3px' }}>{item.t}</p>
-                  <p style={{ fontSize: '12px', color: '#64748b', margin: 0, lineHeight: 1.6 }}>{item.d}</p>
+                  <p style={{ fontSize: '13px', color: '#64748b', margin: 0, lineHeight: 1.6 }}>{item.d}</p>
                 </div>
               ))}
             </div>
@@ -2170,7 +2170,7 @@ function CalculadoraInner() {
               <p style={{ fontSize: '14px', fontWeight: '700' as const, color: AZUL, margin: 0 }}>¿Por qué pedimos años Y meses, no solo años?</p>
               <button onClick={() => setShowGuiaEdadMod40(false)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
             </div>
-            <div style={{ fontSize: '12px', color: '#374151', lineHeight: 1.7 }}>
+            <div style={{ fontSize: '13px', color: '#374151', lineHeight: 1.7 }}>
               <p>La UMA (Unidad de Medida y Actualización) se actualiza <strong>cada 1° de enero</strong>. El costo mensual de Modalidad 40 y la pensión que resulta dependen de la UMA vigente en el <strong>año calendario</strong> en que el cliente da de alta su Modalidad 40.</p>
               <p>Si solo usáramos años completos, dos clientes con la misma "edad de inicio: 61 años" podrían en realidad estar arrancando en años calendario distintos:</p>
               <ul style={{ paddingLeft: '18px', margin: '6px 0' }}>
@@ -2199,7 +2199,7 @@ function CalculadoraInner() {
               <button onClick={() => setShowTooltipCuantia(false)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
             </div>
             <div style={{ overflowX: 'auto', border: '1px solid #E5E7EB', borderRadius: '10px', marginBottom: '12px' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                 <thead>
                   <tr style={{ background: AZUL }}>
                     {['Semanas cotizadas', 'Años cotizados', '% del SDI', 'Sobre pensión base'].map((h, i) => (
@@ -2247,7 +2247,7 @@ function CalculadoraInner() {
               <p style={{ fontSize: '13px', color: '#1E293B', margin: '0 0 6px', lineHeight: 1.6 }}>
                 Guardado el {new Date(diagExistente.fecha).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}.
               </p>
-              <p style={{ fontSize: '12px', color: '#64748B', margin: '0 0 20px', lineHeight: 1.6 }}>
+              <p style={{ fontSize: '13px', color: '#64748B', margin: '0 0 20px', lineHeight: 1.6 }}>
                 ¿Deseas continuar donde lo dejaste, o iniciar un diagnóstico nuevo? Si inicias uno nuevo tendrás que cargar la constancia de nuevo.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
@@ -2268,7 +2268,7 @@ function CalculadoraInner() {
                   + Iniciar diagnóstico nuevo
                 </button>
                 <button onClick={() => { setShowContinuarDiag(false); setDiagExistente(null); setPendingClienteId('') }}
-                  style={{ padding: '8px', background: 'none', color: '#94A3B8', border: 'none', fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ padding: '8px', background: 'none', color: '#94A3B8', border: 'none', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit' }}>
                   Cancelar
                 </button>
               </div>
@@ -2317,15 +2317,15 @@ function CalculadoraInner() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div>
                 <h3 style={{ fontSize: '16px', fontWeight: '700' as const, color: AZUL, margin: 0 }}>Desglose completo — 250 semanas cotizadas</h3>
-                <p style={{ fontSize: '12px', color: '#94a3b8', margin: '4px 0 0' }}>SDI promedio ponderado: <strong style={{ color: NARANJA }}>{fmtMXN2(sdiPromedio)}</strong></p>
+                <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0' }}>SDI promedio ponderado: <strong style={{ color: NARANJA }}>{fmtMXN2(sdiPromedio)}</strong></p>
               </div>
               <button onClick={() => setShowDetalle250(false)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
             </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
               <thead>
                 <tr style={{ background: '#F4F6F9' }}>
                   {['#', 'Fecha inicio', 'Fecha fin', 'Semanas', 'SDI diario', 'SDI mensual', 'Peso'].map((h, i) => (
-                    <th key={i} style={{ padding: '8px 10px', textAlign: i > 0 ? 'right' : 'center', fontSize: '14px', fontWeight: '700' as const, color: '#64748b', textTransform: 'uppercase' as const, borderBottom: '2px solid #e2e8f0' }}>{h}</th>
+                    <th key={i} style={{ padding: '8px 10px', textAlign: i > 0 ? 'right' : 'center', fontSize: '14px', fontWeight: '700' as const, color: '#64748b', borderBottom: '2px solid #e2e8f0' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -2363,15 +2363,15 @@ function CalculadoraInner() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div>
                 <h3 style={{ fontSize: '16px', fontWeight: '700' as const, color: AZUL, margin: 0 }}>Historial laboral completo</h3>
-                <p style={{ fontSize: '12px', color: '#94a3b8', margin: '4px 0 0' }}>{periodosCompletos.length} períodos · {Math.round(periodosCompletos.reduce((s: number, p: any) => s + (p.semanas || 0), 0))} semanas totales · ordenado del más antiguo al más reciente</p>
+                <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0' }}>{periodosCompletos.length} períodos · {Math.round(periodosCompletos.reduce((s: number, p: any) => s + (p.semanas || 0), 0))} semanas totales · ordenado del más antiguo al más reciente</p>
               </div>
               <button onClick={() => setShowHistorialCompleto(false)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
             </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
               <thead>
                 <tr style={{ background: '#F4F6F9' }}>
                   {['#', 'Fecha inicio', 'Fecha fin', 'Semanas', 'SDI diario', 'Patrón'].map((h, i) => (
-                    <th key={i} style={{ padding: '8px 10px', textAlign: i > 0 ? 'right' : 'center', fontSize: '14px', fontWeight: '700' as const, color: '#64748b', textTransform: 'uppercase' as const, borderBottom: '2px solid #e2e8f0' }}>{h}</th>
+                    <th key={i} style={{ padding: '8px 10px', textAlign: i > 0 ? 'right' : 'center', fontSize: '14px', fontWeight: '700' as const, color: '#64748b', borderBottom: '2px solid #e2e8f0' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -2405,7 +2405,7 @@ function CalculadoraInner() {
             {/* Header azul */}
             <div style={{ background: AZUL, padding: '26px 28px 20px', textAlign: 'center' as const }}>
               <div style={{ fontSize: '32px', fontWeight: '900' as const, color: 'white', letterSpacing: '-1px', fontFamily: 'Arial Black, sans-serif', marginBottom: '6px' }}>
-                KSE<sup style={{ fontSize: '12px', verticalAlign: 'super' }}>®</sup>
+                KSE<sup style={{ fontSize: '13px', verticalAlign: 'super' }}>®</sup>
               </div>
               <h2 style={{ fontSize: '15px', fontWeight: '700' as const, color: 'white', margin: '0 0 4px' }}>Calculadora de Pensión</h2>
               <p style={{ fontSize: '15px', color: '#93C5FD', margin: 0 }}>Completa los dos pasos para continuar</p>
@@ -2507,7 +2507,7 @@ function CalculadoraInner() {
                     {/* Pantalla C: Captura manual */}
                     {modoEntrada === 'manual' && (
                       <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
-                        <p style={{ margin: '0 0 4px', fontSize: '12px', color: '#64748B' }}>
+                        <p style={{ margin: '0 0 4px', fontSize: '13px', color: '#64748B' }}>
                           Captura los datos principales de la constancia. Puedes completar el resto en el Tab 1.
                         </p>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
@@ -2552,7 +2552,7 @@ function CalculadoraInner() {
               </button>
 
               {/* Salir */}
-              <a href="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '9px', color: '#94A3B8', border: '1px solid #E5E7EB', fontSize: '12px', textDecoration: 'none' }}>
+              <a href="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '9px', color: '#94A3B8', border: '1px solid #E5E7EB', fontSize: '13px', textDecoration: 'none' }}>
                 ← Salir — ir a mi día
               </a>
             </div>
@@ -2644,13 +2644,13 @@ function CalculadoraInner() {
             <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #F3F4F6', background: 'white', flexShrink: 0 }}>
               {!clienteId && (
                 <div style={{ padding: '8px 16px', background: '#FFF7ED', borderBottom: '1px solid #fed7aa', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '12px', color: '#92400e', fontWeight: '600' as const }}>⚠️ Selecciona un cliente para iniciar el diagnóstico</span>
+                  <span style={{ fontSize: '13px', color: '#92400e', fontWeight: '600' as const }}>⚠️ Selecciona un cliente para iniciar el diagnóstico</span>
                 </div>
               )}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', gap: '10px', overflowX: 'auto' }}>
                 <p style={{ fontSize: '14px', fontWeight: '700' as const, color: '#1e293b', margin: 0, whiteSpace: 'nowrap' }}>
                   {TABS[tab]}
-                  {clienteSeleccionado && <span style={{ color: AZUL, fontWeight: '600' as const, fontSize: '12px' }}> · {clienteSeleccionado.nombre}</span>}
+                  {clienteSeleccionado && <span style={{ color: AZUL, fontWeight: '600' as const, fontSize: '13px' }}> · {clienteSeleccionado.nombre}</span>}
                   {diagGuardadoId && <span style={{ color: estatus === 'autorizado' ? VERDE : '#f59e0b', fontWeight: '600' as const, fontSize: '12.5px' }}> · {estatus === 'autorizado' ? '✅ Autorizado' : '📝 Borrador'}</span>}
                 </p>
                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
@@ -2757,7 +2757,7 @@ function CalculadoraInner() {
                                       {esCompletado ? '✓' : si + 1}
                                     </div>
                                     <div style={{ flex: 1 }}>
-                                      <div style={{ fontSize: '12px', fontWeight: esCurrent ? '700' : '500', color: esCurrent ? AZUL : esCompletado ? '#374151' : '#64748B' }}>{g.nombres[si]}</div>
+                                      <div style={{ fontSize: '13px', fontWeight: esCurrent ? '700' : '500', color: esCurrent ? AZUL : esCompletado ? '#374151' : '#64748B' }}>{g.nombres[si]}</div>
                                       {esCurrent && <div style={{ fontSize: '14px', color: AZUL, marginTop: '1px' }}>← Estás aquí</div>}
                                     </div>
                                     {esCurrent && <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: AZUL, flexShrink: 0 }} />}
@@ -2779,7 +2779,7 @@ function CalculadoraInner() {
                     <span style={{ fontSize: '14px', color: '#94A3B8', whiteSpace: 'nowrap' as const }}>Opciones:</span>
                     <button onClick={() => setTab(12)}
                       style={{ padding: '6px 12px', borderRadius: '10px', border: `1px solid ${tab === 12 ? '#0891B2' : '#E2E8F0'}`, background: tab === 12 ? '#ECFEFF' : 'white', color: tab === 12 ? '#0891B2' : '#64748B', fontSize: '15px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' as const }}>
-                      <i className="ti ti-droplet" style={{ fontSize: '12px', marginRight: '4px' }} />Mod. 10 / Ley 97
+                      <i className="ti ti-droplet" style={{ fontSize: '13px', marginRight: '4px' }} />Mod. 10 / Ley 97
                     </button>
                   </div>
                 </div>
@@ -2819,7 +2819,7 @@ function CalculadoraInner() {
                   <button
                     onClick={() => guardarDiagnostico('borrador')}
                     disabled={guardando}
-                    style={{ pointerEvents: 'auto' as const, padding: '10px 18px', background: !clienteId ? '#FEF2F2' : diagGuardadoId ? '#F0FDF4' : AZUL, color: !clienteId ? '#DC2626' : diagGuardadoId ? VERDE : 'white', border: `1px solid ${!clienteId ? '#FCA5A5' : diagGuardadoId ? '#86EFAC' : AZUL}`, borderRadius: '10px', fontSize: '12px', fontWeight: '700' as const, cursor: guardando ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', opacity: guardando ? 0.7 : 1 }}>
+                    style={{ pointerEvents: 'auto' as const, padding: '10px 18px', background: !clienteId ? '#FEF2F2' : diagGuardadoId ? '#F0FDF4' : AZUL, color: !clienteId ? '#DC2626' : diagGuardadoId ? VERDE : 'white', border: `1px solid ${!clienteId ? '#FCA5A5' : diagGuardadoId ? '#86EFAC' : AZUL}`, borderRadius: '10px', fontSize: '13px', fontWeight: '700' as const, cursor: guardando ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', opacity: guardando ? 0.7 : 1 }}>
                     {guardando ? 'Guardando…' : !clienteId ? 'Sin cliente vinculado' : diagGuardadoId ? 'Borrador guardado' : 'Guardar borrador'}
                   </button>
                 </div>
@@ -2838,7 +2838,7 @@ function CalculadoraInner() {
                   <section style={{ position: 'relative' as const, overflow: 'hidden', borderRadius: '18px', background: 'linear-gradient(118deg, #0D2440 0%, #14375F 60%, #245287 100%)' }}>
                     <div style={{ position: 'absolute' as const, width: 440, height: 440, right: -150, top: -190, borderRadius: 999, pointerEvents: 'none' as const, background: 'radial-gradient(circle, #E8622C33 0%, transparent 68%)' }} />
                     <div style={{ position: 'relative' as const, padding: '28px 34px 22px' }}>
-                      <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>
+                      <p style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>
                         SU PENSIÓN HOY, SIN MODALIDAD 40
                       </p>
                       <p style={{ fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 800, color: 'white', margin: '8px 0 0', lineHeight: 1, letterSpacing: '-.035em', whiteSpace: 'nowrap' as const, fontVariantNumeric: 'tabular-nums' as const }}>
@@ -3222,10 +3222,10 @@ function CalculadoraInner() {
                 <p style={DS.secTitle}>¿Qué es la Modalidad 10?</p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
                   <div>
-                    <p style={{ fontSize: '12px', color: '#374151', lineHeight: 1.7, margin: '0 0 10px' }}>
+                    <p style={{ fontSize: '13px', color: '#374151', lineHeight: 1.7, margin: '0 0 10px' }}>
                       La <strong>Modalidad 10</strong> permite a trabajadores que han dejado de cotizar (desempleados, independientes) continuar su cotización ante el IMSS de forma voluntaria, pagando el <strong>100% de las cuotas</strong> obrero-patronales.
                     </p>
-                    <p style={{ fontSize: '12px', color: '#374151', lineHeight: 1.7, margin: 0 }}>
+                    <p style={{ fontSize: '13px', color: '#374151', lineHeight: 1.7, margin: 0 }}>
                       A diferencia de la Modalidad 40, la Mod 10 <strong>incluye cobertura médica completa</strong> — el trabajador y su familia mantienen acceso a servicios de salud del IMSS mientras cotiza.
                     </p>
                   </div>
@@ -3254,7 +3254,7 @@ function CalculadoraInner() {
                   <section style={{ position: 'relative' as const, overflow: 'hidden', borderRadius: '18px', background: 'linear-gradient(118deg, #0D2440 0%, #14375F 60%, #0891B2 100%)' }}>
                     <div style={{ position: 'absolute' as const, width: 420, height: 420, right: -150, top: -180, borderRadius: 999, pointerEvents: 'none' as const, background: 'radial-gradient(circle, #0891B244 0%, transparent 68%)' }} />
                     <div style={{ position: 'relative' as const, padding: '28px 34px 22px' }}>
-                      <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>
+                      <p style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>
                         SU PENSIÓN CON MODALIDAD 10
                       </p>
                       <p style={{ fontSize: 'clamp(38px, 4.6vw, 58px)', fontWeight: 800, color: 'white', margin: '8px 0 0', lineHeight: 1, letterSpacing: '-.035em', whiteSpace: 'nowrap' as const, fontVariantNumeric: 'tabular-nums' as const }}>
@@ -3295,7 +3295,7 @@ function CalculadoraInner() {
                         { label: 'Inversión neta (costo - AFORE)', value: fmtMXN2(escM10.inversion_neta), highlight: true },
                       ].map(({ label, value, highlight }, i) => (
                         <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #F3F4F6', background: highlight ? 'transparent' : 'transparent' }}>
-                          <span style={{ fontSize: '12px', color: '#64748B' }}>{label}</span>
+                          <span style={{ fontSize: '13px', color: '#64748B' }}>{label}</span>
                           <span style={{ fontSize: highlight ? '14px' : '12px', fontWeight: highlight ? '800' : '600', color: highlight ? '#0891B2' : '#374151' }}>{value}</span>
                         </div>
                       ))}
@@ -3335,7 +3335,7 @@ function CalculadoraInner() {
 
                       {/* Diferencia clave */}
                       <div style={{ background: '#F0F9FF', border: '2px solid #0891B2', padding: '14px' }}>
-                        <p style={{ fontSize: '12px', fontWeight: '700', color: '#0C4A6E', margin: '0 0 8px' }}>💡 Diferencia clave con Mod 40</p>
+                        <p style={{ fontSize: '13px', fontWeight: '700', color: '#0C4A6E', margin: '0 0 8px' }}>💡 Diferencia clave con Mod 40</p>
                         <p style={{ fontSize: '13px', color: '#1E293B', lineHeight: 1.7, margin: 0 }}>
                           La <strong>Modalidad 40</strong> está diseñada para trabajadores que <em>siguen empleados</em> y quieren cotizar con un salario más alto para mejorar su pensión. La <strong>Modalidad 10</strong> es para quienes <em>ya no están empleados</em> y necesitan mantener sus derechos activos, incluyendo acceso a servicios médicos del IMSS. Son complementarias, no excluyentes.
                         </p>
@@ -3350,7 +3350,7 @@ function CalculadoraInner() {
                   <div style={{ textAlign: 'center' as const, padding: '40px', color: '#94A3B8' }}>
                     <div style={{ fontSize: '48px', marginBottom: '12px' }}>📋</div>
                     <p style={{ fontSize: '14px', margin: '0 0 6px' }}>Carga la constancia IMSS para ver el análisis de Modalidad 10</p>
-                    <p style={{ fontSize: '12px' }}>El sistema calcula automáticamente el escenario de Mod 10 con los datos de semanas cotizadas y SDI del trabajador</p>
+                    <p style={{ fontSize: '13px' }}>El sistema calcula automáticamente el escenario de Mod 10 con los datos de semanas cotizadas y SDI del trabajador</p>
                   </div>
                 </div>
               )}

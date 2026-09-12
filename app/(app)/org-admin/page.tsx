@@ -107,11 +107,11 @@ function PanelCanalizaciones({ supabase, userId, asesores }: { supabase: any; us
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '10px', background: '#F5F7FA', borderRadius: '10px', padding: '10px' }}>
                 <div>
-                  <p style={{ fontSize: '13px', color: '#9CA3AF', margin: '0 0 2px', textTransform: 'uppercase' as const }}>De</p>
+                  <p style={{ fontSize: '13px', color: '#9CA3AF', margin: '0 0 2px' }}>De</p>
                   <p style={{ fontSize: '15px', fontWeight: '700', color: '#374151', margin: 0 }}>{s.origen?.nombre ?? '—'}</p>
                 </div>
                 <div>
-                  <p style={{ fontSize: '13px', color: '#9CA3AF', margin: '0 0 2px', textTransform: 'uppercase' as const }}>Hacia</p>
+                  <p style={{ fontSize: '13px', color: '#9CA3AF', margin: '0 0 2px' }}>Hacia</p>
                   <p style={{ fontSize: '15px', fontWeight: '700', color: AZUL, margin: 0 }}>{s.destino?.nombre ?? '—'}</p>
                 </div>
               </div>
