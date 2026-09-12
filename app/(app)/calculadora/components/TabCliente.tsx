@@ -1,19 +1,32 @@
 'use client'
 import React from 'react'
 
-const AZUL = '#334E7B'
-const VERDE = '#2E7D5A'
-const NARANJA = '#E8724A'
-const MORADO = '#7C3AED'
-const BORDE = '#E2E8F0'
-
-// Sistema semántico de colores
-const SEM = {
-  imss:     { bg: '#EEF2F8', border: '#334E7B', text: '#1E3A5F', dot: '#334E7B', badgeBg: '#DBEAFE', label: 'Dato IMSS' },
-  manual:   { bg: '#FFF3ED', border: '#E8724A', text: '#92400E', dot: '#E8724A', badgeBg: '#FED7AA', label: 'Captura manual' },
-  strategy: { bg: '#F0F7F4', border: '#2E7D5A', text: '#1A5C40', dot: '#2E7D5A', badgeBg: '#BBF7D0', label: 'Decisión estratégica' },
-  result:   { bg: '#F5F3FF', border: '#7C3AED', text: '#4C1D95', dot: '#7C3AED', badgeBg: '#DDD6FE', label: 'Calculado' },
+/* Tokens — docs/rediseno/SISTEMA-DISENO.md */
+const K = {
+  navy900: '#0D2440', navy800: '#14375F', navy600: '#245287',
+  orange: '#E8622C', orangeSoft: '#FDF0E9', gold: '#F2B544',
+  green: '#12855C', greenSoft: '#E6F4EE', purple: '#6D3BD4',
+  paper: '#F5F7FA', card: '#FFFFFF',
+  ink: '#132135', muted: '#66738A', line: '#E1E7F0',
 }
+const AZUL = K.navy600
+const VERDE = K.green
+const NARANJA = K.orange
+const MORADO = K.purple
+const BORDE = K.line
+
+/* La procedencia del dato se conserva como informacion, pero deja de pintar
+   el fondo de cada campo: eso generaba cuatro paletas compitiendo en una
+   sola pantalla. Ahora es un punto de color con su etiqueta. */
+const SEM = {
+  imss:     { bg: K.card, border: K.line, text: K.ink, dot: K.navy600, badgeBg: '#DBEAFE', label: 'Dato IMSS' },
+  manual:   { bg: K.card, border: K.line, text: K.ink, dot: K.orange,  badgeBg: '#FED7AA', label: 'Captura manual' },
+  strategy: { bg: K.card, border: K.line, text: K.ink, dot: K.green,   badgeBg: '#BBF7D0', label: 'Decision estrategica' },
+  result:   { bg: K.paper, border: K.line, text: K.ink, dot: K.purple, badgeBg: '#DDD6FE', label: 'Calculado' },
+}
+
+const nw = { whiteSpace: 'nowrap' as const }
+const num = { fontVariantNumeric: 'tabular-nums' as const }
 
 const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n)
 const fmtMXN2 = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
@@ -23,28 +36,29 @@ const Field = ({ label, tipo, children, fullWidth }: { label: string; tipo: keyo
   <div style={{ gridColumn: fullWidth ? '1 / -1' : undefined }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '5px' }}>
       <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: SEM[tipo].dot, flexShrink: 0, display: 'inline-block' }} />
-      <label style={{ fontSize: '10px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>{label}</label>
+      <label style={{ fontSize: '15px', fontWeight: 500, color: '#66738A' }}>{label}</label>
     </div>
     {children}
   </div>
 )
 
 const inputBase = (tipo: keyof typeof SEM): React.CSSProperties => ({
-  width: '100%', height: '44px', border: `1.5px solid ${SEM[tipo].border}`,
-  borderRadius: '8px', padding: '0 12px', fontSize: '13px', fontFamily: 'inherit',
+  width: '100%', height: '48px', border: `1px solid ${SEM[tipo].border}`,
+  borderRadius: '10px', padding: '0 14px', fontSize: '17px', fontFamily: 'inherit',
   boxSizing: 'border-box' as const, background: SEM[tipo].bg, color: SEM[tipo].text,
-  fontWeight: tipo === 'imss' || tipo === 'strategy' ? '500' : '400',
-  outline: 'none',
+  fontWeight: 600, outline: 'none',
 })
 
 const CardSection = ({ tipo, title, children }: { tipo: keyof typeof SEM; title: string; children: React.ReactNode }) => (
-  <div style={{ background: 'white', borderRadius: '12px', borderLeft: `4px solid ${SEM[tipo].border}`, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-    <div style={{ padding: '10px 14px', background: SEM[tipo].bg, borderBottom: `1px solid ${BORDE}`, display: 'flex', alignItems: 'center', gap: '8px' }}>
-      <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: SEM[tipo].dot, display: 'inline-block' }} />
-      <span style={{ fontSize: '10px', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: '0.6px', color: SEM[tipo].text }}>{title}</span>
-      <span style={{ marginLeft: 'auto', fontSize: '9px', color: SEM[tipo].text, opacity: 0.6 }}>{SEM[tipo].label}</span>
+  <div style={{ background: K.card, borderRadius: '14px', border: `1px solid ${K.line}`, overflow: 'hidden', boxShadow: '0 1px 3px rgba(19,33,53,0.06)' }}>
+    <div style={{ padding: '18px 24px 14px', display: 'flex', alignItems: 'baseline', gap: '10px' }}>
+      <span style={{ fontSize: '20px', fontWeight: 700, color: K.ink }}>{title}</span>
+      <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '7px', fontSize: '13px', color: K.muted, ...nw }}>
+        <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: SEM[tipo].dot, display: 'inline-block' }} />
+        {SEM[tipo].label}
+      </span>
     </div>
-    <div style={{ padding: '14px 16px' }}>{children}</div>
+    <div style={{ padding: '0 24px 22px' }}>{children}</div>
   </div>
 )
 
@@ -260,7 +274,7 @@ export default function TabCliente({
 
       {/* Siguiente */}
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <button onClick={() => setTab(1)} style={{ padding: '10px 22px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: '700', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <button onClick={() => setTab(1)} style={{ padding: '13px 24px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '17px', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
           Cuantías anuales <i className="ti ti-arrow-right" style={{ fontSize: '14px' }} />
         </button>
       </div>

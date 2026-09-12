@@ -55,3 +55,37 @@ Dos niveles. Riel de tabs en navy con chevrones encadenados y palomita verde en 
 ## Pendientes de paridad
 
 Ver `docs/rediseno/` — ninguna pantalla se migra hasta cubrir todos los campos actuales. Elementos globales que el piloto perdió y hay que reponer: Glosario, selector Mod. 10 / Ley 97, chat flotante Sofía, leyenda de procedencia, columnas anual y aguinaldo en la tabla por edad.
+
+---
+
+## Estado de migración
+
+| Grupo | Pantalla | Estado |
+|---|---|---|
+| Datos generales | Constancia | migrada |
+| El cliente | Datos y perfil | migrada |
+| El cliente | Cuantías anuales | migrada |
+| El cliente | Salario Mod. 40 | migrada |
+| La pensión | Importe de pensión | migrada |
+| La pensión | Escenarios | migrada |
+| La inversión | Costo Mod. 40 | migrada |
+| La inversión | Proyección | migrada |
+| La inversión | Financiamiento | migrada |
+| Modalidad 10 | Vía alterna | pendiente |
+| El entregable | Resumen | pendiente |
+
+## Responsividad
+
+- **Sidebar**: cajón deslizable por debajo del breakpoint móvil, con velo y botón en el encabezado. En escritorio conserva el modo colapsado de 48px.
+- **Riel de tabs**: franja con desplazamiento horizontal por debajo de 1100px, ancho mínimo 112px por grupo (94px en teléfono).
+- **Retículas de dos columnas**: pasan a una sola por debajo de 1000px vía `.kse-2col`.
+- **Hero de tres columnas** (Importe): se apila por debajo de 860px y el conector vertical gira a horizontal.
+- **Tablas anchas**: contenedor con desplazamiento horizontal, nunca rompen el layout.
+
+## Pendientes conocidos
+
+1. Modalidad 10 y El entregable sin migrar.
+2. Los tokens siguen duplicados en cada componente (objeto `K`). Extraer a `lib/design-tokens.ts`.
+3. Dos termómetros con criterios distintos: uno por meses de recuperación (Escenarios, Costo) y otro por retorno (Proyección). Unificar.
+4. `TabCliente` recibió restyle, no rediseño de estructura: conserva su composición original.
+5. Fuente Inter no configurada vía `next/font`; el sistema la asume.

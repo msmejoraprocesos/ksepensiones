@@ -2810,23 +2810,40 @@ function CalculadoraInner() {
 
             {/* ── Tab -1: Datos generales ── */}
             {tab === -1 && (
-              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '20px' }}>
 
                 {/* Hero KPIs — resumen del caso */}
                 {(escenarios[0]?.pension_mensual || sdiPromedio > 0) && (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
-                    {[
-                      { label: 'Pensión sin Mod.40', value: escenarios[0]?.pension_mensual ? new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN',maximumFractionDigits:0}).format(escenarios[0].pension_mensual) : '—', color: '#DC2626', bg: '#FEF2F2', border: '#FCA5A5', dot: '#7C3AED' },
-                      { label: 'Semanas netas', value: datos.semanas_totales ? (datos.semanas_totales - (datos.semanas_descontadas||0)).toString() : '—', color: AZUL, bg: '#EEF2F8', border: AZUL, dot: AZUL },
-                      { label: 'SDI promedio 250 sem.', value: sdiPromedio > 0 ? fmtMXN2(sdiPromedio)+'/día' : '—', color: '#B45309', bg: '#FFF7ED', border: '#FCD34D', dot: NARANJA },
-                      { label: 'Edad / Régimen', value: datos.edad_actual ? `${datos.edad_actual.toFixed(0)} años · Ley ${datos.ley||'73'}` : '—', color: '#374151', bg: '#F8FAFC', border: '#E2E8F0', dot: AZUL },
-                    ].map((k, i) => (
-                      <div key={i} style={{ background: k.bg, border: `1px solid ${k.border}`, borderTop: `3px solid ${k.dot}`, borderRadius: '8px', padding: '10px 12px', textAlign: 'center' as const }}>
-                        <div style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginBottom: '5px', fontWeight: '600' as const }}>{k.label}</div>
-                        <div style={{ fontSize: '16px', fontWeight: '800' as const, color: k.color }}>{k.value}</div>
-                      </div>
-                    ))}
-                  </div>
+                  <section style={{ position: 'relative' as const, overflow: 'hidden', borderRadius: '18px', background: 'linear-gradient(118deg, #0D2440 0%, #14375F 60%, #245287 100%)' }}>
+                    <div style={{ position: 'absolute' as const, width: 440, height: 440, right: -150, top: -190, borderRadius: 999, pointerEvents: 'none' as const, background: 'radial-gradient(circle, #E8622C33 0%, transparent 68%)' }} />
+                    <div style={{ position: 'relative' as const, padding: '28px 34px 22px' }}>
+                      <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>
+                        SU PENSION HOY, SIN MODALIDAD 40
+                      </p>
+                      <p style={{ fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 800, color: 'white', margin: '8px 0 0', lineHeight: 1, letterSpacing: '-.035em', whiteSpace: 'nowrap' as const, fontVariantNumeric: 'tabular-nums' as const }}>
+                        {escenarios[0]?.pension_mensual
+                          ? new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(escenarios[0].pension_mensual)
+                          : '—'}
+                      </p>
+                      <p style={{ fontSize: '15px', color: 'rgba(255,255,255,.68)', margin: '10px 0 0' }}>
+                        {datos.nombre_trabajador || 'Trabajador'} — la constancia del IMSS es la base de todo el calculo.
+                      </p>
+                    </div>
+                    <div style={{ position: 'relative' as const, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1px', background: 'rgba(255,255,255,.11)' }}>
+                      {[
+                        { label: 'Semanas netas', value: datos.semanas_totales ? (datos.semanas_totales - (datos.semanas_descontadas || 0)).toLocaleString() : '—', sub: 'cotizadas ante el IMSS', color: '#1FA873' },
+                        { label: 'SDI promedio 250 sem.', value: sdiPromedio > 0 ? fmtMXN2(sdiPromedio) + '/dia' : '—', sub: 'base real del calculo', color: '#F2B544' },
+                        { label: 'Edad actual', value: datos.edad_actual ? `${datos.edad_actual.toFixed(1)} anios` : '—', sub: 'al dia de hoy', color: 'white' },
+                        { label: 'Regimen', value: `Ley ${datos.ley || '73'}`, sub: datos.ley === '97' ? 'cuenta individual' : 'pension por cuantia', color: 'white' },
+                      ].map((k, i) => (
+                        <div key={i} style={{ background: '#0D2440', padding: '18px 24px' }}>
+                          <p style={{ fontSize: '13px', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k.label}</p>
+                          <p style={{ fontSize: '24px', fontWeight: 700, color: k.color, margin: '3px 0 0', whiteSpace: 'nowrap' as const, fontVariantNumeric: 'tabular-nums' as const }}>{k.value}</p>
+                          <p style={{ fontSize: '13px', color: 'rgba(255,255,255,.44)', margin: '2px 0 0' }}>{k.sub}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
                 )}
 
                 {/* Leyenda del sistema de colores */}

@@ -1,15 +1,27 @@
 'use client'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { esEscenarioMod40 } from '@/app/utils/formulas'
 
-const AZUL = '#334E7B'
-const VERDE = '#2E7D5A'
-const NARANJA = '#E8724A'
-const MORADO = '#7C3AED'
-const BORDE = '#E2E8F0'
+/* Tokens — docs/rediseno/SISTEMA-DISENO.md */
+const K = {
+  navy900: '#0D2440', navy800: '#14375F', navy600: '#245287',
+  orange: '#E8622C', orangeSoft: '#FDF0E9', gold: '#F2B544',
+  green: '#12855C', greenLt: '#1FA873', greenSoft: '#E6F4EE',
+  purple: '#6D3BD4', amber: '#B45309', amberSoft: '#FFFBEB',
+  paper: '#F5F7FA', card: '#FFFFFF',
+  ink: '#132135', muted: '#66738A', line: '#E1E7F0',
+}
+const COLORES = [K.navy600, K.green, K.orange, K.purple]
 
 const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n)
 const fmtMXN2 = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
+
+const nw = { whiteSpace: 'nowrap' as const }
+const num = { fontVariantNumeric: 'tabular-nums' as const }
+
+const CSS = `
+@media (max-width: 1000px) { .kse-2col { grid-template-columns: 1fr !important; } }
+`
 
 interface Props {
   escenarios: any[]
@@ -41,183 +53,203 @@ export default function TabSalarioMod40({
   setTab, Tip
 }: Props) {
   const escRec = escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
-  const sdiMod40 = mod40Umas * (sys?.UMA_DIARIA ?? 117.31)
+  const umaDiaria = sys?.UMA_DIARIA ?? 117.31
+  const sdiMod40 = mod40Umas * umaDiaria
   const pensionActual = escenarios[0]?.pension_base ?? 0
+  const escs = escenarios.filter(esEscenarioMod40).slice(0, 4)
+  const [anim, setAnim] = useState(false)
 
-  const inputStrategy: React.CSSProperties = {
-    width: '100%', height: '44px', border: `2px solid ${VERDE}`,
-    borderRadius: '8px', padding: '0 12px', fontSize: '13px',
-    fontFamily: 'inherit', boxSizing: 'border-box', background: '#F0F7F4',
-    color: '#1A5C40', fontWeight: '500', outline: 'none',
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setAnim(true); return }
+    const t = setTimeout(() => setAnim(true), 200)
+    return () => clearTimeout(t)
+  }, [])
+
+  const campo: React.CSSProperties = {
+    width: '100%', height: '48px', border: `1px solid ${K.line}`,
+    borderRadius: '10px', padding: '0 14px', fontSize: '17px',
+    fontFamily: 'inherit', boxSizing: 'border-box', background: K.card,
+    color: K.ink, fontWeight: 600, outline: 'none', cursor: 'pointer',
   }
 
+  const Etiqueta = ({ children }: { children: React.ReactNode }) => (
+    <label style={{ display: 'block', fontSize: '15px', color: K.muted, marginBottom: '6px' }}>{children}</label>
+  )
+
+  const maxPension = Math.max(...escs.map(e => e.pension_mensual), 1)
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <style>{CSS}</style>
 
-      {/* Header con SDI resultante */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
-        <div style={{ background: '#F0F7F4', borderTop: `3px solid ${VERDE}`, padding: '12px 16px', borderRadius: '8px', textAlign: 'center' }}>
-          <div style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px', fontWeight: '600' }}>SDI a registrar</div>
-          <div style={{ fontSize: '22px', fontWeight: '800', color: VERDE }}>{fmtMXN2(sdiMod40)}/día</div>
-          <div style={{ fontSize: '10px', color: '#64748B', marginTop: '2px' }}>{mod40Umas} UMAs × ${sys?.UMA_DIARIA ?? 117.31}/día</div>
-        </div>
-        <div style={{ background: '#EEF2F8', borderTop: `3px solid ${AZUL}`, padding: '12px 16px', borderRadius: '8px', textAlign: 'center' }}>
-          <div style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px', fontWeight: '600' }}>Duración Mod. 40</div>
-          <div style={{ fontSize: '22px', fontWeight: '800', color: AZUL }}>{mod40Meses} meses</div>
-          <div style={{ fontSize: '10px', color: '#64748B', marginTop: '2px' }}>{(mod40Meses / 12).toFixed(1)} años de cotización</div>
-        </div>
-        <div style={{ background: '#F5F3FF', borderTop: `3px solid ${MORADO}`, padding: '12px 16px', borderRadius: '8px', textAlign: 'center' }}>
-          <div style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px', fontWeight: '600' }}>Pensión proyectada</div>
-          <div style={{ fontSize: '22px', fontWeight: '800', color: MORADO }}>{escRec ? fmtMXN2(escRec.pension_mensual) : '—'}</div>
-          <div style={{ fontSize: '10px', color: '#64748B', marginTop: '2px' }}>
-            {escRec && pensionActual > 0 ? `+${fmtMXN2(escRec.pension_mensual - pensionActual)}/mes` : 'vs sin Mod. 40'}
+      {/* ── Franja: el resultado de la decision ────────────────── */}
+      <section style={{ position: 'relative', overflow: 'hidden', borderRadius: '18px', background: `linear-gradient(118deg, ${K.navy900} 0%, ${K.navy800} 60%, ${K.navy600} 100%)` }}>
+        <div style={{ position: 'absolute', width: 440, height: 440, right: -150, top: -190, borderRadius: 999, pointerEvents: 'none', background: `radial-gradient(circle, ${K.orange}33 0%, transparent 68%)` }} />
+        <div style={{ position: 'relative', padding: '28px 34px 22px' }}>
+          <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>
+            PENSION PROYECTADA CON ESTOS PARAMETROS
+          </p>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap', marginTop: '8px' }}>
+            <p style={{ fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
+              {escRec ? fmtMXN2(escRec.pension_mensual) : '\u2014'}
+            </p>
+            {escRec && pensionActual > 0 && (
+              <span style={{ background: K.green, color: 'white', fontSize: '17px', fontWeight: 700, padding: '9px 16px', borderRadius: 999, ...nw, ...num }}>
+                +{fmtMXN2(escRec.pension_mensual - pensionActual)} cada mes
+              </span>
+            )}
           </div>
+          <p style={{ fontSize: '15px', color: 'rgba(255,255,255,.68)', margin: '10px 0 0' }}>
+            Cotizando {mod40Umas} UMAs durante {mod40Meses} meses a partir de los {edadIngresoAnios} anios {edadIngresoMeses} meses.
+          </p>
         </div>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-
-        {/* Parámetros estratégicos */}
-        <div style={{ background: 'white', borderRadius: '12px', borderLeft: `4px solid ${VERDE}`, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
-          <div style={{ padding: '10px 14px', background: '#F0F7F4', borderBottom: `1px solid ${BORDE}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: VERDE, display: 'inline-block' }} />
-              <span style={{ fontSize: '10px', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: '0.6px', color: VERDE }}>Decisión estratégica</span>
+        <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1px', background: 'rgba(255,255,255,.11)' }}>
+          {[
+            ['SDI a registrar', `${fmtMXN2(sdiMod40)}/dia`, `${mod40Umas} UMAs x ${fmtMXN2(umaDiaria)}`, K.gold],
+            ['Duracion', `${mod40Meses} meses`, `${(mod40Meses / 12).toFixed(1)} anios de cotizacion`, 'white'],
+            ['Inversion neta', escRec ? fmtMXN(escRec.inversion_neta) : '\u2014', 'descontando AFORE', K.gold],
+            ['Recuperacion', escRec ? `${escRec.roi} meses` : '\u2014', 'de pension mejorada', K.greenLt],
+          ].map((k, i) => (
+            <div key={i} style={{ background: K.navy900, padding: '18px 24px' }}>
+              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k[0]}</p>
+              <p style={{ fontSize: '24px', fontWeight: 700, color: k[3], margin: '3px 0 0', ...nw, ...num }}>{k[1]}</p>
+              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,.44)', margin: '2px 0 0' }}>{k[2]}</p>
             </div>
-            <button onClick={resetParametrosMod40} style={{ padding: '4px 10px', background: 'white', color: '#64748B', border: `1px solid ${BORDE}`, borderRadius: '6px', fontSize: '10px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
-              ↺ Restablecer
+          ))}
+        </div>
+      </section>
+
+      <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) minmax(300px, 1.15fr)', gap: '20px' }}>
+
+        {/* ── Decision estrategica ──────────────────────────────── */}
+        <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '18px' }}>
+            <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: 0 }}>Decision estrategica</p>
+            <button onClick={resetParametrosMod40}
+              style={{ padding: '8px 14px', background: 'transparent', color: K.muted, border: `1px solid ${K.line}`, borderRadius: '8px', fontSize: '15px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', ...nw }}>
+              Restablecer
             </button>
           </div>
-          <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
-            {/* Edad de ingreso */}
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '5px' }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: VERDE, display: 'inline-block' }} />
-                <label style={{ fontSize: '10px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
-                  Edad de ingreso a Mod. 40 <Tip id="duracionMod40" />
-                </label>
+          <div style={{ marginBottom: '18px' }}>
+            <Etiqueta>Edad de ingreso a Mod. 40 <Tip id="duracionMod40" /></Etiqueta>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div>
+                <p style={{ fontSize: '13px', color: K.muted, margin: '0 0 4px' }}>Anios</p>
+                <select value={edadIngresoAnios} onChange={e => setEdadIngresoAnios(Number(e.target.value))} style={{ ...campo, fontSize: '20px', fontWeight: 800 }}>
+                  {Array.from({ length: 31 }, (_, i) => i + 40).map(a => <option key={a} value={a}>{a}</option>)}
+                </select>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                <div>
-                  <div style={{ fontSize: '9px', color: '#94A3B8', textAlign: 'center', marginBottom: '3px', fontWeight: '600' }}>AÑOS</div>
-                  <select value={edadIngresoAnios} onChange={e => setEdadIngresoAnios(Number(e.target.value))} style={{ ...inputStrategy, fontSize: '20px', fontWeight: '800', textAlign: 'center' }}>
-                    {Array.from({ length: 31 }, (_, i) => i + 40).map(a => <option key={a} value={a}>{a}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <div style={{ fontSize: '9px', color: '#94A3B8', textAlign: 'center', marginBottom: '3px', fontWeight: '600' }}>MESES</div>
-                  <select value={edadIngresoMeses} onChange={e => setEdadIngresoMeses(Number(e.target.value))} style={{ ...inputStrategy, fontSize: '20px', fontWeight: '800', textAlign: 'center', border: `1.5px solid ${VERDE}` }}>
-                    {Array.from({ length: 12 }, (_, i) => i).map(m => <option key={m} value={m}>{m}</option>)}
-                  </select>
-                </div>
+              <div>
+                <p style={{ fontSize: '13px', color: K.muted, margin: '0 0 4px' }}>Meses</p>
+                <select value={edadIngresoMeses} onChange={e => setEdadIngresoMeses(Number(e.target.value))} style={{ ...campo, fontSize: '20px', fontWeight: 800 }}>
+                  {Array.from({ length: 12 }, (_, i) => i).map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
               </div>
-              <p style={{ fontSize: '10px', color: '#94A3B8', margin: '4px 0 0' }}>Pre-cargado de la constancia — ajusta si el cliente quiere entrar después</p>
             </div>
-
-            {/* UMAs */}
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '5px' }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: VERDE, display: 'inline-block' }} />
-                <label style={{ fontSize: '10px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
-                  Salario a registrar (UMAs) <Tip id="uma" />
-                </label>
-              </div>
-              <select value={mod40Umas} onChange={e => setMod40Umas(Number(e.target.value))} style={{ ...inputStrategy, fontSize: '14px' }}>
-                {Array.from({ length: 25 }, (_, i) => i + 1).map(u => (
-                  <option key={u} value={u}>{u} UMA{u > 1 ? 's' : ''} — {fmtMXN2(u * (sys?.UMA_DIARIA ?? 117.31))}/día</option>
-                ))}
-              </select>
-              {ingresoObjetivo > 0 && escRec && (
-                <div style={{ marginTop: '6px', padding: '7px 10px', background: escRec.pension_mensual >= ingresoObjetivo ? '#F0FDF4' : '#FFFBEB', border: `1px solid ${escRec.pension_mensual >= ingresoObjetivo ? '#86EFAC' : '#FCD34D'}`, borderLeft: `3px solid ${escRec.pension_mensual >= ingresoObjetivo ? VERDE : '#F59E0B'}`, borderRadius: '4px' }}>
-                  <p style={{ fontSize: '11px', color: escRec.pension_mensual >= ingresoObjetivo ? '#065F46' : '#92400E', margin: 0, lineHeight: 1.5 }}>
-                    {escRec.pension_mensual >= ingresoObjetivo
-                      ? `✅ Con ${mod40Umas} UMAs la pensión alcanza tu meta de ${fmtMXN2(ingresoObjetivo)}/mes`
-                      : `⚠️ Necesitas más UMAs para alcanzar ${fmtMXN2(ingresoObjetivo)}/mes`}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Duración */}
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '5px' }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: VERDE, display: 'inline-block' }} />
-                <label style={{ fontSize: '10px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
-                  Meses en Mod. 40 <Tip id="duracionMod40" />
-                </label>
-              </div>
-              <select value={mod40Meses} onChange={e => setMod40Meses(Number(e.target.value))} style={inputStrategy}>
-                {[6,12,18,24,30,36,42,48,54,60,66,72,78,84,90,96,102,108,114,120].map(m => (
-                  <option key={m} value={m}>{m} meses ({(m/12).toFixed(1)} años)</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Trámite retroactivo */}
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '5px' }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: NARANJA, display: 'inline-block' }} />
-                <label style={{ fontSize: '10px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
-                  ¿Trámite retroactivo? <Tip id="retroactivo" />
-                </label>
-              </div>
-              <select value={tieneAtraso ? 'si' : 'no'} onChange={e => setTieneAtraso(e.target.value === 'si')}
-                style={{ ...inputStrategy, border: `1.5px solid ${NARANJA}`, background: '#FFF3ED', color: '#92400E' }}>
-                <option value="no">No — cotización mensual normal</option>
-                <option value="si">Sí — pago retroactivo con recargos</option>
-              </select>
-            </div>
+            <p style={{ fontSize: '13px', color: K.muted, margin: '6px 0 0' }}>
+              Precargado de la constancia. Ajusta si el cliente quiere entrar despues.
+            </p>
           </div>
-        </div>
 
-        {/* Proyección de escenarios */}
-        <div style={{ background: 'white', borderRadius: '12px', borderLeft: `4px solid ${MORADO}`, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
-          <div style={{ padding: '10px 14px', background: '#F5F3FF', borderBottom: `1px solid ${BORDE}`, display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: MORADO, display: 'inline-block' }} />
-            <span style={{ fontSize: '10px', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: '0.6px', color: MORADO }}>Resultado calculado — escenarios</span>
+          <div style={{ marginBottom: '18px' }}>
+            <Etiqueta>Salario a registrar <Tip id="uma" /></Etiqueta>
+            <select value={mod40Umas} onChange={e => setMod40Umas(Number(e.target.value))} style={campo}>
+              {Array.from({ length: 25 }, (_, i) => i + 1).map(u => (
+                <option key={u} value={u}>{u} UMA{u > 1 ? 's' : ''} — {fmtMXN2(u * umaDiaria)}/dia</option>
+              ))}
+            </select>
+            {ingresoObjetivo > 0 && escRec && (
+              <div style={{ marginTop: '10px', background: escRec.pension_mensual >= ingresoObjetivo ? K.greenSoft : K.amberSoft, borderRadius: '10px', padding: '12px 14px' }}>
+                <p style={{ fontSize: '15px', color: K.ink, margin: 0, lineHeight: 1.55 }}>
+                  {escRec.pension_mensual >= ingresoObjetivo
+                    ? <>Con {mod40Umas} UMAs la pension <span style={{ color: K.green, fontWeight: 700 }}>alcanza la meta</span> de {fmtMXN2(ingresoObjetivo)}/mes.</>
+                    : <>Faltan <span style={{ color: K.amber, fontWeight: 700 }}>{fmtMXN2(ingresoObjetivo - escRec.pension_mensual)}/mes</span> para la meta de {fmtMXN2(ingresoObjetivo)}. Sube las UMAs o los meses.</>}
+                </p>
+              </div>
+            )}
           </div>
-          <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {escenarios.filter(esEscenarioMod40).slice(0, 4).map((esc, i) => {
-              const colors = [AZUL, VERDE, NARANJA, MORADO]
-              const c = colors[i] || AZUL
-              const incr = esc.pension_mensual - pensionActual
-              const isRec = esc.recomendado
-              return (
-                <div key={i} style={{ padding: '10px 12px', background: isRec ? '#F0F7F4' : '#F8FAFC', border: `1px solid ${isRec ? '#86EFAC' : BORDE}`, borderRadius: '8px', borderLeft: `4px solid ${c}` }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: '600', color: '#374151' }}>
-                      {isRec ? '⭐ ' : ''}Esc. {i + 1} — {esc.mod40_umas} UMAs · {esc.mod40_meses} meses
-                    </span>
-                    <span style={{ fontSize: '15px', fontWeight: '800', color: c }}>{fmtMXN2(esc.pension_mensual)}</span>
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '4px' }}>
-                    {[
-                      { label: 'Mejora', value: '+' + fmtMXN2(incr), color: VERDE },
-                      { label: 'Inversión neta', value: fmtMXN(esc.inversion_neta), color: '#B45309' },
-                      { label: 'Recuperación', value: esc.roi + ' meses', color: AZUL },
-                    ].map((m, mi) => (
-                      <div key={mi} style={{ textAlign: 'center', padding: '4px', background: 'white', borderRadius: '4px' }}>
-                        <div style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase' as const }}>{m.label}</div>
-                        <div style={{ fontSize: '11px', fontWeight: '700', color: m.color }}>{m.value}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )
-            })}
-            {escenarios.filter(esEscenarioMod40).length === 0 && (
-              <div style={{ textAlign: 'center', padding: '24px', color: '#94A3B8' }}>
-                <p style={{ fontSize: '12px', margin: 0 }}>Ajusta los parámetros para generar escenarios</p>
+
+          <div style={{ marginBottom: '18px' }}>
+            <Etiqueta>Meses en Mod. 40 <Tip id="duracionMod40" /></Etiqueta>
+            <select value={mod40Meses} onChange={e => setMod40Meses(Number(e.target.value))} style={campo}>
+              {[6,12,18,24,30,36,42,48,54,60,66,72,78,84,90,96,102,108,114,120].map(m => (
+                <option key={m} value={m}>{m} meses ({(m / 12).toFixed(1)} anios)</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <Etiqueta>Tramite retroactivo <Tip id="retroactivo" /></Etiqueta>
+            <select value={tieneAtraso ? 'si' : 'no'} onChange={e => setTieneAtraso(e.target.value === 'si')}
+              style={{ ...campo, borderColor: tieneAtraso ? K.orange : K.line, background: tieneAtraso ? K.orangeSoft : K.card, color: tieneAtraso ? K.orange : K.ink }}>
+              <option value="no">No — cotizacion mensual normal</option>
+              <option value="si">Si — pago retroactivo con recargos</option>
+            </select>
+            {tieneAtraso && (
+              <div style={{ marginTop: '10px', background: K.orangeSoft, borderRadius: '10px', padding: '12px 14px' }}>
+                <p style={{ fontSize: '15px', color: K.ink, margin: 0, lineHeight: 1.55 }}>
+                  El pago retroactivo agrega actualizaciones y recargos sobre el costo base.{' '}
+                  <span style={{ color: K.orange, fontWeight: 700 }}>Verifica que el cliente siga dentro del plazo del Art. 219 LSS.</span>
+                </p>
               </div>
             )}
           </div>
         </div>
+
+        {/* ── Escenarios calculados ─────────────────────────────── */}
+        <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px' }}>
+          <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Escenarios calculados</p>
+          <p style={{ fontSize: '13px', color: K.muted, margin: '0 0 18px' }}>
+            Comparados contra {fmtMXN2(pensionActual)}/mes sin Mod. 40
+          </p>
+
+          {escs.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px 20px', color: K.muted }}>
+              <p style={{ fontSize: '15px', margin: 0 }}>Ajusta los parametros para generar escenarios</p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {escs.map((esc, i) => {
+                const c = COLORES[i] || K.navy600
+                const incr = esc.pension_mensual - pensionActual
+                return (
+                  <div key={i} style={{ borderRadius: '12px', padding: '16px', background: esc.recomendado ? K.greenSoft : K.paper, border: esc.recomendado ? `1px solid ${K.green}44` : `1px solid ${K.line}` }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '10px', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '15px', fontWeight: 700, color: c, ...nw }}>
+                        {esc.recomendado && '\u2605 '}Esc. {i + 1} — {esc.mod40_umas} UMAs &middot; {esc.mod40_meses} meses
+                      </span>
+                      <span style={{ fontSize: '22px', fontWeight: 800, color: K.ink, ...nw, ...num }}>{fmtMXN2(esc.pension_mensual)}</span>
+                    </div>
+
+                    <div style={{ height: '8px', background: 'rgba(0,0,0,.06)', borderRadius: 999, overflow: 'hidden', margin: '10px 0 12px' }}>
+                      <div style={{ height: '100%', width: anim ? `${(esc.pension_mensual / maxPension) * 100}%` : '0%', background: c, borderRadius: 999, transition: 'width .9s cubic-bezier(.22,1,.36,1)' }} />
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                      {[
+                        ['Mejora', '+' + fmtMXN(incr), K.green],
+                        ['Inversion neta', fmtMXN(esc.inversion_neta), K.amber],
+                        ['Recuperacion', `${esc.roi} meses`, K.navy600],
+                      ].map(([l, v, col], mi) => (
+                        <div key={mi}>
+                          <p style={{ fontSize: '13px', color: K.muted, margin: 0 }}>{l}</p>
+                          <p style={{ fontSize: '17px', fontWeight: 700, color: col, margin: '2px 0 0', ...nw, ...num }}>{v}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <button onClick={() => setTab(3)} style={{ padding: '10px 22px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: '700', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          SDI 250 sem. <i className="ti ti-arrow-right" style={{ fontSize: '14px' }} />
+        <button onClick={() => setTab(3)}
+          style={{ padding: '13px 24px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '17px', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
+          SDI 250 sem. <i className="ti ti-arrow-right" style={{ fontSize: '16px' }} />
         </button>
       </div>
     </div>
