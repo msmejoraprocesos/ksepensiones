@@ -64,6 +64,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [pwdGuardando, setPwdGuardando] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [drawerAbierto, setDrawerAbierto] = useState(false)
   const [showNavGuard, setShowNavGuard] = useState(false)
   const pendingNavRef = useRef<string | null>(null)
 
@@ -255,6 +256,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         gap: '12px',
         zIndex: 40,
       }}>
+        {/* Menu — solo en movil/tablet, abre el cajon de navegacion */}
+        {isMobile && (
+          <button onClick={() => setDrawerAbierto(true)} aria-label="Abrir menu"
+            style={{ width: '40px', height: '40px', borderRadius: '9px', border: '1px solid #E1E7F0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>
+            <span style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              {[0, 1, 2].map(i => <span key={i} style={{ width: '18px', height: '2px', background: '#14375F', borderRadius: '2px', display: 'block' }} />)}
+            </span>
+          </button>
+        )}
+
         {/* Logo */}
         <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', flexShrink: 0 }}>
           <img src="/logo-kse.png" alt="KSE" style={{ height: '28px', objectFit: 'contain' }} />
@@ -404,16 +415,37 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
 
         {/* ── SIDEBAR — oculto en móvil ── */}
-        <div style={{
-          width: isMobile ? '0px' : collapsed ? '48px' : '200px',
-          flexShrink: 0,
-          background: 'white',
-          borderRight: isMobile ? 'none' : '1px solid #e2e8f0',
-          display: isMobile ? 'none' : 'flex',
-          flexDirection: 'column',
-          transition: 'width 0.2s',
-          overflow: 'hidden',
-        }}>
+        {/* Velo — solo cuando el cajon esta abierto en movil */}
+        {isMobile && drawerAbierto && (
+          <div onClick={() => setDrawerAbierto(false)}
+            style={{ position: 'fixed' as const, inset: 0, background: 'rgba(13,36,64,.45)', zIndex: 60 }} />
+        )}
+
+        <div
+          onClick={() => { if (isMobile) setDrawerAbierto(false) }}
+          style={isMobile ? {
+            position: 'fixed' as const,
+            top: 0, bottom: 0, left: 0,
+            width: '250px',
+            background: 'white',
+            borderRight: '1px solid #e2e8f0',
+            display: 'flex',
+            flexDirection: 'column' as const,
+            zIndex: 61,
+            transform: drawerAbierto ? 'translateX(0)' : 'translateX(-100%)',
+            transition: 'transform .25s cubic-bezier(.22,1,.36,1)',
+            boxShadow: drawerAbierto ? '0 10px 40px rgba(13,36,64,.25)' : 'none',
+            overflowY: 'auto' as const,
+          } : {
+            width: collapsed ? '48px' : '200px',
+            flexShrink: 0,
+            background: 'white',
+            borderRight: '1px solid #e2e8f0',
+            display: 'flex',
+            flexDirection: 'column' as const,
+            transition: 'width 0.2s',
+            overflow: 'hidden',
+          }}>
           {/* Nav items — ocultos hasta que el rol esté cargado para evitar flash */}
           <div style={{ flex: 1, padding: '8px 0', visibility: rolCargado ? 'visible' : 'hidden' }}>
             {NAV_ITEMS.filter(item => {
@@ -434,7 +466,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <Link key={item.href} href={item.href} onClick={handleNavClick} style={{ textDecoration: 'none', display: 'block' }}>
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: '10px',
-                    padding: collapsed ? '9px 14px' : '8px 16px',
+                    padding: (collapsed && !isMobile) ? '9px 14px' : '8px 16px',
                     borderLeft: `3px solid ${isActive ? NARANJA : 'transparent'}`,
                     background: isActive ? '#fff5f2' : 'transparent',
                     color: isActive ? NARANJA : '#64748b',
@@ -445,7 +477,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     overflow: 'hidden',
                   }}>
                     <span style={{ fontSize: '14px', flexShrink: 0, width: '16px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{item.icon}</span>
-                    {!collapsed && <span>{item.label}</span>}
+                    {(!collapsed || isMobile) && <span>{item.label}</span>}
                   </div>
                 </Link>
               )
@@ -455,7 +487,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {/* Collapse toggle */}
           <div style={{ padding: '8px', borderTop: '1px solid #f1f5f9' }}>
             <button onClick={() => setCollapsed(p => !p)}
-              style={{ width: '100%', padding: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'flex-start', gap: '6px' }}>
+              style={{ width: '100%', padding: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: '12px', display: isMobile ? 'none' : 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'flex-start', gap: '6px' }}>
               {collapsed ? '→' : '← Colapsar'}
             </button>
           </div>

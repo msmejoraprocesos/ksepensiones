@@ -72,6 +72,14 @@ export default function TabFinanciamiento({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <style>{`
+        @media (max-width: 1000px) {
+          .kse-2col { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 700px) {
+          .kse-tabla-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        }
+      `}</style>
 
       {/* ── Franja de cifras ───────────────────────────────────── */}
       <section style={{ position: 'relative', overflow: 'hidden', borderRadius: '18px', background: `linear-gradient(118deg, ${K.navy900} 0%, ${K.navy800} 60%, ${K.navy600} 100%)` }}>
@@ -111,7 +119,7 @@ export default function TabFinanciamiento({
         </div>
       </section>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1.3fr) minmax(280px, 1fr)', gap: '20px' }}>
+      <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1.3fr) minmax(280px, 1fr)', gap: '20px' }}>
 
         {/* ── Distribucion del pago ──────────────────────────────── */}
         <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px' }}>

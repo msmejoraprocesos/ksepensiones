@@ -82,6 +82,14 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <style>{`
+        @media (max-width: 1000px) {
+          .kse-2col { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 700px) {
+          .kse-tabla-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        }
+      `}</style>
 
       {/* ── Franja de cifras ───────────────────────────────────── */}
       <section style={{ position: 'relative', overflow: 'hidden', borderRadius: '18px', background: `linear-gradient(118deg, ${K.navy900} 0%, ${K.navy800} 60%, ${K.navy600} 100%)` }}>

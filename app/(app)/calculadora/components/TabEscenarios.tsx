@@ -88,6 +88,21 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <style>{`
+        @media (max-width: 1000px) {
+          .kse-2col { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 860px) {
+          .kse-hero3 { grid-template-columns: 1fr !important; gap: 16px !important; padding: 26px 22px !important; }
+          .kse-hero3 > div:nth-child(2) { flex-direction: row !important; height: 56px; }
+          .kse-hero3 > div:nth-child(2) > div:first-child,
+          .kse-hero3 > div:nth-child(2) > div:last-child { width: 100% !important; height: 2px !important; flex: 1; }
+          .kse-hero3 > div:last-child { padding-left: 0 !important; }
+        }
+        @media (max-width: 700px) {
+          .kse-tabla-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        }
+      `}</style>
 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
         <div>
@@ -141,7 +156,7 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
       )}
 
       {vista === 'cards' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1.35fr) minmax(280px, 1fr)', gap: '20px' }}>
+        <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1.35fr) minmax(280px, 1fr)', gap: '20px' }}>
 
           <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px' }}>
             <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Comparativo visual de pension mensual</p>

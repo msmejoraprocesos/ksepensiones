@@ -2667,14 +2667,29 @@ function CalculadoraInner() {
               const grupoActivo = grupos.findIndex(g => g.tabs.includes(tab))
               const todosLosTabs = grupos.flatMap(g => g.tabs)
               return (
-                <div style={{ background: '#F4F6F9', borderBottom: `1px solid ${BORDE}`, flexShrink: 0, position: 'relative' as const, zIndex: 20, padding: '6px 8px' }}>
-                  <div style={{ display: 'flex', gap: '6px' }}>
+                <div className="kse-riel" style={{ background: '#F4F6F9', borderBottom: `1px solid ${BORDE}`, flexShrink: 0, position: 'relative' as const, zIndex: 20, padding: '6px 8px' }}>
+                  <style>{`
+                    /* Responsivo del riel: con 6 grupos y flex:1 las etiquetas
+                       se vuelven ilegibles en tablet y movil. Pasa a franja
+                       desplazable con ancho minimo por grupo. */
+                    @media (max-width: 1100px) {
+                      .kse-riel { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+                      .kse-riel::-webkit-scrollbar { height: 3px; }
+                      .kse-riel::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+                      .kse-riel-track { min-width: max-content; }
+                      .kse-riel-item { flex: 0 0 auto !important; min-width: 112px; }
+                    }
+                    @media (max-width: 760px) {
+                      .kse-riel-item { min-width: 94px; }
+                    }
+                  `}</style>
+                  <div className="kse-riel-track" style={{ display: 'flex', gap: '6px' }}>
                     {grupos.map((g, gi) => {
                       const activo = gi === grupoActivo
                       const abierto = menuAbierto === gi
                       const completado = g.tabs.every(t => t < tab)
                       return (
-                        <div key={gi} style={{ flex: 1, position: 'relative' as const }}>
+                        <div key={gi} className="kse-riel-item" style={{ flex: 1, position: 'relative' as const }}>
                           <button
                             onClick={() => setMenuAbierto(abierto ? null : gi)}
                             style={{ width: '100%', padding: '10px 8px', border: 'none', borderRadius: '8px', cursor: 'pointer', background: activo ? AZUL : 'white', fontFamily: 'inherit', transition: 'all 0.15s', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '4px', boxShadow: activo ? '0 2px 8px rgba(51,78,123,0.3)' : '0 1px 2px rgba(0,0,0,0.06)' }}>

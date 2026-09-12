@@ -65,12 +65,27 @@ export default function TabImporte({ escenarios, datos, setTab, Tip }: Props) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <style>{`
+        @media (max-width: 1000px) {
+          .kse-2col { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 860px) {
+          .kse-hero3 { grid-template-columns: 1fr !important; gap: 16px !important; padding: 26px 22px !important; }
+          .kse-hero3 > div:nth-child(2) { flex-direction: row !important; height: 56px; }
+          .kse-hero3 > div:nth-child(2) > div:first-child,
+          .kse-hero3 > div:nth-child(2) > div:last-child { width: 100% !important; height: 2px !important; flex: 1; }
+          .kse-hero3 > div:last-child { padding-left: 0 !important; }
+        }
+        @media (max-width: 700px) {
+          .kse-tabla-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        }
+      `}</style>
 
       {/* ── Hero: hoy -> palanca -> resultado ──────────────────── */}
       <section style={{ position: 'relative', overflow: 'hidden', borderRadius: '18px', background: `linear-gradient(118deg, ${K.navy900} 0%, ${K.navy800} 54%, ${K.navy600} 100%)` }}>
         <div style={{ position: 'absolute', width: 520, height: 520, right: -160, top: -210, borderRadius: 999, pointerEvents: 'none', background: `radial-gradient(circle, ${K.orange}3D 0%, transparent 68%)` }} />
 
-        <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'minmax(210px,.85fr) 120px minmax(300px,1.6fr)', alignItems: 'stretch', padding: '34px 34px 26px', gap: '4px' }}>
+        <div className="kse-hero3" style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'minmax(210px,.85fr) 120px minmax(300px,1.6fr)', alignItems: 'stretch', padding: '34px 34px 26px', gap: '4px' }}>
 
           <div style={{ background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.13)', borderRadius: '14px', padding: '22px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <span style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)' }}>HOY</span>
@@ -134,7 +149,7 @@ export default function TabImporte({ escenarios, datos, setTab, Tip }: Props) {
         </div>
       </section>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1.15fr) minmax(300px, 1fr)', gap: '20px' }}>
+      <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1.15fr) minmax(300px, 1fr)', gap: '20px' }}>
 
         {/* ── Desglose ──────────────────────────────────────────── */}
         <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px' }}>
