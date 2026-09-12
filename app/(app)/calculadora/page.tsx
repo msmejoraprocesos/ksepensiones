@@ -2064,7 +2064,7 @@ function CalculadoraInner() {
         const hayErrores = problemas.some(p => p.nivel === 'error')
         return (
           <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-            <div style={{ background: 'white', width: '100%', maxWidth: '480px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+            <div style={{ background: 'white', maxWidth: '620px', width: 'min(100%, 92vw)', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
               <div style={{ background: hayErrores ? '#DC2626' : '#F59E0B', padding: '16px 20px' }}>
                 <p style={{ fontSize: '15px', fontWeight: '800' as const, color: 'white', margin: 0 }}>
                   {hayErrores ? '⛔ Se encontraron errores en los datos' : '⚠️ Revisa estos datos antes de continuar'}
@@ -2103,7 +2103,7 @@ function CalculadoraInner() {
         const esAutorizacion = estatus === 'autorizado'
         return (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-            <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '100%', maxWidth: '400px', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+            <div style={{ background: 'white', borderRadius: '14px', padding: '24px', maxWidth: '660px', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
               <div style={{ fontSize: '28px', textAlign: 'center' as const, marginBottom: '8px' }}>🎯</div>
               <h3 style={{ fontSize: '16px', fontWeight: '700' as const, color: '#334E7B', margin: '0 0 10px', textAlign: 'center' as const }}>
                 {esAutorizacion ? '¡Diagnóstico autorizado!' : '¡Diagnóstico guardado!'}
@@ -2131,7 +2131,7 @@ function CalculadoraInner() {
       {showGlosario && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={e => { if (e.target === e.currentTarget) setShowGlosario(false) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '100%', maxWidth: '560px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', maxWidth: '700px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <p style={{ fontSize: '14px', fontWeight: '700' as const, color: AZUL, margin: 0 }}>📖 Glosario de términos</p>
               <button onClick={() => setShowGlosario(false)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
@@ -2165,7 +2165,7 @@ function CalculadoraInner() {
       {showGuiaEdadMod40 && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={e => { if (e.target === e.currentTarget) setShowGuiaEdadMod40(false) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '100%', maxWidth: '560px', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', maxWidth: '700px', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <p style={{ fontSize: '14px', fontWeight: '700' as const, color: AZUL, margin: 0 }}>¿Por qué pedimos años Y meses, no solo años?</p>
               <button onClick={() => setShowGuiaEdadMod40(false)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
@@ -2190,7 +2190,7 @@ function CalculadoraInner() {
       {showTooltipCuantia && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={e => { if (e.target === e.currentTarget) setShowTooltipCuantia(false) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '100%', maxWidth: '520px', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', maxWidth: '660px', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <div>
                 <p style={{ fontSize: '14px', fontWeight: '700' as const, color: AZUL, margin: 0 }}>Tabla de cuantía de pensión — Ley 73</p>
@@ -2239,7 +2239,7 @@ function CalculadoraInner() {
       {/* ── Modal: ¿Continuar diagnóstico existente o nuevo? ── */}
       {showContinuarDiag && diagExistente && (
         <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', width: '100%', maxWidth: '420px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+          <div style={{ background: 'white', maxWidth: '540px', width: 'min(100%, 92vw)', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
             <div style={{ background: AZUL, padding: '16px 20px' }}>
               <p style={{ fontSize: '14px', fontWeight: '700' as const, color: 'white', margin: 0 }}>📋 Este cliente tiene un diagnóstico en progreso</p>
             </div>
@@ -2280,7 +2280,7 @@ function CalculadoraInner() {
       {/* ── Modal confirmación cambio de cliente ── */}
       {showConfirmCambio && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '100%', maxWidth: '380px', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', maxWidth: '380px', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
             <h3 style={{ fontSize: '16px', fontWeight: '700' as const, color: '#334E7B', margin: '0 0 10px' }}>⚠️ ¿Cambiar de cliente?</h3>
             <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 20px', lineHeight: 1.6 }}>
               {diagGuardadoId
@@ -2312,7 +2312,7 @@ function CalculadoraInner() {
       {showDetalle250 && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(13,36,64,0.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={() => setShowDetalle250(false)}>
-          <div style={{ background: 'white', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '680px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
+          <div style={{ background: 'white', borderRadius: '16px', padding: '28px', maxWidth: '860px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
             onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div>
@@ -2358,7 +2358,7 @@ function CalculadoraInner() {
       {showHistorialCompleto && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(13,36,64,0.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={() => setShowHistorialCompleto(false)}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '100%', maxWidth: '760px', maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
+          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', maxWidth: '760px', maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
             onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div>
@@ -2400,7 +2400,7 @@ function CalculadoraInner() {
       {/* ══ MODAL 1: Bienvenida — ambos campos obligatorios ══ */}
       {appInicializado && mostrarCaratula && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(2px)' }}>
-          <div style={{ background: 'white', width: '100%', maxWidth: '400px', boxShadow: '0 24px 64px rgba(0,0,0,0.25)', overflow: 'hidden' }}>
+          <div style={{ background: 'white', borderRadius: '16px', maxWidth: '880px', width: 'min(100%, 94vw)', maxHeight: '92vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(13,36,64,0.28)' }}>
 
             {/* Header azul */}
             <div style={{ background: AZUL, padding: '26px 28px 20px', textAlign: 'center' as const }}>
@@ -2563,7 +2563,7 @@ function CalculadoraInner() {
       {/* ══ MODAL 2: Lista de clientes — abre sobre el modal 1 ══ */}
       {showClienteModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.4)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', width: '100%', maxWidth: '460px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', overflow: 'hidden' }}>
+          <div style={{ background: 'white', maxWidth: '580px', width: 'min(100%, 92vw)', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', overflow: 'hidden' }}>
             {/* Header */}
             <div style={{ padding: '16px 20px', borderBottom: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
@@ -3096,6 +3096,14 @@ function CalculadoraInner() {
         {tab === 7 && (() => { setTab(6); return null })()}
 
         {/* ══ TAB 8: ESCENARIOS — componente externo ══ */}
+        {/* ══ TAB 5: IMPORTE DE PENSIÓN ══
+             El componente existía y se importaba, pero nunca se invocaba: no
+             había ningún `tab === 5` en el árbol. El riel llevaba a la
+             pantalla y nadie la pintaba, así que salía en blanco. */}
+        {tab === 5 && (
+          <TabImporte escenarios={escenarios} datos={datos} setTab={setTab} Tip={Tip} />
+        )}
+
         {tab === 8 && (
           <TabEscenarios escenarios={escenarios} setTab={setTab} fmtMXN={fmtMXN} />
         )}
