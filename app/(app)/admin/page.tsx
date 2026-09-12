@@ -45,6 +45,11 @@ function AdminFormulasInner() {
   const [rendDefault, setRendDefault] = useState(6)
   const [pctBanco, setPctBanco] = useState(35.65)
   const [tasaBanco, setTasaBanco] = useState(32.2)
+  /* Recargos por mora e INPC: el Congreso fija los primeros cada anio en la
+     Ley de Ingresos (Art. 21 CFF) y el segundo determina la actualizacion
+     anual de pensiones (Art. 214 LSS). Estaban embebidos en el codigo. */
+  const [recargoMensual, setRecargoMensual] = useState(2.07)
+  const [inflacionPension, setInflacionPension] = useState(4.5)
   const [tasasMod40, setTasasMod40] = useState<Record<number, number>>({ ...TASAS_MOD40_POR_ANIO })
   const [activeTab, setActiveTab] = useState<'configurables' | 'legales' | 'equipo'>('configurables')
   const [orgExpandida, setOrgExpandida] = useState<string | null>(null)
@@ -155,6 +160,8 @@ function AdminFormulasInner() {
         if (conf.rendimiento_afore_default) setRendDefault(conf.rendimiento_afore_default)
         if (conf.pct_banco_regulado) setPctBanco(conf.pct_banco_regulado)
         if (conf.tasa_banco_anual) setTasaBanco(conf.tasa_banco_anual)
+        if (conf.recargo_mensual) setRecargoMensual(conf.recargo_mensual)
+        if (conf.inflacion_pension) setInflacionPension(conf.inflacion_pension)
         const t: Record<number, number> = { ...TASAS_MOD40_POR_ANIO }
         for (let y = 2026; y <= 2030; y++) {
           const k = `mod40_${y}`
@@ -252,6 +259,7 @@ function AdminFormulasInner() {
       pmg_mensual: pmgL73, pmg_l97: pmgL97,
       pct_afore_mod40: pctAfore, rendimiento_afore_default: rendDefault,
       pct_banco_regulado: pctBanco, tasa_banco_anual: tasaBanco,
+      recargo_mensual: recargoMensual, inflacion_pension: inflacionPension,
     }
     for (let y = 2026; y <= 2030; y++) payload[`mod40_${y}`] = tasasMod40[y] ?? TASAS_MOD40_POR_ANIO[y]
     const nowIso = new Date().toISOString()
@@ -518,7 +526,8 @@ function AdminFormulasInner() {
                     {fieldRow('Factor actualización UMA', 'Metodología del Excel de referencia', 'PENSIÓN ACTUAL!×1.11', <strong>×{FACTOR_ACTUALIZACION_UMA}</strong>)}
                     {fieldRow('Techo tasa Mod40', 'IMSS — a partir de 2031', 'COSTO MOD. 40!D14', <strong>{TASA_MOD40_TECHO}%</strong>)}
                     {fieldRow('Edad análisis de flujos', 'Estándar de industria', 'INVERSION!D46/F46', <strong>{EDAD_ANALISIS_FLUJOS} años</strong>)}
-                    {fieldRow('Tasa actualización default', 'Estimado conservador (post-2024)', 'PAGO RETROACTIVO', <strong>{(TASA_ACTUALIZACION_DEFAULT * 100).toFixed(2)}% mensual</strong>)}
+                    {fieldRow('Recargos por mora % mensual', 'Ley de Ingresos de la Federación, Art. 21 CFF — se actualiza cada año', 'PAGO RETROACTIVO', numInput(recargoMensual, setRecargoMensual, 0.01), true)}
+                    {fieldRow('Actualización anual de pensiones %', 'INPC — Art. 214 LSS. Usada en la ganancia acumulada y la proyección de flujos', 'INVERSION', numInput(inflacionPension, setInflacionPension, 0.1), true)}
                   </tbody>
                 </table>
               </div>

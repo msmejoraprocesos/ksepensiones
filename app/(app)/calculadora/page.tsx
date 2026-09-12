@@ -88,6 +88,7 @@ interface SysVars {
   tasa_m10?: number
   inflacion_uma?: number
   inflacion_pension?: number   // % anual de actualizacion de pensiones por INPC (Art. 214 LSS)
+  recargo_mensual?: number     // % mensual de recargos por mora — LIF anual, Art. 21 CFF
   pct_actualizacion_inpc?: number
   pct_recargos_retroactivo?: number
 }
@@ -212,7 +213,26 @@ const TASA_ACTUALIZACION_MENSUAL_POR_ANIO: Record<number, number> = {
 }
 const TASA_ACTUALIZACION_MENSUAL_DEFAULT = 0.0036 // años > 2024
 // Recargos mensuales: 1.47% antes de 2026, 2.07% desde 2026 (tasas vigentes en el Excel de referencia)
-function tasaRecargoMensual(anio: number) { return anio < 2026 ? 0.0147 : 0.0207 }
+/**
+ * Recargos por mora del pago retroactivo.
+ *
+ * El Congreso fija estas tasas cada anio en la Ley de Ingresos de la
+ * Federacion (Art. 21 CFF). Estaban embebidas en el codigo con el comentario
+ * "dato vigente en 2024": hardcodear una tasa fiscal en un calculo que corre
+ * en 2026 introduce un error que crece solo cada ejercicio.
+ *
+ * Ahora se leen de la configuracion (Admin Formulas) y la tabla local queda
+ * solo como respaldo si el parametro no esta capturado.
+ */
+const RECARGOS_POR_ANIO: Record<number, number> = {
+  2024: 1.47, 2025: 1.47, 2026: 2.07, 2027: 2.07, 2028: 2.07, 2029: 2.07, 2030: 2.07,
+}
+
+function tasaRecargoMensual(anio: number, sys?: { recargo_mensual?: number }) {
+  if (sys?.recargo_mensual) return sys.recargo_mensual / 100
+  const t = RECARGOS_POR_ANIO[anio] ?? RECARGOS_POR_ANIO[2026]
+  return t / 100
+}
 function tasaActualizacionMensual(anio: number) { return TASA_ACTUALIZACION_MENSUAL_POR_ANIO[anio] ?? TASA_ACTUALIZACION_MENSUAL_DEFAULT }
 
 // Calcula el costo retroactivo de Modalidad 40: para cada mes adeudado, el monto se actualiza por
@@ -230,7 +250,7 @@ function calcPagoRetroactivo(mesesAdeudados: number, fechaBaja: Date, mod40Umas:
     const costoMensual = calcCostoMod40(mod40Umas, getMod40PctFn(anioMes), { ...sys, UMA_DIARIA: umaDelAnio })
     costoBase += costoMensual
     totalActualizacion += costoMensual * i * tasaActualizacionMensual(anioMes)
-    totalRecargos += costoMensual * i * tasaRecargoMensual(anioMes)
+    totalRecargos += costoMensual * i * tasaRecargoMensual(anioMes, sys)
   }
   const costoTotal = costoBase + totalActualizacion + totalRecargos
   const pctIncremento = costoBase > 0 ? (totalActualizacion + totalRecargos) / costoBase : 0
@@ -479,6 +499,7 @@ const SYS_DEFAULT: SysVars = {
   PMG_L73: 10636.54, PMG_L97: 4345.72,
   RENDIMIENTO_DEFAULT: 6, mod40_pct: 14.438, pct_afore_mod40: 20,
   inflacion_pension: 4.5,          // INPC anual para actualizacion de pensiones
+  recargo_mensual: 2.07,           // % mensual de recargos por mora (LIF vigente)
   tasa_m10: 22,                    // 22% tasa anual Modalidad 10
   pct_actualizacion_inpc: 7.27,    // % INPC acumulado retroactivo
   pct_recargos_retroactivo: 41.80  // % recargos SAT retroactivo
@@ -1135,6 +1156,8 @@ function CalculadoraInner() {
         pct_banco_regulado: data.pct_banco_regulado ?? 35.65,
         tasa_banco_anual: data.tasa_banco_anual ?? 32.2,
         tasa_m10: data.tasa_m10 ?? 22,
+        recargo_mensual: data.recargo_mensual ?? 2.07,
+        inflacion_pension: data.inflacion_pension ?? 4.5,
         pct_actualizacion_inpc: data.pct_actualizacion_inpc ?? 7.27,
         pct_recargos_retroactivo: data.pct_recargos_retroactivo ?? 41.80,
       })
