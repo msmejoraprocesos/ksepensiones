@@ -13,6 +13,7 @@ import TabEscenarios from './components/TabEscenarios'
 import TabSalarioMod40 from './components/TabSalarioMod40'
 import TabCostoMod40 from './components/TabCostoMod40'
 import TabFinanciamiento from './components/TabFinanciamiento'
+import TabProyeccion from './components/TabProyeccion'
 
 const AZUL = '#334E7B'
 const AZUL_DARK = '#1E3A5F'
@@ -3025,90 +3026,9 @@ function CalculadoraInner() {
 
 
         {/* ══ TAB 6: INVERSIÓN Y PROYECTO ══ */}
-        {tab === 6 && (() => {
-          const escRec = escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
-          if (!escRec || escRec.mod40_meses === 0) return (
-            <div style={{ textAlign: 'center' as const, padding: '60px', color: '#94A3B8' }}>
-              <p>Completa las pestañas anteriores para continuar</p>
-            </div>
-          )
-          const termRec = escRec.tasa_rendimiento >= 25 ? { label: 'Excelente', color: '#15803D', bg: '#F0FDF4' }
-            : escRec.tasa_rendimiento >= 18 ? { label: 'Buena inversión', color: '#0369A1', bg: '#F0F9FF' }
-            : escRec.tasa_rendimiento >= 12 ? { label: 'Moderada', color: '#B45309', bg: '#FFFBEB' }
-            : { label: 'Riesgo moderado', color: '#B91C1C', bg: '#FEF2F2' }
-          const filas: any[] = []
-          let ganAcum = 0
-          for (let i = 1; i <= Math.max(20, 80 - Math.floor(escRec.edad_retiro || 62) + 1); i++) {
-            const edad = Math.floor(escRec.edad_retiro || 62) + i
-            const penSin = escRec.pension_base * Math.pow(1.045, i)
-            const penCon = escRec.pension_mensual * Math.pow(1.045, i)
-            const desc = i <= 5 && escRec.descuento_mensual > 0 ? -escRec.descuento_mensual : 0
-            const penInm = penCon + desc
-            const ganAnio = (penInm - penSin) * 12
-            ganAcum += ganAnio
-            filas.push({ anio: i, edad, penSin, penCon, desc, penInm, ganAnio, ganAcum })
-            if (edad >= 81) break
-          }
-          const incr = (escRec.pension_mensual ?? 0) - (escRec.pension_base ?? 0)
-          return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-
-              {/* KPIs */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px' }}>
-                {[
-                  { label: 'Incremento pensión', value: fmtMXN2(incr), sub: 'mensual adicional', color: VERDE, bg: '#F0FDF4', border: '#86EFAC' },
-                  { label: 'Inversión neta', value: fmtMXN2(escRec.inversion_neta), sub: 'descontando AFORE', color: '#B45309', bg: '#FFFBEB', border: '#FCD34D' },
-                  { label: 'Ganancia a 80 años', value: fmtMXN(escRec.ganancia_a80), sub: 'factor ×1.54', color: AZUL, bg: '#EEF2F8', border: AZUL },
-                  { label: 'Recuperación inversión', value: `${escRec.roi} meses`, sub: termRec.label, color: termRec.color, bg: termRec.bg, border: termRec.color },
-                ].map((k, i) => (
-                  <div key={i} style={{ background: k.bg, borderTop: `3px solid ${k.border}`, padding: '10px 12px', borderRadius: '8px', textAlign: 'center' as const }}>
-                    <div style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginBottom: '4px', fontWeight: '600' as const }}>{k.label}</div>
-                    <div style={{ fontSize: '18px', fontWeight: '800' as const, color: k.color }}>{k.value}</div>
-                    <div style={{ fontSize: '10px', color: k.color, opacity: 0.7, marginTop: '2px' }}>{k.sub}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Tabla de proyección */}
-              <div style={{ background: 'white', borderRadius: '12px', borderLeft: `4px solid ${MORADO}`, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
-                <div style={{ padding: '10px 14px', background: '#F5F3FF', borderBottom: '1px solid #E2E8F0' }}>
-                  <span style={{ fontSize: '10px', fontWeight: '600' as const, textTransform: 'uppercase' as const, letterSpacing: '0.6px', color: MORADO }}>Proyección de flujos año por año (inflación 4.5%)</span>
-                </div>
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '11px' }}>
-                    <thead>
-                      <tr style={{ background: AZUL }}>
-                        {['Año','Edad','Sin Mod.40','Con Mod.40','Desc. crédito','Disponible','Ganancia año','Ganancia acum.'].map((h, i) => (
-                          <th key={i} style={{ padding: '7px 10px', color: 'white', fontWeight: '600' as const, textAlign: i < 2 ? 'center' as const : 'right' as const, fontSize: '10px', whiteSpace: 'nowrap' as const }}>{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filas.map((f, i) => (
-                        <tr key={i} style={{ background: f.edad === 80 ? '#EEF2F8' : i % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
-                          <td style={{ padding: '6px 10px', textAlign: 'center' as const, fontWeight: '600' as const, color: AZUL }}>{f.anio}</td>
-                          <td style={{ padding: '6px 10px', textAlign: 'center' as const, color: '#374151' }}>{f.edad}</td>
-                          <td style={{ padding: '6px 10px', textAlign: 'right' as const, color: '#94A3B8' }}>{fmtMXN2(f.penSin)}</td>
-                          <td style={{ padding: '6px 10px', textAlign: 'right' as const, color: AZUL, fontWeight: '600' as const }}>{fmtMXN2(f.penCon)}</td>
-                          <td style={{ padding: '6px 10px', textAlign: 'right' as const, color: f.desc < 0 ? '#DC2626' : '#94A3B8' }}>{f.desc < 0 ? fmtMXN2(f.desc) : '—'}</td>
-                          <td style={{ padding: '6px 10px', textAlign: 'right' as const, color: VERDE, fontWeight: '700' as const }}>{fmtMXN2(f.penInm)}</td>
-                          <td style={{ padding: '6px 10px', textAlign: 'right' as const, color: f.ganAnio >= 0 ? VERDE : '#DC2626' }}>{fmtMXN(f.ganAnio)}</td>
-                          <td style={{ padding: '6px 10px', textAlign: 'right' as const, color: f.ganAcum >= 0 ? VERDE : '#DC2626', fontWeight: '700' as const }}>{fmtMXN(f.ganAcum)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <button onClick={() => setTab(10)} style={{ padding: '10px 22px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: '700' as const, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  Financiamiento <i className="ti ti-arrow-right" style={{ fontSize: '14px' }} />
-                </button>
-              </div>
-            </div>
-          )
-        })()}
+        {tab === 6 && (
+          <TabProyeccion escenarios={escenarios} sys={sys} setTab={setTab} />
+        )}
 
 
         {tab === 6 && (
