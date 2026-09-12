@@ -75,8 +75,11 @@ const C = {
 }
 
 const s = StyleSheet.create({
-  page: { fontFamily: 'Helvetica', fontSize: 9, color: C.texto, paddingBottom: 32, paddingHorizontal: 0, backgroundColor: C.grisCl },
-  wm: { position: 'absolute', top: '38%', left: '8%', fontSize: 68, fontFamily: 'Helvetica-Bold', color: C.rojo, opacity: 0.07 },
+  page: { fontFamily: 'Helvetica', fontSize: 9, color: C.texto, paddingBottom: 52, paddingHorizontal: 0, backgroundColor: C.grisCl },
+  /* La marca de agua estaba en absolute sin `fixed`: se dibujaba una sola vez,
+     dentro del flujo, y se encimaba con el bloque que cayera en esa posición.
+     Con `fixed` se repite en cada página y queda fuera del flujo. */
+  wm: { position: 'absolute', top: '40%', left: '10%', fontSize: 64, fontFamily: 'Helvetica-Bold', color: C.rojo, opacity: 0.05, transform: 'rotate(-24deg)' },
   header: { paddingVertical: 18, paddingHorizontal: 28, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   headerLabel: { fontSize: 7, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 3 },
   headerName: { fontSize: 16, fontFamily: 'Helvetica-Bold', color: C.blanco, marginBottom: 2 },
@@ -106,7 +109,10 @@ const s = StyleSheet.create({
   pasoRow: { flexDirection: 'row', gap: 7, marginBottom: 7, alignItems: 'flex-start' },
   pasoBadge: { borderRadius: 9, width: 16, height: 16, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   pasoText: { flex: 1, fontSize: 8.5, color: C.texto, lineHeight: 1.5, paddingTop: 1.5 },
-  footer: { paddingHorizontal: 22, paddingTop: 14, borderTopWidth: 0.5, borderTopColor: C.borde, flexDirection: 'row', justifyContent: 'space-between', marginTop: 14 },
+  /* El pie no era `fixed`, así que viajaba al final del contenido en lugar de
+     anclarse abajo en cada página: en documentos de varias hojas terminaba a
+     media altura o encimado con el último bloque. */
+  footer: { position: 'absolute', bottom: 14, left: 0, right: 0, paddingHorizontal: 22, paddingTop: 10, borderTopWidth: 0.5, borderTopColor: C.borde, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
   footerText: { fontSize: 6.5, color: C.textoSm },
 })
 
@@ -146,7 +152,7 @@ const ChartBarras = ({ escenarios, COLOR, ACCENT }: { escenarios: Escenario[]; C
   const gap = (W - 20 - barW * items.length) / (items.length - 1 || 1)
 
   return (
-    <Svg width={W} height={H + 30} style={{ marginBottom: 6 }}>
+    <View wrap={false}><Svg width={W} height={H + 30} style={{ marginBottom: 6 }}>
       {items.map((it, i) => {
         const barH = maxVal > 0 ? (it.val / maxVal) * H : 0
         const x = 10 + i * (barW + gap)
@@ -162,7 +168,7 @@ const ChartBarras = ({ escenarios, COLOR, ACCENT }: { escenarios: Escenario[]; C
         )
       })}
       <Line x1={10} y1={H} x2={W - 10} y2={H} stroke={C.borde} strokeWidth={0.5} />
-    </Svg>
+    </Svg></View>
   )
 }
 
@@ -181,7 +187,7 @@ const ChartGauge = ({ meses, ACCENT }: { meses: number; ACCENT: string }) => {
   const large = pct > 0.5 ? 1 : 0
 
   return (
-    <Svg width={200} height={90}>
+    <View wrap={false}><Svg width={200} height={90}>
       {/* Track */}
       <Path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`} fill="none" stroke="#F3F4F6" strokeWidth={12} strokeLinecap="round" />
       {/* Fill */}
@@ -194,7 +200,7 @@ const ChartGauge = ({ meses, ACCENT }: { meses: number; ACCENT: string }) => {
       <Text style={{ fontSize: 6, fill: C.gris }} x={22} y={cy + 6}>0</Text>
       <Text style={{ fontSize: 6, fill: C.gris }} x={cx} y={cy - r - 4}>30</Text>
       <Text style={{ fontSize: 6, fill: C.gris }} x={cx + r - 8} y={cy + 6}>60</Text>
-    </Svg>
+    </Svg></View>
   )
 }
 
@@ -209,7 +215,7 @@ const ChartTimeline = ({ datos, escRec, COLOR }: { datos: DatosTrabajador; escRe
   const W = 340, spacing = (W - 40) / (events.length - 1)
 
   return (
-    <Svg width={W} height={60} style={{ marginBottom: 4 }}>
+    <View wrap={false}><Svg width={W} height={60} style={{ marginBottom: 4 }}>
       <Line x1={20} y1={28} x2={W - 20} y2={28} stroke="#E2E8F0" strokeWidth={2} />
       {events.map((ev, i) => {
         const x = 20 + i * spacing
@@ -224,7 +230,7 @@ const ChartTimeline = ({ datos, escRec, COLOR }: { datos: DatosTrabajador; escRe
       {escRec && (
         <Rect x={20 + spacing} y={24} width={spacing} height={8} rx={2} fill={COLOR} opacity={0.15} />
       )}
-    </Svg>
+    </Svg></View>
   )
 }
 
@@ -245,7 +251,7 @@ const ChartAreaFlujos = ({ escRec, escBase, COLOR }: { escRec: Escenario | undef
   const pathSin = `M ${pts[0].x} ${H} ` + pts.map(p => `L ${p.x} ${p.ySin}`).join(' ') + ` L ${pts[pts.length - 1].x} ${H} Z`
 
   return (
-    <Svg width={W} height={H + 20} style={{ marginBottom: 6 }}>
+    <View wrap={false}><Svg width={W} height={H + 20} style={{ marginBottom: 6 }}>
       <Path d={pathSin} fill="#94A3B8" opacity={0.2} />
       <Path d={pathCon} fill={COLOR} opacity={0.25} />
       {/* Lines */}
@@ -259,7 +265,7 @@ const ChartAreaFlujos = ({ escRec, escBase, COLOR }: { escRec: Escenario | undef
       <Text style={{ fontSize: 6, fill: C.gris }} x={20} y={H + 10}>{Math.floor(edadRet)}</Text>
       <Text style={{ fontSize: 6, fill: C.gris, textAlign: 'center' }} x={W / 2} y={H + 10}>{Math.floor(edadRet + years / 2)}</Text>
       <Text style={{ fontSize: 6, fill: C.gris }} x={W - 40} y={H + 10}>80 años</Text>
-    </Svg>
+    </Svg></View>
   )
 }
 
@@ -290,7 +296,7 @@ export const DiagnosticoPDF = ({
   return (
     <Document>
       <Page size="A4" style={s.page}>
-        {(esBorrador && cfg.mostrar_watermark) && <Text style={s.wm}>BORRADOR</Text>}
+        {(esBorrador && cfg.mostrar_watermark) && <Text style={s.wm} fixed>BORRADOR</Text>}
 
         {/* Header */}
         <View style={[s.header, { backgroundColor: COLOR }]}>
@@ -329,7 +335,7 @@ export const DiagnosticoPDF = ({
           {secVisible('situacion') && (
             <>
               <Text style={[s.secLabel, { borderLeftColor: ACCENT }]}>Tu situación actual</Text>
-              <View style={s.kpiRow}>
+              <View style={s.kpiRow} wrap={false}>
                 <View style={s.kpi}>
                   <Text style={s.kpiLbl}>Semanas cotizadas</Text>
                   <Text style={s.kpiVal}>{(datos.semanas_totales || 0).toLocaleString('es-MX')}</Text>
@@ -357,7 +363,7 @@ export const DiagnosticoPDF = ({
             <>
               <View style={s.divider} />
               <Text style={[s.secLabel, { borderLeftColor: ACCENT }]}>Tu pensión si te pensionas hoy (sin Modalidad 40)</Text>
-              <View style={s.kpiRow}>
+              <View style={s.kpiRow} wrap={false}>
                 <View style={[s.kpi, { backgroundColor: '#FEF2F2', borderColor: '#FCA5A5' }]}>
                   <Text style={[s.kpiLbl, { color: C.rojo }]}>Pensión mensual</Text>
                   <Text style={[s.kpiVal, { color: C.rojo }]}>{mxn(escBase?.pension_mensual || 0)}</Text>
@@ -394,7 +400,7 @@ export const DiagnosticoPDF = ({
             <>
               {cfg.pagina_break_antes_mod40 && <View break />}
               <Text style={[s.secLabel, { borderLeftColor: C.verde, color: C.verde }]}>Con Modalidad 40 — opción recomendada</Text>
-              <View style={s.kpiRow}>
+              <View style={s.kpiRow} wrap={false}>
                 <View style={[s.kpi, { backgroundColor: '#E6F4EE', borderColor: '#86EFAC', borderTopWidth: 2.5, borderTopColor: C.verde }]}>
                   <Text style={[s.kpiLbl, { color: C.verde }]}>Nueva pensión mensual</Text>
                   <Text style={[s.kpiVal, { color: C.verde }]}>{mxn(escRec?.pension_mensual || 0)}</Text>
@@ -466,7 +472,7 @@ export const DiagnosticoPDF = ({
               <Text style={[s.secLabel, { borderLeftColor: ACCENT }]}>Comparativa de opciones disponibles</Text>
               {sf.comparativa?.texto && <SofiaBox tipo="azul" texto={sf.comparativa.texto} COLOR={COLOR} />}
               <View style={{ marginTop: 6 }}>
-                <View style={[s.tblHeader, { backgroundColor: COLOR }]}>
+                <View minPresenceAhead={50} style={[s.tblHeader, { backgroundColor: COLOR }]}>
                   {['Escenario', 'Pensión/mes', 'Inversión', 'Se recupera en', 'Ganancia a 80 años'].map((h, i) => (
                     <Text key={i} style={[s.tblHeaderCell, { flex: i === 0 ? 2 : 1 }]}>{h}</Text>
                   ))}
@@ -491,7 +497,7 @@ export const DiagnosticoPDF = ({
               <Text style={[s.secLabel, { borderLeftColor: ACCENT }]}>Desglose del cálculo de pensión</Text>
               {sf.cuantias?.texto && <SofiaBox tipo="azul" texto={sf.cuantias.texto} COLOR={COLOR} />}
               <View>
-                <View style={[s.tblHeader, { backgroundColor: COLOR }]}>
+                <View minPresenceAhead={50} style={[s.tblHeader, { backgroundColor: COLOR }]}>
                   {['Concepto', 'Anual', 'Mensual'].map((h, i) => (
                     <Text key={i} style={[s.tblHeaderCell, { flex: i === 0 ? 2 : 1 }]}>{h}</Text>
                   ))}
@@ -519,7 +525,7 @@ export const DiagnosticoPDF = ({
               <Text style={[s.secLabel, { borderLeftColor: ACCENT }]}>Historial SDI — últimas 250 semanas</Text>
               {sf.sdi?.texto && <SofiaBox tipo="azul" texto={sf.sdi.texto} COLOR={COLOR} />}
               <View>
-                <View style={[s.tblHeader, { backgroundColor: '#B45309' }]}>
+                <View minPresenceAhead={50} style={[s.tblHeader, { backgroundColor: '#B45309' }]}>
                   {['Período', 'Semanas', 'SDI diario', 'Peso'].map((h, i) => (
                     <Text key={i} style={[s.tblHeaderCell, { flex: i === 0 ? 2 : 1 }]}>{h}</Text>
                   ))}
@@ -548,7 +554,7 @@ export const DiagnosticoPDF = ({
               <View style={s.divider} />
               <Text style={[s.secLabel, { borderLeftColor: ACCENT }]}>Esquema de financiamiento</Text>
               {sf.financiamiento?.texto_antes && <SofiaBox tipo="azul" texto={sf.financiamiento.texto_antes} COLOR={COLOR} />}
-              <View style={s.kpiRow}>
+              <View style={s.kpiRow} wrap={false}>
                 <View style={[s.kpi, { borderTopWidth: 2, borderTopColor: COLOR }]}>
                   <Text style={s.kpiLbl}>Banco regulado</Text>
                   <Text style={[s.kpiVal, { color: COLOR }]}>{mxn(escRec.aportacion_banco)}</Text>
@@ -600,9 +606,10 @@ export const DiagnosticoPDF = ({
           )}
 
           {/* Footer */}
-          <View style={s.footer}>
+          <View style={s.footer} fixed>
             <Text style={s.footerText}>{razonSocial || 'KSE Pensiones'}{asesorNombre ? ` · ${asesorNombre}` : ''}</Text>
-            {cfg.footer_mostrar_disclaimer && <Text style={[s.footerText, { maxWidth: 260, textAlign: 'right' }]}>{footerTexto}</Text>}
+            {cfg.footer_mostrar_disclaimer && <Text style={[s.footerText, { maxWidth: 230, textAlign: 'right' }]}>{footerTexto}</Text>}
+            <Text style={[s.footerText, { marginLeft: 10 }]} render={({ pageNumber, totalPages }) => `${pageNumber}/${totalPages}`} fixed />
           </View>
 
         </View>
