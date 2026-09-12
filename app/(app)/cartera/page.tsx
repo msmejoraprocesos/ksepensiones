@@ -2,6 +2,8 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import AltaCliente from './AltaCliente'
+import RegistrarPago from './RegistrarPago'
+import Acuerdos from './Acuerdos'
 import { K, nw, num, tarjeta, botonPrimario, franja, halo } from '@/lib/design-tokens'
 import {
   cotizar, normalizarTramos, validarTramos, TRAMOS_DEFAULT,
@@ -34,6 +36,8 @@ export default function CarteraPage() {
   const [orgs, setOrgs] = useState<any[]>([])
   const [cargando, setCargando] = useState(true)
   const [alta, setAlta] = useState(false)
+  const [pagoDe, setPagoDe] = useState<any | null>(null)
+  const [suspendiendo, setSuspendiendo] = useState<any | null>(null)
 
   async function cargar() {
     const { data: o } = await supabase.from('organizaciones').select('id,nombre,plan,asientos,vigencia_hasta,dias_gracia,activo')
@@ -221,16 +225,16 @@ export default function CarteraPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 15 }}>
             <thead>
               <tr style={{ background: K.paper }}>
-                {['Cliente', 'Asientos', 'Vence', 'Estado', 'Atraso'].map((h, i) => (
+                {['Cliente', 'Asientos', 'Vence', 'Estado', 'Atraso', ''].map((h, i) => (
                   <th key={h} style={{ padding: '12px 16px', fontSize: 13, fontWeight: 600, color: K.muted, textAlign: i > 0 ? 'right' : 'left', ...nw }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {cargando ? (
-                <tr><td colSpan={5} style={{ padding: 30, textAlign: 'center', color: K.muted }}>Cargando…</td></tr>
+                <tr><td colSpan={6} style={{ padding: 30, textAlign: 'center', color: K.muted }}>Cargando…</td></tr>
               ) : cartera.length === 0 ? (
-                <tr><td colSpan={5} style={{ padding: '36px 20px', textAlign: 'center', color: K.muted }}>
+                <tr><td colSpan={6} style={{ padding: '36px 20px', textAlign: 'center', color: K.muted }}>
                   <p style={{ fontSize: 17, margin: 0 }}>Todavía no hay clientes registrados.</p>
                   <button onClick={() => setAlta(true)} style={{ ...botonPrimario, margin: '16px auto 0' }}>Dar de alta el primero</button>
                 </td></tr>
@@ -249,6 +253,18 @@ export default function CarteraPage() {
                     <td style={{ padding: '13px 16px', textAlign: 'right', color: c.diasVencido > 0 ? K.red : K.muted, fontWeight: c.diasVencido > 0 ? 700 : 400, ...nw, ...num }}>
                       {c.diasVencido > 0 ? `${c.diasVencido} días` : '—'}
                     </td>
+                    <td style={{ padding: '13px 16px', textAlign: 'right', ...nw }}>
+                      <button onClick={() => setPagoDe(c)}
+                        style={{ padding: '8px 14px', borderRadius: 8, border: `1px solid ${K.line}`, background: K.card, color: K.navy600, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                        Registrar pago
+                      </button>
+                      {c.estado === 'vencido' && c.activo !== false && (
+                        <button onClick={() => setSuspendiendo(c)}
+                          style={{ marginLeft: 8, padding: '8px 14px', borderRadius: 8, border: `1px solid ${K.red}44`, background: K.redSoft, color: K.red, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                          Suspender
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 )
               })}
@@ -256,12 +272,49 @@ export default function CarteraPage() {
           </table>
         </div>
       </div>
+      <Acuerdos orgs={orgs} />
+
       {alta && (
         <AltaCliente
           tramos={tramos}
           onCerrar={() => setAlta(false)}
           onCreado={() => { setAlta(false); cargar() }}
         />
+      )}
+
+      {pagoDe && (
+        <RegistrarPago
+          org={pagoDe}
+          onCerrar={() => setPagoDe(null)}
+          onListo={() => { setPagoDe(null); cargar() }}
+        />
+      )}
+
+      {/* La suspension nunca es automatica: el sistema detecta el vencimiento
+          y propone, el administrador decide. Puede haber un acuerdo de palabra
+          que el sistema no conoce. */}
+      {suspendiendo && (
+        <div onClick={() => setSuspendiendo(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(13,36,64,.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: K.card, borderRadius: 16, width: '100%', maxWidth: 460, padding: '26px 28px' }}>
+            <p style={{ fontSize: 22, fontWeight: 700, color: K.ink, margin: 0 }}>¿Suspender a {suspendiendo.nombre}?</p>
+            <p style={{ fontSize: 15, color: K.muted, margin: '10px 0 0', lineHeight: 1.6 }}>
+              Lleva {suspendiendo.diasVencido} días vencido pasada la tolerancia. Sus {suspendiendo.asientos ?? 1} usuarios perderán el acceso de inmediato, aunque su información queda intacta y vuelve al registrar el pago.
+            </p>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 24 }}>
+              <button onClick={() => setSuspendiendo(null)}
+                style={{ padding: '13px 20px', borderRadius: 10, border: `1px solid ${K.line}`, background: 'transparent', color: K.muted, fontSize: 17, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                No, dejar activa
+              </button>
+              <button onClick={async () => {
+                await supabase.from('organizaciones').update({ activo: false }).eq('id', suspendiendo.id)
+                setSuspendiendo(null); cargar()
+              }}
+                style={{ padding: '13px 20px', borderRadius: 10, border: 'none', background: K.red, color: 'white', fontSize: 17, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                Sí, suspender
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

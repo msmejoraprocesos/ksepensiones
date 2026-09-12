@@ -95,6 +95,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false)
   const [userRol, setUserRol] = useState('')
   const [rolCargado, setRolCargado] = useState(false)
+  /* Suspensión por vigencia vencida. Sin esto, `organizaciones.activo` y
+     `vigencia_hasta` eran datos decorativos: marcar una cuenta como inactiva
+     no impedía que sus usuarios siguieran entrando. */
+  const [suspension, setSuspension] = useState<{ motivo: string; org: string } | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -116,7 +120,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         return
       }
 
-      supabase.from('perfiles_usuario').select('nombre, razon_social, logo_url, is_admin, rol').eq('id', session.user.id).single()
+      supabase.from('perfiles_usuario').select('nombre, razon_social, logo_url, is_admin, rol, organizacion_id').eq('id', session.user.id).single()
         .then(({ data }) => {
           if (data) {
             const nombre = data.nombre || session.user.email || ''
@@ -136,6 +140,33 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             setRolCargado(true)
             if (!data.nombre && !data.razon_social && !window.location.pathname.includes('configuracion')) {
               router.push('/configuracion')
+            }
+
+            /* El super-admin nunca se autobloquea: si se suspendiera por un
+               dato mal capturado, no habría cómo entrar a corregirlo. */
+            if (!isAdmin && (data as any).organizacion_id) {
+              supabase.from('organizaciones')
+                .select('nombre, activo, vigencia_hasta, dias_gracia')
+                .eq('id', (data as any).organizacion_id)
+                .single()
+                .then(({ data: org }) => {
+                  if (!org) return
+                  if (org.activo === false) {
+                    setSuspension({ motivo: 'La cuenta está suspendida.', org: org.nombre })
+                    return
+                  }
+                  if (org.vigencia_hasta) {
+                    const limite = new Date(org.vigencia_hasta)
+                    limite.setDate(limite.getDate() + (org.dias_gracia ?? 5))
+                    limite.setHours(23, 59, 59, 999)
+                    if (new Date() > limite) {
+                      setSuspension({
+                        motivo: `La vigencia terminó el ${new Date(org.vigencia_hasta).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })} y ya pasaron los ${org.dias_gracia ?? 5} días de tolerancia.`,
+                        org: org.nombre,
+                      })
+                    }
+                  }
+                })
             }
 
             // Polling cada 60 segundos
@@ -233,6 +264,33 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     await supabase.auth.signOut()
     router.push('/login')
   }
+
+  /* Pantalla de cuenta suspendida. Se muestra en lugar de la aplicación, no
+     encima: dejar la interfaz accesible detrás de un aviso invita a buscar
+     cómo rodearlo. Se conserva la salida de sesión para poder entrar con
+     otra cuenta. */
+  if (suspension) return (
+    <div style={{ display: 'flex', minHeight: '100vh', background: '#F5F7FA', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+      <div style={{ background: 'white', border: '1px solid #E1E7F0', borderRadius: 16, maxWidth: 520, width: '100%', overflow: 'hidden', boxShadow: '0 4px 24px rgba(13,36,64,.10)' }}>
+        <div style={{ background: '#0D2440', padding: '26px 30px' }}>
+          <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>ACCESO SUSPENDIDO</p>
+          <p style={{ fontSize: 26, fontWeight: 700, color: 'white', margin: '8px 0 0' }}>{suspension.org}</p>
+        </div>
+        <div style={{ padding: '26px 30px' }}>
+          <p style={{ fontSize: 17, color: '#132135', margin: 0, lineHeight: 1.6 }}>{suspension.motivo}</p>
+          <p style={{ fontSize: 15, color: '#66738A', margin: '14px 0 0', lineHeight: 1.6 }}>
+            Tu información está intacta y vuelve a estar disponible en cuanto se regularice el pago.
+            Contacta a tu administrador o escribe a{' '}
+            <a href="mailto:msmejoraprocesos@gmail.com" style={{ color: '#E8622C', fontWeight: 600 }}>msmejoraprocesos@gmail.com</a>.
+          </p>
+          <button onClick={handleLogout}
+            style={{ marginTop: 24, padding: '13px 22px', background: 'transparent', color: '#66738A', border: '1px solid #E1E7F0', borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+            Cerrar sesión
+          </button>
+        </div>
+      </div>
+    </div>
+  )
 
   if (checking) return (
     <div style={{ display: 'flex', height: '100vh', background: 'white', alignItems: 'center', justifyContent: 'center' }}>

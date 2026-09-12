@@ -15,14 +15,13 @@ Lo que queda abierto, ordenado por impacto. Cerrar la línea al terminar.
 - [ ] **Auditar rutas que usan `service_role`.** Se restauraron los GRANT tras encontrar un revoke masivo, pero nunca se verificó qué llevaba tiempo fallando en silencio.
 - [ ] **Denominador oficial del retorno.** La app divide entre inversión neta, el Excel entre costo total. Documentado en `lib/design-tokens.ts`; falta confirmación formal.
 
-## Módulo de cartera — en construcción
+## Módulo de cartera
 
-Diseño en `docs/MODULO-CARTERA.md`. Hecho: migración de `contratos`, `pagos_contrato` y `acuerdos`; lógica de vigencias y cotizador en `lib/cartera.ts` con 22 tests.
+Completo. Diseño en `docs/MODULO-CARTERA.md`.
 
-Hecho: tablero, cotizador, tabla de precios editable, alta de cliente con creación de organización, contrato y administrador.
+Alta de cliente con creación de organización, contrato y administrador · registro de pagos con extensión de vigencia y reactivación · acuerdos de palabra con recordatorio · tablero con semáforo · cotizador y tabla de precios editable · suspensión con confirmación · validación de acceso en el layout.
 
-Falta: registro de pagos de renovación, pantalla de acuerdos de palabra con recordatorios, y **la validación de acceso** — hoy `organizaciones.activo` no bloquea nada, así que suspender no tiene efecto real.
-
+Pendiente menor: definir los montos reales de la tabla de precios (los sembrados son provisionales).
 
 ## Si se retoma el cobro
 
