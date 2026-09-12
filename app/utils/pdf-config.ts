@@ -45,7 +45,7 @@ export const PDF_SECCIONES_DEFAULT: PDFSeccion[] = [
 ]
 
 export const PDF_CONFIG_DEFAULT: PDFConfig = {
-  color_acento:              '#E8724A',
+  color_acento:              '#E8622C',   // acento del sistema de diseño
   secciones:                 PDF_SECCIONES_DEFAULT,
   mostrar_sofia:             true,
   mostrar_watermark:         true,

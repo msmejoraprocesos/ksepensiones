@@ -59,15 +59,24 @@ interface PDFProps {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const mxn  = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n || 0)
 const mxn2 = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n || 0)
+/**
+ * Paleta del PDF alineada al sistema de diseño de la aplicación
+ * (docs/rediseno/SISTEMA-DISENO.md).
+ *
+ * Antes divergía: el acento era #F05B21 contra el #E8622C de la calculadora,
+ * y los grises venían de otra escala. El asesor mostraba una pantalla y
+ * entregaba un documento que no se parecía, lo que resta a la percepción de
+ * que ambos salieron del mismo sistema.
+ */
 const C = {
-  azul: '#1B3A6B', naranja: '#F05B21', verde: '#16A34A', rojo: '#DC2626',
-  gris: '#64748b', grisCl: '#F4F6FB', blanco: '#FFFFFF', texto: '#1e293b',
-  textoSm: '#64748b', borde: '#e2e8f0',
+  azul: '#14375F', naranja: '#E8622C', verde: '#12855C', rojo: '#B91C1C',
+  gris: '#66738A', grisCl: '#F5F7FA', blanco: '#FFFFFF', texto: '#132135',
+  textoSm: '#66738A', borde: '#E1E7F0',
 }
 
 const s = StyleSheet.create({
-  page: { fontFamily: 'Helvetica', fontSize: 9, color: C.texto, paddingBottom: 32, paddingHorizontal: 0, backgroundColor: '#F4F6FB' },
-  wm: { position: 'absolute', top: '38%', left: '8%', fontSize: 68, fontFamily: 'Helvetica-Bold', color: '#DC2626', opacity: 0.07 },
+  page: { fontFamily: 'Helvetica', fontSize: 9, color: C.texto, paddingBottom: 32, paddingHorizontal: 0, backgroundColor: C.grisCl },
+  wm: { position: 'absolute', top: '38%', left: '8%', fontSize: 68, fontFamily: 'Helvetica-Bold', color: C.rojo, opacity: 0.07 },
   header: { paddingVertical: 18, paddingHorizontal: 28, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   headerLabel: { fontSize: 7, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 3 },
   headerName: { fontSize: 16, fontFamily: 'Helvetica-Bold', color: C.blanco, marginBottom: 2 },
@@ -90,8 +99,8 @@ const s = StyleSheet.create({
   tblHeader: { flexDirection: 'row', borderRadius: 3, marginBottom: 0 },
   tblHeaderCell: { color: C.blanco, fontSize: 7, fontFamily: 'Helvetica-Bold', paddingVertical: 5, paddingHorizontal: 5, textAlign: 'center' },
   tblRow: { flexDirection: 'row', borderBottomWidth: 0.5, borderBottomColor: C.borde, backgroundColor: C.blanco },
-  tblRowAlt: { backgroundColor: '#F8FAFC' },
-  tblRowRec: { backgroundColor: '#F0FDF4' },
+  tblRowAlt: { backgroundColor: C.grisCl },
+  tblRowRec: { backgroundColor: '#E6F4EE' },
   tblCell: { fontSize: 7.5, paddingVertical: 4, paddingHorizontal: 5, color: C.texto },
   tblCellBold: { fontSize: 7.5, paddingVertical: 4, paddingHorizontal: 5, fontFamily: 'Helvetica-Bold', color: C.azul },
   pasoRow: { flexDirection: 'row', gap: 7, marginBottom: 7, alignItems: 'flex-start' },
@@ -107,7 +116,7 @@ const SofiaBox = ({ tipo, texto, COLOR }: { tipo: 'azul' | 'amarillo' | 'verde';
   const map: any = {
     azul:     { bg: '#EEF2F8', border: COLOR,      label: '★ Sofía explica:',     lColor: COLOR },
     amarillo: { bg: '#FFFBEB', border: '#F59E0B',   label: '⚠ Sofía advierte:',   lColor: '#92400E' },
-    verde:    { bg: '#F0FDF4', border: '#16A34A',   label: '✓ Sofía recomienda:', lColor: '#15803D' },
+    verde:    { bg: '#E6F4EE', border: C.verde,   label: '✓ Sofía recomienda:', lColor: '#15803D' },
   }
   const m = map[tipo]
   return (
@@ -124,7 +133,7 @@ const SofiaBox = ({ tipo, texto, COLOR }: { tipo: 'azul' | 'amarillo' | 'verde';
 
 const ChartBarras = ({ escenarios, COLOR, ACCENT }: { escenarios: Escenario[]; COLOR: string; ACCENT: string }) => {
   const items = [
-    { label: 'Sin Mod.40', val: escenarios[0]?.pension_mensual || 0, color: '#94A3B8', rec: false },
+    { label: 'Sin Mod.40', val: escenarios[0]?.pension_mensual || 0, color: C.gris, rec: false },
     ...escenarios.filter(e => e.mod40_meses > 0).slice(0, 3).map((e, i) => ({
       label: `Esc.${i + 1}`,
       val: e.pension_mensual,
@@ -147,8 +156,8 @@ const ChartBarras = ({ escenarios, COLOR, ACCENT }: { escenarios: Escenario[]; C
             <Rect x={x} y={y} width={barW} height={barH} rx={3} fill={it.color} />
             {it.rec && <Rect x={x - 1} y={y - 1} width={barW + 2} height={barH + 1} rx={3} fill="none" stroke="#16A34A" strokeWidth={1.5} />}
             <Text style={{ fontSize: 7, fontFamily: 'Helvetica-Bold', fill: it.color, textAlign: 'center' }} x={x + barW / 2} y={y - 3}>{mxn(it.val)}</Text>
-            <Text style={{ fontSize: 6.5, fill: '#64748B', textAlign: 'center' }} x={x + barW / 2} y={H + 10}>{it.label}</Text>
-            {it.rec && <Text style={{ fontSize: 6, fill: '#16A34A', textAlign: 'center' }} x={x + barW / 2} y={H + 18}>★</Text>}
+            <Text style={{ fontSize: 6.5, fill: C.textoSm, textAlign: 'center' }} x={x + barW / 2} y={H + 10}>{it.label}</Text>
+            {it.rec && <Text style={{ fontSize: 6, fill: C.verde, textAlign: 'center' }} x={x + barW / 2} y={H + 18}>★</Text>}
           </G>
         )
       })}
@@ -158,7 +167,7 @@ const ChartBarras = ({ escenarios, COLOR, ACCENT }: { escenarios: Escenario[]; C
 }
 
 const ChartGauge = ({ meses, ACCENT }: { meses: number; ACCENT: string }) => {
-  const getColor = (m: number) => m <= 16 ? '#059669' : m <= 24 ? '#16A34A' : m <= 36 ? '#CA8A04' : m <= 48 ? '#D97706' : '#DC2626'
+  const getColor = (m: number) => m <= 16 ? '#059669' : m <= 24 ? C.verde : m <= 36 ? '#CA8A04' : m <= 48 ? '#D97706' : C.rojo
   const getLabel = (m: number) => m <= 16 ? 'Excelente' : m <= 24 ? 'Muy buena' : m <= 36 ? 'Aceptable' : m <= 48 ? 'Moderada' : 'Alto'
   const color = getColor(meses)
   const pct = Math.min(meses, 60) / 60
@@ -179,12 +188,12 @@ const ChartGauge = ({ meses, ACCENT }: { meses: number; ACCENT: string }) => {
       <Path d={`M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} L ${x2b} ${y2b} A ${r - 12} ${r - 12} 0 ${large} 0 ${x1b} ${y1b} Z`} fill={color} />
       {/* Center text */}
       <Text style={{ fontSize: 18, fontFamily: 'Helvetica-Bold', fill: color, textAlign: 'center' }} x={cx} y={cy - 4}>{meses}</Text>
-      <Text style={{ fontSize: 7, fill: '#64748B', textAlign: 'center' }} x={cx} y={cy + 8}>meses</Text>
+      <Text style={{ fontSize: 7, fill: C.textoSm, textAlign: 'center' }} x={cx} y={cy + 8}>meses</Text>
       <Text style={{ fontSize: 8, fontFamily: 'Helvetica-Bold', fill: color, textAlign: 'center' }} x={cx} y={cy + 22}>{getLabel(meses)}</Text>
       {/* Scale labels */}
-      <Text style={{ fontSize: 6, fill: '#94A3B8' }} x={22} y={cy + 6}>0</Text>
-      <Text style={{ fontSize: 6, fill: '#94A3B8' }} x={cx} y={cy - r - 4}>30</Text>
-      <Text style={{ fontSize: 6, fill: '#94A3B8' }} x={cx + r - 8} y={cy + 6}>60</Text>
+      <Text style={{ fontSize: 6, fill: C.gris }} x={22} y={cy + 6}>0</Text>
+      <Text style={{ fontSize: 6, fill: C.gris }} x={cx} y={cy - r - 4}>30</Text>
+      <Text style={{ fontSize: 6, fill: C.gris }} x={cx + r - 8} y={cy + 6}>60</Text>
     </Svg>
   )
 }
@@ -192,9 +201,9 @@ const ChartGauge = ({ meses, ACCENT }: { meses: number; ACCENT: string }) => {
 const ChartTimeline = ({ datos, escRec, COLOR }: { datos: DatosTrabajador; escRec: Escenario | undefined; COLOR: string }) => {
   const hoy = new Date().toLocaleDateString('es-MX', { month: 'short', year: 'numeric' })
   const events = [
-    { label: 'Hoy', sub: hoy, color: '#64748B' },
+    { label: 'Hoy', sub: hoy, color: C.textoSm },
     { label: 'Ingreso Mod.40', sub: escRec?.fecha_ingreso_mod40?.slice(0, 7) || '—', color: COLOR },
-    { label: 'Baja Mod.40', sub: escRec?.fecha_baja_mod40?.slice(0, 7) || '—', color: '#16A34A' },
+    { label: 'Baja Mod.40', sub: escRec?.fecha_baja_mod40?.slice(0, 7) || '—', color: C.verde },
     { label: 'Trámite', sub: datos?.fecha_nacimiento ? (() => { const d = new Date(datos.fecha_nacimiento); d.setFullYear(d.getFullYear() + (datos.edad_min_pension || 60)); return d.toLocaleDateString('es-MX', { month: 'short', year: 'numeric' }) })() : '—', color: '#7C3AED' },
   ]
   const W = 340, spacing = (W - 40) / (events.length - 1)
@@ -208,7 +217,7 @@ const ChartTimeline = ({ datos, escRec, COLOR }: { datos: DatosTrabajador; escRe
           <G key={i}>
             <Circle cx={x} cy={28} r={6} fill={ev.color} />
             <Text style={{ fontSize: 6.5, fontFamily: 'Helvetica-Bold', fill: ev.color, textAlign: 'center' }} x={x} y={14}>{ev.label}</Text>
-            <Text style={{ fontSize: 6, fill: '#94A3B8', textAlign: 'center' }} x={x} y={42}>{ev.sub}</Text>
+            <Text style={{ fontSize: 6, fill: C.gris, textAlign: 'center' }} x={x} y={42}>{ev.sub}</Text>
           </G>
         )
       })}
@@ -244,12 +253,12 @@ const ChartAreaFlujos = ({ escRec, escBase, COLOR }: { escRec: Escenario | undef
       <Path d={`M ${pts.map(p => `${p.x} ${p.yCon}`).join(' L ')}`} fill="none" stroke={COLOR} strokeWidth={1.5} />
       {/* Labels */}
       <Text style={{ fontSize: 6.5, fill: COLOR, fontFamily: 'Helvetica-Bold' }} x={W - 38} y={pts[pts.length - 1].yCon - 4}>Con</Text>
-      <Text style={{ fontSize: 6.5, fill: '#64748B' }} x={W - 38} y={pts[pts.length - 1].ySin - 4}>Sin</Text>
+      <Text style={{ fontSize: 6.5, fill: C.textoSm }} x={W - 38} y={pts[pts.length - 1].ySin - 4}>Sin</Text>
       {/* Axis */}
       <Line x1={20} y1={H} x2={W - 20} y2={H} stroke={C.borde} strokeWidth={0.5} />
-      <Text style={{ fontSize: 6, fill: '#94A3B8' }} x={20} y={H + 10}>{Math.floor(edadRet)}</Text>
-      <Text style={{ fontSize: 6, fill: '#94A3B8', textAlign: 'center' }} x={W / 2} y={H + 10}>{Math.floor(edadRet + years / 2)}</Text>
-      <Text style={{ fontSize: 6, fill: '#94A3B8' }} x={W - 40} y={H + 10}>80 años</Text>
+      <Text style={{ fontSize: 6, fill: C.gris }} x={20} y={H + 10}>{Math.floor(edadRet)}</Text>
+      <Text style={{ fontSize: 6, fill: C.gris, textAlign: 'center' }} x={W / 2} y={H + 10}>{Math.floor(edadRet + years / 2)}</Text>
+      <Text style={{ fontSize: 6, fill: C.gris }} x={W - 40} y={H + 10}>80 años</Text>
     </Svg>
   )
 }
@@ -384,11 +393,11 @@ export const DiagnosticoPDF = ({
           {secVisible('con_mod40') && !secVisible('bar_pension') && tieneMod40 && (
             <>
               {cfg.pagina_break_antes_mod40 && <View break />}
-              <Text style={[s.secLabel, { borderLeftColor: '#16A34A', color: '#16A34A' }]}>Con Modalidad 40 — opción recomendada</Text>
+              <Text style={[s.secLabel, { borderLeftColor: C.verde, color: C.verde }]}>Con Modalidad 40 — opción recomendada</Text>
               <View style={s.kpiRow}>
-                <View style={[s.kpi, { backgroundColor: '#F0FDF4', borderColor: '#86EFAC', borderTopWidth: 2.5, borderTopColor: '#16A34A' }]}>
-                  <Text style={[s.kpiLbl, { color: '#16A34A' }]}>Nueva pensión mensual</Text>
-                  <Text style={[s.kpiVal, { color: '#16A34A' }]}>{mxn(escRec?.pension_mensual || 0)}</Text>
+                <View style={[s.kpi, { backgroundColor: '#E6F4EE', borderColor: '#86EFAC', borderTopWidth: 2.5, borderTopColor: C.verde }]}>
+                  <Text style={[s.kpiLbl, { color: C.verde }]}>Nueva pensión mensual</Text>
+                  <Text style={[s.kpiVal, { color: C.verde }]}>{mxn(escRec?.pension_mensual || 0)}</Text>
                 </View>
                 <View style={[s.kpi, { borderTopWidth: 2.5, borderTopColor: COLOR }]}>
                   <Text style={s.kpiLbl}>Mejora mensual</Text>
@@ -417,9 +426,9 @@ export const DiagnosticoPDF = ({
                   {[
                     { label: 'Inversión neta', val: mxn(escRec.inversion_neta || 0), color: '#B45309' },
                     { label: 'Ganancia a 80 años', val: mxn(escRec.ganancia_a80 || 0), color: COLOR },
-                    { label: 'Rendimiento', val: `${escRec.tasa_rendimiento?.toFixed(1) || 0}%`, color: '#16A34A' },
+                    { label: 'Rendimiento', val: `${escRec.tasa_rendimiento?.toFixed(1) || 0}%`, color: C.verde },
                   ].map((r, i) => (
-                    <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 5, backgroundColor: '#F8FAFC', borderRadius: 4, borderLeftWidth: 2, borderLeftColor: r.color }}>
+                    <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 5, backgroundColor: C.grisCl, borderRadius: 4, borderLeftWidth: 2, borderLeftColor: r.color }}>
                       <Text style={{ fontSize: 7.5, color: C.textoSm }}>{r.label}</Text>
                       <Text style={{ fontSize: 8, fontFamily: 'Helvetica-Bold', color: r.color }}>{r.val}</Text>
                     </View>
@@ -544,9 +553,9 @@ export const DiagnosticoPDF = ({
                   <Text style={s.kpiLbl}>Banco regulado</Text>
                   <Text style={[s.kpiVal, { color: COLOR }]}>{mxn(escRec.aportacion_banco)}</Text>
                 </View>
-                <View style={[s.kpi, { borderTopWidth: 2, borderTopColor: '#16A34A' }]}>
+                <View style={[s.kpi, { borderTopWidth: 2, borderTopColor: C.verde }]}>
                   <Text style={s.kpiLbl}>AFORE recuperable</Text>
-                  <Text style={[s.kpiVal, { color: '#16A34A' }]}>{mxn(escRec.recuperacion_afore || 0)}</Text>
+                  <Text style={[s.kpiVal, { color: C.verde }]}>{mxn(escRec.recuperacion_afore || 0)}</Text>
                 </View>
                 {cfg.kpi_por_fila >= 3 && (
                   <View style={[s.kpi, { borderTopWidth: 2, borderTopColor: ACCENT }]}>

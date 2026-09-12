@@ -79,7 +79,7 @@ function PanelCanalizaciones({ supabase, userId, asesores }: { supabase: any; us
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
           <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: 0 }}>Pendientes de aprobación</p>
           {pendientes.length > 0 && (
-            <span style={{ background: NARANJA, color: 'white', fontSize: '11px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px' }}>{pendientes.length}</span>
+            <span style={{ background: NARANJA, color: 'white', fontSize: '15px', fontWeight: '700', padding: '2px 8px', borderRadius: '10px' }}>{pendientes.length}</span>
           )}
         </div>
 
@@ -91,48 +91,48 @@ function PanelCanalizaciones({ supabase, userId, asesores }: { supabase: any; us
           </div>
         ) : (
           pendientes.map(s => (
-            <div key={s.id} style={{ background: 'white', border: '1px solid #FDE68A', borderRadius: '10px', padding: '14px 16px', marginBottom: '10px', borderLeft: `4px solid ${NARANJA}` }}>
+            <div key={s.id} style={{ background: 'white', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '14px 16px', marginBottom: '10px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
                 <div>
                   <p style={{ fontSize: '14px', fontWeight: '700', color: '#111827', margin: '0 0 2px' }}>{s.clientes?.nombre ?? '—'}</p>
-                  <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>
+                  <p style={{ fontSize: '15px', color: '#6B7280', margin: 0 }}>
                     NSS: {s.clientes?.nss ?? '—'} · Etapa: {s.clientes?.etapa_kanban ?? '—'}
                   </p>
                 </div>
-                <span style={{ fontSize: '11px', color: '#9CA3AF' }}>
+                <span style={{ fontSize: '15px', color: '#9CA3AF' }}>
                   {new Date(s.created_at).toLocaleDateString('es-MX')}
                 </span>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '10px', background: '#F8FAFC', borderRadius: '6px', padding: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '10px', background: '#F5F7FA', borderRadius: '6px', padding: '10px' }}>
                 <div>
-                  <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '0 0 2px', textTransform: 'uppercase' as const }}>De</p>
-                  <p style={{ fontSize: '12px', fontWeight: '700', color: '#374151', margin: 0 }}>{s.origen?.nombre ?? '—'}</p>
+                  <p style={{ fontSize: '13px', color: '#9CA3AF', margin: '0 0 2px', textTransform: 'uppercase' as const }}>De</p>
+                  <p style={{ fontSize: '15px', fontWeight: '700', color: '#374151', margin: 0 }}>{s.origen?.nombre ?? '—'}</p>
                 </div>
                 <div>
-                  <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '0 0 2px', textTransform: 'uppercase' as const }}>Hacia</p>
-                  <p style={{ fontSize: '12px', fontWeight: '700', color: AZUL, margin: 0 }}>{s.destino?.nombre ?? '—'}</p>
+                  <p style={{ fontSize: '13px', color: '#9CA3AF', margin: '0 0 2px', textTransform: 'uppercase' as const }}>Hacia</p>
+                  <p style={{ fontSize: '15px', fontWeight: '700', color: AZUL, margin: 0 }}>{s.destino?.nombre ?? '—'}</p>
                 </div>
               </div>
 
               <div style={{ background: '#FFFBEB', borderRadius: '6px', padding: '8px 10px', marginBottom: '10px' }}>
-                <p style={{ fontSize: '11px', color: '#92400E', margin: 0 }}>💬 {s.motivo}</p>
+                <p style={{ fontSize: '15px', color: '#92400E', margin: 0 }}>💬 {s.motivo}</p>
               </div>
 
               <input placeholder="Nota para el rechazo (opcional)"
                 value={notaRechazo[s.id] ?? ''}
                 onChange={e => setNotaRechazo(prev => ({ ...prev, [s.id]: e.target.value }))}
-                style={{ width: '100%', padding: '7px 10px', border: '1px solid #E5E7EB', fontSize: '12px', borderRadius: '6px', fontFamily: 'inherit', boxSizing: 'border-box' as const, marginBottom: '10px' }} />
+                style={{ width: '100%', padding: '7px 10px', border: '1px solid #E5E7EB', fontSize: '15px', borderRadius: '6px', fontFamily: 'inherit', boxSizing: 'border-box' as const, marginBottom: '10px' }} />
 
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button onClick={() => resolver(s.id, 'rechazada', s.cliente_id, s.asesor_destino_id)}
                   disabled={procesando === s.id}
-                  style={{ flex: 1, padding: '9px', background: '#FEF2F2', color: ROJO, border: `1px solid ${ROJO}`, fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', opacity: procesando === s.id ? 0.6 : 1 }}>
+                  style={{ flex: 1, padding: '9px', background: '#FEF2F2', color: ROJO, border: `1px solid ${ROJO}`, fontSize: '15px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', opacity: procesando === s.id ? 0.6 : 1 }}>
                   ❌ Rechazar
                 </button>
                 <button onClick={() => resolver(s.id, 'aprobada', s.cliente_id, s.asesor_destino_id)}
                   disabled={procesando === s.id}
-                  style={{ flex: 2, padding: '9px', background: VERDE, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', opacity: procesando === s.id ? 0.6 : 1 }}>
+                  style={{ flex: 2, padding: '9px', background: VERDE, color: 'white', border: 'none', fontSize: '15px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', opacity: procesando === s.id ? 0.6 : 1 }}>
                   {procesando === s.id ? 'Procesando...' : '✅ Aprobar y reasignar cliente'}
                 </button>
               </div>
@@ -144,16 +144,16 @@ function PanelCanalizaciones({ supabase, userId, asesores }: { supabase: any; us
       {/* Historial */}
       {resueltas.length > 0 && (
         <div>
-          <p style={{ fontSize: '12px', fontWeight: '700', color: '#9CA3AF', textTransform: 'uppercase' as const, letterSpacing: '0.5px', margin: '0 0 10px' }}>Historial</p>
+          <p style={{ fontSize: '15px', fontWeight: '700', color: '#9CA3AF', margin: '0 0 10px' }}>Historial</p>
           {resueltas.slice(0, 10).map(s => {
             const badge = badgeEstatus(s.estatus)
             return (
               <div key={s.id} style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '8px', padding: '10px 14px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: '12px', fontWeight: '700', color: '#374151', margin: '0 0 2px' }}>{s.clientes?.nombre ?? '—'}</p>
-                  <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>{s.origen?.nombre} → {s.destino?.nombre}</p>
+                  <p style={{ fontSize: '15px', fontWeight: '700', color: '#374151', margin: '0 0 2px' }}>{s.clientes?.nombre ?? '—'}</p>
+                  <p style={{ fontSize: '15px', color: '#9CA3AF', margin: 0 }}>{s.origen?.nombre} → {s.destino?.nombre}</p>
                 </div>
-                <span style={{ padding: '3px 10px', background: badge.bg, color: badge.color, fontSize: '11px', fontWeight: '700', borderRadius: '6px', whiteSpace: 'nowrap' as const }}>
+                <span style={{ padding: '3px 10px', background: badge.bg, color: badge.color, fontSize: '15px', fontWeight: '700', borderRadius: '6px', whiteSpace: 'nowrap' as const }}>
                   {badge.label}
                 </span>
               </div>
@@ -340,12 +340,12 @@ export default function OrgAdminPage() {
       <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #E5E7EB', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1 style={{ fontSize: '16px', fontWeight: '800', color: AZUL, margin: 0 }}>📊 {org.nombre}</h1>
-          <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>Panel de equipo · Plan {org.plan} · {org.asientos} asientos</p>
+          <p style={{ fontSize: '15px', color: '#9CA3AF', margin: 0 }}>Panel de equipo · Plan {org.plan} · {org.asientos} asientos</p>
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>
           {(['dashboard', 'equipo', 'canalizaciones'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)}
-              style={{ padding: '6px 14px', background: tab === t ? AZUL : '#F4F6FB', color: tab === t ? 'white' : '#6B7280', border: `1px solid ${tab === t ? AZUL : '#E5E7EB'}`, fontSize: '12px', fontWeight: (tab === t ? '700' : '400'), cursor: 'pointer', fontFamily: 'inherit' }}>
+              style={{ padding: '6px 14px', background: tab === t ? AZUL : '#F4F6FB', color: tab === t ? 'white' : '#6B7280', border: `1px solid ${tab === t ? AZUL : '#E1E7F0'}`, fontSize: '15px', fontWeight: (tab === t ? '700' : '400'), cursor: 'pointer', fontFamily: 'inherit' }}>
               {t === 'dashboard' ? '📈 Actividad' : t === 'equipo' ? '👥 Mi Equipo' : '🔄 Canalizaciones'}
             </button>
           ))}
@@ -356,9 +356,9 @@ export default function OrgAdminPage() {
 
         {/* Alertas */}
         {pagosPendientes.length > 0 && (
-          <div style={{ background: '#FEF2F2', border: '2px solid #FCA5A5', borderLeft: '4px solid #DC2626', padding: '12px 16px' }}>
-            <p style={{ fontSize: '12px', fontWeight: '700', color: '#991B1B', margin: '0 0 4px' }}>⚠️ {pagosPendientes.length} pago(s) pendiente(s)</p>
-            <p style={{ fontSize: '11px', color: '#991B1B', margin: 0 }}>Contacta a tu administrador de KSE Pensiones para regularizar.</p>
+          <div style={{ background: '#FEF2F2', border: '1px solid #E1E7F0', padding: '12px 16px' }}>
+            <p style={{ fontSize: '15px', fontWeight: '700', color: '#991B1B', margin: '0 0 4px' }}>⚠️ {pagosPendientes.length} pago(s) pendiente(s)</p>
+            <p style={{ fontSize: '15px', color: '#991B1B', margin: 0 }}>Contacta a tu administrador de KSE Pensiones para regularizar.</p>
           </div>
         )}
 
@@ -373,7 +373,7 @@ export default function OrgAdminPage() {
                 { label: 'Autorizados', value: fmtNum(stats.autorizados), color: '#7C3AED' },
               ].map((k, i) => (
                 <div key={i} style={{ ...CARD, borderLeft: `3px solid ${k.color}` }}>
-                  <div style={{ fontSize: '10px', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>{k.label}</div>
+                  <div style={{ fontSize: '13px', color: '#9CA3AF', marginBottom: '4px' }}>{k.label}</div>
                   <div style={{ fontSize: '24px', fontWeight: '800', color: k.color }}>{k.value}</div>
                 </div>
               ))}
@@ -381,11 +381,11 @@ export default function OrgAdminPage() {
 
             {/* Barra asientos */}
             <div style={CARD}>
-              <p style={{ fontSize: '12px', fontWeight: '700', color: '#374151', margin: '0 0 8px' }}>Capacidad del equipo</p>
+              <p style={{ fontSize: '15px', fontWeight: '700', color: '#374151', margin: '0 0 8px' }}>Capacidad del equipo</p>
               <div style={{ background: '#F4F6FB', height: '8px', borderRadius: '4px', overflow: 'hidden' }}>
                 <div style={{ width: `${Math.min(100, pctAsientos)}%`, height: '100%', background: pctAsientos >= 90 ? '#DC2626' : AZUL }} />
               </div>
-              <p style={{ fontSize: '11px', color: '#6B7280', margin: '6px 0 0' }}>
+              <p style={{ fontSize: '15px', color: '#6B7280', margin: '6px 0 0' }}>
                 {stats.asientos_usados} de {org.asientos} asientos en uso
                 {pctAsientos >= 90 && ' · ⚠️ Contacta a KSE para ampliar'}
               </p>
@@ -394,8 +394,8 @@ export default function OrgAdminPage() {
             {/* Tabla actividad */}
             <div style={CARD}>
               <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 12px' }}>Actividad por asesor</p>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-                <thead><tr style={{ background: '#F8FAFC' }}>{['Asesor','Rol','Clientes','Diagnósticos','Autorizados'].map((h,i) => <th key={i} style={{ padding:'7px 10px', textAlign:(i>1?'right':'left'), fontWeight:'700', color:'#6B7280', borderBottom:'2px solid #E5E7EB', fontSize:'10px', textTransform:'uppercase' }}>{h}</th>)}</tr></thead>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }}>
+                <thead><tr style={{ background: '#F5F7FA' }}>{['Asesor','Rol','Clientes','Diagnósticos','Autorizados'].map((h,i) => <th key={i} style={{ padding:'7px 10px', textAlign:(i>1?'right':'left'), fontWeight:'700', color:'#6B7280', borderBottom:'2px solid #E5E7EB', fontSize:'10px', textTransform:'uppercase' }}>{h}</th>)}</tr></thead>
                 <tbody>
                   {asesoresActivos.map((a: any, i: number) => (
                     <tr key={a.id} style={{ borderBottom:'1px solid #F3F4F6', background: i%2===0?'white':'#FAFAFA' }}>
@@ -414,8 +414,8 @@ export default function OrgAdminPage() {
             {pagos.length > 0 && (
               <div style={CARD}>
                 <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 12px' }}>Historial de suscripción</p>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
-                  <thead><tr style={{ background: '#F8FAFC' }}>{['Periodo','Concepto','Monto','Estatus'].map((h,i) => <th key={i} style={{ padding:'7px 10px', textAlign:(i>1?'right':'left'), fontWeight:'700', color:'#6B7280', borderBottom:'1px solid #E5E7EB' }}>{h}</th>)}</tr></thead>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }}>
+                  <thead><tr style={{ background: '#F5F7FA' }}>{['Periodo','Concepto','Monto','Estatus'].map((h,i) => <th key={i} style={{ padding:'7px 10px', textAlign:(i>1?'right':'left'), fontWeight:'700', color:'#6B7280', borderBottom:'1px solid #E5E7EB' }}>{h}</th>)}</tr></thead>
                   <tbody>
                     {pagos.map((p: any, i: number) => {
                       const col: Record<string,string> = { pendiente:'#92400E', pagado:'#065F46', vencido:'#991B1B', cancelado:'#6B7280' }
@@ -444,19 +444,19 @@ export default function OrgAdminPage() {
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               {stats.asientos_usados < org.asientos ? (
                 <button onClick={() => { setShowNuevo(true); setErrNuevo('') }}
-                  style={{ padding: '8px 16px', background: NARANJA, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ padding: '8px 16px', background: NARANJA, color: 'white', border: 'none', fontSize: '15px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
                   + Nuevo asesor
                 </button>
               ) : (
-                <p style={{ fontSize: '12px', color: '#DC2626', fontWeight: '600' }}>⚠️ Asientos llenos — contacta a KSE para ampliar</p>
+                <p style={{ fontSize: '15px', color: '#DC2626', fontWeight: '600' }}>⚠️ Asientos llenos — contacta a KSE para ampliar</p>
               )}
             </div>
 
             {/* Asesores activos */}
             <div style={CARD}>
               <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 12px' }}>Asesores activos ({asesoresActivos.length})</p>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-                <thead><tr style={{ background: '#F8FAFC' }}>{['Nombre','Correo','Rol','Clientes','Acciones'].map((h,i) => <th key={i} style={{ padding:'7px 10px', textAlign:(i>2?'right':'left'), fontWeight:'700', color:'#6B7280', borderBottom:'2px solid #E5E7EB', fontSize:'10px', textTransform:'uppercase' }}>{h}</th>)}</tr></thead>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }}>
+                <thead><tr style={{ background: '#F5F7FA' }}>{['Nombre','Correo','Rol','Clientes','Acciones'].map((h,i) => <th key={i} style={{ padding:'7px 10px', textAlign:(i>2?'right':'left'), fontWeight:'700', color:'#6B7280', borderBottom:'2px solid #E5E7EB', fontSize:'10px', textTransform:'uppercase' }}>{h}</th>)}</tr></thead>
                 <tbody>
                   {asesoresActivos.map((a: any, i: number) => (
                     <tr key={a.id} style={{ borderBottom:'1px solid #F3F4F6', background:i%2===0?'white':'#FAFAFA' }}>
@@ -489,8 +489,8 @@ export default function OrgAdminPage() {
             {asesoresInactivos.length > 0 && (
               <div style={CARD}>
                 <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 12px' }}>Asesores inactivos ({asesoresInactivos.length})</p>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-                  <thead><tr style={{ background: '#F8FAFC' }}>{['Nombre','Correo','Clientes previos',''].map((h,i) => <th key={i} style={{ padding:'7px 10px', textAlign:(i>1?'right':'left'), fontWeight:'700', color:'#6B7280', borderBottom:'1px solid #E5E7EB', fontSize:'10px' }}>{h}</th>)}</tr></thead>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }}>
+                  <thead><tr style={{ background: '#F5F7FA' }}>{['Nombre','Correo','Clientes previos',''].map((h,i) => <th key={i} style={{ padding:'7px 10px', textAlign:(i>1?'right':'left'), fontWeight:'700', color:'#6B7280', borderBottom:'1px solid #E5E7EB', fontSize:'10px' }}>{h}</th>)}</tr></thead>
                   <tbody>
                     {asesoresInactivos.map((a: any, i: number) => (
                       <tr key={a.id} style={{ borderBottom:'1px solid #F3F4F6', background:'#FAFAFA', opacity:0.7 }}>
@@ -515,9 +515,9 @@ export default function OrgAdminPage() {
         {/* ── TAB: REASIGNACIÓN ── */}
         {tab === 'reasignacion' && asesorInactivar && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ background: '#FEF2F2', border: '1px solid #FCA5A5', borderLeft: '4px solid #DC2626', padding: '14px 16px' }}>
+            <div style={{ background: '#FEF2F2', border: '1px solid #E1E7F0', padding: '14px 16px' }}>
               <p style={{ fontSize: '13px', fontWeight: '700', color: '#991B1B', margin: '0 0 4px' }}>⚠️ Antes de inactivar a {asesorInactivar.nombre}</p>
-              <p style={{ fontSize: '12px', color: '#991B1B', margin: 0 }}>Tiene {clientesAsesor.length} cliente(s) activo(s). Debes reasignarlos antes de continuar.</p>
+              <p style={{ fontSize: '15px', color: '#991B1B', margin: 0 }}>Tiene {clientesAsesor.length} cliente(s) activo(s). Debes reasignarlos antes de continuar.</p>
             </div>
 
             {clientesAsesor.length > 0 && (
@@ -525,7 +525,7 @@ export default function OrgAdminPage() {
                 <div style={{ display: 'flex', gap: '8px' }}>
                   {(['manual', 'auto'] as const).map(m => (
                     <button key={m} onClick={() => setModoReasig(m)}
-                      style={{ padding:'7px 14px', background: modoReasig===m ? AZUL : 'white', color: modoReasig===m ? 'white' : '#374151', border:`1px solid ${modoReasig===m ? AZUL : '#E5E7EB'}`, fontSize:'12px', fontWeight:(modoReasig===m?'700':'400'), cursor:'pointer', fontFamily:'inherit' }}>
+                      style={{ padding:'7px 14px', background: modoReasig===m ? AZUL : 'white', color: modoReasig===m ? 'white' : '#374151', border:`1px solid ${modoReasig===m ? AZUL : '#E1E7F0'}`, fontSize:'12px', fontWeight:(modoReasig===m?'700':'400'), cursor:'pointer', fontFamily:'inherit' }}>
                       {m === 'manual' ? '✋ Reasignación manual' : '🎲 Distribución automática'}
                     </button>
                   ))}
@@ -533,12 +533,12 @@ export default function OrgAdminPage() {
 
                 {modoReasig === 'manual' ? (
                   <div style={CARD}>
-                    <p style={{ fontSize: '12px', fontWeight: '700', color: '#374151', margin: '0 0 10px' }}>Asigna cada cliente a un asesor activo:</p>
+                    <p style={{ fontSize: '15px', fontWeight: '700', color: '#374151', margin: '0 0 10px' }}>Asigna cada cliente a un asesor activo:</p>
                     {clientesAsesor.map((c: any) => (
                       <div key={c.id} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid #F3F4F6' }}>
                         <span style={{ fontSize:'13px', fontWeight:'600', color:'#111827' }}>{c.nombre}</span>
                         <select value={reasignaciones[c.id] || ''} onChange={e => setReasignaciones(r => ({ ...r, [c.id]: e.target.value }))}
-                          style={{ padding:'5px 8px', border:`1px solid ${reasignaciones[c.id] ? '#86EFAC' : '#E5E7EB'}`, fontSize:'12px', fontFamily:'inherit', background:'white', minWidth:'160px' }}>
+                          style={{ padding:'5px 8px', border:`1px solid ${reasignaciones[c.id] ? '#86EFAC' : '#E1E7F0'}`, fontSize:'12px', fontFamily:'inherit', background:'white', minWidth:'160px' }}>
                           <option value=''>— Seleccionar asesor —</option>
                           {asesoresActivos.filter((a: any) => a.id !== asesorInactivar.id).map((a: any) => (
                             <option key={a.id} value={a.id}>{a.nombre}</option>
@@ -604,7 +604,7 @@ export default function OrgAdminPage() {
                 <div style={{ display:'flex', gap:'6px' }}>
                   {(['email','whatsapp','ambos'] as const).map(v => (
                     <button key={v} type="button" onClick={() => setFormNuevo(p => ({ ...p, envio: v }))}
-                      style={{ flex:1, padding:'6px 4px', background: formNuevo.envio===v ? AZUL : '#F4F6FB', color: formNuevo.envio===v ? 'white' : '#374151', border:`1px solid ${formNuevo.envio===v ? AZUL : '#E5E7EB'}`, fontSize:'11px', fontWeight:(formNuevo.envio===v?'700':'400'), cursor:'pointer', fontFamily:'inherit', borderRadius:'4px' }}>
+                      style={{ flex:1, padding:'6px 4px', background: formNuevo.envio===v ? AZUL : '#F4F6FB', color: formNuevo.envio===v ? 'white' : '#374151', border:`1px solid ${formNuevo.envio===v ? AZUL : '#E1E7F0'}`, fontSize:'11px', fontWeight:(formNuevo.envio===v?'700':'400'), cursor:'pointer', fontFamily:'inherit', borderRadius:'4px' }}>
                       {v === 'email' ? '📧 Email' : v === 'whatsapp' ? '💬 WhatsApp' : '📧+💬 Ambos'}
                     </button>
                   ))}
@@ -612,7 +612,7 @@ export default function OrgAdminPage() {
               </div>
               <div style={{ display:'flex', gap:'8px', marginTop:'4px' }}>
                 <button onClick={() => { setShowNuevo(false); setErrNuevo(''); setFormNuevo({ nombre:'', email:'', password:'', telefono:'', envio:'whatsapp', rol:'asesor' }) }}
-                  style={{ flex:1, padding:'10px', background:'#F8FAFC', color:'#374151', border:'1px solid #E5E7EB', fontSize:'12px', fontWeight:'600', cursor:'pointer', fontFamily:'inherit', borderRadius:'4px' }}>Cancelar</button>
+                  style={{ flex:1, padding:'10px', background:'#F5F7FA', color:'#374151', border:'1px solid #E5E7EB', fontSize:'12px', fontWeight:'600', cursor:'pointer', fontFamily:'inherit', borderRadius:'4px' }}>Cancelar</button>
                 <button onClick={crearAsesor} disabled={creando}
                   style={{ flex:1, padding:'10px', background:NARANJA, color:'white', border:'none', fontSize:'12px', fontWeight:'700', cursor:'pointer', fontFamily:'inherit', borderRadius:'4px', opacity:creando?0.6:1 }}>
                   {creando ? 'Creando...' : 'Crear asesor'}
@@ -641,7 +641,7 @@ export default function OrgAdminPage() {
               {pwdErr && <p style={{ fontSize:'12px', color:'#DC2626', margin:0 }}>{pwdErr}</p>}
               <div style={{ display:'flex', gap:'8px' }}>
                 <button onClick={() => { setShowPwd(false); setPwdNueva(''); setPwdErr('') }}
-                  style={{ flex:1, padding:'10px', background:'#F8FAFC', color:'#374151', border:'1px solid #E5E7EB', fontSize:'12px', fontWeight:'600', cursor:'pointer', fontFamily:'inherit', borderRadius:'4px' }}>Cancelar</button>
+                  style={{ flex:1, padding:'10px', background:'#F5F7FA', color:'#374151', border:'1px solid #E5E7EB', fontSize:'12px', fontWeight:'600', cursor:'pointer', fontFamily:'inherit', borderRadius:'4px' }}>Cancelar</button>
                 <button onClick={cambiarPassword}
                   style={{ flex:1, padding:'10px', background:AZUL, color:'white', border:'none', fontSize:'12px', fontWeight:'700', cursor:'pointer', fontFamily:'inherit', borderRadius:'4px' }}>
                   Actualizar

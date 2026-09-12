@@ -34,21 +34,18 @@ El módulo de suscripción con Stripe se eliminó en esta fase. Lo que quedó en
 
 ## Transversal
 
-- [ ] Los iconos del sidebar son emojis (💳 ⚙ 🔬 📊). Se ven distintos en cada sistema operativo y conviven mal con el rediseño.
 
 - [x] Paginación y ordenamiento en Clientes y Reportes. *(Seguimiento resultó ser vista de calendario, no tabla: no aplica.)*
 - [ ] Reemplazar los 16 `alert()` y mensajes genéricos por errores específicos.
 - [ ] Skeletons de carga. No existe ninguno.
 - [ ] Manifest PWA. La app no es instalable.
-- [ ] Responsividad fuera de la calculadora: dashboard, clientes, seguimiento.
+- [ ] Responsividad fuera de la calculadora: dashboard, clientes, seguimiento. *(La paleta y la tipografía ya están alineadas; falta el comportamiento en pantallas angostas.)*
 - [ ] Validación en tiempo real en formularios. Hoy solo valida al enviar.
 - [ ] Confirmación al cerrar modales con datos capturados.
 
 ## Calidad
 
 - [ ] **Tests de renderizado.** Los 104 actuales son de lógica pura. Ninguno prueba que un tab monte sin reventar con datos vacíos, que es donde más se rompe una app.
-- [ ] **Rediseñar `DiagnosticoPDF.tsx`.** Quedó con el diseño anterior. Es el entregable que ve el cliente final: hoy hay inconsistencia entre lo que el asesor muestra en pantalla y lo que entrega.
-- [ ] **Llevar los tokens al resto de la app.** Dashboard, Clientes y Seguimiento siguen con la paleta vieja; la calculadora se ve distinta al resto del sistema.
 
 ## Cerrados en la sesión del 12 sep 2026
 

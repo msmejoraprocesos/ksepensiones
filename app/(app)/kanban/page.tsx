@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/utils/supabase/client'
 
-const AZUL = '#334E7B'
+const AZUL = '#245287'
 const VERDE = '#2E8B57'
 const NARANJA = '#F47920'
 
@@ -165,7 +165,7 @@ export default function KanbanPage() {
             { label: 'Por cobrar', value: fmtMXN(totalPorCobrar), color: '#ef4444' },
           ].map((k, i) => (
             <div key={i} style={{ background: '#F4F6F9', borderRadius: '8px', padding: '5px 12px', border: '1px solid #e2e8f0' }}>
-              <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{k.label}</div>
+              <div style={{ fontSize: '13px', color: '#94a3b8' }}>{k.label}</div>
               <div style={{ fontSize: '14px', fontWeight: '800', color: k.color }}>{k.value}</div>
             </div>
           ))}
@@ -201,9 +201,9 @@ export default function KanbanPage() {
                   <div style={{ position: 'sticky' as const, top: '65px', zIndex: 2, background: colBg, borderRadius: '12px 12px 0 0', padding: '10px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: col.color }} />
-                      <span style={{ fontSize: '12px', fontWeight: '700', color: col.cierre ? col.color : '#374151' }}>{col.label}</span>
+                      <span style={{ fontSize: '15px', fontWeight: '700', color: col.cierre ? col.color : '#374151' }}>{col.label}</span>
                     </div>
-                    <span style={{ fontSize: '11px', fontWeight: '700', background: col.bg, color: col.color, padding: '1px 7px', borderRadius: '10px', border: `1px solid ${col.color}30` }}>
+                    <span style={{ fontSize: '15px', fontWeight: '700', background: col.bg, color: col.color, padding: '1px 7px', borderRadius: '10px', border: `1px solid ${col.color}30` }}>
                       {cards.length}
                     </span>
                   </div>
@@ -225,7 +225,7 @@ export default function KanbanPage() {
                         }}>
                         {/* Nombre */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
-                          <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: AZUL, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '11px', fontWeight: '700', flexShrink: 0 }}>
+                          <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: AZUL, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '15px', fontWeight: '700', flexShrink: 0 }}>
                             {cliente.nombre.charAt(0).toUpperCase()}
                           </div>
                           <span style={{ fontSize: '13px', fontWeight: '700', color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cliente.nombre}</span>
@@ -234,7 +234,7 @@ export default function KanbanPage() {
                         {/* Servicio */}
                         {cliente.servicio_contratado && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
-                            <span style={{ fontSize: '10px', padding: '1px 6px', borderRadius: '8px', background: col.bg, color: col.color, fontWeight: '700', border: `1px solid ${col.color}30` }}>
+                            <span style={{ fontSize: '13px', padding: '1px 6px', borderRadius: '8px', background: col.bg, color: col.color, fontWeight: '700', border: `1px solid ${col.color}30` }}>
                               {cliente.servicio_contratado}
                             </span>
                           </div>
@@ -242,7 +242,7 @@ export default function KanbanPage() {
 
                         {/* Monto */}
                         {cliente.monto_acordado && (
-                          <div style={{ fontSize: '12px', color: AZUL, fontWeight: '700', marginBottom: '4px' }}>
+                          <div style={{ fontSize: '15px', color: AZUL, fontWeight: '700', marginBottom: '4px' }}>
                             💰 {fmtMXN(cliente.monto_acordado)}
                             {cliente.monto_cobrado && cliente.monto_cobrado > 0 && (
                               <span style={{ color: '#94a3b8', fontWeight: '400' }}> · cobrado {fmtMXN(cliente.monto_cobrado)}</span>
@@ -254,12 +254,12 @@ export default function KanbanPage() {
                         {cliente.estatus_pago && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
                             <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: PAGO_COLOR[cliente.estatus_pago] ?? '#94a3b8' }} />
-                            <span style={{ fontSize: '10px', color: PAGO_COLOR[cliente.estatus_pago] ?? '#94a3b8', fontWeight: '600' }}>{cliente.estatus_pago}</span>
+                            <span style={{ fontSize: '13px', color: PAGO_COLOR[cliente.estatus_pago] ?? '#94a3b8', fontWeight: '600' }}>{cliente.estatus_pago}</span>
                           </div>
                         )}
 
                         {/* Último contacto */}
-                        <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '4px' }}>
+                        <div style={{ fontSize: '13px', color: '#94a3b8', marginTop: '4px' }}>
                           📅 {fmtFecha(cliente.ultimo_contacto ?? cliente.created_at)}
                         </div>
                       </div>
@@ -267,7 +267,7 @@ export default function KanbanPage() {
 
                     {/* Drop zone vacía */}
                     {cards.length === 0 && (
-                      <div style={{ border: `2px dashed ${isDragOver ? col.color : '#e2e8f0'}`, borderRadius: '8px', padding: '20px 8px', textAlign: 'center', color: isDragOver ? col.color : '#cbd5e1', fontSize: '11px', transition: 'all 0.15s' }}>
+                      <div style={{ border: `2px dashed ${isDragOver ? col.color : '#e2e8f0'}`, borderRadius: '8px', padding: '20px 8px', textAlign: 'center', color: isDragOver ? col.color : '#cbd5e1', fontSize: '15px', transition: 'all 0.15s' }}>
                         {isDragOver ? 'Suelta aquí' : 'Sin clientes'}
                       </div>
                     )}
@@ -291,7 +291,7 @@ export default function KanbanPage() {
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '16px', fontWeight: '700', color: '#1e293b' }}>{modal.cliente.nombre}</div>
-                <div style={{ fontSize: '12px', color: '#94a3b8' }}>
+                <div style={{ fontSize: '15px', color: '#94a3b8' }}>
                   {COLUMNAS.find(c => c.id === modal.cliente.etapa_kanban)?.label ?? modal.cliente.etapa_kanban}
                 </div>
               </div>
@@ -300,11 +300,11 @@ export default function KanbanPage() {
 
             {/* Mover de etapa */}
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Etapa en el pipeline</label>
+              <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '6px' }}>Etapa en el pipeline</label>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                 {COLUMNAS.map(col => (
                   <button key={col.id} onClick={() => moverCliente(modal.cliente.id, col.id)}
-                    style={{ padding: '5px 10px', borderRadius: '8px', border: `1.5px solid ${modal.cliente.etapa_kanban === col.id ? col.color : '#e2e8f0'}`, background: modal.cliente.etapa_kanban === col.id ? col.bg : 'white', color: modal.cliente.etapa_kanban === col.id ? col.color : '#64748b', fontSize: '11px', fontWeight: '600', cursor: 'pointer' }}>
+                    style={{ padding: '5px 10px', borderRadius: '8px', border: `1.5px solid ${modal.cliente.etapa_kanban === col.id ? col.color : '#e2e8f0'}`, background: modal.cliente.etapa_kanban === col.id ? col.bg : 'white', color: modal.cliente.etapa_kanban === col.id ? col.color : '#64748b', fontSize: '15px', fontWeight: '600', cursor: 'pointer' }}>
                     {col.label}
                   </button>
                 ))}
@@ -314,24 +314,24 @@ export default function KanbanPage() {
             {/* Servicio y pago */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Servicio</label>
+                <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Servicio</label>
                 <select defaultValue={modal.cliente.servicio_contratado ?? ''} onChange={e => actualizarCliente(modal.cliente.id, { servicio_contratado: e.target.value || null })} style={inputSt}>
                   <option value="">— Sin definir —</option>
                   {SERVICIOS.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Estatus de pago</label>
+                <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Estatus de pago</label>
                 <select defaultValue={modal.cliente.estatus_pago ?? 'Pendiente'} onChange={e => actualizarCliente(modal.cliente.id, { estatus_pago: e.target.value })} style={inputSt}>
                   {PAGOS.map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Monto acordado ($)</label>
+                <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Monto acordado ($)</label>
                 <input type="number" defaultValue={modal.cliente.monto_acordado ?? ''} onBlur={e => actualizarCliente(modal.cliente.id, { monto_acordado: parseFloat(e.target.value) || null })} placeholder="0" style={inputSt} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Monto cobrado ($)</label>
+                <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Monto cobrado ($)</label>
                 <input type="number" defaultValue={modal.cliente.monto_cobrado ?? ''} onBlur={e => actualizarCliente(modal.cliente.id, { monto_cobrado: parseFloat(e.target.value) || null })} placeholder="0" style={inputSt} />
               </div>
             </div>
@@ -343,7 +343,7 @@ export default function KanbanPage() {
                 { icon: '✉️', label: modal.cliente.email ?? '—' },
                 { icon: '📝', label: modal.cliente.notas ?? '—' },
               ].map((item, i) => (
-                <div key={i} style={{ fontSize: '12px', color: '#64748b', marginBottom: i < 2 ? '4px' : '0', display: 'flex', gap: '6px' }}>
+                <div key={i} style={{ fontSize: '15px', color: '#64748b', marginBottom: i < 2 ? '4px' : '0', display: 'flex', gap: '6px' }}>
                   <span>{item.icon}</span><span>{item.label}</span>
                 </div>
               ))}
@@ -370,28 +370,28 @@ export default function KanbanPage() {
             <h2 style={{ color: AZUL, fontSize: '18px', fontWeight: '700', margin: '0 0 20px' }}>Nuevo cliente</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Nombre *</label>
+                <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Nombre *</label>
                 <input value={form.nombre} onChange={e => setForm(p => ({ ...p, nombre: e.target.value }))} placeholder="Nombre completo" style={inputSt} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Teléfono</label>
+                  <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Teléfono</label>
                   <input value={form.telefono} onChange={e => setForm(p => ({ ...p, telefono: e.target.value }))} placeholder="55 1234 5678" style={inputSt} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Email</label>
+                  <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Email</label>
                   <input value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder="correo@ejemplo.com" style={inputSt} />
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Etapa inicial</label>
+                  <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Etapa inicial</label>
                   <select value={form.etapa_kanban} onChange={e => setForm(p => ({ ...p, etapa_kanban: e.target.value }))} style={inputSt}>
                     {COLUMNAS.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Servicio</label>
+                  <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Servicio</label>
                   <select value={form.servicio_contratado} onChange={e => setForm(p => ({ ...p, servicio_contratado: e.target.value }))} style={inputSt}>
                     <option value="">— Sin definir —</option>
                     {SERVICIOS.map(s => <option key={s} value={s}>{s}</option>)}
@@ -400,22 +400,22 @@ export default function KanbanPage() {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Monto ($)</label>
+                  <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Monto ($)</label>
                   <input type="number" value={form.monto_acordado} onChange={e => setForm(p => ({ ...p, monto_acordado: e.target.value }))} placeholder="0" style={inputSt} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Cobrado ($)</label>
+                  <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Cobrado ($)</label>
                   <input type="number" value={form.monto_cobrado} onChange={e => setForm(p => ({ ...p, monto_cobrado: e.target.value }))} placeholder="0" style={inputSt} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Pago</label>
+                  <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Pago</label>
                   <select value={form.estatus_pago} onChange={e => setForm(p => ({ ...p, estatus_pago: e.target.value }))} style={inputSt}>
                     {PAGOS.map(p => <option key={p} value={p}>{p}</option>)}
                   </select>
                 </div>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Notas</label>
+                <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Notas</label>
                 <textarea value={form.notas} onChange={e => setForm(p => ({ ...p, notas: e.target.value }))} rows={2} style={{ ...inputSt, resize: 'none' }} />
               </div>
             </div>

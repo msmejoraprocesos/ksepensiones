@@ -173,7 +173,7 @@ export default function SeguimientoPage() {
         {/* Cabecera días */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '1px solid #e2e8f0' }}>
           {DIAS.map(d => (
-            <div key={d} style={{ padding: '8px 0', textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>{d}</div>
+            <div key={d} style={{ padding: '8px 0', textAlign: 'center', fontSize: '15px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>{d}</div>
           ))}
         </div>
         {/* Semanas */}
@@ -188,7 +188,7 @@ export default function SeguimientoPage() {
                   style={{ minHeight: '100px', padding: '6px', borderRight: i < 6 ? '1px solid #f1f5f9' : 'none', background: esFecha ? '#EEF2F8' : 'white', cursor: day ? 'pointer' : 'default' }}>
                   {day && (
                     <>
-                      <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: esHoy ? AZUL : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: esHoy ? '700' : '400', color: esHoy ? 'white' : day.getMonth() !== fecha.getMonth() ? '#cbd5e1' : '#374151', marginBottom: '4px' }}>
+                      <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: esHoy ? AZUL : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', fontWeight: esHoy ? '700' : '400', color: esHoy ? 'white' : day.getMonth() !== fecha.getMonth() ? '#cbd5e1' : '#374151', marginBottom: '4px' }}>
                         {day.getDate()}
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
@@ -196,15 +196,15 @@ export default function SeguimientoPage() {
                           const cfg = TIPO_CONFIG[a.tipo] ?? TIPO_CONFIG.nota
                           return (
                             <div key={a.id} onClick={e => { e.stopPropagation(); setDetalle(a) }}
-                              style={{ fontSize: '10px', padding: '2px 5px', borderRadius: '4px', background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer', textDecoration: a.estatus === 'completado' ? 'line-through' : 'none' }}>
+                              style={{ fontSize: '13px', padding: '2px 5px', borderRadius: '4px', background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer', textDecoration: a.estatus === 'completado' ? 'line-through' : 'none' }}>
                               {TIPO_ICONS[a.tipo]} {a.titulo}{a.fecha_programada ? ' ' + new Date(a.fecha_programada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : ''}
                             </div>
                           )
                         })}
-                        {acts.length > 3 && <div style={{ fontSize: '10px', color: '#94a3b8', padding: '1px 4px' }}>+{acts.length - 3} más</div>}
+                        {acts.length > 3 && <div style={{ fontSize: '13px', color: '#94a3b8', padding: '1px 4px' }}>+{acts.length - 3} más</div>}
                       </div>
                       <button onClick={e => { e.stopPropagation(); openModal(day.toISOString().split('T')[0]) }}
-                        style={{ marginTop: '4px', fontSize: '10px', color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', padding: '1px 4px', borderRadius: '4px' }}>+ agregar</button>
+                        style={{ marginTop: '4px', fontSize: '13px', color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', padding: '1px 4px', borderRadius: '4px' }}>+ agregar</button>
                     </>
                   )}
                 </div>
@@ -234,7 +234,7 @@ export default function SeguimientoPage() {
             return (
               <div key={i} onClick={() => { setFecha(d); if (vista === 'semana') setVista('dia') }}
                 style={{ padding: '8px 4px', textAlign: 'center', cursor: 'pointer', borderLeft: '1px solid #f1f5f9' }}>
-                <div style={{ fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: '600' }}>{DIAS[d.getDay()]}</div>
+                <div style={{ fontSize: '15px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: '600' }}>{DIAS[d.getDay()]}</div>
                 <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: esHoy ? AZUL : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: esHoy ? '700' : '500', color: esHoy ? 'white' : '#374151', margin: '2px auto 0' }}>
                   {d.getDate()}
                 </div>
@@ -249,7 +249,7 @@ export default function SeguimientoPage() {
             <div>
               {HORAS.map((h, hi) => (
                 <div key={h} style={{ height: HORA_H, borderBottom: '1px solid #f1f5f9', background: hi % 2 === 0 ? '#FAFBFC' : 'white', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end', paddingRight: '8px', paddingTop: '2px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: '700', color: '#475569' }}>{h.toString().padStart(2, '0')}:00</span>
+                  <span style={{ fontSize: '15px', fontWeight: '700', color: '#475569' }}>{h.toString().padStart(2, '0')}:00</span>
                 </div>
               ))}
             </div>
@@ -278,10 +278,10 @@ export default function SeguimientoPage() {
                   return (
                     <div key={a.id} onClick={e => { e.stopPropagation(); setDetalle(a) }}
                       style={{ position: 'absolute', top, left: `${leftPct}%`, width: `${widthPct}%`, height: '36px', borderRadius: '6px', padding: '3px 6px', background: cfg.bg, border: `1px solid ${cfg.border}`, cursor: 'pointer', zIndex: 10 + col, opacity: a.estatus === 'completado' ? 0.6 : 1, boxSizing: 'border-box', overflow: 'hidden' }}>
-                      <div style={{ fontSize: '10px', fontWeight: '700', color: cfg.color, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: a.estatus === 'completado' ? 'line-through' : 'none' }}>
+                      <div style={{ fontSize: '13px', fontWeight: '700', color: cfg.color, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: a.estatus === 'completado' ? 'line-through' : 'none' }}>
                         {TIPO_ICONS[a.tipo]} {d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })} {a.titulo}
                       </div>
-                      {a.clientes?.nombre && <div style={{ fontSize: '9px', color: cfg.color, opacity: 0.8 }}>{a.clientes.nombre}</div>}
+                      {a.clientes?.nombre && <div style={{ fontSize: '13px', color: cfg.color, opacity: 0.8 }}>{a.clientes.nombre}</div>}
                     </div>
                   )
                 })}
@@ -305,7 +305,7 @@ export default function SeguimientoPage() {
       <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '10px 20px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
         {/* Nav */}
         <button onClick={() => navegar(-1)} style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>‹</button>
-        <button onClick={() => setFecha(new Date())} style={{ padding: '4px 12px', borderRadius: '6px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', fontSize: '12px', fontWeight: '600', color: '#374151' }}>Hoy</button>
+        <button onClick={() => setFecha(new Date())} style={{ padding: '4px 12px', borderRadius: '6px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', fontSize: '15px', fontWeight: '600', color: '#374151' }}>Hoy</button>
         <button onClick={() => { setFechaBuscar(fecha.toISOString().split('T')[0]); setShowBuscarFecha(true) }}
           title="Buscar fecha"
           style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>📅</button>
@@ -317,7 +317,7 @@ export default function SeguimientoPage() {
         <div style={{ display: 'flex', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
           {(['mes', 'semana', 'dia'] as const).map(v => (
             <button key={v} onClick={() => setVista(v)}
-              style={{ padding: '6px 12px', background: vista === v ? AZUL : 'white', color: vista === v ? 'white' : '#64748b', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: '600', textTransform: 'capitalize' }}>
+              style={{ padding: '6px 12px', background: vista === v ? AZUL : 'white', color: vista === v ? 'white' : '#64748b', border: 'none', cursor: 'pointer', fontSize: '15px', fontWeight: '600', textTransform: 'capitalize' }}>
               {v === 'dia' ? 'Día' : v === 'semana' ? 'Semana' : 'Mes'}
             </button>
           ))}
@@ -375,31 +375,31 @@ export default function SeguimientoPage() {
             <h3 style={{ color: AZUL, fontSize: '16px', fontWeight: '700', margin: '0 0 18px' }}>Nueva actividad</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Título *</label>
+                <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Título *</label>
                 <input value={form.titulo} onChange={e => setForm(p => ({ ...p, titulo: e.target.value }))} placeholder="Ej. Llamada de seguimiento"
                   style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Tipo</label>
+                  <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Tipo</label>
                   <select value={form.tipo} onChange={e => setForm(p => ({ ...p, tipo: e.target.value }))}
                     style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', background: 'white' }}>
                     {Object.entries(TIPO_CONFIG).map(([k, v]) => <option key={k} value={k}>{TIPO_ICONS[k]} {v.label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Hora</label>
+                  <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Hora</label>
                   <input type="time" value={horaSel} onChange={e => setHoraSel(e.target.value)}
                     style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
                 </div>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Fecha</label>
+                <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Fecha</label>
                 <input type="date" value={fechaSel} onChange={e => setFechaSel(e.target.value)}
                   style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Cliente</label>
+                <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Cliente</label>
                 <select value={form.cliente_id} onChange={e => setForm(p => ({ ...p, cliente_id: e.target.value }))}
                   style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', background: 'white' }}>
                   <option value="">— Sin cliente —</option>
@@ -407,7 +407,7 @@ export default function SeguimientoPage() {
                 </select>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Notas</label>
+                <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Notas</label>
                 <textarea value={form.notas} onChange={e => setForm(p => ({ ...p, notas: e.target.value }))} rows={2}
                   style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', resize: 'none', outline: 'none' }} />
               </div>
@@ -441,7 +441,7 @@ export default function SeguimientoPage() {
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: '15px', fontWeight: '700', color: '#1e293b' }}>{detalle.titulo}</div>
-                      <div style={{ fontSize: '11px', color: cfg.color, fontWeight: '600', textTransform: 'uppercase' }}>{cfg.label}</div>
+                      <div style={{ fontSize: '15px', color: cfg.color, fontWeight: '600', textTransform: 'uppercase' }}>{cfg.label}</div>
                     </div>
                     <button onClick={() => setDetalle(null)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
                   </div>
@@ -453,13 +453,13 @@ export default function SeguimientoPage() {
                     )}
                     {detalle.clientes?.nombre && <div style={{ fontSize: '13px', color: '#64748b' }}>👤 {detalle.clientes.nombre}</div>}
                     {detalle.notas && <div style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic' }}>📝 {detalle.notas}</div>}
-                    <div style={{ fontSize: '12px', padding: '4px 10px', borderRadius: '12px', background: detalle.estatus === 'completado' ? '#f0fdf4' : '#FEF4EC', color: detalle.estatus === 'completado' ? VERDE : NARANJA, fontWeight: '600', display: 'inline-block' }}>
+                    <div style={{ fontSize: '15px', padding: '4px 10px', borderRadius: '12px', background: detalle.estatus === 'completado' ? '#f0fdf4' : '#FEF4EC', color: detalle.estatus === 'completado' ? VERDE : NARANJA, fontWeight: '600', display: 'inline-block' }}>
                       {detalle.estatus === 'completado' ? '✓ Completado' : '⏳ Pendiente'}
                     </div>
                   </div>
                   {/* Comentario / Minuta */}
                   <div style={{ marginBottom: '12px' }}>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#475569', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#475569', marginBottom: '5px' }}>
                       📝 Comentarios / Minuta
                     </label>
                     <textarea
@@ -467,7 +467,7 @@ export default function SeguimientoPage() {
                       onChange={e => setComentarioDetalle(e.target.value)}
                       rows={3}
                       placeholder="Agrega notas, acuerdos o resultados de esta actividad..."
-                      style={{ display: 'block', width: '100%', padding: '8px 10px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '12px', resize: 'none', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' as const }}
+                      style={{ display: 'block', width: '100%', padding: '8px 10px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '15px', resize: 'none', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' as const }}
                     />
                     {comentarioDetalle !== (detalle.comentario ?? '') && (
                       <button onClick={async () => {
@@ -477,7 +477,7 @@ export default function SeguimientoPage() {
                         setDetalle(d => d ? { ...d, comentario: comentarioDetalle } : d)
                         setSavingComentario(false)
                       }} disabled={savingComentario}
-                        style={{ marginTop: '5px', padding: '5px 14px', background: AZUL, color: 'white', border: 'none', borderRadius: '6px', fontSize: '11px', fontWeight: '600', cursor: 'pointer' }}>
+                        style={{ marginTop: '5px', padding: '5px 14px', background: AZUL, color: 'white', border: 'none', borderRadius: '6px', fontSize: '15px', fontWeight: '600', cursor: 'pointer' }}>
                         {savingComentario ? 'Guardando...' : '💾 Guardar comentario'}
                       </button>
                     )}

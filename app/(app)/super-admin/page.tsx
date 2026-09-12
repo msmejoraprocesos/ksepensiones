@@ -118,7 +118,7 @@ export default function SuperAdminDashboard() {
   if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '80vh', color: '#9CA3AF' }}>Cargando dashboard...</div>
 
   const CARD = { background: 'white', border: '1px solid #E5E7EB', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }
-  const LABEL = { fontSize: '10px', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }
+  const LABEL = { fontSize: '13px', color: '#9CA3AF', marginBottom: '4px' }
 
   return (
     <div style={{ minHeight: '100vh', background: '#F4F6FB' }}>
@@ -127,12 +127,12 @@ export default function SuperAdminDashboard() {
       <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #E5E7EB', padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: '16px', fontWeight: '800', color: AZUL, margin: 0 }}>🏠 Dashboard de Negocio</h1>
-          <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>Solo visible para ti — super_admin</p>
+          <p style={{ fontSize: '15px', color: '#9CA3AF', margin: 0 }}>Solo visible para ti — super_admin</p>
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>
           {(['7d', '30d', '90d', 'total'] as const).map(p => (
             <button key={p} onClick={() => setPeriodo(p)}
-              style={{ padding: '5px 12px', background: periodo === p ? AZUL : '#F4F6FB', color: periodo === p ? 'white' : '#6B7280', border: `1px solid ${periodo === p ? AZUL : '#E5E7EB'}`, fontSize: '11px', fontWeight: (periodo === p ? '700' : '400'), cursor: 'pointer', fontFamily: 'inherit' }}>
+              style={{ padding: '5px 12px', background: periodo === p ? AZUL : '#F4F6FB', color: periodo === p ? 'white' : '#6B7280', border: `1px solid ${periodo === p ? AZUL : '#E1E7F0'}`, fontSize: '15px', fontWeight: (periodo === p ? '700' : '400'), cursor: 'pointer', fontFamily: 'inherit' }}>
               {p === '7d' ? 'Últimos 7 días' : p === '30d' ? 'Últimos 30 días' : p === '90d' ? 'Últimos 90 días' : 'Todo'}
             </button>
           ))}
@@ -143,11 +143,11 @@ export default function SuperAdminDashboard() {
 
         {/* Alertas de vencimiento */}
         {vencimientos.length > 0 && (
-          <div style={{ background: '#FEF2F2', border: '2px solid #FCA5A5', borderLeft: '4px solid #DC2626', padding: '12px 16px' }}>
-            <p style={{ fontSize: '12px', fontWeight: '700', color: '#991B1B', margin: '0 0 6px' }}>⚠️ {vencimientos.length} organización(es) vencen en los próximos 30 días</p>
+          <div style={{ background: '#FEF2F2', border: '1px solid #E1E7F0', padding: '12px 16px' }}>
+            <p style={{ fontSize: '15px', fontWeight: '700', color: '#991B1B', margin: '0 0 6px' }}>⚠️ {vencimientos.length} organización(es) vencen en los próximos 30 días</p>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               {vencimientos.map((o: any) => (
-                <span key={o.id} style={{ padding: '3px 10px', background: 'white', border: '1px solid #FCA5A5', fontSize: '11px', color: '#991B1B' }}>
+                <span key={o.id} style={{ padding: '3px 10px', background: 'white', border: '1px solid #FCA5A5', fontSize: '15px', color: '#991B1B' }}>
                   {o.nombre} — vence {o.fecha_vencimiento}
                 </span>
               ))}
@@ -166,14 +166,14 @@ export default function SuperAdminDashboard() {
             <div key={i} style={{ ...CARD, borderLeft: `3px solid ${k.color}` }}>
               <div style={LABEL}>{k.label}</div>
               <div style={{ fontSize: '28px', fontWeight: '800', color: k.color, lineHeight: 1 }}>{k.value}</div>
-              <div style={{ fontSize: '11px', color: '#9CA3AF', marginTop: '4px' }}>{k.sub}</div>
+              <div style={{ fontSize: '15px', color: '#9CA3AF', marginTop: '4px' }}>{k.sub}</div>
             </div>
           ))}
         </div>
 
         {/* KPIs de IA */}
         <div>
-          <p style={{ fontSize: '12px', fontWeight: '700', color: '#374151', margin: '0 0 10px' }}>💡 Costo de Inteligencia Artificial</p>
+          <p style={{ fontSize: '15px', fontWeight: '700', color: '#374151', margin: '0 0 10px' }}>💡 Costo de Inteligencia Artificial</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
             {[
               { label: 'Costo total IA', value: fmtUSD(stats.costoIATotal), color: '#DC2626' },
@@ -188,7 +188,7 @@ export default function SuperAdminDashboard() {
               </div>
             ))}
           </div>
-          <p style={{ fontSize: '10px', color: '#9CA3AF', margin: '6px 0 0' }}>
+          <p style={{ fontSize: '13px', color: '#9CA3AF', margin: '6px 0 0' }}>
             Precios: claude-sonnet-4-6 · Entrada $3.00/MTok · Salida $15.00/MTok · Costo por diagnóstico completo ≈ {stats.llamadasIA > 0 ? fmtUSD(stats.costoIATotal / stats.llamadasIA) : '$0.0000 USD'}
           </p>
         </div>
@@ -199,9 +199,9 @@ export default function SuperAdminDashboard() {
           {/* Por asesor */}
           <div style={CARD}>
             <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 12px' }}>Actividad por asesor</p>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }}>
               <thead>
-                <tr style={{ background: '#F8FAFC' }}>
+                <tr style={{ background: '#F5F7FA' }}>
                   {['Asesor', 'Org', 'Clientes', 'Diags', 'Costo IA'].map((h, i) => (
                     <th key={i} style={{ padding: '6px 8px', textAlign: (i > 1 ? 'right' : 'left'), fontWeight: '700', color: '#6B7280', borderBottom: '1px solid #E5E7EB', whiteSpace: 'nowrap' }}>{h}</th>
                   ))}
@@ -211,10 +211,10 @@ export default function SuperAdminDashboard() {
                 {asesoresStats.slice(0, 10).map((a: any, i: number) => (
                   <tr key={a.id} style={{ borderBottom: '1px solid #F3F4F6', background: i % 2 === 0 ? 'white' : '#FAFAFA' }}>
                     <td style={{ padding: '6px 8px', fontWeight: '600', color: '#111827' }}>{a.nombre || a.email}</td>
-                    <td style={{ padding: '6px 8px', color: '#6B7280', fontSize: '10px' }}>{a.org_nombre}</td>
+                    <td style={{ padding: '6px 8px', color: '#6B7280', fontSize: '13px' }}>{a.org_nombre}</td>
                     <td style={{ padding: '6px 8px', textAlign: 'right', color: AZUL, fontWeight: '600' }}>{a.clientes}</td>
                     <td style={{ padding: '6px 8px', textAlign: 'right', color: VERDE, fontWeight: '600' }}>{a.diagnosticos}</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#DC2626', fontSize: '10px' }}>{a.costo_ia > 0 ? fmtUSD(a.costo_ia) : '—'}</td>
+                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#DC2626', fontSize: '13px' }}>{a.costo_ia > 0 ? fmtUSD(a.costo_ia) : '—'}</td>
                   </tr>
                 ))}
                 {asesoresStats.length === 0 && <tr><td colSpan={5} style={{ padding: '20px', textAlign: 'center', color: '#9CA3AF' }}>Sin actividad en el periodo</td></tr>}
@@ -225,9 +225,9 @@ export default function SuperAdminDashboard() {
           {/* Por organización */}
           <div style={CARD}>
             <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 12px' }}>Actividad por organización</p>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }}>
               <thead>
-                <tr style={{ background: '#F8FAFC' }}>
+                <tr style={{ background: '#F5F7FA' }}>
                   {['Organización', 'Plan', 'Asesores', 'Diags', 'Costo IA'].map((h, i) => (
                     <th key={i} style={{ padding: '6px 8px', textAlign: (i > 1 ? 'right' : 'left'), fontWeight: '700', color: '#6B7280', borderBottom: '1px solid #E5E7EB' }}>{h}</th>
                   ))}
@@ -237,10 +237,10 @@ export default function SuperAdminDashboard() {
                 {orgsStats.map((o: any, i: number) => (
                   <tr key={o.id} style={{ borderBottom: '1px solid #F3F4F6', background: i % 2 === 0 ? 'white' : '#FAFAFA' }}>
                     <td style={{ padding: '6px 8px', fontWeight: '600', color: '#111827' }}>{o.nombre}</td>
-                    <td style={{ padding: '6px 8px', color: '#6B7280', textTransform: 'capitalize', fontSize: '10px' }}>{o.plan}</td>
+                    <td style={{ padding: '6px 8px', color: '#6B7280', textTransform: 'capitalize', fontSize: '13px' }}>{o.plan}</td>
                     <td style={{ padding: '6px 8px', textAlign: 'right', color: '#7C3AED', fontWeight: '600' }}>{o.asesores}</td>
                     <td style={{ padding: '6px 8px', textAlign: 'right', color: VERDE, fontWeight: '600' }}>{o.diagnosticos}</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#DC2626', fontSize: '10px' }}>{o.costo_ia > 0 ? fmtUSD(o.costo_ia) : '—'}</td>
+                    <td style={{ padding: '6px 8px', textAlign: 'right', color: '#DC2626', fontSize: '13px' }}>{o.costo_ia > 0 ? fmtUSD(o.costo_ia) : '—'}</td>
                   </tr>
                 ))}
                 {orgsStats.length === 0 && <tr><td colSpan={5} style={{ padding: '20px', textAlign: 'center', color: '#9CA3AF' }}>Sin organizaciones</td></tr>}

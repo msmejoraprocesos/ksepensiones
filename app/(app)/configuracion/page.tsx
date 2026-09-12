@@ -7,9 +7,9 @@ import PDFConfigurador from '@/components/PDFConfigurador'
 import { PDF_CONFIG_DEFAULT, mergePDFConfig } from '@/app/utils/pdf-config'
 import type { PDFConfig } from '@/app/utils/pdf-config'
 
-const AZUL = '#334E7B'
+const AZUL = '#245287'
 const VERDE = '#2E8B57'
-const NARANJA = '#E8724A'
+const NARANJA = '#E8622C'
 
 interface Perfil {
   nombre: string
@@ -57,7 +57,7 @@ const DEFAULTS: Perfil = {
   mod40_2029: 17.709, mod40_2030: 18.800,
   tasa_m10: 10.075, pct_actualizacion_inpc: 7.27, pct_recargos_retroactivo: 41.80,
   uma_actualizada_en: null, sm_actualizado_en: null, pmg_actualizado_en: null,
-  encabezado_color: '#334E7B', encabezado_titulo: 'Diagnóstico Pensional',
+  encabezado_color: '#245287', encabezado_titulo: 'Diagnóstico Pensional',
   encabezado_logo_size: 28, encabezado_font_size: 13,
 }
 
@@ -103,7 +103,7 @@ function formatRFC(val: string): string {
 // Componente: Financieras y Elegibilidad
 // ══════════════════════════════════════════════════════════════════
 function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabase: any }) {
-  const AZUL = '#334E7B', NARANJA = '#E8724A', VERDE = '#16A34A'
+  const AZUL = '#245287', NARANJA = '#E8622C', VERDE = '#16A34A'
   const [financieras, setFinancieras] = useState<any[]>([])
   const [catalogo, setCatalogo] = useState<any[]>([])
   const [asignaciones, setAsignaciones] = useState<Record<string, string[]>>({})
@@ -271,9 +271,9 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const, alignItems: 'center' }}>
         {financieras.map((f: any) => (
           <button key={f.id} onClick={() => seleccionarFin(f)}
-            style={{ padding: '8px 16px', background: finActiva === f.id && !showNueva ? AZUL : 'white', color: finActiva === f.id && !showNueva ? 'white' : '#374151', border: `1.5px solid ${finActiva === f.id && !showNueva ? AZUL : '#E5E7EB'}`, fontSize: '13px', fontWeight: finActiva === f.id && !showNueva ? '700' : '500', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px', opacity: f.activa ? 1 : 0.5 }}>
+            style={{ padding: '8px 16px', background: finActiva === f.id && !showNueva ? AZUL : 'white', color: finActiva === f.id && !showNueva ? 'white' : '#374151', border: `1.5px solid ${finActiva === f.id && !showNueva ? AZUL : '#E1E7F0'}`, fontSize: '13px', fontWeight: finActiva === f.id && !showNueva ? '700' : '500', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px', opacity: f.activa ? 1 : 0.5 }}>
             🏦 {f.nombre}
-            {!f.activa && <span style={{ marginLeft: '6px', fontSize: '10px', color: '#94A3B8' }}>(inactiva)</span>}
+            {!f.activa && <span style={{ marginLeft: '6px', fontSize: '13px', color: '#66738A' }}>(inactiva)</span>}
           </button>
         ))}
         <button onClick={iniciarNueva}
@@ -295,11 +295,11 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button onClick={() => { setEditando(true); setErrores({}); setForm({ nombre: fin.nombre ?? '', contacto: fin.contacto_nombre ?? '', email: fin.contacto_email ?? '', telefono: fin.contacto_telefono ?? '' }) }}
-                  style={{ padding: '7px 14px', background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '7px' }}>
+                  style={{ padding: '7px 14px', background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '7px' }}>
                   ✏️ Editar
                 </button>
                 <button onClick={() => toggleActiva(fin)}
-                  style={{ padding: '7px 14px', background: fin?.activa ? 'rgba(255,255,255,0.15)' : '#F0FDF4', color: fin?.activa ? 'white' : VERDE, border: `1px solid ${fin?.activa ? 'rgba(255,255,255,0.3)' : '#86EFAC'}`, fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '7px' }}>
+                  style={{ padding: '7px 14px', background: fin?.activa ? 'rgba(255,255,255,0.15)' : '#F0FDF4', color: fin?.activa ? 'white' : VERDE, border: `1px solid ${fin?.activa ? 'rgba(255,255,255,0.3)' : '#86EFAC'}`, fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '7px' }}>
                   {fin?.activa ? '⏸ Inactivar' : '▶ Activar'}
                 </button>
               </div>
@@ -309,7 +309,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
           {showNueva && (
             <div style={{ background: AZUL, padding: '16px 20px' }}>
               <p style={{ fontSize: '16px', fontWeight: '800', color: 'white', margin: '0 0 2px' }}>🏦 Nueva institución financiera</p>
-              <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.65)', margin: 0 }}>Llena los datos generales para comenzar</p>
+              <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.65)', margin: 0 }}>Llena los datos generales para comenzar</p>
             </div>
           )}
 
@@ -323,7 +323,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
                   { label: 'Teléfono', key: 'telefono', placeholder: '10 dígitos sin espacios' },
                 ].map(f => (
                   <div key={f.key}>
-                    <label style={{ fontSize: '11px', fontWeight: '700', color: errores[f.key] ? '#DC2626' : '#6B7280', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>{f.label}</label>
+                    <label style={{ fontSize: '15px', fontWeight: '700', color: errores[f.key] ? '#DC2626' : '#6B7280', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>{f.label}</label>
                     <input value={(form as any)[f.key]}
                       onChange={e => { setForm(p => ({ ...p, [f.key]: e.target.value })); setErrores(p => ({ ...p, [f.key]: '' })) }}
                       onBlur={e => {
@@ -333,7 +333,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
                       }}
                       placeholder={f.placeholder}
                       style={{ width: '100%', padding: '9px 12px', border: `1.5px solid ${errores[f.key] ? '#DC2626' : '#D1D5DB'}`, fontSize: '13px', borderRadius: '7px', fontFamily: 'inherit', boxSizing: 'border-box' as const, outline: 'none' }} />
-                    {errores[f.key] && <p style={{ fontSize: '11px', color: '#DC2626', margin: '3px 0 0' }}>{errores[f.key]}</p>}
+                    {errores[f.key] && <p style={{ fontSize: '15px', color: '#DC2626', margin: '3px 0 0' }}>{errores[f.key]}</p>}
                   </div>
                 ))}
                 <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px' }}>
@@ -356,7 +356,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
                   { label: 'Teléfono', val: fin?.contacto_telefono || '—' },
                 ].map(f => (
                   <div key={f.label}>
-                    <p style={{ fontSize: '10px', fontWeight: '700', color: '#94A3B8', margin: '0 0 3px', textTransform: 'uppercase' as const }}>{f.label}</p>
+                    <p style={{ fontSize: '13px', fontWeight: '700', color: '#66738A', margin: '0 0 3px', textTransform: 'uppercase' as const }}>{f.label}</p>
                     <p style={{ fontSize: '14px', color: '#111827', margin: 0, fontWeight: '600' }}>{f.val}</p>
                   </div>
                 ))}
@@ -368,10 +368,10 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
           {(fin || finActiva) && (
             <div style={{ padding: '16px 20px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <p style={{ fontSize: '13px', fontWeight: '700', color: AZUL, margin: 0, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
+                <p style={{ fontSize: '13px', fontWeight: '700', color: AZUL, margin: 0 }}>
                   📄 Documentos requeridos
                 </p>
-                <span style={{ fontSize: '12px', color: docsLocal.length === 0 ? '#DC2626' : '#6B7280', background: docsLocal.length === 0 ? '#FEF2F2' : '#F4F6F9', padding: '3px 10px', borderRadius: '6px', fontWeight: docsLocal.length === 0 ? '700' : '400' }}>
+                <span style={{ fontSize: '15px', color: docsLocal.length === 0 ? '#DC2626' : '#6B7280', background: docsLocal.length === 0 ? '#FEF2F2' : '#F4F6F9', padding: '3px 10px', borderRadius: '6px', fontWeight: docsLocal.length === 0 ? '700' : '400' }}>
                   {docsLocal.length === 0 ? '⚠️ Selecciona al menos 1' : `${docsLocal.length} de ${docsActivos.length} seleccionados`}
                   {docsModificado && docsLocal.length > 0 && <span style={{ color: NARANJA, marginLeft: '6px' }}>● sin guardar</span>}
                 </span>
@@ -380,7 +380,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
               {/* Aviso si es nueva financiera y no hay docs */}
               {(docsLocal.length === 0 || errores.docs) && (
                 <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: '8px', padding: '10px 14px', marginBottom: '10px' }}>
-                  <p style={{ fontSize: '12px', color: '#C2410C', margin: 0 }}>
+                  <p style={{ fontSize: '15px', color: '#C2410C', margin: 0 }}>
                     📋 {errores.docs || 'Selecciona los documentos que pide esta financiera. Se requiere al menos uno.'}
                   </p>
                 </div>
@@ -391,13 +391,13 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
                   const asignado = docsLocal.includes(doc.id)
                   return (
                     <div key={doc.id} onClick={() => toggleDocLocal(doc.id)}
-                      style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: asignado ? '#F0FDF4' : '#F8FAFC', border: `1.5px solid ${asignado ? '#86EFAC' : '#E5E7EB'}`, borderRadius: '8px', cursor: 'pointer', transition: 'all 0.15s' }}>
+                      style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: asignado ? '#F0FDF4' : '#F5F7FA', border: `1.5px solid ${asignado ? '#86EFAC' : '#E1E7F0'}`, borderRadius: '8px', cursor: 'pointer', transition: 'all 0.15s' }}>
                       <div style={{ width: '22px', height: '22px', borderRadius: '5px', background: asignado ? VERDE : 'white', border: `2px solid ${asignado ? VERDE : '#D1D5DB'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'white', fontSize: '13px', fontWeight: '700' }}>
                         {asignado ? '✓' : ''}
                       </div>
                       <div style={{ flex: 1 }}>
                         <p style={{ fontSize: '13px', fontWeight: asignado ? '700' : '500', color: asignado ? '#15803D' : '#374151', margin: '0 0 1px' }}>{doc.nombre}</p>
-                        {doc.descripcion && <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>{doc.descripcion}</p>}
+                        {doc.descripcion && <p style={{ fontSize: '15px', color: '#66738A', margin: 0 }}>{doc.descripcion}</p>}
                       </div>
                     </div>
                   )
@@ -408,13 +408,13 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
 
           {/* ── Botón guardar único al final ── */}
           {(fin || showNueva) && (
-            <div style={{ padding: '14px 20px', background: '#F8FAFC', borderTop: '1px solid #E5E7EB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ padding: '14px 20px', background: '#F5F7FA', borderTop: '1px solid #E5E7EB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                {savedMsg && <p style={{ fontSize: '12px', color: VERDE, margin: 0, fontWeight: '600' }}>✓ Guardado correctamente</p>}
-                {hayPendientes && !savedMsg && <p style={{ fontSize: '12px', color: NARANJA, margin: 0 }}>● Tienes cambios sin guardar</p>}
+                {savedMsg && <p style={{ fontSize: '15px', color: VERDE, margin: 0, fontWeight: '600' }}>✓ Guardado correctamente</p>}
+                {hayPendientes && !savedMsg && <p style={{ fontSize: '15px', color: NARANJA, margin: 0 }}>● Tienes cambios sin guardar</p>}
               </div>
               <button onClick={guardarTodo} disabled={saving || !form.nombre.trim()}
-                style={{ padding: '10px 24px', background: !form.nombre.trim() ? '#E5E7EB' : AZUL, color: !form.nombre.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: !form.nombre.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
+                style={{ padding: '10px 24px', background: !form.nombre.trim() ? '#E1E7F0' : AZUL, color: !form.nombre.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: !form.nombre.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
                 {saving ? 'Guardando...' : '💾 Guardar'}
               </button>
             </div>
@@ -424,9 +424,9 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
 
       {/* Estado vacío */}
       {financieras.length === 0 && !showNueva && (
-        <div style={{ padding: '32px', textAlign: 'center' as const, background: '#F8FAFC', border: '1px dashed #D1D5DB', borderRadius: '10px' }}>
+        <div style={{ padding: '32px', textAlign: 'center' as const, background: '#F5F7FA', border: '1px dashed #D1D5DB', borderRadius: '10px' }}>
           <p style={{ fontSize: '22px', margin: '0 0 8px' }}>🏦</p>
-          <p style={{ fontSize: '13px', color: '#94A3B8', margin: 0 }}>Agrega tu primera financiera con el botón de arriba</p>
+          <p style={{ fontSize: '13px', color: '#66738A', margin: 0 }}>Agrega tu primera financiera con el botón de arriba</p>
         </div>
       )}
     </div>
@@ -441,7 +441,7 @@ const CATEGORIAS = [
 ]
 
 function CatalogosActividad({ userId, supabase }: { userId: string; supabase: any }) {
-  const AZUL = '#334E7B', NARANJA = '#E8724A', VERDE = '#16A34A'
+  const AZUL = '#245287', NARANJA = '#E8622C', VERDE = '#16A34A'
   const [catalogos, setCatalogos] = useState<Record<string, any[]>>({})
   const [catActiva, setCatActiva] = useState('tipo_contacto')
   const [nuevaEtiqueta, setNuevaEtiqueta] = useState('')
@@ -504,21 +504,21 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const }}>
         {CATEGORIAS.map(c => (
           <button key={c.id} onClick={() => { setCatActiva(c.id); setEditando(null); setNuevaEtiqueta(''); setNuevoIcono('') }}
-            style={{ padding: '9px 18px', background: catActiva === c.id ? AZUL : 'white', color: catActiva === c.id ? 'white' : '#374151', border: `1.5px solid ${catActiva === c.id ? AZUL : '#E5E7EB'}`, fontSize: '13px', fontWeight: catActiva === c.id ? '700' : '500', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
+            style={{ padding: '9px 18px', background: catActiva === c.id ? AZUL : 'white', color: catActiva === c.id ? 'white' : '#374151', border: `1.5px solid ${catActiva === c.id ? AZUL : '#E1E7F0'}`, fontSize: '13px', fontWeight: catActiva === c.id ? '700' : '500', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
             {c.label}
           </button>
         ))}
       </div>
       <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', overflow: 'hidden' }}>
-        <div style={{ padding: '12px 18px', background: '#F8FAFC', borderBottom: '1px solid #E5E7EB' }}>
+        <div style={{ padding: '12px 18px', background: '#F5F7FA', borderBottom: '1px solid #E5E7EB' }}>
           <p style={{ fontSize: '13px', color: '#4B5563', margin: 0 }}>{catInfo?.desc}</p>
-          <p style={{ fontSize: '11px', color: '#94A3B8', margin: '3px 0 0' }}>
+          <p style={{ fontSize: '15px', color: '#66738A', margin: '3px 0 0' }}>
             {items.filter((i: any) => i.activo).length} activas · {items.filter((i: any) => !i.activo).length} inactivas
           </p>
         </div>
         {items.length === 0 ? (
           <div style={{ padding: '32px', textAlign: 'center' as const }}>
-            <p style={{ fontSize: '14px', color: '#94A3B8', margin: 0 }}>Aún no hay opciones — agrega la primera abajo</p>
+            <p style={{ fontSize: '14px', color: '#66738A', margin: 0 }}>Aún no hay opciones — agrega la primera abajo</p>
           </div>
         ) : items.map((item: any) => (
           <div key={item.id} style={{ borderBottom: '1px solid #F3F4F6', background: item.activo ? 'white' : '#F9FAFB' }}>
@@ -539,15 +539,15 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
                 <div style={{ flex: 1 }}>
                   <p style={{ fontSize: '14px', fontWeight: '600', color: '#111827', margin: '0 0 2px' }}>{item.etiqueta}</p>
                   <div style={{ display: 'flex', gap: '6px' }}>
-                    {!item.activo && <span style={{ fontSize: '11px', color: '#94A3B8', background: '#F3F4F6', padding: '1px 6px', borderRadius: '4px' }}>Inactiva</span>}
-                    {item.genera_evento && <span style={{ fontSize: '11px', color: AZUL, background: '#EEF2F8', padding: '1px 6px', borderRadius: '4px' }}>📅 Genera evento</span>}
+                    {!item.activo && <span style={{ fontSize: '15px', color: '#66738A', background: '#F3F4F6', padding: '1px 6px', borderRadius: '4px' }}>Inactiva</span>}
+                    {item.genera_evento && <span style={{ fontSize: '15px', color: AZUL, background: '#EEF2F8', padding: '1px 6px', borderRadius: '4px' }}>📅 Genera evento</span>}
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
                   <button onClick={() => { setEditando(item.id); setEditValor(item.etiqueta) }}
-                    style={{ padding: '6px 12px', background: '#F4F6F9', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>✏️ Editar</button>
+                    style={{ padding: '6px 12px', background: '#F4F6F9', color: '#374151', border: '1px solid #E5E7EB', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>✏️ Editar</button>
                   <button onClick={() => toggleActivo(item.id, item.activo)}
-                    style={{ padding: '6px 12px', background: item.activo ? '#FFFBEB' : '#F0FDF4', color: item.activo ? '#D97706' : VERDE, border: `1px solid ${item.activo ? '#FDE68A' : '#86EFAC'}`, fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                    style={{ padding: '6px 12px', background: item.activo ? '#FFFBEB' : '#F0FDF4', color: item.activo ? '#D97706' : VERDE, border: `1px solid ${item.activo ? '#FDE68A' : '#86EFAC'}`, fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
                     {item.activo ? '⏸ Inactivar' : '▶ Activar'}
                   </button>
                 </div>
@@ -555,14 +555,14 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
             )}
           </div>
         ))}
-        <div style={{ padding: '14px 18px', borderTop: '2px solid #E5E7EB', background: '#F8FAFC' }}>
-          <p style={{ fontSize: '12px', fontWeight: '700', color: '#374151', margin: '0 0 10px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
+        <div style={{ padding: '14px 18px', borderTop: '2px solid #E5E7EB', background: '#F5F7FA' }}>
+          <p style={{ fontSize: '15px', fontWeight: '700', color: '#374151', margin: '0 0 10px' }}>
             + Nueva opción para {catInfo?.label.replace(/^[^\s]+\s/, '')}
           </p>
 
           {/* Selector de emojis */}
           <div style={{ marginBottom: '10px' }}>
-            <p style={{ fontSize: '11px', color: '#64748B', margin: '0 0 6px' }}>Elige un emoji:</p>
+            <p style={{ fontSize: '15px', color: '#66738A', margin: '0 0 6px' }}>Elige un emoji:</p>
             <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '4px', background: 'white', padding: '8px', borderRadius: '8px', border: '1px solid #E5E7EB' }}>
               {(catActiva === 'tipo_contacto'
                 ? ['📞','📱','💬','📧','🤝','🏠','🏢','📝','💻','📹','🎙️','📠']
@@ -571,7 +571,7 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
                 : ['📅','📞','📄','✉️','🚀','⏰','📊','💼','🔔','✍️','📌','🎯']
               ).map(e => (
                 <button key={e} onClick={() => setNuevoIcono(nuevoIcono === e ? '' : e)}
-                  style={{ width: '36px', height: '36px', fontSize: '18px', background: nuevoIcono === e ? '#EEF2F8' : 'white', border: `2px solid ${nuevoIcono === e ? AZUL : '#E5E7EB'}`, borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  style={{ width: '36px', height: '36px', fontSize: '18px', background: nuevoIcono === e ? '#EEF2F8' : 'white', border: `2px solid ${nuevoIcono === e ? AZUL : '#E1E7F0'}`, borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {e}
                 </button>
               ))}
@@ -587,7 +587,7 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
               placeholder={PLACEHOLDERS[catActiva] || 'Nombre de la opción...'}
               style={{ flex: 1, padding: '10px 14px', border: '1.5px solid #D1D5DB', fontSize: '14px', borderRadius: '8px', fontFamily: 'inherit', outline: 'none' }} />
             <button onClick={agregar} disabled={saving || !nuevaEtiqueta.trim()}
-              style={{ padding: '10px 20px', background: !nuevaEtiqueta.trim() ? '#E5E7EB' : NARANJA, color: !nuevaEtiqueta.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: !nuevaEtiqueta.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '8px', whiteSpace: 'nowrap' as const }}>
+              style={{ padding: '10px 20px', background: !nuevaEtiqueta.trim() ? '#E1E7F0' : NARANJA, color: !nuevaEtiqueta.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: !nuevaEtiqueta.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '8px', whiteSpace: 'nowrap' as const }}>
               {saving ? 'Guardando...' : '+ Agregar'}
             </button>
           </div>
@@ -889,7 +889,7 @@ export default function ConfiguracionPage() {
     display: 'block', width: '100%', padding: '10px 14px',
     border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px',
     boxSizing: 'border-box' as const, fontFamily: 'inherit',
-    background: '#F8FAFC', color: '#374151', cursor: 'default',
+    background: '#F5F7FA', color: '#374151', cursor: 'default',
     opacity: 1,
   }
 
@@ -901,17 +901,17 @@ export default function ConfiguracionPage() {
   })
 
   const labelSt: React.CSSProperties = {
-    display: 'block', fontSize: '11px', fontWeight: '700',
+    display: 'block', fontSize: '15px', fontWeight: '700',
     color: '#475569', marginBottom: '5px',
     textTransform: 'uppercase' as const, letterSpacing: '0.5px',
   }
 
   const errorMsg = (key: keyof Perfil) => errors[key] ? (
-    <p style={{ fontSize: '10px', color: '#ef4444', margin: '3px 0 0' }}>⚠️ {errors[key]}</p>
+    <p style={{ fontSize: '13px', color: '#ef4444', margin: '3px 0 0' }}>⚠️ {errors[key]}</p>
   ) : null
 
   const tooltip = (text: string) => (
-    <span title={text} style={{ marginLeft: '4px', fontSize: '11px', color: '#94a3b8', cursor: 'help' }}>ⓘ</span>
+    <span title={text} style={{ marginLeft: '4px', fontSize: '15px', color: '#94a3b8', cursor: 'help' }}>ⓘ</span>
   )
 
   const sectionTitle = (icon: string, title: string, subtitle?: string) => (
@@ -919,7 +919,7 @@ export default function ConfiguracionPage() {
       <span style={{ fontSize: '20px' }}>{icon}</span>
       <div>
         <h2 style={{ fontSize: '15px', fontWeight: '700', color: AZUL, margin: 0 }}>{title}</h2>
-        {subtitle && <p style={{ fontSize: '12px', color: '#94a3b8', margin: '3px 0 0' }}>{subtitle}</p>}
+        {subtitle && <p style={{ fontSize: '15px', color: '#94a3b8', margin: '3px 0 0' }}>{subtitle}</p>}
       </div>
     </div>
   )
@@ -946,7 +946,7 @@ export default function ConfiguracionPage() {
               </p>
             </div>
             <button onClick={() => setIsFirstTime(false)}
-              style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', borderRadius: '8px', padding: '6px 12px', cursor: 'pointer', fontSize: '12px' }}>
+              style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', borderRadius: '8px', padding: '6px 12px', cursor: 'pointer', fontSize: '15px' }}>
               Después
             </button>
           </div>
@@ -958,7 +958,7 @@ export default function ConfiguracionPage() {
           <div style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #F3F4F6' }}>
             <div>
               <h1 style={{ fontSize: '18px', fontWeight: '800', color: AZUL, margin: 0 }}>Configuración</h1>
-              <p style={{ fontSize: '12px', color: '#94a3b8', margin: '2px 0 0' }}>
+              <p style={{ fontSize: '15px', color: '#94a3b8', margin: '2px 0 0' }}>
                 {tabActiva === 'perfil' && 'Identidad del asesor · Seguridad'}
                 {tabActiva === 'sistema' && 'Variables del sistema · Encabezado PDF'}
                 {tabActiva === 'financieras' && 'Instituciones financieras · Criterios de elegibilidad'}
@@ -966,9 +966,9 @@ export default function ConfiguracionPage() {
               </p>
             </div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              {saveError && <p style={{ fontSize: '12px', color: '#ef4444', margin: 0, fontWeight: '600' }}>⚠️ {saveError}</p>}
-              {!saveError && saved && <p style={{ fontSize: '12px', color: VERDE, margin: 0, fontWeight: '600' }}>✓ Guardado</p>}
-              {!saveError && !saved && saving && <p style={{ fontSize: '12px', color: '#64748B', margin: 0 }}>⏳ Guardando...</p>}
+              {saveError && <p style={{ fontSize: '15px', color: '#ef4444', margin: 0, fontWeight: '600' }}>⚠️ {saveError}</p>}
+              {!saveError && saved && <p style={{ fontSize: '15px', color: VERDE, margin: 0, fontWeight: '600' }}>✓ Guardado</p>}
+              {!saveError && !saved && saving && <p style={{ fontSize: '15px', color: '#66738A', margin: 0 }}>⏳ Guardando...</p>}
               {(tabActiva === 'perfil' || tabActiva === 'sistema') && (
                 <button onClick={guardar} disabled={saving}
                   style={{ padding: '9px 20px', background: saving ? '#94a3b8' : VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
@@ -976,7 +976,7 @@ export default function ConfiguracionPage() {
                 </button>
               )}
               {(tabActiva === 'financieras' || tabActiva === 'catalogos') && (
-                <span style={{ fontSize: '12px', color: '#94A3B8', fontStyle: 'italic' }}>
+                <span style={{ fontSize: '15px', color: '#66738A', fontStyle: 'italic' }}>
                   Usa el botón Guardar dentro de cada sección
                 </span>
               )}
@@ -995,7 +995,7 @@ export default function ConfiguracionPage() {
               <button key={t.id} onClick={() => setTabActiva(t.id)}
                 style={{ flex: 1, padding: '9px 8px', background: tabActiva === t.id ? AZUL : 'transparent', color: tabActiva === t.id ? 'white' : '#6B7280', border: 'none', borderRadius: '7px', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center' as const }}>
                 <div style={{ fontSize: '13px', fontWeight: '700' }}>{t.label}</div>
-                <div style={{ fontSize: '10px', opacity: 0.75, marginTop: '1px' }}>{t.desc}</div>
+                <div style={{ fontSize: '13px', opacity: 0.75, marginTop: '1px' }}>{t.desc}</div>
               </button>
             ))}
           </div>
@@ -1009,7 +1009,7 @@ export default function ConfiguracionPage() {
           <div style={{ marginBottom: '20px', display: 'flex', gap: '20px', alignItems: 'center' }}>
             <div style={{ flex: 1 }}>
               <label style={labelSt}>Logo del asesor {tooltip('PNG con fondo transparente recomendado. Mínimo 200×80px para buena resolución en el PDF')}</label>
-              <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 8px', lineHeight: 1.5 }}>
+              <p style={{ fontSize: '15px', color: '#64748b', margin: '0 0 8px', lineHeight: 1.5 }}>
                 Aparece en el PDF de propuesta junto a tu nombre. PNG con fondo transparente recomendado, mínimo 200×80px.
               </p>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -1021,28 +1021,28 @@ export default function ConfiguracionPage() {
                     <button onClick={() => {
                       setPerfil(p => ({ ...p, logo_url: null }))
                       if (fileRef.current) fileRef.current.value = ''
-                    }} style={{ fontSize: '12px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}>
+                    }} style={{ fontSize: '15px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}>
                       Quitar logo
                     </button>
                   )}
                 </div>
-              {logoError && <p style={{ fontSize: '11px', color: '#ef4444', marginTop: '6px' }}>⚠️ {logoError}</p>}
+              {logoError && <p style={{ fontSize: '15px', color: '#ef4444', marginTop: '6px' }}>⚠️ {logoError}</p>}
             </div>
 
             {/* Mini preview a la derecha */}
             <div style={{ flexShrink: 0 }}>
-              <div style={{ width: '120px', height: '90px', border: `2px ${perfil.logo_url ? 'solid #bbf7d0' : 'dashed #e2e8f0'}`, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: perfil.logo_url ? '#f0fdf4' : '#F8FAFC', overflow: 'hidden' }}>
+              <div style={{ width: '120px', height: '90px', border: `2px ${perfil.logo_url ? 'solid #bbf7d0' : 'dashed #e2e8f0'}`, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: perfil.logo_url ? '#f0fdf4' : '#F5F7FA', overflow: 'hidden' }}>
                 {perfil.logo_url ? (
                   <img src={perfil.logo_url} alt="Logo activo" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '6px' }}
                     onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
                 ) : (
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: '26px' }}>🏢</div>
-                    <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '3px' }}>Sin logo</div>
+                    <div style={{ fontSize: '13px', color: '#94a3b8', marginTop: '3px' }}>Sin logo</div>
                   </div>
                 )}
               </div>
-              {perfil.logo_url && <p style={{ fontSize: '10px', color: VERDE, fontWeight: '600', marginTop: '4px', textAlign: 'center' }}>✓ Guardado</p>}
+              {perfil.logo_url && <p style={{ fontSize: '13px', color: VERDE, fontWeight: '600', marginTop: '4px', textAlign: 'center' }}>✓ Guardado</p>}
             </div>
           </div>
 
@@ -1057,8 +1057,8 @@ export default function ConfiguracionPage() {
               <input value={perfil.razon_social} onChange={e => set('razon_social', e.target.value)} placeholder="Ej. Asesoría Pensional López S.C." style={inputSt()} />
               {(perfil as any).org_nombre && (
                 <div style={{ marginTop: '8px', padding: '6px 10px', background: '#EEF2F8', border: '1px solid #BFDBFE', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ fontSize: '11px', color: '#64748B' }}>Organización:</span>
-                  <span style={{ fontSize: '12px', fontWeight: '700' as const, color: AZUL }}>{(perfil as any).org_nombre}</span>
+                  <span style={{ fontSize: '15px', color: '#66738A' }}>Organización:</span>
+                  <span style={{ fontSize: '15px', fontWeight: '700' as const, color: AZUL }}>{(perfil as any).org_nombre}</span>
                 </div>
               )}
             </div>
@@ -1066,38 +1066,38 @@ export default function ConfiguracionPage() {
               <label style={labelSt}>RFC {tooltip('Registro Federal de Contribuyentes. Formato: 4 letras + 6 dígitos fecha + 3 caracteres homoclave. Ej: LOPJ800101XX3')}</label>
               <input value={perfil.rfc} onChange={e => set('rfc', formatRFC(e.target.value))} placeholder="LOPJ800101XX3" maxLength={13} style={inputSt(!!errors.rfc)} />
               {errorMsg('rfc')}
-              {!errors.rfc && (perfil.rfc.length === 12 || perfil.rfc.length === 13) && !validarRFC(perfil.rfc) && <p style={{ fontSize: '10px', color: VERDE, margin: '3px 0 0' }}>✓ RFC válido ({perfil.rfc.length === 12 ? 'persona moral' : 'persona física'})</p>}
+              {!errors.rfc && (perfil.rfc.length === 12 || perfil.rfc.length === 13) && !validarRFC(perfil.rfc) && <p style={{ fontSize: '13px', color: VERDE, margin: '3px 0 0' }}>✓ RFC válido ({perfil.rfc.length === 12 ? 'persona moral' : 'persona física'})</p>}
             </div>
             <div>
-              <label style={labelSt}>Teléfono de contacto <span style={{ fontSize: '10px', color: '#0891B2', background: '#ECFEFF', padding: '1px 6px', borderRadius: '4px', fontWeight: '600' }}>Recomendado</span> {tooltip('10 dígitos sin espacios ni guiones. Ej: 4421234567')}</label>
+              <label style={labelSt}>Teléfono de contacto <span style={{ fontSize: '13px', color: '#0891B2', background: '#ECFEFF', padding: '1px 6px', borderRadius: '4px', fontWeight: '600' }}>Recomendado</span> {tooltip('10 dígitos sin espacios ni guiones. Ej: 4421234567')}</label>
               <input value={perfil.telefono} onChange={e => { const f = formatTelefono(e.target.value); set('telefono', f) }} placeholder="44 2123 4567" maxLength={12} style={inputSt(!!errors.telefono)} />
               {errorMsg('telefono')}
-              {!errors.telefono && perfil.telefono.replace(/\D/g,'').length === 10 && <p style={{ fontSize: '10px', color: VERDE, margin: '3px 0 0' }}>✓ Teléfono válido</p>}
+              {!errors.telefono && perfil.telefono.replace(/\D/g,'').length === 10 && <p style={{ fontSize: '13px', color: VERDE, margin: '3px 0 0' }}>✓ Teléfono válido</p>}
             </div>
             <div>
-              <label style={labelSt}>Email de contacto <span style={{ fontSize: '10px', color: '#0891B2', background: '#ECFEFF', padding: '1px 6px', borderRadius: '4px', fontWeight: '600' }}>Recomendado</span> {tooltip('Aparece en el pie de página del PDF para que el cliente pueda contactarte directamente')}</label>
+              <label style={labelSt}>Email de contacto <span style={{ fontSize: '13px', color: '#0891B2', background: '#ECFEFF', padding: '1px 6px', borderRadius: '4px', fontWeight: '600' }}>Recomendado</span> {tooltip('Aparece en el pie de página del PDF para que el cliente pueda contactarte directamente')}</label>
               <input type="email" value={perfil.email_contacto} onChange={e => set('email_contacto', e.target.value)} onBlur={e => { const err = validarEmail(e.target.value); if (err) setErrors(p => ({ ...p, email_contacto: err })) }} placeholder="contacto@tuempresa.com" style={inputSt(!!errors.email_contacto)} />
               {errorMsg('email_contacto')}
-              {!errors.email_contacto && perfil.email_contacto && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(perfil.email_contacto) && <p style={{ fontSize: '10px', color: VERDE, margin: '3px 0 0' }}>✓ Email válido</p>}
+              {!errors.email_contacto && perfil.email_contacto && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(perfil.email_contacto) && <p style={{ fontSize: '13px', color: VERDE, margin: '3px 0 0' }}>✓ Email válido</p>}
             </div>
           </div>
 
           {/* Separador visual */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '8px 0' }}>
-            <div style={{ flex: 1, height: '1px', background: '#E5E7EB' }} />
-            <span style={{ fontSize: '11px', color: '#94A3B8', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Seguridad</span>
-            <div style={{ flex: 1, height: '1px', background: '#E5E7EB' }} />
+            <div style={{ flex: 1, height: '1px', background: '#E1E7F0' }} />
+            <span style={{ fontSize: '15px', color: '#66738A', fontWeight: '600' }}>Seguridad</span>
+            <div style={{ flex: 1, height: '1px', background: '#E1E7F0' }} />
           </div>
 
           {/* Cambiar contraseña */}
-          <div style={{ padding: '16px', background: '#F8FAFC', border: '1px solid #E5E7EB', borderRadius: '10px' }}>
+          <div style={{ padding: '16px', background: '#F5F7FA', border: '1px solid #E5E7EB', borderRadius: '10px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <p style={{ fontSize: '13px', fontWeight: '700', color: '#374151', margin: '0 0 2px' }}>🔒 Contraseña de acceso</p>
-                <p style={{ fontSize: '12px', color: '#64748B', margin: 0 }}>Cambia tu contraseña de acceso al sistema</p>
+                <p style={{ fontSize: '15px', color: '#66738A', margin: 0 }}>Cambia tu contraseña de acceso al sistema</p>
               </div>
               <button onClick={() => { setShowCambiarPassword(!showCambiarPassword); setMsgPassword('') }}
-                style={{ padding: '8px 16px', background: showCambiarPassword ? 'white' : 'white', color: '#374151', border: '1px solid #D1D5DB', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
+                style={{ padding: '8px 16px', background: showCambiarPassword ? 'white' : 'white', color: '#374151', border: '1px solid #D1D5DB', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
                 {showCambiarPassword ? '✕ Cancelar' : '🔑 Cambiar contraseña'}
               </button>
             </div>
@@ -1105,24 +1105,24 @@ export default function ConfiguracionPage() {
               <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                    <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#64748B' }}>Nueva contraseña</label>
+                    <label style={{ fontSize: '14px', fontWeight: '600', color: '#66738A' }}>Nueva contraseña</label>
                     <button type="button" onClick={() => {
                       const chars = 'abcdefghijkmnpqrstuvwxyz', upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ', nums = '23456789', syms = '!@#$%&*'
                       const pwd = (upper[Math.floor(Math.random()*upper.length)] + chars[Math.floor(Math.random()*chars.length)] + chars[Math.floor(Math.random()*chars.length)] + nums[Math.floor(Math.random()*nums.length)] + nums[Math.floor(Math.random()*nums.length)] + syms[Math.floor(Math.random()*syms.length)] + upper[Math.floor(Math.random()*upper.length)] + chars[Math.floor(Math.random()*chars.length)] + nums[Math.floor(Math.random()*nums.length)] + syms[Math.floor(Math.random()*syms.length)]).split('').sort(() => Math.random() - 0.5).join('')
                       setNuevaPassword(pwd); setConfirmarPassword(pwd)
-                    }} style={{ fontSize: '11px', color: '#E8724A', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontFamily: 'inherit' }}>🎲 Generar</button>
+                    }} style={{ fontSize: '15px', color: '#E8622C', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontFamily: 'inherit' }}>🎲 Generar</button>
                   </div>
                   <input type="text" value={nuevaPassword} onChange={e => setNuevaPassword(e.target.value)}
                     placeholder="Mínimo 10 caracteres"
                     style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '6px', fontWeight: '600' }} />
                 </div>
                 <div>
-                  <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#64748B', display: 'block', marginBottom: '4px' }}>Confirmar contraseña</label>
+                  <label style={{ fontSize: '14px', fontWeight: '600', color: '#66738A', display: 'block', marginBottom: '4px' }}>Confirmar contraseña</label>
                   <input type="password" value={confirmarPassword} onChange={e => setConfirmarPassword(e.target.value)}
                     placeholder="Repite la contraseña"
                     style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '6px' }} />
                 </div>
-                <div style={{ background: '#F8FAFC', borderRadius: '6px', padding: '10px 12px', fontSize: '11px', color: '#64748B', lineHeight: 1.6 }}>
+                <div style={{ background: '#F5F7FA', borderRadius: '6px', padding: '10px 12px', fontSize: '15px', color: '#66738A', lineHeight: 1.6 }}>
                   <strong style={{ color: '#374151' }}>Criterios de seguridad:</strong>{' '}
                   {[
                     { label: '10+ caracteres', ok: nuevaPassword.length >= 10 },
@@ -1136,10 +1136,10 @@ export default function ConfiguracionPage() {
                   ))}
                 </div>
                 {msgPassword && (
-                  <p style={{ fontSize: '12px', color: msgPassword.startsWith('✅') ? '#065F46' : '#DC2626', margin: 0, fontWeight: '600' }}>{msgPassword}</p>
+                  <p style={{ fontSize: '15px', color: msgPassword.startsWith('✅') ? '#065F46' : '#DC2626', margin: 0, fontWeight: '600' }}>{msgPassword}</p>
                 )}
                 <button onClick={cambiarPassword} disabled={savingPassword || !nuevaPassword}
-                  style={{ padding: '10px', background: '#334E7B', color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', opacity: savingPassword || !nuevaPassword ? 0.6 : 1 }}>
+                  style={{ padding: '10px', background: '#245287', color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', opacity: savingPassword || !nuevaPassword ? 0.6 : 1 }}>
                   {savingPassword ? 'Actualizando...' : 'Actualizar contraseña'}
                 </button>
               </div>
@@ -1176,18 +1176,18 @@ export default function ConfiguracionPage() {
             if (nearAlerts.length === 0) return null
             return (
               <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '10px', padding: '12px 16px', marginBottom: '4px' }}>
-                <p style={{ fontSize: '12px', fontWeight: '700', color: '#92400e', margin: '0 0 8px' }}>⚠️ Próximas actualizaciones de variables</p>
+                <p style={{ fontSize: '15px', fontWeight: '700', color: '#92400e', margin: '0 0 8px' }}>⚠️ Próximas actualizaciones de variables</p>
                 {nearAlerts.map(a => {
                   const updateDate = new Date(today.getFullYear(), a.mes, a.dia)
                   if (updateDate < today) updateDate.setFullYear(today.getFullYear() + 1)
                   const daysLeft = Math.ceil((updateDate.getTime() - today.getTime()) / 86400000)
                   return (
-                    <div key={a.key} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px', fontSize: '12px' }}>
+                    <div key={a.key} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px', fontSize: '15px' }}>
                       <span style={{ color: '#92400e', fontWeight: '600' }}>📅 {a.label}</span>
                       <span style={{ color: '#b45309' }}>{a.desc}</span>
                       <span style={{ color: daysLeft <= 14 ? '#ef4444' : '#f59e0b', fontWeight: '700' }}>Faltan {daysLeft} días</span>
                       <a href={a.url} target="_blank" rel="noopener noreferrer"
-                        style={{ color: AZUL, fontSize: '11px', textDecoration: 'none', background: '#EEF2F8', padding: '2px 8px', borderRadius: '6px' }}>
+                        style={{ color: AZUL, fontSize: '15px', textDecoration: 'none', background: '#EEF2F8', padding: '2px 8px', borderRadius: '6px' }}>
                         Ver en {a.fuente} ↗
                       </a>
                     </div>
@@ -1260,19 +1260,19 @@ export default function ConfiguracionPage() {
                 badge: 'Verificar en SAT', badgeColor: '#dc2626'
               },
             ].map(f => (
-              <div key={f.key} style={{ background: '#F8FAFC', borderRadius: '10px', padding: '14px', border: '1px solid #e2e8f0' }}>
+              <div key={f.key} style={{ background: '#F5F7FA', borderRadius: '10px', padding: '14px', border: '1px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <label style={{ ...labelSt, marginBottom: 0, flex: 1 }}>{f.label} {tooltip(f.help)}</label>
-                  <span style={{ fontSize: '9px', fontWeight: '700', padding: '2px 6px', borderRadius: '6px', background: f.badgeColor + '15', color: f.badgeColor, whiteSpace: 'nowrap', marginLeft: '4px' }}>{f.badge}</span>
+                  <span style={{ fontSize: '13px', fontWeight: '700', padding: '2px 6px', borderRadius: '6px', background: f.badgeColor + '15', color: f.badgeColor, whiteSpace: 'nowrap', marginLeft: '4px' }}>{f.badge}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                   <input type="number" step="0.01" value={(perfil as any)[f.key]}
                     onChange={e => set(f.key as keyof Perfil, parseFloat(e.target.value) || 0)}
                     placeholder={f.placeholder}
                     style={{ flex: 1, padding: '8px 10px', border: '1.5px solid #2c92d5', borderRadius: '7px', fontSize: '14px', fontWeight: '700', color: '#1e293b', background: 'white', outline: 'none', fontFamily: 'inherit' }} />
-                  <span style={{ fontSize: '11px', color: '#64748b', whiteSpace: 'nowrap', fontWeight: '600' }}>{f.unit}</span>
+                  <span style={{ fontSize: '15px', color: '#64748b', whiteSpace: 'nowrap', fontWeight: '600' }}>{f.unit}</span>
                 </div>
-                <p style={{ fontSize: '10px', color: '#64748b', margin: 0, lineHeight: 1.5 }}>{f.help}</p>
+                <p style={{ fontSize: '13px', color: '#64748b', margin: 0, lineHeight: 1.5 }}>{f.help}</p>
               </div>
             ))}
           </div>
@@ -1281,8 +1281,8 @@ export default function ConfiguracionPage() {
           <div style={{ background: '#EEF2F8', borderRadius: '10px', padding: '16px', border: '1px solid #BFDBFE' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
               <div>
-                <p style={{ fontSize: '13px', fontWeight: '700', color: '#1E3A5F', margin: 0 }}>📊 Historial UMA — referencia de proyecciones</p>
-                <p style={{ fontSize: '11px', color: '#334E7B', margin: '2px 0 0' }}>
+                <p style={{ fontSize: '13px', fontWeight: '700', color: '#14375F', margin: 0 }}>📊 Historial UMA — referencia de proyecciones</p>
+                <p style={{ fontSize: '15px', color: '#245287', margin: '2px 0 0' }}>
                   Promedio crecimiento 2019-2026: <strong>4.82% anual</strong>. Actualiza "Inflación UMA" con este dato para proyecciones exactas.
                 </p>
               </div>
@@ -1296,15 +1296,15 @@ export default function ConfiguracionPage() {
                 const pct = i > 0 ? ((d.uma - arr[i-1].uma) / arr[i-1].uma * 100).toFixed(1) : null
                 const isCurrent = d.year === 2026
                 return (
-                  <div key={d.year} style={{ background: isCurrent ? '#334E7B' : 'white', borderRadius: '6px', padding: '8px 6px', textAlign: 'center', border: isCurrent ? 'none' : '1px solid #BFDBFE' }}>
-                    <div style={{ fontSize: '9px', fontWeight: '600', color: isCurrent ? 'rgba(255,255,255,0.7)' : '#64748B', marginBottom: '2px' }}>{d.year}</div>
-                    <div style={{ fontSize: '12px', fontWeight: '700', color: isCurrent ? 'white' : '#334E7B' }}>${d.uma}</div>
-                    {pct && <div style={{ fontSize: '9px', color: isCurrent ? '#93C5FD' : '#2E7D5A' }}>+{pct}%</div>}
+                  <div key={d.year} style={{ background: isCurrent ? '#245287' : 'white', borderRadius: '6px', padding: '8px 6px', textAlign: 'center', border: isCurrent ? 'none' : '1px solid #BFDBFE' }}>
+                    <div style={{ fontSize: '13px', fontWeight: '600', color: isCurrent ? 'rgba(255,255,255,0.7)' : '#66738A', marginBottom: '2px' }}>{d.year}</div>
+                    <div style={{ fontSize: '15px', fontWeight: '700', color: isCurrent ? 'white' : '#245287' }}>${d.uma}</div>
+                    {pct && <div style={{ fontSize: '13px', color: isCurrent ? '#93C5FD' : '#12855C' }}>+{pct}%</div>}
                   </div>
                 )
               })}
             </div>
-            <p style={{ fontSize: '10px', color: '#64748B', margin: '8px 0 0' }}>
+            <p style={{ fontSize: '13px', color: '#66738A', margin: '8px 0 0' }}>
               Fuente: INEGI. Actualización: febrero de cada año. La fórmula de validación PMG = Salario Mín. × 365 × 1.11 / 12 debe verificarse con el DOF.
             </p>
           </div>
@@ -1315,19 +1315,19 @@ export default function ConfiguracionPage() {
               <span style={{ fontSize: '16px' }}>📋</span>
               <div>
                 <p style={{ fontSize: '13px', fontWeight: '700', color: '#92400e', margin: 0 }}>Porcentajes Modalidad 40</p>
-                <p style={{ fontSize: '11px', color: '#b45309', margin: '2px 0 0' }}>Cuota mensual como % del salario cotizable. Aumenta cada año según IMSS. Edita solo si hay actualización oficial.</p>
+                <p style={{ fontSize: '15px', color: '#b45309', margin: '2px 0 0' }}>Cuota mensual como % del salario cotizable. Aumenta cada año según IMSS. Edita solo si hay actualización oficial.</p>
               </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '10px' }}>
               {[2026, 2027, 2028, 2029, 2030].map(year => (
                 <div key={year}>
-                  <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#92400e', marginBottom: '4px', textTransform: 'uppercase' }}>{year}</label>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#92400e', marginBottom: '4px', textTransform: 'uppercase' }}>{year}</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
                     <input type="number" step="0.001"
                       value={(perfil as any)[`mod40_${year}`]}
                       onChange={e => set(`mod40_${year}` as keyof Perfil, parseFloat(e.target.value) || 0)}
                       style={{ width: '100%', padding: '8px 8px', border: '1.5px solid #fed7aa', borderRadius: '7px', fontSize: '13px', fontWeight: '700', color: '#92400e', background: 'white', outline: 'none', fontFamily: 'inherit' }} />
-                    <span style={{ fontSize: '11px', color: '#b45309', fontWeight: '600' }}>%</span>
+                    <span style={{ fontSize: '15px', color: '#b45309', fontWeight: '600' }}>%</span>
                   </div>
                 </div>
               ))}
@@ -1357,18 +1357,18 @@ export default function ConfiguracionPage() {
               <label style={labelSt}>Tamaño del logo (px) {tooltip('Altura del logo en el encabezado del PDF en píxeles. Recomendado: 24-40px')}</label>
               <input type="range" min="20" max="48" value={perfil.encabezado_logo_size} onChange={e => set('encabezado_logo_size', parseInt(e.target.value))}
                 style={{ width: '100%' }} />
-              <p style={{ fontSize: '11px', color: '#94a3b8', margin: '2px 0 0', textAlign: 'right' }}>{perfil.encabezado_logo_size}px</p>
+              <p style={{ fontSize: '15px', color: '#94a3b8', margin: '2px 0 0', textAlign: 'right' }}>{perfil.encabezado_logo_size}px</p>
             </div>
             <div>
               <label style={labelSt}>Tamaño de fuente (px) {tooltip('Tamaño del texto del nombre del asesor en el encabezado. Recomendado: 11-15px')}</label>
               <input type="range" min="10" max="18" value={perfil.encabezado_font_size} onChange={e => set('encabezado_font_size', parseInt(e.target.value))}
                 style={{ width: '100%' }} />
-              <p style={{ fontSize: '11px', color: '#94a3b8', margin: '2px 0 0', textAlign: 'right' }}>{perfil.encabezado_font_size}px</p>
+              <p style={{ fontSize: '15px', color: '#94a3b8', margin: '2px 0 0', textAlign: 'right' }}>{perfil.encabezado_font_size}px</p>
             </div>
           </div>
 
           {/* Vista previa */}
-          <p style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Vista previa</p>
+          <p style={{ fontSize: '15px', fontWeight: '700', color: '#94a3b8', marginBottom: '8px' }}>Vista previa</p>
           <div style={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
             <div style={{ background: perfil.encabezado_color, padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -1393,19 +1393,19 @@ export default function ConfiguracionPage() {
             </div>
             {/* Pie - NO editable */}
             <div style={{ background: '#F4F6F9', padding: '7px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid #e2e8f0' }}>
-              <div style={{ fontSize: '10px', color: '#94a3b8' }}>Folio: KSE-2026-000001 · Documento confidencial</div>
+              <div style={{ fontSize: '13px', color: '#94a3b8' }}>Folio: KSE-2026-000001 · Documento confidencial</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ fontSize: '10px', color: '#94a3b8' }}>Página 1 de 2 · Powered by</span>
-                <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: '700' }}>KSE Pensiones</span>
+                <span style={{ fontSize: '13px', color: '#94a3b8' }}>Página 1 de 2 · Powered by</span>
+                <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: '700' }}>KSE Pensiones</span>
               </div>
             </div>
           </div>
-          <p style={{ fontSize: '10px', color: '#94a3b8', margin: '8px 0 0' }}>
+          <p style={{ fontSize: '13px', color: '#94a3b8', margin: '8px 0 0' }}>
             ℹ️ El folio, la paginación y "Powered by KSE Pensiones" no son editables.
           </p>
 
           {/* Leyenda de vigencia en el PDF */}
-          <div style={{ marginTop: '14px', padding: '10px 14px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px', fontSize: '11px', color: '#92400e' }}>
+          <div style={{ marginTop: '14px', padding: '10px 14px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px', fontSize: '15px', color: '#92400e' }}>
             📌 Cada PDF generado incluirá automáticamente la leyenda: <em>"La información presentada está sujeta a cambios en la normativa y variables del IMSS. Tiene un margen de certeza de 30 días a partir de su fecha de emisión."</em>
           </div>
         </div>
@@ -1415,21 +1415,21 @@ export default function ConfiguracionPage() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
               <div>
                 <p style={{ fontSize: '14px', fontWeight: '700', color: '#1e293b', margin: '0 0 2px' }}>📚 Catálogo de materiales de apoyo</p>
-                <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>Documentos y links que puedes enviar por WhatsApp al dar de alta un cliente</p>
+                <p style={{ fontSize: '15px', color: '#94a3b8', margin: 0 }}>Documentos y links que puedes enviar por WhatsApp al dar de alta un cliente</p>
               </div>
               <button onClick={agregarFilaMaterial}
-                style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', flexShrink: 0 }}>
+                style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: '600', cursor: 'pointer', flexShrink: 0 }}>
                 + Agregar material
               </button>
             </div>
 
             {materialError && (
-              <div style={{ padding: '8px 12px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', fontSize: '12px', color: '#ef4444', marginBottom: '12px' }}>
+              <div style={{ padding: '8px 12px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', fontSize: '15px', color: '#ef4444', marginBottom: '12px' }}>
                 ⚠️ {materialError}
               </div>
             )}
             {materialesNuevos.length > 0 && (
-              <div style={{ padding: '8px 12px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px', fontSize: '12px', color: '#92400e', marginBottom: '12px' }}>
+              <div style={{ padding: '8px 12px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px', fontSize: '15px', color: '#92400e', marginBottom: '12px' }}>
                 📌 Tienes {materialesNuevos.length} material{materialesNuevos.length > 1 ? 'es' : ''} pendiente{materialesNuevos.length > 1 ? 's' : ''}. Completa los campos requeridos y sal del campo para guardar automáticamente.
               </div>
             )}
@@ -1441,22 +1441,22 @@ export default function ConfiguracionPage() {
               </div>
             ) : (
               <div style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '10px' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '15px' }}>
                   <thead>
                     <tr style={{ background: '#F4F6F9' }}>
                       {['ID', 'Nombre', 'Descripción', 'Adjunto', 'Fecha', ''].map((h, i) => (
-                        <th key={i} style={{ padding: '8px 12px', textAlign: i === 0 ? 'center' : 'left', fontSize: '10px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.4px', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
+                        <th key={i} style={{ padding: '8px 12px', textAlign: i === 0 ? 'center' : 'left', fontSize: '13px', fontWeight: '700', color: '#64748b', borderBottom: '1px solid #e2e8f0' }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {materialesNuevos.map((fila, idx) => (
                       <tr key={fila.tempId} style={{ background: '#FFF7ED', borderBottom: '1px solid #fed7aa' }}>
-                        <td style={{ padding: '8px 12px', textAlign: 'center', color: '#94a3b8', fontWeight: '600', fontFamily: 'monospace', fontSize: '11px' }}>—</td>
+                        <td style={{ padding: '8px 12px', textAlign: 'center', color: '#94a3b8', fontWeight: '600', fontFamily: 'monospace', fontSize: '15px' }}>—</td>
                         <td style={{ padding: '8px 12px' }}>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             <select value={fila.tipo} onChange={e => setMaterialesNuevos(prev => prev.map(f => f.tempId === fila.tempId ? { ...f, tipo: e.target.value } : f))}
-                              style={{ padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '11px', fontFamily: 'inherit', background: 'white' }}>
+                              style={{ padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '15px', fontFamily: 'inherit', background: 'white' }}>
                               <option value="general">📄 General</option>
                               <option value="guia">📋 Guía / Manual</option>
                               <option value="video">🎥 Video</option>
@@ -1464,21 +1464,21 @@ export default function ConfiguracionPage() {
                             </select>
                             <input value={fila.nombre} onChange={e => setMaterialesNuevos(prev => prev.map(f => f.tempId === fila.tempId ? { ...f, nombre: e.target.value } : f))}
                               placeholder="Nombre del material *"
-                              style={{ padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '12px', fontFamily: 'inherit', fontWeight: '600' }} />
+                              style={{ padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '15px', fontFamily: 'inherit', fontWeight: '600' }} />
                           </div>
                         </td>
                         <td style={{ padding: '8px 12px' }}>
                           <input value={fila.descripcion} onChange={e => setMaterialesNuevos(prev => prev.map(f => f.tempId === fila.tempId ? { ...f, descripcion: e.target.value } : f))}
                             placeholder="Descripción (opcional)"
-                            style={{ width: '100%', padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '12px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
+                            style={{ width: '100%', padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '15px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
                         </td>
                         <td style={{ padding: '8px 12px' }}>
                           {fila.archivo_url ? (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: VERDE, background: '#f0fdf4', padding: '3px 8px', borderRadius: '6px', fontWeight: '600' }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '15px', color: VERDE, background: '#f0fdf4', padding: '3px 8px', borderRadius: '6px', fontWeight: '600' }}>
                               ✓ Adjunto
                             </span>
                           ) : (
-                            <label style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: uploadingAdjunto ? '#94a3b8' : AZUL, background: '#EEF2F8', padding: '3px 8px', borderRadius: '6px', fontWeight: '600', cursor: uploadingAdjunto ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}>
+                            <label style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '15px', color: uploadingAdjunto ? '#94a3b8' : AZUL, background: '#EEF2F8', padding: '3px 8px', borderRadius: '6px', fontWeight: '600', cursor: uploadingAdjunto ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}>
                               {uploadingAdjunto ? '⏳...' : '📎 Adjuntar *'}
                               <input type="file" accept=".pdf,image/*,.doc,.docx" style={{ display: 'none' }} disabled={uploadingAdjunto}
                                 onChange={async e => {
@@ -1507,18 +1507,18 @@ export default function ConfiguracionPage() {
                             </label>
                           )}
                         </td>
-                        <td style={{ padding: '8px 12px', color: '#94a3b8', fontSize: '11px', whiteSpace: 'nowrap' }}>Sin guardar</td>
+                        <td style={{ padding: '8px 12px', color: '#94a3b8', fontSize: '15px', whiteSpace: 'nowrap' }}>Sin guardar</td>
                         <td style={{ padding: '8px 12px', textAlign: 'right' }}>
                           <button onClick={() => quitarFilaMaterial(fila.tempId)}
-                            style={{ padding: '4px 10px', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '10px', cursor: 'pointer', background: '#fef2f2', color: '#ef4444' }}>
+                            style={{ padding: '4px 10px', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '13px', cursor: 'pointer', background: '#fef2f2', color: '#ef4444' }}>
                             Quitar
                           </button>
                         </td>
                       </tr>
                     ))}
                     {materiales.map((m, i) => (
-                      <tr key={m.id} style={{ background: m.activo ? (i % 2 === 0 ? 'white' : '#F8FAFC') : '#F8FAFC', opacity: m.activo ? 1 : 0.55, borderBottom: '1px solid #f1f5f9' }}>
-                        <td style={{ padding: '10px 12px', textAlign: 'center', color: '#94a3b8', fontWeight: '600', fontFamily: 'monospace', fontSize: '11px' }}>{(m as any).folio || i + 1}</td>
+                      <tr key={m.id} style={{ background: m.activo ? (i % 2 === 0 ? 'white' : '#F5F7FA') : '#F5F7FA', opacity: m.activo ? 1 : 0.55, borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '10px 12px', textAlign: 'center', color: '#94a3b8', fontWeight: '600', fontFamily: 'monospace', fontSize: '15px' }}>{(m as any).folio || i + 1}</td>
                         <td style={{ padding: '10px 12px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span style={{ fontSize: '15px' }}>{m.tipo === 'video' ? '🎥' : m.tipo === 'guia' ? '📋' : m.tipo === 'calculadora' ? '🧮' : '📄'}</span>
@@ -1546,29 +1546,29 @@ export default function ConfiguracionPage() {
                               }
                             }}
                               title={(m as any).archivo_url}
-                              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: AZUL, background: '#EEF2F8', padding: '3px 8px', borderRadius: '6px', fontWeight: '600', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '15px', color: AZUL, background: '#EEF2F8', padding: '3px 8px', borderRadius: '6px', fontWeight: '600', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
                               📎 Descargar
                             </button>
                           ) : m.url ? (
                             <a href={m.url} target="_blank" rel="noopener noreferrer"
-                              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: AZUL, textDecoration: 'none', background: '#EEF2F8', padding: '3px 8px', borderRadius: '6px', fontWeight: '600' }}>
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '15px', color: AZUL, textDecoration: 'none', background: '#EEF2F8', padding: '3px 8px', borderRadius: '6px', fontWeight: '600' }}>
                               🔗 Ver link
                             </a>
                           ) : (
-                            <span style={{ fontSize: '11px', color: '#cbd5e1' }}>Sin adjunto</span>
+                            <span style={{ fontSize: '15px', color: '#cbd5e1' }}>Sin adjunto</span>
                           )}
                         </td>
-                        <td style={{ padding: '10px 12px', color: '#94a3b8', fontSize: '11px', whiteSpace: 'nowrap' }}>
+                        <td style={{ padding: '10px 12px', color: '#94a3b8', fontSize: '15px', whiteSpace: 'nowrap' }}>
                           {m.created_at ? new Date(m.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
                         </td>
                         <td style={{ padding: '10px 12px', textAlign: 'right' }}>
                                                       <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
                               <button onClick={() => toggleMaterial(m.id, !m.activo)}
-                                style={{ padding: '4px 8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '10px', cursor: 'pointer', background: 'white', color: '#64748b', whiteSpace: 'nowrap' }}>
+                                style={{ padding: '4px 8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '13px', cursor: 'pointer', background: 'white', color: '#64748b', whiteSpace: 'nowrap' }}>
                                 {m.activo ? 'Desactivar' : 'Activar'}
                               </button>
                               <button onClick={() => eliminarMaterial(m.id)}
-                                style={{ padding: '4px 8px', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '10px', cursor: 'pointer', background: '#fef2f2', color: '#ef4444' }}>
+                                style={{ padding: '4px 8px', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '13px', cursor: 'pointer', background: '#fef2f2', color: '#ef4444' }}>
                                 🗑️
                               </button>
                             </div>
@@ -1615,7 +1615,7 @@ export default function ConfiguracionPage() {
             {/* Botón guardar */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #E2E8F0', gap: '10px' }}>
               <button onClick={() => setPdfConfig(PDF_CONFIG_DEFAULT)}
-                style={{ padding: '9px 18px', background: '#F8FAFC', color: '#64748B', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ padding: '9px 18px', background: '#F5F7FA', color: '#66738A', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
                 Restablecer defaults
               </button>
               <button onClick={async () => {
@@ -1623,7 +1623,7 @@ export default function ConfiguracionPage() {
                 await supabase.from('perfiles_usuario').update({ pdf_config: JSON.stringify(pdfConfig) }).eq('id', userId)
                 setSavingPdf(false)
               }} disabled={savingPdf}
-                style={{ padding: '9px 22px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', opacity: savingPdf ? 0.7 : 1 }}>
+                style={{ padding: '9px 22px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', opacity: savingPdf ? 0.7 : 1 }}>
                 {savingPdf ? 'Guardando...' : '💾 Guardar configuración de PDF'}
               </button>
             </div>
