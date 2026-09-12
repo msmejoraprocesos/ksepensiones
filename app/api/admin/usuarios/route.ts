@@ -63,13 +63,60 @@ export async function POST(req: NextRequest) {
 
     const admin = getAdminClient()
 
+    /**
+     * Control de asientos.
+     *
+     * Tres fugas que tenia esta validacion:
+     *
+     * 1. Estaba envuelta en `if (organizacion_id)`, asi que un usuario creado
+     *    sin organizacion se creaba siempre y no contaba contra ningun asiento.
+     *    Nadie pagaba por el. Ahora la organizacion es obligatoria salvo para
+     *    super-admins.
+     * 2. Solo corria al crear. El PATCH permite mover un usuario de una
+     *    organizacion a otra, y eso podia llenar una organizacion sin revisar.
+     *    Ver la validacion equivalente mas abajo.
+     * 3. Contaba todos los perfiles, incluidos los desactivados, asi que dar de
+     *    baja a alguien no liberaba su asiento. Ahora solo cuentan los activos:
+     *    el cliente que rota personal no se queda sin espacio.
+     */
+    if (!organizacion_id && !is_admin) {
+      return NextResponse.json(
+        { error: 'Falta la organización. Todo asesor debe pertenecer a una para contar contra los asientos contratados.' },
+        { status: 400 }
+      )
+    }
+
     if (organizacion_id) {
-      const { data: org } = await admin.from('organizaciones').select('asientos, nombre').eq('id', organizacion_id).single()
-      if (org) {
-        const { count } = await admin.from('perfiles_usuario').select('*', { count: 'exact', head: true }).eq('organizacion_id', organizacion_id)
-        if ((count ?? 0) >= org.asientos) {
-          return NextResponse.json({ error: `"${org.nombre}" ya tiene ${count} de ${org.asientos} asientos contratados.` }, { status: 400 })
-        }
+      const { data: org } = await admin
+        .from('organizaciones')
+        .select('asientos, nombre, activo, vigencia_hasta')
+        .eq('id', organizacion_id)
+        .single()
+
+      if (!org) {
+        return NextResponse.json({ error: 'La organización no existe.' }, { status: 400 })
+      }
+
+      // No tiene caso dar de alta gente en una cuenta suspendida.
+      if (org.activo === false) {
+        return NextResponse.json(
+          { error: `"${org.nombre}" está suspendida. Reactívala antes de agregar usuarios.` },
+          { status: 400 }
+        )
+      }
+
+      const { count } = await admin
+        .from('perfiles_usuario')
+        .select('*', { count: 'exact', head: true })
+        .eq('organizacion_id', organizacion_id)
+        .neq('activo', false)
+
+      const usados = count ?? 0
+      if (usados >= org.asientos) {
+        return NextResponse.json(
+          { error: `"${org.nombre}" ya usa ${usados} de ${org.asientos} asientos contratados. Desactiva un usuario o amplía el plan.` },
+          { status: 400 }
+        )
       }
     }
 
@@ -205,7 +252,47 @@ export async function PATCH(req: NextRequest) {
       if (error) return NextResponse.json({ error: error.message }, { status: 400 })
     }
     if (typeof is_admin === 'boolean') await admin.from('perfiles_usuario').update({ is_admin, rol: is_admin ? 'super_admin' : 'asesor' }).eq('id', id)
-    if (organizacion_id !== undefined) await admin.from('perfiles_usuario').update({ organizacion_id: organizacion_id || null }).eq('id', id)
+    /* Mover un usuario a otra organizacion consume un asiento de la destino.
+       Sin esta validacion se podia llenar una organizacion por la puerta
+       trasera, sin pasar por el alta que si contaba. */
+    if (organizacion_id !== undefined) {
+      if (organizacion_id) {
+        const { data: org } = await admin
+          .from('organizaciones')
+          .select('asientos, nombre, activo')
+          .eq('id', organizacion_id)
+          .single()
+
+        if (!org) return NextResponse.json({ error: 'La organización destino no existe.' }, { status: 400 })
+        if (org.activo === false) {
+          return NextResponse.json({ error: `"${org.nombre}" está suspendida.` }, { status: 400 })
+        }
+
+        // Si ya pertenece a esa organizacion, no consume un asiento nuevo.
+        const { data: actual } = await admin
+          .from('perfiles_usuario')
+          .select('organizacion_id')
+          .eq('id', id)
+          .single()
+
+        if (actual?.organizacion_id !== organizacion_id) {
+          const { count } = await admin
+            .from('perfiles_usuario')
+            .select('*', { count: 'exact', head: true })
+            .eq('organizacion_id', organizacion_id)
+            .neq('activo', false)
+
+          const usados = count ?? 0
+          if (usados >= org.asientos) {
+            return NextResponse.json(
+              { error: `"${org.nombre}" ya usa ${usados} de ${org.asientos} asientos. No se puede mover el usuario ahí.` },
+              { status: 400 }
+            )
+          }
+        }
+      }
+      await admin.from('perfiles_usuario').update({ organizacion_id: organizacion_id || null }).eq('id', id)
+    }
     if (rol) await admin.from('perfiles_usuario').update({ rol }).eq('id', id)
     return NextResponse.json({ ok: true })
   } catch (e: any) {

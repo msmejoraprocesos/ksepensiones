@@ -1,6 +1,7 @@
 'use client'
 import React, { useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
+import AltaCliente from './AltaCliente'
 import { K, nw, num, tarjeta, botonPrimario, franja, halo } from '@/lib/design-tokens'
 import {
   cotizar, normalizarTramos, validarTramos, TRAMOS_DEFAULT,
@@ -32,6 +33,12 @@ export default function CarteraPage() {
   const [periodicidad, setPeriodicidad] = useState<'mensual' | 'anual'>('mensual')
   const [orgs, setOrgs] = useState<any[]>([])
   const [cargando, setCargando] = useState(true)
+  const [alta, setAlta] = useState(false)
+
+  async function cargar() {
+    const { data: o } = await supabase.from('organizaciones').select('id,nombre,plan,asientos,vigencia_hasta,dias_gracia,activo')
+    setOrgs(o ?? [])
+  }
 
   useEffect(() => {
     (async () => {
@@ -204,8 +211,11 @@ export default function CarteraPage() {
 
       {/* ── Estado de la cartera ───────────────────────────────── */}
       <div style={{ ...tarjeta, marginTop: 20, overflow: 'hidden' }}>
-        <div style={{ padding: '20px 22px 14px' }}>
+        <div style={{ padding: '20px 22px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <p style={{ fontSize: 20, fontWeight: 700, color: K.ink, margin: 0 }}>Estado de la cartera</p>
+          <button onClick={() => setAlta(true)} style={{ ...botonPrimario, padding: '11px 20px' }}>
+            Dar de alta cliente
+          </button>
         </div>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 15 }}>
@@ -220,7 +230,10 @@ export default function CarteraPage() {
               {cargando ? (
                 <tr><td colSpan={5} style={{ padding: 30, textAlign: 'center', color: K.muted }}>Cargando…</td></tr>
               ) : cartera.length === 0 ? (
-                <tr><td colSpan={5} style={{ padding: 30, textAlign: 'center', color: K.muted }}>Sin organizaciones registradas.</td></tr>
+                <tr><td colSpan={5} style={{ padding: '36px 20px', textAlign: 'center', color: K.muted }}>
+                  <p style={{ fontSize: 17, margin: 0 }}>Todavía no hay clientes registrados.</p>
+                  <button onClick={() => setAlta(true)} style={{ ...botonPrimario, margin: '16px auto 0' }}>Dar de alta el primero</button>
+                </td></tr>
               ) : cartera.map(c => {
                 const s = SEMAFORO[c.estado as EstadoCartera]
                 return (
@@ -243,6 +256,13 @@ export default function CarteraPage() {
           </table>
         </div>
       </div>
+      {alta && (
+        <AltaCliente
+          tramos={tramos}
+          onCerrar={() => setAlta(false)}
+          onCreado={() => { setAlta(false); cargar() }}
+        />
+      )}
     </div>
   )
 }

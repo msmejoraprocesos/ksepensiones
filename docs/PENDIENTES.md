@@ -19,9 +19,10 @@ Lo que queda abierto, ordenado por impacto. Cerrar la línea al terminar.
 
 Diseño en `docs/MODULO-CARTERA.md`. Hecho: migración de `contratos`, `pagos_contrato` y `acuerdos`; lógica de vigencias y cotizador en `lib/cartera.ts` con 22 tests.
 
-Falta: la interfaz (alta de contrato, registro de pago, tablero de cartera, cotizador), y **la validación de acceso** — hoy `organizaciones.activo` no bloquea nada, así que suspender no tiene efecto real.
+Hecho: tablero, cotizador, tabla de precios editable, alta de cliente con creación de organización, contrato y administrador.
 
-Pendiente de definir: la tabla de precios por volumen. Los tramos actuales en `TRAMOS_PRECIO` son provisionales.
+Falta: registro de pagos de renovación, pantalla de acuerdos de palabra con recordatorios, y **la validación de acceso** — hoy `organizaciones.activo` no bloquea nada, así que suspender no tiene efecto real.
+
 
 ## Si se retoma el cobro
 
