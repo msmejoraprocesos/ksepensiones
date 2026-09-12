@@ -1,13 +1,21 @@
 'use client'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 
-const AZUL = '#334E7B'
-const VERDE = '#2E7D5A'
-const NARANJA = '#E8724A'
-const BORDE = '#E2E8F0'
+/* Tokens — docs/rediseno/SISTEMA-DISENO.md */
+const K = {
+  navy900: '#0D2440', navy800: '#14375F', navy600: '#245287',
+  orange: '#E8622C', orangeSoft: '#FDF0E9', gold: '#F2B544',
+  green: '#12855C', greenLt: '#1FA873', greenSoft: '#E6F4EE',
+  red: '#B91C1C', redSoft: '#FEF2F2',
+  paper: '#F5F7FA', card: '#FFFFFF',
+  ink: '#132135', muted: '#66738A', line: '#E1E7F0',
+}
 
 const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n)
 const fmtMXN2 = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
+
+const nw = { whiteSpace: 'nowrap' as const }
+const num = { fontVariantNumeric: 'tabular-nums' as const }
 
 interface Props {
   escenarios: any[]
@@ -24,11 +32,18 @@ export default function TabFinanciamiento({
   plazoCredito, setPlazoCredito, setTab
 }: Props) {
   const escRec = escenarios.find(e => e.recomendado) ?? escenarios[escenarios.length - 1]
+  const [anim, setAnim] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setAnim(true); return }
+    const t = setTimeout(() => setAnim(true), 200)
+    return () => clearTimeout(t)
+  }, [])
 
   if (!escRec || escRec.mod40_meses === 0) return (
-    <div style={{ textAlign: 'center', padding: '60px', color: '#94A3B8' }}>
+    <div style={{ textAlign: 'center', padding: '60px', color: K.muted }}>
       <i className="ti ti-building-bank" style={{ fontSize: '48px', display: 'block', marginBottom: '12px' }} />
-      <p style={{ fontSize: '14px' }}>Completa las pestañas anteriores para ver el financiamiento</p>
+      <p style={{ fontSize: '15px' }}>Completa las pestanias anteriores para ver el financiamiento</p>
     </div>
   )
 
@@ -37,117 +52,140 @@ export default function TabFinanciamiento({
   const pctAfore = sys?.pct_afore_mod40 ?? 19.85
   const tasaBanco = sys?.tasa_banco_anual ?? 32.2
 
+  const pensionBase = escenarios[0]?.pension_base ?? 0
+  const pensionDurante = escRec.pension_inmediata ?? 0
+  const pensionFinal = escRec.pension_al_liquidar ?? escRec.pension_mensual ?? 0
+  const descuento = escRec.descuento_mensual ?? 0
+
+  /* Sobrecosto del pago retroactivo respecto a cotizar mes a mes.
+     Se expresa sobre el costo base (Art. 17-A y 21 CFF: actualizacion + recargos). */
+  const costoBase = escRec.costo_total ?? 0
+  const sobrecosto = costoBase > 0 && total > costoBase ? ((total - costoBase) / costoBase) * 100 : 0
+
   const slices = [
-    { label: 'Banco regulado', val: escRec.aportacion_banco ?? 0, pct: pctBanco, color: AZUL },
-    { label: 'AFORE (recuperación)', val: escRec.recuperacion_afore_retro ?? escRec.recuperacion_afore ?? 0, pct: pctAfore, color: VERDE },
-    { label: 'Cuenta propia / fondeador', val: escRec.aportacion_segundo_fondeo ?? 0, pct: 100 - pctBanco - pctAfore, color: NARANJA },
+    { label: 'Banco regulado', val: escRec.aportacion_banco ?? 0, pct: pctBanco, color: K.navy600 },
+    { label: 'AFORE (recuperacion)', val: escRec.recuperacion_afore_retro ?? escRec.recuperacion_afore ?? 0, pct: pctAfore, color: K.green },
+    { label: 'Cuenta propia / fondeador', val: escRec.aportacion_segundo_fondeo ?? 0, pct: Math.max(0, 100 - pctBanco - pctAfore), color: K.orange },
   ]
 
+  const maxPen = Math.max(pensionBase, pensionDurante, pensionFinal, 1)
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-      {/* KPIs de financiamiento */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
-        {[
-          { label: 'Total a financiar', value: fmtMXN(total), color: AZUL, bg: '#EEF2F8', border: AZUL },
-          { label: `Banco (${pctBanco}%)`, value: fmtMXN(escRec.aportacion_banco ?? 0), color: '#1D4ED8', bg: '#EFF6FF', border: '#93C5FD' },
-          { label: 'Cuenta propia', value: fmtMXN(escRec.aportacion_segundo_fondeo ?? 0), color: '#B45309', bg: '#FFFBEB', border: '#FCD34D' },
-          { label: 'Desc. mensual a pensión', value: fmtMXN2(escRec.descuento_mensual ?? 0), color: '#B91C1C', bg: '#FEF2F2', border: '#FCA5A5' },
-        ].map((k, i) => (
-          <div key={i} style={{ background: k.bg, borderTop: `3px solid ${k.border}`, padding: '10px 12px', borderRadius: '8px', textAlign: 'center' }}>
-            <div style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px', fontWeight: '600' }}>{k.label}</div>
-            <div style={{ fontSize: '18px', fontWeight: '800', color: k.color }}>{k.value}</div>
+      {/* ── Franja de cifras ───────────────────────────────────── */}
+      <section style={{ position: 'relative', overflow: 'hidden', borderRadius: '18px', background: `linear-gradient(118deg, ${K.navy900} 0%, ${K.navy800} 60%, ${K.navy600} 100%)` }}>
+        <div style={{ position: 'absolute', width: 460, height: 460, right: -150, top: -190, borderRadius: 999, pointerEvents: 'none', background: `radial-gradient(circle, ${K.orange}33 0%, transparent 68%)` }} />
+        <div style={{ position: 'relative', padding: '28px 34px 22px' }}>
+          <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>TOTAL A FINANCIAR</p>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap', marginTop: '8px' }}>
+            <p style={{ fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
+              {fmtMXN(total)}
+            </p>
+            {sobrecosto > 0 && (
+              <span style={{ background: 'rgba(255,255,255,.13)', color: K.gold, fontSize: '15px', fontWeight: 700, padding: '9px 16px', borderRadius: 999, border: `1px solid ${K.gold}55`, ...nw, ...num }}>
+                +{sobrecosto.toFixed(1)}% sobre cotizar mes a mes
+              </span>
+            )}
           </div>
-        ))}
-      </div>
+          {sobrecosto > 0 && (
+            <p style={{ fontSize: '15px', color: 'rgba(255,255,255,.68)', margin: '10px 0 0' }}>
+              Pagar retroactivo agrega actualizaciones y recargos: {fmtMXN(total - costoBase)} mas que cotizar desde hoy.
+            </p>
+          )}
+        </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-
-        {/* Distribución visual */}
-        <div style={{ background: 'white', borderRadius: '12px', borderLeft: `4px solid ${AZUL}`, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
-          <div style={{ padding: '10px 14px', background: '#EEF2F8', borderBottom: `1px solid ${BORDE}`, display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: AZUL, display: 'inline-block' }} />
-            <span style={{ fontSize: '10px', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: '0.6px', color: AZUL }}>Distribución del pago retroactivo</span>
-          </div>
-          <div style={{ padding: '14px 16px' }}>
-            {/* Bar chart horizontal */}
-            <div style={{ display: 'flex', height: '32px', borderRadius: '8px', overflow: 'hidden', marginBottom: '14px' }}>
-              {slices.map((s, i) => (
-                <div key={i} title={s.label} style={{ width: `${(s.val / total * 100).toFixed(1)}%`, background: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: '2px' }}>
-                  {s.val / total > 0.12 && <span style={{ fontSize: '10px', fontWeight: '700', color: 'white', whiteSpace: 'nowrap', padding: '0 4px' }}>{s.pct.toFixed(0)}%</span>}
-                </div>
-              ))}
+        <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1px', background: 'rgba(255,255,255,.11)' }}>
+          {[
+            { label: `Banco regulado (${pctBanco}%)`, value: fmtMXN(escRec.aportacion_banco ?? 0), sub: `${tasaBanco}% anual`, color: 'white' },
+            { label: 'Cuenta propia / fondeador', value: fmtMXN(escRec.aportacion_segundo_fondeo ?? 0), sub: 'aportacion directa', color: K.gold },
+            { label: 'Descuento mensual', value: fmtMXN2(descuento), sub: `durante ${plazoCredito} meses`, color: '#FCA5A5' },
+            { label: 'Pension al liquidar', value: fmtMXN2(pensionFinal), sub: 'libre de descuento', color: K.greenLt },
+          ].map((k, i) => (
+            <div key={i} style={{ background: K.navy900, padding: '18px 24px' }}>
+              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k.label}</p>
+              <p style={{ fontSize: '24px', fontWeight: 700, color: k.color, margin: '3px 0 0', ...nw, ...num }}>{k.value}</p>
+              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,.44)', margin: '2px 0 0' }}>{k.sub}</p>
             </div>
+          ))}
+        </div>
+      </section>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1.3fr) minmax(280px, 1fr)', gap: '20px' }}>
+
+        {/* ── Distribucion del pago ──────────────────────────────── */}
+        <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px' }}>
+          <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>De donde sale el dinero</p>
+          <p style={{ fontSize: '13px', color: K.muted, margin: '0 0 18px' }}>Distribucion del pago retroactivo</p>
+
+          <div style={{ display: 'flex', height: '42px', borderRadius: '9px', overflow: 'hidden', marginBottom: '20px' }}>
             {slices.map((s, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', marginBottom: '6px', background: '#F8FAFC', borderRadius: '6px', borderLeft: `4px solid ${s.color}` }}>
-                <span style={{ fontSize: '12px', color: '#374151' }}>{s.label}</span>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '14px', fontWeight: '800', color: s.color }}>{fmtMXN(s.val)}</div>
-                  <div style={{ fontSize: '10px', color: '#94A3B8' }}>{s.pct.toFixed(1)}%</div>
-                </div>
+              <div key={i} style={{ width: anim ? `${s.pct}%` : '0%', background: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'width .9s cubic-bezier(.22,1,.36,1)' }}>
+                {s.pct > 9 && <span style={{ color: 'white', fontWeight: 700, fontSize: '15px', ...num }}>{s.pct.toFixed(1)}%</span>}
               </div>
             ))}
-            <div style={{ padding: '8px 10px', background: '#EEF2F8', borderRadius: '6px', display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '12px', fontWeight: '700', color: AZUL }}>TOTAL</span>
-              <span style={{ fontSize: '14px', fontWeight: '900', color: AZUL }}>{fmtMXN(total)}</span>
-            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {slices.map((s, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '14px', background: K.paper, borderRadius: '10px', padding: '14px 16px' }}>
+                <span style={{ width: 5, height: 32, background: s.color, borderRadius: 3, flexShrink: 0 }} />
+                <span style={{ flex: 1, fontSize: '17px', color: K.ink, fontWeight: 600 }}>{s.label}</span>
+                <span style={{ textAlign: 'right' }}>
+                  <span style={{ display: 'block', fontSize: '17px', fontWeight: 700, color: K.ink, ...nw, ...num }}>{fmtMXN(s.val)}</span>
+                  <span style={{ display: 'block', fontSize: '13px', color: K.muted, ...num }}>{s.pct.toFixed(1)}%</span>
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px', background: K.navy900, borderRadius: '10px', padding: '16px 20px' }}>
+            <span style={{ fontSize: '17px', color: 'rgba(255,255,255,.78)' }}>Total</span>
+            <span style={{ fontSize: '24px', fontWeight: 700, color: 'white', ...nw, ...num }}>{fmtMXN(total)}</span>
           </div>
         </div>
 
-        {/* Parámetros de crédito + pensión neta */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {/* ── Parametros + pension disponible ────────────────────── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-          {/* Parámetros editables */}
-          <div style={{ background: 'white', borderRadius: '12px', borderLeft: `4px solid ${NARANJA}`, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
-            <div style={{ padding: '10px 14px', background: '#FFF3ED', borderBottom: `1px solid ${BORDE}`, display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: NARANJA, display: 'inline-block' }} />
-              <span style={{ fontSize: '10px', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: '0.6px', color: NARANJA }}>Parámetros del crédito</span>
-            </div>
-            <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {[
-                {
-                  label: 'Duración del trámite', value: duracionTramiteMeses,
-                  onChange: setDuracionTramiteMeses, options: [12, 18, 24, 30, 36, 48, 60],
-                  fmt: (v: number) => `${v} meses`
-                },
-                {
-                  label: 'Plazo del crédito', value: plazoCredito,
-                  onChange: setPlazoCredito, options: [12, 24, 36, 48, 60, 72, 84, 96, 108, 120],
-                  fmt: (v: number) => `${v} meses (${(v / 12).toFixed(1)} años)`
-                },
-              ].map((f, i) => (
-                <div key={i}>
-                  <label style={{ fontSize: '10px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '5px' }}>
-                    <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: NARANJA, display: 'inline-block' }} />
-                    {f.label}
-                  </label>
-                  <select value={f.value} onChange={e => f.onChange(Number(e.target.value))}
-                    style={{ width: '100%', height: '44px', border: `1.5px solid ${NARANJA}33`, borderRadius: '8px', padding: '0 12px', fontSize: '13px', fontFamily: 'inherit', background: '#FFF3ED', color: '#92400E', fontWeight: '500', boxSizing: 'border-box' }}>
-                    {f.options.map(v => <option key={v} value={v}>{f.fmt(v)}</option>)}
-                  </select>
-                </div>
-              ))}
-              <div style={{ padding: '8px 10px', background: '#F8FAFC', borderRadius: '6px' }}>
-                <div style={{ fontSize: '10px', color: '#94A3B8', marginBottom: '2px' }}>Tasa banco regulado</div>
-                <div style={{ fontSize: '14px', fontWeight: '700', color: AZUL }}>{tasaBanco}% anual</div>
+          <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px' }}>
+            <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 16px' }}>Parametros del credito</p>
+            {[
+              { label: 'Duracion del tramite', value: duracionTramiteMeses, onChange: setDuracionTramiteMeses, options: [12, 18, 24, 30, 36, 48, 60], fmt: (v: number) => `${v} meses` },
+              { label: 'Plazo del credito', value: plazoCredito, onChange: setPlazoCredito, options: [12, 24, 36, 48, 60, 72, 84, 96, 108, 120], fmt: (v: number) => `${v} meses (${(v / 12).toFixed(1)} anios)` },
+            ].map((f, i) => (
+              <div key={i} style={{ marginBottom: '14px' }}>
+                <label style={{ display: 'block', fontSize: '15px', color: K.muted, marginBottom: '6px' }}>{f.label}</label>
+                <select value={f.value} onChange={e => f.onChange(Number(e.target.value))}
+                  style={{ width: '100%', height: '48px', border: `1px solid ${K.line}`, borderRadius: '10px', padding: '0 14px', fontSize: '17px', fontFamily: 'inherit', background: K.card, color: K.ink, fontWeight: 600, boxSizing: 'border-box', cursor: 'pointer' }}>
+                  {f.options.map(o => <option key={o} value={o}>{f.fmt(o)}</option>)}
+                </select>
               </div>
+            ))}
+            <div style={{ background: K.orangeSoft, borderRadius: '10px', padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+              <span style={{ fontSize: '15px', color: K.ink }}>Tasa del banco regulado</span>
+              <span style={{ fontSize: '20px', fontWeight: 800, color: K.orange, ...nw, ...num }}>{tasaBanco}% anual</span>
             </div>
           </div>
 
-          {/* Pensión antes/durante/después */}
-          <div style={{ background: 'white', borderRadius: '12px', borderLeft: `4px solid ${VERDE}`, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '14px' }}>
-            <div style={{ fontSize: '10px', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: '0.5px', color: VERDE, marginBottom: '10px' }}>Pensión disponible</div>
+          <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px' }}>
+            <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Que cobra en cada etapa</p>
+            <p style={{ fontSize: '13px', color: K.muted, margin: '0 0 18px' }}>Pension mensual disponible</p>
+
             {[
-              { label: 'Sin Mod. 40 (hoy)', value: fmtMXN2(escenarios[0]?.pension_base ?? 0), color: '#94A3B8' },
-              { label: 'Durante el crédito', value: fmtMXN2(escRec.pension_inmediata ?? 0), color: NARANJA, note: `(desc. ${fmtMXN2(escRec.descuento_mensual ?? 0)}/mes)` },
-              { label: 'Al liquidar el crédito', value: fmtMXN2(escRec.pension_al_liquidar ?? escRec.pension_mensual ?? 0), color: VERDE, bold: true },
-            ].map((r, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', background: i === 2 ? '#F0F7F4' : '#F8FAFC', borderRadius: '6px', marginBottom: '6px' }}>
-                <div>
-                  <div style={{ fontSize: '11px', color: '#64748B', fontWeight: r.bold ? '600' : '400' }}>{r.label}</div>
-                  {r.note && <div style={{ fontSize: '9px', color: '#94A3B8' }}>{r.note}</div>}
+              { label: 'Sin Mod. 40 (hoy)', value: pensionBase, color: '#9AA7B8', nota: '' },
+              { label: 'Durante el credito', value: pensionDurante, color: K.orange, nota: `descuento de ${fmtMXN2(descuento)}/mes` },
+              { label: 'Al liquidar el credito', value: pensionFinal, color: K.green, nota: 'de por vida' },
+            ].map((e, i) => (
+              <div key={i} style={{ marginBottom: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '10px', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '15px', color: K.ink, fontWeight: i === 2 ? 700 : 500 }}>{e.label}</span>
+                  <span style={{ fontSize: i === 2 ? '20px' : '17px', fontWeight: 700, color: e.color, ...nw, ...num }}>{fmtMXN2(e.value)}</span>
                 </div>
-                <span style={{ fontSize: r.bold ? '16px' : '13px', fontWeight: r.bold ? '800' : '700', color: r.color }}>{r.value}</span>
+                <div style={{ height: '10px', background: K.paper, borderRadius: 999, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: anim ? `${(e.value / maxPen) * 100}%` : '0%', background: e.color, borderRadius: 999, transition: 'width .9s cubic-bezier(.22,1,.36,1)' }} />
+                </div>
+                {e.nota && <p style={{ fontSize: '13px', color: K.muted, margin: '5px 0 0' }}>{e.nota}</p>}
               </div>
             ))}
           </div>
@@ -155,8 +193,9 @@ export default function TabFinanciamiento({
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <button onClick={() => setTab(11)} style={{ padding: '10px 22px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: '700', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          El entregable <i className="ti ti-arrow-right" style={{ fontSize: '14px' }} />
+        <button onClick={() => setTab(11)}
+          style={{ padding: '13px 24px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '17px', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
+          El entregable <i className="ti ti-arrow-right" style={{ fontSize: '16px' }} />
         </button>
       </div>
     </div>
