@@ -334,9 +334,11 @@ function ClientesInner() {
   const [dragOver, setDragOver] = useState<string | null>(null)
 
   async function loadMateriales(uid: string) {
-    const { data } = await supabase.from('materiales_apoyo').select('*').eq('asesor_id', uid).eq('activo', true).order('orden')
+    const { data, error: eMat } = await supabase.from('materiales_apoyo').select('*').eq('asesor_id', uid).eq('activo', true).order('orden')
+    if (eMat) avisoError('No se pudieron cargar los materiales de apoyo', 'El resto de la pantalla funciona. Recarga para volver a intentar.')
     if (data) setMateriales(data)
-    const { data: cats } = await supabase.from('catalogos_actividad').select('*').eq('asesor_id', uid).eq('activo', true).order('orden')
+    const { data: cats, error: eCat } = await supabase.from('catalogos_actividad').select('*').eq('asesor_id', uid).eq('activo', true).order('orden')
+    if (eCat) avisoError('No se pudo cargar el catálogo de actividades', 'El resto de la pantalla funciona. Recarga para volver a intentar.')
     if (cats) {
       const grouped: Record<string, any[]> = { tipo_contacto: [], resultado: [], proximo_paso: [] }
       cats.forEach((c: any) => { if (grouped[c.categoria]) grouped[c.categoria].push(c) })
@@ -414,14 +416,16 @@ function ClientesInner() {
     if (eCli) { avisoError('No se pudo cargar la lista de clientes', 'Revisa tu conexión y vuelve a intentar. Si el problema sigue, cierra sesión y entra de nuevo.'); return }
     if (!data) { setLoading(false); return }
     // Load total pagado per cliente
-    const { data: pagosData } = await supabase.from('pagos').select('cliente_id, monto').eq('asesor_id', uid)
+    const { data: pagosData, error: ePagos } = await supabase.from('pagos').select('cliente_id, monto').eq('asesor_id', uid)
+    if (ePagos) avisoError('No se pudieron cargar los pagos', 'Los clientes se muestran, pero los totales de cobrado y por cobrar no son confiables hasta recargar.')
     const totales: Record<string, number> = {}
     pagosData?.forEach((p: any) => { totales[p.cliente_id] = (totales[p.cliente_id] ?? 0) + p.monto })
     const clientesConPago = data.map((c: any) => ({ ...c, total_pagado: totales[c.id] ?? 0 }))
     setClientes(clientesConPago as Cliente[])
     // Set de clientes con al menos un diagnóstico (incluye borradores) — necesario para validar el paso Diagnóstico → Recopilación
     // y set de clientes con diagnóstico autorizado — necesario para validar Recopilación → Trámite
-    const { data: diagRows } = await supabase.from('diagnosticos').select('cliente_id, estatus, semanas, edad_retiro').eq('asesor_id', uid)
+    const { data: diagRows, error: eDiag } = await supabase.from('diagnosticos').select('cliente_id, estatus, semanas, edad_retiro').eq('asesor_id', uid)
+    if (eDiag) avisoError('No se pudieron cargar los diagnósticos', 'El resto de la pantalla funciona. Recarga para volver a intentar.')
     setClientesConDiagnostico(new Set((diagRows ?? []).map((d: any) => d.cliente_id)))
     setClientesConDiagnosticoAutorizado(new Set((diagRows ?? []).filter((d: any) => d.estatus === 'autorizado').map((d: any) => d.cliente_id)))
     setDiagsResumen(diagRows ?? [])
@@ -430,7 +434,8 @@ function ClientesInner() {
 
   async function loadArchivados(uid: string) {
     setLoadingArchivados(true)
-    const { data } = await supabase.from('clientes').select('*').eq('asesor_id', uid).eq('activo', false).order('ultimo_contacto', { ascending: false })
+    const { data, error: eArch } = await supabase.from('clientes').select('*').eq('asesor_id', uid).eq('activo', false).order('ultimo_contacto', { ascending: false })
+    if (eArch) avisoError('No se pudieron cargar los clientes archivados', 'El resto de la pantalla funciona. Recarga para volver a intentar.')
     setClientesArchivados((data ?? []) as Cliente[])
     setLoadingArchivados(false)
   }
@@ -608,7 +613,10 @@ function ClientesInner() {
           etapa,
           monto_esperado: parseFloat(v.monto),
         }))
-      if (filas.length > 0) await supabase.from('cobros_esperados').insert(filas)
+      if (filas.length > 0) {
+        const { error: eCobros } = await supabase.from('cobros_esperados').insert(filas)
+        if (eCobros) avisoError('El cliente se creó, pero no su calendario de cobros', 'Genera el plan de pagos desde el detalle del cliente.')
+      }
     }
 
     await loadClientes(uid)
@@ -863,7 +871,8 @@ function ClientesInner() {
     const { error } = await supabase.storage.from('comprobantes').upload(path, file, { upsert: true })
     if (!error) {
       const { data } = supabase.storage.from('comprobantes').getPublicUrl(path)
-      await supabase.from('pagos').update({ comprobante_url: data.publicUrl }).eq('id', pagoId)
+      const { error: eComp } = await supabase.from('pagos').update({ comprobante_url: data.publicUrl }).eq('id', pagoId)
+      if (eComp) { avisoError('El comprobante se subió pero no quedó vinculado al pago', 'Vuelve a subirlo desde el detalle del pago.'); return }
       setPagos(prev => prev.map(p => p.id === pagoId ? { ...p, comprobante_url: data.publicUrl } : p))
     }
     setUploadingComp(null)

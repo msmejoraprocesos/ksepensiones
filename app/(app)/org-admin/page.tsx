@@ -49,14 +49,28 @@ function PanelCanalizaciones({ supabase, userId, asesores }: { supabase: any; us
 
   async function resolver(id: string, accion: 'aprobada' | 'rechazada', clienteId: string, destinoId: string) {
     setProcesando(id)
-    await supabase.from('solicitudes_canalizacion').update({
+    const { error: eSol } = await supabase.from('solicitudes_canalizacion').update({
       estatus: accion,
       notas: notaRechazo[id] ?? null,
       updated_at: new Date().toISOString()
     }).eq('id', id)
+    if (eSol) {
+      avisoError('No se pudo resolver la solicitud', eSol.message)
+      setProcesando(null)
+      return
+    }
 
     if (accion === 'aprobada') {
-      await supabase.from('clientes').update({ asesor_id: destinoId }).eq('id', clienteId)
+      /* La solicitud ya quedó aprobada arriba. Si el traspaso falla, el
+         cliente sigue con su asesor original mientras la solicitud dice que
+         se aprobó: dos datos en desacuerdo que nadie va a notar. */
+      const { error: eTras } = await supabase.from('clientes').update({ asesor_id: destinoId }).eq('id', clienteId)
+      if (eTras) {
+        await supabase.from('solicitudes_canalizacion').update({ estatus: 'pendiente' }).eq('id', id)
+        avisoError('No se pudo traspasar el cliente', 'La solicitud vuelve a quedar pendiente para que puedas intentarlo de nuevo.')
+        setProcesando(null)
+        return
+      }
     }
 
     await cargar()
@@ -296,23 +310,43 @@ export default function OrgAdminPage() {
     if (clientesAsesor.length > 0) {
       if (modoReasig === 'auto') {
         // Distribuir equitativamente entre asesores activos
+        /* Si una reasignación falla a media lista, parte de la cartera queda
+           con el asesor que se está desactivando y esos clientes se vuelven
+           inalcanzables. Se detiene al primer fallo en lugar de seguir. */
         for (let i = 0; i < clientesAsesor.length; i++) {
           const destino = activosRestantes[i % activosRestantes.length]
-          await supabase.from('clientes').update({ asesor_id: destino.id }).eq('id', clientesAsesor[i].id)
+          const { error } = await supabase.from('clientes').update({ asesor_id: destino.id }).eq('id', clientesAsesor[i].id)
+          if (error) {
+            avisoError('La reasignación se detuvo', `Se reasignaron ${i} de ${clientesAsesor.length} clientes. El asesor sigue activo; revisa y vuelve a intentar.`)
+            setInactivando(false)
+            return
+          }
         }
       } else {
         // Reasignación manual
         const sinAsignar = clientesAsesor.filter(c => !reasignaciones[c.id])
         if (sinAsignar.length > 0) { avisoError(`Faltan ${sinAsignar.length} clientes por asignar`, 'Antes de desactivar al asesor hay que reasignar su cartera a otro miembro del equipo.'); return }
+        let hechas = 0
         for (const [clienteId, asesorId] of Object.entries(reasignaciones)) {
-          await supabase.from('clientes').update({ asesor_id: asesorId }).eq('id', clienteId)
+          const { error } = await supabase.from('clientes').update({ asesor_id: asesorId }).eq('id', clienteId)
+          if (error) {
+            avisoError('La reasignación se detuvo', `Se reasignaron ${hechas} clientes. El asesor sigue activo; revisa y vuelve a intentar.`)
+            setInactivando(false)
+            return
+          }
+          hechas++
         }
       }
     }
 
     // Inactivar asesor
     setInactivando(true)
-    await supabase.from('perfiles_usuario').update({ activo: false }).eq('id', asesorInactivar.id)
+    const { error: eInac } = await supabase.from('perfiles_usuario').update({ activo: false }).eq('id', asesorInactivar.id)
+    if (eInac) {
+      avisoError('No se pudo desactivar al asesor', eInac.message)
+      setInactivando(false)
+      return
+    }
     setShowInactivar(false)
     setAsesorInactivar(null)
     setTab('equipo')
@@ -321,8 +355,9 @@ export default function OrgAdminPage() {
   }
 
   async function reactivarAsesor(asesorId: string) {
-    if (!confirm('¿Reactivar este asesor?')) return
-    await supabase.from('perfiles_usuario').update({ activo: true }).eq('id', asesorId)
+    if (!window.confirm('¿Reactivar este asesor? Volverá a ocupar un asiento del plan contratado.')) return
+    const { error: eReac } = await supabase.from('perfiles_usuario').update({ activo: true }).eq('id', asesorId)
+    if (eReac) { avisoError('No se pudo reactivar al asesor', eReac.message); return }
     await loadAll(org.id)
   }
 

@@ -6,6 +6,7 @@ import * as XLSX from 'xlsx'
 import { useTablaOrdenada } from '@/app/hooks/useTablaOrdenada'
 import ThOrdenable from '@/components/tabla/ThOrdenable'
 import Paginador from '@/components/tabla/Paginador'
+import { avisoError } from '@/app/utils/avisos'
 
 const AZUL = '#1B3A6B', NARANJA = '#F05B21'
 const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n || 0)
@@ -52,7 +53,7 @@ export default function ReportesPage() {
 
     try {
       if (tipoReporte === 'actividad') {
-        const { data } = await supabase.from('actividades')
+        const { data, error } = await supabase.from('actividades')
           .select('*, clientes(nombre)')
           .eq('asesor_id', userId)
           .gte('created_at', fechaInicio)
@@ -61,14 +62,14 @@ export default function ReportesPage() {
         setDatos(data ?? [])
 
       } else if (tipoReporte === 'cartera') {
-        const { data } = await supabase.from('clientes')
+        const { data, error } = await supabase.from('clientes')
           .select('*')
           .eq('asesor_id', userId)
           .order('created_at', { ascending: false })
         setDatos(data ?? [])
 
       } else if (tipoReporte === 'financiamientos') {
-        const { data } = await supabase.from('financiamientos')
+        const { data, error } = await supabase.from('financiamientos')
           .select('*, clientes(nombre), instituciones_financieras(nombre)')
           .eq('asesor_id', userId)
           .gte('created_at', fechaInicio)
@@ -77,7 +78,7 @@ export default function ReportesPage() {
         setDatos(data ?? [])
 
       } else if (tipoReporte === 'diagnosticos') {
-        const { data } = await supabase.from('diagnosticos')
+        const { data, error } = await supabase.from('diagnosticos')
           .select('*, clientes(nombre)')
           .eq('asesor_id', userId)
           .gte('created_at', fechaInicio)

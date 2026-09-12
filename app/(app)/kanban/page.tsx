@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/utils/supabase/client'
+import { avisoError } from '@/app/utils/avisos'
 
 const AZUL = '#245287'
 const VERDE = '#2E8B57'
@@ -75,13 +76,15 @@ export default function KanbanPage() {
   }
 
   async function moverCliente(clienteId: string, nuevaEtapa: string) {
-    await supabase.from('clientes').update({ etapa_kanban: nuevaEtapa, ultimo_contacto: new Date().toISOString() }).eq('id', clienteId)
+    const { error: eMov } = await supabase.from('clientes').update({ etapa_kanban: nuevaEtapa, ultimo_contacto: new Date().toISOString() }).eq('id', clienteId)
+    if (eMov) { avisoError('No se pudo mover el cliente', 'La tarjeta vuelve a su columna.'); return }
     setClientes(prev => prev.map(c => c.id === clienteId ? { ...c, etapa_kanban: nuevaEtapa, ultimo_contacto: new Date().toISOString() } : c))
     setModal(null)
   }
 
   async function actualizarCliente(clienteId: string, campos: Partial<Cliente>) {
-    await supabase.from('clientes').update(campos).eq('id', clienteId)
+    const { error: eUpd } = await supabase.from('clientes').update(campos).eq('id', clienteId)
+    if (eUpd) { avisoError('No se pudieron guardar los cambios', eUpd.message); return }
     setClientes(prev => prev.map(c => c.id === clienteId ? { ...c, ...campos } : c))
     setModal(null)
   }
