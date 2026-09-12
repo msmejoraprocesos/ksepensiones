@@ -277,7 +277,7 @@ export default function SeguimientoPage() {
                   const leftPct = col * widthPct + 2
                   return (
                     <div key={a.id} onClick={e => { e.stopPropagation(); setDetalle(a) }}
-                      style={{ position: 'absolute', top, left: `${leftPct}%`, width: `${widthPct}%`, height: '36px', borderRadius: '6px', padding: '3px 6px', background: cfg.bg, border: `1px solid ${cfg.border}`, cursor: 'pointer', zIndex: 10 + col, opacity: a.estatus === 'completado' ? 0.6 : 1, boxSizing: 'border-box', overflow: 'hidden' }}>
+                      style={{ position: 'absolute', top, left: `${leftPct}%`, width: `${widthPct}%`, height: '36px', borderRadius: '10px', padding: '3px 6px', background: cfg.bg, border: `1px solid ${cfg.border}`, cursor: 'pointer', zIndex: 10 + col, opacity: a.estatus === 'completado' ? 0.6 : 1, boxSizing: 'border-box', overflow: 'hidden' }}>
                       <div style={{ fontSize: '13px', fontWeight: '700', color: cfg.color, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: a.estatus === 'completado' ? 'line-through' : 'none' }}>
                         {TIPO_ICONS[a.tipo]} {d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })} {a.titulo}
                       </div>
@@ -304,17 +304,17 @@ export default function SeguimientoPage() {
       {/* Header */}
       <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '10px 20px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
         {/* Nav */}
-        <button onClick={() => navegar(-1)} style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>‹</button>
-        <button onClick={() => setFecha(new Date())} style={{ padding: '4px 12px', borderRadius: '6px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', fontSize: '15px', fontWeight: '600', color: '#374151' }}>Hoy</button>
+        <button onClick={() => navegar(-1)} style={{ width: '28px', height: '28px', borderRadius: '10px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>‹</button>
+        <button onClick={() => setFecha(new Date())} style={{ padding: '4px 12px', borderRadius: '10px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', fontSize: '15px', fontWeight: '600', color: '#374151' }}>Hoy</button>
         <button onClick={() => { setFechaBuscar(fecha.toISOString().split('T')[0]); setShowBuscarFecha(true) }}
           title="Buscar fecha"
-          style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>📅</button>
-        <button onClick={() => navegar(1)} style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>›</button>
+          style={{ width: '28px', height: '28px', borderRadius: '10px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>📅</button>
+        <button onClick={() => navegar(1)} style={{ width: '28px', height: '28px', borderRadius: '10px', border: '1px solid #e2e8f0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>›</button>
 
         <h2 style={{ fontSize: '15px', fontWeight: '700', color: AZUL, margin: 0, flex: 1, textTransform: 'capitalize' }}>{titulo()}</h2>
 
         {/* Vista toggles */}
-        <div style={{ display: 'flex', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
           {(['mes', 'semana', 'dia'] as const).map(v => (
             <button key={v} onClick={() => setVista(v)}
               style={{ padding: '6px 12px', background: vista === v ? AZUL : 'white', color: vista === v ? 'white' : '#64748b', border: 'none', cursor: 'pointer', fontSize: '15px', fontWeight: '600', textTransform: 'capitalize' }}>
@@ -324,13 +324,13 @@ export default function SeguimientoPage() {
         </div>
 
         <button onClick={() => openModal(fecha.toISOString().split('T')[0])}
-          style={{ background: NARANJA, border: 'none', color: 'white', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+          style={{ background: NARANJA, border: 'none', color: 'white', borderRadius: '10px', padding: '8px 16px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
           + Nueva actividad
         </button>
       </div>
 
       {mensaje && (
-        <div style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)', background: AZUL, color: 'white', padding: '12px 24px', borderRadius: '12px', fontSize: '13px', fontWeight: '600', zIndex: 700, boxShadow: '0 8px 24px rgba(0,0,0,0.25)' }}>
+        <div style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)', background: AZUL, color: 'white', padding: '12px 24px', borderRadius: '14px', fontSize: '13px', fontWeight: '600', zIndex: 700, boxShadow: '0 8px 24px rgba(0,0,0,0.25)' }}>
           {mensaje}
         </div>
       )}
@@ -345,13 +345,13 @@ export default function SeguimientoPage() {
       {showBuscarFecha && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => { if (e.target === e.currentTarget) setShowBuscarFecha(false) }}>
-          <div style={{ background: 'white', borderRadius: '12px', padding: '24px', width: '320px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '320px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
             <h3 style={{ color: AZUL, fontSize: '16px', fontWeight: '700', margin: '0 0 16px' }}>📅 Buscar fecha</h3>
             <input type="date" value={fechaBuscar} onChange={e => setFechaBuscar(e.target.value)} autoFocus
-              style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box', marginBottom: '18px' }} />
+              style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', outline: 'none', boxSizing: 'border-box', marginBottom: '18px' }} />
             <div style={{ display: 'flex', gap: '10px' }}>
               <button onClick={() => setShowBuscarFecha(false)}
-                style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '10px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
                 Cancelar
               </button>
               <button disabled={!fechaBuscar} onClick={() => {
@@ -359,7 +359,7 @@ export default function SeguimientoPage() {
                 setFecha(new Date(fechaBuscar + 'T12:00:00'))
                 setShowBuscarFecha(false)
               }}
-                style={{ flex: 1, padding: '10px', background: fechaBuscar ? AZUL : '#cbd5e1', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: fechaBuscar ? 'pointer' : 'not-allowed' }}>
+                style={{ flex: 1, padding: '10px', background: fechaBuscar ? AZUL : '#cbd5e1', color: 'white', border: 'none', borderRadius: '10px', fontSize: '13px', fontWeight: '700', cursor: fechaBuscar ? 'pointer' : 'not-allowed' }}>
                 Ir a la fecha
               </button>
             </div>
@@ -371,37 +371,37 @@ export default function SeguimientoPage() {
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => { if (e.target === e.currentTarget) setShowModal(false) }}>
-          <div style={{ background: 'white', borderRadius: '12px', padding: '24px', width: '440px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '440px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
             <h3 style={{ color: AZUL, fontSize: '16px', fontWeight: '700', margin: '0 0 18px' }}>Nueva actividad</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Título *</label>
                 <input value={form.titulo} onChange={e => setForm(p => ({ ...p, titulo: e.target.value }))} placeholder="Ej. Llamada de seguimiento"
-                  style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
+                  style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Tipo</label>
                   <select value={form.tipo} onChange={e => setForm(p => ({ ...p, tipo: e.target.value }))}
-                    style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', background: 'white' }}>
+                    style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', background: 'white' }}>
                     {Object.entries(TIPO_CONFIG).map(([k, v]) => <option key={k} value={k}>{TIPO_ICONS[k]} {v.label}</option>)}
                   </select>
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Hora</label>
                   <input type="time" value={horaSel} onChange={e => setHoraSel(e.target.value)}
-                    style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
+                    style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
                 </div>
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Fecha</label>
                 <input type="date" value={fechaSel} onChange={e => setFechaSel(e.target.value)}
-                  style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
+                  style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
               </div>
               <div>
                 <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Cliente</label>
                 <select value={form.cliente_id} onChange={e => setForm(p => ({ ...p, cliente_id: e.target.value }))}
-                  style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', background: 'white' }}>
+                  style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', background: 'white' }}>
                   <option value="">— Sin cliente —</option>
                   {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
                 </select>
@@ -409,16 +409,16 @@ export default function SeguimientoPage() {
               <div>
                 <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Notas</label>
                 <textarea value={form.notas} onChange={e => setForm(p => ({ ...p, notas: e.target.value }))} rows={2}
-                  style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box', resize: 'none', outline: 'none' }} />
+                  style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box', resize: 'none', outline: 'none' }} />
               </div>
             </div>
             <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
               <button onClick={() => setShowModal(false)}
-                style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
                 Cancelar
               </button>
               <button onClick={guardar} disabled={guardando || !form.titulo.trim()}
-                style={{ flex: 2, padding: '10px', background: guardando || !form.titulo.trim() ? '#94a3b8' : NARANJA, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: guardando ? 'not-allowed' : 'pointer' }}>
+                style={{ flex: 2, padding: '10px', background: guardando || !form.titulo.trim() ? '#94a3b8' : NARANJA, color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '700', cursor: guardando ? 'not-allowed' : 'pointer' }}>
                 {guardando ? 'Guardando...' : 'Crear actividad'}
               </button>
             </div>
@@ -430,13 +430,13 @@ export default function SeguimientoPage() {
       {detalle && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => { if (e.target === e.currentTarget) setDetalle(null) }}>
-          <div style={{ background: 'white', borderRadius: '12px', padding: '24px', width: '380px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '380px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
             {(() => {
               const cfg = TIPO_CONFIG[detalle.tipo] ?? TIPO_CONFIG.nota
               return (
                 <>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                    <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: cfg.bg, border: `1px solid ${cfg.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>
+                    <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: cfg.bg, border: `1px solid ${cfg.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>
                       {TIPO_ICONS[detalle.tipo]}
                     </div>
                     <div style={{ flex: 1 }}>
@@ -453,7 +453,7 @@ export default function SeguimientoPage() {
                     )}
                     {detalle.clientes?.nombre && <div style={{ fontSize: '13px', color: '#64748b' }}>👤 {detalle.clientes.nombre}</div>}
                     {detalle.notas && <div style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic' }}>📝 {detalle.notas}</div>}
-                    <div style={{ fontSize: '15px', padding: '4px 10px', borderRadius: '12px', background: detalle.estatus === 'completado' ? '#f0fdf4' : '#FEF4EC', color: detalle.estatus === 'completado' ? VERDE : NARANJA, fontWeight: '600', display: 'inline-block' }}>
+                    <div style={{ fontSize: '15px', padding: '4px 10px', borderRadius: '14px', background: detalle.estatus === 'completado' ? '#f0fdf4' : '#FEF4EC', color: detalle.estatus === 'completado' ? VERDE : NARANJA, fontWeight: '600', display: 'inline-block' }}>
                       {detalle.estatus === 'completado' ? '✓ Completado' : '⏳ Pendiente'}
                     </div>
                   </div>
@@ -467,7 +467,7 @@ export default function SeguimientoPage() {
                       onChange={e => setComentarioDetalle(e.target.value)}
                       rows={3}
                       placeholder="Agrega notas, acuerdos o resultados de esta actividad..."
-                      style={{ display: 'block', width: '100%', padding: '8px 10px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '15px', resize: 'none', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' as const }}
+                      style={{ display: 'block', width: '100%', padding: '8px 10px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '15px', resize: 'none', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' as const }}
                     />
                     {comentarioDetalle !== (detalle.comentario ?? '') && (
                       <button onClick={async () => {
@@ -477,14 +477,14 @@ export default function SeguimientoPage() {
                         setDetalle(d => d ? { ...d, comentario: comentarioDetalle } : d)
                         setSavingComentario(false)
                       }} disabled={savingComentario}
-                        style={{ marginTop: '5px', padding: '5px 14px', background: AZUL, color: 'white', border: 'none', borderRadius: '6px', fontSize: '15px', fontWeight: '600', cursor: 'pointer' }}>
+                        style={{ marginTop: '5px', padding: '5px 14px', background: AZUL, color: 'white', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: '600', cursor: 'pointer' }}>
                         {savingComentario ? 'Guardando...' : '💾 Guardar comentario'}
                       </button>
                     )}
                   </div>
 
                   {/* Estatus badge */}
-                  <div style={{ padding: '7px 12px', background: detalle.estatus === 'completado' ? '#f0fdf4' : '#F4F6F9', borderRadius: '8px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ padding: '7px 12px', background: detalle.estatus === 'completado' ? '#f0fdf4' : '#F4F6F9', borderRadius: '10px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{ fontSize: '16px' }}>{detalle.estatus === 'completado' ? '✅' : '⏳'}</span>
                     <span style={{ fontSize: '13px', fontWeight: '600', color: detalle.estatus === 'completado' ? VERDE : '#64748b' }}>
                       {detalle.estatus === 'completado' ? 'Completado' : 'Pendiente'}
@@ -493,15 +493,15 @@ export default function SeguimientoPage() {
 
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button onClick={() => completar(detalle)}
-                      style={{ flex: 1, padding: '9px', background: detalle.estatus === 'pendiente' ? VERDE : '#F1F5F9', color: detalle.estatus === 'pendiente' ? 'white' : '#64748b', border: detalle.estatus !== 'pendiente' ? '1px solid #e2e8f0' : 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                      style={{ flex: 1, padding: '9px', background: detalle.estatus === 'pendiente' ? VERDE : '#F1F5F9', color: detalle.estatus === 'pendiente' ? 'white' : '#64748b', border: detalle.estatus !== 'pendiente' ? '1px solid #e2e8f0' : 'none', borderRadius: '10px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
                       {detalle.estatus === 'pendiente' ? '✅ Completar' : '🔄 Reabrir'}
                     </button>
                     <button onClick={() => { setDetalle(null) }}
-                      style={{ flex: 1, padding: '9px', background: '#F4F6F9', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                      style={{ flex: 1, padding: '9px', background: '#F4F6F9', color: '#64748b', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
                       ✕ Cerrar
                     </button>
                     <button onClick={() => eliminar(detalle.id)}
-                      style={{ flex: 1, padding: '9px', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                      style={{ flex: 1, padding: '9px', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '10px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
                       🗑️ Eliminar
                     </button>
                   </div>

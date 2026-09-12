@@ -217,12 +217,12 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
 
       {/* Header */}
       <div style={{ marginBottom: '20px' }}>
-        <h1 style={{ fontSize: '18px', fontWeight: '800', color: AZUL, margin: '0 0 4px' }}>📋 Reportes</h1>
+        <h1 style={{ fontSize: '26px', fontWeight: 700, color: AZUL, margin: '0 0 4px' }}>📋 Reportes</h1>
         <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>Exporta tu información en Excel o PDF</p>
       </div>
 
       {/* Controles */}
-      <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '8px', padding: '16px 20px', marginBottom: '16px' }}>
+      <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', padding: '16px 20px', marginBottom: '16px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr auto auto', gap: '12px', alignItems: 'flex-end' }}>
 
           <div>
@@ -230,7 +230,7 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const }}>
               {REPORTES.map(r => (
                 <button key={r.id} onClick={() => { setTipoReporte(r.id as Reporte); setDatos([]) }}
-                  style={{ padding: '6px 12px', background: tipoReporte === r.id ? AZUL : 'white', color: tipoReporte === r.id ? 'white' : '#374151', border: `1px solid ${tipoReporte === r.id ? AZUL : '#E5E7EB'}`, fontSize: '12px', fontWeight: tipoReporte === r.id ? '700' : '400', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                  style={{ padding: '6px 12px', background: tipoReporte === r.id ? AZUL : 'white', color: tipoReporte === r.id ? 'white' : '#374151', border: `1px solid ${tipoReporte === r.id ? AZUL : '#E5E7EB'}`, fontSize: '12px', fontWeight: tipoReporte === r.id ? '700' : '400', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                   {r.label}
                 </button>
               ))}
@@ -242,19 +242,19 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
               <div>
                 <label style={{ fontSize: '10.5px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>Desde</label>
                 <input type="date" value={fechaInicio} onChange={e => setFechaInicio(e.target.value)}
-                  style={{ width: '100%', padding: '7px 10px', border: '1px solid #D1D5DB', fontSize: '13px', borderRadius: '6px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
+                  style={{ width: '100%', padding: '7px 10px', border: '1px solid #D1D5DB', fontSize: '13px', borderRadius: '10px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
               </div>
               <div>
                 <label style={{ fontSize: '10.5px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const }}>Hasta</label>
                 <input type="date" value={fechaFin} onChange={e => setFechaFin(e.target.value)}
-                  style={{ width: '100%', padding: '7px 10px', border: '1px solid #D1D5DB', fontSize: '13px', borderRadius: '6px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
+                  style={{ width: '100%', padding: '7px 10px', border: '1px solid #D1D5DB', fontSize: '13px', borderRadius: '10px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
               </div>
             </>
           )}
 
           <div style={{ gridColumn: tipoReporte === 'cartera' ? '2 / -1' : 'auto', display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
             <button onClick={cargarDatos} disabled={cargando || !userId}
-              style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', opacity: cargando ? 0.7 : 1, whiteSpace: 'nowrap' as const }}>
+              style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', opacity: cargando ? 0.7 : 1, whiteSpace: 'nowrap' as const }}>
               {cargando ? 'Cargando...' : '🔍 Generar'}
             </button>
           </div>
@@ -265,24 +265,24 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
       {datos.length > 0 && (
         <>
           {/* Barra de exportación */}
-          <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '8px', padding: '12px 16px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', padding: '12px 16px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <p style={{ fontSize: '13px', color: '#374151', margin: 0, fontWeight: '600' }}>
               {datos.length} registro{datos.length !== 1 ? 's' : ''} encontrado{datos.length !== 1 ? 's' : ''}
             </p>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button onClick={exportarExcel} disabled={generando === 'excel'}
-                style={{ padding: '7px 14px', background: '#16A34A', color: 'white', border: 'none', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', opacity: generando === 'excel' ? 0.7 : 1 }}>
+                style={{ padding: '7px 14px', background: '#16A34A', color: 'white', border: 'none', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', opacity: generando === 'excel' ? 0.7 : 1 }}>
                 {generando === 'excel' ? 'Generando...' : '📊 Exportar Excel'}
               </button>
               <button onClick={exportarPDF} disabled={generando === 'pdf'}
-                style={{ padding: '7px 14px', background: NARANJA, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', opacity: generando === 'pdf' ? 0.7 : 1 }}>
+                style={{ padding: '7px 14px', background: NARANJA, color: 'white', border: 'none', fontSize: '12px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', opacity: generando === 'pdf' ? 0.7 : 1 }}>
                 {generando === 'pdf' ? 'Generando...' : '📄 Exportar PDF'}
               </button>
             </div>
           </div>
 
           {/* Tabla de preview */}
-          <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '8px', overflow: 'hidden' }}>
+          <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', overflow: 'hidden' }}>
             <div style={{ overflowX: 'auto' as const }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '12px' }}>
                 <thead>
@@ -331,7 +331,7 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
       )}
 
       {datos.length === 0 && !cargando && (
-        <div style={{ background: 'white', border: '1px dashed #D1D5DB', borderRadius: '8px', padding: '48px', textAlign: 'center' as const, color: '#9CA3AF' }}>
+        <div style={{ background: 'white', border: '1px dashed #D1D5DB', borderRadius: '10px', padding: '48px', textAlign: 'center' as const, color: '#9CA3AF' }}>
           <p style={{ fontSize: '32px', margin: '0 0 8px' }}>📋</p>
           <p style={{ fontSize: '13px', margin: 0 }}>Selecciona un tipo de reporte y haz clic en "Generar"</p>
         </div>

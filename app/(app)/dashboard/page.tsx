@@ -362,17 +362,14 @@ function MiDiaInner() {
   )
 
   const kpi = (label: string, value: string, sub?: string, color = '#374151', filled = false, delta?: number | null, minH = 'auto') => {
-    const tintMap: Record<string, string> = {
-      '#245287': '#EEF2F8', '#1D4ED8': '#EFF6FF', '#0891B2': '#ECFEFF',
-      '#F59E0B': '#FFFBEB', '#16A34A': '#F0FDF4', '#DC2626': '#FEF2F2',
-      [VERDE]: '#F0FDF4', [NARANJA]: '#FFF7ED', '#7C3AED': '#F5F3FF',
-    }
-    const tint = tintMap[color] ?? '#F5F7FA'
+    /* El sistema de diseño no tiñe el fondo de cada tarjeta según su color:
+       nueve tintes distintos en una fila compiten entre sí y ninguno destaca.
+       El color vive en la cifra, el fondo se queda neutro. */
     return (
-      <div style={{ background: filled ? color : tint, border: '1px solid #E1E7F0', padding: '8px 10px', textAlign: 'center' as const, borderRadius: '6px', display: 'flex', flexDirection: 'column' as const, justifyContent: 'center', minHeight: minH }}>
-        <div style={{ fontSize: '13px', color: filled ? 'rgba(255,255,255,0.8)' : '#6B7280', fontWeight: '600' as const, marginBottom: '3px', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
-        <div style={{ fontSize: '18px', fontWeight: '800' as const, color: filled ? 'white' : color, letterSpacing: '-0.3px' }}>{value}</div>
-        {sub && <div style={{ fontSize: '13px', color: filled ? 'rgba(255,255,255,0.75)' : '#6B7280', marginTop: '2px' }}>{sub}</div>}
+      <div style={{ background: filled ? color : '#FFFFFF', border: '1px solid #E1E7F0', padding: '14px 12px', textAlign: 'center' as const, borderRadius: '12px', boxShadow: filled ? 'none' : '0 1px 3px rgba(19,33,53,0.06)', display: 'flex', flexDirection: 'column' as const, justifyContent: 'center', minHeight: minH }}>
+        <div style={{ fontSize: '13px', color: filled ? 'rgba(255,255,255,0.72)' : '#66738A', fontWeight: 500, marginBottom: '5px', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
+        <div style={{ fontSize: '24px', fontWeight: 700, color: filled ? 'white' : color, letterSpacing: '-0.025em', fontVariantNumeric: 'tabular-nums' as const }}>{value}</div>
+        {sub && <div style={{ fontSize: '13px', color: filled ? 'rgba(255,255,255,0.7)' : '#66738A', marginTop: '3px' }}>{sub}</div>}
         {delta !== undefined && delta !== null && (
           <div style={{ fontSize: '13px', fontWeight: '700' as const, color: filled ? 'white' : (delta >= 0 ? VERDE : '#DC2626'), marginTop: '2px' }}>
             {delta >= 0 ? '▲' : '▼'} {Math.abs(delta).toFixed(0)}% vs anterior
@@ -450,7 +447,7 @@ function MiDiaInner() {
       )}
       <style>{`
         .db-outer { display: grid; grid-template-columns: 1fr 12px 190px; gap: 12px; align-items: stretch; }
-        .db-kpis  { display: grid; grid-template-columns: repeat(9, 1fr); gap: 8px; }
+        .db-kpis  { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
         .db-charts{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; align-items: stretch; }
         .db-bottom{ display: grid; grid-template-columns: 1fr 12px 320px; gap: 12px; align-items: start; }
         @media (max-width: 1100px) {
@@ -466,9 +463,9 @@ function MiDiaInner() {
         }
       `}</style>
       {/* Header */}
-      <div style={{ background: '#FFFFFF', borderBottom: '2px solid #E5E7EB', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: '8px' }}>
+      <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E1E7F0', padding: '18px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: '8px' }}>
         <div>
-          <h1 style={{ fontSize: '15px', fontWeight: '700', color: '#111827', margin: 0 }}>
+          <h1 style={{ fontSize: '26px', fontWeight: 700, color: '#132135', margin: 0, letterSpacing: '-0.015em' }}>
             Buenos días, <span style={{ color: NARANJA }}>{nombreAsesor}</span>
           </h1>
           <p style={{ fontSize: '15px', color: '#66738A', margin: '1px 0 0', textTransform: 'capitalize' }}>{fechaStr}</p>
@@ -539,7 +536,7 @@ function MiDiaInner() {
             )}
 
             {/* Fila 1: KPIs */}
-            <div className="db-kpis" style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '8px' }}>
+            <div className="db-kpis" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
               {[
                 { label: 'Clientes activos', value: clientesActivos.length.toString(), sub: 'en pipeline', color: AZUL },
                 { label: 'Prospectos', value: prospectos.length.toString(), sub: `+${clientesNuevosPeriodo} en el periodo`, color: AZUL, filled: true, delta: deltaClientesNuevos },
@@ -838,7 +835,7 @@ function MiDiaInner() {
             </div>{/* fin Fila 2 */}
 
             {/* Fila 3: KPIs */}
-            <div className="db-kpis" style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '8px' }}>
+            <div className="db-kpis" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
               {[
                 { label: '$ Servicio promedio', value: fmtMXN(ticketPromedio), color: AZUL },
                 { label: 'Conversión General', value: fmtPct(tasaConversion), color: VERDE },

@@ -271,35 +271,35 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const, alignItems: 'center' }}>
         {financieras.map((f: any) => (
           <button key={f.id} onClick={() => seleccionarFin(f)}
-            style={{ padding: '8px 16px', background: finActiva === f.id && !showNueva ? AZUL : 'white', color: finActiva === f.id && !showNueva ? 'white' : '#374151', border: `1.5px solid ${finActiva === f.id && !showNueva ? AZUL : '#E1E7F0'}`, fontSize: '13px', fontWeight: finActiva === f.id && !showNueva ? '700' : '500', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px', opacity: f.activa ? 1 : 0.5 }}>
+            style={{ padding: '8px 16px', background: finActiva === f.id && !showNueva ? AZUL : 'white', color: finActiva === f.id && !showNueva ? 'white' : '#374151', border: `1.5px solid ${finActiva === f.id && !showNueva ? AZUL : '#E1E7F0'}`, fontSize: '13px', fontWeight: finActiva === f.id && !showNueva ? '700' : '500', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', opacity: f.activa ? 1 : 0.5 }}>
             🏦 {f.nombre}
             {!f.activa && <span style={{ marginLeft: '6px', fontSize: '13px', color: '#66738A' }}>(inactiva)</span>}
           </button>
         ))}
         <button onClick={iniciarNueva}
-          style={{ padding: '8px 16px', background: showNueva ? NARANJA : 'white', color: showNueva ? 'white' : NARANJA, border: `1.5px dashed ${NARANJA}`, fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
+          style={{ padding: '8px 16px', background: showNueva ? NARANJA : 'white', color: showNueva ? 'white' : NARANJA, border: `1.5px dashed ${NARANJA}`, fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
           + Nueva financiera
         </button>
       </div>
 
       {/* Panel de la financiera seleccionada o nueva */}
       {(fin || showNueva) && (
-        <div style={{ background: 'white', border: `1.5px solid ${AZUL}`, borderRadius: '12px', overflow: 'hidden' }}>
+        <div style={{ background: 'white', border: `1.5px solid ${AZUL}`, borderRadius: '14px', overflow: 'hidden' }}>
 
           {/* ── Header azul con nombre destacado ── */}
           {fin && !showNueva && (
             <div style={{ background: AZUL, padding: '18px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                 <span style={{ fontSize: '32px' }}>🏦</span>
-                <p style={{ fontSize: '22px', fontWeight: '800', color: 'white', margin: 0 }}>{fin.nombre}</p>
+                <p style={{ fontSize: '22px', fontWeight: 700, color: 'white', margin: 0 }}>{fin.nombre}</p>
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button onClick={() => { setEditando(true); setErrores({}); setForm({ nombre: fin.nombre ?? '', contacto: fin.contacto_nombre ?? '', email: fin.contacto_email ?? '', telefono: fin.contacto_telefono ?? '' }) }}
-                  style={{ padding: '7px 14px', background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '7px' }}>
+                  style={{ padding: '7px 14px', background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                   ✏️ Editar
                 </button>
                 <button onClick={() => toggleActiva(fin)}
-                  style={{ padding: '7px 14px', background: fin?.activa ? 'rgba(255,255,255,0.15)' : '#F0FDF4', color: fin?.activa ? 'white' : VERDE, border: `1px solid ${fin?.activa ? 'rgba(255,255,255,0.3)' : '#86EFAC'}`, fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '7px' }}>
+                  style={{ padding: '7px 14px', background: fin?.activa ? 'rgba(255,255,255,0.15)' : '#F0FDF4', color: fin?.activa ? 'white' : VERDE, border: `1px solid ${fin?.activa ? 'rgba(255,255,255,0.3)' : '#86EFAC'}`, fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                   {fin?.activa ? '⏸ Inactivar' : '▶ Activar'}
                 </button>
               </div>
@@ -308,7 +308,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
 
           {showNueva && (
             <div style={{ background: AZUL, padding: '16px 20px' }}>
-              <p style={{ fontSize: '16px', fontWeight: '800', color: 'white', margin: '0 0 2px' }}>🏦 Nueva institución financiera</p>
+              <p style={{ fontSize: '20px', fontWeight: 700, color: 'white', margin: '0 0 2px' }}>🏦 Nueva institución financiera</p>
               <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.65)', margin: 0 }}>Llena los datos generales para comenzar</p>
             </div>
           )}
@@ -332,14 +332,14 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
                         if (f.key === 'telefono' && val && !/^\d{10}$/.test(val.replace(/\D/g, ''))) setErrores(p => ({ ...p, telefono: 'Debe ser 10 dígitos' }))
                       }}
                       placeholder={f.placeholder}
-                      style={{ width: '100%', padding: '9px 12px', border: `1.5px solid ${errores[f.key] ? '#DC2626' : '#D1D5DB'}`, fontSize: '13px', borderRadius: '7px', fontFamily: 'inherit', boxSizing: 'border-box' as const, outline: 'none' }} />
+                      style={{ width: '100%', padding: '9px 12px', border: `1.5px solid ${errores[f.key] ? '#DC2626' : '#D1D5DB'}`, fontSize: '13px', borderRadius: '10px', fontFamily: 'inherit', boxSizing: 'border-box' as const, outline: 'none' }} />
                     {errores[f.key] && <p style={{ fontSize: '15px', color: '#DC2626', margin: '3px 0 0' }}>{errores[f.key]}</p>}
                   </div>
                 ))}
                 <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '4px' }}>
                   {!showNueva && (
                     <button onClick={() => setEditando(false)}
-                      style={{ padding: '9px 18px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '7px' }}>
+                      style={{ padding: '9px 18px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                       Cancelar
                     </button>
                   )}
@@ -371,7 +371,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
                 <p style={{ fontSize: '13px', fontWeight: '700', color: AZUL, margin: 0 }}>
                   📄 Documentos requeridos
                 </p>
-                <span style={{ fontSize: '15px', color: docsLocal.length === 0 ? '#DC2626' : '#6B7280', background: docsLocal.length === 0 ? '#FEF2F2' : '#F4F6F9', padding: '3px 10px', borderRadius: '6px', fontWeight: docsLocal.length === 0 ? '700' : '400' }}>
+                <span style={{ fontSize: '15px', color: docsLocal.length === 0 ? '#DC2626' : '#6B7280', background: docsLocal.length === 0 ? '#FEF2F2' : '#F4F6F9', padding: '3px 10px', borderRadius: '10px', fontWeight: docsLocal.length === 0 ? '700' : '400' }}>
                   {docsLocal.length === 0 ? '⚠️ Selecciona al menos 1' : `${docsLocal.length} de ${docsActivos.length} seleccionados`}
                   {docsModificado && docsLocal.length > 0 && <span style={{ color: NARANJA, marginLeft: '6px' }}>● sin guardar</span>}
                 </span>
@@ -379,7 +379,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
 
               {/* Aviso si es nueva financiera y no hay docs */}
               {(docsLocal.length === 0 || errores.docs) && (
-                <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: '8px', padding: '10px 14px', marginBottom: '10px' }}>
+                <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: '10px', padding: '10px 14px', marginBottom: '10px' }}>
                   <p style={{ fontSize: '15px', color: '#C2410C', margin: 0 }}>
                     📋 {errores.docs || 'Selecciona los documentos que pide esta financiera. Se requiere al menos uno.'}
                   </p>
@@ -391,7 +391,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
                   const asignado = docsLocal.includes(doc.id)
                   return (
                     <div key={doc.id} onClick={() => toggleDocLocal(doc.id)}
-                      style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: asignado ? '#F0FDF4' : '#F5F7FA', border: `1.5px solid ${asignado ? '#86EFAC' : '#E1E7F0'}`, borderRadius: '8px', cursor: 'pointer', transition: 'all 0.15s' }}>
+                      style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', background: asignado ? '#F0FDF4' : '#F5F7FA', border: `1.5px solid ${asignado ? '#86EFAC' : '#E1E7F0'}`, borderRadius: '10px', cursor: 'pointer', transition: 'all 0.15s' }}>
                       <div style={{ width: '22px', height: '22px', borderRadius: '5px', background: asignado ? VERDE : 'white', border: `2px solid ${asignado ? VERDE : '#D1D5DB'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'white', fontSize: '13px', fontWeight: '700' }}>
                         {asignado ? '✓' : ''}
                       </div>
@@ -414,7 +414,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
                 {hayPendientes && !savedMsg && <p style={{ fontSize: '15px', color: NARANJA, margin: 0 }}>● Tienes cambios sin guardar</p>}
               </div>
               <button onClick={guardarTodo} disabled={saving || !form.nombre.trim()}
-                style={{ padding: '10px 24px', background: !form.nombre.trim() ? '#E1E7F0' : AZUL, color: !form.nombre.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: !form.nombre.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
+                style={{ padding: '10px 24px', background: !form.nombre.trim() ? '#E1E7F0' : AZUL, color: !form.nombre.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: !form.nombre.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                 {saving ? 'Guardando...' : '💾 Guardar'}
               </button>
             </div>
@@ -504,7 +504,7 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const }}>
         {CATEGORIAS.map(c => (
           <button key={c.id} onClick={() => { setCatActiva(c.id); setEditando(null); setNuevaEtiqueta(''); setNuevoIcono('') }}
-            style={{ padding: '9px 18px', background: catActiva === c.id ? AZUL : 'white', color: catActiva === c.id ? 'white' : '#374151', border: `1.5px solid ${catActiva === c.id ? AZUL : '#E1E7F0'}`, fontSize: '13px', fontWeight: catActiva === c.id ? '700' : '500', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
+            style={{ padding: '9px 18px', background: catActiva === c.id ? AZUL : 'white', color: catActiva === c.id ? 'white' : '#374151', border: `1.5px solid ${catActiva === c.id ? AZUL : '#E1E7F0'}`, fontSize: '13px', fontWeight: catActiva === c.id ? '700' : '500', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
             {c.label}
           </button>
         ))}
@@ -527,11 +527,11 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
                 <span style={{ fontSize: '20px' }}>{item.icono || '•'}</span>
                 <input autoFocus value={editValor} onChange={e => setEditValor(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') guardarEdicion(item.id); if (e.key === 'Escape') setEditando(null) }}
-                  style={{ flex: 1, padding: '8px 12px', border: `2px solid ${AZUL}`, fontSize: '14px', borderRadius: '6px', fontFamily: 'inherit', outline: 'none' }} />
+                  style={{ flex: 1, padding: '8px 12px', border: `2px solid ${AZUL}`, fontSize: '14px', borderRadius: '10px', fontFamily: 'inherit', outline: 'none' }} />
                 <button onClick={() => guardarEdicion(item.id)}
-                  style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>Guardar</button>
+                  style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>Guardar</button>
                 <button onClick={() => setEditando(null)}
-                  style={{ padding: '8px 14px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>Cancelar</button>
+                  style={{ padding: '8px 14px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>Cancelar</button>
               </div>
             ) : (
               <div style={{ padding: '12px 18px', display: 'flex', alignItems: 'center', gap: '12px', opacity: item.activo ? 1 : 0.5 }}>
@@ -545,9 +545,9 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
                 </div>
                 <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
                   <button onClick={() => { setEditando(item.id); setEditValor(item.etiqueta) }}
-                    style={{ padding: '6px 12px', background: '#F4F6F9', color: '#374151', border: '1px solid #E5E7EB', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>✏️ Editar</button>
+                    style={{ padding: '6px 12px', background: '#F4F6F9', color: '#374151', border: '1px solid #E5E7EB', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>✏️ Editar</button>
                   <button onClick={() => toggleActivo(item.id, item.activo)}
-                    style={{ padding: '6px 12px', background: item.activo ? '#FFFBEB' : '#F0FDF4', color: item.activo ? '#D97706' : VERDE, border: `1px solid ${item.activo ? '#FDE68A' : '#86EFAC'}`, fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                    style={{ padding: '6px 12px', background: item.activo ? '#FFFBEB' : '#F0FDF4', color: item.activo ? '#D97706' : VERDE, border: `1px solid ${item.activo ? '#FDE68A' : '#86EFAC'}`, fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                     {item.activo ? '⏸ Inactivar' : '▶ Activar'}
                   </button>
                 </div>
@@ -563,7 +563,7 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
           {/* Selector de emojis */}
           <div style={{ marginBottom: '10px' }}>
             <p style={{ fontSize: '15px', color: '#66738A', margin: '0 0 6px' }}>Elige un emoji:</p>
-            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '4px', background: 'white', padding: '8px', borderRadius: '8px', border: '1px solid #E5E7EB' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '4px', background: 'white', padding: '8px', borderRadius: '10px', border: '1px solid #E5E7EB' }}>
               {(catActiva === 'tipo_contacto'
                 ? ['📞','📱','💬','📧','🤝','🏠','🏢','📝','💻','📹','🎙️','📠']
                 : catActiva === 'resultado'
@@ -571,7 +571,7 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
                 : ['📅','📞','📄','✉️','🚀','⏰','📊','💼','🔔','✍️','📌','🎯']
               ).map(e => (
                 <button key={e} onClick={() => setNuevoIcono(nuevoIcono === e ? '' : e)}
-                  style={{ width: '36px', height: '36px', fontSize: '18px', background: nuevoIcono === e ? '#EEF2F8' : 'white', border: `2px solid ${nuevoIcono === e ? AZUL : '#E1E7F0'}`, borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  style={{ width: '36px', height: '36px', fontSize: '18px', background: nuevoIcono === e ? '#EEF2F8' : 'white', border: `2px solid ${nuevoIcono === e ? AZUL : '#E1E7F0'}`, borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {e}
                 </button>
               ))}
@@ -579,15 +579,15 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
           </div>
 
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <div style={{ width: '42px', height: '42px', background: '#F4F6F9', border: '1.5px solid #D1D5DB', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>
+            <div style={{ width: '42px', height: '42px', background: '#F4F6F9', border: '1.5px solid #D1D5DB', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>
               {nuevoIcono || ICONOS_DEFAULT[catActiva] || '•'}
             </div>
             <input value={nuevaEtiqueta} onChange={e => setNuevaEtiqueta(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && agregar()}
               placeholder={PLACEHOLDERS[catActiva] || 'Nombre de la opción...'}
-              style={{ flex: 1, padding: '10px 14px', border: '1.5px solid #D1D5DB', fontSize: '14px', borderRadius: '8px', fontFamily: 'inherit', outline: 'none' }} />
+              style={{ flex: 1, padding: '10px 14px', border: '1.5px solid #D1D5DB', fontSize: '14px', borderRadius: '10px', fontFamily: 'inherit', outline: 'none' }} />
             <button onClick={agregar} disabled={saving || !nuevaEtiqueta.trim()}
-              style={{ padding: '10px 20px', background: !nuevaEtiqueta.trim() ? '#E1E7F0' : NARANJA, color: !nuevaEtiqueta.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: !nuevaEtiqueta.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '8px', whiteSpace: 'nowrap' as const }}>
+              style={{ padding: '10px 20px', background: !nuevaEtiqueta.trim() ? '#E1E7F0' : NARANJA, color: !nuevaEtiqueta.trim() ? '#9CA3AF' : 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: !nuevaEtiqueta.trim() ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '10px', whiteSpace: 'nowrap' as const }}>
               {saving ? 'Guardando...' : '+ Agregar'}
             </button>
           </div>
@@ -887,7 +887,7 @@ export default function ConfiguracionPage() {
 
   const disabledSt: React.CSSProperties = {
     display: 'block', width: '100%', padding: '10px 14px',
-    border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px',
+    border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '14px',
     boxSizing: 'border-box' as const, fontFamily: 'inherit',
     background: '#F5F7FA', color: '#374151', cursor: 'default',
     opacity: 1,
@@ -896,7 +896,7 @@ export default function ConfiguracionPage() {
   const inputSt = (hasError?: boolean): React.CSSProperties => ({
     display: 'block', width: '100%', padding: '10px 14px',
     border: `1.5px solid ${hasError ? '#ef4444' : '#e2e8f0'}`,
-    borderRadius: '8px', fontSize: '14px', boxSizing: 'border-box' as const,
+    borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box' as const,
     outline: 'none', fontFamily: 'inherit', background: 'white', color: '#1e293b',
   })
 
@@ -930,7 +930,7 @@ export default function ConfiguracionPage() {
 
         {cargando ? (
           <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
-            <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #E5E7EB', padding: '16px 20px', height: '76px', opacity: 0.5 }} />
+            <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E5E7EB', padding: '16px 20px', height: '76px', opacity: 0.5 }} />
             <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E5E7EB', padding: '24px', height: '300px', opacity: 0.3 }} />
           </div>
         ) : (<>
@@ -946,18 +946,18 @@ export default function ConfiguracionPage() {
               </p>
             </div>
             <button onClick={() => setIsFirstTime(false)}
-              style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', borderRadius: '8px', padding: '6px 12px', cursor: 'pointer', fontSize: '15px' }}>
+              style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', borderRadius: '10px', padding: '6px 12px', cursor: 'pointer', fontSize: '15px' }}>
               Después
             </button>
           </div>
         )}
 
         {/* ── Header con tabs y botones de acción ── */}
-        <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #E5E7EB', overflow: 'hidden' }}>
+        <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E5E7EB', overflow: 'hidden' }}>
           {/* Título + botones */}
           <div style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #F3F4F6' }}>
             <div>
-              <h1 style={{ fontSize: '18px', fontWeight: '800', color: AZUL, margin: 0 }}>Configuración</h1>
+              <h1 style={{ fontSize: '26px', fontWeight: 700, color: AZUL, margin: 0 }}>Configuración</h1>
               <p style={{ fontSize: '15px', color: '#94a3b8', margin: '2px 0 0' }}>
                 {tabActiva === 'perfil' && 'Identidad del asesor · Seguridad'}
                 {tabActiva === 'sistema' && 'Variables del sistema · Encabezado PDF'}
@@ -971,7 +971,7 @@ export default function ConfiguracionPage() {
               {!saveError && !saved && saving && <p style={{ fontSize: '15px', color: '#66738A', margin: 0 }}>⏳ Guardando...</p>}
               {(tabActiva === 'perfil' || tabActiva === 'sistema') && (
                 <button onClick={guardar} disabled={saving}
-                  style={{ padding: '9px 20px', background: saving ? '#94a3b8' : VERDE, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+                  style={{ padding: '9px 20px', background: saving ? '#94a3b8' : VERDE, color: 'white', border: 'none', borderRadius: '10px', fontSize: '13px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
                   {saving ? 'Guardando...' : '💾 Guardar'}
                 </button>
               )}
@@ -993,7 +993,7 @@ export default function ConfiguracionPage() {
               { id: 'catalogos',  label: '📋 Catálogos',   desc: 'Tipos de actividad' },
             ] as const).map(t => (
               <button key={t.id} onClick={() => setTabActiva(t.id)}
-                style={{ flex: 1, padding: '9px 8px', background: tabActiva === t.id ? AZUL : 'transparent', color: tabActiva === t.id ? 'white' : '#6B7280', border: 'none', borderRadius: '7px', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center' as const }}>
+                style={{ flex: 1, padding: '9px 8px', background: tabActiva === t.id ? AZUL : 'transparent', color: tabActiva === t.id ? 'white' : '#6B7280', border: 'none', borderRadius: '10px', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center' as const }}>
                 <div style={{ fontSize: '13px', fontWeight: '700' }}>{t.label}</div>
                 <div style={{ fontSize: '13px', opacity: 0.75, marginTop: '1px' }}>{t.desc}</div>
               </button>
@@ -1013,7 +1013,7 @@ export default function ConfiguracionPage() {
                 Aparece en el PDF de propuesta junto a tu nombre. PNG con fondo transparente recomendado, mínimo 200×80px.
               </p>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: uploadingLogo ? '#f1f5f9' : '#EEF2F8', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: uploadingLogo ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600', color: AZUL }}>
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', background: uploadingLogo ? '#f1f5f9' : '#EEF2F8', border: '1px solid #e2e8f0', borderRadius: '10px', cursor: uploadingLogo ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: '600', color: AZUL }}>
                     {uploadingLogo ? '⏳ Subiendo...' : '📁 Subir logo'}
                     <input ref={fileRef} type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) uploadLogo(f) }} style={{ display: 'none' }} disabled={uploadingLogo} />
                   </label>
@@ -1058,7 +1058,7 @@ export default function ConfiguracionPage() {
               {(perfil as any).org_nombre && (
                 <div style={{ marginTop: '8px', padding: '6px 10px', background: '#EEF2F8', border: '1px solid #BFDBFE', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{ fontSize: '15px', color: '#66738A' }}>Organización:</span>
-                  <span style={{ fontSize: '15px', fontWeight: '700' as const, color: AZUL }}>{(perfil as any).org_nombre}</span>
+                  <span style={{ fontSize: '15px', fontWeight: 700, color: AZUL }}>{(perfil as any).org_nombre}</span>
                 </div>
               )}
             </div>
@@ -1097,7 +1097,7 @@ export default function ConfiguracionPage() {
                 <p style={{ fontSize: '15px', color: '#66738A', margin: 0 }}>Cambia tu contraseña de acceso al sistema</p>
               </div>
               <button onClick={() => { setShowCambiarPassword(!showCambiarPassword); setMsgPassword('') }}
-                style={{ padding: '8px 16px', background: showCambiarPassword ? 'white' : 'white', color: '#374151', border: '1px solid #D1D5DB', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
+                style={{ padding: '8px 16px', background: showCambiarPassword ? 'white' : 'white', color: '#374151', border: '1px solid #D1D5DB', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                 {showCambiarPassword ? '✕ Cancelar' : '🔑 Cambiar contraseña'}
               </button>
             </div>
@@ -1114,15 +1114,15 @@ export default function ConfiguracionPage() {
                   </div>
                   <input type="text" value={nuevaPassword} onChange={e => setNuevaPassword(e.target.value)}
                     placeholder="Mínimo 10 caracteres"
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '6px', fontWeight: '600' }} />
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '10px', fontWeight: '600' }} />
                 </div>
                 <div>
                   <label style={{ fontSize: '14px', fontWeight: '600', color: '#66738A', display: 'block', marginBottom: '4px' }}>Confirmar contraseña</label>
                   <input type="password" value={confirmarPassword} onChange={e => setConfirmarPassword(e.target.value)}
                     placeholder="Repite la contraseña"
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '6px' }} />
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '10px' }} />
                 </div>
-                <div style={{ background: '#F5F7FA', borderRadius: '6px', padding: '10px 12px', fontSize: '15px', color: '#66738A', lineHeight: 1.6 }}>
+                <div style={{ background: '#F5F7FA', borderRadius: '10px', padding: '10px 12px', fontSize: '15px', color: '#66738A', lineHeight: 1.6 }}>
                   <strong style={{ color: '#374151' }}>Criterios de seguridad:</strong>{' '}
                   {[
                     { label: '10+ caracteres', ok: nuevaPassword.length >= 10 },
@@ -1139,7 +1139,7 @@ export default function ConfiguracionPage() {
                   <p style={{ fontSize: '15px', color: msgPassword.startsWith('✅') ? '#065F46' : '#DC2626', margin: 0, fontWeight: '600' }}>{msgPassword}</p>
                 )}
                 <button onClick={cambiarPassword} disabled={savingPassword || !nuevaPassword}
-                  style={{ padding: '10px', background: '#245287', color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', opacity: savingPassword || !nuevaPassword ? 0.6 : 1 }}>
+                  style={{ padding: '10px', background: '#245287', color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', opacity: savingPassword || !nuevaPassword ? 0.6 : 1 }}>
                   {savingPassword ? 'Actualizando...' : 'Actualizar contraseña'}
                 </button>
               </div>
@@ -1187,7 +1187,7 @@ export default function ConfiguracionPage() {
                       <span style={{ color: '#b45309' }}>{a.desc}</span>
                       <span style={{ color: daysLeft <= 14 ? '#ef4444' : '#f59e0b', fontWeight: '700' }}>Faltan {daysLeft} días</span>
                       <a href={a.url} target="_blank" rel="noopener noreferrer"
-                        style={{ color: AZUL, fontSize: '15px', textDecoration: 'none', background: '#EEF2F8', padding: '2px 8px', borderRadius: '6px' }}>
+                        style={{ color: AZUL, fontSize: '15px', textDecoration: 'none', background: '#EEF2F8', padding: '2px 8px', borderRadius: '10px' }}>
                         Ver en {a.fuente} ↗
                       </a>
                     </div>
@@ -1263,13 +1263,13 @@ export default function ConfiguracionPage() {
               <div key={f.key} style={{ background: '#F5F7FA', borderRadius: '10px', padding: '14px', border: '1px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <label style={{ ...labelSt, marginBottom: 0, flex: 1 }}>{f.label} {tooltip(f.help)}</label>
-                  <span style={{ fontSize: '13px', fontWeight: '700', padding: '2px 6px', borderRadius: '6px', background: f.badgeColor + '15', color: f.badgeColor, whiteSpace: 'nowrap', marginLeft: '4px' }}>{f.badge}</span>
+                  <span style={{ fontSize: '13px', fontWeight: '700', padding: '2px 6px', borderRadius: '10px', background: f.badgeColor + '15', color: f.badgeColor, whiteSpace: 'nowrap', marginLeft: '4px' }}>{f.badge}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                   <input type="number" step="0.01" value={(perfil as any)[f.key]}
                     onChange={e => set(f.key as keyof Perfil, parseFloat(e.target.value) || 0)}
                     placeholder={f.placeholder}
-                    style={{ flex: 1, padding: '8px 10px', border: '1.5px solid #2c92d5', borderRadius: '7px', fontSize: '14px', fontWeight: '700', color: '#1e293b', background: 'white', outline: 'none', fontFamily: 'inherit' }} />
+                    style={{ flex: 1, padding: '8px 10px', border: '1.5px solid #2c92d5', borderRadius: '10px', fontSize: '14px', fontWeight: '700', color: '#1e293b', background: 'white', outline: 'none', fontFamily: 'inherit' }} />
                   <span style={{ fontSize: '15px', color: '#64748b', whiteSpace: 'nowrap', fontWeight: '600' }}>{f.unit}</span>
                 </div>
                 <p style={{ fontSize: '13px', color: '#64748b', margin: 0, lineHeight: 1.5 }}>{f.help}</p>
@@ -1296,7 +1296,7 @@ export default function ConfiguracionPage() {
                 const pct = i > 0 ? ((d.uma - arr[i-1].uma) / arr[i-1].uma * 100).toFixed(1) : null
                 const isCurrent = d.year === 2026
                 return (
-                  <div key={d.year} style={{ background: isCurrent ? '#245287' : 'white', borderRadius: '6px', padding: '8px 6px', textAlign: 'center', border: isCurrent ? 'none' : '1px solid #BFDBFE' }}>
+                  <div key={d.year} style={{ background: isCurrent ? '#245287' : 'white', borderRadius: '10px', padding: '8px 6px', textAlign: 'center', border: isCurrent ? 'none' : '1px solid #BFDBFE' }}>
                     <div style={{ fontSize: '13px', fontWeight: '600', color: isCurrent ? 'rgba(255,255,255,0.7)' : '#66738A', marginBottom: '2px' }}>{d.year}</div>
                     <div style={{ fontSize: '15px', fontWeight: '700', color: isCurrent ? 'white' : '#245287' }}>${d.uma}</div>
                     {pct && <div style={{ fontSize: '13px', color: isCurrent ? '#93C5FD' : '#12855C' }}>+{pct}%</div>}
@@ -1326,7 +1326,7 @@ export default function ConfiguracionPage() {
                     <input type="number" step="0.001"
                       value={(perfil as any)[`mod40_${year}`]}
                       onChange={e => set(`mod40_${year}` as keyof Perfil, parseFloat(e.target.value) || 0)}
-                      style={{ width: '100%', padding: '8px 8px', border: '1.5px solid #fed7aa', borderRadius: '7px', fontSize: '13px', fontWeight: '700', color: '#92400e', background: 'white', outline: 'none', fontFamily: 'inherit' }} />
+                      style={{ width: '100%', padding: '8px 8px', border: '1.5px solid #fed7aa', borderRadius: '10px', fontSize: '13px', fontWeight: '700', color: '#92400e', background: 'white', outline: 'none', fontFamily: 'inherit' }} />
                     <span style={{ fontSize: '15px', color: '#b45309', fontWeight: '600' }}>%</span>
                   </div>
                 </div>
@@ -1349,7 +1349,7 @@ export default function ConfiguracionPage() {
               <label style={labelSt}>Color del encabezado {tooltip('Color en formato hexadecimal (#RRGGBB). Define el color de la barra superior del PDF')}</label>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <input type="color" value={perfil.encabezado_color} onChange={e => set('encabezado_color', e.target.value)}
-                  style={{ width: '40px', height: '36px', border: '1px solid #e2e8f0', borderRadius: '6px', cursor: 'pointer', padding: '2px' }} />
+                  style={{ width: '40px', height: '36px', border: '1px solid #e2e8f0', borderRadius: '10px', cursor: 'pointer', padding: '2px' }} />
                 <input value={perfil.encabezado_color} onChange={e => set('encabezado_color', e.target.value)} placeholder="#334E7B" style={inputSt()} />
               </div>
             </div>
@@ -1405,31 +1405,31 @@ export default function ConfiguracionPage() {
           </p>
 
           {/* Leyenda de vigencia en el PDF */}
-          <div style={{ marginTop: '14px', padding: '10px 14px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px', fontSize: '15px', color: '#92400e' }}>
+          <div style={{ marginTop: '14px', padding: '10px 14px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '10px', fontSize: '15px', color: '#92400e' }}>
             📌 Cada PDF generado incluirá automáticamente la leyenda: <em>"La información presentada está sujeta a cambios en la normativa y variables del IMSS. Tiene un margen de certeza de 30 días a partir de su fecha de emisión."</em>
           </div>
         </div>
 
         {/* ── MATERIALES DE APOYO ── */}
-          <div id="materiales" style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px' }}>
+          <div id="materiales" style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
               <div>
                 <p style={{ fontSize: '14px', fontWeight: '700', color: '#1e293b', margin: '0 0 2px' }}>📚 Catálogo de materiales de apoyo</p>
                 <p style={{ fontSize: '15px', color: '#94a3b8', margin: 0 }}>Documentos y links que puedes enviar por WhatsApp al dar de alta un cliente</p>
               </div>
               <button onClick={agregarFilaMaterial}
-                style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: '600', cursor: 'pointer', flexShrink: 0 }}>
+                style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: '600', cursor: 'pointer', flexShrink: 0 }}>
                 + Agregar material
               </button>
             </div>
 
             {materialError && (
-              <div style={{ padding: '8px 12px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', fontSize: '15px', color: '#ef4444', marginBottom: '12px' }}>
+              <div style={{ padding: '8px 12px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', fontSize: '15px', color: '#ef4444', marginBottom: '12px' }}>
                 ⚠️ {materialError}
               </div>
             )}
             {materialesNuevos.length > 0 && (
-              <div style={{ padding: '8px 12px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '8px', fontSize: '15px', color: '#92400e', marginBottom: '12px' }}>
+              <div style={{ padding: '8px 12px', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: '10px', fontSize: '15px', color: '#92400e', marginBottom: '12px' }}>
                 📌 Tienes {materialesNuevos.length} material{materialesNuevos.length > 1 ? 'es' : ''} pendiente{materialesNuevos.length > 1 ? 's' : ''}. Completa los campos requeridos y sal del campo para guardar automáticamente.
               </div>
             )}
@@ -1456,7 +1456,7 @@ export default function ConfiguracionPage() {
                         <td style={{ padding: '8px 12px' }}>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             <select value={fila.tipo} onChange={e => setMaterialesNuevos(prev => prev.map(f => f.tempId === fila.tempId ? { ...f, tipo: e.target.value } : f))}
-                              style={{ padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '15px', fontFamily: 'inherit', background: 'white' }}>
+                              style={{ padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '15px', fontFamily: 'inherit', background: 'white' }}>
                               <option value="general">📄 General</option>
                               <option value="guia">📋 Guía / Manual</option>
                               <option value="video">🎥 Video</option>
@@ -1464,21 +1464,21 @@ export default function ConfiguracionPage() {
                             </select>
                             <input value={fila.nombre} onChange={e => setMaterialesNuevos(prev => prev.map(f => f.tempId === fila.tempId ? { ...f, nombre: e.target.value } : f))}
                               placeholder="Nombre del material *"
-                              style={{ padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '15px', fontFamily: 'inherit', fontWeight: '600' }} />
+                              style={{ padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '15px', fontFamily: 'inherit', fontWeight: '600' }} />
                           </div>
                         </td>
                         <td style={{ padding: '8px 12px' }}>
                           <input value={fila.descripcion} onChange={e => setMaterialesNuevos(prev => prev.map(f => f.tempId === fila.tempId ? { ...f, descripcion: e.target.value } : f))}
                             placeholder="Descripción (opcional)"
-                            style={{ width: '100%', padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '15px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
+                            style={{ width: '100%', padding: '4px 6px', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '15px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
                         </td>
                         <td style={{ padding: '8px 12px' }}>
                           {fila.archivo_url ? (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '15px', color: VERDE, background: '#f0fdf4', padding: '3px 8px', borderRadius: '6px', fontWeight: '600' }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '15px', color: VERDE, background: '#f0fdf4', padding: '3px 8px', borderRadius: '10px', fontWeight: '600' }}>
                               ✓ Adjunto
                             </span>
                           ) : (
-                            <label style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '15px', color: uploadingAdjunto ? '#94a3b8' : AZUL, background: '#EEF2F8', padding: '3px 8px', borderRadius: '6px', fontWeight: '600', cursor: uploadingAdjunto ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}>
+                            <label style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '15px', color: uploadingAdjunto ? '#94a3b8' : AZUL, background: '#EEF2F8', padding: '3px 8px', borderRadius: '10px', fontWeight: '600', cursor: uploadingAdjunto ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}>
                               {uploadingAdjunto ? '⏳...' : '📎 Adjuntar *'}
                               <input type="file" accept=".pdf,image/*,.doc,.docx" style={{ display: 'none' }} disabled={uploadingAdjunto}
                                 onChange={async e => {
@@ -1510,7 +1510,7 @@ export default function ConfiguracionPage() {
                         <td style={{ padding: '8px 12px', color: '#94a3b8', fontSize: '15px', whiteSpace: 'nowrap' }}>Sin guardar</td>
                         <td style={{ padding: '8px 12px', textAlign: 'right' }}>
                           <button onClick={() => quitarFilaMaterial(fila.tempId)}
-                            style={{ padding: '4px 10px', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '13px', cursor: 'pointer', background: '#fef2f2', color: '#ef4444' }}>
+                            style={{ padding: '4px 10px', border: '1px solid #fecaca', borderRadius: '10px', fontSize: '13px', cursor: 'pointer', background: '#fef2f2', color: '#ef4444' }}>
                             Quitar
                           </button>
                         </td>
@@ -1546,12 +1546,12 @@ export default function ConfiguracionPage() {
                               }
                             }}
                               title={(m as any).archivo_url}
-                              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '15px', color: AZUL, background: '#EEF2F8', padding: '3px 8px', borderRadius: '6px', fontWeight: '600', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '15px', color: AZUL, background: '#EEF2F8', padding: '3px 8px', borderRadius: '10px', fontWeight: '600', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
                               📎 Descargar
                             </button>
                           ) : m.url ? (
                             <a href={m.url} target="_blank" rel="noopener noreferrer"
-                              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '15px', color: AZUL, textDecoration: 'none', background: '#EEF2F8', padding: '3px 8px', borderRadius: '6px', fontWeight: '600' }}>
+                              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '15px', color: AZUL, textDecoration: 'none', background: '#EEF2F8', padding: '3px 8px', borderRadius: '10px', fontWeight: '600' }}>
                               🔗 Ver link
                             </a>
                           ) : (
@@ -1564,11 +1564,11 @@ export default function ConfiguracionPage() {
                         <td style={{ padding: '10px 12px', textAlign: 'right' }}>
                                                       <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
                               <button onClick={() => toggleMaterial(m.id, !m.activo)}
-                                style={{ padding: '4px 8px', border: '1px solid #e2e8f0', borderRadius: '6px', fontSize: '13px', cursor: 'pointer', background: 'white', color: '#64748b', whiteSpace: 'nowrap' }}>
+                                style={{ padding: '4px 8px', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '13px', cursor: 'pointer', background: 'white', color: '#64748b', whiteSpace: 'nowrap' }}>
                                 {m.activo ? 'Desactivar' : 'Activar'}
                               </button>
                               <button onClick={() => eliminarMaterial(m.id)}
-                                style={{ padding: '4px 8px', border: '1px solid #fecaca', borderRadius: '6px', fontSize: '13px', cursor: 'pointer', background: '#fef2f2', color: '#ef4444' }}>
+                                style={{ padding: '4px 8px', border: '1px solid #fecaca', borderRadius: '10px', fontSize: '13px', cursor: 'pointer', background: '#fef2f2', color: '#ef4444' }}>
                                 🗑️
                               </button>
                             </div>
@@ -1615,7 +1615,7 @@ export default function ConfiguracionPage() {
             {/* Botón guardar */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #E2E8F0', gap: '10px' }}>
               <button onClick={() => setPdfConfig(PDF_CONFIG_DEFAULT)}
-                style={{ padding: '9px 18px', background: '#F5F7FA', color: '#66738A', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ padding: '9px 18px', background: '#F5F7FA', color: '#66738A', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
                 Restablecer defaults
               </button>
               <button onClick={async () => {
@@ -1623,7 +1623,7 @@ export default function ConfiguracionPage() {
                 await supabase.from('perfiles_usuario').update({ pdf_config: JSON.stringify(pdfConfig) }).eq('id', userId)
                 setSavingPdf(false)
               }} disabled={savingPdf}
-                style={{ padding: '9px 22px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', opacity: savingPdf ? 0.7 : 1 }}>
+                style={{ padding: '9px 22px', background: AZUL, color: 'white', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', opacity: savingPdf ? 0.7 : 1 }}>
                 {savingPdf ? 'Guardando...' : '💾 Guardar configuración de PDF'}
               </button>
             </div>

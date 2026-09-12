@@ -1065,7 +1065,7 @@ function ClientesInner() {
       {/* Header */}
       <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '10px 20px', flexShrink: 0, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px', rowGap: '8px' }}>
         {/* Fila 1: título + toggle vista + botones principales */}
-        <h1 style={{ color: AZUL, fontSize: '18px', fontWeight: '800', margin: 0, flexShrink: 0 }}>
+        <h1 style={{ color: '#132135', fontSize: '26px', fontWeight: 700, margin: 0, flexShrink: 0, letterSpacing: '-0.015em' }}>
           Clientes <span style={{ color: '#94a3b8', fontWeight: '600', fontSize: '14px' }}>({clientesFiltrados.length})</span>
         </h1>
         <div style={{ display: 'flex', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', flexShrink: 0 }}>
@@ -1114,13 +1114,15 @@ function ClientesInner() {
               { label: 'Cobrado', value: fmtMXN(filtered.reduce((s, c) => s + (c.total_pagado ?? 0), 0)), color: VERDE, bg: '#F0FDF4', border: VERDE },
               { label: 'Por cobrar', value: fmtMXN(filtered.reduce((s, c) => s + Math.max(0, (c.monto_acordado ?? 0) - (c.total_pagado ?? 0)), 0)), color: '#DC2626', bg: '#FEF2F2', border: '#FCA5A5' },
             ].map((k, i) => (
-              <div key={i} style={{ background: k.bg, border: `1px solid ${k.border}`, padding: '5px 12px', width: '120px', textAlign: 'center' as const, flexShrink: 0 }}>
-                <div style={{ fontSize: '13px', color: '#94a3b8', fontWeight: '600', marginBottom: '2px' }}>{k.label}</div>
-                <div style={{ fontSize: '13px', fontWeight: '800', color: k.color, letterSpacing: '-0.3px' }}>{k.value}</div>
+              /* El sistema no tiñe el fondo por color: el acento vive en la cifra
+                 y el contenedor se queda neutro. Ver docs/rediseno. */
+              <div key={i} style={{ background: '#FFFFFF', border: '1px solid #E1E7F0', borderRadius: '12px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '12px 16px', minWidth: '132px', textAlign: 'center' as const, flexShrink: 0 }}>
+                <div style={{ fontSize: '13px', color: '#66738A', marginBottom: '4px' }}>{k.label}</div>
+                <div style={{ fontSize: '20px', fontWeight: 700, color: k.color, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' as const, whiteSpace: 'nowrap' as const }}>{k.value}</div>
               </div>
             ))}
             <button onClick={() => { setForm({ nombre: '', nss: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', tipo_servicio: '', esquema_pago: '', monto_acordado: '', monto_pension_mensual: '', numero_meses_cobro: '', porcentaje_recuperacion: '', tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } } }); setFormErrors({}); setShowNuevo(true) }}
-              style={{ background: AZUL, color: 'white', border: 'none', borderRadius: '8px', padding: '7px 14px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' as const }}>
+              style={{ background: '#E8622C', color: 'white', border: 'none', borderRadius: '10px', padding: '13px 20px', fontSize: '17px', fontWeight: 700, cursor: 'pointer', flexShrink: 0, boxShadow: '0 3px 10px rgba(232,98,44,0.34)', whiteSpace: 'nowrap' as const }}>
               + Nuevo cliente
             </button>
             <button onClick={() => setShowGuia(true)}

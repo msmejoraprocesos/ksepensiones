@@ -101,12 +101,12 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
     : 0
 
   return (
-    <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '12px', overflow: 'hidden' }}>
+    <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '14px', overflow: 'hidden' }}>
 
       {/* Header */}
       <div style={{ padding: '14px 20px', background: '#EEF2F8', borderBottom: '1px solid #D1D5DB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <p style={{ fontSize: '14px', fontWeight: '800', color: AZUL, margin: '0 0 4px' }}>📁 Expediente de documentos</p>
+          <p style={{ fontSize: '14px', fontWeight: 700, color: AZUL, margin: '0 0 4px' }}>📁 Expediente de documentos</p>
           {docsRequeridos.length > 0 ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{ background: '#D1D5DB', height: '8px', width: '160px', borderRadius: '4px', overflow: 'hidden' }}>
@@ -121,7 +121,7 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
           )}
         </div>
         <button onClick={() => { setShowEnvio(true); setMsgEnvio('') }}
-          style={{ padding: '9px 18px', background: AZUL, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          style={{ padding: '9px 18px', background: AZUL, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
           📧 Enviar a financiera
         </button>
       </div>
@@ -135,7 +135,7 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
           <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
             {faltantes.map((r: any) => (
               <button key={r.documento_id} onClick={() => agregarDocumento(r.documento_id, r.documentos_catalogo?.nombre || '')}
-                style={{ padding: '5px 12px', background: 'white', color: '#92400E', border: '1px solid #FCD34D', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                style={{ padding: '5px 12px', background: 'white', color: '#92400E', border: '1px solid #FCD34D', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                 + {r.documentos_catalogo?.nombre || '—'}
               </button>
             ))}
@@ -146,7 +146,7 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
       {/* Lista de documentos como cards */}
       <div style={{ padding: '14px 20px', display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
         {docs.length === 0 ? (
-          <div style={{ padding: '28px', textAlign: 'center' as const, background: '#F5F7FA', borderRadius: '8px', border: '1px dashed #D1D5DB' }}>
+          <div style={{ padding: '28px', textAlign: 'center' as const, background: '#F5F7FA', borderRadius: '10px', border: '1px dashed #D1D5DB' }}>
             <p style={{ fontSize: '22px', margin: '0 0 6px' }}>📂</p>
             <p style={{ fontSize: '13px', color: '#66738A', margin: 0 }}>Sin documentos en el expediente</p>
           </div>
@@ -154,7 +154,7 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
           docs.map((d: any) => {
             const est = ESTATUS[d.estatus] ?? ESTATUS.pendiente
             return (
-              <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', background: '#F5F7FA', border: `1px solid ${est.color}33`, borderLeft: `3px solid ${est.color}`, borderRadius: '8px' }}>
+              <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', background: '#F5F7FA', border: `1px solid ${est.color}33`, borderLeft: `3px solid ${est.color}`, borderRadius: '10px' }}>
                 <span style={{ fontSize: '20px', flexShrink: 0 }}>📄</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
@@ -165,14 +165,14 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
                   </p>
                 </div>
                 <select value={d.estatus} onChange={e => actualizarEstatus(d.id, e.target.value)}
-                  style={{ padding: '5px 10px', border: `1.5px solid ${est.color}`, background: est.bg, color: est.color, fontSize: '15px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', flexShrink: 0 }}>
+                  style={{ padding: '5px 10px', border: `1.5px solid ${est.color}`, background: est.bg, color: est.color, fontSize: '15px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', flexShrink: 0 }}>
                   {Object.entries(ESTATUS).map(([v, { label }]) => <option key={v} value={v}>{label}</option>)}
                 </select>
                 <button onClick={async () => {
                   await supabase.from('documentos_cliente').delete().eq('id', d.id)
                   const { data } = await supabase.from('documentos_cliente').select('*, documentos_catalogo(nombre)').eq('cliente_id', clienteId).eq('asesor_id', userId)
                   setDocs(data ?? [])
-                }} style={{ padding: '5px 10px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px', flexShrink: 0 }}>
+                }} style={{ padding: '5px 10px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', flexShrink: 0 }}>
                   Quitar
                 </button>
               </div>
@@ -186,7 +186,7 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
             <span style={{ fontSize: '15px', color: '#66738A', alignSelf: 'center', flexShrink: 0 }}>Agregar:</span>
             {catalogo.filter((c: any) => !docs.find((d: any) => d.documento_id === c.id)).map((c: any) => (
               <button key={c.id} onClick={() => agregarDocumento(c.id, c.nombre)}
-                style={{ padding: '4px 10px', background: '#EEF2F8', color: AZUL, border: `1px solid ${AZUL}`, fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '6px' }}>
+                style={{ padding: '4px 10px', background: '#EEF2F8', color: AZUL, border: `1px solid ${AZUL}`, fontSize: '15px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                 + {c.nombre}
               </button>
             ))}
@@ -203,37 +203,37 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
                 <p style={{ fontSize: '15px', fontWeight: '700', color: 'white', margin: 0 }}>📧 Enviar expediente</p>
                 <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.65)', margin: '2px 0 0' }}>{clienteNombre} → {institucionNombre}</p>
               </div>
-              <button onClick={() => setShowEnvio(false)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', fontSize: '18px', padding: '4px 8px', borderRadius: '6px' }}>✕</button>
+              <button onClick={() => setShowEnvio(false)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', fontSize: '18px', padding: '4px 8px', borderRadius: '10px' }}>✕</button>
             </div>
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
               <div style={{ background: '#F5F7FA', borderRadius: '10px', padding: '14px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                 <div>
                   <p style={{ fontSize: '13px', color: '#66738A', margin: '0 0 2px', textTransform: 'uppercase' as const, fontWeight: '600' }}>Total documentos</p>
-                  <p style={{ fontSize: '18px', fontWeight: '800', color: AZUL, margin: 0 }}>{docs.length}</p>
+                  <p style={{ fontSize: '26px', fontWeight: 700, color: AZUL, margin: 0 }}>{docs.length}</p>
                 </div>
                 <div>
                   <p style={{ fontSize: '13px', color: '#66738A', margin: '0 0 2px', textTransform: 'uppercase' as const, fontWeight: '600' }}>Recibidos/verificados</p>
-                  <p style={{ fontSize: '18px', fontWeight: '800', color: VERDE, margin: 0 }}>{docs.filter((d: any) => ['recibido','verificado'].includes(d.estatus)).length}</p>
+                  <p style={{ fontSize: '26px', fontWeight: 700, color: VERDE, margin: 0 }}>{docs.filter((d: any) => ['recibido','verificado'].includes(d.estatus)).length}</p>
                 </div>
               </div>
               <div>
                 <label style={{ fontSize: '15px', fontWeight: '700', color: '#374151', display: 'block', marginBottom: '6px', textTransform: 'uppercase' as const }}>Email del ejecutivo de la financiera *</label>
                 <input type="email" value={emailDestino} onChange={e => setEmailDestino(e.target.value)}
                   placeholder="ejecutivo@financiera.com"
-                  style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '8px', outline: 'none' }} />
+                  style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '10px', outline: 'none' }} />
               </div>
               {msgEnvio && (
-                <p style={{ fontSize: '13px', color: msgEnvio.startsWith('✅') ? '#065F46' : '#DC2626', margin: 0, fontWeight: '600', background: msgEnvio.startsWith('✅') ? '#F0FDF4' : '#FEF2F2', padding: '8px 12px', borderRadius: '6px' }}>
+                <p style={{ fontSize: '13px', color: msgEnvio.startsWith('✅') ? '#065F46' : '#DC2626', margin: 0, fontWeight: '600', background: msgEnvio.startsWith('✅') ? '#F0FDF4' : '#FEF2F2', padding: '8px 12px', borderRadius: '10px' }}>
                   {msgEnvio}
                 </p>
               )}
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button onClick={() => setShowEnvio(false)}
-                  style={{ flex: 1, padding: '11px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px' }}>
+                  style={{ flex: 1, padding: '11px', background: 'white', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                   Cancelar
                 </button>
                 <button onClick={enviarExpediente} disabled={enviando || !emailDestino}
-                  style={{ flex: 2, padding: '11px', background: NARANJA, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: enviando || !emailDestino ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '8px', opacity: enviando || !emailDestino ? 0.6 : 1 }}>
+                  style={{ flex: 2, padding: '11px', background: NARANJA, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: enviando || !emailDestino ? 'not-allowed' : 'pointer', fontFamily: 'inherit', borderRadius: '10px', opacity: enviando || !emailDestino ? 0.6 : 1 }}>
                   {enviando ? 'Enviando...' : '📧 Enviar expediente'}
                 </button>
               </div>
@@ -340,7 +340,7 @@ function FinanciamientoPage() {
     <div style={{ minHeight: '100vh', background: '#F4F6F9' }}>
       <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #E5E7EB', padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: '16px', fontWeight: '800', color: AZUL, margin: 0 }}>Financiamiento</h1>
+          <h1 style={{ fontSize: '20px', fontWeight: 700, color: AZUL, margin: 0 }}>Financiamiento</h1>
           <p style={{ fontSize: '15px', color: '#66738A', margin: 0 }}>Créditos autorizados · Seguimiento · Instituciones</p>
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>
@@ -363,7 +363,7 @@ function FinanciamientoPage() {
           ].map((k, i) => (
             <div key={i} style={{ background: 'white', border: '1px solid #E5E7EB', borderLeft: `3px solid ${k.color}`, padding: '12px 16px' }}>
               <div style={{ fontSize: '13px', color: '#66738A', marginBottom: '4px' }}>{k.label}</div>
-              <div style={{ fontSize: '18px', fontWeight: '800', color: k.color }}>{k.value}</div>
+              <div style={{ fontSize: '26px', fontWeight: 700, color: k.color }}>{k.value}</div>
             </div>
           ))}
         </div>
@@ -420,7 +420,7 @@ function FinanciamientoPage() {
             <button onClick={() => setTab('lista')} style={{ alignSelf: 'flex-start', background: 'none', border: 'none', color: AZUL, cursor: 'pointer', fontSize: '13px', padding: 0 }}>← Volver</button>
             <div style={{ background: 'white', border: '1px solid #E5E7EB', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <p style={{ fontSize: '16px', fontWeight: '800', color: '#111827', margin: '0 0 4px' }}>{selFin.cliente_nombre}</p>
+                <p style={{ fontSize: '20px', fontWeight: 700, color: '#111827', margin: '0 0 4px' }}>{selFin.cliente_nombre}</p>
                 <p style={{ fontSize: '15px', color: '#66738A', margin: 0 }}>{selFin.institucion_nombre} · {selFin.tasa_anual}% anual · {selFin.plazo_meses} meses</p>
               </div>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -439,7 +439,7 @@ function FinanciamientoPage() {
               ].map((k, i) => (
                 <div key={i} style={{ background: 'white', border: '1px solid #E5E7EB', borderLeft: `3px solid ${k.color}`, padding: '10px 14px' }}>
                   <div style={{ fontSize: '13px', color: '#66738A', marginBottom: '3px' }}>{k.label}</div>
-                  <div style={{ fontSize: '16px', fontWeight: '800', color: k.color }}>{k.value}</div>
+                  <div style={{ fontSize: '20px', fontWeight: 700, color: k.color }}>{k.value}</div>
                 </div>
               ))}
             </div>
@@ -532,7 +532,7 @@ function FinanciamientoPage() {
             )}
             {showNuevaInst && (
               <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-                <div style={{ background: 'white', width: '100%', maxWidth: '420px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', borderRadius: '12px', overflow: 'hidden' }}>
+                <div style={{ background: 'white', width: '100%', maxWidth: '420px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', borderRadius: '14px', overflow: 'hidden' }}>
                   <div style={{ background: AZUL, padding: '14px 20px' }}><p style={{ fontSize: '14px', fontWeight: '700', color: 'white', margin: 0 }}>+ Nueva institución</p></div>
                   <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {[{ label: 'Nombre', key: 'nombre', type: 'text', placeholder: 'Ej. HSBC, Caja Popular...' }, { label: 'Tasa anual (%)', key: 'tasa_anual', type: 'number', placeholder: '32.2' }, { label: 'Plazo máximo (meses)', key: 'plazo_max_meses', type: 'number', placeholder: '60' }].map(f => (

@@ -147,13 +147,13 @@ export default function KanbanPage() {
   const cierres1 = clientesPorColumna('cierre1').length + clientesPorColumna('seguimiento').length + clientesPorColumna('cierre2').length + clientesPorColumna('tramite').length + clientesPorColumna('pensionado').length
   const cierres2 = clientesPorColumna('cierre2').length + clientesPorColumna('tramite').length + clientesPorColumna('pensionado').length
 
-  const inputSt: React.CSSProperties = { display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box', outline: 'none', fontFamily: 'inherit', background: 'white' }
+  const inputSt: React.CSSProperties = { display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '13px', boxSizing: 'border-box', outline: 'none', fontFamily: 'inherit', background: 'white' }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 56px)', background: '#F4F6F9' }}>
       {/* Header — fijo arriba mientras se hace scroll de toda la página */}
       <div style={{ position: 'sticky' as const, top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #e2e8f0', padding: '12px 20px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <h1 style={{ color: AZUL, fontSize: '18px', fontWeight: '800', margin: 0 }}>Pipeline de Clientes</h1>
+        <h1 style={{ color: AZUL, fontSize: '26px', fontWeight: 700, margin: 0 }}>Pipeline de Clientes</h1>
 
         {/* KPIs rápidos */}
         <div style={{ display: 'flex', gap: '12px', flex: 1 }}>
@@ -164,15 +164,15 @@ export default function KanbanPage() {
             { label: 'Cobrado', value: fmtMXN(totalCobrado), color: VERDE },
             { label: 'Por cobrar', value: fmtMXN(totalPorCobrar), color: '#ef4444' },
           ].map((k, i) => (
-            <div key={i} style={{ background: '#F4F6F9', borderRadius: '8px', padding: '5px 12px', border: '1px solid #e2e8f0' }}>
+            <div key={i} style={{ background: '#F4F6F9', borderRadius: '10px', padding: '5px 12px', border: '1px solid #e2e8f0' }}>
               <div style={{ fontSize: '13px', color: '#94a3b8' }}>{k.label}</div>
-              <div style={{ fontSize: '14px', fontWeight: '800', color: k.color }}>{k.value}</div>
+              <div style={{ fontSize: '14px', fontWeight: 700, color: k.color }}>{k.value}</div>
             </div>
           ))}
         </div>
 
         <button onClick={() => setShowNuevo(true)}
-          style={{ background: AZUL, color: 'white', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', flexShrink: 0 }}>
+          style={{ background: AZUL, color: 'white', border: 'none', borderRadius: '10px', padding: '8px 16px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', flexShrink: 0 }}>
           + Nuevo cliente
         </button>
       </div>
@@ -194,7 +194,7 @@ export default function KanbanPage() {
                   style={{
                     width: '220px', flexShrink: 0, display: 'flex', flexDirection: 'column',
                     background: colBg,
-                    borderRadius: '12px', border: `2px solid ${isDragOver ? col.color : 'transparent'}`,
+                    borderRadius: '14px', border: `2px solid ${isDragOver ? col.color : 'transparent'}`,
                     transition: 'all 0.15s',
                   }}>
                   {/* Columna header — sticky debajo del header de pagina (top: 65px ≈ altura del header) */}
@@ -234,7 +234,7 @@ export default function KanbanPage() {
                         {/* Servicio */}
                         {cliente.servicio_contratado && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px' }}>
-                            <span style={{ fontSize: '13px', padding: '1px 6px', borderRadius: '8px', background: col.bg, color: col.color, fontWeight: '700', border: `1px solid ${col.color}30` }}>
+                            <span style={{ fontSize: '13px', padding: '1px 6px', borderRadius: '10px', background: col.bg, color: col.color, fontWeight: '700', border: `1px solid ${col.color}30` }}>
                               {cliente.servicio_contratado}
                             </span>
                           </div>
@@ -267,7 +267,7 @@ export default function KanbanPage() {
 
                     {/* Drop zone vacía */}
                     {cards.length === 0 && (
-                      <div style={{ border: `2px dashed ${isDragOver ? col.color : '#e2e8f0'}`, borderRadius: '8px', padding: '20px 8px', textAlign: 'center', color: isDragOver ? col.color : '#cbd5e1', fontSize: '15px', transition: 'all 0.15s' }}>
+                      <div style={{ border: `2px dashed ${isDragOver ? col.color : '#e2e8f0'}`, borderRadius: '10px', padding: '20px 8px', textAlign: 'center', color: isDragOver ? col.color : '#cbd5e1', fontSize: '15px', transition: 'all 0.15s' }}>
                         {isDragOver ? 'Suelta aquí' : 'Sin clientes'}
                       </div>
                     )}
@@ -304,7 +304,7 @@ export default function KanbanPage() {
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                 {COLUMNAS.map(col => (
                   <button key={col.id} onClick={() => moverCliente(modal.cliente.id, col.id)}
-                    style={{ padding: '5px 10px', borderRadius: '8px', border: `1.5px solid ${modal.cliente.etapa_kanban === col.id ? col.color : '#e2e8f0'}`, background: modal.cliente.etapa_kanban === col.id ? col.bg : 'white', color: modal.cliente.etapa_kanban === col.id ? col.color : '#64748b', fontSize: '15px', fontWeight: '600', cursor: 'pointer' }}>
+                    style={{ padding: '5px 10px', borderRadius: '10px', border: `1.5px solid ${modal.cliente.etapa_kanban === col.id ? col.color : '#e2e8f0'}`, background: modal.cliente.etapa_kanban === col.id ? col.bg : 'white', color: modal.cliente.etapa_kanban === col.id ? col.color : '#64748b', fontSize: '15px', fontWeight: '600', cursor: 'pointer' }}>
                     {col.label}
                   </button>
                 ))}
@@ -337,7 +337,7 @@ export default function KanbanPage() {
             </div>
 
             {/* Info contacto */}
-            <div style={{ background: '#F4F6F9', borderRadius: '8px', padding: '12px', marginBottom: '14px' }}>
+            <div style={{ background: '#F4F6F9', borderRadius: '10px', padding: '12px', marginBottom: '14px' }}>
               {[
                 { icon: '📞', label: modal.cliente.telefono ?? '—' },
                 { icon: '✉️', label: modal.cliente.email ?? '—' },
@@ -351,10 +351,10 @@ export default function KanbanPage() {
 
             {/* Acciones */}
             <div style={{ display: 'flex', gap: '8px' }}>
-              <a href={`/clientes`} style={{ flex: 1, padding: '9px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', textAlign: 'center', textDecoration: 'none' }}>
+              <a href={`/clientes`} style={{ flex: 1, padding: '9px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '10px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', textAlign: 'center', textDecoration: 'none' }}>
                 Ver expediente
               </a>
-              <a href={`/calculadora?cliente=${modal.cliente.id}`} style={{ flex: 1, padding: '9px', background: AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', textAlign: 'center', textDecoration: 'none' }}>
+              <a href={`/calculadora?cliente=${modal.cliente.id}`} style={{ flex: 1, padding: '9px', background: AZUL, color: 'white', border: 'none', borderRadius: '10px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', textAlign: 'center', textDecoration: 'none' }}>
                 Abrir calculadora
               </a>
             </div>
@@ -420,8 +420,8 @@ export default function KanbanPage() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
-              <button onClick={() => setShowNuevo(false)} style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
-              <button onClick={guardarNuevo} disabled={saving || !form.nombre.trim()} style={{ flex: 2, padding: '10px', background: saving || !form.nombre.trim() ? '#94a3b8' : AZUL, color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer' }}>
+              <button onClick={() => setShowNuevo(false)} style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
+              <button onClick={guardarNuevo} disabled={saving || !form.nombre.trim()} style={{ flex: 2, padding: '10px', background: saving || !form.nombre.trim() ? '#94a3b8' : AZUL, color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer' }}>
                 {saving ? 'Guardando...' : 'Guardar cliente'}
               </button>
             </div>

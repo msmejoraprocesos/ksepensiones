@@ -126,7 +126,7 @@ export default function SuperAdminDashboard() {
       {/* Header */}
       <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #E5E7EB', padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: '16px', fontWeight: '800', color: AZUL, margin: 0 }}>🏠 Dashboard de Negocio</h1>
+          <h1 style={{ fontSize: '20px', fontWeight: 700, color: AZUL, margin: 0 }}>🏠 Dashboard de Negocio</h1>
           <p style={{ fontSize: '15px', color: '#9CA3AF', margin: 0 }}>Solo visible para ti — super_admin</p>
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>
@@ -165,7 +165,7 @@ export default function SuperAdminDashboard() {
           ].map((k, i) => (
             <div key={i} style={{ ...CARD, borderLeft: `3px solid ${k.color}` }}>
               <div style={LABEL}>{k.label}</div>
-              <div style={{ fontSize: '28px', fontWeight: '800', color: k.color, lineHeight: 1 }}>{k.value}</div>
+              <div style={{ fontSize: '28px', fontWeight: 700, color: k.color, lineHeight: 1 }}>{k.value}</div>
               <div style={{ fontSize: '15px', color: '#9CA3AF', marginTop: '4px' }}>{k.sub}</div>
             </div>
           ))}
@@ -184,7 +184,7 @@ export default function SuperAdminDashboard() {
             ].map((k, i) => (
               <div key={i} style={{ ...CARD, borderTop: `3px solid ${k.color}` }}>
                 <div style={LABEL}>{k.label}</div>
-                <div style={{ fontSize: '18px', fontWeight: '800', color: k.color }}>{k.value}</div>
+                <div style={{ fontSize: '26px', fontWeight: 700, color: k.color }}>{k.value}</div>
               </div>
             ))}
           </div>
