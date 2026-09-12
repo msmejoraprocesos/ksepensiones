@@ -410,7 +410,8 @@ function ClientesInner() {
 
   async function loadClientes(uid: string) {
     setLoading(true)
-    const { data } = await supabase.from('clientes').select('*').eq('asesor_id', uid).or('activo.is.null,activo.eq.true').order('created_at', { ascending: false })
+    const { data, error: eCli } = await supabase.from('clientes').select('*').eq('asesor_id', uid).or('activo.is.null,activo.eq.true').order('created_at', { ascending: false })
+    if (eCli) { avisoError('No se pudo cargar la lista de clientes', 'Revisa tu conexión y vuelve a intentar. Si el problema sigue, cierra sesión y entra de nuevo.'); return }
     if (!data) { setLoading(false); return }
     // Load total pagado per cliente
     const { data: pagosData } = await supabase.from('pagos').select('cliente_id, monto').eq('asesor_id', uid)
@@ -435,7 +436,8 @@ function ClientesInner() {
   }
 
   async function reactivarCliente(clienteId: string) {
-    await supabase.from('clientes').update({ activo: true }).eq('id', clienteId)
+    const { error: eAct } = await supabase.from('clientes').update({ activo: true }).eq('id', clienteId)
+    if (eAct) { avisoError('No se pudo reactivar el cliente', eAct.message); return }
     setClientesArchivados(prev => prev.filter(c => c.id !== clienteId))
     if (userIdRef.current) await loadClientes(userIdRef.current)
   }
@@ -714,7 +716,8 @@ function ClientesInner() {
   }
 
   async function completarActividad(id: string) {
-    await supabase.from('actividades').update({ estatus: 'completado' }).eq('id', id)
+    const { error: eActv } = await supabase.from('actividades').update({ estatus: 'completado' }).eq('id', id)
+    if (eActv) { avisoError('No se pudo marcar la actividad como completada', eActv.message); return }
     setActividades(prev => prev.map(a => a.id === id ? { ...a, estatus: 'completado' } : a))
   }
 
@@ -743,7 +746,8 @@ function ClientesInner() {
   }
 
   async function cerrarServicio(servicioId: string) {
-    await supabase.from('servicios_contratados').update({ estatus: 'liquidado', fecha_cierre: new Date().toISOString() }).eq('id', servicioId)
+    const { error: eServ } = await supabase.from('servicios_contratados').update({ estatus: 'liquidado', fecha_cierre: new Date().toISOString() }).eq('id', servicioId)
+    if (eServ) { avisoError('No se pudo cerrar el servicio', eServ.message); return }
     setServicios(prev => prev.map(s => s.id === servicioId ? { ...s, estatus: 'liquidado', fecha_cierre: new Date().toISOString() } : s))
   }
 

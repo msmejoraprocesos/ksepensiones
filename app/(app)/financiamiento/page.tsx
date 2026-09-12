@@ -61,10 +61,11 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
   async function agregarDocumento(catId: string, nombre: string) {
     const existe = docs.find((d: any) => d.documento_id === catId)
     if (existe) return
-    await supabase.from('documentos_cliente').insert({
+    const { error: eDoc } = await supabase.from('documentos_cliente').insert({
       cliente_id: clienteId, asesor_id: userId, documento_id: catId,
       nombre_archivo: nombre, estatus: 'pendiente', institucion_id: institucionId || null,
     })
+    if (eDoc) { avisoError('No se pudo registrar el documento', eDoc.message); return }
     const { data } = await supabase.from('documentos_cliente').select('*, documentos_catalogo(nombre)').eq('cliente_id', clienteId).eq('asesor_id', userId)
     setDocs(data ?? [])
   }
@@ -290,13 +291,15 @@ function FinanciamientoPage() {
   }
 
   async function loadInstituciones(uid: string) {
-    const { data } = await supabase.from('instituciones_financieras').select('*').eq('asesor_id', uid).order('nombre')
+    const { data, error } = await supabase.from('instituciones_financieras').select('*').eq('asesor_id', uid).order('nombre')
+    if (error) { avisoError('No se pudieron cargar las instituciones', 'Los financiamientos se muestran, pero no podrás asignarles institución hasta recargar.'); return }
     if (data) setInstituciones(data)
   }
 
   async function openDetalle(fin: any) {
     setSelFin(fin)
-    const { data } = await supabase.from('pagos_financiamiento').select('*').eq('financiamiento_id', fin.id).order('numero_pago')
+    const { data, error } = await supabase.from('pagos_financiamiento').select('*').eq('financiamiento_id', fin.id).order('numero_pago')
+    if (error) { avisoError('No se pudo cargar el calendario de pagos', error.message); return }
     setPagos(data ?? [])
     setTab('detalle')
   }
@@ -309,7 +312,8 @@ function FinanciamientoPage() {
   }
 
   async function marcarPago(pagoId: string, pagado: boolean) {
-    await supabase.from('pagos_financiamiento').update({ estatus: pagado ? 'pagado' : 'pendiente', fecha_real: pagado ? new Date().toISOString().slice(0, 10) : null }).eq('id', pagoId)
+    const { error: ePago } = await supabase.from('pagos_financiamiento').update({ estatus: pagado ? 'pagado' : 'pendiente', fecha_real: pagado ? new Date().toISOString().slice(0, 10) : null }).eq('id', pagoId)
+    if (ePago) { avisoError('No se pudo actualizar el pago', ePago.message); return }
     if (selFin) { const { data } = await supabase.from('pagos_financiamiento').select('*').eq('financiamiento_id', selFin.id).order('numero_pago'); setPagos(data ?? []) }
   }
 
