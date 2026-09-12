@@ -114,9 +114,15 @@ export function evaluarElegibilidad(d: DatosElegibilidad): ResultadoElegibilidad
   if (mod40) {
     h.push({
       via: 'mod40', severidad: 'advertencia',
-      titulo: 'Riesgos a advertir al cliente',
-      detalle: 'La continuación voluntaria termina si se dejan de pagar las cuotas durante dos meses o si el asegurado vuelve a ser dado de alta en el régimen obligatorio. Si fallece antes de resolver la pensión, lo invertido se rige por viudez y orfandad, no se reembolsa.',
+      titulo: 'La continuación se pierde por falta de pago o por reingreso',
+      detalle: 'Termina si se dejan de pagar las cuotas durante dos meses consecutivos, o si el asegurado vuelve a ser dado de alta en el régimen obligatorio. Si el cliente planea volver a emplearse, conviene revisar la duración del escenario.',
       fundamento: 'Art. 220 LSS',
+    })
+    h.push({
+      via: 'mod40', severidad: 'advertencia',
+      titulo: 'Lo invertido no se reembolsa si fallece antes de resolver',
+      detalle: 'Si el cliente muere antes de que se resuelva la pensión, lo aportado no regresa como pensión propia: pasa al régimen de viudez y orfandad, con reglas y montos distintos. Es el riesgo principal de la operación y conviene plantearlo de frente al cliente.',
+      fundamento: 'Arts. 127 y 130 LSS',
     })
   }
 

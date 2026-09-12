@@ -247,3 +247,33 @@ describe('termómetro de recuperación', () => {
     expect(alarma / HORIZONTE_MESES).toBeGreaterThan(0.33)
   })
 })
+
+// ── 8. Advertencias de riesgo ─────────────────────────────────────────────
+// La herramienta mostraba un retorno de 24 veces sin mencionar en ninguna
+// pantalla que lo invertido no se reembolsa si el cliente fallece antes de
+// resolver la pensión.
+describe('advertencias de riesgo en Modalidad 40', () => {
+  const viable = {
+    semanas_netas: 1677,
+    cotizando_actualmente: false,
+    fecha_baja: new Date(Date.now() - 2 * 365.25 * 864e5).toISOString().slice(0, 10),
+    semanas_ultimos_5_anios: 120,
+    regimen: 'ley73' as const,
+    edad_actual: 58,
+  }
+
+  it('advierte que lo invertido no se reembolsa si fallece', () => {
+    const r = evaluarElegibilidad(viable)
+    expect(r.hallazgos.some(h => /fallece/i.test(h.titulo))).toBe(true)
+  })
+
+  it('advierte que se pierde por falta de pago o reingreso', () => {
+    const r = evaluarElegibilidad(viable)
+    expect(r.hallazgos.some(h => h.fundamento === 'Art. 220 LSS')).toBe(true)
+  })
+
+  it('no muestra advertencias de Mod. 40 cuando la vía está bloqueada', () => {
+    const r = evaluarElegibilidad({ ...viable, cotizando_actualmente: true })
+    expect(r.hallazgos.some(h => /fallece/i.test(h.titulo))).toBe(false)
+  })
+})

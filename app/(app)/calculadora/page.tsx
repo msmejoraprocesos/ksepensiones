@@ -122,6 +122,11 @@ interface DatosGenerales {
   nss: string
   pension_sin_mod40?: number
   pct_ayuda_asistencial?: number
+  /* Requisitos de la continuación voluntaria (Art. 218 y 219 LSS).
+     Vienen en la constancia del IMSS y son los únicos datos que permiten
+     verificar si el cliente todavía tiene derecho a Modalidad 40. */
+  fecha_baja_imss?: string           // baja del régimen obligatorio (ISO)
+  semanas_ultimos_5_anios?: number   // mínimo 52 para el Art. 218
 }
 
 interface Escenario {
@@ -464,6 +469,7 @@ const DEFAULT_DATOS: DatosGenerales = {
   nombre_trabajador: '', fecha_calculo: new Date().toISOString().split('T')[0],
   fecha_nacimiento: '', edad_actual: 0, semanas_totales: 0,
   semanas_descontadas: 0, sigue_cotizando: true, tiene_conyuge: false,
+  fecha_baja_imss: '', semanas_ultimos_5_anios: 0,
   num_hijos: 0, num_padres: 0, tiene_ayuda_asistencial: false,
   edad_min_pension: 60, ley: '', nss: ''
 }

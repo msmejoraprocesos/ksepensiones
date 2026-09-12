@@ -1,6 +1,7 @@
 'use client'
 import React from 'react'
 import { K, nw } from '@/lib/design-tokens'
+import PanelElegibilidad from './PanelElegibilidad'
 
 
 const AZUL = K.navy600
@@ -244,6 +245,16 @@ export default function TabCliente({
           </div>
         )}
       </CardSection>
+
+      {/* ── Compuerta de elegibilidad ──────────────────────────────
+           Va antes del perfil del pensionado a propósito: si el cliente no
+           puede acceder a la vía, el asesor debe saberlo antes de invertir
+           tiempo en afinar el escenario. */}
+      <PanelElegibilidad
+        datos={datos}
+        setDatos={setDatos}
+        semanasNetas={(datos.semanas_totales || 0) - (datos.semanas_descontadas || 0)}
+      />
 
       {/* ── Perfil del pensionado (si hay escenario) ── */}
       {escRec && escRec.mod40_meses > 0 && (
