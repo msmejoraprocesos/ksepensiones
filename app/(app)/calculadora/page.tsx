@@ -793,7 +793,7 @@ function CalculadoraInner() {
     ganancia80: { titulo: 'Ganancia acumulada a los 80 años', desc: 'Diferencia total entre lo que recibirás de pensión CON Mod 40 vs SIN Mod 40, proyectada desde tu fecha de retiro hasta los 80 años, descontando la inversión realizada. Muestra el beneficio neto real de hacer Mod 40.', ejemplo: 'Si la diferencia mensual es $15,000 y faltan 20 años para los 80 → ganancia bruta = $3.6M antes de descontar inversión.' },
     tasaRendimiento: { titulo: 'Tasa de rendimiento efectiva', desc: 'Rendimiento anual efectivo que produce la inversión en Mod 40 comparado con el capital total invertido. Permite al cliente comparar Mod 40 contra otras alternativas de inversión como CETES, AFORE o fondos.', ejemplo: 'Inversión $300K → incremento de pensión genera retorno equivalente a 25% anual efectivo.' },
     // Tab 12
-    mod10: { titulo: 'Modalidad 10 — Continuación voluntaria', desc: 'Permite seguir cotizando al IMSS durante 12 meses después de dejar de trabajar, con el mismo SDI del último empleo. No permite aumentar el SDI — solo conservarlo. Art. 218 LSS Ley 73. Útil para trabajadores que están entre empleos y no quieren perder semanas.', ejemplo: 'Último SDI $520/día → cotiza 12 meses más a $520/día agregando ~52 semanas.' },
+    mod10: { titulo: 'Modalidad 10 — Incorporación voluntaria', desc: 'Régimen para trabajadores independientes (Art. 13 fr. I LSS). Suma semanas cotizadas e incluye cobertura médica para el trabajador y su familia. A diferencia de Modalidad 40, no exige haber cotizado antes ni haber causado baja: es una vía de elegibilidad, no de cuantía. Se paga el 100% de las cuotas, aproximadamente 22% del SBC registrado.', ejemplo: 'Útil cuando faltan semanas para las 500 mínimas de pensión.' },
     mod10vsMod40: { titulo: 'Mod 10 vs Mod 40 — ¿cuál conviene?', desc: 'Mod 10: conserva el SDI actual, dura solo 12 meses, costo bajo, no mejora el promedio de 250 semanas significativamente. Mod 40: registra SDI mayor (hasta 25 UMAs), cualquier duración, mayor costo pero impacto radical en la pensión. Se recomienda Mod 40 cuando el cliente puede invertir y quiere maximizar la pensión a largo plazo.', ejemplo: 'Con Mod 10: pensión mejora ~5%. Con Mod 40 a 25 UMAs: pensión puede mejorar +150%.' },
   }
 
@@ -2280,9 +2280,9 @@ function CalculadoraInner() {
 
       {/* ── Modal: Desglose completo 250 semanas ── */}
       {showDetalle250 && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(13,36,64,0.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={() => setShowDetalle250(false)}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '100%', maxWidth: '640px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
+          <div style={{ background: 'white', borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '680px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
             onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div>
@@ -2326,7 +2326,7 @@ function CalculadoraInner() {
 
       {/* ── Modal: Historial laboral completo ── */}
       {showHistorialCompleto && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(13,36,64,0.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={() => setShowHistorialCompleto(false)}>
           <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '100%', maxWidth: '760px', maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
             onClick={e => e.stopPropagation()}>
@@ -2637,17 +2637,17 @@ function CalculadoraInner() {
 
             {/* ── Panel glosario deslizable ── */}
             {showGuia && (
-              <div style={{ position: 'absolute' as const, top: 0, right: 0, width: '300px', height: '100%', background: 'white', borderLeft: '2px solid #E5E7EB', zIndex: 50, overflowY: 'auto' as const, boxShadow: '-4px 0 20px rgba(0,0,0,0.1)' }}>
-                <div style={{ background: '#334E7B', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <p style={{ fontSize: '13px', fontWeight: '700' as const, color: 'white', margin: 0 }}>📖 Glosario de Términos</p>
-                  <button onClick={() => setShowGuia(false)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '18px', lineHeight: 1 }}>✕</button>
+              <div style={{ position: 'absolute' as const, top: 0, right: 0, width: '360px', maxWidth: '92vw', height: '100%', background: 'white', borderLeft: '1px solid #E1E7F0', zIndex: 50, overflowY: 'auto' as const, boxShadow: '-8px 0 32px rgba(13,36,64,0.14)' }}>
+                <div style={{ background: '#0D2440', padding: '20px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky' as const, top: 0, zIndex: 1 }}>
+                  <p style={{ fontSize: '20px', fontWeight: 700, color: 'white', margin: 0 }}>Glosario</p>
+                  <button onClick={() => setShowGuia(false)} aria-label="Cerrar" style={{ background: 'rgba(255,255,255,.12)', border: 'none', color: 'white', cursor: 'pointer', fontSize: '16px', lineHeight: 1, width: '32px', height: '32px', borderRadius: '8px' }}>✕</button>
                 </div>
-                <div style={{ padding: '12px' }}>
+                <div style={{ padding: '16px' }}>
                   {Object.entries(GLOSARIO).map(([id, g]) => (
-                    <div key={id} style={{ padding: '10px 12px', marginBottom: '6px', background: '#F9FAFB', border: '1px solid #E1E7F0' }}>
-                      <p style={{ fontSize: '12px', fontWeight: '700' as const, color: '#334E7B', margin: '0 0 4px' }}>{g.titulo}</p>
-                      <p style={{ fontSize: '13px', color: '#1E293B', margin: '0 0 4px', lineHeight: 1.5 }}>{g.desc}</p>
-                      {g.ejemplo && <p style={{ fontSize: '14px', color: '#94A3B8', margin: 0, fontStyle: 'italic' }}>Ej: {g.ejemplo}</p>}
+                    <div key={id} style={{ padding: '16px 18px', marginBottom: '10px', background: '#F5F7FA', borderRadius: '12px' }}>
+                      <p style={{ fontSize: '17px', fontWeight: 700, color: '#132135', margin: '0 0 6px' }}>{g.titulo}</p>
+                      <p style={{ fontSize: '15px', color: '#132135', margin: '0 0 6px', lineHeight: 1.65 }}>{g.desc}</p>
+                      {g.ejemplo && <p style={{ fontSize: '14px', color: '#66738A', margin: 0, lineHeight: 1.6 }}>{g.ejemplo}</p>}
                     </div>
                   ))}
                 </div>
@@ -2770,18 +2770,18 @@ function CalculadoraInner() {
                 const dotColors: any = { imss: '#334E7B', manual: '#E8724A', strategy: '#2E7D5A', result: '#7C3AED' }
                 const dotColor = dotColors[k.tipo] || '#94A3B8'
                 return (
-                  <div key={i} style={{ flex: '1 1 0', padding: '8px 12px', borderRight: `1px solid ${BORDE}`, borderBottom: `3px solid ${k.accent}`, background: 'white', minWidth: '90px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '3px' }}>
-                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: dotColor, flexShrink: 0, display: 'inline-block' }} />
-                      <span style={{ fontSize: '13px', color: '#94A3B8', fontWeight: '600' as const, whiteSpace: 'nowrap' as const }}>{k.label}</span>
+                  <div key={i} style={{ flex: '1 1 0', padding: '12px 16px', borderRight: `1px solid ${BORDE}`, background: 'white', minWidth: '118px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '3px' }}>
+                      <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: dotColor, flexShrink: 0, display: 'inline-block' }} />
+                      <span style={{ fontSize: '13px', color: '#66738A', whiteSpace: 'nowrap' as const }}>{k.label}</span>
                     </div>
-                    <div style={{ fontSize: '13px', fontWeight: '700' as const, color: k.accent, whiteSpace: 'nowrap' as const }}>{k.value}</div>
+                    <div style={{ fontSize: '17px', fontWeight: 700, color: '#132135', whiteSpace: 'nowrap' as const, fontVariantNumeric: 'tabular-nums' as const }}>{k.value}</div>
                   </div>
                 )
               })}
             </div>
 {/* Contenido de la pestaña actual */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', background: '#F4F6F9', fontSize: '13px', minWidth: 0, position: 'relative' as const }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px', background: '#F5F7FA', fontSize: '15px', minWidth: 0, position: 'relative' as const }}>
 
               {/* ── Botón guardar borrador flotante — visible en todos los tabs ── */}
               {sdiPromedio > 0 && (
@@ -2789,24 +2789,15 @@ function CalculadoraInner() {
                   <button
                     onClick={() => guardarDiagnostico('borrador')}
                     disabled={guardando}
-                    style={{ pointerEvents: 'auto' as const, padding: '7px 16px', background: !clienteId ? '#FEF2F2' : diagGuardadoId ? '#F0FDF4' : AZUL, color: !clienteId ? '#DC2626' : diagGuardadoId ? VERDE : 'white', border: `1px solid ${!clienteId ? '#FCA5A5' : diagGuardadoId ? '#86EFAC' : AZUL}`, borderRadius: '8px', fontSize: '12px', fontWeight: '700' as const, cursor: guardando ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', opacity: guardando ? 0.7 : 1 }}>
-                    {guardando ? '⏳ Guardando...' : !clienteId ? '⚠️ Sin cliente vinculado' : diagGuardadoId ? '✓ Borrador guardado' : '💾 Guardar borrador'}
+                    style={{ pointerEvents: 'auto' as const, padding: '10px 18px', background: !clienteId ? '#FEF2F2' : diagGuardadoId ? '#F0FDF4' : AZUL, color: !clienteId ? '#DC2626' : diagGuardadoId ? VERDE : 'white', border: `1px solid ${!clienteId ? '#FCA5A5' : diagGuardadoId ? '#86EFAC' : AZUL}`, borderRadius: '8px', fontSize: '12px', fontWeight: '700' as const, cursor: guardando ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', opacity: guardando ? 0.7 : 1 }}>
+                    {guardando ? 'Guardando…' : !clienteId ? 'Sin cliente vinculado' : diagGuardadoId ? 'Borrador guardado' : 'Guardar borrador'}
                   </button>
                 </div>
               )}
 
-              {/* ── Marca de agua KSE ── */}
-              <div style={{ position: 'fixed' as const, inset: 0, pointerEvents: 'none' as const, zIndex: 1, overflow: 'hidden' }}>
-                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style={{ position: 'absolute' as const, top: 0, left: 0 }}>
-                  <defs>
-                    <pattern id="kse-wm" x="0" y="0" width="260" height="180" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)">
-                      <text x="10" y="60" fontFamily="Arial Black, sans-serif" fontSize="22" fontWeight="900" fill="#334E7B" fillOpacity="0.045" letterSpacing="4">KSE®</text>
-                      <text x="30" y="110" fontFamily="Arial, sans-serif" fontSize="9" fill="#334E7B" fillOpacity="0.04" letterSpacing="2">PENSIONES</text>
-                    </pattern>
-                  </defs>
-                  <rect width="100%" height="100%" fill="url(#kse-wm)" />
-                </svg>
-              </div>
+              {/* La marca de agua se retiro de la interfaz: sobre cifras de seis
+                  digitos baja el contraste sin aportar nada. Se conserva en el
+                  PDF exportado, que es donde cumple su funcion. */}
 
             {/* ── Tab -1: Datos generales ── */}
             {tab === -1 && (
