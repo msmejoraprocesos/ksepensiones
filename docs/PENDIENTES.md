@@ -11,12 +11,13 @@ Lo que queda abierto, ordenado por impacto. Cerrar la línea al terminar.
 
 ## Producto
 
-- [ ] **Admin Fórmulas: explicar para qué sirve cada parámetro.** Hoy lista nombre, fundamento legal y celda del Excel, pero no dice qué cambia en el diagnóstico si se modifica. El asesor no sabe qué se rompe al tocar un valor.
 - [ ] **Eliminar el módulo de Facturación.** No aporta valor. Revisar dependencias: rutas en el sidebar, `app/(app)/billing`, tablas asociadas en Supabase.
 - [ ] **Auditar rutas que usan `service_role`.** Se restauraron los GRANT tras encontrar un revoke masivo, pero nunca se verificó qué llevaba tiempo fallando en silencio.
 - [ ] **Denominador oficial del retorno.** La app divide entre inversión neta, el Excel entre costo total. Documentado en `lib/design-tokens.ts`; falta confirmación formal.
 
 ## Transversal
+
+- [ ] Los iconos del sidebar son emojis (💳 ⚙ 🔬 📊). Se ven distintos en cada sistema operativo y conviven mal con el rediseño.
 
 - [ ] Paginación y ordenamiento en Clientes, Seguimiento y Reportes. Hoy cargan todo sin ordenar.
 - [ ] Reemplazar los 16 `alert()` y mensajes genéricos por errores específicos.

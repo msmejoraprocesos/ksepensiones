@@ -285,16 +285,44 @@ function AdminFormulasInner() {
     </div>
   ) }
 
-  function fieldRow(label: string, legal: string, excel: string, value: any, editable = false) { return (
-    <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-      <td style={{ padding: '10px 12px', fontSize: '12px', fontWeight: '600', color: '#374151', width: '220px' }}>{label}</td>
-      <td style={{ padding: '10px 12px', fontSize: '11px', color: '#64748b' }}>{legal}</td>
-      <td style={{ padding: '10px 12px', fontSize: '11px', color: '#94a3b8', fontFamily: 'monospace' }}>{excel}</td>
-      <td style={{ padding: '10px 12px' }}>{value}</td>
-      <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+  /**
+   * La columna que mostraba la celda del Excel se reemplaza por "Qué afecta".
+   *
+   * La coordenada del libro (FINANCIAMIENTO!G32) responde "de donde salio este
+   * numero" — pregunta de quien construye o audita. Quien opera necesita otra:
+   * "que se rompe si lo toco". En una tabla de configuracion gana la segunda,
+   * porque es la que evita que alguien cambie la UMA sin saber que recalcula
+   * el costo de todos los escenarios.
+   *
+   * La trazabilidad no se pierde: la celda pasa al title del parametro, donde
+   * sigue disponible sin competir por ancho con lo que se lee a diario.
+   *
+   * `alcance` responde la pregunta que mas tranquiliza: saber que la tasa del
+   * banco NO toca el calculo de pension quita el miedo a ajustarla.
+   */
+  const ALCANCE: Record<string, { txt: string; bg: string; fg: string }> = {
+    todos:   { txt: 'Todos los cálculos', bg: '#EEF2F8', fg: '#245287' },
+    pension: { txt: 'Cálculo de pensión', bg: '#E6F4EE', fg: '#12855C' },
+    costo:   { txt: 'Costo e inversión',  bg: '#FDF0E9', fg: '#E8622C' },
+    retro:   { txt: 'Solo retroactivo',   bg: '#FFFBEB', fg: '#B45309' },
+    credito: { txt: 'Solo financiamiento', bg: '#F3EEFE', fg: '#6D3BD4' },
+  }
+
+  function fieldRow(label: string, legal: string, excel: string, value: any, editable = false, afecta = '', alcance: keyof typeof ALCANCE = 'todos') { return (
+    <tr style={{ borderBottom: '1px solid #E1E7F0' }}>
+      <td style={{ padding: '13px 14px', fontSize: '15px', fontWeight: 600, color: '#132135', width: '220px' }} title={excel ? `Referencia en el libro: ${excel}` : undefined}>{label}</td>
+      <td style={{ padding: '13px 14px', fontSize: '14px', color: '#66738A' }}>{legal}</td>
+      <td style={{ padding: '13px 14px', fontSize: '14px', color: '#132135' }}>
+        {afecta && <span style={{ display: 'block', lineHeight: 1.5 }}>{afecta}</span>}
+        <span style={{ display: 'inline-block', marginTop: afecta ? 5 : 0, fontSize: '12px', fontWeight: 700, padding: '3px 9px', borderRadius: 6, background: ALCANCE[alcance].bg, color: ALCANCE[alcance].fg, whiteSpace: 'nowrap' }}>
+          {ALCANCE[alcance].txt}
+        </span>
+      </td>
+      <td style={{ padding: '13px 14px' }}>{value}</td>
+      <td style={{ padding: '13px 14px', textAlign: 'center' }}>
         {editable
-          ? <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '4px', background: '#fef3c7', color: '#92400e', fontWeight: '700' }}>EDITABLE</span>
-          : <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '4px', background: '#f0fdf4', color: '#166534', fontWeight: '700' }}>FIJO POR LEY</span>
+          ? <span style={{ fontSize: '12px', padding: '4px 10px', borderRadius: '6px', background: '#FDF0E9', color: '#E8622C', fontWeight: 700 }}>Editable</span>
+          : <span style={{ fontSize: '12px', padding: '4px 10px', borderRadius: '6px', background: '#E6F4EE', color: '#12855C', fontWeight: 700 }}>Fijo por ley</span>
         }
       </td>
     </tr>
@@ -304,7 +332,7 @@ function AdminFormulasInner() {
     <input
       type="number" step={step} value={val}
       onChange={e => onChange(parseFloat(e.target.value) || 0)}
-      style={{ width: '110px', padding: '4px 8px', border: '1.5px solid #f59e0b', borderRadius: '6px', fontSize: '12px', fontWeight: '700', color: '#374151', background: '#fffbeb' }}
+      style={{ width: '128px', padding: '10px 12px', border: '1px solid #E1E7F0', borderRadius: '9px', fontSize: '17px', fontWeight: 700, color: '#132135', background: '#FFFFFF', fontFamily: 'inherit' }}
     />
   ) }
 
@@ -438,22 +466,22 @@ function AdminFormulasInner() {
                 <table className="af-table">
                   <thead>
                     <tr>
-                      <th>Campo</th>
+                      <th>Parámetro</th>
                       <th>Fundamento</th>
-                      <th className="admin-col-hide">Celda Excel</th>
+                      <th>Qué afecta</th>
                       <th className="r">Valor actual</th>
                       <th>Tipo</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {fieldRow('UMA Diaria', 'CONASAMI — actualiza cada febrero', 'SAL. PROM MOD 40!E16', numInput(uma, setUma, 0.01), true)}
-                    {fieldRow('Salario Mínimo Diario', 'CONASAMI — actualiza cada enero', 'COSTO MOD. 40 (ref.)', numInput(salMin, setSalMin, 0.01), true)}
-                    {fieldRow('PMG Ley 73 (mensual)', 'IMSS — Pensión Mínima Garantizada Ley 73', 'PENSION MOD. 40!D18', numInput(pmgL73, setPmgL73, 1), true)}
-                    {fieldRow('PMG Ley 97 (mensual)', 'CONSAR — Pensión Garantizada Ley 97', 'Configuración', numInput(pmgL97, setPmgL97, 1), true)}
-                    {fieldRow('% Recuperación AFORE', '~20% va a subcuenta Retiro 97', 'COSTO MOD. 40!G17', numInput(pctAfore, setPctAfore, 0.1), true)}
-                    {fieldRow('Rendimiento AFORE %', 'Estimado para proyecciones Ley 97', 'Configuración', numInput(rendDefault, setRendDefault, 0.1), true)}
-                    {fieldRow('% Banco Regulado', 'Porcentaje del retroactivo que financia el banco', 'FINANCIAMIENTO!C10', numInput(pctBanco, setPctBanco, 0.01), true)}
-                    {fieldRow('Tasa Banco Anual %', 'Tasa de interés anual del crédito bancario regulado', 'FINANCIAMIENTO!G32', numInput(tasaBanco, setTasaBanco, 0.1), true)}
+                    {fieldRow('UMA Diaria', 'CONASAMI — actualiza cada febrero', 'SAL. PROM MOD 40!E16', numInput(uma, setUma, 0.01), true, 'Recalcula el SDI de Modalidad 40 y el costo de todos los escenarios.', 'todos')}
+                    {fieldRow('Salario Mínimo Diario', 'CONASAMI — actualiza cada enero', 'COSTO MOD. 40 (ref.)', numInput(salMin, setSalMin, 0.01), true, 'Base de la pensión mínima garantizada.', 'pension')}
+                    {fieldRow('PMG Ley 73 (mensual)', 'IMSS — Pensión Mínima Garantizada Ley 73', 'PENSION MOD. 40!D18', numInput(pmgL73, setPmgL73, 1), true, 'Piso de la pensión: si el cálculo queda por debajo, se otorga este monto.', 'pension')}
+                    {fieldRow('PMG Ley 97 (mensual)', 'CONSAR — Pensión Garantizada Ley 97', 'Configuración', numInput(pmgL97, setPmgL97, 1), true, 'Piso de la pensión para clientes bajo Ley 97.', 'pension')}
+                    {fieldRow('% Recuperación AFORE', '~20% va a subcuenta Retiro 97', 'COSTO MOD. 40!G17', numInput(pctAfore, setPctAfore, 0.1), true, 'Cambia la inversión neta y, con ella, los meses de recuperación y el retorno.', 'costo')}
+                    {fieldRow('Rendimiento AFORE %', 'Estimado para proyecciones Ley 97', 'Configuración', numInput(rendDefault, setRendDefault, 0.1), true, 'Solo se usa en proyecciones de Ley 97.', 'pension')}
+                    {fieldRow('% Banco Regulado', 'Porcentaje del retroactivo que financia el banco', 'FINANCIAMIENTO!C10', numInput(pctBanco, setPctBanco, 0.01), true, 'Reparte cuánto financia el banco y cuánto sale de cuenta propia.', 'credito')}
+                    {fieldRow('Tasa Banco Anual %', 'Tasa de interés anual del crédito bancario regulado', 'FINANCIAMIENTO!G32', numInput(tasaBanco, setTasaBanco, 0.1), true, 'Define el descuento mensual a la pensión durante el crédito.', 'credito')}
                   </tbody>
                 </table>
               </div>
@@ -526,8 +554,8 @@ function AdminFormulasInner() {
                     {fieldRow('Factor actualización UMA', 'Metodología del Excel de referencia', 'PENSIÓN ACTUAL!×1.11', <strong>×{FACTOR_ACTUALIZACION_UMA}</strong>)}
                     {fieldRow('Techo tasa Mod40', 'IMSS — a partir de 2031', 'COSTO MOD. 40!D14', <strong>{TASA_MOD40_TECHO}%</strong>)}
                     {fieldRow('Edad análisis de flujos', 'Estándar de industria', 'INVERSION!D46/F46', <strong>{EDAD_ANALISIS_FLUJOS} años</strong>)}
-                    {fieldRow('Recargos por mora % mensual', 'Ley de Ingresos de la Federación, Art. 21 CFF — se actualiza cada año', 'PAGO RETROACTIVO', numInput(recargoMensual, setRecargoMensual, 0.01), true)}
-                    {fieldRow('Actualización anual de pensiones %', 'INPC — Art. 214 LSS. Usada en la ganancia acumulada y la proyección de flujos', 'INVERSION', numInput(inflacionPension, setInflacionPension, 0.1), true)}
+                    {fieldRow('Recargos por mora % mensual', 'Ley de Ingresos de la Federación, Art. 21 CFF — se actualiza cada año', 'PAGO RETROACTIVO', numInput(recargoMensual, setRecargoMensual, 0.01), true, 'Encarece el pago retroactivo. No afecta la cotización mes a mes.', 'retro')}
+                    {fieldRow('Actualización anual de pensiones %', 'INPC — Art. 214 LSS. Usada en la ganancia acumulada y la proyección de flujos', 'INVERSION', numInput(inflacionPension, setInflacionPension, 0.1), true, 'Mueve la ganancia acumulada a 80 años y la proyección de flujos.', 'costo')}
                   </tbody>
                 </table>
               </div>
