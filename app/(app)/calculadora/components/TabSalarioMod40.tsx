@@ -1,5 +1,6 @@
 'use client'
 import React from 'react'
+import { esEscenarioMod40 } from '@/app/utils/formulas'
 
 const AZUL = '#334E7B'
 const VERDE = '#2E7D5A'
@@ -177,7 +178,7 @@ export default function TabSalarioMod40({
             <span style={{ fontSize: '10px', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: '0.6px', color: MORADO }}>Resultado calculado — escenarios</span>
           </div>
           <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {escenarios.filter(e => e.mod40_meses > 0).slice(0, 4).map((esc, i) => {
+            {escenarios.filter(esEscenarioMod40).slice(0, 4).map((esc, i) => {
               const colors = [AZUL, VERDE, NARANJA, MORADO]
               const c = colors[i] || AZUL
               const incr = esc.pension_mensual - pensionActual
@@ -205,7 +206,7 @@ export default function TabSalarioMod40({
                 </div>
               )
             })}
-            {escenarios.filter(e => e.mod40_meses > 0).length === 0 && (
+            {escenarios.filter(esEscenarioMod40).length === 0 && (
               <div style={{ textAlign: 'center', padding: '24px', color: '#94A3B8' }}>
                 <p style={{ fontSize: '12px', margin: 0 }}>Ajusta los parámetros para generar escenarios</p>
               </div>

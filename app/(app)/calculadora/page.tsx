@@ -2644,6 +2644,7 @@ function CalculadoraInner() {
                 { label: 'El cliente',       tiIcon: 'ti-user',           tabs: [0,1,2],    color: AZUL,      nombres: ['Datos y perfil','Cuantías anuales','Salario Mod.40'] },
                 { label: 'La pensión',       tiIcon: 'ti-coin',           tabs: [5,8],      color: VERDE,     nombres: ['Importe de pensión','Escenarios'] },
                 { label: 'La inversión',     tiIcon: 'ti-chart-bar',      tabs: [3,6,10],   color: '#B45309', nombres: ['SDI 250 sem.','Inversión y proyecto','Financiamiento'] },
+                { label: 'Modalidad 10',     tiIcon: 'ti-shield-plus',    tabs: [12],       color: '#0891B2', nombres: ['Vía alterna'] },
                 { label: 'El entregable',    tiIcon: 'ti-file-text',      tabs: [11],       color: '#7C3AED', nombres: ['Análisis y PDF'] },
               ]
               const grupoActivo = grupos.findIndex(g => g.tabs.includes(tab))

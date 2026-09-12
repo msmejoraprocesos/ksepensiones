@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react'
+import { esEscenarioMod40 } from '@/app/utils/formulas'
 
 const AZUL = '#334E7B'
 const VERDE = '#2E7D5A'
@@ -28,7 +29,7 @@ interface Props {
 
 export default function TabEscenarios({ escenarios, setTab }: Props) {
   const [vista, setVista] = useState<'cards' | 'tabla'>('cards')
-  const escsConMod40 = escenarios.filter(e => e.mod40_meses > 0)
+  const escsConMod40 = escenarios.filter(esEscenarioMod40)
   const pensionBase = escenarios[0]?.pension_base ?? 0
 
   if (escsConMod40.length === 0) return (

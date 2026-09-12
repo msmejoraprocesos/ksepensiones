@@ -702,3 +702,16 @@ export const fmtMXN2 = (n: number) =>
 export const fmtPct = (n: number) => `${n.toFixed(1)}%`
 
 export const fmtWeeks = (w: number) => w > 0 ? `${w.toFixed(1)} sem` : '—'
+
+/**
+ * Modalidad 10 (incorporación voluntaria, Art. 13 fr. I LSS) se almacena en la
+ * misma lista de escenarios que Modalidad 40, pero NO es comparable con ella:
+ * es una vía de elegibilidad (suma semanas + cobertura médica), no de cuantía.
+ * Su costo se calcula con otra tasa y no modela retorno a 80 años ni AFORE.
+ * Mezclarla en la comparativa producía costos y tasas sin sentido.
+ */
+export const ID_ESCENARIO_MOD10 = 'e_m10'
+
+export function esEscenarioMod40(e: { id: string; mod40_meses: number }): boolean {
+  return e.mod40_meses > 0 && e.id !== ID_ESCENARIO_MOD10
+}
