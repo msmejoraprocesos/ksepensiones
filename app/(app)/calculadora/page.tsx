@@ -46,28 +46,28 @@ const DS = {
     result:   { bg: '#F5F3FF', border: '#7C3AED', text: '#4C1D95', badge: '#DDD6FE', label: 'Calculado' },
   },
 
-  card: { background: 'white', borderRadius: '12px', padding: '18px 20px', marginBottom: '14px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' } as React.CSSProperties,
-  cardHighlight: { background: 'white', borderRadius: '12px', padding: '18px 20px', marginBottom: '14px', boxShadow: '0 0 0 2px #334E7B, 0 4px 12px rgba(51,78,123,0.1)' } as React.CSSProperties,
-  tHead: { background: '#334E7B', color: 'white', padding: '9px 12px', fontSize: '11px', fontWeight: '600' as const, textAlign: 'left' as const, whiteSpace: 'nowrap' as const },
-  tHeadR: { background: '#334E7B', color: 'white', padding: '9px 12px', fontSize: '11px', fontWeight: '600' as const, textAlign: 'right' as const, whiteSpace: 'nowrap' as const },
-  tCell: { padding: '9px 12px', fontSize: '12px', color: '#1E293B', borderBottom: '1px solid #F1F5F9' } as React.CSSProperties,
-  tCellR: { padding: '9px 12px', fontSize: '12px', color: '#1E293B', borderBottom: '1px solid #F1F5F9', textAlign: 'right' as const } as React.CSSProperties,
-  tCellBold: { padding: '9px 12px', fontSize: '13px', color: '#334E7B', fontWeight: '700' as const, borderBottom: '1px solid #F1F5F9', textAlign: 'right' as const } as React.CSSProperties,
+  card: { background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: '22px 24px', marginBottom: '16px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)' } as React.CSSProperties,
+  cardHighlight: { background: 'white', borderRadius: '14px', padding: '22px 24px', marginBottom: '16px', boxShadow: '0 0 0 2px #14375F, 0 4px 14px rgba(20,55,95,0.12)' } as React.CSSProperties,
+  tHead: { background: '#0D2440', color: 'white', padding: '12px 14px', fontSize: '13px', fontWeight: 600, textAlign: 'left' as const, whiteSpace: 'nowrap' as const },
+  tHeadR: { background: '#0D2440', color: 'white', padding: '12px 14px', fontSize: '13px', fontWeight: 600, textAlign: 'right' as const, whiteSpace: 'nowrap' as const },
+  tCell: { padding: '11px 14px', fontSize: '15px', color: '#132135', borderBottom: '1px solid #E1E7F0' } as React.CSSProperties,
+  tCellR: { padding: '11px 14px', fontSize: '15px', color: '#132135', borderBottom: '1px solid #E1E7F0', textAlign: 'right' as const, fontVariantNumeric: 'tabular-nums' as const } as React.CSSProperties,
+  tCellBold: { padding: '11px 14px', fontSize: '17px', color: '#245287', fontWeight: 700, borderBottom: '1px solid #E1E7F0', textAlign: 'right' as const, fontVariantNumeric: 'tabular-nums' as const } as React.CSSProperties,
   tRowAlt: (i: number) => ({ background: i % 2 === 0 ? 'white' : '#F8FAFC' }) as React.CSSProperties,
-  secTitle: { fontSize: '11px', fontWeight: '600' as const, color: '#64748B', margin: '0 0 14px', textTransform: 'uppercase' as const, letterSpacing: '0.6px' } as React.CSSProperties,
-  kpiBlock: { background: '#334E7B', borderRadius: '10px', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' } as React.CSSProperties,
-  kpiGreen: { background: '#2E7D5A', borderRadius: '10px', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' } as React.CSSProperties,
-  label: { fontSize: '11px', fontWeight: '500' as const, color: '#94A3B8', marginBottom: '5px', display: 'block' as const, textTransform: 'uppercase' as const, letterSpacing: '0.5px' },
-  input: { width: '100%', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: 'white', color: '#1E293B', outline: 'none', height: '44px' } as React.CSSProperties,
-  inputReadonly: { width: '100%', border: '1px solid #F1F5F9', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', background: '#F8FAFC', color: '#64748B', fontFamily: 'inherit', boxSizing: 'border-box' as const, height: '44px' } as React.CSSProperties,
+  secTitle: { fontSize: '20px', fontWeight: 700, color: '#132135', margin: '0 0 16px', letterSpacing: '-0.015em' } as React.CSSProperties,
+  kpiBlock: { background: '#0D2440', borderRadius: '12px', padding: '18px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' } as React.CSSProperties,
+  kpiGreen: { background: '#12855C', borderRadius: '12px', padding: '18px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' } as React.CSSProperties,
+  label: { fontSize: '15px', fontWeight: 500, color: '#66738A', marginBottom: '6px', display: 'block' as const },
+  input: { width: '100%', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '12px 14px', fontSize: '17px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: 'white', color: '#1E293B', outline: 'none', height: '48px' } as React.CSSProperties,
+  inputReadonly: { width: '100%', border: '1px solid #F1F5F9', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', background: '#F8FAFC', color: '#64748B', fontFamily: 'inherit', boxSizing: 'border-box' as const, height: '48px' } as React.CSSProperties,
   // Inputs semánticos: fondo de color según tipo de dato
-  inputImss:     { width: '100%', border: '1.5px solid #BFDBFE', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#EEF2F8', color: '#1E3A5F', fontWeight: '500' as const, height: '44px' } as React.CSSProperties,
-  inputManual:   { width: '100%', border: '1.5px solid #FED7AA', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#FFF3ED', color: '#92400E', height: '44px' } as React.CSSProperties,
-  inputStrategy: { width: '100%', border: '2px solid #2E7D5A', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#F0F7F4', color: '#1A5C40', fontWeight: '500' as const, height: '44px' } as React.CSSProperties,
-  inputResult:   { width: '100%', border: '1px solid #DDD6FE', borderRadius: '8px', padding: '9px 12px', fontSize: '14px', background: '#F5F3FF', color: '#4C1D95', fontWeight: '600' as const, height: '44px', boxSizing: 'border-box' as const } as React.CSSProperties,
-  select: { width: '100%', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const, color: '#1E293B', height: '44px' } as React.CSSProperties,
-  selectManual:  { width: '100%', border: '1.5px solid #FED7AA', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', background: '#FFF3ED', color: '#92400E', boxSizing: 'border-box' as const, height: '44px' } as React.CSSProperties,
-  selectStrategy:{ width: '100%', border: '2px solid #2E7D5A', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', background: '#F0F7F4', color: '#1A5C40', fontWeight: '500' as const, boxSizing: 'border-box' as const, height: '44px' } as React.CSSProperties,
+  inputImss:     { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '12px 14px', fontSize: '17px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#EEF2F8', color: '#1E3A5F', fontWeight: '500' as const, height: '48px' } as React.CSSProperties,
+  inputManual:   { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '12px 14px', fontSize: '17px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#FFF3ED', color: '#92400E', height: '48px' } as React.CSSProperties,
+  inputStrategy: { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '12px 14px', fontSize: '17px', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#F0F7F4', color: '#1A5C40', fontWeight: '500' as const, height: '48px' } as React.CSSProperties,
+  inputResult:   { width: '100%', border: '1px solid #E1E7F0', borderRadius: '8px', padding: '9px 12px', fontSize: '14px', background: '#F5F3FF', color: '#4C1D95', fontWeight: '600' as const, height: '44px', boxSizing: 'border-box' as const } as React.CSSProperties,
+  select: { width: '100%', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const, color: '#1E293B', height: '48px' } as React.CSSProperties,
+  selectManual:  { width: '100%', border: '1px solid #E1E7F0', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', background: '#FFF3ED', color: '#92400E', boxSizing: 'border-box' as const, height: '48px' } as React.CSSProperties,
+  selectStrategy:{ width: '100%', border: '1px solid #E1E7F0', borderRadius: '8px', padding: '9px 12px', fontSize: '13px', fontFamily: 'inherit', background: '#F0F7F4', color: '#1A5C40', fontWeight: '500' as const, boxSizing: 'border-box' as const, height: '48px' } as React.CSSProperties,
   criticalNum: { fontSize: '26px', fontWeight: '800' as const, letterSpacing: '-0.5px', lineHeight: 1 } as React.CSSProperties,
   bigNum: { fontSize: '20px', fontWeight: '700' as const, letterSpacing: '-0.5px' } as React.CSSProperties,
 }
@@ -512,7 +512,7 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
   return (
     <div style={{ background: 'white', border: '1px solid #E5E7EB', marginTop: '4px' }}>
       <div style={{ background: AZUL, padding: '12px 16px' }}>
-        <p style={{ fontSize: '12px', color: '#93C5FD', margin: '0 0 2px', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '700' }}>
+        <p style={{ fontSize: '12px', color: '#93C5FD', margin: '0 0 2px', fontWeight: '700' }}>
           Simulador de vida real
         </p>
         <p style={{ fontSize: '14px', fontWeight: '800', color: 'white', margin: 0 }}>
@@ -524,7 +524,7 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
 
         {/* Gastos ajustables */}
         <div>
-          <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', margin: '0 0 10px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
+          <p style={{ fontSize: '15px', fontWeight: '700', color: '#374151', margin: '0 0 10px' }}>
             Ajusta tus gastos mensuales estimados
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
@@ -533,8 +533,8 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
                 <span style={{ fontSize: '13px', flexShrink: 0 }}>{g.label.split(' ')[0]}</span>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
-                    <label style={{ fontSize: '10px', color: '#64748B' }}>{g.label.substring(3)}</label>
-                    <span style={{ fontSize: '11px', fontWeight: '700', color: g.color }}>{fmtMXN(g.val)}</span>
+                    <label style={{ fontSize: '14px', color: '#64748B' }}>{g.label.substring(3)}</label>
+                    <span style={{ fontSize: '15px', fontWeight: '700', color: g.color }}>{fmtMXN(g.val)}</span>
                   </div>
                   <input type="range" min={0} max={15000} step={500} value={g.val} onChange={e => g.set(Number(e.target.value))}
                     style={{ width: '100%', height: '4px', accentColor: g.color, cursor: 'pointer' }} />
@@ -546,7 +546,7 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
 
         {/* Comparativa visual */}
         <div style={{ background: '#F8FAFC', borderRadius: '8px', padding: '14px' }}>
-          <p style={{ fontSize: '11px', fontWeight: '700', color: '#374151', margin: '0 0 12px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
+          <p style={{ fontSize: '15px', fontWeight: '700', color: '#374151', margin: '0 0 12px' }}>
             Comparativa
           </p>
 
@@ -557,7 +557,7 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
           ].map((b, i) => (
             <div key={i} style={{ marginBottom: '10px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                <span style={{ fontSize: '11px', color: '#374151' }}>{b.label}</span>
+                <span style={{ fontSize: '15px', color: '#374151' }}>{b.label}</span>
                 <span style={{ fontSize: '12px', fontWeight: '700', color: b.color }}>{fmtMXN(b.val)}</span>
               </div>
               <div style={{ height: '10px', background: '#E5E7EB', borderRadius: '5px', overflow: 'hidden' as const }}>
@@ -570,20 +570,20 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
         {/* Resultado */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
           <div style={{ padding: '12px', background: excedenteSin >= 0 ? '#F0FDF4' : '#FEF2F2', borderRadius: '8px', borderLeft: `3px solid ${excedenteSin >= 0 ? VERDE : ROJO}` }}>
-            <p style={{ fontSize: '10px', color: '#64748B', margin: '0 0 4px' }}>Sin Modalidad 40</p>
+            <p style={{ fontSize: '14px', color: '#64748B', margin: '0 0 4px' }}>Sin Modalidad 40</p>
             <p style={{ fontSize: '16px', fontWeight: '800', color: excedenteSin >= 0 ? VERDE : ROJO, margin: '0 0 2px' }}>
               {excedenteSin >= 0 ? `+${fmtMXN(excedenteSin)}` : fmtMXN(excedenteSin)}
             </p>
-            <p style={{ fontSize: '10px', color: '#64748B', margin: 0 }}>
+            <p style={{ fontSize: '14px', color: '#64748B', margin: 0 }}>
               {excedenteSin >= 0 ? 'sobraría al mes' : 'faltaría al mes'}
             </p>
           </div>
           <div style={{ padding: '12px', background: excedenteCon >= 0 ? '#F0FDF4' : '#FEF2F2', borderRadius: '8px', borderLeft: `3px solid ${excedenteCon >= 0 ? VERDE : ROJO}` }}>
-            <p style={{ fontSize: '10px', color: '#64748B', margin: '0 0 4px' }}>Con Modalidad 40</p>
+            <p style={{ fontSize: '14px', color: '#64748B', margin: '0 0 4px' }}>Con Modalidad 40</p>
             <p style={{ fontSize: '16px', fontWeight: '800', color: excedenteCon >= 0 ? VERDE : ROJO, margin: '0 0 2px' }}>
               {excedenteCon >= 0 ? `+${fmtMXN(excedenteCon)}` : fmtMXN(excedenteCon)}
             </p>
-            <p style={{ fontSize: '10px', color: '#64748B', margin: 0 }}>
+            <p style={{ fontSize: '14px', color: '#64748B', margin: 0 }}>
               {excedenteCon >= 0 ? 'sobraría al mes' : 'faltaría al mes'}
             </p>
           </div>
@@ -594,7 +594,7 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
           <p style={{ fontSize: '12px', color: AZUL, fontWeight: '700', margin: '0 0 4px' }}>
             {mejora > 0 ? `Con Modalidad 40 tu pensión mejora ${mejora}%` : 'Completa el diagnóstico para ver la mejora'}
           </p>
-          <p style={{ fontSize: '11px', color: '#64748B', margin: 0 }}>
+          <p style={{ fontSize: '15px', color: '#64748B', margin: 0 }}>
             {pensionCon > 0 && pensionSin > 0 && (
               `Eso significa ${fmtMXN(pensionCon - pensionSin)} más al mes — la diferencia entre ${excedenteCon >= 0 ? 'cubrir tus gastos y tener un margen' : 'reducir el déficit mensual'}.`
             )}
@@ -697,7 +697,7 @@ function SemaforoElegibilidad({ clienteId, diagnosticoId, datos, escenarioSel, s
     <div style={{ marginTop: '4px' }}>
       <div style={{ background: '#334E7B', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <p style={{ fontSize: '12px', color: '#93C5FD', margin: '0 0 2px', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '700' }}>Elegibilidad Financiera</p>
+          <p style={{ fontSize: '12px', color: '#93C5FD', margin: '0 0 2px', fontWeight: '700' }}>Elegibilidad Financiera</p>
           <p style={{ fontSize: '14px', fontWeight: '800', color: 'white', margin: 0 }}>
             {viables > 0 ? `✅ Viable en ${viables} de ${financieras.length} financiera${financieras.length !== 1 ? 's' : ''}` :
              condicionales > 0 ? `⚠️ Condicional en ${condicionales} de ${financieras.length} financiera${financieras.length !== 1 ? 's' : ''}` :
@@ -713,15 +713,15 @@ function SemaforoElegibilidad({ clienteId, diagnosticoId, datos, escenarioSel, s
               style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
               <span style={{ fontSize: '16px' }}>🏦</span>
               <span style={{ fontSize: '13px', fontWeight: '600', color: '#374151', flex: 1 }}>{e.nombre}</span>
-              <span style={{ padding: '3px 10px', background: bgResultado(e.resultado), color: colorResultado(e.resultado), fontSize: '11px', fontWeight: '700', borderRadius: '4px' }}>
+              <span style={{ padding: '3px 10px', background: bgResultado(e.resultado), color: colorResultado(e.resultado), fontSize: '15px', fontWeight: '700', borderRadius: '4px' }}>
                 {etiqueta(e.resultado)}
               </span>
-              <span style={{ color: '#94A3B8', fontSize: '11px' }}>{expandida === e.id ? '▲' : '▼'}</span>
+              <span style={{ color: '#94A3B8', fontSize: '15px' }}>{expandida === e.id ? '▲' : '▼'}</span>
             </div>
             {expandida === e.id && e.detalles.length > 0 && (
               <div style={{ padding: '0 16px 12px 42px' }}>
                 {e.detalles.map((d: any, i: number) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 0', fontSize: '11px' }}>
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 0', fontSize: '15px' }}>
                     <span>{d.cumple ? '✓' : '✗'}</span>
                     <span style={{ color: d.cumple ? '#16A34A' : '#DC2626' }}>
                       {d.clave.replace(/_/g, ' ')} — {d.motivo || `Valor: ${d.valor}`}
@@ -2164,7 +2164,7 @@ function CalculadoraInner() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <div>
                 <p style={{ fontSize: '14px', fontWeight: '700' as const, color: AZUL, margin: 0 }}>Tabla de cuantía de pensión — Ley 73</p>
-                <p style={{ fontSize: '11px', color: '#94a3b8', margin: '2px 0 0' }}>Art. 167 LSS 1973 · La cuantía aumenta 1.25% por cada 52 semanas adicionales sobre 500</p>
+                <p style={{ fontSize: '15px', color: '#94a3b8', margin: '2px 0 0' }}>Art. 167 LSS 1973 · La cuantía aumenta 1.25% por cada 52 semanas adicionales sobre 500</p>
               </div>
               <button onClick={() => setShowTooltipCuantia(false)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
             </div>
@@ -2173,7 +2173,7 @@ function CalculadoraInner() {
                 <thead>
                   <tr style={{ background: AZUL }}>
                     {['Semanas cotizadas', 'Años cotizados', '% del SDI', 'Sobre pensión base'].map((h, i) => (
-                      <th key={i} style={{ padding: '7px 10px', color: 'white', textAlign: i > 0 ? 'right' : 'left', fontSize: '10px', fontWeight: '700' as const }}>{h}</th>
+                      <th key={i} style={{ padding: '7px 10px', color: 'white', textAlign: i > 0 ? 'right' : 'left', fontSize: '14px', fontWeight: '700' as const }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -2183,7 +2183,7 @@ function CalculadoraInner() {
                       <td style={{ padding: '6px 10px', fontWeight: '600' as const, color: AZUL }}>{row.semanas}</td>
                       <td style={{ padding: '6px 10px', textAlign: 'right' as const, color: '#374151' }}>{Math.floor((row.semanas - 500) / 52) + 9.6} aprox.</td>
                       <td style={{ padding: '6px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: NARANJA }}>{row.pct}%</td>
-                      <td style={{ padding: '6px 10px', textAlign: 'right' as const, color: '#94a3b8', fontSize: '11px' }}>{row.descripcion}</td>
+                      <td style={{ padding: '6px 10px', textAlign: 'right' as const, color: '#94a3b8', fontSize: '15px' }}>{row.descripcion}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -2191,15 +2191,15 @@ function CalculadoraInner() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', marginBottom: '12px' }}>
               <div style={{ background: '#FFF7ED', borderRadius: '8px', padding: '10px 12px', border: '1px solid #fed7aa' }}>
-                <p style={{ fontSize: '10px', color: '#92400e', margin: '0 0 3px', fontWeight: '700' as const }}>CESANTÍA (60-64 años)</p>
-                <p style={{ fontSize: '11px', color: '#92400e', margin: 0, lineHeight: 1.5 }}>Se aplica un factor reductor: 75% a los 60, 80% a los 61, 85% a los 62, 90% a los 63, 95% a los 64 años. Se requiere acreditar haber dejado de trabajar.</p>
+                <p style={{ fontSize: '14px', color: '#92400e', margin: '0 0 3px', fontWeight: '700' as const }}>CESANTÍA (60-64 años)</p>
+                <p style={{ fontSize: '15px', color: '#92400e', margin: 0, lineHeight: 1.5 }}>Se aplica un factor reductor: 75% a los 60, 80% a los 61, 85% a los 62, 90% a los 63, 95% a los 64 años. Se requiere acreditar haber dejado de trabajar.</p>
               </div>
               <div style={{ background: '#F0FDF4', borderRadius: '8px', padding: '10px 12px', border: '1px solid #bbf7d0' }}>
-                <p style={{ fontSize: '10px', color: '#15803d', margin: '0 0 3px', fontWeight: '700' as const }}>VEJEZ (65+ años)</p>
-                <p style={{ fontSize: '11px', color: '#15803d', margin: 0, lineHeight: 1.5 }}>Factor del 100%. No requiere acreditar cesantía. Es la modalidad más conveniente si el cliente puede esperar hasta los 65 años.</p>
+                <p style={{ fontSize: '14px', color: '#15803d', margin: '0 0 3px', fontWeight: '700' as const }}>VEJEZ (65+ años)</p>
+                <p style={{ fontSize: '15px', color: '#15803d', margin: 0, lineHeight: 1.5 }}>Factor del 100%. No requiere acreditar cesantía. Es la modalidad más conveniente si el cliente puede esperar hasta los 65 años.</p>
               </div>
             </div>
-            <p style={{ fontSize: '10px', color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
+            <p style={{ fontSize: '14px', color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
               Fuente: Ley del Seguro Social 1973, Arts. 167-168. La cuantía también se incrementa en 2% por cada 52 semanas adicionales sobre las 500 mínimas, con un tope del 100% del SDI promedio.
             </p>
           </div>
@@ -2295,7 +2295,7 @@ function CalculadoraInner() {
               <thead>
                 <tr style={{ background: '#F4F6F9' }}>
                   {['#', 'Fecha inicio', 'Fecha fin', 'Semanas', 'SDI diario', 'SDI mensual', 'Peso'].map((h, i) => (
-                    <th key={i} style={{ padding: '8px 10px', textAlign: i > 0 ? 'right' : 'center', fontSize: '10px', fontWeight: '700' as const, color: '#64748b', textTransform: 'uppercase' as const, borderBottom: '2px solid #e2e8f0' }}>{h}</th>
+                    <th key={i} style={{ padding: '8px 10px', textAlign: i > 0 ? 'right' : 'center', fontSize: '14px', fontWeight: '700' as const, color: '#64748b', textTransform: 'uppercase' as const, borderBottom: '2px solid #e2e8f0' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -2341,7 +2341,7 @@ function CalculadoraInner() {
               <thead>
                 <tr style={{ background: '#F4F6F9' }}>
                   {['#', 'Fecha inicio', 'Fecha fin', 'Semanas', 'SDI diario', 'Patrón'].map((h, i) => (
-                    <th key={i} style={{ padding: '8px 10px', textAlign: i > 0 ? 'right' : 'center', fontSize: '10px', fontWeight: '700' as const, color: '#64748b', textTransform: 'uppercase' as const, borderBottom: '2px solid #e2e8f0' }}>{h}</th>
+                    <th key={i} style={{ padding: '8px 10px', textAlign: i > 0 ? 'right' : 'center', fontSize: '14px', fontWeight: '700' as const, color: '#64748b', textTransform: 'uppercase' as const, borderBottom: '2px solid #e2e8f0' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -2357,7 +2357,7 @@ function CalculadoraInner() {
                     <td style={{ padding: '7px 10px', textAlign: 'right' as const, color: '#374151' }}>{p.fecha_fin?.slice(0, 10) || 'Vigente'}</td>
                     <td style={{ padding: '7px 10px', textAlign: 'right' as const, fontWeight: '600' as const, color: '#374151' }}>{(p.semanas || 0).toFixed(2)}</td>
                     <td style={{ padding: '7px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: NARANJA }}>{fmtMXN2(p.sdi || 0)}</td>
-                    <td style={{ padding: '7px 10px', textAlign: 'right' as const, color: '#64748b', fontSize: '11px' }}>{p.patron || '—'}</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right' as const, color: '#64748b', fontSize: '15px' }}>{p.patron || '—'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -2378,7 +2378,7 @@ function CalculadoraInner() {
                 KSE<sup style={{ fontSize: '12px', verticalAlign: 'super' }}>®</sup>
               </div>
               <h2 style={{ fontSize: '15px', fontWeight: '700' as const, color: 'white', margin: '0 0 4px' }}>Calculadora de Pensión</h2>
-              <p style={{ fontSize: '11px', color: '#93C5FD', margin: 0 }}>Completa los dos pasos para continuar</p>
+              <p style={{ fontSize: '15px', color: '#93C5FD', margin: 0 }}>Completa los dos pasos para continuar</p>
             </div>
 
             <div style={{ padding: '20px 24px 24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -2393,7 +2393,7 @@ function CalculadoraInner() {
                     <p style={{ margin: 0, fontSize: '13px', fontWeight: '700' as const, color: clienteId ? VERDE : '#374151' }}>
                       {clienteId ? `Cliente: ${clientes.find(c => c.id === clienteId)?.nombre ?? ''}` : 'Seleccionar cliente'}
                     </p>
-                    {!clienteId && <p style={{ margin: '1px 0 0', fontSize: '11px', color: '#94A3B8' }}>Requerido</p>}
+                    {!clienteId && <p style={{ margin: '1px 0 0', fontSize: '15px', color: '#94A3B8' }}>Requerido</p>}
                   </div>
                   {clienteId && (
                     <button onClick={() => setClienteId('')}
@@ -2418,7 +2418,7 @@ function CalculadoraInner() {
                     <p style={{ margin: 0, fontSize: '13px', fontWeight: '700' as const, color: datos.semanas_totales > 0 ? VERDE : '#374151' }}>
                       {datos.semanas_totales > 0 ? `Datos cargados — ${datos.semanas_totales} semanas` : 'Datos del trabajador'}
                     </p>
-                    {datos.semanas_totales === 0 && !modoEntrada && <p style={{ margin: '1px 0 0', fontSize: '11px', color: '#94A3B8' }}>¿Cómo quieres ingresar los datos?</p>}
+                    {datos.semanas_totales === 0 && !modoEntrada && <p style={{ margin: '1px 0 0', fontSize: '15px', color: '#94A3B8' }}>¿Cómo quieres ingresar los datos?</p>}
                   </div>
                   {modoEntrada && datos.semanas_totales === 0 && (
                     <button onClick={() => setModoEntrada(null)}
@@ -2436,7 +2436,7 @@ function CalculadoraInner() {
                           <span style={{ fontSize: '24px' }}>📎</span>
                           <div>
                             <div style={{ fontSize: '13px', fontWeight: '700' as const, color: AZUL }}>Cargar constancia PDF</div>
-                            <div style={{ fontSize: '11px', color: '#64748B', marginTop: '2px' }}>Sofía IA extrae los datos automáticamente</div>
+                            <div style={{ fontSize: '15px', color: '#64748B', marginTop: '2px' }}>Sofía IA extrae los datos automáticamente</div>
                           </div>
                           <span style={{ marginLeft: 'auto', fontSize: '18px', color: AZUL }}>→</span>
                         </button>
@@ -2445,7 +2445,7 @@ function CalculadoraInner() {
                           <span style={{ fontSize: '24px' }}>✏️</span>
                           <div>
                             <div style={{ fontSize: '13px', fontWeight: '700' as const, color: '#374151' }}>Captura manual</div>
-                            <div style={{ fontSize: '11px', color: '#64748B', marginTop: '2px' }}>Ingresa los datos del NSS y semanas tú mismo</div>
+                            <div style={{ fontSize: '15px', color: '#64748B', marginTop: '2px' }}>Ingresa los datos del NSS y semanas tú mismo</div>
                           </div>
                           <span style={{ marginLeft: 'auto', fontSize: '18px', color: '#CBD5E1' }}>→</span>
                         </button>
@@ -2466,11 +2466,11 @@ function CalculadoraInner() {
                           }} />
                         </label>
                         {extracting && (
-                          <div style={{ background: '#EEF2F8', borderRadius: '8px', padding: '10px 12px', fontSize: '11px', color: AZUL }}>
+                          <div style={{ background: '#EEF2F8', borderRadius: '8px', padding: '10px 12px', fontSize: '15px', color: AZUL }}>
                             Sofía IA está leyendo el documento... esto toma entre 10 y 30 segundos.
                           </div>
                         )}
-                        <p style={{ margin: 0, fontSize: '10px', color: '#94A3B8' }}>Solo archivos PDF del portal oficial del IMSS. No funciona con fotos ni escaneos.</p>
+                        <p style={{ margin: 0, fontSize: '14px', color: '#94A3B8' }}>Solo archivos PDF del portal oficial del IMSS. No funciona con fotos ni escaneos.</p>
                       </div>
                     )}
 
@@ -2482,31 +2482,31 @@ function CalculadoraInner() {
                         </p>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                           <div style={{ gridColumn: '1 / -1' }}>
-                            <label style={{ fontSize: '10px', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Nombre del trabajador</label>
+                            <label style={{ fontSize: '14px', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px' }}>Nombre del trabajador</label>
                             <input type="text" placeholder="Nombre completo"
                               onChange={e => setDatos(prev => ({ ...prev, nombre_trabajador: e.target.value }))}
                               style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
                           </div>
                           <div>
-                            <label style={{ fontSize: '10px', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Semanas cotizadas *</label>
+                            <label style={{ fontSize: '14px', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px' }}>Semanas cotizadas *</label>
                             <input type="number" placeholder="Ej. 850" min={0} max={2000}
                               onChange={e => { const val = Number(e.target.value); if (val > 0) setDatos(prev => ({ ...prev, semanas_totales: val })) }}
                               style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
                           </div>
                           <div>
-                            <label style={{ fontSize: '10px', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>NSS</label>
+                            <label style={{ fontSize: '14px', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px' }}>NSS</label>
                             <input type="text" placeholder="11 dígitos"
                               onChange={e => setDatos(prev => ({ ...prev, nss: e.target.value }))}
                               style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
                           </div>
                           <div>
-                            <label style={{ fontSize: '10px', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>SDI actual ($/día)</label>
+                            <label style={{ fontSize: '14px', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px' }}>SDI actual ($/día)</label>
                             <input type="number" placeholder="Ej. 450.00" min={0}
                               onChange={e => { const val = Number(e.target.value); if (val > 0) setDatos(prev => ({ ...prev, sdi_actual: val })) }}
                               style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
                           </div>
                         </div>
-                        <p style={{ margin: 0, fontSize: '10px', color: '#94A3B8' }}>* Las semanas son requeridas para habilitar el botón Continuar.</p>
+                        <p style={{ margin: 0, fontSize: '14px', color: '#94A3B8' }}>* Las semanas son requeridas para habilitar el botón Continuar.</p>
                       </div>
                     )}
                   </>
@@ -2538,7 +2538,7 @@ function CalculadoraInner() {
             <div style={{ padding: '16px 20px', borderBottom: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
                 <p style={{ margin: 0, fontSize: '14px', fontWeight: '700' as const, color: AZUL }}>Seleccionar cliente</p>
-                <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#94A3B8' }}>Selecciona un Prospecto o cliente en Diagnóstico</p>
+                <p style={{ margin: '2px 0 0', fontSize: '15px', color: '#94A3B8' }}>Selecciona un Prospecto o cliente en Diagnóstico</p>
               </div>
               <button onClick={() => { setShowClienteModal(false); setBuscarCliente('') }}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px', color: '#94A3B8', lineHeight: 1, padding: '0 4px' }}>✕</button>
@@ -2587,9 +2587,9 @@ function CalculadoraInner() {
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: '13px', fontWeight: '600' as const, color: '#1e293b' }}>{c.nombre}</div>
-                    <div style={{ fontSize: '11px', color: '#94A3B8' }}>{c.telefono ?? ''}</div>
+                    <div style={{ fontSize: '15px', color: '#94A3B8' }}>{c.telefono ?? ''}</div>
                   </div>
-                  <span style={{ fontSize: '10px', fontWeight: '700' as const, padding: '3px 10px', background: c.etapa_kanban === 'diagnostico' ? '#DCFCE7' : '#EEF2F8', color: c.etapa_kanban === 'diagnostico' ? '#15803D' : AZUL, flexShrink: 0 }}>
+                  <span style={{ fontSize: '14px', fontWeight: '700' as const, padding: '3px 10px', background: c.etapa_kanban === 'diagnostico' ? '#DCFCE7' : '#EEF2F8', color: c.etapa_kanban === 'diagnostico' ? '#15803D' : AZUL, flexShrink: 0 }}>
                     {c.etapa_kanban === 'diagnostico' ? 'Diagnóstico' : 'Prospecto'}
                   </span>
                 </button>
@@ -2626,7 +2626,7 @@ function CalculadoraInner() {
                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
                   <button
                     onClick={() => setShowGuia(!showGuia)}
-                    style={{ padding: '5px 10px', background: showGuia ? '#EEF2F8' : 'white', border: '1px solid #E5E7EB', cursor: 'pointer', fontSize: '11px', fontWeight: '600' as const, color: '#334E7B', fontFamily: 'inherit' }}
+                    style={{ padding: '5px 10px', background: showGuia ? '#EEF2F8' : 'white', border: '1px solid #E5E7EB', cursor: 'pointer', fontSize: '15px', fontWeight: '600' as const, color: '#334E7B', fontFamily: 'inherit' }}
                     title="Glosario de términos"
                   >
                     📖 Glosario
@@ -2644,10 +2644,10 @@ function CalculadoraInner() {
                 </div>
                 <div style={{ padding: '12px' }}>
                   {Object.entries(GLOSARIO).map(([id, g]) => (
-                    <div key={id} style={{ padding: '10px 12px', marginBottom: '6px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderLeft: '3px solid #1B3A6B' }}>
+                    <div key={id} style={{ padding: '10px 12px', marginBottom: '6px', background: '#F9FAFB', border: '1px solid #E1E7F0' }}>
                       <p style={{ fontSize: '12px', fontWeight: '700' as const, color: '#334E7B', margin: '0 0 4px' }}>{g.titulo}</p>
                       <p style={{ fontSize: '13px', color: '#1E293B', margin: '0 0 4px', lineHeight: 1.5 }}>{g.desc}</p>
-                      {g.ejemplo && <p style={{ fontSize: '10.5px', color: '#94A3B8', margin: 0, fontStyle: 'italic' }}>Ej: {g.ejemplo}</p>}
+                      {g.ejemplo && <p style={{ fontSize: '14px', color: '#94A3B8', margin: 0, fontStyle: 'italic' }}>Ej: {g.ejemplo}</p>}
                     </div>
                   ))}
                 </div>
@@ -2699,12 +2699,12 @@ function CalculadoraInner() {
                             </span>
                             {/* Label */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                              <span style={{ fontSize: '11px', fontWeight: activo ? '700' : '500', color: activo ? 'white' : '#9CA3AF', whiteSpace: 'nowrap' as const }}>{g.label}</span>
-                              <span style={{ fontSize: '9px', color: activo ? 'rgba(255,255,255,0.7)' : '#CBD5E1', display: 'inline-block', transform: abierto ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.15s' }}>▾</span>
+                              <span style={{ fontSize: '15px', fontWeight: activo ? '700' : '500', color: activo ? 'white' : '#9CA3AF', whiteSpace: 'nowrap' as const }}>{g.label}</span>
+                              <span style={{ fontSize: '13px', color: activo ? 'rgba(255,255,255,0.7)' : '#CBD5E1', display: 'inline-block', transform: abierto ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.15s' }}>▾</span>
                             </div>
                             {/* Indicador completado */}
                             {completado && !activo && (
-                              <span style={{ position: 'absolute' as const, top: '6px', right: '8px', fontSize: '9px', color: VERDE, fontWeight: '700' }}>✓</span>
+                              <span style={{ position: 'absolute' as const, top: '6px', right: '8px', fontSize: '13px', color: VERDE, fontWeight: '700' }}>✓</span>
                             )}
                           </button>
 
@@ -2712,7 +2712,7 @@ function CalculadoraInner() {
                           {abierto && (
                             <div style={{ position: 'absolute' as const, top: 'calc(100% + 4px)', left: 0, minWidth: '210px', background: 'white', borderRadius: '10px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', border: `1px solid ${BORDE}`, zIndex: 100, overflow: 'hidden' }}>
                               <div style={{ background: AZUL, padding: '8px 14px' }}>
-                                <span style={{ fontSize: '11px', fontWeight: '700', color: 'white', textTransform: 'uppercase' as const, letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ fontSize: '15px', fontWeight: '700', color: 'white', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                   <i className={`ti ${g.tiIcon}`} style={{ fontSize: '13px' }} /> {g.label}
                                 </span>
                               </div>
@@ -2723,12 +2723,12 @@ function CalculadoraInner() {
                                   <button key={tabIdx}
                                     onClick={() => { setTab(tabIdx); setMenuAbierto(null) }}
                                     style={{ width: '100%', padding: '10px 14px', border: 'none', borderBottom: `1px solid ${BORDE}`, cursor: 'pointer', background: esCurrent ? '#EEF2F8' : 'white', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '10px', textAlign: 'left' as const, transition: 'background 0.1s' }}>
-                                    <div style={{ width: '22px', height: '22px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: '700', background: esCompletado ? VERDE : esCurrent ? AZUL : '#F1F5F9', color: esCompletado || esCurrent ? 'white' : '#94A3B8' }}>
+                                    <div style={{ width: '22px', height: '22px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: '700', background: esCompletado ? VERDE : esCurrent ? AZUL : '#F1F5F9', color: esCompletado || esCurrent ? 'white' : '#94A3B8' }}>
                                       {esCompletado ? '✓' : si + 1}
                                     </div>
                                     <div style={{ flex: 1 }}>
                                       <div style={{ fontSize: '12px', fontWeight: esCurrent ? '700' : '500', color: esCurrent ? AZUL : esCompletado ? '#374151' : '#64748B' }}>{g.nombres[si]}</div>
-                                      {esCurrent && <div style={{ fontSize: '10px', color: AZUL, marginTop: '1px' }}>← Estás aquí</div>}
+                                      {esCurrent && <div style={{ fontSize: '14px', color: AZUL, marginTop: '1px' }}>← Estás aquí</div>}
                                     </div>
                                     {esCurrent && <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: AZUL, flexShrink: 0 }} />}
                                   </button>
@@ -2746,9 +2746,9 @@ function CalculadoraInner() {
 
                   {/* Opciones adicionales — regímenes alternativos */}
                   <div style={{ marginLeft: 'auto', display: 'flex', gap: '6px', alignItems: 'center' }}>
-                    <span style={{ fontSize: '10px', color: '#94A3B8', whiteSpace: 'nowrap' as const }}>Opciones:</span>
+                    <span style={{ fontSize: '14px', color: '#94A3B8', whiteSpace: 'nowrap' as const }}>Opciones:</span>
                     <button onClick={() => setTab(12)}
-                      style={{ padding: '6px 12px', borderRadius: '6px', border: `1px solid ${tab === 12 ? '#0891B2' : '#E2E8F0'}`, background: tab === 12 ? '#ECFEFF' : 'white', color: tab === 12 ? '#0891B2' : '#64748B', fontSize: '11px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' as const }}>
+                      style={{ padding: '6px 12px', borderRadius: '6px', border: `1px solid ${tab === 12 ? '#0891B2' : '#E2E8F0'}`, background: tab === 12 ? '#ECFEFF' : 'white', color: tab === 12 ? '#0891B2' : '#64748B', fontSize: '15px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' as const }}>
                       <i className="ti ti-droplet" style={{ fontSize: '12px', marginRight: '4px' }} />Mod. 10 / Ley 97
                     </button>
                   </div>
@@ -2773,7 +2773,7 @@ function CalculadoraInner() {
                   <div key={i} style={{ flex: '1 1 0', padding: '8px 12px', borderRight: `1px solid ${BORDE}`, borderBottom: `3px solid ${k.accent}`, background: 'white', minWidth: '90px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '3px' }}>
                       <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: dotColor, flexShrink: 0, display: 'inline-block' }} />
-                      <span style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' as const, whiteSpace: 'nowrap' as const }}>{k.label}</span>
+                      <span style={{ fontSize: '13px', color: '#94A3B8', fontWeight: '600' as const, whiteSpace: 'nowrap' as const }}>{k.label}</span>
                     </div>
                     <div style={{ fontSize: '13px', fontWeight: '700' as const, color: k.accent, whiteSpace: 'nowrap' as const }}>{k.value}</div>
                   </div>
@@ -2847,17 +2847,17 @@ function CalculadoraInner() {
                 )}
 
                 {/* Leyenda del sistema de colores */}
-                <div style={{ display: 'flex', gap: '6px', padding: '8px 12px', background: '#F4F6F9', borderRadius: '8px', flexWrap: 'wrap' as const }}>
-                  <span style={{ fontSize: '9px', color: '#94A3B8', fontWeight: '600' as const, textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginRight: '4px' }}>Referencias:</span>
+                <div style={{ display: 'flex', gap: '20px', padding: '14px 18px', background: '#FFFFFF', border: '1px solid #E1E7F0', borderRadius: '12px', flexWrap: 'wrap' as const, alignItems: 'center' }}>
+                  <span style={{ fontSize: '13px', color: '#66738A', marginRight: '2px' }}>Procedencia del dato</span>
                   {[
                     { color: AZUL, label: 'Dato IMSS (constancia)' },
                     { color: NARANJA, label: 'Captura manual' },
                     { color: VERDE, label: 'Decisión estratégica' },
                     { color: '#7C3AED', label: 'Resultado calculado' },
                   ].map((item, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color, display: 'inline-block', flexShrink: 0 }} />
-                      <span style={{ fontSize: '10px', color: '#64748B' }}>{item.label}</span>
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                      <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: item.color, display: 'inline-block', flexShrink: 0 }} />
+                      <span style={{ fontSize: '15px', color: '#132135' }}>{item.label}</span>
                     </div>
                   ))}
                 </div>
@@ -2865,10 +2865,10 @@ function CalculadoraInner() {
 
 
                 {/* Card Identificación — borde azul */}
-                <div style={{ background: 'white', borderRadius: '10px', borderLeft: `4px solid ${AZUL}`, padding: '14px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                    <span style={{ fontSize: '9px', fontWeight: '600' as const, textTransform: 'uppercase' as const, letterSpacing: '0.6px', background: '#EEF2F8', color: AZUL, padding: '3px 8px', borderRadius: '4px' }}>Identificación</span>
-                    <span style={{ fontSize: '11px', color: '#94A3B8' }}>{clientes.find(c => c.id === clienteId)?.nombre || 'Sin cliente'}</span>
+                <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: '22px 24px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', marginBottom: '16px' }}>
+                    <span style={{ fontSize: '20px', fontWeight: 700, color: '#132135' }}>Identificación</span>
+                    <span style={{ fontSize: '15px', color: '#66738A' }}>{clientes.find(c => c.id === clienteId)?.nombre || 'Sin cliente'}</span>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                     {[
@@ -2878,8 +2878,8 @@ function CalculadoraInner() {
                       { label: 'Edad actual / Régimen', value: datos.edad_actual ? `${datos.edad_actual.toFixed(1)} años${datos.ley ? ' · Ley ' + datos.ley : ''}` : '' },
                     ].map((k, i) => (
                       <div key={i}>
-                        <div style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.4px', marginBottom: '3px' }}>{k.label}</div>
-                        <div style={{ padding: '7px 10px', background: k.highlight && k.value ? '#EEF2F8' : k.value ? 'white' : '#F9FAFB', border: `1px solid ${k.highlight && k.value ? '#BFDBFE' : k.value ? '#E2E8F0' : '#E5E7EB'}`, borderRadius: '6px', fontSize: '13px', fontWeight: k.highlight ? '600' : '400' as const, color: k.highlight && k.value ? AZUL : k.value ? '#1E293B' : '#9CA3AF', fontStyle: k.value ? 'normal' : 'italic' }}>
+                        <div style={{ fontSize: '15px', color: '#66738A', marginBottom: '6px' }}>{k.label}</div>
+                        <div style={{ padding: '12px 14px', background: k.value ? '#F5F7FA' : 'white', border: '1px solid #E1E7F0', borderRadius: '10px', fontSize: '17px', fontWeight: k.highlight ? 700 : 500, color: k.value ? '#132135' : '#66738A', fontStyle: k.value ? 'normal' : 'italic' }}>
                           {k.value || '—'}
                         </div>
                       </div>
@@ -2888,10 +2888,10 @@ function CalculadoraInner() {
                 </div>
 
                 {/* Card Cotización — borde naranja */}
-                <div style={{ background: 'white', borderRadius: '10px', borderLeft: `4px solid ${NARANJA}`, padding: '14px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                    <span style={{ fontSize: '9px', fontWeight: '600' as const, textTransform: 'uppercase' as const, letterSpacing: '0.6px', background: '#FFF7ED', color: '#B45309', padding: '3px 8px', borderRadius: '4px' }}>Cotización</span>
-                    <span style={{ fontSize: '11px', fontWeight: '600' as const, color: conservacion.vigente ? VERDE : '#DC2626' }}>{datos.semanas_totales ? (conservacion.vigente ? '✓ Vigente' : '✕ Vencida') : '—'}</span>
+                <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: '22px 24px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', marginBottom: '16px' }}>
+                    <span style={{ fontSize: '20px', fontWeight: 700, color: '#132135' }}>Cotización</span>
+                    <span style={{ fontSize: '15px', fontWeight: 600, color: conservacion.vigente ? VERDE : '#DC2626' }}>{datos.semanas_totales ? (conservacion.vigente ? '✓ Vigente' : '✕ Vencida') : '—'}</span>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginBottom: '10px' }}>
                     {[
@@ -2901,7 +2901,7 @@ function CalculadoraInner() {
                     ].map((k, i) => (
                       <div key={i} style={{ textAlign: 'center' as const, padding: '10px 8px', background: k.bg, border: `1px solid ${k.border}`, borderRadius: '8px' }}>
                         <div style={{ fontSize: '24px', fontWeight: '800' as const, color: k.color, lineHeight: 1 }}>{k.value}</div>
-                        <div style={{ fontSize: '9px', color: '#94A3B8', marginTop: '4px', textTransform: 'uppercase' as const, letterSpacing: '0.4px' }}>{k.label}</div>
+                        <div style={{ fontSize: '13px', color: '#94A3B8', marginTop: '4px' }}>{k.label}</div>
                       </div>
                     ))}
                   </div>
@@ -2913,7 +2913,7 @@ function CalculadoraInner() {
                     ].map((k, i) => (
                       <div key={i} style={{ padding: '8px 10px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '6px', textAlign: 'center' as const }}>
                         <div style={{ fontSize: '13px', fontWeight: '600' as const, color: k.color }}>{k.value}</div>
-                        <div style={{ fontSize: '9px', color: '#94A3B8', marginTop: '3px', textTransform: 'uppercase' as const, letterSpacing: '0.3px' }}>{k.label}</div>
+                        <div style={{ fontSize: '13px', color: '#94A3B8', marginTop: '3px' }}>{k.label}</div>
                       </div>
                     ))}
                   </div>
@@ -2921,8 +2921,8 @@ function CalculadoraInner() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   {/* Card Familia — borde verde */}
-                  <div style={{ background: 'white', borderRadius: '10px', borderLeft: `4px solid ${VERDE}`, padding: '14px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-                    <span style={{ fontSize: '9px', fontWeight: '600' as const, textTransform: 'uppercase' as const, letterSpacing: '0.6px', background: '#F0F7F4', color: VERDE, padding: '3px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '12px' }}>Familia y beneficiarios</span>
+                  <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: '14px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+                    <span style={{ fontSize: '20px', fontWeight: 700, background: '#F0F7F4', color: VERDE, padding: '3px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '12px' }}>Familia y beneficiarios</span>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
                       {[
                         { label: 'Cónyuge', value: datos.tiene_conyuge ? 'Sí' : 'No', ok: datos.tiene_conyuge },
@@ -2931,20 +2931,20 @@ function CalculadoraInner() {
                       ].map(({ label, value, ok }, i) => (
                         <div key={i} style={{ textAlign: 'center' as const, padding: '10px 6px', background: ok ? '#F0F7F4' : '#F8FAFC', border: `1px solid ${ok ? '#86EFAC' : '#E2E8F0'}`, borderRadius: '8px' }}>
                           <div style={{ fontSize: '22px', fontWeight: '800' as const, color: ok ? VERDE : '#9CA3AF' }}>{value}</div>
-                          <div style={{ fontSize: '9px', color: '#94A3B8', marginTop: '3px', textTransform: 'uppercase' as const, letterSpacing: '0.3px' }}>{label}</div>
+                          <div style={{ fontSize: '13px', color: '#94A3B8', marginTop: '3px' }}>{label}</div>
                         </div>
                       ))}
                     </div>
                   </div>
 
                   {/* Card Tabla edad — borde morado */}
-                  <div style={{ background: 'white', borderRadius: '10px', borderLeft: '4px solid #7C3AED', padding: '14px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-                    <span style={{ fontSize: '9px', fontWeight: '600' as const, textTransform: 'uppercase' as const, letterSpacing: '0.6px', background: '#F5F3FF', color: '#7C3AED', padding: '3px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '12px' }}>% Pensión por edad (Ley 73)</span>
-                    <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '11px' }}>
+                  <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: '14px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+                    <span style={{ fontSize: '20px', fontWeight: 700, background: '#F5F3FF', color: '#7C3AED', padding: '3px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '12px' }}>% Pensión por edad (Ley 73)</span>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '15px' }}>
                       <thead>
                         <tr style={{ background: AZUL }}>
                           {['Edad', '% Cuantía', 'Tipo'].map((h, i) => (
-                            <th key={i} style={{ padding: '6px 8px', color: 'white', fontSize: '9px', fontWeight: '600' as const, textAlign: i === 0 ? 'center' as const : i === 1 ? 'center' as const : 'left' as const, textTransform: 'uppercase' as const, letterSpacing: '0.4px' }}>{h}</th>
+                            <th key={i} style={{ padding: '6px 8px', color: 'white', fontSize: '13px', fontWeight: '600' as const, textAlign: i === 0 ? 'center' as const : i === 1 ? 'center' as const : 'left' as const }}>{h}</th>
                           ))}
                         </tr>
                       </thead>
@@ -2955,14 +2955,14 @@ function CalculadoraInner() {
                             <tr key={i} style={{ background: isActive ? '#EEF2F8' : i % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
                               <td style={{ padding: '6px 8px', textAlign: 'center' as const, fontWeight: isActive ? '700' : '400' as const, color: isActive ? AZUL : '#374151' }}>{edad} años</td>
                               <td style={{ padding: '6px 8px', textAlign: 'center' as const, fontSize: '13px', fontWeight: '700' as const, color: isActive ? AZUL : '#374151' }}>{pct}</td>
-                              <td style={{ padding: '6px 8px', color: '#64748B', fontSize: '10px' }}>{tipo as string}</td>
+                              <td style={{ padding: '6px 8px', color: '#64748B', fontSize: '14px' }}>{tipo as string}</td>
                             </tr>
                           )
                         })}
                         <tr style={{ background: VERDE }}>
                           <td style={{ padding: '6px 8px', textAlign: 'center' as const, fontWeight: '700' as const, color: 'white' }}>65+ años</td>
                           <td style={{ padding: '6px 8px', textAlign: 'center' as const, fontSize: '13px', fontWeight: '700' as const, color: 'white' }}>100%</td>
-                          <td style={{ padding: '6px 8px', color: 'white', fontSize: '10px', fontWeight: '600' as const }}>Vejez (IDEL)</td>
+                          <td style={{ padding: '6px 8px', color: 'white', fontSize: '14px', fontWeight: '600' as const }}>Vejez (IDEL)</td>
                         </tr>
                       </tbody>
                     </table>
@@ -3103,7 +3103,7 @@ function CalculadoraInner() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div style={{ background: AZUL, padding: '16px 20px', borderRadius: '8px' }}>
                 <p style={{ fontSize: '14px', fontWeight: '800' as const, color: 'white', margin: '0 0 4px' }}>Resumen Ejecutivo — Proyecto de Pensión con Modalidad 40</p>
-                <div style={{ display: 'flex', gap: '20px', fontSize: '11px', color: '#93C5FD' }}>
+                <div style={{ display: 'flex', gap: '20px', fontSize: '15px', color: '#93C5FD' }}>
                   <span>{datos.nombre_trabajador || 'Trabajador'}</span>
                   {datos.nss && <span>NSS: {datos.nss}</span>}
                   {datos.ley && <span>Régimen: Ley {datos.ley}</span>}
@@ -3118,16 +3118,16 @@ function CalculadoraInner() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
                   {escsConMod40.map((esc: any, i: number) => (
                     <div key={i} style={{ background: esc.recomendado ? VERDE : 'white', border: esc.recomendado ? 'none' : '1.5px solid #E2E8F0', borderRadius: '10px', padding: '14px', textAlign: 'center' as const, boxShadow: esc.recomendado ? '0 4px 12px rgba(46,125,90,0.2)' : '0 1px 3px rgba(0,0,0,0.06)' }}>
-                      {esc.recomendado && <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.8)', marginBottom: '6px', fontWeight: '600' as const }}>⭐ RECOMENDADO</div>}
-                      <div style={{ fontSize: '11px', color: esc.recomendado ? 'rgba(255,255,255,0.7)' : '#94A3B8', marginBottom: '4px' }}>{esc.mod40_meses} meses Mod. 40</div>
+                      {esc.recomendado && <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.8)', marginBottom: '6px', fontWeight: '600' as const }}>⭐ RECOMENDADO</div>}
+                      <div style={{ fontSize: '15px', color: esc.recomendado ? 'rgba(255,255,255,0.7)' : '#94A3B8', marginBottom: '4px' }}>{esc.mod40_meses} meses Mod. 40</div>
                       <div style={{ fontSize: '24px', fontWeight: '800' as const, color: esc.recomendado ? 'white' : AZUL, letterSpacing: '-0.5px' }}>
                         {fmtMXN(esc.pension_mensual)}
                       </div>
-                      <div style={{ fontSize: '11px', color: esc.recomendado ? 'rgba(255,255,255,0.7)' : '#64748B', marginTop: '2px' }}>mensual</div>
+                      <div style={{ fontSize: '15px', color: esc.recomendado ? 'rgba(255,255,255,0.7)' : '#64748B', marginTop: '2px' }}>mensual</div>
                       <div style={{ fontSize: '13px', fontWeight: '700' as const, color: esc.recomendado ? 'white' : '#92400E', marginTop: '8px' }}>
                         {fmtMXN(esc.aportacion_banco || esc.costo_total || 0)}
                       </div>
-                      <div style={{ fontSize: '10px', color: esc.recomendado ? 'rgba(255,255,255,0.6)' : '#94A3B8' }}>inversión total</div>
+                      <div style={{ fontSize: '14px', color: esc.recomendado ? 'rgba(255,255,255,0.6)' : '#94A3B8' }}>inversión total</div>
                     </div>
                   ))}
                 </div>
@@ -3185,12 +3185,12 @@ function CalculadoraInner() {
               {/* Header */}
               <div style={{ background: '#0891B2', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <p style={{ fontSize: '10px', color: '#BAE6FD', margin: '0 0 3px', textTransform: 'uppercase' as const, letterSpacing: '0.6px', fontWeight: '600' }}>Cotización Voluntaria</p>
+                  <p style={{ fontSize: '14px', color: '#BAE6FD', margin: '0 0 3px', fontWeight: '600' }}>Cotización Voluntaria</p>
                   <p style={{ fontSize: '16px', fontWeight: '800', color: 'white', margin: 0 }}>Modalidad 10 — Conservación de Derechos</p>
                 </div>
                 {escM10 && (
                   <div style={{ textAlign: 'right' as const }}>
-                    <div style={{ fontSize: '10px', color: '#BAE6FD', marginBottom: '2px' }}>Pensión mejorada</div>
+                    <div style={{ fontSize: '14px', color: '#BAE6FD', marginBottom: '2px' }}>Pensión mejorada</div>
                     <div style={{ fontSize: '26px', fontWeight: '900', color: 'white', letterSpacing: '-1px' }}>{fmtMXN2(escM10.pension_mensual)}</div>
                   </div>
                 )}
@@ -3210,16 +3210,16 @@ function CalculadoraInner() {
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {[
-                      { icon: '✅', title: 'Cobertura médica completa', desc: 'A diferencia de Mod 40, mantiene acceso a servicios médicos del IMSS' },
-                      { icon: '📅', title: 'Acumula semanas', desc: 'Suma semanas hacia las 500 mínimas requeridas para pensión' },
-                      { icon: '💰', title: 'Tasa ~22%', desc: 'Paga el 100% de cuotas: aprox. 22% del SBC registrado por año' },
-                      { icon: '🔒', title: 'Conserva derechos', desc: 'Mantiene vigentes los derechos ante el IMSS (pensión, invalidez)' },
+                      { icon: '', title: 'Cobertura médica completa', desc: 'A diferencia de Mod 40, mantiene acceso a servicios médicos del IMSS' },
+                      { icon: '', title: 'Acumula semanas', desc: 'Suma semanas hacia las 500 mínimas requeridas para pensión' },
+                      { icon: '', title: 'Tasa ~22%', desc: 'Paga el 100% de cuotas: aprox. 22% del SBC registrado por año' },
+                      { icon: '', title: 'Conserva derechos', desc: 'Mantiene vigentes los derechos ante el IMSS (pensión, invalidez)' },
                     ].map(({ icon, title, desc }, i) => (
-                      <div key={i} style={{ display: 'flex', gap: '10px', padding: '8px 12px', background: '#F0F9FF', border: '1px solid #BAE6FD' }}>
-                        <span style={{ fontSize: '18px', flexShrink: 0 }}>{icon}</span>
-                        <div>
-                          <div style={{ fontSize: '12px', fontWeight: '700', color: '#0C4A6E' }}>{title}</div>
-                          <div style={{ fontSize: '11px', color: '#64748B' }}>{desc}</div>
+                      <div key={i} style={{ display: 'flex', gap: '14px', padding: '16px 18px', background: '#F5F7FA', borderRadius: '12px' }}>
+                        <span style={{ width: 6, height: 6, borderRadius: 999, background: '#0891B2', flexShrink: 0, marginTop: 8 }} />
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontSize: '17px', fontWeight: 600, color: '#132135' }}>{title}</div>
+                          <div style={{ fontSize: '15px', color: '#66738A', marginTop: 2, lineHeight: 1.55 }}>{desc}</div>
                         </div>
                       </div>
                     ))}
@@ -3287,9 +3287,9 @@ function CalculadoraInner() {
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                           <thead>
                             <tr style={{ background: '#F4F6F9' }}>
-                              <th style={{ padding: '7px 10px', textAlign: 'left' as const, fontSize: '10px', color: '#94A3B8', fontWeight: '700' }}>Concepto</th>
-                              <th style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: '10px', color: '#0891B2', fontWeight: '700' }}>Mod 10</th>
-                              <th style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: '10px', color: '#334E7B', fontWeight: '700' }}>Mod 40</th>
+                              <th style={{ padding: '7px 10px', textAlign: 'left' as const, fontSize: '15px', color: '#66738A', fontWeight: '700' }}>Concepto</th>
+                              <th style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: '14px', color: '#0891B2', fontWeight: '700' }}>Mod 10</th>
+                              <th style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: '14px', color: '#334E7B', fontWeight: '700' }}>Mod 40</th>
                             </tr>
                           </thead>
                           <tbody>

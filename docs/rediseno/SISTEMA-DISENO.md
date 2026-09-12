@@ -96,5 +96,4 @@ Casos detectados y resueltos:
 
 1. Los tokens siguen duplicados en cada componente (objeto `K`). Extraer a `lib/design-tokens.ts`.
 3. Dos termómetros con criterios distintos: uno por meses de recuperación (Escenarios, Costo) y otro por retorno (Proyección). Unificar.
-4. `TabCliente` recibió restyle, no rediseño de estructura: conserva su composición original.
-5. Fuente Inter no configurada vía `next/font`; el sistema la asume.
+4. Fuente Inter no configurada vía `next/font`; el sistema la asume.

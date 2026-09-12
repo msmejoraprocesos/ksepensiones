@@ -103,7 +103,7 @@ export default function TabCliente({
         {Object.entries(SEM).map(([k, v]) => (
           <div key={k} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: v.dot, display: 'inline-block' }} />
-            <span style={{ fontSize: '10px', color: '#64748B' }}>{v.label}</span>
+            <span style={{ fontSize: '15px', color: '#132135' }}>{v.label}</span>
           </div>
         ))}
       </div>
@@ -119,7 +119,7 @@ export default function TabCliente({
           <div key={i} style={{ background: 'white', border: `1.5px solid ${k.accent}22`, borderTop: `3px solid ${k.accent}`, padding: '10px 12px', borderRadius: '8px', textAlign: 'center' as const }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginBottom: '4px' }}>
               <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: SEM[k.tipo].dot, display: 'inline-block' }} />
-              <span style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', fontWeight: '600' }}>{k.label}</span>
+              <span style={{ fontSize: '13px', color: '#66738A' }}>{k.label}</span>
             </div>
             <div style={{ fontSize: '16px', fontWeight: '800', color: k.accent }}>{k.value}</div>
           </div>
@@ -189,7 +189,7 @@ export default function TabCliente({
               ].map(({ label, value, ok }, i) => (
                 <div key={i} style={{ textAlign: 'center' as const, padding: '8px 4px', background: ok ? '#F0F7F4' : '#F8FAFC', border: `1px solid ${ok ? '#86EFAC' : BORDE}`, borderRadius: '8px' }}>
                   <div style={{ fontSize: '18px', fontWeight: '800', color: ok ? VERDE : '#9CA3AF' }}>{value}</div>
-                  <div style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.3px' }}>{label}</div>
+                  <div style={{ fontSize: '13px', color: '#66738A' }}>{label}</div>
                 </div>
               ))}
             </div>
@@ -200,10 +200,10 @@ export default function TabCliente({
       {/* ── SDI 250 semanas ── */}
       <CardSection tipo="result" title="SDI promedio · últimas 250 semanas">
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '10px' }}>
-          <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>Art. 167 LSS 1973 — Base real del cálculo de pensión</p>
+          <p style={{ fontSize: '15px', color: '#66738A', margin: 0 }}>Art. 167 LSS 1973 — base real del cálculo de pensión</p>
           <div style={{ display: 'flex', gap: '6px' }}>
-            <button onClick={() => setShowDetalle250(true)} style={{ padding: '5px 10px', background: '#EEF2F8', color: AZUL, border: `1px solid #BFDBFE`, borderRadius: '6px', fontSize: '10px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>Ver 250 sem.</button>
-            <button onClick={() => setShowHistorialCompleto(true)} style={{ padding: '5px 10px', background: '#F0FDF4', color: '#065F46', border: '1px solid #86EFAC', borderRadius: '6px', fontSize: '10px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>Historial ({periodosCompletos.length})</button>
+            <button onClick={() => setShowDetalle250(true)} style={{ padding: '10px 16px', background: 'transparent', color: K.navy600, border: `1px solid ${K.line}`, borderRadius: '9px', fontSize: '15px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>Ver 250 sem.</button>
+            <button onClick={() => setShowHistorialCompleto(true)} style={{ padding: '10px 16px', background: 'transparent', color: K.green, border: `1px solid ${K.line}`, borderRadius: '9px', fontSize: '15px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>Historial ({periodosCompletos.length})</button>
           </div>
         </div>
         {periodos.length === 0 ? (
@@ -213,39 +213,39 @@ export default function TabCliente({
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 140px', gap: '12px', alignItems: 'start' }}>
             <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '11px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '15px' }}>
                 <thead>
                   <tr style={{ background: AZUL }}>
                     {['Período','Sem.','SDI diario','Peso'].map((h,i) => (
-                      <th key={i} style={{ padding: '7px 10px', color: 'white', fontSize: '10px', fontWeight: '600', textAlign: i > 0 ? 'right' as const : 'left' as const }}>{h}</th>
+                      <th key={i} style={{ padding: '12px 14px', color: 'white', fontSize: '13px', fontWeight: 600, textAlign: i > 0 ? 'right' as const : 'left' as const, whiteSpace: 'nowrap' as const }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {periodos.map((p: any, i: number) => (
                     <tr key={i} style={{ background: i === 0 ? '#FFFBEB' : i % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
-                      <td style={{ padding: '7px 10px', fontSize: '11px', color: '#374151' }}>{p.fecha_inicio?.slice(0,7)} → {p.fecha_fin?.slice(0,7)}</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right' as const, fontSize: '11px' }}>{p.semanas}</td>
+                      <td style={{ padding: '11px 14px', fontSize: '15px', color: '#132135', whiteSpace: 'nowrap' as const }}>{p.fecha_inicio?.slice(0,7)} → {p.fecha_fin?.slice(0,7)}</td>
+                      <td style={{ padding: '11px 14px', textAlign: 'right' as const, fontSize: '15px', fontVariantNumeric: 'tabular-nums' as const }}>{p.semanas}</td>
                       <td style={{ padding: '7px 10px', textAlign: 'right' as const, fontWeight: '700', color: '#B45309' }}>{fmtMXN2(p.sdi)}</td>
-                      <td style={{ padding: '7px 10px', textAlign: 'right' as const, color: '#64748B', fontSize: '11px' }}>{p.peso.toFixed(1)}%</td>
+                      <td style={{ padding: '11px 14px', textAlign: 'right' as const, color: '#66738A', fontSize: '15px', fontVariantNumeric: 'tabular-nums' as const }}>{p.peso.toFixed(1)}%</td>
                     </tr>
                   ))}
                   <tr style={{ background: AZUL }}>
-                    <td style={{ padding: '8px 10px', color: 'white', fontWeight: '600', fontSize: '11px' }}>Promedio ponderado</td>
-                    <td style={{ padding: '8px 10px', color: 'white', fontWeight: '600', textAlign: 'right' as const, fontSize: '11px' }}>{periodos.reduce((s: number, p: any) => s + p.semanas, 0)}</td>
+                    <td style={{ padding: '12px 14px', color: 'white', fontWeight: 700, fontSize: '15px' }}>Promedio ponderado</td>
+                    <td style={{ padding: '12px 14px', color: 'white', fontWeight: 700, textAlign: 'right' as const, fontSize: '15px' }}>{periodos.reduce((s: number, p: any) => s + p.semanas, 0)}</td>
                     <td style={{ padding: '8px 10px', color: '#FCD34D', fontWeight: '800', textAlign: 'right' as const, fontSize: '15px' }}>{fmtMXN2(sdiPromedio)}</td>
-                    <td style={{ padding: '8px 10px', color: 'white', fontWeight: '600', textAlign: 'right' as const, fontSize: '11px' }}>100%</td>
+                    <td style={{ padding: '12px 14px', color: 'white', fontWeight: 700, textAlign: 'right' as const, fontSize: '15px' }}>100%</td>
                   </tr>
                 </tbody>
               </table>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <div style={{ padding: '10px', background: SEM.result.bg, border: `1.5px solid ${SEM.result.border}`, borderRadius: '8px', textAlign: 'center' as const }}>
-                <div style={{ fontSize: '9px', color: SEM.result.text, textTransform: 'uppercase' as const, marginBottom: '3px', opacity: 0.7 }}>SDI diario</div>
+                <div style={{ fontSize: '13px', color: '#66738A', marginBottom: '4px' }}>SDI diario</div>
                 <div style={{ fontSize: '20px', fontWeight: '800', color: MORADO }}>{fmtMXN2(sdiPromedio)}</div>
               </div>
               <div style={{ padding: '10px', background: SEM.imss.bg, border: `1px solid ${SEM.imss.border}22`, borderRadius: '8px', textAlign: 'center' as const }}>
-                <div style={{ fontSize: '9px', color: AZUL, textTransform: 'uppercase' as const, marginBottom: '3px', opacity: 0.7 }}>SDI mensual</div>
+                <div style={{ fontSize: '13px', color: '#66738A', marginBottom: '4px' }}>SDI mensual</div>
                 <div style={{ fontSize: '15px', fontWeight: '700', color: AZUL }}>{fmtMXN(sdiPromedio * 30.4167)}</div>
               </div>
             </div>
@@ -264,7 +264,7 @@ export default function TabCliente({
               { label: 'Duración Mod. 40', value: `${escRec.mod40_meses} meses`, color: VERDE },
             ].map((k, i) => (
               <div key={i} style={{ padding: '10px', background: SEM.strategy.bg, border: `1px solid ${SEM.strategy.border}33`, borderRadius: '8px', textAlign: 'center' as const }}>
-                <div style={{ fontSize: '9px', color: SEM.strategy.text, textTransform: 'uppercase' as const, letterSpacing: '0.4px', marginBottom: '4px', opacity: 0.7 }}>{k.label}</div>
+                <div style={{ fontSize: '13px', color: '#66738A', marginBottom: '5px' }}>{k.label}</div>
                 <div style={{ fontSize: '15px', fontWeight: '800', color: k.color }}>{k.value}</div>
               </div>
             ))}

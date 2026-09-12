@@ -6,6 +6,18 @@ const VERDE = '#2E7D5A'
 const NARANJA = '#E8724A'
 const BORDE = '#E2E8F0'
 
+/* Tokens — docs/rediseno/SISTEMA-DISENO.md */
+const K = {
+  navy900: '#0D2440', navy800: '#14375F', navy600: '#245287',
+  orange: '#E8622C', orangeSoft: '#FDF0E9', gold: '#F2B544',
+  green: '#12855C', greenSoft: '#E6F4EE', purple: '#6D3BD4', purpleSoft: '#F3EEFE',
+  red: '#B91C1C', redSoft: '#FEF2F2',
+  paper: '#F5F7FA', card: '#FFFFFF',
+  ink: '#132135', muted: '#66738A', line: '#E1E7F0',
+}
+const nw = { whiteSpace: 'nowrap' as const }
+const num = { fontVariantNumeric: 'tabular-nums' as const }
+
 const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n || 0)
 const fmtMXN2 = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n || 0)
 
@@ -87,23 +99,27 @@ export default function TabEntregable({
   }
 
   const tabs = [
-    { key: 'generar',  label: '✨ Generar con Sofía',  color: '#7C3AED', bg: '#F5F3FF' },
-    { key: 'revisar',  label: '✏️ Revisar y editar',    color: AZUL,       bg: '#EEF2F8' },
-    { key: 'exportar', label: '✅ Exportar PDF',         color: VERDE,      bg: '#F0F7F4' },
+    { key: 'generar',  label: 'Generar con Sofía',  color: K.purple },
+    { key: 'revisar',  label: 'Revisar y editar',   color: K.navy600 },
+    { key: 'exportar', label: 'Exportar PDF',       color: K.green },
   ]
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
       {/* Sub-tabs */}
-      <div style={{ display: 'flex', gap: '6px', background: '#F4F6F9', padding: '6px', borderRadius: '10px' }}>
-        {tabs.map(t => (
+      <div style={{ display: 'flex', gap: '2px', background: K.card, border: `1px solid ${K.line}`, padding: '3px', borderRadius: '11px' }}>
+        {tabs.map((t, i) => (
           <button key={t.key} onClick={() => setSubTab(t.key as any)}
-            style={{ flex: 1, padding: '9px 12px', border: 'none', borderRadius: '7px', cursor: 'pointer', fontFamily: 'inherit', fontSize: '12px', fontWeight: '600',
-              background: subTab === t.key ? t.bg : 'white',
-              color: subTab === t.key ? t.color : '#94A3B8',
-              borderBottom: subTab === t.key ? `2px solid ${t.color}` : '2px solid transparent',
-            }}>
+            style={{ flex: 1, padding: '11px 12px', border: 'none', borderRadius: '9px', cursor: 'pointer', fontFamily: 'inherit', fontSize: '15px', fontWeight: 600,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '9px',
+              background: subTab === t.key ? K.navy800 : 'transparent',
+              color: subTab === t.key ? 'white' : K.muted, ...nw }}>
+            <span style={{ width: 20, height: 20, borderRadius: 999, flexShrink: 0, fontSize: 11, fontWeight: 700,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: subTab === t.key ? t.color : 'transparent',
+              border: subTab === t.key ? 'none' : `1.5px solid ${K.line}`,
+              color: subTab === t.key ? 'white' : K.muted }}>{i + 1}</span>
             {t.label}
           </button>
         ))}
@@ -120,22 +136,26 @@ export default function TabEntregable({
               { label: 'Escenarios', ok: tieneEscenarios, val: tieneEscenarios ? `${escenarios.filter(e => e.mod40_meses > 0).length} escenario(s)` : 'Pendiente' },
               { label: 'Sofía IA', ok: !!sofiaOutput, val: sofiaOutput ? 'Listo para revisar' : 'Sin generar' },
             ].map((item, i) => (
-              <div key={i} style={{ padding: '10px 12px', background: item.ok ? '#F0FDF4' : '#F8FAFC', border: `1px solid ${item.ok ? '#86EFAC' : BORDE}`, borderRadius: '8px' }}>
-                <div style={{ fontSize: '9px', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px', fontWeight: '600' }}>{item.label}</div>
-                <div style={{ fontSize: '12px', fontWeight: '700', color: item.ok ? VERDE : '#9CA3AF' }}>
-                  {item.ok ? '✓ ' : '○ '}{item.val}
+              <div key={i} style={{ padding: '16px 18px', background: K.card, border: `1px solid ${item.ok ? K.green + '44' : K.line}`, borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ width: 26, height: 26, borderRadius: 999, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: item.ok ? K.green : K.paper, color: item.ok ? 'white' : K.muted, fontSize: 13, fontWeight: 700 }}>
+                  {item.ok ? '✓' : String(i + 1)}
+                </span>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: '13px', color: K.muted }}>{item.label}</div>
+                  <div style={{ fontSize: '17px', fontWeight: 700, color: item.ok ? K.ink : K.muted, ...nw }}>{item.val}</div>
                 </div>
               </div>
             ))}
           </div>
 
           {/* Hero de generación */}
-          <div style={{ background: 'white', borderRadius: '12px', border: `1px solid ${BORDE}`, overflow: 'hidden' }}>
-            <div style={{ background: '#7C3AED', padding: '20px 24px' }}>
-              <div style={{ fontSize: '18px', fontWeight: '800', color: 'white', marginBottom: '4px' }}>
-                Diagnóstico completo con Sofía IA
+          <div style={{ background: K.card, borderRadius: '14px', border: `1px solid ${K.line}`, overflow: 'hidden', boxShadow: '0 1px 3px rgba(19,33,53,0.06)' }}>
+            <div style={{ background: `linear-gradient(118deg, ${K.navy900} 0%, ${K.purple} 130%)`, padding: '26px 28px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 700, color: 'white', marginBottom: '6px', letterSpacing: '-.015em' }}>
+                Diagnóstico completo con Sofía
               </div>
-              <p style={{ fontSize: '12px', color: '#DDD6FE', margin: 0, lineHeight: 1.5 }}>
+              <p style={{ fontSize: '15px', color: 'rgba(255,255,255,.72)', margin: 0, lineHeight: 1.6 }}>
                 Una sola llamada llena todo el PDF: análisis de situación, interpretación de cada gráfica,
                 comparativa de escenarios y próximos pasos — personalizado para {datos.nombre_trabajador || 'el cliente'}.
               </p>
@@ -145,45 +165,45 @@ export default function TabEntregable({
               {/* Qué va a generar */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                 {[
-                  { icon: '📝', text: 'Narrativa personalizada por sección' },
-                  { icon: '📊', text: 'Interpretación de cada gráfica' },
-                  { icon: '⭐', text: 'Justificación del escenario recomendado' },
-                  { icon: '🎯', text: 'Próximos pasos específicos para el cliente' },
-                ].map((item, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', background: '#F8FAFC', borderRadius: '6px' }}>
-                    <span style={{ fontSize: '16px' }}>{item.icon}</span>
-                    <span style={{ fontSize: '11px', color: '#374151' }}>{item.text}</span>
+                  'Narrativa personalizada por sección',
+                  'Interpretación de cada gráfica',
+                  'Justificación del escenario recomendado',
+                  'Próximos pasos específicos para el cliente',
+                ].map((texto, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '11px', padding: '14px 16px', background: K.paper, borderRadius: '10px' }}>
+                    <span style={{ width: 6, height: 6, borderRadius: 999, background: K.purple, flexShrink: 0 }} />
+                    <span style={{ fontSize: '15px', color: K.ink }}>{texto}</span>
                   </div>
                 ))}
               </div>
 
               {/* Costo */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: '#F5F3FF', borderRadius: '6px', border: '1px solid #DDD6FE' }}>
-                <span style={{ fontSize: '11px', color: '#64748B' }}>Costo estimado por diagnóstico</span>
-                <span style={{ fontSize: '12px', fontWeight: '700', color: '#7C3AED' }}>~$0.015 USD · ~3,500 tokens</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', padding: '14px 16px', background: K.purpleSoft, borderRadius: '10px' }}>
+                <span style={{ fontSize: '15px', color: K.ink }}>Costo estimado por diagnóstico</span>
+                <span style={{ fontSize: '17px', fontWeight: 700, color: K.purple, ...nw, ...num }}>~$0.015 USD · ~3,500 tokens</span>
               </div>
 
               {error && (
-                <div style={{ padding: '10px 12px', background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: '6px', fontSize: '12px', color: '#B91C1C' }}>
-                  ⚠ {error}
+                <div style={{ padding: '14px 16px', background: K.redSoft, border: `1px solid ${K.red}33`, borderRadius: '10px', fontSize: '15px', color: K.red, lineHeight: 1.55 }}>
+                  {error}
                 </div>
               )}
 
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={generarConSofia} disabled={generandoSofia || !tieneEscenarios}
-                  style={{ flex: 1, padding: '12px 20px', background: generandoSofia ? '#8B5CF6' : '#7C3AED', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: generandoSofia || !tieneEscenarios ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  style={{ flex: 1, padding: '15px 22px', background: !tieneEscenarios ? K.line : K.purple, color: !tieneEscenarios ? K.muted : 'white', border: 'none', borderRadius: '11px', fontSize: '17px', fontWeight: 700, cursor: generandoSofia || !tieneEscenarios ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '9px', boxShadow: !tieneEscenarios ? 'none' : '0 3px 12px rgba(109,59,212,.3)' }}>
                   {generandoSofia ? (
-                    <><span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⏳</span> Sofía está generando el diagnóstico...</>
+                    <>Sofía está generando el diagnóstico…</>
                   ) : (
-                    <>✨ Generar diagnóstico completo con Sofía</>
+                    <>Generar diagnóstico completo con Sofía</>
                   )}
                 </button>
               </div>
 
               {sofiaOutput && (
                 <button onClick={() => setSubTab('revisar')}
-                  style={{ padding: '8px 16px', background: '#F0FDF4', color: VERDE, border: '1px solid #86EFAC', borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
-                  ✓ Ya tienes un análisis generado — Ver y editar →
+                  style={{ padding: '13px 18px', background: K.greenSoft, color: K.green, border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  Ya tienes un análisis generado — ver y editar →
                 </button>
               )}
             </div>
@@ -196,8 +216,8 @@ export default function TabEntregable({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {!sofiaOutput ? (
             <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8' }}>
-              <p style={{ fontSize: '14px', margin: 0 }}>Primero genera el análisis con Sofía IA</p>
-              <button onClick={() => setSubTab('generar')} style={{ marginTop: '12px', padding: '8px 20px', background: '#7C3AED', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontFamily: 'inherit' }}>
+              <p style={{ fontSize: '15px', margin: 0 }}>Primero genera el análisis con Sofía</p>
+              <button onClick={() => setSubTab('generar')} style={{ marginTop: '14px', padding: '12px 22px', background: K.purple, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '15px', fontWeight: 600, fontFamily: 'inherit' }}>
                 Ir a generar →
               </button>
             </div>
@@ -205,12 +225,12 @@ export default function TabEntregable({
             <>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <p style={{ fontSize: '13px', fontWeight: '600', color: '#111827', margin: 0 }}>Revisión del análisis de Sofía</p>
-                  <p style={{ fontSize: '11px', color: '#94A3B8', margin: '2px 0 0' }}>Haz clic en cualquier texto para editarlo antes de exportar</p>
+                  <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: 0 }}>Revisión del análisis</p>
+                  <p style={{ fontSize: '13px', color: K.muted, margin: '4px 0 0' }}>Toca cualquier texto para editarlo antes de exportar</p>
                 </div>
                 <button onClick={generarConSofia} disabled={generandoSofia}
-                  style={{ padding: '7px 14px', background: '#F5F3FF', color: '#7C3AED', border: '1px solid #DDD6FE', borderRadius: '7px', fontSize: '11px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
-                  ↻ Regenerar con Sofía
+                  style={{ padding: '10px 16px', background: K.purpleSoft, color: K.purple, border: 'none', borderRadius: '9px', fontSize: '15px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', ...nw }}>
+                  Regenerar con Sofía
                 </button>
               </div>
 
@@ -229,7 +249,7 @@ export default function TabEntregable({
                 <div key={key}>
                   {key === 'proximos_pasos' ? (
                     <div style={{ background: 'white', borderRadius: '10px', border: `1px solid ${BORDE}`, overflow: 'hidden' }}>
-                      <div style={{ padding: '8px 12px', background: '#F0F7F4', borderBottom: `1px solid ${BORDE}`, fontSize: '10px', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: '0.5px', color: VERDE }}>
+                      <div style={{ padding: '14px 18px', background: K.card, borderBottom: `1px solid ${K.line}`, fontSize: '17px', fontWeight: 700, color: K.ink }}>
                         Próximos pasos
                       </div>
                       <div style={{ padding: '12px' }}>
@@ -247,7 +267,7 @@ export default function TabEntregable({
                     </div>
                   ) : (
                     <div style={{ background: 'white', borderRadius: '10px', border: `1px solid ${BORDE}`, overflow: 'hidden' }}>
-                      <div style={{ padding: '8px 12px', background: '#EEF2F8', borderBottom: `1px solid ${BORDE}`, fontSize: '10px', fontWeight: '600', textTransform: 'uppercase' as const, letterSpacing: '0.5px', color: AZUL }}>
+                      <div style={{ padding: '14px 18px', background: K.card, borderBottom: `1px solid ${K.line}`, fontSize: '17px', fontWeight: 700, color: K.ink }}>
                         {labelBloque(key)}
                       </div>
                       <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -324,7 +344,7 @@ export default function TabEntregable({
                   ? sofiaOutput ? '✓ Diagnóstico con IA listo para exportar' : '✓ Diagnóstico listo (sin análisis de IA)'
                   : '⏳ Guarda el diagnóstico antes de exportar'}
               </p>
-              <p style={{ fontSize: '12px', color: '#94A3B8', margin: 0 }}>
+              <p style={{ fontSize: '15px', color: K.muted, margin: 0 }}>
                 {sofiaOutput
                   ? 'El PDF incluirá gráficas + tablas + análisis completo de Sofía IA'
                   : 'El PDF incluirá gráficas y tablas sin análisis narrativo'}
@@ -332,7 +352,7 @@ export default function TabEntregable({
             </div>
             <div style={{ display: 'flex', gap: '12px' }}>
               <button onClick={() => exportarPDF(sofiaOutput)} disabled={!listo}
-                style={{ flex: 1, padding: '10px 14px', background: listo ? 'white' : '#F3F4F6', color: listo ? '#64748B' : '#9CA3AF', border: `1.5px solid ${listo ? BORDE : '#E5E7EB'}`, borderRadius: '8px', fontSize: '12px', fontWeight: '600', cursor: listo ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
+                style={{ flex: 1, padding: '14px 18px', background: K.card, color: listo ? K.ink : K.muted, border: `1px solid ${K.line}`, borderRadius: '10px', fontSize: '15px', fontWeight: 600, cursor: listo ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
                 📄 Borrador
               </button>
               <button onClick={async () => { await guardarDiagnostico('autorizado'); exportarPDF(sofiaOutput) }} disabled={!listo}
@@ -341,7 +361,7 @@ export default function TabEntregable({
               </button>
             </div>
             {estatus === 'autorizado' && (
-              <p style={{ fontSize: '11px', color: VERDE, margin: '10px 0 0', fontWeight: '600' }}>✓ Este diagnóstico ya está autorizado</p>
+              <p style={{ fontSize: '15px', color: K.green, margin: '12px 0 0', fontWeight: 600 }}>Este diagnóstico ya está autorizado</p>
             )}
           </div>
         </div>
@@ -359,12 +379,12 @@ function EditableBlock({ label, valor, onChange, color, compact }: {
 
   if (editing) return (
     <div style={{ marginBottom: compact ? '6px' : '0' }}>
-      <label style={{ fontSize: '10px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', display: 'block', marginBottom: '4px' }}>{label}</label>
+      <label style={{ fontSize: '15px', fontWeight: 500, color: K.muted, display: 'block', marginBottom: '6px' }}>{label}</label>
       <textarea value={draft} onChange={e => setDraft(e.target.value)} rows={compact ? 2 : 3} autoFocus
-        style={{ width: '100%', border: `1.5px solid ${color}`, borderRadius: '7px', padding: '8px 10px', fontSize: '12px', fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
+        style={{ width: '100%', border: `1px solid ${K.line}`, borderRadius: '10px', padding: '12px 14px', fontSize: '15px', fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box', outline: 'none', lineHeight: 1.6, color: K.ink }} />
       <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
-        <button onClick={() => { onChange(draft); setEditing(false) }} style={{ padding: '4px 12px', background: color, color: 'white', border: 'none', borderRadius: '5px', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '600' }}>✓ Guardar</button>
-        <button onClick={() => { setDraft(valor); setEditing(false) }} style={{ padding: '4px 10px', background: '#F8FAFC', color: '#64748B', border: `1px solid ${BORDE}`, borderRadius: '5px', fontSize: '11px', cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
+        <button onClick={() => { onChange(draft); setEditing(false) }} style={{ padding: '9px 18px', background: K.navy800, color: 'white', border: 'none', borderRadius: '9px', fontSize: '15px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600 }}>Guardar</button>
+        <button onClick={() => { setDraft(valor); setEditing(false) }} style={{ padding: '9px 16px', background: 'transparent', color: K.muted, border: `1px solid ${K.line}`, borderRadius: '9px', fontSize: '15px', cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
       </div>
     </div>
   )
@@ -372,10 +392,10 @@ function EditableBlock({ label, valor, onChange, color, compact }: {
   return (
     <div onClick={() => { setDraft(valor); setEditing(true) }}
       style={{ cursor: 'pointer', padding: compact ? '6px 8px' : '10px 12px', background: '#FAFAFA', border: `1px solid ${BORDE}`, borderLeft: `3px solid ${color}33`, borderRadius: '6px', marginBottom: compact ? '4px' : '0' }}>
-      <div style={{ fontSize: '9px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' as const, letterSpacing: '0.5px', marginBottom: '3px', display: 'flex', justifyContent: 'space-between' }}>
+      <div style={{ fontSize: '13px', fontWeight: 500, color: K.muted, marginBottom: '5px', display: 'flex', justifyContent: 'space-between' }}>
         <span>{label}</span><span style={{ color: color, opacity: 0.6 }}>✏️ Editar</span>
       </div>
-      <p style={{ fontSize: '11px', color: '#374151', margin: 0, lineHeight: 1.5 }}>{valor || <em style={{ color: '#94A3B8' }}>Sin contenido</em>}</p>
+      <p style={{ fontSize: '15px', color: K.ink, margin: 0, lineHeight: 1.65 }}>{valor || <em style={{ color: K.muted }}>Sin contenido</em>}</p>
     </div>
   )
 }
