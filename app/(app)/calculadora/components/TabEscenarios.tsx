@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { esEscenarioMod40 } from '@/app/utils/formulas'
 import { K, nw, num, COLORES_SERIE as COLORES, getTermometro, HORIZONTE_MESES } from '@/lib/design-tokens'
+import GuiaTermometro from './GuiaTermometro'
 
 
 
@@ -216,7 +217,10 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
                 </span>
               </div>
               <div style={{ marginTop: '12px', background: t.bg, borderRadius: '9px', padding: '12px 14px' }}>
-                <p style={{ fontSize: '13px', fontWeight: 700, color: t.color, margin: 0 }}>{t.label}</p>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+                  <p style={{ fontSize: '13px', fontWeight: 700, color: t.color, margin: 0 }}>{t.label}</p>
+                  <GuiaTermometro meses={escSel.roi} />
+                </div>
                 <p style={{ fontSize: '13px', color: K.ink, margin: '4px 0 0', lineHeight: 1.5 }}>{t.explica}</p>
               </div>
             </div>

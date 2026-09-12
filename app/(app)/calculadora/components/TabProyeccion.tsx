@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { K, nw, num, getTermometro, HORIZONTE_MESES } from '@/lib/design-tokens'
+import GuiaTermometro from './GuiaTermometro'
 
 
 
@@ -104,13 +105,16 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
           {[
             { label: 'Incremento de pensión', value: fmtMXN2(incr), sub: 'mensual adicional', color: K.greenLt },
             { label: 'Inversión neta', value: fmtMXN2(escRec.inversion_neta), sub: 'descontando AFORE', color: K.gold },
-            { label: 'Recuperación', value: `${escRec.roi} meses`, sub: termRec.label, color: 'white' },
+            { label: 'Recuperación', value: `${escRec.roi} meses`, sub: termRec.label, color: 'white', guia: true },
             { label: 'Actualización anual', value: `${(inflacion * 100).toFixed(1)}%`, sub: 'INPC, Art. 214 LSS', color: 'white' },
           ].map((k, i) => (
             <div key={i} style={{ background: K.navy900, padding: '18px 24px' }}>
               <p style={{ fontSize: '13px', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k.label}</p>
               <p style={{ fontSize: '24px', fontWeight: 700, color: k.color, margin: '3px 0 0', ...nw, ...num }}>{k.value}</p>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,.44)', margin: '2px 0 0' }}>{k.sub}</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
+                <p style={{ fontSize: '13px', color: 'rgba(255,255,255,.44)', margin: 0 }}>{k.sub}</p>
+                {(k as any).guia && <GuiaTermometro meses={escRec.roi} />}
+              </div>
             </div>
           ))}
         </div>

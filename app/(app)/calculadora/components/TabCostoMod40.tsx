@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { K, nw, num, getTermometro } from '@/lib/design-tokens'
+import GuiaTermometro from './GuiaTermometro'
 
 
 
@@ -204,7 +205,10 @@ export default function TabCostoMod40({ escenarios, sys, getMod40Pct, setTab }: 
               </div>
             ))}
             <div style={{ marginTop: '14px', background: t.bg, borderRadius: '10px', padding: '14px 16px' }}>
-              <p style={{ fontSize: '15px', fontWeight: 700, color: t.color, margin: 0 }}>{t.label}</p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+                <p style={{ fontSize: '15px', fontWeight: 700, color: t.color, margin: 0 }}>{t.label}</p>
+                <GuiaTermometro meses={escRec.roi} tam="md" />
+              </div>
               <p style={{ fontSize: '15px', color: K.ink, margin: '4px 0 0', lineHeight: 1.55 }}>{t.explica}</p>
             </div>
           </div>
