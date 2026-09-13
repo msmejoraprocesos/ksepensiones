@@ -2067,7 +2067,7 @@ function CalculadoraInner() {
 
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 48px)', overflow: 'hidden', position: 'relative' as const }} onClick={() => setActiveTooltip(null)}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%', flex: 1, overflow: 'hidden', position: 'relative' as const }} onClick={() => setActiveTooltip(null)}>
 
       {/* ── Modal de validación de datos ── */}
       {showValidacion && (() => {

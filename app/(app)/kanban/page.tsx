@@ -153,7 +153,7 @@ export default function KanbanPage() {
   const inputSt: React.CSSProperties = { display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', boxSizing: 'border-box', outline: 'none', fontFamily: 'inherit', background: 'white' }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 56px)', background: '#F4F6F9' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%', flex: 1, background: '#F4F6F9' }}>
       {/* Header — fijo arriba mientras se hace scroll de toda la página */}
       <div style={{ position: 'sticky' as const, top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #e2e8f0', padding: 'clamp(9.6px, 1.05vw, 12.3px) clamp(10.8px, 1.08vw, 13.9px)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
         <h1 style={{ color: AZUL, fontSize: 'clamp(12.6px, 1.02vw, 16.2px)', fontWeight: 700, margin: 0 }}>Pipeline de Clientes</h1>

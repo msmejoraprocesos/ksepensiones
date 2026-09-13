@@ -332,7 +332,7 @@ export default function SeguimientoPage() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)', background: 'white', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%', flex: 1, background: 'white', overflow: 'hidden' }}>
       {/* Header */}
       <div style={{ background: 'white', borderBottom: '1px solid #E1E7F0', padding: '10px 20px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
         {/* Nav */}

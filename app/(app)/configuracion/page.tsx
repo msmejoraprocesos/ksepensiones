@@ -937,7 +937,7 @@ export default function ConfiguracionPage() {
   )
 
   return (
-    <div style={{ height: 'calc(100vh - 48px)', overflow: 'auto', background: '#FAFAFA', padding: '0' }}>
+    <div style={{ minHeight: '100%', flex: 1, background: '#FAFAFA', padding: '0' }}>
       {/* Sin tope de ancho: los otros diez modulos usan el viewport completo, y
           un contenedor centrado aqui dejaba franjas vacias a los lados que hacian
           ver la pantalla como de otro diseño. */}

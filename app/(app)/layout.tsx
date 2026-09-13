@@ -302,7 +302,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const displayName = razonSocial || firstName
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: 'white' }}>
+    <div className="kse-app-shell" style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', background: 'white' }}>
 
       {/* ── TOP NAVBAR ── */}
       <div style={{

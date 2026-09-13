@@ -401,7 +401,7 @@ function MiDiaInner() {
   )
 
   return (
-    <div style={{ height: 'calc(100vh - 48px)', overflow: 'auto', background: '#F4F6F9' }}>
+    <div style={{ minHeight: '100%', flex: 1, background: '#F4F6F9' }}>
 
       {/* ── Modal de gráfica maximizada ── */}
       {chartModal && (
