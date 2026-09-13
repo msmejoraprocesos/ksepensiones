@@ -2751,7 +2751,7 @@ function CalculadoraInner() {
 
                           {/* Dropdown */}
                           {abierto && (
-                            <div style={{ position: 'absolute' as const, top: 'calc(100% + 4px)', left: 0, minWidth: '210px', background: 'white', borderRadius: '10px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', border: `1px solid ${BORDE}`, zIndex: 100, overflow: 'hidden' }}>
+                            <div style={{ position: 'absolute' as const, top: 'calc(100% + 4px)', left: 0, minWidth: '210px', background: 'white', borderRadius: '10px', boxShadow: '0 8px 24px rgba(13,36,64,0.18)', border: `1px solid ${BORDE}`, zIndex: 320, overflow: 'hidden' }}>
                               <div style={{ background: AZUL, padding: '8px 14px' }}>
                                 <span style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: 'white', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                   <i className={`ti ${g.tiIcon}`} style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)' }} /> {g.label}
@@ -2782,7 +2782,7 @@ function CalculadoraInner() {
                     })}
                   </div>
                   {menuAbierto !== null && (
-                    <div onClick={() => setMenuAbierto(null)} style={{ position: 'fixed' as const, inset: 0, zIndex: 19 }} />
+                    <div onClick={() => setMenuAbierto(null)} style={{ position: 'fixed' as const, inset: 0, zIndex: 310, background: 'transparent' }} />
                   )}
 
                   {/* Opciones adicionales — regímenes alternativos */}

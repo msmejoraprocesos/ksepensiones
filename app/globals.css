@@ -199,10 +199,22 @@ input, select, textarea, button {
 }
 
 
-/* El chat flotante ocupa la esquina inferior derecha. Sin este margen tapa la
-   ultima fila de las tablas y los botones de accion al pie de las pantallas. */
-main > div:last-child, [class*="kse-wrap"]:last-child {
-  padding-bottom: 84px;
+/* El chat flotante ocupa la esquina inferior derecha. Necesita despeje, pero
+   84px de relleno al pie de cada pantalla dejaban una banda gris permanente
+   que no aportaba nada y robaba altura útil.
+   
+   El despeje se aplica solo a lo que puede quedar debajo del botón — la
+   esquina inferior derecha — y no a toda la pantalla. */
+main > div:last-child::after {
+  content: '';
+  display: block;
+  height: 12px;
+}
+
+/* Las tablas y las barras de acción sí reservan espacio, porque su contenido
+   llega hasta el borde inferior. */
+table:last-child, .kse-acciones:last-child {
+  margin-bottom: 56px;
 }
 
 
