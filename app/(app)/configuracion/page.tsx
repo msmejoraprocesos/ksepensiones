@@ -933,7 +933,10 @@ export default function ConfiguracionPage() {
 
   return (
     <div style={{ height: 'calc(100vh - 48px)', overflow: 'auto', background: '#FAFAFA', padding: '0' }}>
-      <div style={{ maxWidth: '1600px', margin: '0 auto', padding: 'clamp(12px, 3vw, 32px)', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {/* Sin tope de ancho: los otros diez modulos usan el viewport completo, y
+          un contenedor centrado aqui dejaba franjas vacias a los lados que hacian
+          ver la pantalla como de otro diseño. */}
+      <div style={{ padding: '20px 24px 40px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
         {cargando ? (
           <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>

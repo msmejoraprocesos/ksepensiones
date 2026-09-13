@@ -352,7 +352,7 @@ function AdminFormulasInner() {
   if (!isAdmin) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}><p style={{ color: '#374151', fontWeight: '700' }}>🔒 Acceso restringido</p></div>
 
   return (
-    <div style={{ height: 'calc(100vh - 48px)', overflowY: 'auto', background: '#F4F6FB' }}>
+    <div style={{ height: 'calc(100vh - 48px)', overflowY: 'auto', background: '#F5F7FA', padding: '20px 24px 40px' }}>
       <style>{`
         .af-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .af-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }

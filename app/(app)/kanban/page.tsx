@@ -155,7 +155,7 @@ export default function KanbanPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 56px)', background: '#F4F6F9' }}>
       {/* Header — fijo arriba mientras se hace scroll de toda la página */}
-      <div style={{ position: 'sticky' as const, top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #e2e8f0', padding: '12px 20px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div style={{ position: 'sticky' as const, top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #e2e8f0', padding: '20px 24px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '16px' }}>
         <h1 style={{ color: AZUL, fontSize: '26px', fontWeight: 700, margin: 0 }}>Pipeline de Clientes</h1>
 
         {/* KPIs rápidos */}

@@ -539,7 +539,7 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
 
   return (
     <div style={{ background: 'white', border: '1px solid #E5E7EB', marginTop: '4px' }}>
-      <div style={{ background: AZUL, padding: '12px 16px' }}>
+      <div style={{ background: AZUL, padding: '20px 24px' }}>
         <p style={{ fontSize: '13px', color: '#93C5FD', margin: '0 0 2px', fontWeight: '700' }}>
           Simulador de vida real
         </p>

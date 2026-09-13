@@ -89,7 +89,7 @@ export default function CarteraPage() {
     setTramos(p => p.map((t, j) => (j === i ? { ...t, ...patch } : t)))
 
   return (
-    <div style={{ padding: '20px 24px 40px', maxWidth: 1280, margin: '0 auto' }}>
+    <div style={{ padding: '20px 24px 40px' }}>
 
       <section style={{ position: 'relative', overflow: 'hidden', borderRadius: 18, background: franja() }}>
         <div style={halo()} />

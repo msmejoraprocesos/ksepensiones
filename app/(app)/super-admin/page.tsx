@@ -124,7 +124,7 @@ export default function SuperAdminDashboard() {
     <div style={{ minHeight: '100vh', background: '#F4F6FB' }}>
 
       {/* Header */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #E5E7EB', padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #E5E7EB', padding: '20px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h1 style={{ fontSize: '26px', fontWeight: 700, color: AZUL, margin: 0 }}>🏠 Dashboard de Negocio</h1>
           <p style={{ fontSize: '15px', color: '#9CA3AF', margin: 0 }}>Solo visible para ti — super_admin</p>

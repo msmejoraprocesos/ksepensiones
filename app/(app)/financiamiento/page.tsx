@@ -108,7 +108,7 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
     <div style={{ background: 'white', border: '1px solid #E1E7F0', borderRadius: '14px', overflow: 'hidden' }}>
 
       {/* Header */}
-      <div style={{ padding: '14px 20px', background: '#EEF2F8', borderBottom: '1px solid #D1D5DB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ padding: '20px 24px', background: '#EEF2F8', borderBottom: '1px solid #D1D5DB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <p style={{ fontSize: '14px', fontWeight: 700, color: AZUL, margin: '0 0 4px' }}>📁 Expediente de documentos</p>
           {docsRequeridos.length > 0 ? (

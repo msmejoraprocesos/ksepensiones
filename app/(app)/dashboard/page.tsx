@@ -366,7 +366,7 @@ function MiDiaInner() {
        nueve tintes distintos en una fila compiten entre sí y ninguno destaca.
        El color vive en la cifra, el fondo se queda neutro. */
     return (
-      <div style={{ background: filled ? color : '#FFFFFF', border: '1px solid #E1E7F0', padding: '14px 12px', textAlign: 'center' as const, borderRadius: '12px', boxShadow: filled ? 'none' : '0 1px 3px rgba(19,33,53,0.06)', display: 'flex', flexDirection: 'column' as const, justifyContent: 'center', minHeight: minH }}>
+      <div style={{ background: filled ? color : '#FFFFFF', border: '1px solid #E1E7F0', padding: '20px 24px', textAlign: 'center' as const, borderRadius: '12px', boxShadow: filled ? 'none' : '0 1px 3px rgba(19,33,53,0.06)', display: 'flex', flexDirection: 'column' as const, justifyContent: 'center', minHeight: minH }}>
         <div style={{ fontSize: '13px', color: filled ? 'rgba(255,255,255,0.72)' : '#66738A', fontWeight: 500, marginBottom: '5px', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
         <div style={{ fontSize: '24px', fontWeight: 700, color: filled ? 'white' : color, letterSpacing: '-0.025em', fontVariantNumeric: 'tabular-nums' as const }}>{value}</div>
         {sub && <div style={{ fontSize: '13px', color: filled ? 'rgba(255,255,255,0.7)' : '#66738A', marginTop: '3px' }}>{sub}</div>}

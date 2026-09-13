@@ -128,3 +128,37 @@ describe('seguridad y consistencia', () => {
     expect(leer('app/utils/DiagnosticoPDF.tsx')).toMatch(/wm:/)
   })
 })
+
+describe('consistencia de layout entre módulos', () => {
+  const MODULOS = [
+    'dashboard', 'clientes', 'seguimiento', 'calculadora', 'financiamiento',
+    'reportes', 'cartera', 'configuracion', 'admin', 'super-admin',
+    'org-admin', 'kanban',
+  ]
+
+  it('ningún módulo limita el ancho del contenido', () => {
+    /* Configuración tenía un contenedor de 1600px centrado mientras los otros
+       once usaban el viewport completo: en monitores anchos dejaba franjas
+       vacías y la pantalla se veía de otro diseño. */
+    const conTope = MODULOS.filter(m => {
+      const s = leer(`app/(app)/${m}/page.tsx`)
+      return /maxWidth: '?1[2-9]\d\d(px)?'?[^}]*margin: '0 auto'/.test(s)
+    })
+    expect(conTope).toEqual([])
+  })
+
+  it('el padding del contenedor raíz es uniforme', () => {
+    /* Había ocho valores distintos: unas pantallas pegadas al borde y otras
+       con aire de sobra. Se verifica que cada módulo declare el padding
+       estándar en alguna parte, sin intentar adivinar cuál es su contenedor
+       raíz — eso depende de la estructura de cada archivo. */
+    const ACEPTADOS = ["20px 24px", "20px 24px 40px"]
+    const sinEstandar = MODULOS.filter(m => {
+      const s = leer(`app/(app)/${m}/page.tsx`)
+      return !ACEPTADOS.some(a => s.includes(`padding: '${a}'`))
+    })
+    // Seguimiento es un calendario a pantalla completa: su contenedor no lleva
+    // padding porque la rejilla ocupa todo el alto disponible.
+    expect(sinEstandar.filter(m => m !== 'seguimiento')).toEqual([])
+  })
+})

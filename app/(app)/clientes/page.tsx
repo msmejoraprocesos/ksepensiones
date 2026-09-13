@@ -1146,7 +1146,7 @@ function ClientesInner() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)', background: '#F4F6F9', overflow: 'hidden' }}>
       {/* Header */}
-      <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '10px 20px', flexShrink: 0, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px', rowGap: '8px' }}>
+      <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: '20px 24px', flexShrink: 0, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px', rowGap: '8px' }}>
         {/* Fila 1: título + toggle vista + botones principales */}
         <h1 style={{ color: '#132135', fontSize: '26px', fontWeight: 700, margin: 0, flexShrink: 0, letterSpacing: '-0.015em' }}>
           Clientes <span style={{ color: '#94a3b8', fontWeight: '600', fontSize: '14px' }}>({clientesFiltrados.length})</span>

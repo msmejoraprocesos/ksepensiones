@@ -87,7 +87,7 @@ function PanelCanalizaciones({ supabase, userId, asesores }: { supabase: any; us
   }[e] ?? { bg: '#F4F6FB', color: '#6B7280', label: e })
 
   return (
-    <div style={{ padding: '16px' }}>
+    <div style={{ padding: '20px 24px' }}>
 
       {/* Pendientes */}
       <div style={{ marginBottom: '20px' }}>
