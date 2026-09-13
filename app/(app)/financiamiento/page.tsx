@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { avisoError } from '@/app/utils/avisos'
+import { TablaSkeleton, TarjetasSkeleton } from '@/components/Skeleton'
 
 const AZUL = '#245287', NARANJA = '#E8622C', VERDE = '#2E8B57'
 const fmtMXN  = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n || 0)
@@ -344,7 +345,14 @@ function FinanciamientoPage() {
   const comisionesCobradas = financiamientos.filter((f: any) => f.comision_cobrada).reduce((s: number, f: any) => s + f.comision_monto, 0)
   const finFiltrados = filtroEstatus === 'todos' ? financiamientos : financiamientos.filter((f: any) => f.estatus === filtroEstatus)
 
-  if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', color: '#66738A' }}>Cargando...</div>
+  if (loading) return (
+    <div style={{ padding: '20px 24px' }}>
+      <TarjetasSkeleton n={4} />
+      <div style={{ marginTop: 20, background: 'white', border: '1px solid #E1E7F0', borderRadius: 14, overflow: 'hidden' }}>
+        <TablaSkeleton filas={6} columnas={5} />
+      </div>
+    </div>
+  )
 
   return (
     <div style={{ minHeight: '100vh', background: '#F4F6F9' }}>

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { avisoError } from '@/app/utils/avisos'
+import { EstilosSkeleton } from '@/components/Skeleton'
 
 const AZUL = '#1F3A5F'
 const VERDE = '#2E8B57'
@@ -367,7 +368,16 @@ export default function SeguimientoPage() {
       )}
 
       {cargando ? (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: '14px' }}>Cargando agenda...</div>
+        <div style={{ flex: 1, padding: '20px' }}>
+          <EstilosSkeleton />
+          {/* Rejilla con la forma del calendario: evita el salto de layout
+              cuando los datos llegan. */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px' }}>
+            {Array.from({ length: 35 }).map((_, i) => (
+              <div key={i} data-skeleton style={{ height: 78, borderRadius: 10, background: 'linear-gradient(90deg,#E1E7F0 25%,#EEF2F7 50%,#E1E7F0 75%)', backgroundSize: '200% 100%', animation: 'kse-brillo 1.4s ease-in-out infinite', opacity: 1 - (i % 7) * 0.04 }} />
+            ))}
+          </div>
+        </div>
       ) : (
         vista === 'mes' ? renderMes() : renderSemanaODia()
       )}

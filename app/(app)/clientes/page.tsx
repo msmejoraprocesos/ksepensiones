@@ -9,6 +9,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { useTablaOrdenada } from '@/app/hooks/useTablaOrdenada'
 import ThOrdenable from '@/components/tabla/ThOrdenable'
 import Paginador from '@/components/tabla/Paginador'
+import { TablaSkeleton } from '@/components/Skeleton'
 
 const AZUL = '#245287'
 const VERDE = '#2E8B57'
@@ -529,7 +530,15 @@ function ClientesInner() {
   async function guardarNuevo() {
     const telDigits = form.telefono.replace(/\D/g, '')
     const newErrors: typeof formErrors = {}
-    if (!form.nombre.trim()) return
+    if (!form.nombre.trim()) { avisoError('Falta el nombre del cliente', 'Es el único campo obligatorio para darlo de alta.'); return }
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email)) {
+      avisoError('El correo no tiene un formato válido', 'Revísalo o déjalo vacío: no es obligatorio.')
+      return
+    }
+    if (form.telefono && form.telefono.replace(/\D/g, '').length !== 10) {
+      avisoError('El teléfono debe tener 10 dígitos', 'Revísalo o déjalo vacío: no es obligatorio.')
+      return
+    }
     if (nssAlerta?.tipo === 'activo' && nssAlerta.accion !== 'canalizar') { return } // Bloquea si es duplicado activo propio
     if (nssAlerta?.tipo === 'activo' && nssAlerta.accion === 'canalizar') { return } // Bloquea si es de otro asesor
     if (telDigits.length !== 10) newErrors.telefono = 'El teléfono es obligatorio (10 dígitos)'
@@ -1207,10 +1216,12 @@ function ClientesInner() {
       {vista === 'lista' && (
         <div style={{ flex: 1, overflow: 'auto', padding: '16px 20px' }}>
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8' }}>Cargando...</div>
+            <div style={{ background: 'white', border: '1px solid #E1E7F0', borderRadius: '14px', overflow: 'hidden' }}>
+              <TablaSkeleton filas={8} columnas={6} />
+            </div>
           ) : filtered.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>👥</div>
+              <div style={{ width: 56, height: 56, borderRadius: 999, background: '#F5F7FA', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', color: '#66738A' }}>◎</div>
               <div style={{ color: '#64748b', fontSize: '15px', fontWeight: '600' }}>{search ? 'Sin resultados' : 'Sin clientes aún'}</div>
             </div>
           ) : (

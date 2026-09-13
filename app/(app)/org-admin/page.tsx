@@ -257,8 +257,20 @@ export default function OrgAdminPage() {
   async function crearAsesor() {
     setErrNuevo('')
     const { nombre, email, password, telefono } = formNuevo
-    if (!nombre || !email || !password || !telefono) { setErrNuevo('Todos los campos son obligatorios'); return }
-    if (password.length < 10) { setErrNuevo('La contraseña debe tener mínimo 10 caracteres'); return }
+    /* "Todos los campos son obligatorios" obliga a comparar mentalmente el
+       formulario contra el mensaje. Decir cuál falta ahorra ese paso. */
+    const faltan: string[] = []
+    if (!nombre) faltan.push('el nombre')
+    if (!email) faltan.push('el correo')
+    if (!telefono) faltan.push('el teléfono')
+    if (!password) faltan.push('la contraseña')
+    if (faltan.length) {
+      setErrNuevo(faltan.length === 1 ? `Falta ${faltan[0]}.` : `Faltan ${faltan.slice(0, -1).join(', ')} y ${faltan[faltan.length - 1]}.`)
+      return
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { setErrNuevo('El correo no tiene un formato válido.'); return }
+    if (telefono.replace(/\D/g, '').length !== 10) { setErrNuevo('El teléfono debe tener 10 dígitos.'); return }
+    if (password.length < 10) { setErrNuevo('La contraseña debe tener al menos 10 caracteres.'); return }
     setCreando(true)
     const { data: { session } } = await supabase.auth.getSession()
     const res = await fetch('/api/admin/usuarios', {

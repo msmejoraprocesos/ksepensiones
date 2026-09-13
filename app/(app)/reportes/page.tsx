@@ -7,6 +7,7 @@ import { useTablaOrdenada } from '@/app/hooks/useTablaOrdenada'
 import ThOrdenable from '@/components/tabla/ThOrdenable'
 import Paginador from '@/components/tabla/Paginador'
 import { avisoError } from '@/app/utils/avisos'
+import { TablaSkeleton } from '@/components/Skeleton'
 
 const AZUL = '#1B3A6B', NARANJA = '#F05B21'
 const fmtMXN = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n || 0)
@@ -256,7 +257,7 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
           <div style={{ gridColumn: tipoReporte === 'cartera' ? '2 / -1' : 'auto', display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
             <button onClick={cargarDatos} disabled={cargando || !userId}
               style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', opacity: cargando ? 0.7 : 1, whiteSpace: 'nowrap' as const }}>
-              {cargando ? 'Cargando...' : '🔍 Generar'}
+              {cargando ? 'Generando…' : 'Generar reporte'}
             </button>
           </div>
         </div>
@@ -277,7 +278,7 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
               </button>
               <button onClick={exportarPDF} disabled={generando === 'pdf'}
                 style={{ padding: '7px 14px', background: NARANJA, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', opacity: generando === 'pdf' ? 0.7 : 1 }}>
-                {generando === 'pdf' ? 'Generando...' : '📄 Exportar PDF'}
+                {generando === 'pdf' ? 'Generando…' : 'Exportar PDF'}
               </button>
             </div>
           </div>
@@ -329,6 +330,12 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
             )}
           </div>
         </>
+      )}
+
+      {cargando && (
+        <div style={{ background: 'white', border: '1px solid #E1E7F0', borderRadius: 14, overflow: 'hidden', marginTop: 16 }}>
+          <TablaSkeleton filas={10} columnas={6} />
+        </div>
       )}
 
       {datos.length === 0 && !cargando && (
