@@ -119,7 +119,7 @@ function PanelCanalizaciones({ supabase, userId, asesores }: { supabase: any; us
                 </span>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '10px', background: '#F5F7FA', borderRadius: '10px', padding: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '8px', marginBottom: '10px', background: '#F5F7FA', borderRadius: '10px', padding: '10px' }}>
                 <div>
                   <p style={{ fontSize: '13px', color: '#9CA3AF', margin: '0 0 2px' }}>De</p>
                   <p style={{ fontSize: '15px', fontWeight: '700', color: '#374151', margin: 0 }}>{s.origen?.nombre ?? '—'}</p>
@@ -413,7 +413,7 @@ export default function OrgAdminPage() {
         {/* ── TAB: DASHBOARD ── */}
         {tab === 'dashboard' && (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '12px' }}>
               {[
                 { label: 'Asientos activos', value: `${stats.asientos_usados}/${org.asientos}`, color: pctAsientos >= 90 ? '#DC2626' : AZUL },
                 { label: 'Clientes totales', value: fmtNum(stats.clientes), color: NARANJA },

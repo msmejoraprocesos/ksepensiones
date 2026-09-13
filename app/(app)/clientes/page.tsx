@@ -1360,7 +1360,7 @@ function ClientesInner() {
       {/* ── VISTA PIPELINE ── */}
       {vista === 'pipeline' && (
         <div style={{ flex: 1, overflow: 'hidden', padding: '12px 16px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, minmax(0, 1fr))', gap: '8px', height: '100%' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', height: '100%' }}>
             {COLUMNAS.map(col => {
               const cards = clientesPorColumna(col.id)
               const isDragOver = dragOver === col.id
@@ -1764,7 +1764,7 @@ function ClientesInner() {
                               )}
 
                               {selected.esquema_pago === 'meses_pension' && (
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '8px' }}>
                                   <div>
                                     <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '4px' }}>Pensión mensual ($)</label>
                                     <input type="number" defaultValue={selected.monto_pension_mensual ?? ''}
@@ -1787,7 +1787,7 @@ function ClientesInner() {
                               )}
 
                               {selected.esquema_pago === 'porcentaje_recuperado' && (
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '8px' }}>
                                   <div>
                                     <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#374151', marginBottom: '4px' }}>% a cobrar</label>
                                     <input type="number" defaultValue={selected.porcentaje_recuperacion ?? ''}
@@ -1911,7 +1911,7 @@ function ClientesInner() {
 
                     {/* Capital y pensión del diagnóstico seleccionado */}
                     {diagSel && (
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
                         <div style={{ background: '#F5F7FA', borderRadius: '10px', padding: '12px', border: '1px solid #e2e8f0' }}>
                           <p style={{ fontSize: '13px', color: '#94a3b8', margin: '0 0 4px', fontWeight: '700' }}>Capital a financiar (Mod 40)</p>
                           <p style={{ fontSize: '20px', fontWeight: '700', color: '#245287', margin: 0 }}>{fmtM(capitalBase)}</p>
@@ -1932,7 +1932,7 @@ function ClientesInner() {
                     ) : (
                       <>
                         {/* Configuración */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
                           <div>
                             <label style={{ fontSize: '13px', fontWeight: '700', color: '#475569', display: 'block', marginBottom: '4px' }}>Financiera aliada</label>
                             <select value={finSelId} onChange={e => setFinSelId(e.target.value)}
@@ -1957,7 +1957,7 @@ function ClientesInner() {
                         {corrida && (
                           <div style={{ background: '#F5F7FA', borderRadius: '10px', border: `2px solid ${corrida.cuota < pensionBase ? '#bbf7d0' : '#fecaca'}`, padding: '14px' }}>
                             <p style={{ fontSize: '15px', fontWeight: '700', color: '#475569', margin: '0 0 10px' }}>Análisis de viabilidad</p>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '12px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '8px', marginBottom: '12px' }}>
                               {[
                                 { label: 'Cuota mensual', value: fmtM(corrida.cuota), sub: `${finSel?.tasa_anual}% · ${finPlazo}m`, color: '#E8622C' },
                                 { label: 'Pensión obtenida', value: fmtM(pensionBase), sub: 'del diagnóstico', color: '#2E8B57' },
@@ -2039,7 +2039,7 @@ function ClientesInner() {
                         const pct = pagosProgramados.length > 0 ? Math.round((numPagados / pagosProgramados.length) * 100) : 0
                         return (
                           <>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px' }}>
                               {[
                                 { label: 'Total acordado', value: fmtMXN(totalAcordado), color: AZUL, bg: '#EEF2F8' },
                                 { label: 'Pagado', value: fmtMXN(totalPagado), color: VERDE, bg: '#f0fdf4' },
@@ -2110,7 +2110,7 @@ function ClientesInner() {
                         const estatus = calcEstatus(selected.monto_acordado, totalPagado)
                         const sem = SEMAFORO[estatus]
                         return (
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px' }}>
                             {[
                               { label: 'Acordado', value: fmtMXN(selected.monto_acordado), color: AZUL, bg: '#F4F6F9', border: '#e2e8f0' },
                               { label: 'Pagado', value: fmtMXN(totalPagado), color: VERDE, bg: '#f0fdf4', border: '#bbf7d0' },
@@ -2265,7 +2265,7 @@ function ClientesInner() {
 
                       {/* Resultados */}
                       <div style={{ padding: '10px 14px' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', marginBottom: '10px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '6px', marginBottom: '10px' }}>
                           {[
                             { label: 'Sin modalidad', value: d.pension_sin_mod40, color: '#94a3b8' },
                             { label: 'Escenario elegido', value: d.pension_con_mod40, color: esAutorizado ? VERDE : NARANJA },
@@ -2584,7 +2584,7 @@ function ClientesInner() {
       {/* ══ MODAL WHATSAPP ══ */}
       {showWappModal && nuevoClienteData && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', borderRadius: '16px', padding: '28px', width: '480px', boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}>
+          <div style={{ background: 'white', borderRadius: '16px', padding: '28px', width: 'min(100%, 480px)', boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
               <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0 }}>
                 💬
@@ -2660,7 +2660,7 @@ function ClientesInner() {
       {/* ── MODAL CONFIRMAR CERRAR ── */}
       {showConfirmClose && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '360px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', textAlign: 'center' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: 'min(100%, 360px)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', textAlign: 'center' }}>
             <div style={{ fontSize: '36px', marginBottom: '12px' }}>⚠️</div>
             <h3 style={{ color: '#1e293b', fontSize: '16px', fontWeight: '700', margin: '0 0 8px' }}>¿Cerrar el expediente?</h3>
             <p style={{ color: '#64748b', fontSize: '13px', margin: '0 0 20px', lineHeight: 1.6 }}>
@@ -2694,7 +2694,7 @@ function ClientesInner() {
             </h2>
 
             {/* Grid de 6 columnas */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px', marginBottom: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', marginBottom: '20px' }}>
               {[
                 { label: 'PROSPECTO', color: '#378ADD', desc: 'TODOS LOS SERVICIOS ACTIVO.', sub: 'Registro y toma de datos.' },
                 { label: 'DIAGNÓSTICO', color: '#639922', desc: 'TODOS LOS SERVICIOS ACTIVO.', sub: 'Análisis de viabilidad.' },
@@ -2755,7 +2755,7 @@ function ClientesInner() {
       {/* ── MODAL BLOQUEO REGLA DE NEGOCIO ── */}
       {bloqueoMsg && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '380px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', textAlign: 'center' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: 'min(100%, 380px)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', textAlign: 'center' }}>
             <div style={{ fontSize: '36px', marginBottom: '12px' }}>🚫</div>
             <h3 style={{ color: '#1e293b', fontSize: '16px', fontWeight: '700', margin: '0 0 8px' }}>No se puede mover</h3>
             <p style={{ color: '#64748b', fontSize: '13px', margin: '0 0 20px', lineHeight: 1.6 }}>
@@ -2772,7 +2772,7 @@ function ClientesInner() {
 {/* ── MODAL CONFIRMAR ETAPA ── */}
       {showConfirmEtapa && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '380px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', textAlign: 'center' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: 'min(100%, 380px)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', textAlign: 'center' }}>
             <div style={{ fontSize: '36px', marginBottom: '12px' }}>{showConfirmEtapa.etapaNueva === 'cancelado' ? '🚫' : '🔄'}</div>
             <h3 style={{ color: '#1e293b', fontSize: '16px', fontWeight: '700', margin: '0 0 8px' }}>{showConfirmEtapa.etapaNueva === 'cancelado' ? '¿Cancelar cliente?' : '¿Cambiar etapa?'}</h3>
             <p style={{ color: '#64748b', fontSize: '13px', margin: '0 0 8px', lineHeight: 1.6 }}>
@@ -2820,7 +2820,7 @@ function ClientesInner() {
       {/* ── MODAL CONFIRMAR ELIMINAR ── */}
       {showConfirmDelete && selected && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '400px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: 'min(100%, 400px)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
             <div style={{ textAlign: 'center', marginBottom: '20px' }}>
               <div style={{ fontSize: '40px', marginBottom: '12px' }}>⚠️</div>
               <h3 style={{ color: '#1e293b', fontSize: '17px', fontWeight: '700', margin: '0 0 8px' }}>¿Archivar a {selected.nombre}?</h3>
@@ -2887,7 +2887,7 @@ function ClientesInner() {
       {showPago && selected && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => e.stopPropagation()}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '400px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: 'min(100%, 400px)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
               <h3 style={{ color: tipoMovimiento === 'devolucion' ? '#ef4444' : AZUL, fontSize: '17px', fontWeight: '700', margin: 0 }}>
                 {tipoMovimiento === 'devolucion' ? '↩️ Registrar devolución' : 'Registrar pago'}
@@ -2976,7 +2976,7 @@ function ClientesInner() {
                   )
                 )}
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Concepto</label>
                   <div style={{ padding: '10px 12px', background: tipoMovimiento === 'devolucion' ? '#fef2f2' : '#EEF2F8', borderRadius: '10px', border: `1px solid ${tipoMovimiento === 'devolucion' ? '#fecaca' : '#bfdbfe'}`, fontSize: '13px', fontWeight: '700', color: tipoMovimiento === 'devolucion' ? '#ef4444' : AZUL }}>
@@ -3033,7 +3033,7 @@ function ClientesInner() {
       {showNuevo && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
-          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '440px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: 'min(100%, 440px)', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
             <h2 style={{ color: AZUL, fontSize: '18px', fontWeight: '700', margin: '0 0 20px' }}>Nuevo cliente</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
@@ -3059,7 +3059,7 @@ function ClientesInner() {
                   </div>
                 )}
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Teléfono *</label>
                   <input value={form.telefono} onChange={e => { const f = formatTelefono(e.target.value); setForm(p => ({ ...p, telefono: f })); setFormErrors(p => ({ ...p, telefono: validateTelefono(f) ?? undefined })) }} placeholder="55 1234 5678" maxLength={12} style={{ ...inputSt, borderColor: formErrors.telefono ? '#ef4444' : '#e2e8f0' }} />
@@ -3073,7 +3073,7 @@ function ClientesInner() {
                   {!formErrors.email && form.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email) && <p style={{ fontSize: '13px', color: '#16a34a', margin: '3px 0 0' }}>✓ Válido</p>}
                 </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Etapa inicial</label>
                   <select value={form.etapa_kanban} onChange={e => setForm(p => ({ ...p, etapa_kanban: e.target.value }))} style={inputSt}>
@@ -3125,7 +3125,7 @@ function ClientesInner() {
 
                   {/* Esquema 2: Meses de pensión */}
                   {form.esquema_pago === 'meses_pension' && (
-                    <div style={{ marginTop: '10px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    <div style={{ marginTop: '10px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
                       <div>
                         <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Monto de pensión mensual ($)</label>
                         <input type="number" value={form.monto_pension_mensual} onChange={e => setForm(p => ({ ...p, monto_pension_mensual: e.target.value }))} placeholder="Se define después" style={inputSt} />

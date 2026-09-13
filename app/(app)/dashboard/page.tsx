@@ -551,7 +551,7 @@ function MiDiaInner() {
             </div>
 
             {/* Fila 2: Tendencias | Embudo | Ventas | Rangos | Servicios activos */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: '8px', alignItems: 'stretch' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '8px', alignItems: 'stretch' }}>
 
               {/* Tendencias de ingresos */}
               {chartCard('📈 Tendencias de ingresos', 'Comparativo por año', (() => {
@@ -850,12 +850,12 @@ function MiDiaInner() {
             </div>
 
             {/* Fila 4: Urgencia + Actividad + Costo IA */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', alignItems: 'stretch' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', alignItems: 'stretch' }}>
 
               {/* Semáforo de urgencia */}
               <div style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', borderRadius: '10px', padding: '14px', display: 'flex', flexDirection: 'column' as const }}>
                 <p style={{ fontSize: '15px', fontWeight: '600', color: '#66738A', margin: '0 0 10px' }}>🚦 Urgencia pensional</p>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', flex: 1 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '6px', flex: 1 }}>
                   {[
                     { nivel: 'rojo', label: 'Urgente', val: diagsUrgencia.rojo, color: '#DC2626', bg: '#FEF2F2', desc: 'menos de 2 años' },
                     { nivel: 'amarillo', label: 'Pronto', val: diagsUrgencia.amarillo, color: '#D97706', bg: '#FFFBEB', desc: '3 a 5 años' },
@@ -903,7 +903,7 @@ function MiDiaInner() {
                 ) : (
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
                     {/* KPIs principales */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '8px' }}>
                       <div style={{ background: '#F4F6F9', borderRadius: '10px', padding: '12px', textAlign: 'center' as const }}>
                         <div style={{ fontSize: '32px', fontWeight: '800' as const, color: encuestaStats.promedio >= 4 ? VERDE : '#D97706', lineHeight: 1 }}>{encuestaStats.promedio > 0 ? encuestaStats.promedio.toFixed(1) : '—'}</div>
                         <div style={{ fontSize: '14px', letterSpacing: '2px', margin: '4px 0 2px' }}>{'⭐'.repeat(Math.round(encuestaStats.promedio))}</div>

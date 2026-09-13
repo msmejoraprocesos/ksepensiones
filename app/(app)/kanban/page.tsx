@@ -195,7 +195,7 @@ export default function KanbanPage() {
                   onDragOver={e => onDragOver(e, col.id)}
                   onDrop={e => onDrop(e, col.id)}
                   style={{
-                    width: '220px', flexShrink: 0, display: 'flex', flexDirection: 'column',
+                    width: 'min(100%, 220px)', flexShrink: 0, display: 'flex', flexDirection: 'column',
                     background: colBg,
                     borderRadius: '14px', border: `2px solid ${isDragOver ? col.color : 'transparent'}`,
                     transition: 'all 0.15s',
@@ -286,7 +286,7 @@ export default function KanbanPage() {
       {modal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => { if (e.target === e.currentTarget) setModal(null) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '480px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: 'min(100%, 480px)', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
             {/* Header modal */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
               <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: AZUL, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '16px', fontWeight: '700' }}>
@@ -315,7 +315,7 @@ export default function KanbanPage() {
             </div>
 
             {/* Servicio y pago */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px', marginBottom: '12px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Servicio</label>
                 <select defaultValue={modal.cliente.servicio_contratado ?? ''} onChange={e => actualizarCliente(modal.cliente.id, { servicio_contratado: e.target.value || null })} style={inputSt}>
@@ -369,14 +369,14 @@ export default function KanbanPage() {
       {showNuevo && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => { if (e.target === e.currentTarget) setShowNuevo(false) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: '460px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '28px', width: 'min(100%, 460px)', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
             <h2 style={{ color: AZUL, fontSize: '18px', fontWeight: '700', margin: '0 0 20px' }}>Nuevo cliente</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Nombre *</label>
                 <input value={form.nombre} onChange={e => setForm(p => ({ ...p, nombre: e.target.value }))} placeholder="Nombre completo" style={inputSt} />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Teléfono</label>
                   <input value={form.telefono} onChange={e => setForm(p => ({ ...p, telefono: e.target.value }))} placeholder="55 1234 5678" style={inputSt} />
@@ -386,7 +386,7 @@ export default function KanbanPage() {
                   <input value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder="correo@ejemplo.com" style={inputSt} />
                 </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Etapa inicial</label>
                   <select value={form.etapa_kanban} onChange={e => setForm(p => ({ ...p, etapa_kanban: e.target.value }))} style={inputSt}>
@@ -401,7 +401,7 @@ export default function KanbanPage() {
                   </select>
                 </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Monto ($)</label>
                   <input type="number" value={form.monto_acordado} onChange={e => setForm(p => ({ ...p, monto_acordado: e.target.value }))} placeholder="0" style={inputSt} />

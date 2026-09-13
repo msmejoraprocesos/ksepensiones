@@ -156,7 +156,7 @@ export default function SuperAdminDashboard() {
         )}
 
         {/* KPIs principales */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '12px' }}>
           {[
             { label: 'Asesores totales', value: fmtNum(stats.totalAsesores), sub: `${stats.asesoresActivos} activos en el periodo`, color: AZUL },
             { label: 'Organizaciones', value: fmtNum(stats.totalOrgs), sub: `${stats.orgsActivas} activas`, color: '#7C3AED' },
@@ -174,7 +174,7 @@ export default function SuperAdminDashboard() {
         {/* KPIs de IA */}
         <div>
           <p style={{ fontSize: '15px', fontWeight: '700', color: '#374151', margin: '0 0 10px' }}>💡 Costo de Inteligencia Artificial</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px' }}>
             {[
               { label: 'Costo total IA', value: fmtUSD(stats.costoIATotal), color: '#DC2626' },
               { label: 'Extracción constancias', value: fmtUSD(stats.costoIAExtraccion), color: '#F59E0B' },
@@ -194,7 +194,7 @@ export default function SuperAdminDashboard() {
         </div>
 
         {/* Dos columnas: asesores + orgs */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
 
           {/* Por asesor */}
           <div style={CARD}>

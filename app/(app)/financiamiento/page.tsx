@@ -211,7 +211,7 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
               <button onClick={() => setShowEnvio(false)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', fontSize: '18px', padding: '4px 8px', borderRadius: '10px' }}>✕</button>
             </div>
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
-              <div style={{ background: '#F5F7FA', borderRadius: '10px', padding: '14px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <div style={{ background: '#F5F7FA', borderRadius: '10px', padding: '14px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '8px' }}>
                 <div>
                   <p style={{ fontSize: '13px', color: '#66738A', margin: '0 0 2px', fontWeight: '600' }}>Total documentos</p>
                   <p style={{ fontSize: '26px', fontWeight: 700, color: AZUL, margin: 0 }}>{docs.length}</p>
@@ -372,7 +372,7 @@ function FinanciamientoPage() {
 
       <div style={{ padding: '20px 24px' }}>
         {/* KPIs */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '12px', marginBottom: '20px' }}>
           {[
             { label: 'Total financiamientos', value: financiamientos.length.toString(), color: AZUL },
             { label: 'Cartera activa', value: fmtMXN(totalCartera), color: NARANJA },
@@ -448,7 +448,7 @@ function FinanciamientoPage() {
                 </select>
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '10px' }}>
               {[
                 { label: 'Monto financiado', value: fmtMXN(selFin.monto_total), color: AZUL },
                 { label: 'Cuota mensual', value: fmtMXN2(selFin.cuota_mensual), color: NARANJA },

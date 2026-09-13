@@ -102,7 +102,7 @@ export default function TabCliente({
       </div>
 
       {/* ── KPIs resumen ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '8px' }}>
         {[
           { label: 'Semanas netas', value: sem > 0 ? sem.toLocaleString() : '—', tipo: 'imss' as const, accent: sem >= 500 ? VERDE : AZUL },
           { label: 'Sem. faltantes', value: semFaltantes === 0 ? '✓ Listo' : String(semFaltantes), tipo: 'result' as const, accent: semFaltantes === 0 ? VERDE : '#DC2626' },
@@ -120,11 +120,11 @@ export default function TabCliente({
       </div>
 
       {/* ── Grid 2 columnas: Parámetros + Familia ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
 
         <CardSection tipo="manual" title="Parámetros de retiro">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
               <Field label="¿Seguirá cotizando?" tipo="manual">
                 <select value={datos.sigue_cotizando ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, sigue_cotizando: e.target.value === 'si' }))} style={inputBase('manual')}>
                   <option value="si">✓ Sí</option>
@@ -148,7 +148,7 @@ export default function TabCliente({
 
         <CardSection tipo="imss" title="Familia y beneficiarios">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
               <Field label="Cónyuge / concubino" tipo="manual">
                 <select value={datos.tiene_conyuge ? 'si' : 'no'} onChange={e => setDatos(p => ({ ...p, tiene_conyuge: e.target.value === 'si' }))} style={inputBase('manual')}>
                   <option value="no">✕ No</option>
@@ -161,7 +161,7 @@ export default function TabCliente({
                 </select>
               </Field>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
               <Field label="Padres dependientes" tipo="manual">
                 <select value={datos.num_padres} onChange={e => setDatos(p => ({ ...p, num_padres: parseInt(e.target.value) }))} style={inputBase('manual')}>
                   {[0,1,2].map(n => <option key={n} value={n}>{n} {n === 0 ? '(ninguno)' : n === 1 ? 'padre' : 'padres'}</option>)}
@@ -174,7 +174,7 @@ export default function TabCliente({
               </Field>
             </div>
             {/* Resumen visual beneficiarios */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '6px' }}>
               {[
                 { label: 'Cónyuge', value: datos.tiene_conyuge ? 'Sí' : 'No', ok: datos.tiene_conyuge },
                 { label: 'Hijos', value: String(datos.num_hijos), ok: datos.num_hijos > 0 },
@@ -259,7 +259,7 @@ export default function TabCliente({
       {/* ── Perfil del pensionado (si hay escenario) ── */}
       {escRec && escRec.mod40_meses > 0 && (
         <CardSection tipo="strategy" title="Perfil del pensionado — escenario recomendado">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '8px' }}>
             {[
               { label: 'Edad de retiro', value: escRec.edad_retiro?.toFixed(1) + ' años', color: AZUL },
               { label: 'Semanas finales', value: Math.round(escRec.semanas_finales || 0).toLocaleString(), color: (escRec.semanas_finales || 0) >= 500 ? VERDE : '#DC2626' },

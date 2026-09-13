@@ -320,7 +320,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
 
             {editando ? (
               <div style={{ padding: '16px 20px', borderBottom: '1px solid #E5E7EB' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
                 {[
                   { label: 'Nombre *', key: 'nombre', placeholder: 'Ej: Caja Libertad' },
                   { label: 'Contacto', key: 'contacto', placeholder: 'Nombre del ejecutivo' },
@@ -353,7 +353,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
               </div>
             ) : (
               <div style={{ padding: '16px 20px', borderBottom: '1px solid #E5E7EB' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
                 {[
                   { label: 'Nombre', val: fin?.nombre },
                   { label: 'Contacto', val: fin?.contacto_nombre || '—' },
@@ -1297,7 +1297,7 @@ export default function ConfiguracionPage() {
                 </p>
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '6px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '6px' }}>
               {[
                 { year: 2019, uma: 84.49 }, { year: 2020, uma: 86.88 }, { year: 2021, uma: 89.62 },
                 { year: 2022, uma: 96.22 }, { year: 2023, uma: 103.74 }, { year: 2024, uma: 108.57 },

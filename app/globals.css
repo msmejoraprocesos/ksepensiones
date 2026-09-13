@@ -127,3 +127,50 @@ button { transition: all 0.15s ease !important }
     min-height: 44px;
   }
 }
+
+
+/* ── Refuerzo responsivo ───────────────────────────────────────────────────
+   Los estilos en línea ganan sobre las hojas de estilo, así que estas reglas
+   llevan !important donde tienen que corregir un valor declarado en el
+   componente. Se usa con moderación: solo en propiedades de layout que en
+   pantallas angostas rompen la página entera.                              */
+
+/* Nada debe desbordar el ancho del viewport. Un solo elemento que lo haga
+   activa el desplazamiento horizontal de toda la página, y en móvil eso hace
+   que el contenido "baile" al desplazarse. */
+html, body { overflow-x: hidden; max-width: 100%; }
+
+@media (max-width: 900px) {
+  /* Retículas que quedaron con columnas fijas en algún componente. */
+  [style*="grid-template-columns: repeat(4"],
+  [style*="grid-template-columns: repeat(5"],
+  [style*="grid-template-columns: repeat(6"],
+  [style*="grid-template-columns: repeat(8"] {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  /* En teléfono, cualquier retícula pasa a una columna: dos columnas de
+     150px dejan el texto en tiras verticales. */
+  [style*="display: grid"] { grid-template-columns: 1fr !important; }
+
+  /* Los diálogos ocupan la pantalla desde abajo, como una hoja. */
+  [role="dialog"], [class*="modal"] {
+    max-width: 100% !important;
+    max-height: 92vh !important;
+    border-radius: 16px 16px 0 0 !important;
+  }
+
+  /* Las filas de botones se apilan en lugar de comprimirse. */
+  [style*="justify-content: flex-end"] > button { flex: 1 1 auto; }
+}
+
+/* El calendario semanal conserva sus siete columnas: apilarlas rompería la
+   metáfora. En su lugar se desplaza dentro de su contenedor. */
+@media (max-width: 640px) {
+  [style*="grid-template-columns: repeat(7"] {
+    grid-template-columns: repeat(7, minmax(52px, 1fr)) !important;
+    min-width: 420px;
+  }
+}

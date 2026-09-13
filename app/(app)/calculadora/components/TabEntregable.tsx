@@ -121,7 +121,7 @@ export default function TabEntregable({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
           {/* Estado del flujo */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px' }}>
             {[
               { label: 'Datos del cliente', ok: sdiPromedio > 0, val: sdiPromedio > 0 ? `SDI ${fmtMXN2(sdiPromedio)}` : 'Pendiente' },
               { label: 'Escenarios', ok: tieneEscenarios, val: tieneEscenarios ? `${escenarios.filter(e => e.mod40_meses > 0).length} escenario(s)` : 'Pendiente' },
@@ -154,7 +154,7 @@ export default function TabEntregable({
             <div style={{ padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
 
               {/* Qué va a generar */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '8px' }}>
                 {[
                   'Narrativa personalizada por sección',
                   'Interpretación de cada gráfica',

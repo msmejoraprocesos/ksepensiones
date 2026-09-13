@@ -387,7 +387,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {showNotif && (
             <>
               <div style={{ position: 'fixed' as const, inset: 0, zIndex: 39 }} onClick={() => setShowNotif(false)} />
-              <div style={{ position: 'absolute' as const, right: 0, top: '40px', width: '340px', background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: 40, overflow: 'hidden' }}>
+              <div style={{ position: 'absolute' as const, right: 0, top: '40px', width: 'min(100%, 340px)', background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: 40, overflow: 'hidden' }}>
                 <div style={{ padding: '12px 16px', borderBottom: '1px solid #E5E7EB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: 0 }}>
                     Notificaciones
@@ -484,7 +484,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           style={isMobile ? {
             position: 'fixed' as const,
             top: 0, bottom: 0, left: 0,
-            width: '250px',
+            width: 'min(100%, 250px)',
             background: 'white',
             borderRight: '1px solid #e2e8f0',
             display: 'flex',

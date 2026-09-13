@@ -157,7 +157,7 @@ export default function TabSalarioMod40({
 
           <div style={{ marginBottom: '18px' }}>
             <Etiqueta>Edad de ingreso a Mod. 40 <Tip id="duracionMod40" /></Etiqueta>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
               <div>
                 <p style={{ fontSize: '13px', color: K.muted, margin: '0 0 4px' }}>Años</p>
                 <select value={edadIngresoAnios} onChange={e => setEdadIngresoAnios(Number(e.target.value))} style={{ ...campo, fontSize: '20px', fontWeight: 800 }}>
@@ -250,7 +250,7 @@ export default function TabSalarioMod40({
                       <div style={{ height: '100%', width: anim ? `${(esc.pension_mensual / maxPension) * 100}%` : '0%', background: c, borderRadius: 999, transition: 'width .9s cubic-bezier(.22,1,.36,1)' }} />
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
                       {[
                         ['Mejora', '+' + fmtMXN(incr), K.green],
                         ['Inversión neta', fmtMXN(esc.inversion_neta), K.amber],

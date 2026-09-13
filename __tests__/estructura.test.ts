@@ -162,3 +162,52 @@ describe('consistencia de layout entre módulos', () => {
     expect(sinEstandar.filter(m => m !== 'seguimiento')).toEqual([])
   })
 })
+
+describe('responsividad', () => {
+  const MODULOS = [
+    'dashboard', 'clientes', 'seguimiento', 'calculadora', 'financiamiento',
+    'reportes', 'cartera', 'configuracion', 'admin', 'super-admin',
+    'org-admin', 'kanban',
+  ]
+
+  it('ninguna retícula usa un número fijo de columnas', () => {
+    /* "1fr 1fr" no cede: en un teléfono de 360px deja dos columnas de 180
+       con el texto partido. auto-fit con minmax las apila solas.
+       La excepción es repeat(7,...), la rejilla semanal del calendario. */
+    const conFijas: string[] = []
+    for (const m of MODULOS) {
+      const s = leer(`app/(app)/${m}/page.tsx`)
+      const hits = [...s.matchAll(/gridTemplateColumns: '([^']+)'/g)]
+        .map(x => x[1])
+        .filter(v => /^(1fr[ ]+)+1fr$/.test(v) || /^repeat\((?!auto|7)\d+,/.test(v))
+      if (hits.length) conFijas.push(`${m}: ${hits[0]}`)
+    }
+    expect(conFijas).toEqual([])
+  })
+
+  it('ningún ancho fijo puede desbordar un teléfono', () => {
+    // Un solo elemento que desborde activa el scroll horizontal de la página.
+    const conAnchoFijo: string[] = []
+    for (const m of MODULOS) {
+      const s = leer(`app/(app)/${m}/page.tsx`)
+      const hits = [...s.matchAll(/width: '(\d{3,4})px'/g)]
+        .map(x => Number(x[1]))
+        .filter(n => n > 340)
+      if (hits.length) conAnchoFijo.push(`${m}: ${hits[0]}px`)
+    }
+    expect(conAnchoFijo).toEqual([])
+  })
+
+  it('la hoja global evita el desbordamiento horizontal', () => {
+    const css = leer('app/globals.css')
+    expect(css).toMatch(/overflow-x: hidden/)
+    expect(css).toMatch(/max-width: 640px/)
+  })
+
+  it('los controles tienen área táctil suficiente en dispositivos táctiles', () => {
+    // 44px es el mínimo recomendado para uso con el dedo.
+    const css = leer('app/globals.css')
+    expect(css).toMatch(/pointer: coarse/)
+    expect(css).toMatch(/min-height: 44px/)
+  })
+})

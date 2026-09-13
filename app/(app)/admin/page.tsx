@@ -321,7 +321,7 @@ function AdminFormulasInner() {
 
   function fieldRow(label: string, legal: string, excel: string, value: any, editable = false, afecta = '', alcance: keyof typeof ALCANCE = 'todos') { return (
     <tr style={{ borderBottom: '1px solid #E1E7F0' }}>
-      <td style={{ padding: '13px 14px', fontSize: '15px', fontWeight: 600, color: '#132135', width: '220px' }} title={excel ? `Referencia en el libro: ${excel}` : undefined}>{label}</td>
+      <td style={{ padding: '13px 14px', fontSize: '15px', fontWeight: 600, color: '#132135', width: 'min(100%, 220px)' }} title={excel ? `Referencia en el libro: ${excel}` : undefined}>{label}</td>
       <td style={{ padding: '13px 14px', fontSize: '14px', color: '#66738A' }}>{legal}</td>
       <td style={{ padding: '13px 14px', fontSize: '14px', color: '#132135' }}>
         {afecta && <span style={{ display: 'block', lineHeight: 1.5 }}>{afecta}</span>}

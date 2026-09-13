@@ -178,7 +178,7 @@ export default function CarteraPage() {
             <p style={{ fontSize: 20, fontWeight: 700, color: K.ink, margin: 0 }}>Cotizador</p>
             <p style={{ fontSize: 13, color: K.muted, margin: '4px 0 16px' }}>Usa la tabla de arriba en tiempo real.</p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 10 }}>
               <label>
                 <span style={{ display: 'block', fontSize: 13, color: K.muted, marginBottom: 4 }}>Usuarios</span>
                 <input type="number" min={1} value={usuarios} onChange={e => setUsuarios(Number(e.target.value) || 1)} style={{ ...campo, width: '100%' }} />

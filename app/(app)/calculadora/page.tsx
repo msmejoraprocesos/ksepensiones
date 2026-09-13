@@ -555,7 +555,7 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
           <p style={{ fontSize: '15px', fontWeight: '700', color: '#374151', margin: '0 0 10px' }}>
             Ajusta tus gastos mensuales estimados
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '8px' }}>
             {gastos.map(g => (
               <div key={g.label} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontSize: '13px', flexShrink: 0 }}>{g.label.split(' ')[0]}</span>
@@ -596,7 +596,7 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
         </div>
 
         {/* Resultado */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '8px' }}>
           <div style={{ padding: '12px', background: excedenteSin >= 0 ? '#F0FDF4' : '#FEF2F2', borderRadius: '10px', borderLeft: `3px solid ${excedenteSin >= 0 ? VERDE : ROJO}` }}>
             <p style={{ fontSize: '14px', color: '#64748B', margin: '0 0 4px' }}>Sin Modalidad 40</p>
             <p style={{ fontSize: '16px', fontWeight: '800', color: excedenteSin >= 0 ? VERDE : ROJO, margin: '0 0 2px' }}>
@@ -837,7 +837,7 @@ function CalculadoraInner() {
           title={g.titulo}
         >ⓘ</button>
         {activeTooltip === id && (
-          <div style={{ position: 'absolute' as const, left: '50%', bottom: '120%', transform: 'translateX(-50%)', background: '#1e293b', color: 'white', padding: '10px 14px', fontSize: '13px', lineHeight: 1.6, width: '260px', zIndex: 999, boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}
+          <div style={{ position: 'absolute' as const, left: '50%', bottom: '120%', transform: 'translateX(-50%)', background: '#1e293b', color: 'white', padding: '10px 14px', fontSize: '13px', lineHeight: 1.6, width: 'min(100%, 260px)', zIndex: 999, boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }}
             onClick={e => e.stopPropagation()}>
             <p style={{ fontWeight: '700' as const, margin: '0 0 6px', color: '#93C5FD', fontSize: '13px' }}>{g.titulo}</p>
             <p style={{ margin: '0 0 4px', color: '#E2E8F0' }}>{g.desc}</p>
@@ -2521,7 +2521,7 @@ function CalculadoraInner() {
                         <p style={{ margin: '0 0 4px', fontSize: '13px', color: '#64748B' }}>
                           Captura los datos principales de la constancia. Puedes completar el resto en el Tab 1.
                         </p>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '8px' }}>
                           <div style={{ gridColumn: '1 / -1' }}>
                             <label style={{ fontSize: '14px', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px' }}>Nombre del trabajador</label>
                             <input type="text" placeholder="Nombre completo"
@@ -2678,7 +2678,7 @@ function CalculadoraInner() {
 
             {/* ── Panel glosario deslizable ── */}
             {showGuia && (
-              <div style={{ position: 'absolute' as const, top: 0, right: 0, width: '360px', maxWidth: '92vw', height: '100%', background: 'white', borderLeft: '1px solid #E1E7F0', zIndex: 50, overflowY: 'auto' as const, boxShadow: '-8px 0 32px rgba(13,36,64,0.14)' }}>
+              <div style={{ position: 'absolute' as const, top: 0, right: 0, width: 'min(100%, 360px)', maxWidth: '92vw', height: '100%', background: 'white', borderLeft: '1px solid #E1E7F0', zIndex: 50, overflowY: 'auto' as const, boxShadow: '-8px 0 32px rgba(13,36,64,0.14)' }}>
                 <div style={{ background: '#0D2440', padding: '20px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky' as const, top: 0, zIndex: 1 }}>
                   <p style={{ fontSize: '20px', fontWeight: 700, color: 'white', margin: 0 }}>Glosario</p>
                   <button onClick={() => setShowGuia(false)} aria-label="Cerrar" style={{ background: 'rgba(255,255,255,.12)', border: 'none', color: 'white', cursor: 'pointer', fontSize: '16px', lineHeight: 1, width: '32px', height: '32px', borderRadius: '10px' }}>✕</button>
@@ -2902,7 +2902,7 @@ function CalculadoraInner() {
                     <span style={{ fontSize: '20px', fontWeight: 700, color: '#132135' }}>Identificación</span>
                     <span style={{ fontSize: '15px', color: '#66738A' }}>{clientes.find(c => c.id === clienteId)?.nombre || 'Sin cliente'}</span>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '8px' }}>
                     {[
                       { label: 'Nombre del trabajador', value: datos.nombre_trabajador, highlight: true },
                       { label: 'NSS', value: datos.nss },
@@ -2925,7 +2925,7 @@ function CalculadoraInner() {
                     <span style={{ fontSize: '20px', fontWeight: 700, color: '#132135' }}>Cotización</span>
                     <span style={{ fontSize: '15px', fontWeight: 600, color: conservacion.vigente ? VERDE : '#DC2626' }}>{datos.semanas_totales ? (conservacion.vigente ? '✓ Vigente' : '✕ Vencida') : '—'}</span>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginBottom: '10px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', marginBottom: '10px' }}>
                     {[
                       { label: 'Total semanas', value: datos.semanas_totales || '—', bg: '#FFFBEB', color: '#92400E', border: '#FCD34D' },
                       { label: 'Descontadas', value: datos.semanas_descontadas > 0 ? datos.semanas_descontadas : '—', bg: 'white', color: datos.semanas_descontadas > 0 ? '#DC2626' : '#CBD5E1', border: '#E2E8F0' },
@@ -2937,7 +2937,7 @@ function CalculadoraInner() {
                       </div>
                     ))}
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px' }}>
                     {[
                       { label: 'Cotizando actualmente', value: datos.sigue_cotizando ? '✓ Sí' : '✕ No', color: datos.sigue_cotizando ? VERDE : '#94A3B8' },
                       { label: 'Art. 165 (Asistencial)', value: datos.tiene_ayuda_asistencial ? '✓ Aplica' : 'No aplica', color: datos.tiene_ayuda_asistencial ? VERDE : '#94A3B8' },
@@ -2951,11 +2951,11 @@ function CalculadoraInner() {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
                   {/* Card Familia — borde verde */}
                   <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: '14px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
                     <span style={{ fontSize: '20px', fontWeight: 700, background: '#F0F7F4', color: VERDE, padding: '3px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '12px' }}>Familia y beneficiarios</span>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '6px' }}>
                       {[
                         { label: 'Cónyuge', value: datos.tiene_conyuge ? 'Sí' : 'No', ok: datos.tiene_conyuge },
                         { label: 'Hijos < 16', value: String(datos.num_hijos), ok: datos.num_hijos > 0 },
@@ -3155,7 +3155,7 @@ function CalculadoraInner() {
                   <p>Completa los escenarios en La pensión para ver el resumen.</p>
                 </div>
               ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
                   {escsConMod40.map((esc: any, i: number) => (
                     <div key={i} style={{ background: esc.recomendado ? VERDE : 'white', border: esc.recomendado ? 'none' : '1.5px solid #E2E8F0', borderRadius: '10px', padding: '14px', textAlign: 'center' as const, boxShadow: esc.recomendado ? '0 4px 12px rgba(46,125,90,0.2)' : '0 1px 3px rgba(0,0,0,0.06)' }}>
                       {esc.recomendado && <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.8)', marginBottom: '6px', fontWeight: '600' as const }}>⭐ RECOMENDADO</div>}
@@ -3239,7 +3239,7 @@ function CalculadoraInner() {
               {/* Explicación conceptual */}
               <div style={DS.card}>
                 <p style={DS.secTitle}>¿Qué es la Modalidad 10?</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
                   <div>
                     <p style={{ fontSize: '13px', color: '#374151', lineHeight: 1.7, margin: '0 0 10px' }}>
                       La <strong>Modalidad 10</strong> permite a trabajadores que han dejado de cotizar (desempleados, independientes) continuar su cotización ante el IMSS de forma voluntaria, pagando el <strong>100% de las cuotas</strong> obrero-patronales.
@@ -3300,7 +3300,7 @@ function CalculadoraInner() {
                   </section>
 
                   {/* Detalle del cálculo */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
                     <div style={DS.card}>
                       <p style={DS.secTitle}>📊 Cálculo Modalidad 10 (12 meses)</p>
                       {[

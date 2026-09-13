@@ -386,7 +386,7 @@ export default function SeguimientoPage() {
       {showBuscarFecha && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => { if (e.target === e.currentTarget) setShowBuscarFecha(false) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '320px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: 'min(100%, 320px)', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
             <h3 style={{ color: AZUL, fontSize: '16px', fontWeight: '700', margin: '0 0 16px' }}>📅 Buscar fecha</h3>
             <input type="date" value={fechaBuscar} onChange={e => setFechaBuscar(e.target.value)} autoFocus
               style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', outline: 'none', boxSizing: 'border-box', marginBottom: '18px' }} />
@@ -412,7 +412,7 @@ export default function SeguimientoPage() {
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => { if (e.target === e.currentTarget) setShowModal(false) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '440px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: 'min(100%, 440px)', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
             <h3 style={{ color: AZUL, fontSize: '16px', fontWeight: '700', margin: '0 0 18px' }}>Nueva actividad</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
@@ -420,7 +420,7 @@ export default function SeguimientoPage() {
                 <input value={form.titulo} onChange={e => setForm(p => ({ ...p, titulo: e.target.value }))} placeholder="Ej. Llamada de seguimiento"
                   style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Tipo</label>
                   <select value={form.tipo} onChange={e => setForm(p => ({ ...p, tipo: e.target.value }))}
@@ -471,7 +471,7 @@ export default function SeguimientoPage() {
       {detalle && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => { if (e.target === e.currentTarget) setDetalle(null) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: '380px', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: 'min(100%, 380px)', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
             {(() => {
               const cfg = TIPO_CONFIG[detalle.tipo] ?? TIPO_CONFIG.nota
               return (
