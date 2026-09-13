@@ -425,26 +425,6 @@ function MiDiaInner() {
         </div>
       )}
 
-      {/* ── Header de bienvenida ── */}
-      <div style={{ background: AZUL, padding: '14px 20px' }}>
-        <div style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: 'rgba(255,255,255,0.55)', marginBottom: '2px' }}>
-          {new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-        </div>
-        <div style={{ fontSize: 'clamp(14px, 1.06vw, 17px)', fontWeight: '700', color: 'white' }}>
-          Buenos días, {nombreAsesor.split(' ')[0]} 👋
-        </div>
-      </div>
-
-      {/* ── Barra de alertas ── */}
-      {totalAlertas > 0 && (
-        <a href="/clientes" style={{ textDecoration: 'none', background: '#FEF2F2', borderBottom: '1px solid #FECACA', padding: '8px 20px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-          <span style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)' }}>🔔</span>
-          <span style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: '#991B1B', fontWeight: '600' }}>
-            Tienes {totalAlertas} pendiente{totalAlertas !== 1 ? 's' : ''} que requiere{totalAlertas !== 1 ? 'n' : ''} atención
-          </span>
-          <span style={{ marginLeft: 'auto', fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: '#991B1B', background: '#FEE2E2', padding: '2px 8px', borderRadius: '10px' }}>Ver clientes →</span>
-        </a>
-      )}
       <style>{`
         .db-outer { display: grid; grid-template-columns: 1fr 12px 190px; gap: 12px; align-items: stretch; }
         .db-kpis  { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
@@ -539,11 +519,11 @@ function MiDiaInner() {
             <div className="db-kpis" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
               {[
                 { label: 'Clientes activos', value: clientesActivos.length.toString(), sub: 'en pipeline', color: AZUL },
-                { label: 'Prospectos', value: prospectos.length.toString(), sub: `+${clientesNuevosPeriodo} en el periodo`, color: AZUL, filled: true, delta: deltaClientesNuevos },
-                { label: 'En diagnóstico', value: enDiagnostico.length.toString(), sub: 'propuesta enviada', color: '#1D4ED8', filled: true },
-                { label: 'En recopilación', value: enRecopilacion.length.toString(), sub: 'armando expediente', color: '#0891B2', filled: true },
+                { label: 'Prospectos', value: prospectos.length.toString(), sub: `+${clientesNuevosPeriodo} en el periodo`, color: AZUL, delta: deltaClientesNuevos },
+                { label: 'En diagnóstico', value: enDiagnostico.length.toString(), sub: 'propuesta enviada', color: '#1D4ED8' },
+                { label: 'En recopilación', value: enRecopilacion.length.toString(), sub: 'armando expediente', color: '#0891B2' },
                 { label: 'En trámite', value: enTramite.length.toString(), sub: 'en proceso IMSS', color: '#F59E0B' },
-                { label: 'Cierres Exitosos', value: pensionados.length.toString(), sub: `${cierresPeriodo} en el periodo`, color: VERDE, filled: true, delta: deltaCierres },
+                { label: 'Cierres Exitosos', value: pensionados.length.toString(), sub: `${cierresPeriodo} en el periodo`, color: VERDE, delta: deltaCierres },
                 { label: 'Cobrado', value: fmtMXN(ingresosTotal), sub: filtroPeriodo, color: VERDE, delta: deltaIngresos },
                 { label: 'Por Cobrar', value: fmtMXN(porCobrar), sub: 'saldo pendiente', color: '#F59E0B' },
                 { label: 'Ventas Totales', value: fmtMXN(ingresosConComisiones), sub: 'incl. comisiones', color: AZUL },

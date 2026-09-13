@@ -2452,7 +2452,7 @@ function CalculadoraInner() {
               {/* Paso 2: Modo de entrada */}
               <div style={{ border: `1px solid ${datos.semanas_totales > 0 ? VERDE + '44' : '#E1E7F0'}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(14px, 1.7vw, 22px) clamp(14px, 1.9vw, 24px)', background: datos.semanas_totales > 0 ? '#E6F4EE' : 'white', transition: 'all 0.2s' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: datos.semanas_totales > 0 ? '0' : '12px' }}>
-                  <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: datos.semanas_totales > 0 ? VERDE : '#F5F7FA', color: datos.semanas_totales > 0 ? 'white' : '#66738A', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 'clamp(12.5px, 0.94vw, 15px)' }}>
+                  <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: datos.semanas_totales > 0 ? VERDE : '#E1E7F0', color: datos.semanas_totales > 0 ? 'white' : '#132135', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 'clamp(12.5px, 0.94vw, 15px)' }}>
                     {datos.semanas_totales > 0 ? '✓' : '2'}
                   </div>
                   <div style={{ flex: 1 }}>
@@ -2474,7 +2474,7 @@ function CalculadoraInner() {
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '12px' }}>
                         <button onClick={() => setModoEntrada('auto')}
                           style={{ width: '100%', padding: '20px', background: 'white', border: `2px solid ${NARANJA}`, borderRadius: '14px', cursor: 'pointer', boxShadow: '0 4px 16px rgba(232,98,44,0.14)', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '12px', textAlign: 'left' as const }}>
-                          <span style={{ width: 42, height: 42, borderRadius: '50%', flexShrink: 0, background: '#FDF0E9', color: NARANJA, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(16px, 1.25vw, 20px)' }}>⇪</span>
+                          <span style={{ width: 42, height: 42, borderRadius: '50%', flexShrink: 0, background: NARANJA, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(18px, 1.4vw, 22px)', fontWeight: 700 }}>↑</span>
                           <div>
                             <div style={{ fontSize: 'clamp(14px, 1.06vw, 17px)', fontWeight: 700, color: '#132135' }}>Cargar constancia del IMSS</div>
                             <div style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: '#66738A', marginTop: '3px', lineHeight: 1.5 }}>Sofía lee el PDF y llena los datos sola. Es la vía recomendada: evita errores de captura.</div>
@@ -2483,7 +2483,7 @@ function CalculadoraInner() {
                         </button>
                         <button onClick={() => setModoEntrada('manual')}
                           style={{ width: '100%', padding: '20px', background: 'white', border: '1px solid #E1E7F0', borderRadius: '14px', cursor: 'pointer', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '12px', textAlign: 'left' as const }}>
-                          <span style={{ width: 42, height: 42, borderRadius: '50%', flexShrink: 0, background: '#F5F7FA', color: '#66738A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(16px, 1.25vw, 20px)' }}>✎</span>
+                          <span style={{ width: 42, height: 42, borderRadius: '50%', flexShrink: 0, background: '#E1E7F0', color: '#132135', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(18px, 1.4vw, 22px)', fontWeight: 700 }}>✎</span>
                           <div>
                             <div style={{ fontSize: 'clamp(14px, 1.06vw, 17px)', fontWeight: 700, color: '#132135' }}>Capturar a mano</div>
                             <div style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: '#66738A', marginTop: '3px', lineHeight: 1.5 }}>Para cuando no tienes el PDF o la constancia es un escaneo.</div>
@@ -2811,7 +2811,11 @@ function CalculadoraInner() {
                 const dotColors: any = { imss: '#334E7B', manual: '#E8724A', strategy: '#2E7D5A', result: '#7C3AED' }
                 const dotColor = dotColors[k.tipo] || '#94A3B8'
                 return (
-                  <div key={i} style={{ flex: '1 1 0', padding: '12px 16px', borderRight: `1px solid ${BORDE}`, background: 'white', minWidth: '118px' }}>
+                  /* Con flex 1 1 0 las siete metricas se comprimian hasta
+                     cortar la ultima contra el borde en tableta. Con 0 0 auto
+                     conservan su ancho y la franja se desplaza, que ya estaba
+                     previsto en el contenedor. */
+                  <div key={i} style={{ flex: '0 0 auto', padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.5vw, 18px)', borderRight: `1px solid ${BORDE}`, background: 'white', minWidth: '132px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '3px' }}>
                       <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: dotColor, flexShrink: 0, display: 'inline-block' }} />
                       <span style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', color: '#66738A', whiteSpace: 'nowrap' as const }}>{k.label}</span>

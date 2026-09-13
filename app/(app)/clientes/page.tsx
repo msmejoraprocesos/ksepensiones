@@ -1164,12 +1164,12 @@ function ClientesInner() {
             <input placeholder="Buscar..." value={search} onChange={e => setSearch(e.target.value)}
               style={{ padding: '7px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: 'clamp(12.5px, 0.94vw, 15px)', width: '130px', minWidth: '100px', outline: 'none' }} />
             <select value={filtroEtapa} onChange={e => setFiltroEtapa(e.target.value)}
-              style={{ padding: '7px 8px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: 'clamp(12.5px, 0.94vw, 15px)', outline: 'none', background: 'white', color: filtroEtapa ? '#374151' : '#94a3b8', maxWidth: '125px' }}>
+              style={{ padding: '7px 8px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: 'clamp(12.5px, 0.94vw, 15px)', outline: 'none', background: 'white', color: filtroEtapa ? '#374151' : '#94a3b8', minWidth: '150px', maxWidth: '200px' }}>
               <option value="">Todas las etapas</option>
               {COLUMNAS.map(col => <option key={col.id} value={col.id}>{col.label}</option>)}
             </select>
             <select value={filtroServicio} onChange={e => setFiltroServicio(e.target.value)}
-              style={{ padding: '7px 8px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: 'clamp(12.5px, 0.94vw, 15px)', outline: 'none', background: 'white', color: filtroServicio ? '#374151' : '#94a3b8', maxWidth: '125px' }}>
+              style={{ padding: '7px 8px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: 'clamp(12.5px, 0.94vw, 15px)', outline: 'none', background: 'white', color: filtroServicio ? '#374151' : '#94a3b8', minWidth: '150px', maxWidth: '200px' }}>
               <option value="">Todos los servicios</option>
               {TIPOS_SERVICIO.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
             </select>

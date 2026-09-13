@@ -109,8 +109,10 @@ export function SofiaChat({ contextoCliente }: SofiaChatProps) {
       {/* Botón flotante con avatar */}
       <button onClick={() => setAbierto(p => !p)}
         style={{
-          position: 'fixed' as const, bottom: '20px', right: '20px', zIndex: 1000,
-          width: '60px', height: '60px', borderRadius: '50%',
+          /* Se aleja del borde y baja de tamaño: tapaba el botón de guía del
+             termómetro y las últimas filas de varias tablas. */
+          position: 'fixed' as const, bottom: 'clamp(12px, 2vw, 20px)', right: 'clamp(12px, 2vw, 20px)', zIndex: 1000,
+          width: '52px', height: '52px', borderRadius: '50%',
           background: abierto ? '#374151' : AZUL,
           border: `3px solid ${abierto ? '#6B7280' : '#F05B21'}`,
           cursor: 'pointer', boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
