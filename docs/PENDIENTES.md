@@ -44,7 +44,7 @@ El módulo de suscripción con Stripe se eliminó en esta fase. Lo que quedó en
 
 ## Calidad
 
-- [ ] **Mover `generarPagosProgramados` a una función de base de datos.** Hoy borra el calendario y lo reinserta desde el cliente, con una compensación manual si la inserción falla. Una función en Postgres daría atomicidad real.
+- [ ] **Correr `supabase/migraciones/20260913_regenerar_pagos.sql`** en KSE. Hasta entonces el cliente usa el camino anterior (borrar + insertar con compensación), que funciona pero no es atómico.
 
 - [x] Tests de resistencia a datos vacíos e incompletos. Encontraron un bug real: una fecha ilegible producía NaN y de ahí un estado de cobranza impredecible.
 

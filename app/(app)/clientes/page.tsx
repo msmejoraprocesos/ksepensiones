@@ -952,32 +952,36 @@ function ClientesInner() {
       else if (periodo === 'quincenal') fecha.setDate(fecha.getDate() + 15)
       else fecha.setMonth(fecha.getMonth() + 1)
     }
-    /* Borrar antes de insertar deja una ventana peligrosa: si el borrado pasa
-       y la inserción falla, el cliente se queda sin calendario de pagos y
-       nadie se entera hasta que alguien lo busca.
+    /* Regeneración atómica en una función de base de datos.
+       Antes eran dos llamadas — borrar y luego insertar — con una ventana en
+       la que, si la inserción fallaba o el navegador se cerraba, el cliente
+       quedaba sin calendario. La compensación en JavaScript mitigaba pero no
+       garantizaba nada. Dentro de la función, o queda el calendario nuevo
+       completo o queda el anterior intacto. */
+    const { error: eRegen } = await supabase.rpc('regenerar_pagos_programados', {
+      p_cliente_id: clienteId,
+      p_pagos: pagosArr,
+    })
 
-       Se guarda el calendario anterior para poder restaurarlo. Postgres no
-       expone transacciones desde el cliente de Supabase, así que esta es la
-       compensación posible sin mover la lógica a una función de base. */
-    const { data: anterior } = await supabase
-      .from('pagos_programados').select('*').eq('cliente_id', clienteId)
-
-    const { error: eBorrado } = await supabase
-      .from('pagos_programados').delete().eq('cliente_id', clienteId)
-    if (eBorrado) {
-      avisoError('No se pudo regenerar el calendario de pagos', eBorrado.message)
-      return
-    }
-
-    const { error: eInsert } = await supabase.from('pagos_programados').insert(pagosArr)
-    if (eInsert) {
-      if (anterior && anterior.length > 0) {
-        await supabase.from('pagos_programados').insert(anterior)
-        avisoError('No se pudo generar el nuevo calendario', 'Se restauró el anterior. Revisa los datos del plan de pagos e inténtalo de nuevo.')
+    if (eRegen) {
+      /* Respaldo por si la migración de la función aún no está aplicada:
+         42883 es "función inexistente" en Postgres. */
+      if (eRegen.code === '42883' || /function .* does not exist/i.test(eRegen.message)) {
+        const { data: anterior } = await supabase
+          .from('pagos_programados').select('*').eq('cliente_id', clienteId)
+        const { error: eBorrado } = await supabase
+          .from('pagos_programados').delete().eq('cliente_id', clienteId)
+        if (eBorrado) { avisoError('No se pudo regenerar el calendario de pagos', eBorrado.message); return }
+        const { error: eInsert } = await supabase.from('pagos_programados').insert(pagosArr)
+        if (eInsert) {
+          if (anterior && anterior.length > 0) await supabase.from('pagos_programados').insert(anterior)
+          avisoError('No se pudo generar el calendario de pagos', eInsert.message)
+          return
+        }
       } else {
-        avisoError('No se pudo generar el calendario de pagos', eInsert.message)
+        avisoError('No se pudo generar el calendario de pagos', 'El calendario anterior quedó intacto. Revisa los datos del plan e inténtalo de nuevo.')
+        return
       }
-      return
     }
     loadPagosProgramados(clienteId)
   }
