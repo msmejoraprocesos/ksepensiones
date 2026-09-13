@@ -1146,9 +1146,9 @@ function ClientesInner() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 56px)', background: '#F4F6F9', overflow: 'hidden' }}>
       {/* Header */}
-      <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', flexShrink: 0, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px', rowGap: '8px' }}>
+      <div style={{ background: 'white', borderBottom: '1px solid #e2e8f0', padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)', flexShrink: 0, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px', rowGap: '8px' }}>
         {/* Fila 1: título + toggle vista + botones principales */}
-        <h1 style={{ color: '#132135', fontSize: 'clamp(18px, 1.45vw, 23px)', fontWeight: 700, margin: 0, flexShrink: 0, letterSpacing: '-0.015em' }}>
+        <h1 style={{ color: '#132135', fontSize: 'clamp(14.5px, 1.27vw, 20.2px)', fontWeight: 700, margin: 0, flexShrink: 0, letterSpacing: '-0.015em' }}>
           Clientes <span style={{ color: '#94a3b8', fontWeight: '600', fontSize: 'clamp(11.5px, 0.87vw, 14px)' }}>({clientesFiltrados.length})</span>
         </h1>
         <div style={{ display: 'flex', border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden', flexShrink: 0 }}>
@@ -1201,7 +1201,7 @@ function ClientesInner() {
                  y el contenedor se queda neutro. Ver docs/rediseno. */
               <div key={i} style={{ background: '#FFFFFF', border: '1px solid #E1E7F0', borderRadius: '12px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '12px 16px', minWidth: '132px', textAlign: 'center' as const, flexShrink: 0 }}>
                 <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A', marginBottom: '4px' }}>{k.label}</div>
-                <div style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: k.color, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' as const, whiteSpace: 'nowrap' as const }}>{k.value}</div>
+                <div style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: k.color, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums' as const, whiteSpace: 'nowrap' as const }}>{k.value}</div>
               </div>
             ))}
             <button onClick={() => { setForm({ nombre: '', nss: '', telefono: '', email: '', notas: '', etapa_kanban: 'prospecto', tipo_servicio: '', esquema_pago: '', monto_acordado: '', monto_pension_mensual: '', numero_meses_cobro: '', porcentaje_recuperacion: '', tarifas_etapa: { prospecto: { cobrar: false, monto: '' }, diagnostico: { cobrar: false, monto: '' }, recopilacion: { cobrar: false, monto: '' }, tramite: { cobrar: false, monto: '' }, cierre: { cobrar: false, monto: '' } } }); setFormErrors({}); setShowNuevo(true) }}
@@ -1225,7 +1225,7 @@ function ClientesInner() {
             </div>
           ) : filtered.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '30px 18px' }}>
-              <div style={{ width: 56, height: 56, borderRadius: 999, background: '#F5F7FA', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(17px, 1.35vw, 22px)', color: '#66738A' }}>◎</div>
+              <div style={{ width: 56, height: 56, borderRadius: 999, background: '#F5F7FA', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(14.0px, 1.19vw, 19.4px)', color: '#66738A' }}>◎</div>
               <div style={{ color: '#64748b', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '600' }}>{search ? 'Sin resultados' : 'Sin clientes aún'}</div>
             </div>
           ) : (
@@ -1456,7 +1456,7 @@ function ClientesInner() {
           onClick={e => { if (e.target === e.currentTarget) { if (editando) setShowConfirmClose(true); else setSelected(null) } }}>
           <div style={{ width: '100%', maxWidth: 'min(720px, 88vw)', maxHeight: '88vh', overflowY: 'auto', height: '90vh', background: 'white', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 64px rgba(0,0,0,0.25)', borderRadius: '12px', overflow: 'hidden' }}>
             {/* Header */}
-            <div style={{ padding: 'clamp(12px, 1.4vw, 18px) clamp(14px, 1.7vw, 22px)', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ padding: 'clamp(11.4px, 1.23vw, 15.8px) clamp(14.0px, 1.5vw, 19.4px)', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ width: '42px', height: '42px', background: AZUL, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '700' }}>
                 {selected.nombre.charAt(0).toUpperCase()}
               </div>
@@ -1498,7 +1498,7 @@ function ClientesInner() {
                   🔄 Canalizar
                 </button>
               )}
-              <button onClick={() => { if (editando) setShowConfirmClose(true); else setSelected(null) }} style={{ background: 'none', border: 'none', fontSize: 'clamp(14.5px, 1.12vw, 18px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
+              <button onClick={() => { if (editando) setShowConfirmClose(true); else setSelected(null) }} style={{ background: 'none', border: 'none', fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
             </div>
 
             {/* Etapa pipeline */}
@@ -1643,7 +1643,7 @@ function ClientesInner() {
             </div>
 
             {/* Tab content */}
-            <div style={{ flex: 1, overflow: 'auto', padding: 'clamp(12px, 1.4vw, 18px) clamp(14px, 1.7vw, 22px)' }}>
+            <div style={{ flex: 1, overflow: 'auto', padding: 'clamp(11.4px, 1.23vw, 15.8px) clamp(14.0px, 1.5vw, 19.4px)' }}>
 
               {/* ── TAB INFO ── */}
               {modalTab === 'info' && (
@@ -1914,12 +1914,12 @@ function ClientesInner() {
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
                         <div style={{ background: '#F5F7FA', borderRadius: '10px', padding: '12px', border: '1px solid #e2e8f0' }}>
                           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#94a3b8', margin: '0 0 4px', fontWeight: '700' }}>Capital a financiar (Mod 40)</p>
-                          <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: '700', color: '#245287', margin: 0 }}>{fmtM(capitalBase)}</p>
+                          <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: '700', color: '#245287', margin: 0 }}>{fmtM(capitalBase)}</p>
                           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#94a3b8', margin: '3px 0 0' }}>Del diagnóstico seleccionado</p>
                         </div>
                         <div style={{ background: '#F0FDF4', borderRadius: '10px', padding: '12px', border: '1px solid #bbf7d0' }}>
                           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#94a3b8', margin: '0 0 4px', fontWeight: '700' }}>Pensión estimada</p>
-                          <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: '700', color: '#2E8B57', margin: 0 }}>{fmtM(pensionBase)}/mes</p>
+                          <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: '700', color: '#2E8B57', margin: 0 }}>{fmtM(pensionBase)}/mes</p>
                           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#94a3b8', margin: '3px 0 0' }}>Escenario elegido en el diagnóstico</p>
                         </div>
                       </div>
@@ -2154,7 +2154,7 @@ function ClientesInner() {
                       })()}
 
                       {pagos.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: 'clamp(12px, 1.5vw, 18px)', color: '#94a3b8', fontSize: 'clamp(11px, 0.78vw, 12.5px)', background: '#F5F7FA', borderRadius: '10px', border: '1px dashed #e2e8f0' }}>Sin pagos registrados</div>
+                        <div style={{ textAlign: 'center', padding: 'clamp(11.4px, 1.32vw, 15.8px)', color: '#94a3b8', fontSize: 'clamp(11px, 0.78vw, 12.5px)', background: '#F5F7FA', borderRadius: '10px', border: '1px dashed #e2e8f0' }}>Sin pagos registrados</div>
                       ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
                           {[...pagos].reverse().map((pago, i) => {
@@ -2407,7 +2407,7 @@ function ClientesInner() {
                   )}
 
                   {actividades.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: 'clamp(12px, 1.5vw, 18px)', color: '#94a3b8', fontSize: 'clamp(11px, 0.78vw, 12.5px)', background: '#F5F7FA', borderRadius: '10px', border: '1px dashed #e2e8f0' }}>
+                    <div style={{ textAlign: 'center', padding: 'clamp(11.4px, 1.32vw, 15.8px)', color: '#94a3b8', fontSize: 'clamp(11px, 0.78vw, 12.5px)', background: '#F5F7FA', borderRadius: '10px', border: '1px dashed #e2e8f0' }}>
                       Sin actividades registradas
                     </div>
                   ) : actividades.map(a => (
@@ -2449,7 +2449,7 @@ function ClientesInner() {
                 <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: 'rgba(255,255,255,0.65)', margin: '2px 0 0' }}>{showCanalizarModal.nombre}</p>
               </div>
               <button onClick={() => { setShowCanalizarModal(null); setCanalizarDestino(''); setCanalizarMotivo('') }}
-                style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: 'clamp(15px, 1.15vw, 18px)' }}>✕</button>
+                style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: 'clamp(11.4px, 1.01vw, 15.8px)' }}>✕</button>
             </div>
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
               <div style={{ background: '#FFF7ED', border: '1px solid #FDE68A', borderRadius: '10px', padding: '10px 12px', fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#92400E' }}>
@@ -2523,7 +2523,7 @@ function ClientesInner() {
                 <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: 'rgba(255,255,255,0.65)', margin: '2px 0 0' }}>{selected.nombre}</p>
               </div>
               <button onClick={() => { setShowEncuestaModal(false); setEncuestaLink('') }}
-                style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', fontSize: 'clamp(14.5px, 1.12vw, 18px)', padding: '4px 8px', borderRadius: '10px' }}>✕</button>
+                style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', padding: '4px 8px', borderRadius: '10px' }}>✕</button>
             </div>
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
               {!encuestaLink ? (
@@ -2584,9 +2584,9 @@ function ClientesInner() {
       {/* ══ MODAL WHATSAPP ══ */}
       {showWappModal && nuevoClienteData && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', borderRadius: '12px', padding: 'clamp(12px, 1.5vw, 18px)', width: 'min(100%, 480px)', boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}>
+          <div style={{ background: 'white', borderRadius: '12px', padding: 'clamp(11.4px, 1.32vw, 15.8px)', width: 'min(100%, 480px)', boxShadow: '0 8px 40px rgba(0,0,0,0.2)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(17px, 1.37vw, 22px)', flexShrink: 0 }}>
+              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(14.0px, 1.21vw, 19.4px)', flexShrink: 0 }}>
                 💬
               </div>
               <div>
@@ -2600,7 +2600,7 @@ function ClientesInner() {
 
             {materiales.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '20px', background: '#F4F6F9', borderRadius: '10px', color: '#94a3b8', fontSize: 'clamp(11px, 0.78vw, 12.5px)', marginBottom: '16px' }}>
-                <div style={{ fontSize: 'clamp(18px, 1.55vw, 25px)', marginBottom: '8px' }}>📚</div>
+                <div style={{ fontSize: 'clamp(14.0px, 1.21vw, 19.5px)', marginBottom: '8px' }}>📚</div>
                 No hay materiales configurados.<br />
                 Agrega materiales en <strong>Configuración → Materiales de apoyo</strong>
               </div>
@@ -2616,7 +2616,7 @@ function ClientesInner() {
                       <input type="checkbox" checked={checked}
                         onChange={() => setMaterialesSeleccionados(prev => checked ? prev.filter(id => id !== m.id) : [...prev, m.id])}
                         style={{ width: '16px', height: '16px', flexShrink: 0 }} />
-                      <span style={{ fontSize: 'clamp(15px, 1.15vw, 18px)' }}>{emoji}</span>
+                      <span style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)' }}>{emoji}</span>
                       <div style={{ flex: 1 }}>
                         <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '600', color: '#374151', margin: '0 0 1px' }}>{m.nombre}</p>
                         {m.descripcion && <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#94a3b8', margin: 0 }}>{m.descripcion}</p>}
@@ -2660,8 +2660,8 @@ function ClientesInner() {
       {/* ── MODAL CONFIRMAR CERRAR ── */}
       {showConfirmClose && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(12px, 1.5vw, 18px)', width: 'min(100%, 360px)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', textAlign: 'center' }}>
-            <div style={{ fontSize: 'clamp(24px, 2.25vw, 36px)', marginBottom: '12px' }}>⚠️</div>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11.4px, 1.32vw, 15.8px)', width: 'min(100%, 360px)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', textAlign: 'center' }}>
+            <div style={{ fontSize: 'clamp(20.2px, 1.76vw, 28.1px)', marginBottom: '12px' }}>⚠️</div>
             <h3 style={{ color: '#1e293b', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '700', margin: '0 0 8px' }}>¿Cerrar el expediente?</h3>
             <p style={{ color: '#64748b', fontSize: 'clamp(11px, 0.78vw, 12.5px)', margin: '0 0 20px', lineHeight: 1.6 }}>
               Tienes cambios sin guardar. ¿Seguro que quieres cerrar?
@@ -2689,7 +2689,7 @@ function ClientesInner() {
               style={{ position: 'absolute', top: '14px', right: '14px', width: '32px', height: '32px', borderRadius: '50%', border: 'none', background: '#F4F6F9', color: '#64748b', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               ✕
             </button>
-            <h2 style={{ fontSize: 'clamp(14.5px, 1.12vw, 18px)', fontWeight: '800', color: '#1e293b', textAlign: 'center', margin: '0 0 20px' }}>
+            <h2 style={{ fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', fontWeight: '800', color: '#1e293b', textAlign: 'center', margin: '0 0 20px' }}>
               GUÍA DE FUNCIONAMIENTO — TABLERO UNIFICADO DE PENSIONES
             </h2>
 
@@ -2755,8 +2755,8 @@ function ClientesInner() {
       {/* ── MODAL BLOQUEO REGLA DE NEGOCIO ── */}
       {bloqueoMsg && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(12px, 1.5vw, 18px)', width: 'min(100%, 380px)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', textAlign: 'center' }}>
-            <div style={{ fontSize: 'clamp(24px, 2.25vw, 36px)', marginBottom: '12px' }}>🚫</div>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11.4px, 1.32vw, 15.8px)', width: 'min(100%, 380px)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', textAlign: 'center' }}>
+            <div style={{ fontSize: 'clamp(20.2px, 1.76vw, 28.1px)', marginBottom: '12px' }}>🚫</div>
             <h3 style={{ color: '#1e293b', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '700', margin: '0 0 8px' }}>No se puede mover</h3>
             <p style={{ color: '#64748b', fontSize: 'clamp(11px, 0.78vw, 12.5px)', margin: '0 0 20px', lineHeight: 1.6 }}>
               {bloqueoMsg}
@@ -2772,8 +2772,8 @@ function ClientesInner() {
 {/* ── MODAL CONFIRMAR ETAPA ── */}
       {showConfirmEtapa && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(12px, 1.5vw, 18px)', width: 'min(100%, 380px)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', textAlign: 'center' }}>
-            <div style={{ fontSize: 'clamp(24px, 2.25vw, 36px)', marginBottom: '12px' }}>{showConfirmEtapa.etapaNueva === 'cancelado' ? '🚫' : '🔄'}</div>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11.4px, 1.32vw, 15.8px)', width: 'min(100%, 380px)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', textAlign: 'center' }}>
+            <div style={{ fontSize: 'clamp(20.2px, 1.76vw, 28.1px)', marginBottom: '12px' }}>{showConfirmEtapa.etapaNueva === 'cancelado' ? '🚫' : '🔄'}</div>
             <h3 style={{ color: '#1e293b', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '700', margin: '0 0 8px' }}>{showConfirmEtapa.etapaNueva === 'cancelado' ? '¿Cancelar cliente?' : '¿Cambiar etapa?'}</h3>
             <p style={{ color: '#64748b', fontSize: 'clamp(11px, 0.78vw, 12.5px)', margin: '0 0 8px', lineHeight: 1.6 }}>
               Moverás a <strong style={{ color: '#374151' }}>{showConfirmEtapa.nombre}</strong> de
@@ -2782,7 +2782,7 @@ function ClientesInner() {
               <span style={{ padding: '4px 12px', borderRadius: '10px', background: '#EEF2F8', color: AZUL, fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700' }}>
                 {COLUMNAS.find(c => c.id === showConfirmEtapa.etapaActual)?.label ?? showConfirmEtapa.etapaActual}
               </span>
-              <span style={{ fontSize: 'clamp(14.5px, 1.12vw, 18px)', color: '#94a3b8' }}>→</span>
+              <span style={{ fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', color: '#94a3b8' }}>→</span>
               <span style={{ padding: '4px 12px', borderRadius: '10px', background: showConfirmEtapa.etapaNueva === 'cancelado' ? '#fef2f2' : '#f0fdf4', color: showConfirmEtapa.etapaNueva === 'cancelado' ? '#ef4444' : VERDE, fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700' }}>
                 {COLUMNAS.find(c => c.id === showConfirmEtapa.etapaNueva)?.label ?? showConfirmEtapa.etapaNueva}
               </span>
@@ -2820,9 +2820,9 @@ function ClientesInner() {
       {/* ── MODAL CONFIRMAR ELIMINAR ── */}
       {showConfirmDelete && selected && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(12px, 1.5vw, 18px)', width: 'min(100%, 400px)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11.4px, 1.32vw, 15.8px)', width: 'min(100%, 400px)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
             <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-              <div style={{ fontSize: 'clamp(26px, 2.50vw, 40px)', marginBottom: '12px' }}>⚠️</div>
+              <div style={{ fontSize: 'clamp(19.0px, 1.65vw, 26.4px)', marginBottom: '12px' }}>⚠️</div>
               <h3 style={{ color: '#1e293b', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '700', margin: '0 0 8px' }}>¿Archivar a {selected.nombre}?</h3>
               <p style={{ color: '#64748b', fontSize: 'clamp(11px, 0.78vw, 12.5px)', margin: 0, lineHeight: 1.6 }}>
                 El cliente dejará de aparecer en el pipeline y listados, pero conservará todo su historial:
@@ -2863,8 +2863,8 @@ function ClientesInner() {
       {/* ── MODAL CONFIRMAR ARCHIVAR ── */}
       {showConfirmArchivar && selected && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(12px, 1.5vw, 18px)', width: '100%', maxWidth: 'min(400px, 88vw)', maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
-            <div style={{ fontSize: 'clamp(22px, 2.00vw, 32px)', textAlign: 'center', marginBottom: '12px' }}>📦</div>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11.4px, 1.32vw, 15.8px)', width: '100%', maxWidth: 'min(400px, 88vw)', maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
+            <div style={{ fontSize: 'clamp(18.0px, 1.56vw, 25.0px)', textAlign: 'center', marginBottom: '12px' }}>📦</div>
             <h3 style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '700', color: '#1e293b', margin: '0 0 10px', textAlign: 'center' }}>¿Archivar a {selected.nombre}?</h3>
             <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#64748b', margin: '0 0 20px', lineHeight: 1.6, textAlign: 'center' }}>
               El cliente será movido al archivo. Podrás consultarlo y reactivarlo en cualquier momento desde la vista de archivados.
@@ -2887,7 +2887,7 @@ function ClientesInner() {
       {showPago && selected && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => e.stopPropagation()}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(12px, 1.5vw, 18px)', width: 'min(100%, 400px)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11.4px, 1.32vw, 15.8px)', width: 'min(100%, 400px)', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
               <h3 style={{ color: tipoMovimiento === 'devolucion' ? '#ef4444' : AZUL, fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '700', margin: 0 }}>
                 {tipoMovimiento === 'devolucion' ? '↩️ Registrar devolución' : 'Registrar pago'}
@@ -2995,7 +2995,7 @@ function ClientesInner() {
               <div>
                 <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Comprobante (opcional)</label>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 12px', border: `2px dashed ${compFile ? VERDE : '#e2e8f0'}`, borderRadius: '10px', cursor: 'pointer', background: compFile ? '#f0fdf4' : '#FAFBFC', transition: 'all 0.15s' }}>
-                  <span style={{ fontSize: 'clamp(14.5px, 1.12vw, 18px)' }}>{compFile ? '✅' : '📎'}</span>
+                  <span style={{ fontSize: 'clamp(11.4px, 0.98vw, 15.8px)' }}>{compFile ? '✅' : '📎'}</span>
                   <span style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: compFile ? VERDE : '#94a3b8', fontWeight: '600' }}>
                     {compFile ? compFile.name : 'Adjuntar ficha de depósito o transferencia'}
                   </span>
@@ -3033,8 +3033,8 @@ function ClientesInner() {
       {showNuevo && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(12px, 1.5vw, 18px)', width: 'min(100%, 440px)', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
-            <h2 style={{ color: AZUL, fontSize: 'clamp(14.5px, 1.12vw, 18px)', fontWeight: '700', margin: '0 0 20px' }}>Nuevo cliente</h2>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11.4px, 1.32vw, 15.8px)', width: 'min(100%, 440px)', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+            <h2 style={{ color: AZUL, fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', fontWeight: '700', margin: '0 0 20px' }}>Nuevo cliente</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Nombre *</label>

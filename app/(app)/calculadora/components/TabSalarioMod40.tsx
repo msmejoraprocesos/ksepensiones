@@ -97,7 +97,7 @@ export default function TabSalarioMod40({
             PENSIÓN PROYECTADA CON ESTOS PARÁMETROS
           </p>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', flexWrap: 'wrap', marginTop: '8px' }}>
-            <p style={{ fontSize: 'clamp(28px, 3.2vw, 42px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
+            <p style={{ fontSize: 'clamp(19.9px, 2.11vw, 27.7px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
               {escRec ? fmtMXN2(escRec.pension_mensual) : '\u2014'}
             </p>
             {escRec && pensionActual > 0 && (
@@ -119,7 +119,7 @@ export default function TabSalarioMod40({
           ].map((k, i) => (
             <div key={i} style={{ background: K.navy900, padding: '13px 18px' }}>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k[0]}</p>
-              <p style={{ fontSize: 'clamp(17px, 1.35vw, 22px)', fontWeight: 700, color: k[3], margin: '3px 0 0', ...nw, ...num }}>{k[1]}</p>
+              <p style={{ fontSize: 'clamp(14.0px, 1.19vw, 19.4px)', fontWeight: 700, color: k[3], margin: '3px 0 0', ...nw, ...num }}>{k[1]}</p>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.44)', margin: '2px 0 0' }}>{k[2]}</p>
             </div>
           ))}
@@ -132,7 +132,7 @@ export default function TabSalarioMod40({
           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.56)', margin: 0 }}>
             {mod40Umas} UMAs · {mod40Meses} meses
           </p>
-          <p style={{ fontSize: 'clamp(17px, 1.35vw, 22px)', fontWeight: 800, color: 'white', margin: '2px 0 0', ...nw, ...num }}>
+          <p style={{ fontSize: 'clamp(14.0px, 1.19vw, 19.4px)', fontWeight: 800, color: 'white', margin: '2px 0 0', ...nw, ...num }}>
             {escRec ? fmtMXN2(escRec.pension_mensual) : '—'}
           </p>
         </div>
@@ -148,7 +148,7 @@ export default function TabSalarioMod40({
         {/* ── Decisión estratégica ──────────────────────────────── */}
         <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '18px' }}>
-            <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: 0 }}>Decisión estratégica</p>
+            <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: K.ink, margin: 0 }}>Decisión estratégica</p>
             <button onClick={resetParametrosMod40}
               style={{ padding: '8px 14px', background: 'transparent', color: K.muted, border: `1px solid ${K.line}`, borderRadius: '8px', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', ...nw }}>
               Restablecer
@@ -160,13 +160,13 @@ export default function TabSalarioMod40({
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
               <div>
                 <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: '0 0 4px' }}>Años</p>
-                <select value={edadIngresoAnios} onChange={e => setEdadIngresoAnios(Number(e.target.value))} style={{ ...campo, fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 800 }}>
+                <select value={edadIngresoAnios} onChange={e => setEdadIngresoAnios(Number(e.target.value))} style={{ ...campo, fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 800 }}>
                   {Array.from({ length: 31 }, (_, i) => i + 40).map(a => <option key={a} value={a}>{a}</option>)}
                 </select>
               </div>
               <div>
                 <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: '0 0 4px' }}>Meses</p>
-                <select value={edadIngresoMeses} onChange={e => setEdadIngresoMeses(Number(e.target.value))} style={{ ...campo, fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 800 }}>
+                <select value={edadIngresoMeses} onChange={e => setEdadIngresoMeses(Number(e.target.value))} style={{ ...campo, fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 800 }}>
                   {Array.from({ length: 12 }, (_, i) => i).map(m => <option key={m} value={m}>{m}</option>)}
                 </select>
               </div>
@@ -223,7 +223,7 @@ export default function TabSalarioMod40({
 
         {/* ── Escenarios calculados ─────────────────────────────── */}
         <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
-          <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Escenarios calculados</p>
+          <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Escenarios calculados</p>
           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: '0 0 18px' }}>
             Comparados contra {fmtMXN2(pensionActual)}/mes sin Mod. 40
           </p>
@@ -243,7 +243,7 @@ export default function TabSalarioMod40({
                       <span style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 700, color: c, ...nw }}>
                         {esc.recomendado && '\u2605 '}Esc. {i + 1} — {esc.mod40_umas} UMAs &middot; {esc.mod40_meses} meses
                       </span>
-                      <span style={{ fontSize: 'clamp(17px, 1.37vw, 22px)', fontWeight: 800, color: K.ink, ...nw, ...num }}>{fmtMXN2(esc.pension_mensual)}</span>
+                      <span style={{ fontSize: 'clamp(14.0px, 1.21vw, 19.4px)', fontWeight: 800, color: K.ink, ...nw, ...num }}>{fmtMXN2(esc.pension_mensual)}</span>
                     </div>
 
                     <div style={{ height: '8px', background: 'rgba(0,0,0,.06)', borderRadius: 999, overflow: 'hidden', margin: '10px 0 12px' }}>

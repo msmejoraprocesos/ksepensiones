@@ -45,7 +45,7 @@ const inputBase = (tipo: keyof typeof SEM): React.CSSProperties => ({
 const CardSection = ({ tipo, title, children }: { tipo: keyof typeof SEM; title: string; children: React.ReactNode }) => (
   <div style={{ background: K.card, borderRadius: '14px', border: `1px solid ${K.line}`, overflow: 'hidden', boxShadow: '0 1px 3px rgba(19,33,53,0.06)' }}>
     <div style={{ padding: '18px 24px 14px', display: 'flex', alignItems: 'baseline', gap: '10px' }}>
-      <span style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink }}>{title}</span>
+      <span style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: K.ink }}>{title}</span>
       <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '7px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, ...nw }}>
         <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: SEM[tipo].dot, display: 'inline-block' }} />
         {SEM[tipo].label}
@@ -181,7 +181,7 @@ export default function TabCliente({
                 { label: 'Padres', value: String(datos.num_padres), ok: datos.num_padres > 0 },
               ].map(({ label, value, ok }, i) => (
                 <div key={i} style={{ textAlign: 'center' as const, padding: '8px 4px', background: ok ? '#F0F7F4' : '#F8FAFC', border: `1px solid ${ok ? '#86EFAC' : BORDE}`, borderRadius: '8px' }}>
-                  <div style={{ fontSize: 'clamp(14.5px, 1.12vw, 18px)', fontWeight: '800', color: ok ? VERDE : '#9CA3AF' }}>{value}</div>
+                  <div style={{ fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', fontWeight: '800', color: ok ? VERDE : '#9CA3AF' }}>{value}</div>
                   <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A' }}>{label}</div>
                 </div>
               ))}
@@ -235,7 +235,7 @@ export default function TabCliente({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <div style={{ padding: '10px', background: SEM.result.bg, border: `1.5px solid ${SEM.result.border}`, borderRadius: '8px', textAlign: 'center' as const }}>
                 <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A', marginBottom: '4px' }}>SDI diario</div>
-                <div style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: '800', color: MORADO }}>{fmtMXN2(sdiPromedio)}</div>
+                <div style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: '800', color: MORADO }}>{fmtMXN2(sdiPromedio)}</div>
               </div>
               <div style={{ padding: '10px', background: SEM.imss.bg, border: `1px solid ${SEM.imss.border}22`, borderRadius: '8px', textAlign: 'center' as const }}>
                 <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A', marginBottom: '4px' }}>SDI mensual</div>

@@ -28,7 +28,7 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
 
   if (!escRec || escRec.mod40_meses === 0) return (
     <div style={{ textAlign: 'center', padding: '30px 18px', color: K.muted }}>
-      <i className="ti ti-chart-line" style={{ fontSize: 'clamp(30px, 3.00vw, 48px)', display: 'block', marginBottom: '12px' }} />
+      <i className="ti ti-chart-line" style={{ fontSize: 'clamp(22.8px, 1.98vw, 31.7px)', display: 'block', marginBottom: '12px' }} />
       <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)' }}>Completa las pestañas anteriores para continuar</p>
     </div>
   )
@@ -89,7 +89,7 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
             LO QUE ACUMULA HASTA LOS 80 AÑOS
           </p>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', flexWrap: 'wrap', marginTop: '8px' }}>
-            <p style={{ fontSize: 'clamp(28px, 3.2vw, 42px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
+            <p style={{ fontSize: 'clamp(19.9px, 2.11vw, 27.7px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
               {fmtMXN(escRec.ganancia_a80)}
             </p>
             <span style={{ background: K.green, color: 'white', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, padding: '7px 13px', borderRadius: 999, ...nw, ...num }}>
@@ -110,7 +110,7 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
           ].map((k, i) => (
             <div key={i} style={{ background: K.navy900, padding: '13px 18px' }}>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k.label}</p>
-              <p style={{ fontSize: 'clamp(17px, 1.35vw, 22px)', fontWeight: 700, color: k.color, margin: '3px 0 0', ...nw, ...num }}>{k.value}</p>
+              <p style={{ fontSize: 'clamp(14.0px, 1.19vw, 19.4px)', fontWeight: 700, color: k.color, margin: '3px 0 0', ...nw, ...num }}>{k.value}</p>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
                 <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.44)', margin: 0 }}>{k.sub}</p>
                 {(k as any).guia && <GuiaTermometro meses={escRec.roi} />}
@@ -128,7 +128,7 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
       <div className="kse-curva-sticky" style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)', position: 'sticky', top: 0, zIndex: 5 }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '6px' }}>
           <div>
-            <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: 0 }}>Cómo evoluciona su pensión</p>
+            <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: K.ink, margin: 0 }}>Cómo evoluciona su pensión</p>
             <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: '4px 0 0' }}>Toque un año para ver el detalle</p>
           </div>
           <div style={{ display: 'flex', gap: '18px', flexWrap: 'wrap', fontSize: 'clamp(11px, 0.78vw, 12.5px)' }}>
@@ -199,7 +199,7 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
       {/* ── Tabla completa ─────────────────────────────────────── */}
       <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', overflow: 'hidden' }}>
         <div style={{ padding: '13px 18px', borderBottom: `1px solid ${K.line}` }}>
-          <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: 0 }}>Proyección de flujos año por año</p>
+          <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: K.ink, margin: 0 }}>Proyección de flujos año por año</p>
           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: '4px 0 0' }}>
             Pensiones actualizadas {(inflacion * 100).toFixed(1)}% cada año conforme al INPC
           </p>

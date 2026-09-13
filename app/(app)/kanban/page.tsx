@@ -155,8 +155,8 @@ export default function KanbanPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 56px)', background: '#F4F6F9' }}>
       {/* Header — fijo arriba mientras se hace scroll de toda la página */}
-      <div style={{ position: 'sticky' as const, top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #e2e8f0', padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <h1 style={{ color: AZUL, fontSize: 'clamp(18px, 1.45vw, 23px)', fontWeight: 700, margin: 0 }}>Pipeline de Clientes</h1>
+      <div style={{ position: 'sticky' as const, top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #e2e8f0', padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <h1 style={{ color: AZUL, fontSize: 'clamp(14.5px, 1.27vw, 20.2px)', fontWeight: 700, margin: 0 }}>Pipeline de Clientes</h1>
 
         {/* KPIs rápidos */}
         <div style={{ display: 'flex', gap: '12px', flex: 1 }}>
@@ -286,7 +286,7 @@ export default function KanbanPage() {
       {modal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => { if (e.target === e.currentTarget) setModal(null) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(12px, 1.5vw, 18px)', width: 'min(100%, 480px)', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11.4px, 1.32vw, 15.8px)', width: 'min(100%, 480px)', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
             {/* Header modal */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
               <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: AZUL, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '700' }}>
@@ -298,7 +298,7 @@ export default function KanbanPage() {
                   {COLUMNAS.find(c => c.id === modal.cliente.etapa_kanban)?.label ?? modal.cliente.etapa_kanban}
                 </div>
               </div>
-              <button onClick={() => setModal(null)} style={{ background: 'none', border: 'none', fontSize: 'clamp(14.5px, 1.12vw, 18px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
+              <button onClick={() => setModal(null)} style={{ background: 'none', border: 'none', fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
             </div>
 
             {/* Mover de etapa */}
@@ -369,8 +369,8 @@ export default function KanbanPage() {
       {showNuevo && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => { if (e.target === e.currentTarget) setShowNuevo(false) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(12px, 1.5vw, 18px)', width: 'min(100%, 460px)', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
-            <h2 style={{ color: AZUL, fontSize: 'clamp(14.5px, 1.12vw, 18px)', fontWeight: '700', margin: '0 0 20px' }}>Nuevo cliente</h2>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11.4px, 1.32vw, 15.8px)', width: 'min(100%, 460px)', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+            <h2 style={{ color: AZUL, fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', fontWeight: '700', margin: '0 0 20px' }}>Nuevo cliente</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Nombre *</label>

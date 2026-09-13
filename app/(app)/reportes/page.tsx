@@ -215,11 +215,11 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
   const r: any = null // para el fmt de actividades
 
   return (
-    <div style={{ height: 'calc(100vh - 48px)', overflowY: 'auto', background: '#F4F6FB', padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)' }}>
+    <div style={{ height: 'calc(100vh - 48px)', overflowY: 'auto', background: '#F4F6FB', padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)' }}>
 
       {/* Header */}
       <div style={{ marginBottom: '20px' }}>
-        <h1 style={{ fontSize: 'clamp(18px, 1.45vw, 23px)', fontWeight: 700, color: AZUL, margin: '0 0 4px' }}>📋 Reportes</h1>
+        <h1 style={{ fontSize: 'clamp(14.5px, 1.27vw, 20.2px)', fontWeight: 700, color: AZUL, margin: '0 0 4px' }}>📋 Reportes</h1>
         <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#6B7280', margin: 0 }}>Exporta tu información en Excel o PDF</p>
       </div>
 
@@ -340,7 +340,7 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
 
       {datos.length === 0 && !cargando && (
         <div style={{ background: 'white', border: '1px dashed #D1D5DB', borderRadius: '10px', padding: '28px 18px', textAlign: 'center' as const, color: '#9CA3AF' }}>
-          <p style={{ fontSize: 'clamp(22px, 2.00vw, 32px)', margin: '0 0 8px' }}>📋</p>
+          <p style={{ fontSize: 'clamp(18.0px, 1.56vw, 25.0px)', margin: '0 0 8px' }}>📋</p>
           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', margin: 0 }}>Selecciona un tipo de reporte y haz clic en "Generar"</p>
         </div>
       )}

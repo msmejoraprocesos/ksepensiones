@@ -35,7 +35,7 @@ export default function TabCuantias({ res, sdiPromedio, datos, setTab, Tip }: Pr
 
   if (sdiPromedio <= 0) return (
     <div style={{ textAlign: 'center', padding: '30px 18px', color: K.muted }}>
-      <i className="ti ti-file-alert" style={{ fontSize: 'clamp(30px, 3.00vw, 48px)', display: 'block', marginBottom: '12px' }} />
+      <i className="ti ti-file-alert" style={{ fontSize: 'clamp(22.8px, 1.98vw, 31.7px)', display: 'block', marginBottom: '12px' }} />
       <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)' }}>Carga la constancia IMSS para ver la pensión actual</p>
     </div>
   )
@@ -64,7 +64,7 @@ export default function TabCuantias({ res, sdiPromedio, datos, setTab, Tip }: Pr
             SU PENSIÓN SI SE RETIRA HOY, SIN MODALIDAD 40
           </p>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', flexWrap: 'wrap', marginTop: '8px' }}>
-            <p style={{ fontSize: 'clamp(28px, 3.2vw, 42px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
+            <p style={{ fontSize: 'clamp(19.9px, 2.11vw, 27.7px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
               {fmtMXN2(res.pensionMensual)}
             </p>
             {res.pmg_aplica && (
@@ -88,7 +88,7 @@ export default function TabCuantias({ res, sdiPromedio, datos, setTab, Tip }: Pr
           ].map((k, i) => (
             <div key={i} style={{ background: K.navy900, padding: '13px 18px' }}>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k[0]}</p>
-              <p style={{ fontSize: 'clamp(17px, 1.35vw, 22px)', fontWeight: 700, color: k[3], margin: '3px 0 0', ...nw, ...num }}>{k[1]}</p>
+              <p style={{ fontSize: 'clamp(14.0px, 1.19vw, 19.4px)', fontWeight: 700, color: k[3], margin: '3px 0 0', ...nw, ...num }}>{k[1]}</p>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.44)', margin: '2px 0 0' }}>{k[2]}</p>
             </div>
           ))}
@@ -99,7 +99,7 @@ export default function TabCuantias({ res, sdiPromedio, datos, setTab, Tip }: Pr
 
         {/* ── Desglose ──────────────────────────────────────────── */}
         <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
-          <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: '0 0 18px' }}>De qué se compone la pensión anual</p>
+          <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: K.ink, margin: '0 0 18px' }}>De qué se compone la pensión anual</p>
 
           <div style={{ display: 'flex', height: '42px', borderRadius: '9px', overflow: 'hidden', marginBottom: '20px' }}>
             {componentes.map((c, i) => {
@@ -127,13 +127,13 @@ export default function TabCuantias({ res, sdiPromedio, datos, setTab, Tip }: Pr
 
           <div style={{ marginTop: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px', background: K.navy900, borderRadius: '10px', padding: '16px 20px' }}>
             <span style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', color: 'rgba(255,255,255,.78)' }}>Total anual</span>
-            <span style={{ fontSize: 'clamp(17px, 1.35vw, 22px)', fontWeight: 700, color: 'white', ...nw, ...num }}>{fmtMXN2(res.pensionAnual)}</span>
+            <span style={{ fontSize: 'clamp(14.0px, 1.19vw, 19.4px)', fontWeight: 700, color: 'white', ...nw, ...num }}>{fmtMXN2(res.pensionAnual)}</span>
           </div>
         </div>
 
         {/* ── Factores ──────────────────────────────────────────── */}
         <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
-          <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: '0 0 14px' }}>Factores del cálculo</p>
+          <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: K.ink, margin: '0 0 14px' }}>Factores del cálculo</p>
           {[
             ['SDI promedio 250 sem.', fmtMXN2(sdiPromedio)],
             ['Salario en veces UMA', `${res.vecesUMA?.toFixed(4) ?? '—'} veces`],
@@ -169,7 +169,7 @@ export default function TabCuantias({ res, sdiPromedio, datos, setTab, Tip }: Pr
 
       {/* ── Tabla por edad, con curva ──────────────────────────── */}
       <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
-        <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>
+        <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>
           Pensión por edad de retiro <Tip id="factorEdad" />
         </p>
         <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: '0 0 14px' }}>Toque un año para comparar</p>

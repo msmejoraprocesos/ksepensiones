@@ -53,13 +53,13 @@ export default function PanelElegibilidad({ datos, setDatos, semanasNetas }: Pro
     <div style={{ background: K.card, borderRadius: '14px', border: `1px solid ${K.line}`, boxShadow: '0 1px 3px rgba(19,33,53,0.06)', overflow: 'hidden' }}>
 
       {/* Veredicto */}
-      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', background: r.mod40_viable ? K.greenSoft : K.redSoft, borderBottom: `1px solid ${K.line}` }}>
+      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)', background: r.mod40_viable ? K.greenSoft : K.redSoft, borderBottom: `1px solid ${K.line}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           <span style={{ width: 30, height: 30, borderRadius: 999, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: r.mod40_viable ? K.green : K.red, color: 'white', fontSize: 15, fontWeight: 700 }}>
             {r.mod40_viable ? '✓' : '!'}
           </span>
           <div style={{ minWidth: 0 }}>
-            <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: 0 }}>
+            <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: K.ink, margin: 0 }}>
               {r.mod40_viable ? 'Puede acceder a Modalidad 40' : 'No puede acceder a Modalidad 40'}
             </p>
             <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: '3px 0 0' }}>
@@ -77,7 +77,7 @@ export default function PanelElegibilidad({ datos, setDatos, semanasNetas }: Pro
       </div>
 
       {/* Captura de los dos datos que la constancia trae y el formulario no pedía */}
-      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', borderBottom: `1px solid ${K.line}` }}>
+      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)', borderBottom: `1px solid ${K.line}` }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
           <div>
             <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', color: K.muted, marginBottom: '6px' }}>

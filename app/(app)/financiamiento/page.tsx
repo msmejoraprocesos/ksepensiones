@@ -108,7 +108,7 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
     <div style={{ background: 'white', border: '1px solid #E1E7F0', borderRadius: '14px', overflow: 'hidden' }}>
 
       {/* Header */}
-      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', background: '#EEF2F8', borderBottom: '1px solid #D1D5DB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)', background: '#EEF2F8', borderBottom: '1px solid #D1D5DB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: 700, color: AZUL, margin: '0 0 4px' }}>📁 Expediente de documentos</p>
           {docsRequeridos.length > 0 ? (
@@ -150,8 +150,8 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
       {/* Lista de documentos como cards */}
       <div style={{ padding: '14px 20px', display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
         {docs.length === 0 ? (
-          <div style={{ padding: 'clamp(12px, 1.5vw, 18px)', textAlign: 'center' as const, background: '#F5F7FA', borderRadius: '10px', border: '1px dashed #D1D5DB' }}>
-            <p style={{ fontSize: 'clamp(17px, 1.37vw, 22px)', margin: '0 0 6px' }}>📂</p>
+          <div style={{ padding: 'clamp(11.4px, 1.32vw, 15.8px)', textAlign: 'center' as const, background: '#F5F7FA', borderRadius: '10px', border: '1px dashed #D1D5DB' }}>
+            <p style={{ fontSize: 'clamp(14.0px, 1.21vw, 19.4px)', margin: '0 0 6px' }}>📂</p>
             <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A', margin: 0 }}>Sin documentos en el expediente</p>
           </div>
         ) : (
@@ -159,7 +159,7 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
             const est = ESTATUS[d.estatus] ?? ESTATUS.pendiente
             return (
               <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', background: '#F5F7FA', border: `1px solid ${est.color}33`, borderLeft: `3px solid ${est.color}`, borderRadius: '10px' }}>
-                <span style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', flexShrink: 0 }}>📄</span>
+                <span style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', flexShrink: 0 }}>📄</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700', color: '#111827', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                     {d.documentos_catalogo?.nombre || d.nombre_archivo}
@@ -208,17 +208,17 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
                 <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: 'white', margin: 0 }}>📧 Enviar expediente</p>
                 <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: 'rgba(255,255,255,0.65)', margin: '2px 0 0' }}>{clienteNombre} → {institucionNombre}</p>
               </div>
-              <button onClick={() => setShowEnvio(false)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', fontSize: 'clamp(14.5px, 1.12vw, 18px)', padding: '4px 8px', borderRadius: '10px' }}>✕</button>
+              <button onClick={() => setShowEnvio(false)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', padding: '4px 8px', borderRadius: '10px' }}>✕</button>
             </div>
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
               <div style={{ background: '#F5F7FA', borderRadius: '10px', padding: '14px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '8px' }}>
                 <div>
                   <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A', margin: '0 0 2px', fontWeight: '600' }}>Total documentos</p>
-                  <p style={{ fontSize: 'clamp(18px, 1.45vw, 23px)', fontWeight: 700, color: AZUL, margin: 0 }}>{docs.length}</p>
+                  <p style={{ fontSize: 'clamp(14.5px, 1.27vw, 20.2px)', fontWeight: 700, color: AZUL, margin: 0 }}>{docs.length}</p>
                 </div>
                 <div>
                   <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A', margin: '0 0 2px', fontWeight: '600' }}>Recibidos/verificados</p>
-                  <p style={{ fontSize: 'clamp(18px, 1.45vw, 23px)', fontWeight: 700, color: VERDE, margin: 0 }}>{docs.filter((d: any) => ['recibido','verificado'].includes(d.estatus)).length}</p>
+                  <p style={{ fontSize: 'clamp(14.5px, 1.27vw, 20.2px)', fontWeight: 700, color: VERDE, margin: 0 }}>{docs.filter((d: any) => ['recibido','verificado'].includes(d.estatus)).length}</p>
                 </div>
               </div>
               <div>
@@ -346,7 +346,7 @@ function FinanciamientoPage() {
   const finFiltrados = filtroEstatus === 'todos' ? financiamientos : financiamientos.filter((f: any) => f.estatus === filtroEstatus)
 
   if (loading) return (
-    <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)' }}>
+    <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)' }}>
       <TarjetasSkeleton n={4} />
       <div style={{ marginTop: 14, background: 'white', border: '1px solid #E1E7F0', borderRadius: 14, overflow: 'hidden' }}>
         <TablaSkeleton filas={6} columnas={5} />
@@ -358,7 +358,7 @@ function FinanciamientoPage() {
     <div style={{ minHeight: '100vh', background: '#F4F6F9' }}>
       <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #E5E7EB', padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 'clamp(18px, 1.45vw, 23px)', fontWeight: 700, color: AZUL, margin: 0 }}>Financiamiento</h1>
+          <h1 style={{ fontSize: 'clamp(14.5px, 1.27vw, 20.2px)', fontWeight: 700, color: AZUL, margin: 0 }}>Financiamiento</h1>
           <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#66738A', margin: 0 }}>Créditos autorizados · Seguimiento · Instituciones</p>
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>
@@ -370,7 +370,7 @@ function FinanciamientoPage() {
         </div>
       </div>
 
-      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)' }}>
+      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)' }}>
         {/* KPIs */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '12px', marginBottom: '20px' }}>
           {[
@@ -381,7 +381,7 @@ function FinanciamientoPage() {
           ].map((k, i) => (
             <div key={i} style={{ background: 'white', border: '1px solid #E1E7F0', borderLeft: `3px solid ${k.color}`, padding: '12px 16px' }}>
               <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A', marginBottom: '4px' }}>{k.label}</div>
-              <div style={{ fontSize: 'clamp(18px, 1.45vw, 23px)', fontWeight: 700, color: k.color }}>{k.value}</div>
+              <div style={{ fontSize: 'clamp(14.5px, 1.27vw, 20.2px)', fontWeight: 700, color: k.color }}>{k.value}</div>
             </div>
           ))}
         </div>
@@ -398,7 +398,7 @@ function FinanciamientoPage() {
             </div>
             {finFiltrados.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '30px 18px', color: '#66738A', background: 'white', border: '1px solid #E1E7F0' }}>
-                <div style={{ fontSize: 'clamp(22px, 2.00vw, 32px)', marginBottom: '12px' }}>💳</div>
+                <div style={{ fontSize: 'clamp(18.0px, 1.56vw, 25.0px)', marginBottom: '12px' }}>💳</div>
                 <p style={{ margin: 0 }}>No hay financiamientos registrados.</p>
                 <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', margin: '6px 0 0' }}>Se crean automáticamente al autorizar un diagnóstico con financiamiento desde la Calculadora.</p>
               </div>
@@ -438,7 +438,7 @@ function FinanciamientoPage() {
             <button onClick={() => setTab('lista')} style={{ alignSelf: 'flex-start', background: 'none', border: 'none', color: AZUL, cursor: 'pointer', fontSize: 'clamp(11px, 0.78vw, 12.5px)', padding: 0 }}>← Volver</button>
             <div style={{ background: 'white', border: '1px solid #E1E7F0', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: '#111827', margin: '0 0 4px' }}>{selFin.cliente_nombre}</p>
+                <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: '#111827', margin: '0 0 4px' }}>{selFin.cliente_nombre}</p>
                 <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#66738A', margin: 0 }}>{selFin.institucion_nombre} · {selFin.tasa_anual}% anual · {selFin.plazo_meses} meses</p>
               </div>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -457,7 +457,7 @@ function FinanciamientoPage() {
               ].map((k, i) => (
                 <div key={i} style={{ background: 'white', border: '1px solid #E1E7F0', borderLeft: `3px solid ${k.color}`, padding: '10px 14px' }}>
                   <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A', marginBottom: '3px' }}>{k.label}</div>
-                  <div style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: k.color }}>{k.value}</div>
+                  <div style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: k.color }}>{k.value}</div>
                 </div>
               ))}
             </div>
@@ -524,7 +524,7 @@ function FinanciamientoPage() {
             </div>
             {instituciones.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '30px 18px', color: '#66738A', background: 'white', border: '1px solid #E1E7F0' }}>
-                <div style={{ fontSize: 'clamp(22px, 2.00vw, 32px)', marginBottom: '12px' }}>🏦</div>
+                <div style={{ fontSize: 'clamp(18.0px, 1.56vw, 25.0px)', marginBottom: '12px' }}>🏦</div>
                 <p style={{ margin: 0 }}>Aún no tienes instituciones configuradas.</p>
               </div>
             ) : (

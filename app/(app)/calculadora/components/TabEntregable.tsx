@@ -127,7 +127,7 @@ export default function TabEntregable({
               { label: 'Escenarios', ok: tieneEscenarios, val: tieneEscenarios ? `${escenarios.filter(e => e.mod40_meses > 0).length} escenario(s)` : 'Pendiente' },
               { label: 'Sofía IA', ok: !!sofiaOutput, val: sofiaOutput ? 'Listo para revisar' : 'Sin generar' },
             ].map((item, i) => (
-              <div key={i} style={{ padding: 'clamp(11px, 1.25vw, 16px) clamp(12px, 1.4vw, 18px)', background: K.card, border: `1px solid ${item.ok ? K.green + '44' : K.line}`, borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div key={i} style={{ padding: 'clamp(11px, 1.25vw, 16px) clamp(11.4px, 1.23vw, 15.8px)', background: K.card, border: `1px solid ${item.ok ? K.green + '44' : K.line}`, borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <span style={{ width: 26, height: 26, borderRadius: 999, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
                   background: item.ok ? K.green : K.paper, color: item.ok ? 'white' : K.muted, fontSize: 13, fontWeight: 700 }}>
                   {item.ok ? '✓' : String(i + 1)}
@@ -142,8 +142,8 @@ export default function TabEntregable({
 
           {/* Hero de generación */}
           <div style={{ background: K.card, borderRadius: '14px', border: `1px solid ${K.line}`, overflow: 'hidden', boxShadow: '0 1px 3px rgba(19,33,53,0.06)' }}>
-            <div style={{ background: `linear-gradient(118deg, ${K.navy900} 0%, ${K.purple} 130%)`, padding: 'clamp(16px, 2vw, 26px) clamp(16px, 2.2vw, 28px)' }}>
-              <div style={{ fontSize: 'clamp(17px, 1.35vw, 22px)', fontWeight: 700, color: 'white', marginBottom: '6px', letterSpacing: '-.015em' }}>
+            <div style={{ background: `linear-gradient(118deg, ${K.navy900} 0%, ${K.purple} 130%)`, padding: 'clamp(14.6px, 1.56vw, 20.3px) clamp(15.7px, 1.71vw, 21.8px)' }}>
+              <div style={{ fontSize: 'clamp(14.0px, 1.19vw, 19.4px)', fontWeight: 700, color: 'white', marginBottom: '6px', letterSpacing: '-.015em' }}>
                 Diagnóstico completo con Sofía
               </div>
               <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: 'rgba(255,255,255,.72)', margin: 0, lineHeight: 1.6 }}>
@@ -216,7 +216,7 @@ export default function TabEntregable({
             <>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: 0 }}>Revisión del análisis</p>
+                  <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: K.ink, margin: 0 }}>Revisión del análisis</p>
                   <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: '4px 0 0' }}>Toca cualquier texto para editarlo antes de exportar</p>
                 </div>
                 <button onClick={generarConSofia} disabled={generandoSofia}
@@ -303,7 +303,7 @@ export default function TabEntregable({
                   LO QUE VA EN EL DIAGNÓSTICO
                 </p>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px', flexWrap: 'wrap', marginTop: '8px' }}>
-                  <p style={{ fontSize: 'clamp(26px, 3vw, 40px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+                  <p style={{ fontSize: 'clamp(19.0px, 1.98vw, 26.4px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
                     {fmtMXN(escRec.pension_mensual)}
                   </p>
                   <span style={{ background: '#12855C', color: 'white', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, padding: '7px 13px', borderRadius: 999, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
@@ -319,7 +319,7 @@ export default function TabEntregable({
                 ].map((k, i) => (
                   <div key={i} style={{ background: '#0D2440', padding: '13px 18px' }}>
                     <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k.label}</p>
-                    <p style={{ fontSize: 'clamp(17.5px, 1.44vw, 23px)', fontWeight: 700, color: k.color, margin: '3px 0 0', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>{k.value}</p>
+                    <p style={{ fontSize: 'clamp(14.5px, 1.26vw, 20.2px)', fontWeight: 700, color: k.color, margin: '3px 0 0', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>{k.value}</p>
                     <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.44)', margin: '2px 0 0' }}>{k.sub}</p>
                   </div>
                 ))}

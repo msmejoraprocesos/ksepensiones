@@ -39,7 +39,7 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
 
   if (escsConMod40.length === 0) return (
     <div style={{ textAlign: 'center', padding: '30px 18px', color: K.muted }}>
-      <i className="ti ti-chart-bar-off" style={{ fontSize: 'clamp(30px, 3.00vw, 48px)', display: 'block', marginBottom: '12px' }} />
+      <i className="ti ti-chart-bar-off" style={{ fontSize: 'clamp(22.8px, 1.98vw, 31.7px)', display: 'block', marginBottom: '12px' }} />
       <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)' }}>Completa el Salario Mod. 40 para generar escenarios comparativos</p>
       <button onClick={() => setTab(2)} style={{ marginTop: '14px', padding: '11px 22px', background: K.navy800, color: 'white', border: 'none', borderRadius: '9px', cursor: 'pointer', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 600, fontFamily: 'inherit' }}>
         Ir a Salario Mod. 40
@@ -90,7 +90,7 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
         <div>
-          <h2 style={{ fontSize: 'clamp(17px, 1.35vw, 22px)', fontWeight: 700, color: K.ink, margin: 0, letterSpacing: '-0.015em' }}>
+          <h2 style={{ fontSize: 'clamp(14.0px, 1.19vw, 19.4px)', fontWeight: 700, color: K.ink, margin: 0, letterSpacing: '-0.015em' }}>
             Comparativa de escenarios
           </h2>
           <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: K.muted, margin: '4px 0 0' }}>
@@ -121,7 +121,7 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
                   </span>
                   <span style={{ width: 9, height: 9, borderRadius: 999, background: c, flexShrink: 0, opacity: on ? 1 : 0.35 }} />
                 </div>
-                <p style={{ fontSize: 'clamp(18.5px, 1.56vw, 25px)', fontWeight: 800, color: K.ink, margin: '7px 0 0', letterSpacing: '-0.025em', ...nw, ...num }}>
+                <p style={{ fontSize: 'clamp(14.0px, 1.22vw, 19.5px)', fontWeight: 800, color: K.ink, margin: '7px 0 0', letterSpacing: '-0.025em', ...nw, ...num }}>
                   {fmtMXN(esc.pension_mensual)}
                 </p>
                 <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.green, fontWeight: 700, margin: '3px 0 0', ...nw, ...num }}>
@@ -143,7 +143,7 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
         <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1.35fr) minmax(280px, 1fr)', gap: 'clamp(9px, 1.1vw, 14px)' }}>
 
           <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
-            <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Comparativo visual de pensión mensual</p>
+            <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Comparativo visual de pensión mensual</p>
             <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: '0 0 18px' }}>Toque una barra para ver el escenario en detalle</p>
 
             {[{ label: 'Sin Mod. 40', value: pensionBase, color: '#9AA7B8', idx: -1, rec: false },
@@ -181,7 +181,7 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
                   {escSel.mod40_umas} UMAs &middot; {escSel.mod40_meses} meses
                 </span>
               </div>
-              <p style={{ fontSize: 'clamp(25px, 2.37vw, 38px)', fontWeight: 800, color: 'white', margin: '8px 0 0', lineHeight: 1, letterSpacing: '-0.03em', ...nw, ...num }}>
+              <p style={{ fontSize: 'clamp(18.1px, 1.57vw, 25.1px)', fontWeight: 800, color: 'white', margin: '8px 0 0', lineHeight: 1, letterSpacing: '-0.03em', ...nw, ...num }}>
                 {fmtMXN2(escSel.pension_mensual)}
               </p>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,0.8)', margin: '4px 0 0' }}>pensión mensual</p>
@@ -189,7 +189,7 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
 
             <div style={{ background: K.greenSoft, padding: '14px 22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
               <span style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: K.ink }}>Mejora vs sin Mod. 40</span>
-              <span style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.green, ...nw, ...num }}>
+              <span style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: K.green, ...nw, ...num }}>
                 +{fmtMXN2(escSel.pension_mensual - pensionBase)}/mes
               </span>
             </div>

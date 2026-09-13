@@ -124,9 +124,9 @@ export default function SuperAdminDashboard() {
     <div style={{ minHeight: '100vh', background: '#F4F6FB' }}>
 
       {/* Header */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #E5E7EB', padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #E5E7EB', padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 'clamp(18px, 1.45vw, 23px)', fontWeight: 700, color: AZUL, margin: 0 }}>🏠 Dashboard de Negocio</h1>
+          <h1 style={{ fontSize: 'clamp(14.5px, 1.27vw, 20.2px)', fontWeight: 700, color: AZUL, margin: 0 }}>🏠 Dashboard de Negocio</h1>
           <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#9CA3AF', margin: 0 }}>Solo visible para ti — super_admin</p>
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>
@@ -139,7 +139,7 @@ export default function SuperAdminDashboard() {
         </div>
       </div>
 
-      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.1vw, 14px)' }}>
+      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)', display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.1vw, 14px)' }}>
 
         {/* Alertas de vencimiento */}
         {vencimientos.length > 0 && (
@@ -165,7 +165,7 @@ export default function SuperAdminDashboard() {
           ].map((k, i) => (
             <div key={i} style={{ ...CARD, borderLeft: `3px solid ${k.color}` }}>
               <div style={LABEL}>{k.label}</div>
-              <div style={{ fontSize: 'clamp(18px, 1.55vw, 25px)', fontWeight: 700, color: k.color, lineHeight: 1 }}>{k.value}</div>
+              <div style={{ fontSize: 'clamp(14.0px, 1.21vw, 19.5px)', fontWeight: 700, color: k.color, lineHeight: 1 }}>{k.value}</div>
               <div style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#9CA3AF', marginTop: '4px' }}>{k.sub}</div>
             </div>
           ))}
@@ -184,7 +184,7 @@ export default function SuperAdminDashboard() {
             ].map((k, i) => (
               <div key={i} style={{ ...CARD, borderTop: `3px solid ${k.color}` }}>
                 <div style={LABEL}>{k.label}</div>
-                <div style={{ fontSize: 'clamp(18px, 1.45vw, 23px)', fontWeight: 700, color: k.color }}>{k.value}</div>
+                <div style={{ fontSize: 'clamp(14.5px, 1.27vw, 20.2px)', fontWeight: 700, color: k.color }}>{k.value}</div>
               </div>
             ))}
           </div>

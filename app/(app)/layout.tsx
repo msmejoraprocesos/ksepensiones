@@ -358,7 +358,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                       style={{ padding: '10px 16px', borderBottom: '1px solid #F3F4F6', cursor: 'pointer', display: 'flex', gap: '10px', alignItems: 'center' }}
                       onMouseEnter={e => (e.currentTarget.style.background = '#F8FAFC')}
                       onMouseLeave={e => (e.currentTarget.style.background = 'white')}>
-                      <span style={{ fontSize: 'clamp(14.5px, 1.12vw, 18px)' }}>{r.icono}</span>
+                      <span style={{ fontSize: 'clamp(11.4px, 0.98vw, 15.8px)' }}>{r.icono}</span>
                       <div>
                         <p style={{ fontSize: '12px', fontWeight: '700', color: '#111827', margin: '0 0 1px' }}>{r.titulo}</p>
                         <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>{r.sub}</p>
@@ -406,7 +406,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     <div key={n.id}
                       onClick={() => { marcarLeida(n.id); setShowNotif(false); if (n.url_destino) router.push(n.url_destino) }}
                       style={{ padding: '12px 16px', borderBottom: '1px solid #F3F4F6', cursor: n.url_destino ? 'pointer' : 'default', background: n.leida ? 'white' : '#EFF6FF', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                      <span style={{ fontSize: 'clamp(14.5px, 1.12vw, 18px)', flexShrink: 0 }}>
+                      <span style={{ fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', flexShrink: 0 }}>
                         {n.tipo === 'cliente_sin_contacto' ? '👤' : n.tipo === 'financiamiento_por_vencer' ? '💳' : n.tipo === 'actividad_pendiente' ? '📅' : n.tipo === 'solicitud_canalizacion' ? '🔄' : '🔔'}
                       </span>
                       <div style={{ flex: 1 }}>
@@ -579,7 +579,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             return (
               <button key={item.href} onClick={() => router.push(item.href)}
                 style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '2px', padding: '4px 8px', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '8px', flex: 1 }}>
-                <span style={{ fontSize: 'clamp(14.5px, 1.12vw, 18px)', opacity: isActive ? 1 : 0.5 }}>{item.icon}</span>
+                <span style={{ fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', opacity: isActive ? 1 : 0.5 }}>{item.icon}</span>
                 <span style={{ fontSize: '9px', fontWeight: isActive ? '700' : '400', color: isActive ? AZUL : '#9CA3AF', fontFamily: 'inherit' }}>{item.label}</span>
                 {isActive && <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: AZUL }} />}
               </button>
@@ -629,7 +629,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <div style={{ background: AZUL, padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700' as const, color: 'white', margin: 0 }}>🔒 Cambiar contraseña</p>
               <button onClick={() => { setShowCambiarPwd(false); setPwdNueva(''); setPwdConfirmar(''); setPwdError('') }}
-                style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', fontSize: 'clamp(14.5px, 1.12vw, 18px)', lineHeight: 1 }}>×</button>
+                style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', lineHeight: 1 }}>×</button>
             </div>
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
               <div>

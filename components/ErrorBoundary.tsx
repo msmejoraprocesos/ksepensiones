@@ -34,7 +34,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
           display: 'flex', flexDirection: 'column', alignItems: 'center',
           justifyContent: 'center', height: '60vh', gap: '12px', padding: '20px'
         }}>
-          <div style={{ fontSize: 'clamp(26px, 2.50vw, 40px)' }}>⚠️</div>
+          <div style={{ fontSize: 'clamp(19.0px, 1.65vw, 26.4px)' }}>⚠️</div>
           <p style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, color: '#374151', margin: 0 }}>
             Algo salió mal
           </p>

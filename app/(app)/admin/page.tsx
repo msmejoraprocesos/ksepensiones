@@ -352,7 +352,7 @@ function AdminFormulasInner() {
   if (!isAdmin) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}><p style={{ color: '#374151', fontWeight: '700' }}>🔒 Acceso restringido</p></div>
 
   return (
-    <div style={{ height: 'calc(100vh - 48px)', overflowY: 'auto', background: '#F5F7FA', padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px) clamp(20px, 2.4vw, 32px)' }}>
+    <div style={{ height: 'calc(100vh - 48px)', overflowY: 'auto', background: '#F5F7FA', padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px) clamp(18.0px, 1.88vw, 25.0px)' }}>
       <style>{`
         .af-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .af-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
@@ -408,7 +408,7 @@ function AdminFormulasInner() {
           <div style={{ padding: '14px 24px 0' }}>
             <div style={{ background: requiereAtencion ? '#FEF2F2' : '#F0FDF4', border: `2px solid ${requiereAtencion ? '#FCA5A5' : '#86EFAC'}`, padding: '10px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                <span style={{ fontSize: 'clamp(17px, 1.37vw, 22px)', flexShrink: 0 }}>{requiereAtencion ? '⚠️' : '📅'}</span>
+                <span style={{ fontSize: 'clamp(14.0px, 1.21vw, 19.4px)', flexShrink: 0 }}>{requiereAtencion ? '⚠️' : '📅'}</span>
                 <div>
                   <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700', color: requiereAtencion ? '#991B1B' : '#065F46', margin: '0 0 4px' }}>
                     {requiereAtencion
@@ -580,7 +580,7 @@ function AdminFormulasInner() {
                   {Object.entries(FACTOR_EDAD_RETIRO).filter(([e]) => parseInt(e) <= 65).map(([edad, factor]) => (
                     <div key={edad} style={{ flex: '1 0 80px', padding: '12px', background: parseInt(edad) === 65 ? '#F0FDF4' : '#F9FAFB', border: '1px solid ' + (parseInt(edad) === 65 ? '#86EFAC' : '#E1E7F0'), textAlign: 'center' }}>
                       <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#9CA3AF', fontWeight: '600', marginBottom: '4px' }}>{edad} años</div>
-                      <div style={{ fontSize: 'clamp(17px, 1.37vw, 22px)', fontWeight: '900', color: parseInt(edad) === 65 ? '#065F46' : AZUL }}>{(factor * 100).toFixed(0)}%</div>
+                      <div style={{ fontSize: 'clamp(14.0px, 1.21vw, 19.4px)', fontWeight: '900', color: parseInt(edad) === 65 ? '#065F46' : AZUL }}>{(factor * 100).toFixed(0)}%</div>
                       <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#9CA3AF', marginTop: '2px' }}>{parseInt(edad) === 65 ? 'Vejez' : 'Cesantía'}</div>
                     </div>
                   ))}
@@ -600,7 +600,7 @@ function AdminFormulasInner() {
                   ].map(a => (
                     <div key={a.label} style={{ flex: '1 0 140px', padding: '12px 14px', background: '#F9FAFB', border: '1px solid #E5E7EB' }}>
                       <div style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '600', color: '#374151', marginBottom: '4px' }}>{a.label}</div>
-                      <div style={{ fontSize: 'clamp(17px, 1.35vw, 22px)', fontWeight: '900', color: a.color }}>{a.pct.toFixed(0)}%</div>
+                      <div style={{ fontSize: 'clamp(14.0px, 1.19vw, 19.4px)', fontWeight: '900', color: a.color }}>{a.pct.toFixed(0)}%</div>
                       <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#9CA3AF', marginTop: '3px' }}>{a.legal}</div>
                     </div>
                   ))}

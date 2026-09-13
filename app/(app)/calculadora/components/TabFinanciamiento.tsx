@@ -33,7 +33,7 @@ export default function TabFinanciamiento({
 
   if (!escRec || escRec.mod40_meses === 0) return (
     <div style={{ textAlign: 'center', padding: '30px 18px', color: K.muted }}>
-      <i className="ti ti-building-bank" style={{ fontSize: 'clamp(30px, 3.00vw, 48px)', display: 'block', marginBottom: '12px' }} />
+      <i className="ti ti-building-bank" style={{ fontSize: 'clamp(22.8px, 1.98vw, 31.7px)', display: 'block', marginBottom: '12px' }} />
       <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)' }}>Completa las pestañas anteriores para ver el financiamiento</p>
     </div>
   )
@@ -78,7 +78,7 @@ export default function TabFinanciamiento({
         <div style={{ position: 'relative', padding: '14px 18px 10px' }}>
           <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>TOTAL A FINANCIAR</p>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', flexWrap: 'wrap', marginTop: '8px' }}>
-            <p style={{ fontSize: 'clamp(28px, 3.2vw, 42px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
+            <p style={{ fontSize: 'clamp(19.9px, 2.11vw, 27.7px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
               {fmtMXN(total)}
             </p>
             {sobrecosto > 0 && (
@@ -103,7 +103,7 @@ export default function TabFinanciamiento({
           ].map((k, i) => (
             <div key={i} style={{ background: K.navy900, padding: '13px 18px' }}>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k.label}</p>
-              <p style={{ fontSize: 'clamp(17px, 1.35vw, 22px)', fontWeight: 700, color: k.color, margin: '3px 0 0', ...nw, ...num }}>{k.value}</p>
+              <p style={{ fontSize: 'clamp(14.0px, 1.19vw, 19.4px)', fontWeight: 700, color: k.color, margin: '3px 0 0', ...nw, ...num }}>{k.value}</p>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.44)', margin: '2px 0 0' }}>{k.sub}</p>
             </div>
           ))}
@@ -114,7 +114,7 @@ export default function TabFinanciamiento({
 
         {/* ── Distribucion del pago ──────────────────────────────── */}
         <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
-          <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>De dónde sale el dinero</p>
+          <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>De dónde sale el dinero</p>
           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: '0 0 18px' }}>Distribución del pago retroactivo</p>
 
           <div style={{ display: 'flex', height: '42px', borderRadius: '9px', overflow: 'hidden', marginBottom: '20px' }}>
@@ -140,7 +140,7 @@ export default function TabFinanciamiento({
 
           <div style={{ marginTop: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px', background: K.navy900, borderRadius: '10px', padding: '16px 20px' }}>
             <span style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', color: 'rgba(255,255,255,.78)' }}>Total</span>
-            <span style={{ fontSize: 'clamp(17px, 1.35vw, 22px)', fontWeight: 700, color: 'white', ...nw, ...num }}>{fmtMXN(total)}</span>
+            <span style={{ fontSize: 'clamp(14.0px, 1.19vw, 19.4px)', fontWeight: 700, color: 'white', ...nw, ...num }}>{fmtMXN(total)}</span>
           </div>
         </div>
 
@@ -148,7 +148,7 @@ export default function TabFinanciamiento({
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.1vw, 14px)' }}>
 
           <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
-            <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: '0 0 16px' }}>Parámetros del crédito</p>
+            <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: K.ink, margin: '0 0 16px' }}>Parámetros del crédito</p>
             {[
               { label: 'Duración del trámite', value: duracionTramiteMeses, onChange: setDuracionTramiteMeses, options: [12, 18, 24, 30, 36, 48, 60], fmt: (v: number) => `${v} meses` },
               { label: 'Plazo del crédito', value: plazoCredito, onChange: setPlazoCredito, options: [12, 24, 36, 48, 60, 72, 84, 96, 108, 120], fmt: (v: number) => `${v} meses (${(v / 12).toFixed(1)} anios)` },
@@ -163,12 +163,12 @@ export default function TabFinanciamiento({
             ))}
             <div style={{ background: K.orangeSoft, borderRadius: '10px', padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
               <span style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: K.ink }}>Tasa del banco regulado</span>
-              <span style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 800, color: K.orange, ...nw, ...num }}>{tasaBanco}% anual</span>
+              <span style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 800, color: K.orange, ...nw, ...num }}>{tasaBanco}% anual</span>
             </div>
           </div>
 
           <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
-            <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Qué cobra en cada etapa</p>
+            <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Qué cobra en cada etapa</p>
             <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: '0 0 18px' }}>Pensión mensual disponible</p>
 
             {[

@@ -477,14 +477,14 @@ export default function SeguimientoPage() {
               return (
                 <>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                    <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: cfg.bg, border: `1px solid ${cfg.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(14.5px, 1.12vw, 18px)' }}>
+                    <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: cfg.bg, border: `1px solid ${cfg.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(11.4px, 0.98vw, 15.8px)' }}>
                       {TIPO_ICONS[detalle.tipo]}
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#1e293b' }}>{detalle.titulo}</div>
                       <div style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: cfg.color, fontWeight: '600' }}>{cfg.label}</div>
                     </div>
-                    <button onClick={() => setDetalle(null)} aria-label="Cerrar" style={{ background: 'none', border: 'none', fontSize: 'clamp(14.5px, 1.12vw, 18px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
+                    <button onClick={() => setDetalle(null)} aria-label="Cerrar" style={{ background: 'none', border: 'none', fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
                     {detalle.fecha_programada && (

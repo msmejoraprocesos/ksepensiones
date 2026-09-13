@@ -87,7 +87,7 @@ function PanelCanalizaciones({ supabase, userId, asesores }: { supabase: any; us
   }[e] ?? { bg: '#F4F6FB', color: '#6B7280', label: e })
 
   return (
-    <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)' }}>
+    <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)' }}>
 
       {/* Pendientes */}
       <div style={{ marginBottom: '20px' }}>
@@ -400,7 +400,7 @@ export default function OrgAdminPage() {
         </div>
       </div>
 
-      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
         {/* Alertas */}
         {pagosPendientes.length > 0 && (
@@ -422,7 +422,7 @@ export default function OrgAdminPage() {
               ].map((k, i) => (
                 <div key={i} style={{ ...CARD, borderLeft: `3px solid ${k.color}` }}>
                   <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#9CA3AF', marginBottom: '4px' }}>{k.label}</div>
-                  <div style={{ fontSize: 'clamp(17px, 1.35vw, 22px)', fontWeight: '800', color: k.color }}>{k.value}</div>
+                  <div style={{ fontSize: 'clamp(14.0px, 1.19vw, 19.4px)', fontWeight: '800', color: k.color }}>{k.value}</div>
                 </div>
               ))}
             </div>

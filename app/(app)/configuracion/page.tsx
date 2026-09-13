@@ -295,8 +295,8 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
           {fin && !showNueva && (
             <div style={{ background: AZUL, padding: '18px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                <span style={{ fontSize: 'clamp(22px, 2.00vw, 32px)' }}>🏦</span>
-                <p style={{ fontSize: 'clamp(17px, 1.37vw, 22px)', fontWeight: 700, color: 'white', margin: 0 }}>{fin.nombre}</p>
+                <span style={{ fontSize: 'clamp(18.0px, 1.56vw, 25.0px)' }}>🏦</span>
+                <p style={{ fontSize: 'clamp(14.0px, 1.21vw, 19.4px)', fontWeight: 700, color: 'white', margin: 0 }}>{fin.nombre}</p>
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button onClick={() => { setEditando(true); setErrores({}); setForm({ nombre: fin.nombre ?? '', contacto: fin.contacto_nombre ?? '', email: fin.contacto_email ?? '', telefono: fin.contacto_telefono ?? '' }) }}
@@ -313,7 +313,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
 
           {showNueva && (
             <div style={{ background: AZUL, padding: '16px 20px' }}>
-              <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: 'white', margin: '0 0 2px' }}>🏦 Nueva institución financiera</p>
+              <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: 'white', margin: '0 0 2px' }}>🏦 Nueva institución financiera</p>
               <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: 'rgba(255,255,255,0.65)', margin: 0 }}>Llena los datos generales para comenzar</p>
             </div>
           )}
@@ -430,7 +430,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
       {/* Estado vacío */}
       {financieras.length === 0 && !showNueva && (
         <div style={{ padding: '20px', textAlign: 'center' as const, background: '#F5F7FA', border: '1px dashed #D1D5DB', borderRadius: '10px' }}>
-          <p style={{ fontSize: 'clamp(17px, 1.37vw, 22px)', margin: '0 0 8px' }}>🏦</p>
+          <p style={{ fontSize: 'clamp(14.0px, 1.21vw, 19.4px)', margin: '0 0 8px' }}>🏦</p>
           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A', margin: 0 }}>Agrega tu primera financiera con el botón de arriba</p>
         </div>
       )}
@@ -529,7 +529,7 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
           <div key={item.id} style={{ borderBottom: '1px solid #F3F4F6', background: item.activo ? 'white' : '#F9FAFB' }}>
             {editando === item.id ? (
               <div style={{ padding: '12px 18px', display: 'flex', gap: '10px', alignItems: 'center', background: '#EEF2F8' }}>
-                <span style={{ fontSize: 'clamp(15px, 1.15vw, 18px)' }}>{item.icono || '•'}</span>
+                <span style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)' }}>{item.icono || '•'}</span>
                 <input autoFocus value={editValor} onChange={e => setEditValor(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') guardarEdicion(item.id); if (e.key === 'Escape') setEditando(null) }}
                   style={{ flex: 1, padding: '8px 12px', border: `2px solid ${AZUL}`, fontSize: 'clamp(11.5px, 0.87vw, 14px)', borderRadius: '10px', fontFamily: 'inherit', outline: 'none' }} />
@@ -540,7 +540,7 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
               </div>
             ) : (
               <div style={{ padding: '12px 18px', display: 'flex', alignItems: 'center', gap: '12px', opacity: item.activo ? 1 : 0.5 }}>
-                <span style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', flexShrink: 0 }}>{item.icono || '•'}</span>
+                <span style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', flexShrink: 0 }}>{item.icono || '•'}</span>
                 <div style={{ flex: 1 }}>
                   <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600', color: '#111827', margin: '0 0 2px' }}>{item.etiqueta}</p>
                   <div style={{ display: 'flex', gap: '6px' }}>
@@ -576,7 +576,7 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
                 : ['📅','📞','📄','✉️','🚀','⏰','📊','💼','🔔','✍️','📌','🎯']
               ).map(e => (
                 <button key={e} onClick={() => setNuevoIcono(nuevoIcono === e ? '' : e)}
-                  style={{ width: '36px', height: '36px', fontSize: 'clamp(14.5px, 1.12vw, 18px)', background: nuevoIcono === e ? '#EEF2F8' : 'white', border: `2px solid ${nuevoIcono === e ? AZUL : '#E1E7F0'}`, borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  style={{ width: '36px', height: '36px', fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', background: nuevoIcono === e ? '#EEF2F8' : 'white', border: `2px solid ${nuevoIcono === e ? AZUL : '#E1E7F0'}`, borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {e}
                 </button>
               ))}
@@ -584,7 +584,7 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
           </div>
 
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <div style={{ width: '42px', height: '42px', background: '#F4F6F9', border: '1.5px solid #D1D5DB', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(15px, 1.15vw, 18px)', flexShrink: 0 }}>
+            <div style={{ width: '42px', height: '42px', background: '#F4F6F9', border: '1.5px solid #D1D5DB', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', flexShrink: 0 }}>
               {nuevoIcono || ICONOS_DEFAULT[catActiva] || '•'}
             </div>
             <input value={nuevaEtiqueta} onChange={e => setNuevaEtiqueta(e.target.value)}
@@ -923,7 +923,7 @@ export default function ConfiguracionPage() {
 
   const sectionTitle = (icon: string, title: string, subtitle?: string) => (
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '18px', paddingBottom: '12px', borderBottom: '1px solid #f1f5f9' }}>
-      <span style={{ fontSize: 'clamp(15px, 1.15vw, 18px)' }}>{icon}</span>
+      <span style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)' }}>{icon}</span>
       <div>
         <h2 style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: AZUL, margin: 0 }}>{title}</h2>
         {subtitle && <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#94a3b8', margin: '3px 0 0' }}>{subtitle}</p>}
@@ -936,7 +936,7 @@ export default function ConfiguracionPage() {
       {/* Sin tope de ancho: los otros diez modulos usan el viewport completo, y
           un contenedor centrado aqui dejaba franjas vacias a los lados que hacian
           ver la pantalla como de otro diseño. */}
-      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px) clamp(20px, 2.4vw, 32px)', display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.1vw, 14px)' }}>
+      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px) clamp(18.0px, 1.88vw, 25.0px)', display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.1vw, 14px)' }}>
 
         {cargando ? (
           <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
@@ -947,8 +947,8 @@ export default function ConfiguracionPage() {
 
         {/* Banner primera vez */}
         {isFirstTime && (
-          <div style={{ background: 'linear-gradient(135deg, #1B3A6B, #2c5282)', borderRadius: '14px', padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontSize: 'clamp(22px, 2.00vw, 32px)' }}>👋</span>
+          <div style={{ background: 'linear-gradient(135deg, #1B3A6B, #2c5282)', borderRadius: '14px', padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ fontSize: 'clamp(18.0px, 1.56vw, 25.0px)' }}>👋</span>
             <div style={{ flex: 1 }}>
               <p style={{ color: 'white', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', margin: '0 0 4px' }}>¡Bienvenido a KSE Pensiones!</p>
               <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 'clamp(11px, 0.78vw, 12.5px)', margin: 0 }}>
@@ -967,7 +967,7 @@ export default function ConfiguracionPage() {
           {/* Título + botones */}
           <div style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #F3F4F6' }}>
             <div>
-              <h1 style={{ fontSize: 'clamp(18px, 1.45vw, 23px)', fontWeight: 700, color: AZUL, margin: 0 }}>Configuración</h1>
+              <h1 style={{ fontSize: 'clamp(14.5px, 1.27vw, 20.2px)', fontWeight: 700, color: AZUL, margin: 0 }}>Configuración</h1>
               <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#94a3b8', margin: '2px 0 0' }}>
                 {tabActiva === 'perfil' && 'Identidad del asesor · Seguridad'}
                 {tabActiva === 'sistema' && 'Variables del sistema · Encabezado PDF'}
@@ -1047,7 +1047,7 @@ export default function ConfiguracionPage() {
                     onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
                 ) : (
                   <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: 'clamp(18px, 1.45vw, 23px)' }}>🏢</div>
+                    <div style={{ fontSize: 'clamp(14.5px, 1.27vw, 20.2px)' }}>🏢</div>
                     <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#94a3b8', marginTop: '3px' }}>Sin logo</div>
                   </div>
                 )}
@@ -1445,7 +1445,7 @@ export default function ConfiguracionPage() {
             )}
             {materiales.length === 0 && materialesNuevos.length === 0 ? (
               <div style={{ textAlign: 'center', padding: 'clamp(11px, 1.3vw, 16px)', background: '#F4F6F9', borderRadius: '10px', color: '#94a3b8', fontSize: 'clamp(11px, 0.78vw, 12.5px)' }}>
-                <div style={{ fontSize: 'clamp(22px, 2.00vw, 32px)', marginBottom: '8px' }}>📄</div>
+                <div style={{ fontSize: 'clamp(18.0px, 1.56vw, 25.0px)', marginBottom: '8px' }}>📄</div>
                 No hay materiales configurados.<br />
                 Agrega guías, videos o links que ayuden a tus clientes a entender el proceso.
               </div>
