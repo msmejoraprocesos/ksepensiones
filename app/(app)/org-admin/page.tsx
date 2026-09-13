@@ -400,7 +400,7 @@ export default function OrgAdminPage() {
         </div>
       </div>
 
-      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
         {/* Alertas */}
         {pagosPendientes.length > 0 && (
@@ -562,7 +562,7 @@ export default function OrgAdminPage() {
 
         {/* ── TAB: REASIGNACIÓN ── */}
         {tab === 'reasignacion' && asesorInactivar && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ background: '#FEF2F2', border: '1px solid #E1E7F0', padding: '14px 16px' }}>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700', color: '#991B1B', margin: '0 0 4px' }}>⚠️ Antes de inactivar a {asesorInactivar.nombre}</p>
               <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#991B1B', margin: 0 }}>Tiene {clientesAsesor.length} cliente(s) activo(s). Debes reasignarlos antes de continuar.</p>

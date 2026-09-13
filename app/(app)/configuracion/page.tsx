@@ -270,7 +270,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
   const hayPendientes = editando || docsModificado
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '16px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
 
       {/* Tabs de financieras */}
       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const, alignItems: 'center' }}>
@@ -429,7 +429,7 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
 
       {/* Estado vacío */}
       {financieras.length === 0 && !showNueva && (
-        <div style={{ padding: '32px', textAlign: 'center' as const, background: '#F5F7FA', border: '1px dashed #D1D5DB', borderRadius: '10px' }}>
+        <div style={{ padding: '20px', textAlign: 'center' as const, background: '#F5F7FA', border: '1px dashed #D1D5DB', borderRadius: '10px' }}>
           <p style={{ fontSize: 'clamp(17px, 1.37vw, 22px)', margin: '0 0 8px' }}>🏦</p>
           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A', margin: 0 }}>Agrega tu primera financiera con el botón de arriba</p>
         </div>
@@ -522,7 +522,7 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
           </p>
         </div>
         {items.length === 0 ? (
-          <div style={{ padding: '32px', textAlign: 'center' as const }}>
+          <div style={{ padding: '20px', textAlign: 'center' as const }}>
             <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: '#66738A', margin: 0 }}>Aún no hay opciones — agrega la primera abajo</p>
           </div>
         ) : items.map((item: any) => (
@@ -947,7 +947,7 @@ export default function ConfiguracionPage() {
 
         {/* Banner primera vez */}
         {isFirstTime && (
-          <div style={{ background: 'linear-gradient(135deg, #1B3A6B, #2c5282)', borderRadius: '14px', padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ background: 'linear-gradient(135deg, #1B3A6B, #2c5282)', borderRadius: '14px', padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', display: 'flex', alignItems: 'center', gap: '12px' }}>
             <span style={{ fontSize: 'clamp(22px, 2.00vw, 32px)' }}>👋</span>
             <div style={{ flex: 1 }}>
               <p style={{ color: 'white', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', margin: '0 0 4px' }}>¡Bienvenido a KSE Pensiones!</p>

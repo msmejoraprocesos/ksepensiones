@@ -30,7 +30,7 @@ export default function ResetPasswordPage() {
 
   if (done) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F4F6FB' }}>
-      <div style={{ background: 'white', borderRadius: '12px', padding: '48px 40px', maxWidth: '420px', width: '100%', textAlign: 'center', boxShadow: '0 4px 24px rgba(31,58,95,0.10)' }}>
+      <div style={{ background: 'white', borderRadius: '12px', padding: '48px 40px', maxWidth: 'min(420px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: '100%', textAlign: 'center', boxShadow: '0 4px 24px rgba(31,58,95,0.10)' }}>
         <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
         <h2 style={{ color: AZUL, marginBottom: '12px' }}>Contraseña actualizada</h2>
         <p style={{ color: '#64748b', marginBottom: '24px', fontSize: '14px' }}>Tu contraseña fue restablecida exitosamente.</p>
@@ -44,7 +44,7 @@ export default function ResetPasswordPage() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F4F6FB' }}>
-      <div style={{ background: 'white', borderRadius: '12px', padding: '48px 40px', maxWidth: '420px', width: '100%', boxShadow: '0 4px 24px rgba(31,58,95,0.10)' }}>
+      <div style={{ background: 'white', borderRadius: '12px', padding: '48px 40px', maxWidth: 'min(420px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: '100%', boxShadow: '0 4px 24px rgba(31,58,95,0.10)' }}>
         <h2 style={{ color: AZUL, marginBottom: '8px', fontSize: '20px', fontWeight: '700' }}>Nueva contraseña</h2>
         <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '28px' }}>Elige una contraseña segura (mínimo 8 caracteres).</p>
         <form onSubmit={handleReset}>

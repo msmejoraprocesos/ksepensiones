@@ -339,7 +339,7 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
       )}
 
       {datos.length === 0 && !cargando && (
-        <div style={{ background: 'white', border: '1px dashed #D1D5DB', borderRadius: '10px', padding: '48px', textAlign: 'center' as const, color: '#9CA3AF' }}>
+        <div style={{ background: 'white', border: '1px dashed #D1D5DB', borderRadius: '10px', padding: '28px 18px', textAlign: 'center' as const, color: '#9CA3AF' }}>
           <p style={{ fontSize: 'clamp(22px, 2.00vw, 32px)', margin: '0 0 8px' }}>📋</p>
           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', margin: 0 }}>Selecciona un tipo de reporte y haz clic en "Generar"</p>
         </div>

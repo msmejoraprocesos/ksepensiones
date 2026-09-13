@@ -73,7 +73,7 @@ export default function TabSalarioMod40({
   }, [])
 
   const campo: React.CSSProperties = {
-    width: '100%', height: '48px', border: `1px solid ${K.line}`,
+    width: '100%', height: '42px', border: `1px solid ${K.line}`,
     borderRadius: '10px', padding: '0 14px', fontSize: 'clamp(13px, 1.00vw, 16px)',
     fontFamily: 'inherit', boxSizing: 'border-box', background: K.card,
     color: K.ink, fontWeight: 600, outline: 'none', cursor: 'pointer',
@@ -96,7 +96,7 @@ export default function TabSalarioMod40({
           <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>
             PENSIÓN PROYECTADA CON ESTOS PARÁMETROS
           </p>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap', marginTop: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', flexWrap: 'wrap', marginTop: '8px' }}>
             <p style={{ fontSize: 'clamp(28px, 3.2vw, 42px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
               {escRec ? fmtMXN2(escRec.pension_mensual) : '\u2014'}
             </p>

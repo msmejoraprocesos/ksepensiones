@@ -408,7 +408,7 @@ function MiDiaInner() {
         <div onClick={() => setChartModal(null)}
           style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(11px, 1.3vw, 16px)', backdropFilter: 'blur(2px)' }}>
           <div onClick={e => e.stopPropagation()}
-            style={{ background: 'white', borderRadius: '12px', width: '100%', maxWidth: '900px', maxHeight: '85vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.25)' }}>
+            style={{ background: 'white', borderRadius: '12px', width: '100%', maxWidth: 'min(680px, 88vw)', maxHeight: '85vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.25)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid #E2E8F0' }}>
               <div>
                 <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700', color: '#111827', margin: 0 }}>{chartModal.titulo}</p>
@@ -1051,7 +1051,7 @@ function MiDiaInner() {
       {/* ── Onboarding — primeros pasos ── */}
       {showOnboarding && (
         <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: '#FFFFFF', width: '100%', maxWidth: '460px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', borderRadius: '14px', overflow: 'hidden' }}>
+          <div style={{ background: '#FFFFFF', width: '100%', maxWidth: 'min(460px, 88vw)', maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', borderRadius: '14px', overflow: 'hidden' }}>
             <div style={{ background: AZUL, padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <p style={{ fontSize: 'clamp(14.5px, 1.12vw, 18px)', fontWeight: '800' as const, color: 'white', margin: '0 0 6px' }}>👋 ¡Bienvenido a KSE Pensiones!</p>

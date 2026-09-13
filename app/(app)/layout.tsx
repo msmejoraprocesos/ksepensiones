@@ -271,7 +271,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
      otra cuenta. */
   if (suspension) return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#F5F7FA', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-      <div style={{ background: 'white', border: '1px solid #E1E7F0', borderRadius: 16, maxWidth: 520, width: '100%', overflow: 'hidden', boxShadow: '0 4px 24px rgba(13,36,64,.10)' }}>
+      <div style={{ background: 'white', border: '1px solid #E1E7F0', borderRadius: 16, maxWidth: 'min(520px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: '100%', overflow: 'hidden', boxShadow: '0 4px 24px rgba(13,36,64,.10)' }}>
         <div style={{ background: '#0D2440', padding: '26px 30px' }}>
           <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>ACCESO SUSPENDIDO</p>
           <p style={{ fontSize: 26, fontWeight: 700, color: 'white', margin: '8px 0 0' }}>{suspension.org}</p>
@@ -306,7 +306,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* ── TOP NAVBAR ── */}
       <div style={{
-        height: '48px', flexShrink: 0,
+        height: '42px', flexShrink: 0,
         background: 'white',
         borderBottom: '1px solid #e2e8f0',
         display: 'flex', alignItems: 'center',
@@ -332,7 +332,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
         {/* Búsqueda global — oculta en móvil */}
         {!isMobile && (
-        <div style={{ flex: 1, maxWidth: '400px', position: 'relative' as const, margin: '0 12px' }}>
+        <div style={{ flex: 1, maxWidth: 'min(400px, 88vw)', maxHeight: '88vh', overflowY: 'auto', position: 'relative' as const, margin: '0 12px' }}>
           <div style={{ position: 'relative' as const }}>
             <span style={{ position: 'absolute' as const, left: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: '#9CA3AF' }}>🔍</span>
             <input
@@ -583,7 +583,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* ── Modal guardia de navegación — calculadora con cambios sin guardar ── */}
       {showNavGuard && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', width: '100%', maxWidth: '400px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: 'min(400px, 88vw)', maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
             <div style={{ background: '#F59E0B', padding: '16px 20px' }}>
               <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '800' as const, color: 'white', margin: 0 }}>⚠️ Tienes un diagnóstico sin guardar</p>
             </div>
@@ -617,7 +617,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* ── Modal cambiar contraseña ── */}
       {showCambiarPwd && (
         <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', width: '100%', maxWidth: '400px', borderRadius: '12px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', overflow: 'hidden' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: 'min(400px, 88vw)', maxHeight: '88vh', overflowY: 'auto', borderRadius: '12px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', overflow: 'hidden' }}>
             <div style={{ background: AZUL, padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700' as const, color: 'white', margin: 0 }}>🔒 Cambiar contraseña</p>
               <button onClick={() => { setShowCambiarPwd(false); setPwdNueva(''); setPwdConfirmar(''); setPwdError('') }}

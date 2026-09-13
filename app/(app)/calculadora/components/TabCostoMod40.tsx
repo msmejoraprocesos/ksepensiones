@@ -28,7 +28,7 @@ export default function TabCostoMod40({ escenarios, sys, getMod40Pct, setTab }: 
   }, [])
 
   if (!escRec || escRec.mod40_meses === 0) return (
-    <div style={{ textAlign: 'center', padding: '60px', color: K.muted }}>
+    <div style={{ textAlign: 'center', padding: '30px 18px', color: K.muted }}>
       <i className="ti ti-coin-off" style={{ fontSize: 'clamp(30px, 3.00vw, 48px)', display: 'block', marginBottom: '12px' }} />
       <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)' }}>Configura el Salario Mod. 40 para ver el costo</p>
       <button onClick={() => setTab(2)} style={{ marginTop: '14px', padding: '11px 22px', background: K.navy800, color: 'white', border: 'none', borderRadius: '9px', cursor: 'pointer', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 600, fontFamily: 'inherit' }}>
@@ -82,7 +82,7 @@ export default function TabCostoMod40({ escenarios, sys, getMod40Pct, setTab }: 
         <div style={{ position: 'absolute', width: 460, height: 460, right: -150, top: -190, borderRadius: 999, pointerEvents: 'none', background: `radial-gradient(circle, ${K.orange}33 0%, transparent 68%)` }} />
         <div style={{ position: 'relative', padding: '14px 18px 10px' }}>
           <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>LO QUE CUESTA MODALIDAD 40</p>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap', marginTop: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', flexWrap: 'wrap', marginTop: '8px' }}>
             <p style={{ fontSize: 'clamp(28px, 3.2vw, 42px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
               {fmtMXN2(escRec.inversion_neta)}
             </p>
@@ -96,7 +96,7 @@ export default function TabCostoMod40({ escenarios, sys, getMod40Pct, setTab }: 
                 <span style={{ width: anim ? `${(escRec.inversion_neta / escRec.costo_total) * 100}%` : '0%', background: K.gold, transition: 'width 1s cubic-bezier(.22,1,.36,1)' }} />
                 <span style={{ width: anim ? `${(escRec.recuperacion_afore / escRec.costo_total) * 100}%` : '0%', background: K.greenLt, transition: 'width 1s cubic-bezier(.22,1,.36,1)' }} />
               </div>
-              <div style={{ display: 'flex', gap: '22px', marginTop: '10px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '14px', marginTop: '10px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', flexWrap: 'wrap' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '7px', color: 'rgba(255,255,255,.8)' }}>
                   <span style={{ width: 9, height: 9, borderRadius: 2, background: K.gold }} />Sale de su bolsillo
                 </span>

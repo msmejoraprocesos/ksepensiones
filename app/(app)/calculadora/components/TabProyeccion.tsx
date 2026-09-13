@@ -27,7 +27,7 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
   }, [])
 
   if (!escRec || escRec.mod40_meses === 0) return (
-    <div style={{ textAlign: 'center', padding: '60px', color: K.muted }}>
+    <div style={{ textAlign: 'center', padding: '30px 18px', color: K.muted }}>
       <i className="ti ti-chart-line" style={{ fontSize: 'clamp(30px, 3.00vw, 48px)', display: 'block', marginBottom: '12px' }} />
       <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)' }}>Completa las pestañas anteriores para continuar</p>
     </div>
@@ -88,7 +88,7 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
           <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>
             LO QUE ACUMULA HASTA LOS 80 AÑOS
           </p>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap', marginTop: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', flexWrap: 'wrap', marginTop: '8px' }}>
             <p style={{ fontSize: 'clamp(28px, 3.2vw, 42px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
               {fmtMXN(escRec.ganancia_a80)}
             </p>
@@ -126,7 +126,7 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
            El usuario tenia que bajar, tocar, subir a ver el efecto y volver
            a bajar — lo que en la practica cancela la exploracion.          */}
       <div className="kse-curva-sticky" style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)', position: 'sticky', top: 0, zIndex: 5 }}>
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap', marginBottom: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '6px' }}>
           <div>
             <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: 0 }}>Cómo evoluciona su pensión</p>
             <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: '4px 0 0' }}>Toque un año para ver el detalle</p>

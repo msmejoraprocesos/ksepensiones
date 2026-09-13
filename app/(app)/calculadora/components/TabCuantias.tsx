@@ -34,7 +34,7 @@ export default function TabCuantias({ res, sdiPromedio, datos, setTab, Tip }: Pr
   }, [])
 
   if (sdiPromedio <= 0) return (
-    <div style={{ textAlign: 'center', padding: '60px 20px', color: K.muted }}>
+    <div style={{ textAlign: 'center', padding: '30px 18px', color: K.muted }}>
       <i className="ti ti-file-alert" style={{ fontSize: 'clamp(30px, 3.00vw, 48px)', display: 'block', marginBottom: '12px' }} />
       <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)' }}>Carga la constancia IMSS para ver la pensión actual</p>
     </div>
@@ -63,7 +63,7 @@ export default function TabCuantias({ res, sdiPromedio, datos, setTab, Tip }: Pr
           <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>
             SU PENSIÓN SI SE RETIRA HOY, SIN MODALIDAD 40
           </p>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap', marginTop: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', flexWrap: 'wrap', marginTop: '8px' }}>
             <p style={{ fontSize: 'clamp(28px, 3.2vw, 42px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
               {fmtMXN2(res.pensionMensual)}
             </p>

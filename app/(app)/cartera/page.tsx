@@ -23,7 +23,7 @@ const SEMAFORO: Record<EstadoCartera, { txt: string; fg: string; bg: string }> =
 }
 
 const campo: React.CSSProperties = {
-  height: 46, border: `1px solid ${K.line}`, borderRadius: 10, padding: '0 12px',
+  height: 42, border: `1px solid ${K.line}`, borderRadius: 10, padding: '0 12px',
   fontSize: 17, fontFamily: 'inherit', color: K.ink, fontWeight: 600,
   boxSizing: 'border-box', outline: 'none', background: K.card,
 }
@@ -146,7 +146,7 @@ export default function CarteraPage() {
                   </label>
                   <button onClick={() => setTramos(p => p.filter((_, j) => j !== i))}
                     disabled={tramos.length <= 1} aria-label="Quitar tramo"
-                    style={{ height: 46, borderRadius: 10, border: `1px solid ${K.line}`, background: K.card, color: K.muted, cursor: tramos.length <= 1 ? 'default' : 'pointer', fontSize: 18, fontFamily: 'inherit', opacity: tramos.length <= 1 ? .4 : 1 }}>×</button>
+                    style={{ height: 42, borderRadius: 10, border: `1px solid ${K.line}`, background: K.card, color: K.muted, cursor: tramos.length <= 1 ? 'default' : 'pointer', fontSize: 18, fontFamily: 'inherit', opacity: tramos.length <= 1 ? .4 : 1 }}>×</button>
                 </div>
               )
             })}
@@ -236,7 +236,7 @@ export default function CarteraPage() {
               {cargando ? (
                 <tr><td colSpan={6} style={{ padding: 0 }}><TablaSkeleton filas={4} columnas={6} /></td></tr>
               ) : cartera.length === 0 ? (
-                <tr><td colSpan={6} style={{ padding: '36px 20px', textAlign: 'center', color: K.muted }}>
+                <tr><td colSpan={6} style={{ padding: '28px 18px', textAlign: 'center', color: K.muted }}>
                   <p style={{ fontSize: 17, margin: 0 }}>Todavía no hay clientes registrados.</p>
                   <button onClick={() => setAlta(true)} style={{ ...botonPrimario, margin: '16px auto 0' }}>Dar de alta el primero</button>
                 </td></tr>
@@ -297,7 +297,7 @@ export default function CarteraPage() {
           que el sistema no conoce. */}
       {suspendiendo && (
         <div onClick={() => setSuspendiendo(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(13,36,64,.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: K.card, borderRadius: 16, width: '100%', maxWidth: 460, padding: 'clamp(16px, 2vw, 26px) clamp(16px, 2.2vw, 28px)' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: K.card, borderRadius: 16, width: '100%', maxWidth: 'min(460px, 88vw)', maxHeight: '88vh', overflowY: 'auto', padding: 'clamp(16px, 2vw, 26px) clamp(16px, 2.2vw, 28px)' }}>
             <p style={{ fontSize: 22, fontWeight: 700, color: K.ink, margin: 0 }}>¿Suspender a {suspendiendo.nombre}?</p>
             <p style={{ fontSize: 15, color: K.muted, margin: '10px 0 0', lineHeight: 1.6 }}>
               Lleva {suspendiendo.diasVencido} días vencido pasada la tolerancia. Sus {suspendiendo.asientos ?? 1} usuarios perderán el acceso de inmediato, aunque su información queda intacta y vuelve al registrar el pago.

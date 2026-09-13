@@ -155,7 +155,7 @@ export default function KanbanPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 56px)', background: '#F4F6F9' }}>
       {/* Header — fijo arriba mientras se hace scroll de toda la página */}
-      <div style={{ position: 'sticky' as const, top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #e2e8f0', padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div style={{ position: 'sticky' as const, top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #e2e8f0', padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
         <h1 style={{ color: AZUL, fontSize: 'clamp(18px, 1.45vw, 23px)', fontWeight: 700, margin: 0 }}>Pipeline de Clientes</h1>
 
         {/* KPIs rápidos */}
@@ -183,7 +183,7 @@ export default function KanbanPage() {
       {/* Kanban board — sin limite de altura, crece con su contenido; el scroll lo maneja la pagina (main) */}
       <div style={{ padding: '16px' }}>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '60px', color: '#94a3b8' }}>Cargando pipeline...</div>
+          <div style={{ textAlign: 'center', padding: '30px 18px', color: '#94a3b8' }}>Cargando pipeline...</div>
         ) : (
           <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', minWidth: 'max-content' }}>
             {COLUMNAS.map(col => {

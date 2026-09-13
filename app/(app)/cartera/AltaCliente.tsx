@@ -17,7 +17,7 @@ function generarPassword(): string {
 }
 
 const campo: React.CSSProperties = {
-  width: '100%', height: 46, border: `1px solid ${K.line}`, borderRadius: 10,
+  width: '100%', height: 42, border: `1px solid ${K.line}`, borderRadius: 10,
   padding: '0 12px', fontSize: 17, fontFamily: 'inherit', color: K.ink,
   fontWeight: 600, boxSizing: 'border-box', outline: 'none', background: K.card,
 }
@@ -136,7 +136,7 @@ export default function AltaCliente({ tramos, onCreado, onCerrar }: Props) {
 
   return (
     <div onClick={intentarCerrar} style={{ position: 'fixed', inset: 0, background: 'rgba(13,36,64,.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-      <div onClick={e => e.stopPropagation()} style={{ background: K.card, borderRadius: 16, width: '100%', maxWidth: 640, maxHeight: '92vh', overflowY: 'auto' }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: K.card, borderRadius: 16, width: '100%', maxWidth: 'min(640px, 88vw)', maxHeight: '92vh', overflowY: 'auto' }}>
 
         <div style={{ padding: '22px 26px', borderBottom: `1px solid ${K.line}` }}>
           <p style={{ fontSize: 24, fontWeight: 700, color: K.ink, margin: 0 }}>Alta de cliente</p>

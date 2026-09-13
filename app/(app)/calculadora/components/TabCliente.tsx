@@ -36,7 +36,7 @@ const Field = ({ label, tipo, children, fullWidth }: { label: string; tipo: keyo
 )
 
 const inputBase = (tipo: keyof typeof SEM): React.CSSProperties => ({
-  width: '100%', height: '48px', border: `1px solid ${SEM[tipo].border}`,
+  width: '100%', height: '42px', border: `1px solid ${SEM[tipo].border}`,
   borderRadius: '10px', padding: '0 14px', fontSize: 'clamp(13px, 1.00vw, 16px)', fontFamily: 'inherit',
   boxSizing: 'border-box' as const, background: SEM[tipo].bg, color: SEM[tipo].text,
   fontWeight: 600, outline: 'none',

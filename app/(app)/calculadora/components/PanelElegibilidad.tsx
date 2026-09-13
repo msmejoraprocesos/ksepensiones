@@ -43,7 +43,7 @@ export default function PanelElegibilidad({ datos, setDatos, semanasNetas }: Pro
   const bloqueos = hallazgos.filter(h => h.severidad === 'bloqueo').length
 
   const campo: React.CSSProperties = {
-    width: '100%', height: '48px', border: `1px solid ${K.line}`,
+    width: '100%', height: '42px', border: `1px solid ${K.line}`,
     borderRadius: '10px', padding: '0 14px', fontSize: 'clamp(13px, 1.00vw, 16px)',
     fontFamily: 'inherit', boxSizing: 'border-box', background: K.card,
     color: K.ink, fontWeight: 600, outline: 'none',
@@ -78,7 +78,7 @@ export default function PanelElegibilidad({ datos, setDatos, semanasNetas }: Pro
 
       {/* Captura de los dos datos que la constancia trae y el formulario no pedía */}
       <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', borderBottom: `1px solid ${K.line}` }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
           <div>
             <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', color: K.muted, marginBottom: '6px' }}>
               Fecha de baja del IMSS

@@ -466,7 +466,7 @@ function AdminFormulasInner() {
       </div>
 
       {/* Contenido */}
-      <div style={{ padding: '16px 24px 32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ padding: '16px 24px 32px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
         {activeTab === 'configurables' && (
           <>
@@ -642,7 +642,7 @@ function AdminFormulasInner() {
         )}
 
         {activeTab === 'equipo' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
             {/* Header con acciones principales */}
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
@@ -835,7 +835,7 @@ function AdminFormulasInner() {
       {/* ── Modal nueva organización ── */}
       {showNuevaOrg && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', width: '100%', maxWidth: '420px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', borderRadius: '12px', overflow: 'hidden' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: 'min(420px, 88vw)', maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', borderRadius: '12px', overflow: 'hidden' }}>
             <div style={{ background: AZUL, padding: '16px 20px' }}><p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700', color: 'white', margin: 0 }}>+ Nueva organización</p></div>
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {[{ label: 'Nombre', key: 'nombre', type: 'text', placeholder: 'Ej. Grupo Financiero XYZ' }].map(f => (
@@ -875,7 +875,7 @@ function AdminFormulasInner() {
       {/* ── Modal nuevo usuario ── */}
       {showNuevoUsuario && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', width: '100%', maxWidth: '420px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', borderRadius: '12px', overflow: 'hidden' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: 'min(420px, 88vw)', maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', borderRadius: '12px', overflow: 'hidden' }}>
             <div style={{ background: AZUL, padding: '14px 20px' }}><p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700', color: 'white', margin: 0 }}>+ Nuevo asesor</p></div>
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {errorUsuario && <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#DC2626', margin: 0, padding: '8px', background: '#FEF2F2', border: '1px solid #FCA5A5' }}>{errorUsuario}</p>}
@@ -946,7 +946,7 @@ function AdminFormulasInner() {
       {/* ── Modal cambiar contraseña ── */}
       {showCambiarPwd && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', width: '100%', maxWidth: '360px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', borderRadius: '12px', overflow: 'hidden' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: 'min(360px, 88vw)', maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', borderRadius: '12px', overflow: 'hidden' }}>
             <div style={{ background: AZUL, padding: '14px 20px' }}><p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700', color: 'white', margin: 0 }}>🔑 Cambiar contraseña</p></div>
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div>

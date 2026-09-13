@@ -206,7 +206,7 @@ export default function TabEntregable({
       {subTab === 'revisar' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {!sofiaOutput ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#94A3B8' }}>
+            <div style={{ textAlign: 'center', padding: '24px 18px', color: '#94A3B8' }}>
               <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', margin: 0 }}>Primero genera el análisis con Sofía</p>
               <button onClick={() => setSubTab('generar')} style={{ marginTop: '14px', padding: '12px 22px', background: K.purple, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 600, fontFamily: 'inherit' }}>
                 Ir a generar →

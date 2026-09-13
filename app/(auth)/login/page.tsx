@@ -126,7 +126,7 @@ export default function LoginPage() {
             fontSize: '16px',
             lineHeight: 1.7,
             margin: '0 0 36px',
-            maxWidth: '380px',
+            maxWidth: 'min(380px, 88vw)', maxHeight: '88vh', overflowY: 'auto',
             textShadow: '0 1px 8px rgba(0,0,0,0.3)',
           }}>
             La plataforma completa para asesores de pensiones en México. Diagnostica, gestiona el trámite IMSS y financia la Modalidad 40 de tus clientes.
@@ -191,14 +191,14 @@ export default function LoginPage() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '40px',
+        padding: '24px 18px',
       }}>
         <div style={{
           background: 'white',
           borderRadius: '20px',
           padding: '40px 36px',
           width: '100%',
-          maxWidth: '400px',
+          maxWidth: 'min(400px, 88vw)', maxHeight: '88vh', overflowY: 'auto',
           boxShadow: '0 8px 40px rgba(27,58,107,0.12)',
           border: '1px solid rgba(27,58,107,0.08)',
         }}>

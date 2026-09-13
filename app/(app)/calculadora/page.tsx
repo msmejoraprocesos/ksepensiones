@@ -59,16 +59,16 @@ const DS = {
   kpiBlock: { background: '#0D2440', borderRadius: '12px', padding: 'clamp(12px, 1.4vw, 18px) clamp(14px, 1.7vw, 22px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' } as React.CSSProperties,
   kpiGreen: { background: '#12855C', borderRadius: '12px', padding: 'clamp(12px, 1.4vw, 18px) clamp(14px, 1.7vw, 22px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' } as React.CSSProperties,
   label: { fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 500, color: '#66738A', marginBottom: '6px', display: 'block' as const },
-  input: { width: '100%', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '12px 14px', fontSize: 'clamp(13px, 1.00vw, 16px)', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: 'white', color: '#1E293B', outline: 'none', height: '48px' } as React.CSSProperties,
-  inputReadonly: { width: '100%', border: '1px solid #F1F5F9', borderRadius: '10px', padding: '9px 12px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', background: '#F8FAFC', color: '#64748B', fontFamily: 'inherit', boxSizing: 'border-box' as const, height: '48px' } as React.CSSProperties,
+  input: { width: '100%', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '12px 14px', fontSize: 'clamp(13px, 1.00vw, 16px)', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: 'white', color: '#1E293B', outline: 'none', height: '42px' } as React.CSSProperties,
+  inputReadonly: { width: '100%', border: '1px solid #F1F5F9', borderRadius: '10px', padding: '9px 12px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', background: '#F8FAFC', color: '#64748B', fontFamily: 'inherit', boxSizing: 'border-box' as const, height: '42px' } as React.CSSProperties,
   // Inputs semánticos: fondo de color según tipo de dato
-  inputImss:     { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '12px 14px', fontSize: 'clamp(13px, 1.00vw, 16px)', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#EEF2F8', color: '#1E3A5F', fontWeight: '500' as const, height: '48px' } as React.CSSProperties,
-  inputManual:   { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '12px 14px', fontSize: 'clamp(13px, 1.00vw, 16px)', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#FFF3ED', color: '#92400E', height: '48px' } as React.CSSProperties,
-  inputStrategy: { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '12px 14px', fontSize: 'clamp(13px, 1.00vw, 16px)', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#F0F7F4', color: '#1A5C40', fontWeight: '500' as const, height: '48px' } as React.CSSProperties,
+  inputImss:     { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '12px 14px', fontSize: 'clamp(13px, 1.00vw, 16px)', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#EEF2F8', color: '#1E3A5F', fontWeight: '500' as const, height: '42px' } as React.CSSProperties,
+  inputManual:   { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '12px 14px', fontSize: 'clamp(13px, 1.00vw, 16px)', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#FFF3ED', color: '#92400E', height: '42px' } as React.CSSProperties,
+  inputStrategy: { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '12px 14px', fontSize: 'clamp(13px, 1.00vw, 16px)', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#F0F7F4', color: '#1A5C40', fontWeight: '500' as const, height: '42px' } as React.CSSProperties,
   inputResult:   { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '9px 12px', fontSize: 'clamp(11.5px, 0.87vw, 14px)', background: '#F5F3FF', color: '#4C1D95', fontWeight: '600' as const, height: '44px', boxSizing: 'border-box' as const } as React.CSSProperties,
-  select: { width: '100%', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '9px 12px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const, color: '#1E293B', height: '48px' } as React.CSSProperties,
-  selectManual:  { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '9px 12px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontFamily: 'inherit', background: '#FFF3ED', color: '#92400E', boxSizing: 'border-box' as const, height: '48px' } as React.CSSProperties,
-  selectStrategy:{ width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '9px 12px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontFamily: 'inherit', background: '#F0F7F4', color: '#1A5C40', fontWeight: '500' as const, boxSizing: 'border-box' as const, height: '48px' } as React.CSSProperties,
+  select: { width: '100%', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '9px 12px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const, color: '#1E293B', height: '42px' } as React.CSSProperties,
+  selectManual:  { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '9px 12px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontFamily: 'inherit', background: '#FFF3ED', color: '#92400E', boxSizing: 'border-box' as const, height: '42px' } as React.CSSProperties,
+  selectStrategy:{ width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '9px 12px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontFamily: 'inherit', background: '#F0F7F4', color: '#1A5C40', fontWeight: '500' as const, boxSizing: 'border-box' as const, height: '42px' } as React.CSSProperties,
   criticalNum: { fontSize: 'clamp(18px, 1.45vw, 23px)', fontWeight: '800' as const, letterSpacing: '-0.5px', lineHeight: 1 } as React.CSSProperties,
   bigNum: { fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: '700' as const, letterSpacing: '-0.5px' } as React.CSSProperties,
 }
@@ -548,7 +548,7 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
         </p>
       </div>
 
-      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column' as const, gap: '16px' }}>
+      <div style={{ padding: '16px', display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
 
         {/* Gastos ajustables */}
         <div>
@@ -2075,7 +2075,7 @@ function CalculadoraInner() {
         const hayErrores = problemas.some(p => p.nivel === 'error')
         return (
           <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-            <div style={{ background: 'white', maxWidth: '620px', width: 'min(100%, 92vw)', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+            <div style={{ background: 'white', maxWidth: 'min(620px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: 'min(100%, 92vw)', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
               <div style={{ background: hayErrores ? '#DC2626' : '#F59E0B', padding: '16px 20px' }}>
                 <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '800' as const, color: 'white', margin: 0 }}>
                   {hayErrores ? '⛔ Se encontraron errores en los datos' : '⚠️ Revisa estos datos antes de continuar'}
@@ -2114,7 +2114,7 @@ function CalculadoraInner() {
         const esAutorizacion = estatus === 'autorizado'
         return (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-            <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: '660px', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+            <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: 'min(600px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
               <div style={{ fontSize: 'clamp(18px, 1.55vw, 25px)', textAlign: 'center' as const, marginBottom: '8px' }}>🎯</div>
               <h3 style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '700' as const, color: '#334E7B', margin: '0 0 10px', textAlign: 'center' as const }}>
                 {esAutorizacion ? '¡Diagnóstico autorizado!' : '¡Diagnóstico guardado!'}
@@ -2142,7 +2142,7 @@ function CalculadoraInner() {
       {showGlosario && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={e => { if (e.target === e.currentTarget) setShowGlosario(false) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: '700px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: 'min(640px, 88vw)', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700' as const, color: AZUL, margin: 0 }}>📖 Glosario de términos</p>
               <button onClick={() => setShowGlosario(false)} aria-label="Cerrar" style={{ background: 'none', border: 'none', fontSize: 'clamp(14.5px, 1.12vw, 18px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
@@ -2176,7 +2176,7 @@ function CalculadoraInner() {
       {showGuiaEdadMod40 && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={e => { if (e.target === e.currentTarget) setShowGuiaEdadMod40(false) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: '700px', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: 'min(640px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700' as const, color: AZUL, margin: 0 }}>¿Por qué pedimos años Y meses, no solo años?</p>
               <button onClick={() => setShowGuiaEdadMod40(false)} style={{ background: 'none', border: 'none', fontSize: 'clamp(14.5px, 1.12vw, 18px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
@@ -2201,7 +2201,7 @@ function CalculadoraInner() {
       {showTooltipCuantia && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={e => { if (e.target === e.currentTarget) setShowTooltipCuantia(false) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: '660px', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: 'min(600px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <div>
                 <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700' as const, color: AZUL, margin: 0 }}>Tabla de cuantía de pensión — Ley 73</p>
@@ -2250,7 +2250,7 @@ function CalculadoraInner() {
       {/* ── Modal: ¿Continuar diagnóstico existente o nuevo? ── */}
       {showContinuarDiag && diagExistente && (
         <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', maxWidth: '540px', width: 'min(100%, 92vw)', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+          <div style={{ background: 'white', maxWidth: 'min(540px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: 'min(100%, 92vw)', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
             <div style={{ background: AZUL, padding: '16px 20px' }}>
               <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700' as const, color: 'white', margin: 0 }}>📋 Este cliente tiene un diagnóstico en progreso</p>
             </div>
@@ -2291,7 +2291,7 @@ function CalculadoraInner() {
       {/* ── Modal confirmación cambio de cliente ── */}
       {showConfirmCambio && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: '380px', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: 'min(380px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
             <h3 style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '700' as const, color: '#334E7B', margin: '0 0 10px' }}>⚠️ ¿Cambiar de cliente?</h3>
             <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#64748b', margin: '0 0 20px', lineHeight: 1.6 }}>
               {diagGuardadoId
@@ -2323,7 +2323,7 @@ function CalculadoraInner() {
       {showDetalle250 && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(13,36,64,0.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={() => setShowDetalle250(false)}>
-          <div style={{ background: 'white', borderRadius: '12px', padding: 'clamp(12px, 1.5vw, 18px)', maxWidth: '860px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
+          <div style={{ background: 'white', borderRadius: '12px', padding: 'clamp(12px, 1.5vw, 18px)', maxWidth: 'min(720px, 88vw)', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
             onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div>
@@ -2369,7 +2369,7 @@ function CalculadoraInner() {
       {showHistorialCompleto && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(13,36,64,0.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={() => setShowHistorialCompleto(false)}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: '760px', maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: 'min(680px, 88vw)', maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
             onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div>
@@ -2411,7 +2411,7 @@ function CalculadoraInner() {
       {/* ══ MODAL 1: Bienvenida — ambos campos obligatorios ══ */}
       {appInicializado && mostrarCaratula && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(2px)' }}>
-          <div style={{ background: 'white', borderRadius: '12px', maxWidth: '880px', width: 'min(100%, 94vw)', maxHeight: '92vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(13,36,64,0.28)' }}>
+          <div style={{ background: 'white', borderRadius: '12px', maxWidth: 'min(740px, 88vw)', width: 'min(100%, 94vw)', maxHeight: '92vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(13,36,64,0.28)' }}>
 
             {/* Header azul */}
             <div style={{ background: AZUL, padding: '26px 28px 20px', textAlign: 'center' as const }}>
@@ -2574,7 +2574,7 @@ function CalculadoraInner() {
       {/* ══ MODAL 2: Lista de clientes — abre sobre el modal 1 ══ */}
       {showClienteModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.4)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', maxWidth: '580px', width: 'min(100%, 92vw)', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', overflow: 'hidden' }}>
+          <div style={{ background: 'white', maxWidth: 'min(580px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: 'min(100%, 92vw)', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', overflow: 'hidden' }}>
             {/* Header */}
             <div style={{ padding: '16px 20px', borderBottom: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
@@ -3155,7 +3155,7 @@ function CalculadoraInner() {
                 </div>
               </div>
               {escsConMod40.length === 0 ? (
-                <div style={{ padding: '40px', textAlign: 'center' as const, color: '#94A3B8' }}>
+                <div style={{ padding: '24px 18px', textAlign: 'center' as const, color: '#94A3B8' }}>
                   <p>Completa los escenarios en La pensión para ver el resumen.</p>
                 </div>
               ) : (
@@ -3370,7 +3370,7 @@ function CalculadoraInner() {
 
               {!escM10 && (
                 <div style={DS.card}>
-                  <div style={{ textAlign: 'center' as const, padding: '40px', color: '#94A3B8' }}>
+                  <div style={{ textAlign: 'center' as const, padding: '24px 18px', color: '#94A3B8' }}>
                     <div style={{ fontSize: 'clamp(30px, 3.00vw, 48px)', marginBottom: '12px' }}>📋</div>
                     <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', margin: '0 0 6px' }}>Carga la constancia IMSS para ver el análisis de Modalidad 10</p>
                     <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)' }}>El sistema calcula automáticamente el escenario de Mod 10 con los datos de semanas cotizadas y SDI del trabajador</p>

@@ -202,7 +202,7 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
       {/* Modal envío por email */}
       {showEnvio && (
         <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', width: '100%', maxWidth: '480px', borderRadius: '14px', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: 'min(480px, 88vw)', maxHeight: '88vh', overflowY: 'auto', borderRadius: '14px', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
             <div style={{ background: AZUL, padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: 'white', margin: 0 }}>📧 Enviar expediente</p>
@@ -397,7 +397,7 @@ function FinanciamientoPage() {
               ))}
             </div>
             {finFiltrados.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px', color: '#66738A', background: 'white', border: '1px solid #E1E7F0' }}>
+              <div style={{ textAlign: 'center', padding: '30px 18px', color: '#66738A', background: 'white', border: '1px solid #E1E7F0' }}>
                 <div style={{ fontSize: 'clamp(22px, 2.00vw, 32px)', marginBottom: '12px' }}>💳</div>
                 <p style={{ margin: 0 }}>No hay financiamientos registrados.</p>
                 <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', margin: '6px 0 0' }}>Se crean automáticamente al autorizar un diagnóstico con financiamiento desde la Calculadora.</p>
@@ -434,7 +434,7 @@ function FinanciamientoPage() {
 
         {/* DETALLE */}
         {tab === 'detalle' && selFin && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <button onClick={() => setTab('lista')} style={{ alignSelf: 'flex-start', background: 'none', border: 'none', color: AZUL, cursor: 'pointer', fontSize: 'clamp(11px, 0.78vw, 12.5px)', padding: 0 }}>← Volver</button>
             <div style={{ background: 'white', border: '1px solid #E1E7F0', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
@@ -523,7 +523,7 @@ function FinanciamientoPage() {
               <button onClick={() => setShowNuevaInst(true)} style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>+ Nueva institución</button>
             </div>
             {instituciones.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px', color: '#66738A', background: 'white', border: '1px solid #E1E7F0' }}>
+              <div style={{ textAlign: 'center', padding: '30px 18px', color: '#66738A', background: 'white', border: '1px solid #E1E7F0' }}>
                 <div style={{ fontSize: 'clamp(22px, 2.00vw, 32px)', marginBottom: '12px' }}>🏦</div>
                 <p style={{ margin: 0 }}>Aún no tienes instituciones configuradas.</p>
               </div>
@@ -550,7 +550,7 @@ function FinanciamientoPage() {
             )}
             {showNuevaInst && (
               <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-                <div style={{ background: 'white', width: '100%', maxWidth: '420px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', borderRadius: '14px', overflow: 'hidden' }}>
+                <div style={{ background: 'white', width: '100%', maxWidth: 'min(420px, 88vw)', maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', borderRadius: '14px', overflow: 'hidden' }}>
                   <div style={{ background: AZUL, padding: '14px 20px' }}><p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700', color: 'white', margin: 0 }}>+ Nueva institución</p></div>
                   <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {[{ label: 'Nombre', key: 'nombre', type: 'text', placeholder: 'Ej. HSBC, Caja Popular...' }, { label: 'Tasa anual (%)', key: 'tasa_anual', type: 'number', placeholder: '32.2' }, { label: 'Plazo máximo (meses)', key: 'plazo_max_meses', type: 'number', placeholder: '60' }].map(f => (
@@ -581,7 +581,7 @@ function FinanciamientoPage() {
 
         {/* CORRIDA */}
         {tab === 'corrida' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '16px', alignItems: 'start' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '12px', alignItems: 'start' }}>
             <div style={{ background: 'white', border: '1px solid #E1E7F0', padding: '20px' }}>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700', color: '#374151', margin: '0 0 16px' }}>⚙️ Parámetros</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>

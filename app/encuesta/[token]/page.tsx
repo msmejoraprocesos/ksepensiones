@@ -70,7 +70,7 @@ export default function EncuestaPage({ params }: { params: { token: string } }) 
 
   if (error) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F4F6FB', fontFamily: 'system-ui, sans-serif', padding: '20px' }}>
-      <div style={{ textAlign: 'center', maxWidth: '380px' }}>
+      <div style={{ textAlign: 'center', maxWidth: 'min(380px, 88vw)', maxHeight: '88vh', overflowY: 'auto' }}>
         <p style={{ fontSize: '48px', margin: '0 0 16px' }}>😕</p>
         <h2 style={{ color: '#374151', margin: '0 0 8px' }}>Link no válido</h2>
         <p style={{ color: '#6B7280', fontSize: '14px' }}>{error}</p>
@@ -82,7 +82,7 @@ export default function EncuestaPage({ params }: { params: { token: string } }) 
 
   if (enviado) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #1B3A6B 0%, #2c5282 100%)', fontFamily: 'system-ui, sans-serif', padding: '20px' }}>
-      <div style={{ background: 'white', borderRadius: '20px', padding: '40px 32px', textAlign: 'center', maxWidth: '400px', width: '100%', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+      <div style={{ background: 'white', borderRadius: '20px', padding: '40px 32px', textAlign: 'center', maxWidth: 'min(400px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: '100%', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
         <p style={{ fontSize: '64px', margin: '0 0 16px' }}>🙏</p>
         <h2 style={{ color: AZUL, margin: '0 0 12px', fontSize: '22px' }}>¡Gracias por tu opinión!</h2>
         <p style={{ color: '#6B7280', fontSize: '15px', lineHeight: 1.6 }}>
@@ -99,7 +99,7 @@ export default function EncuestaPage({ params }: { params: { token: string } }) 
 
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #1B3A6B 0%, #2c5282 100%)', fontFamily: 'system-ui, sans-serif', padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', maxWidth: '420px', width: '100%', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
+      <div style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', maxWidth: 'min(420px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: '100%', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
 
         {/* Header */}
         <div style={{ background: AZUL, padding: '24px 28px', textAlign: 'center' }}>

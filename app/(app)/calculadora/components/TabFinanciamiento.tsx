@@ -32,7 +32,7 @@ export default function TabFinanciamiento({
   }, [])
 
   if (!escRec || escRec.mod40_meses === 0) return (
-    <div style={{ textAlign: 'center', padding: '60px', color: K.muted }}>
+    <div style={{ textAlign: 'center', padding: '30px 18px', color: K.muted }}>
       <i className="ti ti-building-bank" style={{ fontSize: 'clamp(30px, 3.00vw, 48px)', display: 'block', marginBottom: '12px' }} />
       <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)' }}>Completa las pestañas anteriores para ver el financiamiento</p>
     </div>
@@ -77,7 +77,7 @@ export default function TabFinanciamiento({
         <div style={{ position: 'absolute', width: 460, height: 460, right: -150, top: -190, borderRadius: 999, pointerEvents: 'none', background: `radial-gradient(circle, ${K.orange}33 0%, transparent 68%)` }} />
         <div style={{ position: 'relative', padding: '14px 18px 10px' }}>
           <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>TOTAL A FINANCIAR</p>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap', marginTop: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', flexWrap: 'wrap', marginTop: '8px' }}>
             <p style={{ fontSize: 'clamp(28px, 3.2vw, 42px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
               {fmtMXN(total)}
             </p>
@@ -156,7 +156,7 @@ export default function TabFinanciamiento({
               <div key={i} style={{ marginBottom: '14px' }}>
                 <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', color: K.muted, marginBottom: '6px' }}>{f.label}</label>
                 <select value={f.value} onChange={e => f.onChange(Number(e.target.value))}
-                  style={{ width: '100%', height: '48px', border: `1px solid ${K.line}`, borderRadius: '10px', padding: '0 14px', fontSize: 'clamp(13px, 1.00vw, 16px)', fontFamily: 'inherit', background: K.card, color: K.ink, fontWeight: 600, boxSizing: 'border-box', cursor: 'pointer' }}>
+                  style={{ width: '100%', height: '42px', border: `1px solid ${K.line}`, borderRadius: '10px', padding: '0 14px', fontSize: 'clamp(13px, 1.00vw, 16px)', fontFamily: 'inherit', background: K.card, color: K.ink, fontWeight: 600, boxSizing: 'border-box', cursor: 'pointer' }}>
                   {f.options.map(o => <option key={o} value={o}>{f.fmt(o)}</option>)}
                 </select>
               </div>

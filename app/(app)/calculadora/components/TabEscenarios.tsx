@@ -38,7 +38,7 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
   }, [])
 
   if (escsConMod40.length === 0) return (
-    <div style={{ textAlign: 'center', padding: '60px', color: K.muted }}>
+    <div style={{ textAlign: 'center', padding: '30px 18px', color: K.muted }}>
       <i className="ti ti-chart-bar-off" style={{ fontSize: 'clamp(30px, 3.00vw, 48px)', display: 'block', marginBottom: '12px' }} />
       <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)' }}>Completa el Salario Mod. 40 para generar escenarios comparativos</p>
       <button onClick={() => setTab(2)} style={{ marginTop: '14px', padding: '11px 22px', background: K.navy800, color: 'white', border: 'none', borderRadius: '9px', cursor: 'pointer', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 600, fontFamily: 'inherit' }}>
@@ -88,7 +88,7 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
         }
       `}</style>
 
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
         <div>
           <h2 style={{ fontSize: 'clamp(17px, 1.35vw, 22px)', fontWeight: 700, color: K.ink, margin: 0, letterSpacing: '-0.015em' }}>
             Comparativa de escenarios

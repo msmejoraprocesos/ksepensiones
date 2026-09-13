@@ -30,7 +30,7 @@ export default function TabImporte({ escenarios, datos, setTab, Tip }: Props) {
   }, [])
 
   if (!escRec || escRec.mod40_meses === 0) return (
-    <div style={{ textAlign: 'center', padding: '60px', color: K.muted }}>
+    <div style={{ textAlign: 'center', padding: '30px 18px', color: K.muted }}>
       <i className="ti ti-coin-off" style={{ fontSize: 'clamp(30px, 3.00vw, 48px)', display: 'block', marginBottom: '12px' }} />
       <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)' }}>Completa los datos y el salario Mod. 40 para ver el importe</p>
       <button onClick={() => setTab(2)} style={{ marginTop: '14px', padding: '11px 22px', background: K.navy800, color: 'white', border: 'none', borderRadius: '9px', cursor: 'pointer', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 600, fontFamily: 'inherit' }}>
@@ -130,7 +130,7 @@ export default function TabImporte({ escenarios, datos, setTab, Tip }: Props) {
             <span style={{ width: anim ? `${pctHoy}%` : '0%', background: 'rgba(255,255,255,.42)', transition: 'width 1.1s cubic-bezier(.22,1,.36,1)' }} />
             <span style={{ width: anim ? `${100 - pctHoy}%` : '0%', background: `linear-gradient(90deg, ${K.green}, ${K.greenLt})`, transition: 'width 1.1s cubic-bezier(.22,1,.36,1)' }} />
           </div>
-          <div style={{ display: 'flex', gap: '22px', marginTop: '10px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '14px', marginTop: '10px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', flexWrap: 'wrap' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '7px', color: 'rgba(255,255,255,.62)' }}>
               <span style={{ width: 9, height: 9, borderRadius: 2, background: 'rgba(255,255,255,.42)' }} />Lo que ya tiene
             </span>

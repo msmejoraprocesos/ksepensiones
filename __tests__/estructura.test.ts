@@ -221,3 +221,39 @@ describe('responsividad', () => {
     expect(css).toMatch(/min-height: 44px/)
   })
 })
+
+describe('densidad de los componentes', () => {
+  const TODOS = [
+    ...['dashboard', 'clientes', 'seguimiento', 'calculadora', 'financiamiento',
+        'reportes', 'cartera', 'configuracion', 'admin', 'super-admin',
+        'org-admin', 'kanban'].map(m => `app/(app)/${m}/page.tsx`),
+  ]
+
+  it('los modales ceden ante el viewport', () => {
+    /* Un maxWidth en píxeles no sabe cuánto espacio hay: en tableta vertical,
+       donde el viewport ronda 900px, un modal de 880 llenaba la pantalla y
+       dejaba de leerse como capa sobre el contenido. */
+    const rigidos: string[] = []
+    for (const f of TODOS) {
+      const s = leer(f)
+      const hits = [...s.matchAll(/maxWidth: '(\d{3,4})px'/g)]
+        .map(m => Number(m[1]))
+        .filter(n => n >= 340)
+      if (hits.length) rigidos.push(`${f.split('/')[1]}: ${hits[0]}px`)
+    }
+    expect(rigidos).toEqual([])
+  })
+
+  it('ningún relleno supera los 30px', () => {
+    // Un estado vacío con 60px de relleno ocupa media pantalla sin decir nada.
+    const inflados: string[] = []
+    for (const f of TODOS) {
+      const s = leer(f)
+      const hits = [...s.matchAll(/padding: '(\d{2,})px/g)]
+        .map(m => Number(m[1]))
+        .filter(n => n > 30)
+      if (hits.length) inflados.push(`${f.split('/')[1]}: ${hits[0]}px`)
+    }
+    expect(inflados).toEqual([])
+  })
+})
