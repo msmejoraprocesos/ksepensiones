@@ -88,7 +88,7 @@ function PDFPreview({ config, logoUrl, razonSocial, asesorNombre, encabezadoColo
           <div style={{ fontSize: '7px', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '2px' }}>
             {encabezadoTitulo || 'Diagnóstico Pensional'}
           </div>
-          <div style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '700', color: 'white', marginBottom: '2px' }}>María González López</div>
+          <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700', color: 'white', marginBottom: '2px' }}>María González López</div>
           <div style={{ fontSize: '7.5px', color: 'rgba(255,255,255,0.75)' }}>
             {asesorNombre ? `Elaborado por: ${asesorNombre}` : razonSocial || 'KSE Pensiones'} · {hoy}
           </div>

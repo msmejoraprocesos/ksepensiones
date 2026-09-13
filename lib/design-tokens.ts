@@ -67,12 +67,12 @@ export const T = {
 
 /** Versión fluida, para usar en `fontSize` de estilos en línea. */
 export const TF = {
-  label:  'clamp(11px, 0.80vw, 13px)',
-  body:   'clamp(12.5px, 0.94vw, 15px)',
-  bodyLg: 'clamp(14px, 1.06vw, 17px)',
-  h3:     'clamp(16px, 1.25vw, 20px)',
-  h2:     'clamp(19px, 1.62vw, 26px)',
-  stat:   'clamp(23px, 2.12vw, 34px)',
+  label:  'clamp(11px, 0.78vw, 12.5px)',
+  body:   'clamp(12px, 0.90vw, 14px)',
+  bodyLg: 'clamp(13px, 1.00vw, 16px)',
+  h3:     'clamp(15px, 1.15vw, 18px)',
+  h2:     'clamp(18px, 1.45vw, 23px)',
+  stat:   'clamp(21px, 1.90vw, 30px)',
 } as const
 
 /** Cifra principal de una pantalla: se adapta al ancho disponible. */

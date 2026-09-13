@@ -38,14 +38,14 @@ export class ErrorBoundary extends React.Component<Props, State> {
           <p style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, color: '#374151', margin: 0 }}>
             Algo salió mal
           </p>
-          <p style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', color: '#6B7280', margin: 0, textAlign: 'center' }}>
+          <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#6B7280', margin: 0, textAlign: 'center' }}>
             {this.state.error?.message || 'Error inesperado en la aplicación'}
           </p>
           <button
             onClick={() => this.setState({ hasError: false, error: null })}
             style={{
               padding: '8px 20px', background: '#1B3A6B', color: 'white',
-              border: 'none', fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: 700,
+              border: 'none', fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: 700,
               cursor: 'pointer', fontFamily: 'inherit'
             }}
           >

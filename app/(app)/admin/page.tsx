@@ -291,8 +291,8 @@ function AdminFormulasInner() {
 
   function sectionTitle(t: string, sub: string) { return (
     <div style={{ marginBottom: '14px' }}>
-      <p style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: 700, color: AZUL, margin: 0 }}>{t}</p>
-      <p style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: '#94a3b8', margin: '2px 0 0' }}>{sub}</p>
+      <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: 700, color: AZUL, margin: 0 }}>{t}</p>
+      <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#94a3b8', margin: '2px 0 0' }}>{sub}</p>
     </div>
   ) }
 
@@ -321,19 +321,19 @@ function AdminFormulasInner() {
 
   function fieldRow(label: string, legal: string, excel: string, value: any, editable = false, afecta = '', alcance: keyof typeof ALCANCE = 'todos') { return (
     <tr style={{ borderBottom: '1px solid #E1E7F0' }}>
-      <td style={{ padding: '13px 14px', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: 600, color: '#132135', width: 'min(100%, 220px)' }} title={excel ? `Referencia en el libro: ${excel}` : undefined}>{label}</td>
+      <td style={{ padding: '13px 14px', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 600, color: '#132135', width: 'min(100%, 220px)' }} title={excel ? `Referencia en el libro: ${excel}` : undefined}>{label}</td>
       <td style={{ padding: '13px 14px', fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: '#66738A' }}>{legal}</td>
       <td style={{ padding: '13px 14px', fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: '#132135' }}>
         {afecta && <span style={{ display: 'block', lineHeight: 1.5 }}>{afecta}</span>}
-        <span style={{ display: 'inline-block', marginTop: afecta ? 5 : 0, fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: 700, padding: '3px 9px', borderRadius: 6, background: ALCANCE[alcance].bg, color: ALCANCE[alcance].fg, whiteSpace: 'nowrap' }}>
+        <span style={{ display: 'inline-block', marginTop: afecta ? 5 : 0, fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 700, padding: '3px 9px', borderRadius: 6, background: ALCANCE[alcance].bg, color: ALCANCE[alcance].fg, whiteSpace: 'nowrap' }}>
           {ALCANCE[alcance].txt}
         </span>
       </td>
       <td style={{ padding: '13px 14px' }}>{value}</td>
       <td style={{ padding: '13px 14px', textAlign: 'center' }}>
         {editable
-          ? <span style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', padding: '4px 10px', borderRadius: '10px', background: '#FDF0E9', color: '#E8622C', fontWeight: 700 }}>Editable</span>
-          : <span style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', padding: '4px 10px', borderRadius: '10px', background: '#E6F4EE', color: '#12855C', fontWeight: 700 }}>Fijo por ley</span>
+          ? <span style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', padding: '4px 10px', borderRadius: '10px', background: '#FDF0E9', color: '#E8622C', fontWeight: 700 }}>Editable</span>
+          : <span style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', padding: '4px 10px', borderRadius: '10px', background: '#E6F4EE', color: '#12855C', fontWeight: 700 }}>Fijo por ley</span>
         }
       </td>
     </tr>
@@ -343,7 +343,7 @@ function AdminFormulasInner() {
     <input
       type="number" step={step} value={val}
       onChange={e => onChange(parseFloat(e.target.value) || 0)}
-      style={{ width: '128px', padding: '10px 12px', border: '1px solid #E1E7F0', borderRadius: '9px', fontSize: 'clamp(14px, 1.06vw, 17px)', fontWeight: 700, color: '#132135', background: '#FFFFFF', fontFamily: 'inherit' }}
+      style={{ width: '128px', padding: '10px 12px', border: '1px solid #E1E7F0', borderRadius: '9px', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, color: '#132135', background: '#FFFFFF', fontFamily: 'inherit' }}
     />
   ) }
 
@@ -374,7 +374,7 @@ function AdminFormulasInner() {
       <div style={{ background: AZUL, padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <h1 style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, color: 'white', margin: '0 0 4px' }}>⚙️ Fórmulas y Constantes del Sistema</h1>
-          <p style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: '#93C5FD', margin: 0 }}>
+          <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#93C5FD', margin: 0 }}>
             <span style={{ background: 'rgba(255,255,255,0.15)', padding: '1px 6px', marginRight: '8px' }}>FIJO POR LEY</span>
             Solo cambia con la LSS 1973 ·
             <span style={{ background: 'rgba(255,255,255,0.15)', padding: '1px 6px', margin: '0 8px' }}>EDITABLE</span>
@@ -382,8 +382,8 @@ function AdminFormulasInner() {
           </p>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
-          <button onClick={() => router.back()} style={{ padding: '7px 14px', background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontFamily: 'inherit' }}>← Regresar</button>
-          <button onClick={handleSave} disabled={saving} style={{ padding: '7px 18px', background: saved ? VERDE : '#F05B21', color: 'white', border: 'none', cursor: 'pointer', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '700', fontFamily: 'inherit' }}>
+          <button onClick={() => router.back()} style={{ padding: '7px 14px', background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontSize: 'clamp(12px, 0.90vw, 14px)', fontFamily: 'inherit' }}>← Regresar</button>
+          <button onClick={handleSave} disabled={saving} style={{ padding: '7px 18px', background: saved ? VERDE : '#F05B21', color: 'white', border: 'none', cursor: 'pointer', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', fontFamily: 'inherit' }}>
             {saving ? 'Guardando...' : saved ? '✓ Guardado' : 'Guardar cambios'}
           </button>
         </div>
@@ -410,14 +410,14 @@ function AdminFormulasInner() {
               <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                 <span style={{ fontSize: 'clamp(17px, 1.37vw, 22px)', flexShrink: 0 }}>{requiereAtencion ? '⚠️' : '📅'}</span>
                 <div>
-                  <p style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '700', color: requiereAtencion ? '#991B1B' : '#065F46', margin: '0 0 4px' }}>
+                  <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700', color: requiereAtencion ? '#991B1B' : '#065F46', margin: '0 0 4px' }}>
                     {requiereAtencion
                       ? `Temporada de actualización oficial ${anio} — verifica si ya hay nuevos valores`
                       : enTemporada
                         ? `Temporada de actualización oficial ${anio} — valores ya revisados`
                         : 'Calendario de publicaciones oficiales'}
                   </p>
-                  <p style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', color: '#374151', margin: 0, lineHeight: 1.6 }}>
+                  <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#374151', margin: 0, lineHeight: 1.6 }}>
                     Cada año el <strong>Salario Mínimo</strong> se publica a fines de diciembre (vigente desde el 1° de enero) y la <strong>UMA, PMG y tasas IMSS</strong> se publican entre enero y principios de febrero (vigentes desde el 1° de febrero).
                     {fechaUlt && <> Última actualización registrada: <strong>{fechaUlt.toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}</strong>.</>}
                     {!fechaUlt && ' Aún no se ha registrado ninguna actualización en este sistema.'}
@@ -427,7 +427,7 @@ function AdminFormulasInner() {
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', flexShrink: 0 }}>
                 {fuentes.map((f, i) => (
                   <a key={i} href={f.url} target="_blank" rel="noopener noreferrer"
-                    style={{ padding: '6px 12px', background: 'white', border: '1px solid #D1D5DB', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '600', color: '#1B3A6B', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                    style={{ padding: '6px 12px', background: 'white', border: '1px solid #D1D5DB', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '600', color: '#1B3A6B', textDecoration: 'none', whiteSpace: 'nowrap' }}>
                     {f.label} ↗
                   </a>
                 ))}
@@ -446,8 +446,8 @@ function AdminFormulasInner() {
             { icon: '🔄', title: 'Cómo actualizar', desc: '1. Edita el valor · 2. Clic en Guardar cambios · 3. La calculadora usa los nuevos valores de inmediato en todos los diagnósticos.', bg: '#F0FDF4', border: '#86EFAC' },
           ].map((g, i) => (
             <div key={i} style={{ padding: '12px 14px', background: g.bg, border: '1px solid ' + g.border }}>
-              <p style={{ margin: '0 0 4px', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '700', color: '#374151' }}>{g.icon} {g.title}</p>
-              <p style={{ margin: 0, fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: '#6B7280', lineHeight: 1.6 }}>{g.desc}</p>
+              <p style={{ margin: '0 0 4px', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151' }}>{g.icon} {g.title}</p>
+              <p style={{ margin: 0, fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#6B7280', lineHeight: 1.6 }}>{g.desc}</p>
             </div>
           ))}
         </div>
@@ -471,8 +471,8 @@ function AdminFormulasInner() {
         {activeTab === 'configurables' && (
           <>
             <div className="af-card">
-              <p style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Valores CONASAMI / IMSS — actualizar cada enero/febrero</p>
-              <p style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: '#9CA3AF', margin: '0 0 14px', lineHeight: 1.5 }}>Fuente: DOF (Diario Oficial de la Federación). Estos valores afectan directamente el cálculo de pensiones.</p>
+              <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Valores CONASAMI / IMSS — actualizar cada enero/febrero</p>
+              <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#9CA3AF', margin: '0 0 14px', lineHeight: 1.5 }}>Fuente: DOF (Diario Oficial de la Federación). Estos valores afectan directamente el cálculo de pensiones.</p>
               <div style={{ overflowX: 'auto' }}>
                 <table className="af-table">
                   <thead>
@@ -499,8 +499,8 @@ function AdminFormulasInner() {
             </div>
 
             <div className="af-card">
-              <p style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Tasas de cotización Modalidad 40 — por año</p>
-              <p style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: '#9CA3AF', margin: '0 0 14px', lineHeight: 1.5 }}>Fuente: IMSS — sube ~1.091% anual hasta llegar al techo de 18.8% en 2030. Excel: COSTO MOD. 40!D4-D14</p>
+              <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Tasas de cotización Modalidad 40 — por año</p>
+              <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#9CA3AF', margin: '0 0 14px', lineHeight: 1.5 }}>Fuente: IMSS — sube ~1.091% anual hasta llegar al techo de 18.8% en 2030. Excel: COSTO MOD. 40!D4-D14</p>
               <div style={{ overflowX: 'auto' }}>
                 <table className="af-table">
                   <thead>
@@ -520,13 +520,13 @@ function AdminFormulasInner() {
                         <tr key={yr}>
                           <td style={{ fontWeight: '700', color: esFuturo ? '#7C3AED' : '#374151' }}>
                             {yr}
-                            {anio < new Date().getFullYear() && <span style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', color: '#9CA3AF', marginLeft: '6px' }}>(histórico)</span>}
-                            {anio === new Date().getFullYear() && <span style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', color: '#F05B21', fontWeight: '700', marginLeft: '6px' }}>← vigente</span>}
+                            {anio < new Date().getFullYear() && <span style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#9CA3AF', marginLeft: '6px' }}>(histórico)</span>}
+                            {anio === new Date().getFullYear() && <span style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#F05B21', fontWeight: '700', marginLeft: '6px' }}>← vigente</span>}
                           </td>
                           <td className="r">
                             {esFuturo
                               ? <input type="number" step={0.001} value={tasa} onChange={e => setTasasMod40(prev => ({ ...prev, [anio]: parseFloat(e.target.value) || tasa }))}
-                                  style={{ width: '80px', padding: '4px 6px', border: '1.5px solid #FCD34D', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '700', color: '#374151', background: '#FFFBEB', textAlign: 'right' }} />
+                                  style={{ width: '80px', padding: '4px 6px', border: '1.5px solid #FCD34D', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', background: '#FFFBEB', textAlign: 'right' }} />
                               : <span style={{ fontWeight: '700', color: AZUL }}>{tasa.toFixed(3)}%</span>
                             }
                           </td>
@@ -545,8 +545,8 @@ function AdminFormulasInner() {
         {activeTab === 'legales' && (
           <>
             <div className="af-card">
-              <p style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Parámetros generales — Art. 162-183 LSS 1973</p>
-              <p style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: '#9CA3AF', margin: '0 0 14px', lineHeight: 1.5 }}>Solo se modifican si cambia la ley. Para cambiarlos, editar formulas.ts</p>
+              <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Parámetros generales — Art. 162-183 LSS 1973</p>
+              <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#9CA3AF', margin: '0 0 14px', lineHeight: 1.5 }}>Solo se modifican si cambia la ley. Para cambiarlos, editar formulas.ts</p>
               <div style={{ overflowX: 'auto' }}>
                 <table className="af-table">
                   <thead>
@@ -574,22 +574,22 @@ function AdminFormulasInner() {
 
             <div className="af-grid-2">
               <div className="af-card">
-                <p style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Factores de edad — Art. 167 LSS 1973</p>
-                <p style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: '#9CA3AF', margin: '0 0 14px', lineHeight: 1.5 }}>100% a los 65 años. Reduce 5% por año antes, mínimo a los 60 (75%). Excel: DATOS GEN.!E27-E32</p>
+                <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Factores de edad — Art. 167 LSS 1973</p>
+                <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#9CA3AF', margin: '0 0 14px', lineHeight: 1.5 }}>100% a los 65 años. Reduce 5% por año antes, mínimo a los 60 (75%). Excel: DATOS GEN.!E27-E32</p>
                 <div className="af-wrap">
                   {Object.entries(FACTOR_EDAD_RETIRO).filter(([e]) => parseInt(e) <= 65).map(([edad, factor]) => (
                     <div key={edad} style={{ flex: '1 0 80px', padding: '12px', background: parseInt(edad) === 65 ? '#F0FDF4' : '#F9FAFB', border: '1px solid ' + (parseInt(edad) === 65 ? '#86EFAC' : '#E1E7F0'), textAlign: 'center' }}>
-                      <div style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', color: '#9CA3AF', fontWeight: '600', marginBottom: '4px' }}>{edad} años</div>
+                      <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#9CA3AF', fontWeight: '600', marginBottom: '4px' }}>{edad} años</div>
                       <div style={{ fontSize: 'clamp(17px, 1.37vw, 22px)', fontWeight: '900', color: parseInt(edad) === 65 ? '#065F46' : AZUL }}>{(factor * 100).toFixed(0)}%</div>
-                      <div style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', color: '#9CA3AF', marginTop: '2px' }}>{parseInt(edad) === 65 ? 'Vejez' : 'Cesantía'}</div>
+                      <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#9CA3AF', marginTop: '2px' }}>{parseInt(edad) === 65 ? 'Vejez' : 'Cesantía'}</div>
                     </div>
                   ))}
                 </div>
               </div>
 
               <div className="af-card">
-                <p style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Asignaciones familiares — Art. 164-165 LSS 1973</p>
-                <p style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: '#9CA3AF', margin: '0 0 14px', lineHeight: 1.5 }}>Se aplican sobre la cuantía total antes del factor de edad.</p>
+                <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Asignaciones familiares — Art. 164-165 LSS 1973</p>
+                <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#9CA3AF', margin: '0 0 14px', lineHeight: 1.5 }}>Se aplican sobre la cuantía total antes del factor de edad.</p>
                 <div className="af-wrap">
                   {[
                     { label: 'Cónyuge', pct: ASIGNACIONES.CONYUGE * 100, legal: 'Art. 164 fracc. I', color: AZUL },
@@ -599,9 +599,9 @@ function AdminFormulasInner() {
                     { label: 'Ayuda asistencial (solo padres)', pct: ASIGNACIONES.AYUDA_ASISTENCIAL_SOLO_PADRES * 100, legal: 'Art. 165 LSS', color: '#0891B2' },
                   ].map(a => (
                     <div key={a.label} style={{ flex: '1 0 140px', padding: '12px 14px', background: '#F9FAFB', border: '1px solid #E5E7EB' }}>
-                      <div style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '600', color: '#374151', marginBottom: '4px' }}>{a.label}</div>
-                      <div style={{ fontSize: 'clamp(18px, 1.50vw, 24px)', fontWeight: '900', color: a.color }}>{a.pct.toFixed(0)}%</div>
-                      <div style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', color: '#9CA3AF', marginTop: '3px' }}>{a.legal}</div>
+                      <div style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '600', color: '#374151', marginBottom: '4px' }}>{a.label}</div>
+                      <div style={{ fontSize: 'clamp(17px, 1.35vw, 22px)', fontWeight: '900', color: a.color }}>{a.pct.toFixed(0)}%</div>
+                      <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#9CA3AF', marginTop: '3px' }}>{a.legal}</div>
                     </div>
                   ))}
                 </div>
@@ -609,8 +609,8 @@ function AdminFormulasInner() {
             </div>
 
             <div className="af-card">
-              <p style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Tabla de cuantía básica por veces UMA — Art. 167 LSS 1973</p>
-              <p style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: '#9CA3AF', margin: '0 0 14px', lineHeight: 1.5 }}>22 rangos de salario relativo (SDI / UMA diaria). A menor salario → mayor % de cuantía. Excel: PENSIÓN ACTUAL y PENSION MOD. 40</p>
+              <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700', color: '#111827', margin: '0 0 4px' }}>Tabla de cuantía básica por veces UMA — Art. 167 LSS 1973</p>
+              <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#9CA3AF', margin: '0 0 14px', lineHeight: 1.5 }}>22 rangos de salario relativo (SDI / UMA diaria). A menor salario → mayor % de cuantía. Excel: PENSIÓN ACTUAL y PENSION MOD. 40</p>
               <div style={{ overflowX: 'auto' }}>
                 <table className="af-table">
                   <thead>
@@ -624,12 +624,12 @@ function AdminFormulasInner() {
                   <tbody>
                     {TABLA_CUANTIA_UMA.map((fila, i) => (
                       <tr key={i}>
-                        <td style={{ fontFamily: 'monospace', fontSize: 'clamp(11px, 0.80vw, 13px)' }}>
+                        <td style={{ fontFamily: 'monospace', fontSize: 'clamp(11px, 0.78vw, 12.5px)' }}>
                           {fila.min === 0 ? '0.00' : fila.min.toFixed(2)} – {fila.max === Infinity ? '∞' : fila.max.toFixed(2)}
                         </td>
                         <td className="r" style={{ fontWeight: '700', color: AZUL }}>{(fila.basica * 100).toFixed(2)}%</td>
                         <td className="r" style={{ fontWeight: '600', color: VERDE }}>{(fila.incremento * 100).toFixed(4)}%</td>
-                        <td style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: '#9CA3AF' }}>
+                        <td style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#9CA3AF' }}>
                           {i === 0 ? 'Salario ≤ UMA' : i === TABLA_CUANTIA_UMA.length - 1 ? 'Salario > 6 UMAs' : ''}
                         </td>
                       </tr>
@@ -647,11 +647,11 @@ function AdminFormulasInner() {
             {/* Header con acciones principales */}
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
               <button onClick={() => setShowNuevaOrg(true)}
-                style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
                 🏢 Nueva organización
               </button>
               <button onClick={() => { setShowNuevoUsuario(true); setErrorUsuario(''); setNuevoEmail(''); setNuevoPassword(''); setNuevoNombre(''); setNuevoOrgId('') }}
-                style={{ padding: '8px 16px', background: NARANJA, color: 'white', border: 'none', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ padding: '8px 16px', background: NARANJA, color: 'white', border: 'none', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
                 + Nuevo asesor
               </button>
             </div>
@@ -668,8 +668,8 @@ function AdminFormulasInner() {
                     style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', background: isExpanded ? '#EEF2F8' : 'white' }}>
                     <span style={{ fontSize: 'clamp(13px, 1.00vw, 16px)' }}>🏢</span>
                     <div style={{ flex: 1 }}>
-                      <p style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '700', color: '#111827', margin: '0 0 2px' }}>{org.nombre}</p>
-                      <p style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: '#6B7280', margin: 0 }}>
+                      <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700', color: '#111827', margin: '0 0 2px' }}>{org.nombre}</p>
+                      <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#6B7280', margin: 0 }}>
                         {org.plan} · <span style={{ color: pct >= 90 ? '#DC2626' : '#374151', fontWeight: '600' }}>{asesoresOrg.length}/{org.asientos} asientos</span>
                         {' · '}
                         {org.vigencia_hasta
@@ -698,37 +698,37 @@ function AdminFormulasInner() {
                             await supabase.from('organizaciones').update({ vigencia_hasta: v + 'T23:59:59Z', activo: true }).eq('id', org.id)
                             setOrganizaciones(prev => prev.map(o => o.id === org.id ? { ...o, vigencia_hasta: v, activo: true } : o))
                           }}
-                          style={{ padding: '3px 6px', border: '1px solid #E5E7EB', borderRadius: '4px', fontSize: 'clamp(11px, 0.80vw, 13px)', fontFamily: 'inherit', color: '#374151' }}
+                          style={{ padding: '3px 6px', border: '1px solid #E5E7EB', borderRadius: '4px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontFamily: 'inherit', color: '#374151' }}
                         />
-                        <span style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', color: '#66738A' }}>acceso hasta</span>
+                        <span style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A' }}>acceso hasta</span>
                       </div>
                       <button onClick={e => { e.stopPropagation(); toggleOrgActivo(org.id, org.activo) }}
-                        style={{ padding: '3px 8px', background: org.activo ? '#FEF2F2' : '#F0FDF4', color: org.activo ? '#DC2626' : '#065F46', border: `1px solid ${org.activo ? '#FCA5A5' : '#86EFAC'}`, fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
+                        style={{ padding: '3px 8px', background: org.activo ? '#FEF2F2' : '#F0FDF4', color: org.activo ? '#DC2626' : '#065F46', border: `1px solid ${org.activo ? '#FCA5A5' : '#86EFAC'}`, fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
                         {org.activo ? 'Desactivar' : 'Activar'}
                       </button>
                     </div>
-                    <span style={{ color: '#9CA3AF', fontSize: 'clamp(12.5px, 0.94vw, 15px)' }}>{isExpanded ? '▲' : '▼'}</span>
+                    <span style={{ color: '#9CA3AF', fontSize: 'clamp(12px, 0.90vw, 14px)' }}>{isExpanded ? '▲' : '▼'}</span>
                   </div>
 
                   {/* Asesores de esta org */}
                   {isExpanded && (
                     <div style={{ borderTop: `2px solid ${AZUL}` }}>
                       {asesoresOrg.length === 0 ? (
-                        <p style={{ padding: '16px', fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: '#9CA3AF', margin: 0, textAlign: 'center' }}>Sin asesores asignados</p>
+                        <p style={{ padding: '16px', fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#9CA3AF', margin: 0, textAlign: 'center' }}>Sin asesores asignados</p>
                       ) : (
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'clamp(12.5px, 0.94vw, 15px)' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'clamp(12px, 0.90vw, 14px)' }}>
                           <thead><tr style={{ background: '#F5F7FA' }}>
                             {['Nombre', 'Email', 'Rol', 'Clientes', 'Diagnósticos', ''].map((h, i) => (
-                              <th key={i} style={{ padding: '7px 12px', textAlign: (i > 2 ? 'right' : 'left'), fontWeight: '700', color: '#6B7280', fontSize: 'clamp(11px, 0.80vw, 13px)', borderBottom: '1px solid #E5E7EB' }}>{h}</th>
+                              <th key={i} style={{ padding: '7px 12px', textAlign: (i > 2 ? 'right' : 'left'), fontWeight: '700', color: '#6B7280', fontSize: 'clamp(11px, 0.78vw, 12.5px)', borderBottom: '1px solid #E5E7EB' }}>{h}</th>
                             ))}
                           </tr></thead>
                           <tbody>
                             {asesoresOrg.map((a: any, i: number) => (
                               <tr key={a.id} style={{ borderBottom: '1px solid #F3F4F6', background: i % 2 === 0 ? 'white' : '#FAFAFA' }}>
                                 <td style={{ padding: '8px 12px', fontWeight: '600' }}>{a.nombre}</td>
-                                <td style={{ padding: '8px 12px', color: '#6B7280', fontSize: 'clamp(12.5px, 0.94vw, 15px)' }}>{a.email}</td>
+                                <td style={{ padding: '8px 12px', color: '#6B7280', fontSize: 'clamp(12px, 0.90vw, 14px)' }}>{a.email}</td>
                                 <td style={{ padding: '8px 12px' }}>
-                                  <span style={{ padding: '2px 6px', background: a.rol === 'org_admin' ? '#EFF6FF' : '#F4F6FB', color: a.rol === 'org_admin' ? '#1D4ED8' : '#6B7280', fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: 700 }}>
+                                  <span style={{ padding: '2px 6px', background: a.rol === 'org_admin' ? '#EFF6FF' : '#F4F6FB', color: a.rol === 'org_admin' ? '#1D4ED8' : '#6B7280', fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: 700 }}>
                                     {a.rol === 'org_admin' ? 'Líder' : 'Asesor'}
                                   </span>
                                 </td>
@@ -737,11 +737,11 @@ function AdminFormulasInner() {
                                 <td style={{ padding: '8px 12px', textAlign: 'right' }}>
                                   <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
                                     <button onClick={() => { setUsuarioEditando(a.id); setNuevoPassword(''); setShowCambiarPwd(true) }}
-                                      style={{ padding: '3px 8px', background: '#F4F6FB', color: '#374151', border: '1px solid #E5E7EB', fontSize: 'clamp(11px, 0.80vw, 13px)', cursor: 'pointer', fontFamily: 'inherit' }}>
+                                      style={{ padding: '3px 8px', background: '#F4F6FB', color: '#374151', border: '1px solid #E5E7EB', fontSize: 'clamp(11px, 0.78vw, 12.5px)', cursor: 'pointer', fontFamily: 'inherit' }}>
                                       🔑 Pwd
                                     </button>
                                     <button onClick={() => eliminarUsuario(a.id, a.nombre)}
-                                      style={{ padding: '3px 8px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FCA5A5', fontSize: 'clamp(11px, 0.80vw, 13px)', cursor: 'pointer', fontFamily: 'inherit' }}>
+                                      style={{ padding: '3px 8px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FCA5A5', fontSize: 'clamp(11px, 0.78vw, 12.5px)', cursor: 'pointer', fontFamily: 'inherit' }}>
                                       Eliminar
                                     </button>
                                   </div>
@@ -755,16 +755,16 @@ function AdminFormulasInner() {
                       {asesoresOrg.length < org.asientos && (
                         <div style={{ padding: '10px 16px', borderTop: '1px solid #F3F4F6' }}>
                           <button onClick={() => { setNuevoOrgId(org.id); setShowNuevoUsuario(true); setErrorUsuario(''); setNuevoEmail(''); setNuevoPassword(''); setNuevoNombre('') }}
-                            style={{ padding: '6px 14px', background: '#F4F6FB', color: AZUL, border: `1px solid ${AZUL}`, fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
+                            style={{ padding: '6px 14px', background: '#F4F6FB', color: AZUL, border: `1px solid ${AZUL}`, fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
                             + Agregar asesor a {org.nombre}
                           </button>
                         </div>
                       )}
                       {asesoresOrg.length >= org.asientos && (
                         <div style={{ padding: '8px 16px', background: '#FEF2F2', borderTop: '1px solid #FCA5A5' }}>
-                          <p style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: '#DC2626', margin: 0 }}>
+                          <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#DC2626', margin: 0 }}>
                             ⚠️ Asientos llenos ({asesoresOrg.length}/{org.asientos}) — 
-                            <button onClick={() => { /* editar asientos */ }} style={{ background: 'none', border: 'none', color: '#DC2626', cursor: 'pointer', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '700', padding: '0 4px', fontFamily: 'inherit' }}>
+                            <button onClick={() => { /* editar asientos */ }} style={{ background: 'none', border: 'none', color: '#DC2626', cursor: 'pointer', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', padding: '0 4px', fontFamily: 'inherit' }}>
                               Ampliar plan
                             </button>
                           </p>
@@ -784,38 +784,38 @@ function AdminFormulasInner() {
                 <div style={{ background: 'white', border: '1px solid #E5E7EB' }}>
                   <div style={{ padding: '12px 16px', borderBottom: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{ fontSize: 'clamp(13px, 1.00vw, 16px)' }}>👤</span>
-                    <p style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '700', color: '#111827', margin: 0 }}>Asesores individuales</p>
-                    <span style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: '#9CA3AF' }}>{solos.length} asesor{solos.length !== 1 ? 'es' : ''}</span>
+                    <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700', color: '#111827', margin: 0 }}>Asesores individuales</p>
+                    <span style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#9CA3AF' }}>{solos.length} asesor{solos.length !== 1 ? 'es' : ''}</span>
                   </div>
                   {solos.length === 0 ? (
-                    <p style={{ padding: '16px', fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: '#9CA3AF', margin: 0, textAlign: 'center' }}>Sin asesores individuales</p>
+                    <p style={{ padding: '16px', fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#9CA3AF', margin: 0, textAlign: 'center' }}>Sin asesores individuales</p>
                   ) : (
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'clamp(12.5px, 0.94vw, 15px)' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'clamp(12px, 0.90vw, 14px)' }}>
                       <thead><tr style={{ background: '#F5F7FA' }}>
                         {['Nombre', 'Email', 'Clientes', 'Diagnósticos', ''].map((h, i) => (
-                          <th key={i} style={{ padding: '7px 12px', textAlign: (i > 1 ? 'right' : 'left'), fontWeight: '700', color: '#6B7280', fontSize: 'clamp(11px, 0.80vw, 13px)', borderBottom: '1px solid #E5E7EB' }}>{h}</th>
+                          <th key={i} style={{ padding: '7px 12px', textAlign: (i > 1 ? 'right' : 'left'), fontWeight: '700', color: '#6B7280', fontSize: 'clamp(11px, 0.78vw, 12.5px)', borderBottom: '1px solid #E5E7EB' }}>{h}</th>
                         ))}
                       </tr></thead>
                       <tbody>
                         {solos.map((a: any, i: number) => (
                           <tr key={a.id} style={{ borderBottom: '1px solid #F3F4F6', background: i % 2 === 0 ? 'white' : '#FAFAFA' }}>
                             <td style={{ padding: '8px 12px', fontWeight: '600' }}>{a.nombre}</td>
-                            <td style={{ padding: '8px 12px', color: '#6B7280', fontSize: 'clamp(12.5px, 0.94vw, 15px)' }}>{a.email}</td>
+                            <td style={{ padding: '8px 12px', color: '#6B7280', fontSize: 'clamp(12px, 0.90vw, 14px)' }}>{a.email}</td>
                             <td style={{ padding: '8px 12px', textAlign: 'right', color: AZUL, fontWeight: '600' }}>{a.total_clientes}</td>
                             <td style={{ padding: '8px 12px', textAlign: 'right' }}>{a.total_diagnosticos}</td>
                             <td style={{ padding: '8px 12px', textAlign: 'right' }}>
                               <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
                                 <select value="" onChange={e => { if (e.target.value) asignarOrganizacion(a.id, e.target.value) }}
-                                  style={{ padding: '3px 6px', border: '1px solid #E5E7EB', fontSize: 'clamp(11px, 0.80vw, 13px)', fontFamily: 'inherit', background: 'white', color: '#374151', cursor: 'pointer' }}>
+                                  style={{ padding: '3px 6px', border: '1px solid #E5E7EB', fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontFamily: 'inherit', background: 'white', color: '#374151', cursor: 'pointer' }}>
                                   <option value="">Asignar a org...</option>
                                   {organizaciones.filter((o: any) => o.activo).map((o: any) => <option key={o.id} value={o.id}>{o.nombre}</option>)}
                                 </select>
                                 <button onClick={() => { setUsuarioEditando(a.id); setNuevoPassword(''); setShowCambiarPwd(true) }}
-                                  style={{ padding: '3px 8px', background: '#F4F6FB', color: '#374151', border: '1px solid #E5E7EB', fontSize: 'clamp(11px, 0.80vw, 13px)', cursor: 'pointer', fontFamily: 'inherit' }}>
+                                  style={{ padding: '3px 8px', background: '#F4F6FB', color: '#374151', border: '1px solid #E5E7EB', fontSize: 'clamp(11px, 0.78vw, 12.5px)', cursor: 'pointer', fontFamily: 'inherit' }}>
                                   🔑
                                 </button>
                                 <button onClick={() => eliminarUsuario(a.id, a.nombre)}
-                                  style={{ padding: '3px 8px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FCA5A5', fontSize: 'clamp(11px, 0.80vw, 13px)', cursor: 'pointer', fontFamily: 'inherit' }}>
+                                  style={{ padding: '3px 8px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FCA5A5', fontSize: 'clamp(11px, 0.78vw, 12.5px)', cursor: 'pointer', fontFamily: 'inherit' }}>
                                   Eliminar
                                 </button>
                               </div>
@@ -842,12 +842,12 @@ function AdminFormulasInner() {
                 <div key={f.key}>
                   <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>{f.label}</label>
                   <input type="text" placeholder={f.placeholder} value={(formOrg as any)[f.key]} onChange={e => setFormOrg(p => ({ ...p, [f.key]: e.target.value }))}
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: 'clamp(11px, 0.80vw, 13px)', boxSizing: 'border-box', fontFamily: 'inherit' }} />
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: 'clamp(11px, 0.78vw, 12.5px)', boxSizing: 'border-box', fontFamily: 'inherit' }} />
                 </div>
               ))}
               <div>
                 <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Plan</label>
-                <select value={formOrg.plan} onChange={e => setFormOrg(p => ({ ...p, plan: e.target.value }))} style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: 'clamp(11px, 0.80vw, 13px)', fontFamily: 'inherit', background: 'white' }}>
+                <select value={formOrg.plan} onChange={e => setFormOrg(p => ({ ...p, plan: e.target.value }))} style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontFamily: 'inherit', background: 'white' }}>
                   <option value="individual">Individual (1 asesor)</option>
                   <option value="equipo">Equipo (2-10 asesores)</option>
                   <option value="enterprise">Enterprise (10+ asesores)</option>
@@ -855,11 +855,11 @@ function AdminFormulasInner() {
               </div>
               <div>
                 <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Asientos</label>
-                <input type="number" value={formOrg.asientos} onChange={e => setFormOrg(p => ({ ...p, asientos: parseInt(e.target.value) || 1 }))} style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: 'clamp(11px, 0.80vw, 13px)', boxSizing: 'border-box', fontFamily: 'inherit' }} />
+                <input type="number" value={formOrg.asientos} onChange={e => setFormOrg(p => ({ ...p, asientos: parseInt(e.target.value) || 1 }))} style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: 'clamp(11px, 0.78vw, 12.5px)', boxSizing: 'border-box', fontFamily: 'inherit' }} />
               </div>
               <div>
                 <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Vencimiento (opcional)</label>
-                <input type="date" value={formOrg.fecha_vencimiento} onChange={e => setFormOrg(p => ({ ...p, fecha_vencimiento: e.target.value }))} style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: 'clamp(11px, 0.80vw, 13px)', boxSizing: 'border-box', fontFamily: 'inherit' }} />
+                <input type="date" value={formOrg.fecha_vencimiento} onChange={e => setFormOrg(p => ({ ...p, fecha_vencimiento: e.target.value }))} style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: 'clamp(11px, 0.78vw, 12.5px)', boxSizing: 'border-box', fontFamily: 'inherit' }} />
               </div>
               <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
                 <button onClick={() => setShowNuevaOrg(false)} style={{ flex: 1, padding: '10px', background: '#F5F7FA', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12.5px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
@@ -878,7 +878,7 @@ function AdminFormulasInner() {
           <div style={{ background: 'white', width: '100%', maxWidth: '420px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', borderRadius: '12px', overflow: 'hidden' }}>
             <div style={{ background: AZUL, padding: '14px 20px' }}><p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700', color: 'white', margin: 0 }}>+ Nuevo asesor</p></div>
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {errorUsuario && <p style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: '#DC2626', margin: 0, padding: '8px', background: '#FEF2F2', border: '1px solid #FCA5A5' }}>{errorUsuario}</p>}
+              {errorUsuario && <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#DC2626', margin: 0, padding: '8px', background: '#FEF2F2', border: '1px solid #FCA5A5' }}>{errorUsuario}</p>}
               {[{ label: 'Nombre completo', state: nuevoNombre, set: setNuevoNombre, type: 'text', placeholder: 'Ej. María García', required: true },
                 { label: 'Correo electrónico', state: nuevoEmail, set: setNuevoEmail, type: 'email', placeholder: 'asesor@empresa.com', required: true },
                 { label: 'Teléfono WhatsApp (10 dígitos)', state: nuevoTelefono, set: setNuevoTelefono, type: 'tel', placeholder: 'Ej. 4421234567', required: true },
@@ -886,22 +886,22 @@ function AdminFormulasInner() {
                 <div key={f.label}>
                   <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '3px' }}>{f.label} <span style={{ color: '#EF4444' }}>*</span></label>
                   <input type={f.type} placeholder={f.placeholder} value={f.state} onChange={e => f.set(e.target.value)} required={f.required}
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: 'clamp(11px, 0.80vw, 13px)', boxSizing: 'border-box', fontFamily: 'inherit' }} />
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: 'clamp(11px, 0.78vw, 12.5px)', boxSizing: 'border-box', fontFamily: 'inherit' }} />
                 </div>
               ))}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
                   <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600', color: '#6B7280' }}>Contraseña temporal <span style={{ color: '#EF4444' }}>*</span></label>
                   <button type="button" onClick={() => setNuevoPassword(generarPasswordAdmin())}
-                    style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: NARANJA, background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontFamily: 'inherit' }}>🎲 Generar</button>
+                    style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: NARANJA, background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontFamily: 'inherit' }}>🎲 Generar</button>
                 </div>
                 <input type="text" placeholder="Mínimo 10 caracteres" value={nuevoPassword} onChange={e => setNuevoPassword(e.target.value)}
-                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: 'clamp(11px, 0.80vw, 13px)', boxSizing: 'border-box', fontFamily: 'inherit', fontWeight: '600' }} />
+                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: 'clamp(11px, 0.78vw, 12.5px)', boxSizing: 'border-box', fontFamily: 'inherit', fontWeight: '600' }} />
               </div>
               <div>
                 <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '3px' }}>Rol</label>
                 <select value={nuevoRol} onChange={e => setNuevoRol(e.target.value as 'asesor' | 'org_admin')}
-                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: 'clamp(11px, 0.80vw, 13px)', fontFamily: 'inherit', background: 'white' }}>
+                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontFamily: 'inherit', background: 'white' }}>
                   <option value="asesor">Asesor — solo ve sus propios clientes</option>
                   <option value="org_admin">Líder de equipo — ve la actividad de su organización</option>
                 </select>
@@ -911,7 +911,7 @@ function AdminFormulasInner() {
                 <div style={{ display: 'flex', gap: '8px' }}>
                   {([['email', '📧 Email'], ['whatsapp', '💬 WhatsApp'], ['ambos', '📧+💬 Ambos']] as const).map(([val, lbl]) => (
                     <button key={val} type="button" onClick={() => setNuevoEnvioMetodo(val)}
-                      style={{ flex: 1, padding: '7px 4px', background: nuevoEnvioMetodo === val ? AZUL : '#F4F6FB', color: nuevoEnvioMetodo === val ? 'white' : '#374151', border: `1px solid ${nuevoEnvioMetodo === val ? AZUL : '#E1E7F0'}`, fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: nuevoEnvioMetodo === val ? '700' : '400', cursor: 'pointer', fontFamily: 'inherit' }}>
+                      style={{ flex: 1, padding: '7px 4px', background: nuevoEnvioMetodo === val ? AZUL : '#F4F6FB', color: nuevoEnvioMetodo === val ? 'white' : '#374151', border: `1px solid ${nuevoEnvioMetodo === val ? AZUL : '#E1E7F0'}`, fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: nuevoEnvioMetodo === val ? '700' : '400', cursor: 'pointer', fontFamily: 'inherit' }}>
                       {lbl}
                     </button>
                   ))}
@@ -924,7 +924,7 @@ function AdminFormulasInner() {
                 <div>
                   <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '3px' }}>Organización (opcional)</label>
                   <select value={nuevoOrgId} onChange={e => setNuevoOrgId(e.target.value)}
-                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: 'clamp(11px, 0.80vw, 13px)', fontFamily: 'inherit', background: 'white' }}>
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontFamily: 'inherit', background: 'white' }}>
                     <option value="">— Individual (sin organización) —</option>
                     {organizaciones.filter((o: any) => o.activo).map((o: any) => <option key={o.id} value={o.id}>{o.nombre} ({o.plan})</option>)}
                   </select>
@@ -932,9 +932,9 @@ function AdminFormulasInner() {
               )}
               <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                 <button onClick={() => { setShowNuevoUsuario(false); setErrorUsuario(''); setNuevoEmail(''); setNuevoPassword(''); setNuevoNombre(''); setNuevoTelefono(''); setNuevoOrgId(''); setNuevoEnvioMetodo('email') }}
-                  style={{ flex: 1, padding: '10px', background: '#F5F7FA', color: '#374151', border: '1px solid #E5E7EB', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
+                  style={{ flex: 1, padding: '10px', background: '#F5F7FA', color: '#374151', border: '1px solid #E5E7EB', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
                 <button onClick={crearUsuario} disabled={creandoUsuario}
-                  style={{ flex: 1, padding: '10px', background: NARANJA, color: 'white', border: 'none', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', opacity: creandoUsuario ? 0.6 : 1 }}>
+                  style={{ flex: 1, padding: '10px', background: NARANJA, color: 'white', border: 'none', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', opacity: creandoUsuario ? 0.6 : 1 }}>
                   {creandoUsuario ? 'Creando...' : 'Crear asesor'}
                 </button>
               </div>
@@ -952,19 +952,19 @@ function AdminFormulasInner() {
               <div>
                 <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '3px' }}>Nueva contraseña</label>
                 <input type="password" value={nuevoPassword} onChange={e => setNuevoPassword(e.target.value)} placeholder="Mínimo 6 caracteres"
-                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: 'clamp(11px, 0.80vw, 13px)', boxSizing: 'border-box', fontFamily: 'inherit' }} />
+                  style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: 'clamp(11px, 0.78vw, 12.5px)', boxSizing: 'border-box', fontFamily: 'inherit' }} />
               </div>
-              {errorUsuario && <p style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: '#DC2626', margin: 0 }}>{errorUsuario}</p>}
+              {errorUsuario && <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#DC2626', margin: 0 }}>{errorUsuario}</p>}
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button onClick={() => { setShowCambiarPwd(false); setErrorUsuario(''); setNuevoPassword('') }}
-                  style={{ flex: 1, padding: '10px', background: '#F5F7FA', color: '#374151', border: '1px solid #E5E7EB', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
+                  style={{ flex: 1, padding: '10px', background: '#F5F7FA', color: '#374151', border: '1px solid #E5E7EB', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
                 <button onClick={async () => {
                   if (nuevoPassword.length < 6) { setErrorUsuario('Mínimo 6 caracteres'); return }
                   const res = await fetch('/api/admin/usuarios', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: usuarioEditando, password: nuevoPassword }) })
                   const json = await res.json()
                   if (json.ok) { setShowCambiarPwd(false); setErrorUsuario(''); setNuevoPassword('') }
                   else setErrorUsuario(json.error)
-                }} style={{ flex: 1, padding: '10px', background: AZUL, color: 'white', border: 'none', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
+                }} style={{ flex: 1, padding: '10px', background: AZUL, color: 'white', border: 'none', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
                   Actualizar
                 </button>
               </div>

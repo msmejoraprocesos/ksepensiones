@@ -204,3 +204,42 @@ input, select, textarea, button {
 main > div:last-child, [class*="kse-wrap"]:last-child {
   padding-bottom: 84px;
 }
+
+
+/* ── Escala global en dispositivos táctiles ────────────────────────────────
+   Las tabletas reportan un viewport de 1500-1600px lógicos aunque la pantalla
+   física sea de diez pulgadas. La escala fluida con vw asume que viewport
+   ancho significa pantalla grande, así que a una tableta le entrega el tamaño
+   máximo — el de escritorio — sobre una superficie mucho menor. El resultado
+   se ve proporcionado pero demasiado grande.
+
+   `zoom` reduce todo en bloque conservando las proporciones, que es
+   exactamente lo que hace falta: el problema no era el equilibrio entre
+   elementos sino el tamaño general.
+
+   Se distingue por `pointer: coarse` — se opera con el dedo — y no por ancho,
+   precisamente porque el ancho engaña en estos dispositivos.              */
+
+@media (pointer: coarse) and (min-width: 900px) {
+  /* Tableta: un escalón abajo. */
+  body { zoom: 0.85; }
+}
+
+/* El teléfono NO lleva zoom. Reporta su ancho real, así que la escala fluida
+   ya le entrega el mínimo de cada tamaño: reducir encima dejaría las
+   etiquetas en 10px, por debajo de lo legible a la distancia de uso. Solo la
+   tableta miente sobre su tamaño. */
+
+/* Safari en iPad ignoraba `zoom` hasta hace poco; el respaldo escala la
+   tipografía base, que arrastra lo que herede de ella. */
+@supports not (zoom: 1) {
+  @media (pointer: coarse) {
+    html { font-size: 87.5%; }
+  }
+}
+
+/* El chat flotante y los diálogos quedan fuera del zoom: son superficies
+   fijas al viewport y encogerlos los aleja del borde. */
+@media (pointer: coarse) {
+  [style*="position: fixed"] { zoom: normal; }
+}
