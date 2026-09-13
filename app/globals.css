@@ -205,16 +205,18 @@ input, select, textarea, button {
    
    El despeje se aplica solo a lo que puede quedar debajo del botón — la
    esquina inferior derecha — y no a toda la pantalla. */
-main > div:last-child::after {
-  content: '';
-  display: block;
-  height: 12px;
+/* El despeje para el chat flotante se reduce al mínimo: 56px de margen bajo
+   cada tabla dejaba una franja visible aunque no hubiera nada debajo. El
+   botón mide 52px y vive en la esquina, así que solo necesita despeje la
+   última fila de la tabla, no todo el ancho. */
+table:last-child {
+  margin-bottom: 8px;
 }
 
-/* Las tablas y las barras de acción sí reservan espacio, porque su contenido
-   llega hasta el borde inferior. */
-table:last-child, .kse-acciones:last-child {
-  margin-bottom: 56px;
+/* El chat se aparta si hay una barra de acciones al pie, que es el único
+   elemento que realmente le queda debajo. */
+.kse-acciones:last-child {
+  padding-right: 64px;
 }
 
 

@@ -934,6 +934,16 @@ function CalculadoraInner() {
   const [generandoAnalisis, setGenerandoAnalisis] = useState(false)
   const [guardando, setGuardando] = useState(false)
   const [menuAbierto, setMenuAbierto] = useState(null as number | null)
+  /* Coordenadas del boton que abrio el menu. Necesarias porque el desplegable
+     se posiciona contra el viewport, no contra el riel. */
+  const [menuPos, setMenuPos] = useState<{ left: number; top: number } | null>(null)
+
+  function abrirMenu(gi: number, e: React.MouseEvent<HTMLButtonElement>) {
+    if (menuAbierto === gi) { setMenuAbierto(null); setMenuPos(null); return }
+    const r = e.currentTarget.getBoundingClientRect()
+    setMenuPos({ left: r.left, top: r.bottom + 4 })
+    setMenuAbierto(gi)
+  }
   const [subTabEntregable, setSubTabEntregable] = useState('analisis')
   const [mensaje, setMensaje] = useState('')
   const [asesorPerfil, setAsesorPerfil] = useState<{razon_social?: string; nombre?: string; logo_url?: string; encabezado_color?: string; encabezado_titulo?: string; encabezado_logo_size?: number; encabezado_font_size?: number; pdf_config?: string} | null>(null)
@@ -2732,7 +2742,7 @@ function CalculadoraInner() {
                       return (
                         <div key={gi} className="kse-riel-item" style={{ flex: 1, position: 'relative' as const }}>
                           <button
-                            onClick={() => setMenuAbierto(abierto ? null : gi)}
+                            onClick={e => abrirMenu(gi, e)}
                             style={{ width: '100%', padding: '10px 8px', border: 'none', borderRadius: '10px', cursor: 'pointer', background: activo ? AZUL : 'white', fontFamily: 'inherit', transition: 'all 0.15s', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '4px', boxShadow: activo ? '0 2px 8px rgba(51,78,123,0.3)' : '0 1px 2px rgba(0,0,0,0.06)' }}>
                             {/* Ícono grande */}
                             <span style={{ fontSize: 'clamp(13.3px, 1.07vw, 17.1px)', lineHeight: 1, display: 'block' }}>
@@ -2751,7 +2761,7 @@ function CalculadoraInner() {
 
                           {/* Dropdown */}
                           {abierto && (
-                            <div style={{ position: 'absolute' as const, top: 'calc(100% + 4px)', left: 0, minWidth: '210px', background: 'white', borderRadius: '10px', boxShadow: '0 8px 24px rgba(13,36,64,0.18)', border: `1px solid ${BORDE}`, zIndex: 320, overflow: 'hidden' }}>
+                            <div style={{ position: 'fixed' as const, left: menuPos?.left ?? 0, top: menuPos?.top ?? 0, minWidth: '210px', background: 'white', borderRadius: '10px', boxShadow: '0 8px 24px rgba(13,36,64,0.18)', border: `1px solid ${BORDE}`, zIndex: 320, overflow: 'hidden' }}>
                               <div style={{ background: AZUL, padding: '8px 14px' }}>
                                 <span style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: 'white', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                   <i className={`ti ${g.tiIcon}`} style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)' }} /> {g.label}
@@ -2762,7 +2772,7 @@ function CalculadoraInner() {
                                 const esCompletado = tabIdx < tab
                                 return (
                                   <button key={tabIdx}
-                                    onClick={() => { setTab(tabIdx); setMenuAbierto(null) }}
+                                    onClick={() => { setTab(tabIdx); setMenuAbierto(null); setMenuPos(null) }}
                                     style={{ width: '100%', padding: '10px 14px', border: 'none', borderBottom: `1px solid ${BORDE}`, cursor: 'pointer', background: esCurrent ? '#EEF2F8' : 'white', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '10px', textAlign: 'left' as const, transition: 'background 0.1s' }}>
                                     <div style={{ width: '22px', height: '22px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '700', background: esCompletado ? VERDE : esCurrent ? AZUL : '#F1F5F9', color: esCompletado || esCurrent ? 'white' : '#94A3B8' }}>
                                       {esCompletado ? '✓' : si + 1}
@@ -2782,7 +2792,7 @@ function CalculadoraInner() {
                     })}
                   </div>
                   {menuAbierto !== null && (
-                    <div onClick={() => setMenuAbierto(null)} style={{ position: 'fixed' as const, inset: 0, zIndex: 310, background: 'transparent' }} />
+                    <div onClick={() => { setMenuAbierto(null); setMenuPos(null) }} style={{ position: 'fixed' as const, inset: 0, zIndex: 310, background: 'transparent' }} />
                   )}
 
                   {/* Opciones adicionales — regímenes alternativos */}

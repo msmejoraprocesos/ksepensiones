@@ -369,7 +369,7 @@ function MiDiaInner() {
        El punto medio: una barra superior en el color de la métrica. Agrupa
        visualmente sin teñir el contenido ni restar contraste a la cifra. */
     return (
-      <div style={{ background: filled ? color : '#FFFFFF', border: '1px solid #E1E7F0', borderTop: filled ? 'none' : `3px solid ${color}`, padding: 'clamp(9.6px, 1.05vw, 12.3px) clamp(10.8px, 1.08vw, 13.9px)', textAlign: 'center' as const, borderRadius: '12px', boxShadow: filled ? 'none' : '0 1px 3px rgba(19,33,53,0.06)', display: 'flex', flexDirection: 'column' as const, justifyContent: 'center', minHeight: minH }}>
+      <div style={{ background: filled ? color : `${color}0E`, border: `1px solid ${color}2E`, borderTop: filled ? 'none' : `4px solid ${color}`, padding: 'clamp(9.6px, 1.05vw, 12.3px) clamp(10.8px, 1.08vw, 13.9px)', textAlign: 'center' as const, borderRadius: '0 0 12px 12px', boxShadow: filled ? 'none' : '0 1px 3px rgba(19,33,53,0.06)', display: 'flex', flexDirection: 'column' as const, justifyContent: 'center', minHeight: minH }}>
         <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: filled ? 'rgba(255,255,255,0.72)' : '#66738A', fontWeight: 500, marginBottom: '5px', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
         <div style={{ fontSize: 'clamp(12.6px, 1.0vw, 16.2px)', fontWeight: 800, color: filled ? 'white' : color, letterSpacing: '-0.03em', lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' as const }}>{value}</div>
         {sub && <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: filled ? 'rgba(255,255,255,0.7)' : '#66738A', marginTop: '3px' }}>{sub}</div>}

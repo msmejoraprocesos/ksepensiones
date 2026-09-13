@@ -560,7 +560,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* ── MAIN CONTENT ── */}
-        <main style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', background: '#FAFAFA', paddingBottom: isMobile ? '60px' : 0 }}>
+        <main style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', background: '#FAFAFA', paddingBottom: isMobile ? '52px' : 0 }}>
           <ErrorBoundary>
             {children}
           </ErrorBoundary>
