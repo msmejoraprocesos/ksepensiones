@@ -548,6 +548,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               style={{ width: '100%', padding: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', fontSize: '12px', display: isMobile ? 'none' : 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'flex-start', gap: '6px' }}>
               {collapsed ? '→' : '← Colapsar'}
             </button>
+
+            {/* Versión desplegada. Permite distinguir en dos segundos entre
+                "no se subió", "Vercel no desplegó" y "el navegador cachea". */}
+            {!collapsed && (
+              <div style={{ padding: '2px 14px 8px', fontSize: '10px', color: '#C7D0DD', fontFamily: 'ui-monospace, monospace', userSelect: 'all' }}>
+                {process.env.NEXT_PUBLIC_VERSION || 'dev'}
+              </div>
+            )}
           </div>
         </div>
 
