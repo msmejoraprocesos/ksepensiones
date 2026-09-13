@@ -1312,7 +1312,8 @@ function CalculadoraInner() {
   }
 
   async function moverEtapa(clienteId: string, nuevaEtapa: string) {
-    await supabase.from('clientes').update({ etapa_kanban: nuevaEtapa }).eq('id', clienteId)
+    const { error: eEtapa } = await supabase.from('clientes').update({ etapa_kanban: nuevaEtapa }).eq('id', clienteId)
+    if (eEtapa) { avisoError('No se pudo actualizar la etapa del cliente', eEtapa.message); return }
     setClientes(prev => prev.map(c => c.id === clienteId ? { ...c, etapa_kanban: nuevaEtapa } : c))
     setShowSugerirEtapa(false)
     setMensaje(`✅ Cliente movido a ${ETAPA_LABELS[nuevaEtapa]}`)
@@ -1990,7 +1991,7 @@ function CalculadoraInner() {
         if (nuevoEstatus === 'autorizado') {
           const escRec = escenarios.find((e: any) => e.recomendado) ?? escenarios[escenarios.length - 1]
           if (escRec && escRec.aportacion_banco > 0) {
-            await supabase.from('financiamientos').insert({
+            const { error: eFinInsert } = await supabase.from('financiamientos').insert({
               asesor_id: userId,
               cliente_id: clienteId,
               diagnostico_id: data.id,
@@ -2007,6 +2008,7 @@ function CalculadoraInner() {
               umas_registradas: mod40Umas,
               meses_mod40: mod40Meses,
             })
+    if (eFinInsert) { avisoError('No se pudo crear el financiamiento', eFinInsert.message); return }
           }
         }
 

@@ -503,7 +503,8 @@ export default function SeguimientoPage() {
                     {comentarioDetalle !== (detalle.comentario ?? '') && (
                       <button onClick={async () => {
                         setSavingComentario(true)
-                        await supabase.from('actividades').update({ comentario: comentarioDetalle }).eq('id', detalle.id)
+                        const { error: eCom } = await supabase.from('actividades').update({ comentario: comentarioDetalle }).eq('id', detalle.id)
+    if (eCom) { avisoError('No se pudo guardar el comentario', eCom.message); return }
                         setActividades(prev => prev.map(a => a.id === detalle.id ? { ...a, comentario: comentarioDetalle } : a))
                         setDetalle(d => d ? { ...d, comentario: comentarioDetalle } : d)
                         setSavingComentario(false)

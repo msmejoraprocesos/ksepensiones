@@ -6,6 +6,7 @@ import RegistrarPago from './RegistrarPago'
 import Acuerdos from './Acuerdos'
 import { TablaSkeleton } from '@/components/Skeleton'
 import { K, nw, num, tarjeta, botonPrimario, franja, halo } from '@/lib/design-tokens'
+import { avisoError } from '@/app/utils/avisos'
 import {
   cotizar, normalizarTramos, validarTramos, TRAMOS_DEFAULT,
   evaluarCobranza, type TramoPrecio, type EstadoCartera,
@@ -307,7 +308,8 @@ export default function CarteraPage() {
                 No, dejar activa
               </button>
               <button onClick={async () => {
-                await supabase.from('organizaciones').update({ activo: false }).eq('id', suspendiendo.id)
+                const { error: eSusp } = await supabase.from('organizaciones').update({ activo: false }).eq('id', suspendiendo.id)
+    if (eSusp) { avisoError('No se pudo suspender la organización', eSusp.message); return }
                 setSuspendiendo(null); cargar()
               }}
                 style={{ padding: '13px 20px', borderRadius: 10, border: 'none', background: K.red, color: 'white', fontSize: 17, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>

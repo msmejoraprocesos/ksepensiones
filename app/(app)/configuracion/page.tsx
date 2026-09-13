@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import PDFConfigurador from '@/components/PDFConfigurador'
 import { PDF_CONFIG_DEFAULT, mergePDFConfig } from '@/app/utils/pdf-config'
 import type { PDFConfig } from '@/app/utils/pdf-config'
+import { avisoError } from '@/app/utils/avisos'
 
 const AZUL = '#245287'
 const VERDE = '#2E8B57'
@@ -145,7 +146,8 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
         { nombre: 'Comprobante de domicilio', descripcion: 'No mayor a 3 meses' },
         { nombre: 'Saldo AFORE mínimo verificado', descripcion: 'SAR 92, Retiro 97, Infonavit — mínimo $150,000 MXN' },
       ].map((d, i) => ({ asesor_id: userId, nombre: d.nombre, descripcion: d.descripcion, orden: i, activo: true }))
-      const { data: inserted } = await supabase.from('documentos_catalogo').insert(inserts).select()
+      const { data: inserted, error: eDocCat } = await supabase.from('documentos_catalogo').insert(inserts).select()
+    if (eDocCat) { avisoError('No se pudo crear el documento del catálogo', eDocCat.message); return }
       docsFinales = inserted ?? []
     }
     setCatalogo(docsFinales)
@@ -213,7 +215,8 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
         activa: true,
       }
       if (showNueva || !finId) {
-        const { data } = await supabase.from('instituciones_financieras').insert(payload).select().single()
+        const { data, error: eInsFin } = await supabase.from('instituciones_financieras').insert(payload).select().single()
+    if (eInsFin) { avisoError('No se pudo crear la institución', eInsFin.message); return }
         if (data) {
           finId = data.id
           setFinActiva(data.id)
@@ -222,7 +225,8 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
         }
         setShowNueva(false)
       } else {
-        await supabase.from('instituciones_financieras').update(payload).eq('id', finId)
+        const { error: eUpdFin } = await supabase.from('instituciones_financieras').update(payload).eq('id', finId)
+    if (eUpdFin) { avisoError('No se pudieron guardar los cambios de la institución', eUpdFin.message); return }
         // Actualizar local
         setFinancieras(prev => prev.map(f => f.id === finId ? { ...f, ...payload } : f))
       }
@@ -256,7 +260,8 @@ function FinancierasElegibilidad({ userId, supabase }: { userId: string; supabas
   }
 
   async function toggleActiva(f: any) {
-    await supabase.from('instituciones_financieras').update({ activa: !f.activa }).eq('id', f.id)
+    const { error: eTogFin } = await supabase.from('instituciones_financieras').update({ activa: !f.activa }).eq('id', f.id)
+    if (eTogFin) { avisoError('No se pudo cambiar el estado de la institución', eTogFin.message); return }
     setFinancieras(prev => prev.map(fin => fin.id === f.id ? { ...fin, activa: !f.activa } : fin))
   }
 

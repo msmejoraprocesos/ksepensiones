@@ -319,7 +319,8 @@ function FinanciamientoPage() {
 
   async function guardarInstitucion() {
     setGuardandoInst(true)
-    await supabase.from('instituciones_financieras').insert({ asesor_id: userId, ...formInst, notas: formInst.notas || null })
+    const { error: eNuevaInst } = await supabase.from('instituciones_financieras').insert({ asesor_id: userId, ...formInst, notas: formInst.notas || null })
+    if (eNuevaInst) { avisoError('No se pudo crear la institución', eNuevaInst.message); return }
     await loadInstituciones(userId)
     setShowNuevaInst(false)
     setFormInst({ nombre: '', tasa_anual: 32.2, plazo_max_meses: 60, tipo: 'banco', notas: '' })

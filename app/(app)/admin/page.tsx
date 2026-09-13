@@ -100,7 +100,8 @@ function AdminFormulasInner() {
 
   async function guardarOrganizacion() {
     setGuardandoOrg(true)
-    await supabase.from('organizaciones').insert({ nombre: formOrg.nombre, plan: formOrg.plan, asientos: formOrg.asientos, fecha_vencimiento: formOrg.fecha_vencimiento || null })
+    const { error: eOrg } = await supabase.from('organizaciones').insert({ nombre: formOrg.nombre, plan: formOrg.plan, asientos: formOrg.asientos, fecha_vencimiento: formOrg.fecha_vencimiento || null })
+    if (eOrg) { avisoError('No se pudo crear la organización', eOrg.message); setGuardandoOrg(false); return }
     await cargarEquipo()
     setShowNuevaOrg(false)
     setFormOrg({ nombre: '', plan: 'individual', asientos: 1, fecha_vencimiento: '' })
@@ -108,18 +109,26 @@ function AdminFormulasInner() {
   }
 
   async function asignarOrganizacion(asesorId: string, orgId: string | null) {
-    await supabase.from('perfiles_usuario').update({ organizacion_id: orgId || null }).eq('id', asesorId)
+    /* Mover un asesor de organización consume un asiento de la destino. Si
+       falla y nadie avisa, el asesor queda donde estaba mientras el selector
+       muestra la nueva. */
+    const { error } = await supabase.from('perfiles_usuario').update({ organizacion_id: orgId || null }).eq('id', asesorId)
+    if (error) { avisoError('No se pudo cambiar la organización del asesor', error.message); return }
     await cargarEquipo()
   }
 
   async function toggleOrgActivo(orgId: string, activo: boolean) {
-    await supabase.from('organizaciones').update({ activo: !activo }).eq('id', orgId)
+    /* Suspender corta el acceso de todos los usuarios de la organización.
+       Confirmar antes, porque el interruptor está junto a otros controles. */
+    if (activo && !window.confirm('¿Suspender esta organización? Todos sus usuarios perderán el acceso de inmediato.')) return
+    const { error } = await supabase.from('organizaciones').update({ activo: !activo }).eq('id', orgId)
+    if (error) { avisoError('No se pudo cambiar el estado de la organización', error.message); return }
     await cargarEquipo()
   }
 
   async function guardarPago() {
     setGuardandoPago(true)
-    await supabase.from('pagos_suscripcion').insert({
+    const { error: ePago } = await supabase.from('pagos_suscripcion').insert({
       organizacion_id: pagoOrgId,
       monto: formPago.monto,
       concepto: formPago.concepto,
@@ -129,6 +138,7 @@ function AdminFormulasInner() {
       notas: formPago.notas || null,
       estatus: 'pendiente',
     })
+    if (ePago) { avisoError('No se pudo registrar el pago', ePago.message); setGuardandoPago(false); return }
     setShowPago(false)
     setFormPago({ monto: 0, concepto: 'Suscripción mensual', periodo_inicio: '', periodo_fin: '', metodo_pago: '', notas: '' })
     setGuardandoPago(false)
