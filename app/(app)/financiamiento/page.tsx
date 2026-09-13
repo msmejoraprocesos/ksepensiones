@@ -20,7 +20,7 @@ const ESTATUS_COLORS: Record<string, { bg: string; color: string; label: string 
 
 function Badge({ estatus }: { estatus: string }) {
   const c = ESTATUS_COLORS[estatus] ?? { bg: '#F4F6F9', color: '#66738A', label: estatus }
-  return <span style={{ padding: '2px 8px', background: c.bg, color: c.color, fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 700, border: `1px solid ${c.color}30` }}>{c.label}</span>
+  return <span style={{ padding: '2px 8px', background: c.bg, color: c.color, fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: 700, border: `1px solid ${c.color}30` }}>{c.label}</span>
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -108,20 +108,20 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
     <div style={{ background: 'white', border: '1px solid #E1E7F0', borderRadius: '14px', overflow: 'hidden' }}>
 
       {/* Header */}
-      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)', background: '#EEF2F8', borderBottom: '1px solid #D1D5DB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ padding: 'clamp(9.6px, 1.05vw, 12.3px) clamp(10.8px, 1.08vw, 13.9px)', background: '#EEF2F8', borderBottom: '1px solid #D1D5DB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: 700, color: AZUL, margin: '0 0 4px' }}>📁 Expediente de documentos</p>
+          <p style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: 700, color: AZUL, margin: '0 0 4px' }}>📁 Expediente de documentos</p>
           {docsRequeridos.length > 0 ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{ background: '#D1D5DB', height: '8px', width: '160px', borderRadius: '4px', overflow: 'hidden' }}>
                 <div style={{ width: `${pctCompleto}%`, height: '100%', background: pctCompleto === 100 ? VERDE : AZUL, transition: 'width 0.4s' }} />
               </div>
-              <span style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#374151', fontWeight: '600' }}>
+              <span style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#374151', fontWeight: '600' }}>
                 {pctCompleto}% · {docs.filter((d: any) => ['recibido','verificado'].includes(d.estatus)).length}/{docsRequeridos.length} docs entregados
               </span>
             </div>
           ) : (
-            <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#66738A', margin: 0 }}>{docs.length} documento{docs.length !== 1 ? 's' : ''} en el expediente</p>
+            <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#66738A', margin: 0 }}>{docs.length} documento{docs.length !== 1 ? 's' : ''} en el expediente</p>
           )}
         </div>
         <button onClick={() => { setShowEnvio(true); setMsgEnvio('') }}
@@ -133,13 +133,13 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
       {/* Documentos faltantes requeridos */}
       {faltantes.length > 0 && (
         <div style={{ padding: '9px 16px', background: '#FFFBEB', borderBottom: '1px solid #FDE68A' }}>
-          <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#92400E', margin: '0 0 8px' }}>
+          <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: '#92400E', margin: '0 0 8px' }}>
             ⚠️ {faltantes.length} documento{faltantes.length !== 1 ? 's' : ''} requerido{faltantes.length !== 1 ? 's' : ''} por {institucionNombre} sin agregar:
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
             {faltantes.map((r: any) => (
               <button key={r.documento_id} onClick={() => agregarDocumento(r.documento_id, r.documentos_catalogo?.nombre || '')}
-                style={{ padding: '5px 12px', background: 'white', color: '#92400E', border: '1px solid #FCD34D', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
+                style={{ padding: '5px 12px', background: 'white', color: '#92400E', border: '1px solid #FCD34D', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                 + {r.documentos_catalogo?.nombre || '—'}
               </button>
             ))}
@@ -150,8 +150,8 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
       {/* Lista de documentos como cards */}
       <div style={{ padding: '14px 20px', display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
         {docs.length === 0 ? (
-          <div style={{ padding: 'clamp(11.4px, 1.32vw, 15.8px)', textAlign: 'center' as const, background: '#F5F7FA', borderRadius: '10px', border: '1px dashed #D1D5DB' }}>
-            <p style={{ fontSize: 'clamp(14.0px, 1.21vw, 19.4px)', margin: '0 0 6px' }}>📂</p>
+          <div style={{ padding: 'clamp(10.8px, 1.16vw, 13.9px)', textAlign: 'center' as const, background: '#F5F7FA', borderRadius: '10px', border: '1px dashed #D1D5DB' }}>
+            <p style={{ fontSize: 'clamp(13.3px, 1.07vw, 17.1px)', margin: '0 0 6px' }}>📂</p>
             <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A', margin: 0 }}>Sin documentos en el expediente</p>
           </div>
         ) : (
@@ -159,17 +159,17 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
             const est = ESTATUS[d.estatus] ?? ESTATUS.pendiente
             return (
               <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', background: '#F5F7FA', border: `1px solid ${est.color}33`, borderLeft: `3px solid ${est.color}`, borderRadius: '10px' }}>
-                <span style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', flexShrink: 0 }}>📄</span>
+                <span style={{ fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', flexShrink: 0 }}>📄</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700', color: '#111827', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>
                     {d.documentos_catalogo?.nombre || d.nombre_archivo}
                   </p>
-                  <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#66738A', margin: 0 }}>
+                  <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#66738A', margin: 0 }}>
                     {d.updated_at ? `Actualizado: ${new Date(d.updated_at).toLocaleDateString('es-MX')}` : 'Sin actualizar'}
                   </p>
                 </div>
                 <select value={d.estatus} onChange={e => actualizarEstatus(d.id, e.target.value)}
-                  style={{ padding: '5px 10px', border: `1.5px solid ${est.color}`, background: est.bg, color: est.color, fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', flexShrink: 0 }}>
+                  style={{ padding: '5px 10px', border: `1.5px solid ${est.color}`, background: est.bg, color: est.color, fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', flexShrink: 0 }}>
                   {Object.entries(ESTATUS).map(([v, { label }]) => <option key={v} value={v}>{label}</option>)}
                 </select>
                 <button onClick={async () => {
@@ -177,7 +177,7 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
                   await supabase.from('documentos_cliente').delete().eq('id', d.id)
                   const { data } = await supabase.from('documentos_cliente').select('*, documentos_catalogo(nombre)').eq('cliente_id', clienteId).eq('asesor_id', userId)
                   setDocs(data ?? [])
-                }} style={{ padding: '5px 10px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', flexShrink: 0 }}>
+                }} style={{ padding: '5px 10px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', flexShrink: 0 }}>
                   Quitar
                 </button>
               </div>
@@ -188,10 +188,10 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
         {/* Agregar documentos del catálogo */}
         {catalogo.filter((c: any) => !docs.find((d: any) => d.documento_id === c.id)).length > 0 && (
           <div style={{ paddingTop: '8px', borderTop: '1px solid #F3F4F6', display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
-            <span style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#66738A', alignSelf: 'center', flexShrink: 0 }}>Agregar:</span>
+            <span style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#66738A', alignSelf: 'center', flexShrink: 0 }}>Agregar:</span>
             {catalogo.filter((c: any) => !docs.find((d: any) => d.documento_id === c.id)).map((c: any) => (
               <button key={c.id} onClick={() => agregarDocumento(c.id, c.nombre)}
-                style={{ padding: '4px 10px', background: '#EEF2F8', color: AZUL, border: `1px solid ${AZUL}`, fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
+                style={{ padding: '4px 10px', background: '#EEF2F8', color: AZUL, border: `1px solid ${AZUL}`, fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                 + {c.nombre}
               </button>
             ))}
@@ -205,24 +205,24 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
           <div style={{ background: 'white', width: '100%', maxWidth: 'min(480px, 88vw)', maxHeight: '88vh', overflowY: 'auto', borderRadius: '14px', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
             <div style={{ background: AZUL, padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: 'white', margin: 0 }}>📧 Enviar expediente</p>
-                <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: 'rgba(255,255,255,0.65)', margin: '2px 0 0' }}>{clienteNombre} → {institucionNombre}</p>
+                <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: 'white', margin: 0 }}>📧 Enviar expediente</p>
+                <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: 'rgba(255,255,255,0.65)', margin: '2px 0 0' }}>{clienteNombre} → {institucionNombre}</p>
               </div>
-              <button onClick={() => setShowEnvio(false)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', padding: '4px 8px', borderRadius: '10px' }}>✕</button>
+              <button onClick={() => setShowEnvio(false)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', cursor: 'pointer', fontSize: 'clamp(10.8px, 0.86vw, 13.9px)', padding: '4px 8px', borderRadius: '10px' }}>✕</button>
             </div>
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '14px' }}>
               <div style={{ background: '#F5F7FA', borderRadius: '10px', padding: '14px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '8px' }}>
                 <div>
                   <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A', margin: '0 0 2px', fontWeight: '600' }}>Total documentos</p>
-                  <p style={{ fontSize: 'clamp(14.5px, 1.27vw, 20.2px)', fontWeight: 700, color: AZUL, margin: 0 }}>{docs.length}</p>
+                  <p style={{ fontSize: 'clamp(12.6px, 1.02vw, 16.2px)', fontWeight: 700, color: AZUL, margin: 0 }}>{docs.length}</p>
                 </div>
                 <div>
                   <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A', margin: '0 0 2px', fontWeight: '600' }}>Recibidos/verificados</p>
-                  <p style={{ fontSize: 'clamp(14.5px, 1.27vw, 20.2px)', fontWeight: 700, color: VERDE, margin: 0 }}>{docs.filter((d: any) => ['recibido','verificado'].includes(d.estatus)).length}</p>
+                  <p style={{ fontSize: 'clamp(12.6px, 1.02vw, 16.2px)', fontWeight: 700, color: VERDE, margin: 0 }}>{docs.filter((d: any) => ['recibido','verificado'].includes(d.estatus)).length}</p>
                 </div>
               </div>
               <div>
-                <label style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', display: 'block', marginBottom: '6px' }}>Email del ejecutivo de la financiera *</label>
+                <label style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: '#374151', display: 'block', marginBottom: '6px' }}>Email del ejecutivo de la financiera *</label>
                 <input type="email" value={emailDestino} onChange={e => setEmailDestino(e.target.value)}
                   placeholder="ejecutivo@financiera.com"
                   style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #D1D5DB', fontSize: 'clamp(11px, 0.78vw, 12.5px)', boxSizing: 'border-box' as const, fontFamily: 'inherit', borderRadius: '10px', outline: 'none' }} />
@@ -346,7 +346,7 @@ function FinanciamientoPage() {
   const finFiltrados = filtroEstatus === 'todos' ? financiamientos : financiamientos.filter((f: any) => f.estatus === filtroEstatus)
 
   if (loading) return (
-    <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)' }}>
+    <div style={{ padding: 'clamp(9.6px, 1.05vw, 12.3px) clamp(10.8px, 1.08vw, 13.9px)' }}>
       <TarjetasSkeleton n={4} />
       <div style={{ marginTop: 14, background: 'white', border: '1px solid #E1E7F0', borderRadius: 14, overflow: 'hidden' }}>
         <TablaSkeleton filas={6} columnas={5} />
@@ -358,19 +358,19 @@ function FinanciamientoPage() {
     <div style={{ minHeight: '100vh', background: '#F4F6F9' }}>
       <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #E5E7EB', padding: '12px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 'clamp(14.5px, 1.27vw, 20.2px)', fontWeight: 700, color: AZUL, margin: 0 }}>Financiamiento</h1>
-          <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#66738A', margin: 0 }}>Créditos autorizados · Seguimiento · Instituciones</p>
+          <h1 style={{ fontSize: 'clamp(12.6px, 1.02vw, 16.2px)', fontWeight: 700, color: AZUL, margin: 0 }}>Financiamiento</h1>
+          <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#66738A', margin: 0 }}>Créditos autorizados · Seguimiento · Instituciones</p>
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>
           {(['lista', 'instituciones', 'corrida'] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)} style={{ padding: '6px 14px', background: tab === t ? AZUL : '#F4F6F9', color: tab === t ? 'white' : '#6B7280', border: `1px solid ${tab === t ? AZUL : '#E1E7F0'}`, fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: (tab === t ? '700' : '400'), cursor: 'pointer', fontFamily: 'inherit' }}>
+            <button key={t} onClick={() => setTab(t)} style={{ padding: '6px 14px', background: tab === t ? AZUL : '#F4F6F9', color: tab === t ? 'white' : '#6B7280', border: `1px solid ${tab === t ? AZUL : '#E1E7F0'}`, fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: (tab === t ? '700' : '400'), cursor: 'pointer', fontFamily: 'inherit' }}>
               {t === 'lista' ? '📋 Financiamientos' : t === 'instituciones' ? '🏦 Instituciones' : '🧮 Corrida'}
             </button>
           ))}
         </div>
       </div>
 
-      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)' }}>
+      <div style={{ padding: 'clamp(9.6px, 1.05vw, 12.3px) clamp(10.8px, 1.08vw, 13.9px)' }}>
         {/* KPIs */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '12px', marginBottom: '20px' }}>
           {[
@@ -381,7 +381,7 @@ function FinanciamientoPage() {
           ].map((k, i) => (
             <div key={i} style={{ background: 'white', border: '1px solid #E1E7F0', borderLeft: `3px solid ${k.color}`, padding: '12px 16px' }}>
               <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A', marginBottom: '4px' }}>{k.label}</div>
-              <div style={{ fontSize: 'clamp(14.5px, 1.27vw, 20.2px)', fontWeight: 700, color: k.color }}>{k.value}</div>
+              <div style={{ fontSize: 'clamp(12.6px, 1.02vw, 16.2px)', fontWeight: 700, color: k.color }}>{k.value}</div>
             </div>
           ))}
         </div>
@@ -391,16 +391,16 @@ function FinanciamientoPage() {
           <div>
             <div style={{ display: 'flex', gap: '6px', marginBottom: '14px' }}>
               {['todos', 'pendiente', 'activo', 'liquidado', 'cancelado'].map(e => (
-                <button key={e} onClick={() => setFiltroEstatus(e)} style={{ padding: '5px 12px', background: filtroEstatus === e ? AZUL : 'white', color: filtroEstatus === e ? 'white' : '#6B7280', border: `1px solid ${filtroEstatus === e ? AZUL : '#E1E7F0'}`, fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: (filtroEstatus === e ? '700' : '400'), cursor: 'pointer', fontFamily: 'inherit', textTransform: 'capitalize' }}>
+                <button key={e} onClick={() => setFiltroEstatus(e)} style={{ padding: '5px 12px', background: filtroEstatus === e ? AZUL : 'white', color: filtroEstatus === e ? 'white' : '#6B7280', border: `1px solid ${filtroEstatus === e ? AZUL : '#E1E7F0'}`, fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: (filtroEstatus === e ? '700' : '400'), cursor: 'pointer', fontFamily: 'inherit', textTransform: 'capitalize' }}>
                   {e === 'todos' ? `Todos (${financiamientos.length})` : `${ESTATUS_COLORS[e]?.label} (${financiamientos.filter((f: any) => f.estatus === e).length})`}
                 </button>
               ))}
             </div>
             {finFiltrados.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '30px 18px', color: '#66738A', background: 'white', border: '1px solid #E1E7F0' }}>
-                <div style={{ fontSize: 'clamp(18.0px, 1.56vw, 25.0px)', marginBottom: '12px' }}>💳</div>
+                <div style={{ fontSize: 'clamp(15.6px, 1.25vw, 20.0px)', marginBottom: '12px' }}>💳</div>
                 <p style={{ margin: 0 }}>No hay financiamientos registrados.</p>
-                <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', margin: '6px 0 0' }}>Se crean automáticamente al autorizar un diagnóstico con financiamiento desde la Calculadora.</p>
+                <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', margin: '6px 0 0' }}>Se crean automáticamente al autorizar un diagnóstico con financiamiento desde la Calculadora.</p>
               </div>
             ) : (
               <div style={{ background: 'white', border: '1px solid #E1E7F0' }}>
@@ -414,7 +414,7 @@ function FinanciamientoPage() {
                     {finFiltrados.map((f: any, i: number) => (
                       <tr key={f.id} style={{ borderBottom: '1px solid #F3F4F6', background: i % 2 === 0 ? 'white' : '#FAFAFA', cursor: 'pointer' }} onClick={() => openDetalle(f)}>
                         <td style={{ padding: '10px 12px', fontWeight: '600', color: '#111827' }}>{f.cliente_nombre}</td>
-                        <td style={{ padding: '10px 12px', color: '#66738A', fontSize: 'clamp(12px, 0.90vw, 14px)' }}>{f.institucion_nombre}</td>
+                        <td style={{ padding: '10px 12px', color: '#66738A', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)' }}>{f.institucion_nombre}</td>
                         <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '700', color: AZUL }}>{fmtMXN(f.monto_total)}</td>
                         <td style={{ padding: '10px 12px', textAlign: 'right', color: '#374151' }}>{fmtMXN2(f.cuota_mensual)}</td>
                         <td style={{ padding: '10px 12px', textAlign: 'right', color: '#374151' }}>{f.plazo_meses} meses</td>
@@ -422,7 +422,7 @@ function FinanciamientoPage() {
                           {f.comision_monto > 0 ? <span style={{ color: f.comision_cobrada ? VERDE : '#DC2626', fontWeight: '700' }}>{fmtMXN(f.comision_monto)} {f.comision_cobrada ? '✓' : '⏳'}</span> : <span style={{ color: '#66738A' }}>—</span>}
                         </td>
                         <td style={{ padding: '10px 12px', textAlign: 'right' }}><Badge estatus={f.estatus} /></td>
-                        <td style={{ padding: '10px 12px', textAlign: 'right' }}><span style={{ color: AZUL, fontSize: 'clamp(12px, 0.90vw, 14px)' }}>Ver →</span></td>
+                        <td style={{ padding: '10px 12px', textAlign: 'right' }}><span style={{ color: AZUL, fontSize: 'clamp(9.6px, 0.79vw, 12.3px)' }}>Ver →</span></td>
                       </tr>
                     ))}
                   </tbody>
@@ -438,12 +438,12 @@ function FinanciamientoPage() {
             <button onClick={() => setTab('lista')} style={{ alignSelf: 'flex-start', background: 'none', border: 'none', color: AZUL, cursor: 'pointer', fontSize: 'clamp(11px, 0.78vw, 12.5px)', padding: 0 }}>← Volver</button>
             <div style={{ background: 'white', border: '1px solid #E1E7F0', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: '#111827', margin: '0 0 4px' }}>{selFin.cliente_nombre}</p>
-                <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#66738A', margin: 0 }}>{selFin.institucion_nombre} · {selFin.tasa_anual}% anual · {selFin.plazo_meses} meses</p>
+                <p style={{ fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', fontWeight: 700, color: '#111827', margin: '0 0 4px' }}>{selFin.cliente_nombre}</p>
+                <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#66738A', margin: 0 }}>{selFin.institucion_nombre} · {selFin.tasa_anual}% anual · {selFin.plazo_meses} meses</p>
               </div>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <Badge estatus={selFin.estatus} />
-                <select value={selFin.estatus} onChange={e => cambiarEstatus(selFin.id, e.target.value)} style={{ padding: '6px 10px', border: '1px solid #E1E7F0', fontSize: 'clamp(12px, 0.90vw, 14px)', cursor: 'pointer', fontFamily: 'inherit', background: 'white' }}>
+                <select value={selFin.estatus} onChange={e => cambiarEstatus(selFin.id, e.target.value)} style={{ padding: '6px 10px', border: '1px solid #E1E7F0', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', cursor: 'pointer', fontFamily: 'inherit', background: 'white' }}>
                   {['pendiente', 'activo', 'liquidado', 'cancelado'].map(s => <option key={s} value={s}>{ESTATUS_COLORS[s]?.label}</option>)}
                 </select>
               </div>
@@ -457,18 +457,18 @@ function FinanciamientoPage() {
               ].map((k, i) => (
                 <div key={i} style={{ background: 'white', border: '1px solid #E1E7F0', borderLeft: `3px solid ${k.color}`, padding: '10px 14px' }}>
                   <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A', marginBottom: '3px' }}>{k.label}</div>
-                  <div style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: k.color }}>{k.value}</div>
+                  <div style={{ fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', fontWeight: 700, color: k.color }}>{k.value}</div>
                 </div>
               ))}
             </div>
             {selFin.comision_monto > 0 && (
               <div style={{ background: 'white', border: '1px solid #E1E7F0', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', margin: '0 0 2px' }}>Comisión: {fmtMXN(selFin.comision_monto)} ({selFin.comision_pct}%)</p>
-                  <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#66738A', margin: 0 }}>{selFin.comision_cobrada ? 'Cobrada' : 'Pendiente de cobro'}</p>
+                  <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: '#374151', margin: '0 0 2px' }}>Comisión: {fmtMXN(selFin.comision_monto)} ({selFin.comision_pct}%)</p>
+                  <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#66738A', margin: 0 }}>{selFin.comision_cobrada ? 'Cobrada' : 'Pendiente de cobro'}</p>
                 </div>
                 <button onClick={async () => { await supabase.from('financiamientos').update({ comision_cobrada: !selFin.comision_cobrada }).eq('id', selFin.id); setSelFin({ ...selFin, comision_cobrada: !selFin.comision_cobrada }); await loadFinanciamientos(userId) }}
-                  style={{ padding: '7px 14px', background: selFin.comision_cobrada ? '#FEF2F2' : '#F0FDF4', color: selFin.comision_cobrada ? '#DC2626' : VERDE, border: `1px solid ${selFin.comision_cobrada ? '#FCA5A5' : '#86EFAC'}`, fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ padding: '7px 14px', background: selFin.comision_cobrada ? '#FEF2F2' : '#F0FDF4', color: selFin.comision_cobrada ? '#DC2626' : VERDE, border: `1px solid ${selFin.comision_cobrada ? '#FCA5A5' : '#86EFAC'}`, fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
                   {selFin.comision_cobrada ? 'Marcar pendiente' : '✓ Marcar como cobrada'}
                 </button>
               </div>
@@ -477,9 +477,9 @@ function FinanciamientoPage() {
               <div style={{ background: 'white', border: '1px solid #E1E7F0' }}>
                 <div style={{ padding: '12px 16px', borderBottom: '1px solid #E5E7EB', display: 'flex', justifyContent: 'space-between' }}>
                   <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700', color: '#374151', margin: 0 }}>Tabla de pagos</p>
-                  <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#66738A', margin: 0 }}>{pagos.filter((p: any) => p.estatus === 'pagado').length} de {pagos.length} pagados</p>
+                  <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#66738A', margin: 0 }}>{pagos.filter((p: any) => p.estatus === 'pagado').length} de {pagos.length} pagados</p>
                 </div>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'clamp(12px, 0.90vw, 14px)' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)' }}>
                   <thead><tr style={{ background: '#F5F7FA' }}>{['#', 'Fecha prog.', 'Fecha real', 'Monto', 'Estatus', ''].map((h, i) => <th key={i} style={{ padding: '7px 10px', textAlign: (i > 1 ? 'right' : 'left'), fontWeight: '700', color: '#66738A', borderBottom: '1px solid #E5E7EB' }}>{h}</th>)}</tr></thead>
                   <tbody>
                     {pagos.map((p: any) => (
@@ -520,11 +520,11 @@ function FinanciamientoPage() {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A', margin: 0 }}>Tus convenios con instituciones. Aparecen como opciones al registrar un financiamiento desde la Calculadora.</p>
-              <button onClick={() => setShowNuevaInst(true)} style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>+ Nueva institución</button>
+              <button onClick={() => setShowNuevaInst(true)} style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>+ Nueva institución</button>
             </div>
             {instituciones.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '30px 18px', color: '#66738A', background: 'white', border: '1px solid #E1E7F0' }}>
-                <div style={{ fontSize: 'clamp(18.0px, 1.56vw, 25.0px)', marginBottom: '12px' }}>🏦</div>
+                <div style={{ fontSize: 'clamp(15.6px, 1.25vw, 20.0px)', marginBottom: '12px' }}>🏦</div>
                 <p style={{ margin: 0 }}>Aún no tienes instituciones configuradas.</p>
               </div>
             ) : (
@@ -535,12 +535,12 @@ function FinanciamientoPage() {
                     {instituciones.map((inst: any, i: number) => (
                       <tr key={inst.id} style={{ borderBottom: '1px solid #F3F4F6', background: i % 2 === 0 ? 'white' : '#FAFAFA' }}>
                         <td style={{ padding: '10px 12px', fontWeight: '600', color: '#111827' }}>{inst.nombre}</td>
-                        <td style={{ padding: '10px 12px', color: '#66738A', fontSize: 'clamp(12px, 0.90vw, 14px)' }}>{inst.tipo === 'banco' ? 'Banco / Financiera' : 'Directo'}</td>
+                        <td style={{ padding: '10px 12px', color: '#66738A', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)' }}>{inst.tipo === 'banco' ? 'Banco / Financiera' : 'Directo'}</td>
                         <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: '700', color: NARANJA }}>{inst.tasa_anual}%</td>
                         <td style={{ padding: '10px 12px', textAlign: 'right', color: '#374151' }}>{inst.plazo_max_meses} meses</td>
-                        <td style={{ padding: '10px 12px', textAlign: 'right' }}><span style={{ padding: '2px 8px', background: inst.activo ? '#F0FDF4' : '#F3F4F6', color: inst.activo ? VERDE : '#9CA3AF', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 700 }}>{inst.activo ? 'Activa' : 'Inactiva'}</span></td>
+                        <td style={{ padding: '10px 12px', textAlign: 'right' }}><span style={{ padding: '2px 8px', background: inst.activo ? '#F0FDF4' : '#F3F4F6', color: inst.activo ? VERDE : '#9CA3AF', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: 700 }}>{inst.activo ? 'Activa' : 'Inactiva'}</span></td>
                         <td style={{ padding: '10px 12px', textAlign: 'right' }}>
-                          <button onClick={async () => { if (!window.confirm(`¿Eliminar la institución "${inst.nombre}"? Los financiamientos que la referencien quedarán sin institución.`)) return; await supabase.from('instituciones_financieras').delete().eq('id', inst.id); await loadInstituciones(userId) }} style={{ padding: '4px 10px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FCA5A5', fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>Eliminar</button>
+                          <button onClick={async () => { if (!window.confirm(`¿Eliminar la institución "${inst.nombre}"? Los financiamientos que la referencien quedarán sin institución.`)) return; await supabase.from('instituciones_financieras').delete().eq('id', inst.id); await loadInstituciones(userId) }} style={{ padding: '4px 10px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FCA5A5', fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>Eliminar</button>
                         </td>
                       </tr>
                     ))}
@@ -551,16 +551,16 @@ function FinanciamientoPage() {
             {showNuevaInst && (
               <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
                 <div style={{ background: 'white', width: '100%', maxWidth: 'min(420px, 88vw)', maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', borderRadius: '14px', overflow: 'hidden' }}>
-                  <div style={{ background: AZUL, padding: '14px 20px' }}><p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700', color: 'white', margin: 0 }}>+ Nueva institución</p></div>
+                  <div style={{ background: AZUL, padding: '14px 20px' }}><p style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '700', color: 'white', margin: 0 }}>+ Nueva institución</p></div>
                   <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {[{ label: 'Nombre', key: 'nombre', type: 'text', placeholder: 'Ej. HSBC, Caja Popular...' }, { label: 'Tasa anual (%)', key: 'tasa_anual', type: 'number', placeholder: '32.2' }, { label: 'Plazo máximo (meses)', key: 'plazo_max_meses', type: 'number', placeholder: '60' }].map(f => (
                       <div key={f.key}>
-                        <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600', color: '#66738A', display: 'block', marginBottom: '4px' }}>{f.label}</label>
+                        <label style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '600', color: '#66738A', display: 'block', marginBottom: '4px' }}>{f.label}</label>
                         <input type={f.type} placeholder={f.placeholder} value={(formInst as any)[f.key]} onChange={e => setFormInst(prev => ({ ...prev, [f.key]: f.type === 'number' ? parseFloat(e.target.value) || 0 : e.target.value }))} style={{ width: '100%', padding: '8px 10px', border: '1px solid #E1E7F0', fontSize: 'clamp(11px, 0.78vw, 12.5px)', boxSizing: 'border-box', fontFamily: 'inherit' }} />
                       </div>
                     ))}
                     <div>
-                      <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600', color: '#66738A', display: 'block', marginBottom: '4px' }}>Tipo</label>
+                      <label style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '600', color: '#66738A', display: 'block', marginBottom: '4px' }}>Tipo</label>
                       <select value={formInst.tipo} onChange={e => setFormInst(prev => ({ ...prev, tipo: e.target.value }))} style={{ width: '100%', padding: '8px 10px', border: '1px solid #E1E7F0', fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontFamily: 'inherit', background: 'white' }}>
                         <option value="banco">Banco / Financiera</option>
                         <option value="directo">Financiamiento directo (yo)</option>
@@ -586,22 +586,22 @@ function FinanciamientoPage() {
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700', color: '#374151', margin: '0 0 16px' }}>⚙️ Parámetros</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div>
-                  <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600', color: '#66738A', display: 'block', marginBottom: '4px' }}>Institución (opcional)</label>
-                  <select value={corrInstId} onChange={e => { setCorrInstId(e.target.value); const inst = instituciones.find((i: any) => i.id === e.target.value); if (inst) { setCorrTasa(inst.tasa_anual) } }} style={{ width: '100%', padding: '8px 10px', border: '1px solid #E1E7F0', fontSize: 'clamp(12px, 0.90vw, 14px)', fontFamily: 'inherit', background: 'white' }}>
+                  <label style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '600', color: '#66738A', display: 'block', marginBottom: '4px' }}>Institución (opcional)</label>
+                  <select value={corrInstId} onChange={e => { setCorrInstId(e.target.value); const inst = instituciones.find((i: any) => i.id === e.target.value); if (inst) { setCorrTasa(inst.tasa_anual) } }} style={{ width: '100%', padding: '8px 10px', border: '1px solid #E1E7F0', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontFamily: 'inherit', background: 'white' }}>
                     <option value="">— Manual —</option>
                     {instituciones.filter((i: any) => i.activo).map((i: any) => <option key={i.id} value={i.id}>{i.nombre} ({i.tasa_anual}%)</option>)}
                   </select>
                 </div>
                 {[{ label: 'Monto ($)', value: corrMonto, set: setCorrMonto }, { label: 'Plazo (meses)', value: corrPlazo, set: setCorrPlazo }, { label: 'Tasa anual (%)', value: corrTasa, set: setCorrTasa }].map(f => (
                   <div key={f.label}>
-                    <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600', color: '#66738A', display: 'block', marginBottom: '4px' }}>{f.label}</label>
+                    <label style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '600', color: '#66738A', display: 'block', marginBottom: '4px' }}>{f.label}</label>
                     <input type="number" value={f.value} onChange={e => f.set(parseFloat(e.target.value) || 0)} style={{ width: '100%', padding: '8px 10px', border: '1px solid #E1E7F0', fontSize: 'clamp(11px, 0.78vw, 12.5px)', boxSizing: 'border-box', fontFamily: 'inherit' }} />
                   </div>
                 ))}
                 <div style={{ marginTop: '8px', padding: '12px', background: '#EEF2F8', border: '1px solid #BFDBFE' }}>
                   {[{ label: 'Cuota mensual', value: fmtMXN2(cuotaCorr), big: true }, { label: 'Total a pagar', value: fmtMXN2(totalCorr) }, { label: 'Total intereses', value: fmtMXN2(totalCorr - corrMonto) }].map((k, i) => (
                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: i < 2 ? '6px' : 0 }}>
-                      <span style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#66738A' }}>{k.label}</span>
+                      <span style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#66738A' }}>{k.label}</span>
                       <span style={{ fontSize: k.big ? '16px' : '12px', fontWeight: '700', color: AZUL }}>{k.value}</span>
                     </div>
                   ))}

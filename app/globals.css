@@ -243,3 +243,23 @@ main > div:last-child, [class*="kse-wrap"]:last-child {
 @media (pointer: coarse) {
   [style*="position: fixed"] { zoom: normal; }
 }
+
+
+/* ── Densidad ajustable por el usuario ─────────────────────────────────────
+   Ajustar la escala a ciegas no funciona: lo que se ve correcto en un monitor
+   a 100% de zoom se ve enorme en otro a 150%, o con escalado del sistema, y
+   esas condiciones no son visibles desde el código.
+
+   El contenido se escala con la variable --kse-zoom, que el selector de
+   Configuración modifica. Por defecto 0.9, un escalón por debajo de la escala
+   base.                                                                    */
+
+:root { --kse-zoom: 0.9; }
+
+main {
+  zoom: var(--kse-zoom);
+}
+
+/* El menú lateral y la barra superior quedan fuera: son marcos de la ventana,
+   no contenido, y encogerlos deja huecos contra los bordes. */
+aside, header { zoom: 1; }

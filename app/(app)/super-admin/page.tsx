@@ -124,30 +124,30 @@ export default function SuperAdminDashboard() {
     <div style={{ minHeight: '100vh', background: '#F4F6FB' }}>
 
       {/* Header */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #E5E7EB', padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #E5E7EB', padding: 'clamp(9.6px, 1.05vw, 12.3px) clamp(10.8px, 1.08vw, 13.9px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 'clamp(14.5px, 1.27vw, 20.2px)', fontWeight: 700, color: AZUL, margin: 0 }}>🏠 Dashboard de Negocio</h1>
-          <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#9CA3AF', margin: 0 }}>Solo visible para ti — super_admin</p>
+          <h1 style={{ fontSize: 'clamp(12.6px, 1.02vw, 16.2px)', fontWeight: 700, color: AZUL, margin: 0 }}>🏠 Dashboard de Negocio</h1>
+          <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#9CA3AF', margin: 0 }}>Solo visible para ti — super_admin</p>
         </div>
         <div style={{ display: 'flex', gap: '6px' }}>
           {(['7d', '30d', '90d', 'total'] as const).map(p => (
             <button key={p} onClick={() => setPeriodo(p)}
-              style={{ padding: '5px 12px', background: periodo === p ? AZUL : '#F4F6FB', color: periodo === p ? 'white' : '#6B7280', border: `1px solid ${periodo === p ? AZUL : '#E1E7F0'}`, fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: (periodo === p ? '700' : '400'), cursor: 'pointer', fontFamily: 'inherit' }}>
+              style={{ padding: '5px 12px', background: periodo === p ? AZUL : '#F4F6FB', color: periodo === p ? 'white' : '#6B7280', border: `1px solid ${periodo === p ? AZUL : '#E1E7F0'}`, fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: (periodo === p ? '700' : '400'), cursor: 'pointer', fontFamily: 'inherit' }}>
               {p === '7d' ? 'Últimos 7 días' : p === '30d' ? 'Últimos 30 días' : p === '90d' ? 'Últimos 90 días' : 'Todo'}
             </button>
           ))}
         </div>
       </div>
 
-      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)', display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.1vw, 14px)' }}>
+      <div style={{ padding: 'clamp(9.6px, 1.05vw, 12.3px) clamp(10.8px, 1.08vw, 13.9px)', display: 'flex', flexDirection: 'column', gap: 'clamp(9.0px, 0.97vw, 12.3px)' }}>
 
         {/* Alertas de vencimiento */}
         {vencimientos.length > 0 && (
           <div style={{ background: '#FEF2F2', border: '1px solid #E1E7F0', padding: '12px 16px' }}>
-            <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#991B1B', margin: '0 0 6px' }}>⚠️ {vencimientos.length} organización(es) vencen en los próximos 30 días</p>
+            <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: '#991B1B', margin: '0 0 6px' }}>⚠️ {vencimientos.length} organización(es) vencen en los próximos 30 días</p>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               {vencimientos.map((o: any) => (
-                <span key={o.id} style={{ padding: '3px 10px', background: 'white', border: '1px solid #FCA5A5', fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#991B1B' }}>
+                <span key={o.id} style={{ padding: '3px 10px', background: 'white', border: '1px solid #FCA5A5', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#991B1B' }}>
                   {o.nombre} — vence {o.fecha_vencimiento}
                 </span>
               ))}
@@ -165,15 +165,15 @@ export default function SuperAdminDashboard() {
           ].map((k, i) => (
             <div key={i} style={{ ...CARD, borderLeft: `3px solid ${k.color}` }}>
               <div style={LABEL}>{k.label}</div>
-              <div style={{ fontSize: 'clamp(14.0px, 1.21vw, 19.5px)', fontWeight: 700, color: k.color, lineHeight: 1 }}>{k.value}</div>
-              <div style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#9CA3AF', marginTop: '4px' }}>{k.sub}</div>
+              <div style={{ fontSize: 'clamp(13.4px, 1.07vw, 17.2px)', fontWeight: 700, color: k.color, lineHeight: 1 }}>{k.value}</div>
+              <div style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#9CA3AF', marginTop: '4px' }}>{k.sub}</div>
             </div>
           ))}
         </div>
 
         {/* KPIs de IA */}
         <div>
-          <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', margin: '0 0 10px' }}>💡 Costo de Inteligencia Artificial</p>
+          <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: '#374151', margin: '0 0 10px' }}>💡 Costo de Inteligencia Artificial</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px' }}>
             {[
               { label: 'Costo total IA', value: fmtUSD(stats.costoIATotal), color: '#DC2626' },
@@ -184,7 +184,7 @@ export default function SuperAdminDashboard() {
             ].map((k, i) => (
               <div key={i} style={{ ...CARD, borderTop: `3px solid ${k.color}` }}>
                 <div style={LABEL}>{k.label}</div>
-                <div style={{ fontSize: 'clamp(14.5px, 1.27vw, 20.2px)', fontWeight: 700, color: k.color }}>{k.value}</div>
+                <div style={{ fontSize: 'clamp(12.6px, 1.02vw, 16.2px)', fontWeight: 700, color: k.color }}>{k.value}</div>
               </div>
             ))}
           </div>
@@ -199,7 +199,7 @@ export default function SuperAdminDashboard() {
           {/* Por asesor */}
           <div style={CARD}>
             <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700', color: '#374151', margin: '0 0 12px' }}>Actividad por asesor</p>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'clamp(12px, 0.90vw, 14px)' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)' }}>
               <thead>
                 <tr style={{ background: '#F5F7FA' }}>
                   {['Asesor', 'Org', 'Clientes', 'Diags', 'Costo IA'].map((h, i) => (
@@ -225,7 +225,7 @@ export default function SuperAdminDashboard() {
           {/* Por organización */}
           <div style={CARD}>
             <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700', color: '#374151', margin: '0 0 12px' }}>Actividad por organización</p>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'clamp(12px, 0.90vw, 14px)' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)' }}>
               <thead>
                 <tr style={{ background: '#F5F7FA' }}>
                   {['Organización', 'Plan', 'Asesores', 'Diags', 'Costo IA'].map((h, i) => (

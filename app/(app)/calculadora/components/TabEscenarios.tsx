@@ -39,9 +39,9 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
 
   if (escsConMod40.length === 0) return (
     <div style={{ textAlign: 'center', padding: '30px 18px', color: K.muted }}>
-      <i className="ti ti-chart-bar-off" style={{ fontSize: 'clamp(22.8px, 1.98vw, 31.7px)', display: 'block', marginBottom: '12px' }} />
-      <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)' }}>Completa el Salario Mod. 40 para generar escenarios comparativos</p>
-      <button onClick={() => setTab(2)} style={{ marginTop: '14px', padding: '11px 22px', background: K.navy800, color: 'white', border: 'none', borderRadius: '9px', cursor: 'pointer', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 600, fontFamily: 'inherit' }}>
+      <i className="ti ti-chart-bar-off" style={{ fontSize: 'clamp(17.8px, 1.42vw, 22.8px)', display: 'block', marginBottom: '12px' }} />
+      <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)' }}>Completa el Salario Mod. 40 para generar escenarios comparativos</p>
+      <button onClick={() => setTab(2)} style={{ marginTop: '14px', padding: '11px 22px', background: K.navy800, color: 'white', border: 'none', borderRadius: '9px', cursor: 'pointer', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: 600, fontFamily: 'inherit' }}>
         Ir a Salario Mod. 40
       </button>
     </div>
@@ -67,7 +67,7 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
   const pctRec = Math.min(100, (escSel.roi / HORIZONTE_MESES) * 100)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.1vw, 14px)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(9.0px, 0.97vw, 12.3px)' }}>
       <style>{`
         @media (max-width: 1000px) {
           .kse-2col { grid-template-columns: 1fr !important; }
@@ -90,17 +90,17 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
         <div>
-          <h2 style={{ fontSize: 'clamp(14.0px, 1.19vw, 19.4px)', fontWeight: 700, color: K.ink, margin: 0, letterSpacing: '-0.015em' }}>
+          <h2 style={{ fontSize: 'clamp(13.3px, 1.05vw, 17.1px)', fontWeight: 700, color: K.ink, margin: 0, letterSpacing: '-0.015em' }}>
             Comparativa de escenarios
           </h2>
-          <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: K.muted, margin: '4px 0 0' }}>
+          <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: K.muted, margin: '4px 0 0' }}>
             Base actual: <strong style={{ color: K.ink, ...num }}>{fmtMXN2(pensionBase)}</strong>/mes sin Mod. 40
           </p>
         </div>
         <div style={{ display: 'flex', gap: '2px', background: K.card, borderRadius: '10px', padding: '3px', border: `1px solid ${K.line}` }}>
           {(['cards', 'tabla'] as const).map(v => (
             <button key={v} onClick={() => setVista(v)}
-              style={{ padding: '8px 18px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 600, background: vista === v ? K.navy800 : 'transparent', color: vista === v ? 'white' : K.muted, ...nw }}>
+              style={{ padding: '8px 18px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: 600, background: vista === v ? K.navy800 : 'transparent', color: vista === v ? 'white' : K.muted, ...nw }}>
               {v === 'cards' ? 'Tarjetas' : 'Tabla'}
             </button>
           ))}
@@ -121,7 +121,7 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
                   </span>
                   <span style={{ width: 9, height: 9, borderRadius: 999, background: c, flexShrink: 0, opacity: on ? 1 : 0.35 }} />
                 </div>
-                <p style={{ fontSize: 'clamp(14.0px, 1.22vw, 19.5px)', fontWeight: 800, color: K.ink, margin: '7px 0 0', letterSpacing: '-0.025em', ...nw, ...num }}>
+                <p style={{ fontSize: 'clamp(13.4px, 1.08vw, 17.2px)', fontWeight: 800, color: K.ink, margin: '7px 0 0', letterSpacing: '-0.025em', ...nw, ...num }}>
                   {fmtMXN(esc.pension_mensual)}
                 </p>
                 <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.green, fontWeight: 700, margin: '3px 0 0', ...nw, ...num }}>
@@ -140,10 +140,10 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
       )}
 
       {vista === 'cards' && (
-        <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1.35fr) minmax(280px, 1fr)', gap: 'clamp(9px, 1.1vw, 14px)' }}>
+        <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1.35fr) minmax(280px, 1fr)', gap: 'clamp(9.0px, 0.97vw, 12.3px)' }}>
 
-          <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
-            <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Comparativo visual de pensión mensual</p>
+          <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11.0px, 1.15vw, 14.1px)' }}>
+            <p style={{ fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Comparativo visual de pensión mensual</p>
             <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: '0 0 18px' }}>Toque una barra para ver el escenario en detalle</p>
 
             {[{ label: 'Sin Mod. 40', value: pensionBase, color: '#9AA7B8', idx: -1, rec: false },
@@ -181,15 +181,15 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
                   {escSel.mod40_umas} UMAs &middot; {escSel.mod40_meses} meses
                 </span>
               </div>
-              <p style={{ fontSize: 'clamp(18.1px, 1.57vw, 25.1px)', fontWeight: 800, color: 'white', margin: '8px 0 0', lineHeight: 1, letterSpacing: '-0.03em', ...nw, ...num }}>
+              <p style={{ fontSize: 'clamp(15.7px, 1.26vw, 20.1px)', fontWeight: 800, color: 'white', margin: '8px 0 0', lineHeight: 1, letterSpacing: '-0.03em', ...nw, ...num }}>
                 {fmtMXN2(escSel.pension_mensual)}
               </p>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,0.8)', margin: '4px 0 0' }}>pensión mensual</p>
             </div>
 
             <div style={{ background: K.greenSoft, padding: '14px 22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
-              <span style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: K.ink }}>Mejora vs sin Mod. 40</span>
-              <span style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: K.green, ...nw, ...num }}>
+              <span style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: K.ink }}>Mejora vs sin Mod. 40</span>
+              <span style={{ fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', fontWeight: 700, color: K.green, ...nw, ...num }}>
                 +{fmtMXN2(escSel.pension_mensual - pensionBase)}/mes
               </span>
             </div>
@@ -197,8 +197,8 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
             <div style={{ padding: '6px 22px 16px' }}>
               {CAMPOS(escSel).map((r, ri) => (
                 <div key={ri} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px', padding: '12px 0', borderTop: ri ? `1px solid ${K.line}` : 'none' }}>
-                  <span style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: K.muted }}>{r.label}</span>
-                  <span style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, color: r.fuerte ? colorSel : K.ink, ...nw, ...num }}>{r.value}</span>
+                  <span style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: K.muted }}>{r.label}</span>
+                  <span style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: 700, color: r.fuerte ? colorSel : K.ink, ...nw, ...num }}>{r.value}</span>
                 </div>
               ))}
             </div>
@@ -231,7 +231,7 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
       {vista === 'tabla' && (
         <div style={{ background: K.card, borderRadius: '14px', border: `1px solid ${K.line}`, overflow: 'hidden', boxShadow: '0 1px 3px rgba(19,33,53,0.06)' }}>
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'clamp(12px, 0.90vw, 14px)' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)' }}>
               <thead>
                 <tr style={{ background: K.navy900 }}>
                   <th style={{ padding: '13px 16px', color: 'white', textAlign: 'left', fontWeight: 600, fontSize: 'clamp(11px, 0.78vw, 12.5px)', position: 'sticky', left: 0, background: K.navy900 }}>Concepto</th>
@@ -260,10 +260,10 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
                   const bg = row.h ? '#EEF2F8' : ri % 2 === 0 ? 'white' : '#F9FAFB'
                   return (
                     <tr key={ri} style={{ background: bg, borderBottom: `1px solid ${K.line}` }}>
-                      <td style={{ padding: '12px 16px', color: K.ink, fontWeight: row.h ? 700 : 400, position: 'sticky', left: 0, background: bg, fontSize: 'clamp(12px, 0.90vw, 14px)' }}>{row.label}</td>
-                      <td style={{ padding: '12px 16px', textAlign: 'right', color: K.muted, fontSize: 'clamp(12px, 0.90vw, 14px)', ...nw, ...num }}>{row.base}</td>
+                      <td style={{ padding: '12px 16px', color: K.ink, fontWeight: row.h ? 700 : 400, position: 'sticky', left: 0, background: bg, fontSize: 'clamp(9.6px, 0.79vw, 12.3px)' }}>{row.label}</td>
+                      <td style={{ padding: '12px 16px', textAlign: 'right', color: K.muted, fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', ...nw, ...num }}>{row.base}</td>
                       {escsConMod40.slice(0, 6).map((e, i) => (
-                        <td key={i} onClick={() => setSel(i)} style={{ padding: '12px 16px', textAlign: 'right', fontWeight: row.h ? 700 : 500, color: row.h ? K.navy800 : K.ink, fontSize: 'clamp(12px, 0.90vw, 14px)', cursor: 'pointer', background: i === idxSel ? K.orangeSoft : 'transparent', ...nw, ...num }}>{row.fn(e)}</td>
+                        <td key={i} onClick={() => setSel(i)} style={{ padding: '12px 16px', textAlign: 'right', fontWeight: row.h ? 700 : 500, color: row.h ? K.navy800 : K.ink, fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', cursor: 'pointer', background: i === idxSel ? K.orangeSoft : 'transparent', ...nw, ...num }}>{row.fn(e)}</td>
                       ))}
                     </tr>
                   )
@@ -276,8 +276,8 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <button onClick={() => setTab(10)}
-          style={{ padding: '10px 18px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
-          Financiamiento <i className="ti ti-arrow-right" style={{ fontSize: 'clamp(13px, 1.00vw, 16px)' }} />
+          style={{ padding: '10px 18px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
+          Financiamiento <i className="ti ti-arrow-right" style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)' }} />
         </button>
       </div>
     </div>

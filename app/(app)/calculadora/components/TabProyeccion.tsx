@@ -28,8 +28,8 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
 
   if (!escRec || escRec.mod40_meses === 0) return (
     <div style={{ textAlign: 'center', padding: '30px 18px', color: K.muted }}>
-      <i className="ti ti-chart-line" style={{ fontSize: 'clamp(22.8px, 1.98vw, 31.7px)', display: 'block', marginBottom: '12px' }} />
-      <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)' }}>Completa las pestañas anteriores para continuar</p>
+      <i className="ti ti-chart-line" style={{ fontSize: 'clamp(17.8px, 1.42vw, 22.8px)', display: 'block', marginBottom: '12px' }} />
+      <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)' }}>Completa las pestañas anteriores para continuar</p>
     </div>
   )
 
@@ -64,7 +64,7 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
   const pathDe = (key: string) => filas.map((f, i) => `${i ? 'L' : 'M'}${px(i)},${py(f[key])}`).join(' ')
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.1vw, 14px)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(9.0px, 0.97vw, 12.3px)' }}>
       <style>{`
         @media (max-width: 1000px) {
           .kse-2col { grid-template-columns: 1fr !important; }
@@ -89,14 +89,14 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
             LO QUE ACUMULA HASTA LOS 80 AÑOS
           </p>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', flexWrap: 'wrap', marginTop: '8px' }}>
-            <p style={{ fontSize: 'clamp(19.9px, 2.11vw, 27.7px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
+            <p style={{ fontSize: 'clamp(17.3px, 1.69vw, 22.2px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
               {fmtMXN(escRec.ganancia_a80)}
             </p>
-            <span style={{ background: K.green, color: 'white', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, padding: '7px 13px', borderRadius: 999, ...nw, ...num }}>
+            <span style={{ background: K.green, color: 'white', fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: 700, padding: '7px 13px', borderRadius: 999, ...nw, ...num }}>
               {multiplo.toFixed(1)} veces lo invertido
             </span>
           </div>
-          <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: 'rgba(255,255,255,.68)', margin: '10px 0 0' }}>
+          <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: 'rgba(255,255,255,.68)', margin: '10px 0 0' }}>
             Sobre una inversión neta de {fmtMXN(escRec.inversion_neta)}, recuperada en {escRec.roi} meses.
           </p>
         </div>
@@ -110,7 +110,7 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
           ].map((k, i) => (
             <div key={i} style={{ background: K.navy900, padding: '13px 18px' }}>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k.label}</p>
-              <p style={{ fontSize: 'clamp(14.0px, 1.19vw, 19.4px)', fontWeight: 700, color: k.color, margin: '3px 0 0', ...nw, ...num }}>{k.value}</p>
+              <p style={{ fontSize: 'clamp(13.3px, 1.05vw, 17.1px)', fontWeight: 700, color: k.color, margin: '3px 0 0', ...nw, ...num }}>{k.value}</p>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
                 <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.44)', margin: 0 }}>{k.sub}</p>
                 {(k as any).guia && <GuiaTermometro meses={escRec.roi} />}
@@ -125,10 +125,10 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
            seleccionar una fila mueve la linea fuera del campo de vision.
            El usuario tenia que bajar, tocar, subir a ver el efecto y volver
            a bajar — lo que en la practica cancela la exploracion.          */}
-      <div className="kse-curva-sticky" style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)', position: 'sticky', top: 0, zIndex: 5 }}>
+      <div className="kse-curva-sticky" style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11.0px, 1.15vw, 14.1px)', position: 'sticky', top: 0, zIndex: 5 }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '6px' }}>
           <div>
-            <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: K.ink, margin: 0 }}>Cómo evoluciona su pensión</p>
+            <p style={{ fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', fontWeight: 700, color: K.ink, margin: 0 }}>Cómo evoluciona su pensión</p>
             <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: '4px 0 0' }}>Toque un año para ver el detalle</p>
           </div>
           <div style={{ display: 'flex', gap: '18px', flexWrap: 'wrap', fontSize: 'clamp(11px, 0.78vw, 12.5px)' }}>
@@ -189,7 +189,7 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
             ].map(([k, v]) => (
               <div key={k}>
                 <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: 0 }}>{k}</p>
-                <p style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, color: K.ink, margin: '2px 0 0', ...nw, ...num }}>{v}</p>
+                <p style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: 700, color: K.ink, margin: '2px 0 0', ...nw, ...num }}>{v}</p>
               </div>
             ))}
           </div>
@@ -199,13 +199,13 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
       {/* ── Tabla completa ─────────────────────────────────────── */}
       <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', overflow: 'hidden' }}>
         <div style={{ padding: '13px 18px', borderBottom: `1px solid ${K.line}` }}>
-          <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: K.ink, margin: 0 }}>Proyección de flujos año por año</p>
+          <p style={{ fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', fontWeight: 700, color: K.ink, margin: 0 }}>Proyección de flujos año por año</p>
           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: '4px 0 0' }}>
             Pensiones actualizadas {(inflacion * 100).toFixed(1)}% cada año conforme al INPC
           </p>
         </div>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'clamp(12px, 0.90vw, 14px)' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)' }}>
             <thead>
               <tr style={{ background: K.navy900 }}>
                 {['Año', 'Edad', 'Sin Mod. 40', 'Con Mod. 40', 'Desc. crédito', 'Disponible', 'Ganancia año', 'Ganancia acum.'].map((hd, i) => (
@@ -237,8 +237,8 @@ export default function TabProyeccion({ escenarios, sys, setTab }: Props) {
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <button onClick={() => setTab(10)}
-          style={{ padding: '10px 18px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
-          Financiamiento <i className="ti ti-arrow-right" style={{ fontSize: 'clamp(13px, 1.00vw, 16px)' }} />
+          style={{ padding: '10px 18px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
+          Financiamiento <i className="ti ti-arrow-right" style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)' }} />
         </button>
       </div>
     </div>

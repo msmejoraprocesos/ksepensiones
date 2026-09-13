@@ -111,7 +111,7 @@ export function SofiaChat({ contextoCliente }: SofiaChatProps) {
         style={{
           /* Se aleja del borde y baja de tamaño: tapaba el botón de guía del
              termómetro y las últimas filas de varias tablas. */
-          position: 'fixed' as const, bottom: 'clamp(12.0px, 1.76vw, 17.6px)', right: 'clamp(12.0px, 1.76vw, 17.6px)', zIndex: 1000,
+          position: 'fixed' as const, bottom: 'clamp(12.0px, 1.55vw, 15.5px)', right: 'clamp(12.0px, 1.55vw, 15.5px)', zIndex: 1000,
           width: '52px', height: '44px', borderRadius: '50%',
           background: abierto ? '#374151' : AZUL,
           border: `3px solid ${abierto ? '#6B7280' : '#F05B21'}`,
@@ -120,7 +120,7 @@ export function SofiaChat({ contextoCliente }: SofiaChatProps) {
           padding: 0, overflow: 'hidden', transition: 'all 0.2s',
         }}>
         {abierto
-          ? <span style={{ color: 'white', fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: '700' }}>✕</span>
+          ? <span style={{ color: 'white', fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', fontWeight: '700' }}>✕</span>
           : <img src="/sofia-avatar.svg" alt="Sofía" style={{ width: '52px', height: '44px', objectFit: 'contain' }} />
         }
       </button>
@@ -154,7 +154,7 @@ export function SofiaChat({ contextoCliente }: SofiaChatProps) {
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: 'white', margin: 0 }}>Sofía IA</p>
+                <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: 'white', margin: 0 }}>Sofía IA</p>
                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22C55E', animation: 'sofiaOnline 1.5s ease-in-out infinite' }} />
               </div>
               <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)', margin: 0 }}>
@@ -250,9 +250,9 @@ export function SofiaChat({ contextoCliente }: SofiaChatProps) {
                 background: enviando || !input.trim() ? '#E5E7EB' : NARANJA,
                 border: 'none', cursor: enviando || !input.trim() ? 'default' : 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 'clamp(13px, 1.00vw, 16px)', transition: 'background 0.2s',
+                fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', transition: 'background 0.2s',
               }}>
-              <span style={{ color: enviando || !input.trim() ? '#9CA3AF' : 'white', fontSize: 'clamp(11.5px, 0.87vw, 14px)', marginLeft: '2px' }}>➤</span>
+              <span style={{ color: enviando || !input.trim() ? '#9CA3AF' : 'white', fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', marginLeft: '2px' }}>➤</span>
             </button>
           </div>
         </div>

@@ -70,7 +70,7 @@ function PDFPreview({ config, logoUrl, razonSocial, asesorNombre, encabezadoColo
     <div style={{ background: '#F4F6FB', padding: '10px', borderRadius: '8px', fontFamily: 'Arial, sans-serif', fontSize: '9px', color: '#1E293B', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', width: '100%', position: 'relative' }}>
 
       {config.mostrar_watermark && (
-        <div style={{ position: 'absolute', top: '32%', left: '10%', fontSize: 'clamp(20.2px, 1.76vw, 28.1px)', color: '#DC2626', opacity: 0.08, fontWeight: '900', transform: 'rotate(-15deg)', pointerEvents: 'none', zIndex: 0 }}>
+        <div style={{ position: 'absolute', top: '32%', left: '10%', fontSize: 'clamp(17.6px, 1.41vw, 22.5px)', color: '#DC2626', opacity: 0.08, fontWeight: '900', transform: 'rotate(-15deg)', pointerEvents: 'none', zIndex: 0 }}>
           BORRADOR
         </div>
       )}
@@ -264,7 +264,7 @@ export default function PDFConfigurador({ config, onChange, logoUrl, razonSocial
   )
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 'clamp(9px, 1.1vw, 14px)', alignItems: 'start' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 'clamp(9.0px, 0.97vw, 12.3px)', alignItems: 'start' }}>
 
       {/* ── Controles ── */}
       <div>

@@ -44,7 +44,7 @@ export default function PanelElegibilidad({ datos, setDatos, semanasNetas }: Pro
 
   const campo: React.CSSProperties = {
     width: '100%', height: '42px', border: `1px solid ${K.line}`,
-    borderRadius: '10px', padding: '0 14px', fontSize: 'clamp(13px, 1.00vw, 16px)',
+    borderRadius: '10px', padding: '0 14px', fontSize: 'clamp(11.0px, 0.88vw, 14.1px)',
     fontFamily: 'inherit', boxSizing: 'border-box', background: K.card,
     color: K.ink, fontWeight: 600, outline: 'none',
   }
@@ -53,13 +53,13 @@ export default function PanelElegibilidad({ datos, setDatos, semanasNetas }: Pro
     <div style={{ background: K.card, borderRadius: '14px', border: `1px solid ${K.line}`, boxShadow: '0 1px 3px rgba(19,33,53,0.06)', overflow: 'hidden' }}>
 
       {/* Veredicto */}
-      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)', background: r.mod40_viable ? K.greenSoft : K.redSoft, borderBottom: `1px solid ${K.line}` }}>
+      <div style={{ padding: 'clamp(9.6px, 1.05vw, 12.3px) clamp(10.8px, 1.08vw, 13.9px)', background: r.mod40_viable ? K.greenSoft : K.redSoft, borderBottom: `1px solid ${K.line}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           <span style={{ width: 30, height: 30, borderRadius: 999, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: r.mod40_viable ? K.green : K.red, color: 'white', fontSize: 15, fontWeight: 700 }}>
             {r.mod40_viable ? '✓' : '!'}
           </span>
           <div style={{ minWidth: 0 }}>
-            <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: K.ink, margin: 0 }}>
+            <p style={{ fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', fontWeight: 700, color: K.ink, margin: 0 }}>
               {r.mod40_viable ? 'Puede acceder a Modalidad 40' : 'No puede acceder a Modalidad 40'}
             </p>
             <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: '3px 0 0' }}>
@@ -77,10 +77,10 @@ export default function PanelElegibilidad({ datos, setDatos, semanasNetas }: Pro
       </div>
 
       {/* Captura de los dos datos que la constancia trae y el formulario no pedía */}
-      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)', borderBottom: `1px solid ${K.line}` }}>
+      <div style={{ padding: 'clamp(9.6px, 1.05vw, 12.3px) clamp(10.8px, 1.08vw, 13.9px)', borderBottom: `1px solid ${K.line}` }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
           <div>
-            <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', color: K.muted, marginBottom: '6px' }}>
+            <label style={{ display: 'block', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: K.muted, marginBottom: '6px' }}>
               Fecha de baja del IMSS
             </label>
             <input
@@ -94,7 +94,7 @@ export default function PanelElegibilidad({ datos, setDatos, semanasNetas }: Pro
             </p>
           </div>
           <div>
-            <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', color: K.muted, marginBottom: '6px' }}>
+            <label style={{ display: 'block', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: K.muted, marginBottom: '6px' }}>
               Semanas en los últimos 5 años
             </label>
             <input
@@ -121,13 +121,13 @@ export default function PanelElegibilidad({ datos, setDatos, semanasNetas }: Pro
               <span style={{ width: 7, height: 7, borderRadius: 999, background: c.fg, flexShrink: 0, marginTop: 8 }} />
               <div style={{ minWidth: 0, flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 600, color: K.ink }}>{h.titulo}</span>
+                  <span style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: 600, color: K.ink }}>{h.titulo}</span>
                   <span style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: 700, color: c.fg, ...nw }}>{c.titulo}</span>
                   {h.fundamento && (
                     <span style={{ marginLeft: 'auto', fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, ...nw }}>{h.fundamento}</span>
                   )}
                 </div>
-                <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: K.ink, margin: '4px 0 0', lineHeight: 1.6 }}>{h.detalle}</p>
+                <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: K.ink, margin: '4px 0 0', lineHeight: 1.6 }}>{h.detalle}</p>
               </div>
             </div>
           )

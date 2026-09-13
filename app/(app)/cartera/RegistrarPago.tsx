@@ -79,7 +79,7 @@ export default function RegistrarPago({ org, onListo, onCerrar }: Props) {
         </div>
 
         <div style={{ padding: '22px 26px' }}>
-          <div style={{ background: K.paper, borderRadius: 12, padding: 'clamp(11px, 1.25vw, 16px) clamp(11.4px, 1.23vw, 15.8px)', marginBottom: 20 }}>
+          <div style={{ background: K.paper, borderRadius: 12, padding: 'clamp(11.0px, 1.1vw, 14.1px) clamp(10.8px, 1.08vw, 13.9px)', marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
               <span style={{ fontSize: 15, color: K.muted }}>Vigencia actual</span>
               <span style={{ fontSize: 15, color: K.ink, fontWeight: 600, ...nw }}>

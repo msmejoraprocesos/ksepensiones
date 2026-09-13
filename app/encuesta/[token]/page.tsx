@@ -71,7 +71,7 @@ export default function EncuestaPage({ params }: { params: { token: string } }) 
   if (error) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F4F6FB', fontFamily: 'system-ui, sans-serif', padding: '20px' }}>
       <div style={{ textAlign: 'center', maxWidth: 'min(380px, 88vw)', maxHeight: '88vh', overflowY: 'auto' }}>
-        <p style={{ fontSize: 'clamp(22.8px, 1.98vw, 31.7px)', margin: '0 0 16px' }}>😕</p>
+        <p style={{ fontSize: 'clamp(17.8px, 1.42vw, 22.8px)', margin: '0 0 16px' }}>😕</p>
         <h2 style={{ color: '#374151', margin: '0 0 8px' }}>Link no válido</h2>
         <p style={{ color: '#6B7280', fontSize: '14px' }}>{error}</p>
       </div>
@@ -83,8 +83,8 @@ export default function EncuestaPage({ params }: { params: { token: string } }) 
   if (enviado) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #1B3A6B 0%, #2c5282 100%)', fontFamily: 'system-ui, sans-serif', padding: '20px' }}>
       <div style={{ background: 'white', borderRadius: '20px', padding: '40px 32px', textAlign: 'center', maxWidth: 'min(400px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: '100%', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
-        <p style={{ fontSize: 'clamp(30.4px, 2.64vw, 42.2px)', margin: '0 0 16px' }}>🙏</p>
-        <h2 style={{ color: AZUL, margin: '0 0 12px', fontSize: 'clamp(13.6px, 1.21vw, 19.4px)' }}>¡Gracias por tu opinión!</h2>
+        <p style={{ fontSize: 'clamp(23.7px, 1.9vw, 30.4px)', margin: '0 0 16px' }}>🙏</p>
+        <h2 style={{ color: AZUL, margin: '0 0 12px', fontSize: 'clamp(13.3px, 1.07vw, 17.1px)' }}>¡Gracias por tu opinión!</h2>
         <p style={{ color: '#6B7280', fontSize: '15px', lineHeight: 1.6 }}>
           Tu respuesta ha sido registrada. Nos ayuda a mejorar el servicio para ti y para más familias como la tuya.
         </p>
@@ -103,8 +103,8 @@ export default function EncuestaPage({ params }: { params: { token: string } }) 
 
         {/* Header */}
         <div style={{ background: AZUL, padding: '24px 28px', textAlign: 'center' }}>
-          <p style={{ fontSize: 'clamp(18.0px, 1.56vw, 25.0px)', margin: '0 0 8px' }}>📋</p>
-          <h1 style={{ color: 'white', fontSize: 'clamp(11.2px, 0.99vw, 15.8px)', fontWeight: '800', margin: '0 0 6px' }}>Encuesta de satisfacción</h1>
+          <p style={{ fontSize: 'clamp(15.6px, 1.25vw, 20.0px)', margin: '0 0 8px' }}>📋</p>
+          <h1 style={{ color: 'white', fontSize: 'clamp(10.8px, 0.87vw, 13.9px)', fontWeight: '800', margin: '0 0 6px' }}>Encuesta de satisfacción</h1>
           <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '13px', margin: 0 }}>
             {encuesta.cliente_nombre ? `Hola ${encuesta.cliente_nombre.split(' ')[0]}, ` : ''}nos importa tu experiencia con {nombreAsesor}
           </p>
@@ -121,7 +121,7 @@ export default function EncuestaPage({ params }: { params: { token: string } }) 
               {[1,2,3,4,5].map(n => (
                 <button key={n} onClick={() => setCalificacion(n)}
                   onMouseEnter={() => setHover(n)} onMouseLeave={() => setHover(0)}
-                  style={{ fontSize: 'clamp(20.2px, 1.76vw, 28.1px)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px', transition: 'transform 0.15s', transform: (hover || calificacion) >= n ? 'scale(1.2)' : 'scale(1)', filter: (hover || calificacion) >= n ? 'none' : 'grayscale(1) opacity(0.4)' }}>
+                  style={{ fontSize: 'clamp(17.6px, 1.41vw, 22.5px)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px', transition: 'transform 0.15s', transform: (hover || calificacion) >= n ? 'scale(1.2)' : 'scale(1)', filter: (hover || calificacion) >= n ? 'none' : 'grayscale(1) opacity(0.4)' }}>
                   ⭐
                 </button>
               ))}

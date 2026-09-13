@@ -47,30 +47,30 @@ const DS = {
     result:   { bg: '#F5F3FF', border: '#7C3AED', text: '#4C1D95', badge: '#DDD6FE', label: 'Calculado' },
   },
 
-  card: { background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: 'clamp(14.0px, 1.5vw, 19.4px) clamp(14.0px, 1.67vw, 21.1px)', marginBottom: '16px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)' } as React.CSSProperties,
-  cardHighlight: { background: 'white', borderRadius: '14px', padding: 'clamp(14.0px, 1.5vw, 19.4px) clamp(14.0px, 1.67vw, 21.1px)', marginBottom: '16px', boxShadow: '0 0 0 2px #14375F, 0 4px 14px rgba(20,55,95,0.12)' } as React.CSSProperties,
+  card: { background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: 'clamp(13.3px, 1.32vw, 17.1px) clamp(13.2px, 1.34vw, 16.9px)', marginBottom: '16px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)' } as React.CSSProperties,
+  cardHighlight: { background: 'white', borderRadius: '14px', padding: 'clamp(13.3px, 1.32vw, 17.1px) clamp(13.2px, 1.34vw, 16.9px)', marginBottom: '16px', boxShadow: '0 0 0 2px #14375F, 0 4px 14px rgba(20,55,95,0.12)' } as React.CSSProperties,
   tHead: { background: '#0D2440', color: 'white', padding: '12px 14px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: 600, textAlign: 'left' as const, whiteSpace: 'nowrap' as const },
   tHeadR: { background: '#0D2440', color: 'white', padding: '12px 14px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: 600, textAlign: 'right' as const, whiteSpace: 'nowrap' as const },
-  tCell: { padding: '11px 14px', fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#132135', borderBottom: '1px solid #E1E7F0' } as React.CSSProperties,
-  tCellR: { padding: '11px 14px', fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#132135', borderBottom: '1px solid #E1E7F0', textAlign: 'right' as const, fontVariantNumeric: 'tabular-nums' as const } as React.CSSProperties,
-  tCellBold: { padding: '11px 14px', fontSize: 'clamp(13px, 1.00vw, 16px)', color: '#245287', fontWeight: 700, borderBottom: '1px solid #E1E7F0', textAlign: 'right' as const, fontVariantNumeric: 'tabular-nums' as const } as React.CSSProperties,
+  tCell: { padding: '11px 14px', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#132135', borderBottom: '1px solid #E1E7F0' } as React.CSSProperties,
+  tCellR: { padding: '11px 14px', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#132135', borderBottom: '1px solid #E1E7F0', textAlign: 'right' as const, fontVariantNumeric: 'tabular-nums' as const } as React.CSSProperties,
+  tCellBold: { padding: '11px 14px', fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', color: '#245287', fontWeight: 700, borderBottom: '1px solid #E1E7F0', textAlign: 'right' as const, fontVariantNumeric: 'tabular-nums' as const } as React.CSSProperties,
   tRowAlt: (i: number) => ({ background: i % 2 === 0 ? 'white' : '#F8FAFC' }) as React.CSSProperties,
-  secTitle: { fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: '#132135', margin: '0 0 16px', letterSpacing: '-0.015em' } as React.CSSProperties,
-  kpiBlock: { background: '#0D2440', borderRadius: '12px', padding: 'clamp(11.4px, 1.23vw, 15.8px) clamp(14.0px, 1.5vw, 19.4px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' } as React.CSSProperties,
-  kpiGreen: { background: '#12855C', borderRadius: '12px', padding: 'clamp(11.4px, 1.23vw, 15.8px) clamp(14.0px, 1.5vw, 19.4px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' } as React.CSSProperties,
-  label: { fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 500, color: '#66738A', marginBottom: '6px', display: 'block' as const },
-  input: { width: '100%', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '12px 14px', fontSize: 'clamp(13px, 1.00vw, 16px)', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: 'white', color: '#1E293B', outline: 'none', height: '42px' } as React.CSSProperties,
+  secTitle: { fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', fontWeight: 700, color: '#132135', margin: '0 0 16px', letterSpacing: '-0.015em' } as React.CSSProperties,
+  kpiBlock: { background: '#0D2440', borderRadius: '12px', padding: 'clamp(10.8px, 1.08vw, 13.9px) clamp(13.3px, 1.32vw, 17.1px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' } as React.CSSProperties,
+  kpiGreen: { background: '#12855C', borderRadius: '12px', padding: 'clamp(10.8px, 1.08vw, 13.9px) clamp(13.3px, 1.32vw, 17.1px)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' } as React.CSSProperties,
+  label: { fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: 500, color: '#66738A', marginBottom: '6px', display: 'block' as const },
+  input: { width: '100%', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '12px 14px', fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: 'white', color: '#1E293B', outline: 'none', height: '42px' } as React.CSSProperties,
   inputReadonly: { width: '100%', border: '1px solid #F1F5F9', borderRadius: '10px', padding: '9px 12px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', background: '#F8FAFC', color: '#64748B', fontFamily: 'inherit', boxSizing: 'border-box' as const, height: '42px' } as React.CSSProperties,
   // Inputs semánticos: fondo de color según tipo de dato
-  inputImss:     { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '12px 14px', fontSize: 'clamp(13px, 1.00vw, 16px)', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#EEF2F8', color: '#1E3A5F', fontWeight: '500' as const, height: '42px' } as React.CSSProperties,
-  inputManual:   { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '12px 14px', fontSize: 'clamp(13px, 1.00vw, 16px)', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#FFF3ED', color: '#92400E', height: '42px' } as React.CSSProperties,
-  inputStrategy: { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '12px 14px', fontSize: 'clamp(13px, 1.00vw, 16px)', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#F0F7F4', color: '#1A5C40', fontWeight: '500' as const, height: '42px' } as React.CSSProperties,
-  inputResult:   { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '9px 12px', fontSize: 'clamp(11.5px, 0.87vw, 14px)', background: '#F5F3FF', color: '#4C1D95', fontWeight: '600' as const, height: '44px', boxSizing: 'border-box' as const } as React.CSSProperties,
+  inputImss:     { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '12px 14px', fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#EEF2F8', color: '#1E3A5F', fontWeight: '500' as const, height: '42px' } as React.CSSProperties,
+  inputManual:   { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '12px 14px', fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#FFF3ED', color: '#92400E', height: '42px' } as React.CSSProperties,
+  inputStrategy: { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '12px 14px', fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontFamily: 'inherit', boxSizing: 'border-box' as const, background: '#F0F7F4', color: '#1A5C40', fontWeight: '500' as const, height: '42px' } as React.CSSProperties,
+  inputResult:   { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '9px 12px', fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', background: '#F5F3FF', color: '#4C1D95', fontWeight: '600' as const, height: '44px', boxSizing: 'border-box' as const } as React.CSSProperties,
   select: { width: '100%', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '9px 12px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const, color: '#1E293B', height: '42px' } as React.CSSProperties,
   selectManual:  { width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '9px 12px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontFamily: 'inherit', background: '#FFF3ED', color: '#92400E', boxSizing: 'border-box' as const, height: '42px' } as React.CSSProperties,
   selectStrategy:{ width: '100%', border: '1px solid #E1E7F0', borderRadius: '10px', padding: '9px 12px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontFamily: 'inherit', background: '#F0F7F4', color: '#1A5C40', fontWeight: '500' as const, boxSizing: 'border-box' as const, height: '42px' } as React.CSSProperties,
-  criticalNum: { fontSize: 'clamp(14.5px, 1.27vw, 20.2px)', fontWeight: '800' as const, letterSpacing: '-0.5px', lineHeight: 1 } as React.CSSProperties,
-  bigNum: { fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: '700' as const, letterSpacing: '-0.5px' } as React.CSSProperties,
+  criticalNum: { fontSize: 'clamp(12.6px, 1.02vw, 16.2px)', fontWeight: '800' as const, letterSpacing: '-0.5px', lineHeight: 1 } as React.CSSProperties,
+  bigNum: { fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', fontWeight: '700' as const, letterSpacing: '-0.5px' } as React.CSSProperties,
 }
 // ──────────────────────────────────────────────────────────────────
 
@@ -539,11 +539,11 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
 
   return (
     <div style={{ background: 'white', border: '1px solid #E5E7EB', marginTop: '4px' }}>
-      <div style={{ background: AZUL, padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)' }}>
+      <div style={{ background: AZUL, padding: 'clamp(9.6px, 1.05vw, 12.3px) clamp(10.8px, 1.08vw, 13.9px)' }}>
         <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#93C5FD', margin: '0 0 2px', fontWeight: '700' }}>
           Simulador de vida real
         </p>
-        <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '800', color: 'white', margin: 0 }}>
+        <p style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '800', color: 'white', margin: 0 }}>
           ¿Te alcanzará la pensión para vivir?
         </p>
       </div>
@@ -552,7 +552,7 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
 
         {/* Gastos ajustables */}
         <div>
-          <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', margin: '0 0 10px' }}>
+          <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: '#374151', margin: '0 0 10px' }}>
             Ajusta tus gastos mensuales estimados
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '8px' }}>
@@ -561,8 +561,8 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
                 <span style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', flexShrink: 0 }}>{g.label.split(' ')[0]}</span>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
-                    <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: '#64748B' }}>{g.label.substring(3)}</label>
-                    <span style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: g.color }}>{fmtMXN(g.val)}</span>
+                    <label style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', color: '#64748B' }}>{g.label.substring(3)}</label>
+                    <span style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: g.color }}>{fmtMXN(g.val)}</span>
                   </div>
                   <input type="range" min={0} max={15000} step={500} value={g.val} onChange={e => g.set(Number(e.target.value))}
                     style={{ width: '100%', height: '4px', accentColor: g.color, cursor: 'pointer' }} />
@@ -574,7 +574,7 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
 
         {/* Comparativa visual */}
         <div style={{ background: '#F8FAFC', borderRadius: '10px', padding: '14px' }}>
-          <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', margin: '0 0 12px' }}>
+          <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: '#374151', margin: '0 0 12px' }}>
             Comparativa
           </p>
 
@@ -585,7 +585,7 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
           ].map((b, i) => (
             <div key={i} style={{ marginBottom: '10px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                <span style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#374151' }}>{b.label}</span>
+                <span style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#374151' }}>{b.label}</span>
                 <span style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700', color: b.color }}>{fmtMXN(b.val)}</span>
               </div>
               <div style={{ height: '10px', background: '#E5E7EB', borderRadius: '5px', overflow: 'hidden' as const }}>
@@ -598,20 +598,20 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
         {/* Resultado */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '8px' }}>
           <div style={{ padding: '12px', background: excedenteSin >= 0 ? '#F0FDF4' : '#FEF2F2', borderRadius: '10px', borderLeft: `3px solid ${excedenteSin >= 0 ? VERDE : ROJO}` }}>
-            <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: '#64748B', margin: '0 0 4px' }}>Sin Modalidad 40</p>
-            <p style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '800', color: excedenteSin >= 0 ? VERDE : ROJO, margin: '0 0 2px' }}>
+            <p style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', color: '#64748B', margin: '0 0 4px' }}>Sin Modalidad 40</p>
+            <p style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: '800', color: excedenteSin >= 0 ? VERDE : ROJO, margin: '0 0 2px' }}>
               {excedenteSin >= 0 ? `+${fmtMXN(excedenteSin)}` : fmtMXN(excedenteSin)}
             </p>
-            <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: '#64748B', margin: 0 }}>
+            <p style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', color: '#64748B', margin: 0 }}>
               {excedenteSin >= 0 ? 'sobraría al mes' : 'faltaría al mes'}
             </p>
           </div>
           <div style={{ padding: '12px', background: excedenteCon >= 0 ? '#F0FDF4' : '#FEF2F2', borderRadius: '10px', borderLeft: `3px solid ${excedenteCon >= 0 ? VERDE : ROJO}` }}>
-            <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: '#64748B', margin: '0 0 4px' }}>Con Modalidad 40</p>
-            <p style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '800', color: excedenteCon >= 0 ? VERDE : ROJO, margin: '0 0 2px' }}>
+            <p style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', color: '#64748B', margin: '0 0 4px' }}>Con Modalidad 40</p>
+            <p style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: '800', color: excedenteCon >= 0 ? VERDE : ROJO, margin: '0 0 2px' }}>
               {excedenteCon >= 0 ? `+${fmtMXN(excedenteCon)}` : fmtMXN(excedenteCon)}
             </p>
-            <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: '#64748B', margin: 0 }}>
+            <p style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', color: '#64748B', margin: 0 }}>
               {excedenteCon >= 0 ? 'sobraría al mes' : 'faltaría al mes'}
             </p>
           </div>
@@ -622,7 +622,7 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: AZUL, fontWeight: '700', margin: '0 0 4px' }}>
             {mejora > 0 ? `Con Modalidad 40 tu pensión mejora ${mejora}%` : 'Completa el diagnóstico para ver la mejora'}
           </p>
-          <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#64748B', margin: 0 }}>
+          <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#64748B', margin: 0 }}>
             {pensionCon > 0 && pensionSin > 0 && (
               `Eso significa ${fmtMXN(pensionCon - pensionSin)} más al mes — la diferencia entre ${excedenteCon >= 0 ? 'cubrir tus gastos y tener un margen' : 'reducir el déficit mensual'}.`
             )}
@@ -726,7 +726,7 @@ function SemaforoElegibilidad({ clienteId, diagnosticoId, datos, escenarioSel, s
       <div style={{ background: '#334E7B', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#93C5FD', margin: '0 0 2px', fontWeight: '700' }}>Elegibilidad Financiera</p>
-          <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '800', color: 'white', margin: 0 }}>
+          <p style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '800', color: 'white', margin: 0 }}>
             {viables > 0 ? `✅ Viable en ${viables} de ${financieras.length} financiera${financieras.length !== 1 ? 's' : ''}` :
              condicionales > 0 ? `⚠️ Condicional en ${condicionales} de ${financieras.length} financiera${financieras.length !== 1 ? 's' : ''}` :
              '❌ Sin elegibilidad en financieras configuradas'}
@@ -739,17 +739,17 @@ function SemaforoElegibilidad({ clienteId, diagnosticoId, datos, escenarioSel, s
           <div key={e.id} style={{ borderBottom: '1px solid #F3F4F6' }}>
             <div onClick={() => setExpandida(expandida === e.id ? null : e.id)}
               style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
-              <span style={{ fontSize: 'clamp(13px, 1.00vw, 16px)' }}>🏦</span>
+              <span style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)' }}>🏦</span>
               <span style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '600', color: '#374151', flex: 1 }}>{e.nombre}</span>
-              <span style={{ padding: '3px 10px', background: bgResultado(e.resultado), color: colorResultado(e.resultado), fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', borderRadius: '4px' }}>
+              <span style={{ padding: '3px 10px', background: bgResultado(e.resultado), color: colorResultado(e.resultado), fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', borderRadius: '4px' }}>
                 {etiqueta(e.resultado)}
               </span>
-              <span style={{ color: '#94A3B8', fontSize: 'clamp(12px, 0.90vw, 14px)' }}>{expandida === e.id ? '▲' : '▼'}</span>
+              <span style={{ color: '#94A3B8', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)' }}>{expandida === e.id ? '▲' : '▼'}</span>
             </div>
             {expandida === e.id && e.detalles.length > 0 && (
               <div style={{ padding: '0 16px 12px 42px' }}>
                 {e.detalles.map((d: any, i: number) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 0', fontSize: 'clamp(12px, 0.90vw, 14px)' }}>
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 0', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)' }}>
                     <span>{d.cumple ? '✓' : '✗'}</span>
                     <span style={{ color: d.cumple ? '#16A34A' : '#DC2626' }}>
                       {d.clave.replace(/_/g, ' ')} — {d.motivo || `Valor: ${d.valor}`}
@@ -2077,7 +2077,7 @@ function CalculadoraInner() {
           <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
             <div style={{ background: 'white', maxWidth: 'min(620px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: 'min(100%, 92vw)', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
               <div style={{ background: hayErrores ? '#DC2626' : '#F59E0B', padding: '16px 20px' }}>
-                <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '800' as const, color: 'white', margin: 0 }}>
+                <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '800' as const, color: 'white', margin: 0 }}>
                   {hayErrores ? '⛔ Se encontraron errores en los datos' : '⚠️ Revisa estos datos antes de continuar'}
                 </p>
               </div>
@@ -2114,9 +2114,9 @@ function CalculadoraInner() {
         const esAutorizacion = estatus === 'autorizado'
         return (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-            <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: 'min(600px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
-              <div style={{ fontSize: 'clamp(14.0px, 1.21vw, 19.5px)', textAlign: 'center' as const, marginBottom: '8px' }}>🎯</div>
-              <h3 style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '700' as const, color: '#334E7B', margin: '0 0 10px', textAlign: 'center' as const }}>
+            <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11.0px, 1.15vw, 14.1px)', maxWidth: 'min(600px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+              <div style={{ fontSize: 'clamp(13.4px, 1.07vw, 17.2px)', textAlign: 'center' as const, marginBottom: '8px' }}>🎯</div>
+              <h3 style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: '700' as const, color: '#334E7B', margin: '0 0 10px', textAlign: 'center' as const }}>
                 {esAutorizacion ? '¡Diagnóstico autorizado!' : '¡Diagnóstico guardado!'}
               </h3>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#64748b', margin: '0 0 16px', lineHeight: 1.6, textAlign: 'center' as const }}>
@@ -2142,10 +2142,10 @@ function CalculadoraInner() {
       {showGlosario && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={e => { if (e.target === e.currentTarget) setShowGlosario(false) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: 'min(640px, 88vw)', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11.0px, 1.15vw, 14.1px)', maxWidth: 'min(640px, 88vw)', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-              <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700' as const, color: AZUL, margin: 0 }}>📖 Glosario de términos</p>
-              <button onClick={() => setShowGlosario(false)} aria-label="Cerrar" style={{ background: 'none', border: 'none', fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
+              <p style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '700' as const, color: AZUL, margin: 0 }}>📖 Glosario de términos</p>
+              <button onClick={() => setShowGlosario(false)} aria-label="Cerrar" style={{ background: 'none', border: 'none', fontSize: 'clamp(10.8px, 0.86vw, 13.9px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {[
@@ -2176,10 +2176,10 @@ function CalculadoraInner() {
       {showGuiaEdadMod40 && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={e => { if (e.target === e.currentTarget) setShowGuiaEdadMod40(false) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: 'min(640px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11.0px, 1.15vw, 14.1px)', maxWidth: 'min(640px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-              <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700' as const, color: AZUL, margin: 0 }}>¿Por qué pedimos años Y meses, no solo años?</p>
-              <button onClick={() => setShowGuiaEdadMod40(false)} style={{ background: 'none', border: 'none', fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
+              <p style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '700' as const, color: AZUL, margin: 0 }}>¿Por qué pedimos años Y meses, no solo años?</p>
+              <button onClick={() => setShowGuiaEdadMod40(false)} style={{ background: 'none', border: 'none', fontSize: 'clamp(10.8px, 0.86vw, 13.9px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
             </div>
             <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#374151', lineHeight: 1.7 }}>
               <p>La UMA (Unidad de Medida y Actualización) se actualiza <strong>cada 1° de enero</strong>. El costo mensual de Modalidad 40 y la pensión que resulta dependen de la UMA vigente en el <strong>año calendario</strong> en que el cliente da de alta su Modalidad 40.</p>
@@ -2201,20 +2201,20 @@ function CalculadoraInner() {
       {showTooltipCuantia && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={e => { if (e.target === e.currentTarget) setShowTooltipCuantia(false) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: 'min(600px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11.0px, 1.15vw, 14.1px)', maxWidth: 'min(600px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <div>
-                <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700' as const, color: AZUL, margin: 0 }}>Tabla de cuantía de pensión — Ley 73</p>
-                <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#94a3b8', margin: '2px 0 0' }}>Art. 167 LSS 1973 · La cuantía aumenta 1.25% por cada 52 semanas adicionales sobre 500</p>
+                <p style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '700' as const, color: AZUL, margin: 0 }}>Tabla de cuantía de pensión — Ley 73</p>
+                <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#94a3b8', margin: '2px 0 0' }}>Art. 167 LSS 1973 · La cuantía aumenta 1.25% por cada 52 semanas adicionales sobre 500</p>
               </div>
-              <button onClick={() => setShowTooltipCuantia(false)} style={{ background: 'none', border: 'none', fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
+              <button onClick={() => setShowTooltipCuantia(false)} style={{ background: 'none', border: 'none', fontSize: 'clamp(10.8px, 0.86vw, 13.9px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
             </div>
             <div style={{ overflowX: 'auto', border: '1px solid #E5E7EB', borderRadius: '10px', marginBottom: '12px' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'clamp(11px, 0.78vw, 12.5px)' }}>
                 <thead>
                   <tr style={{ background: AZUL }}>
                     {['Semanas cotizadas', 'Años cotizados', '% del SDI', 'Sobre pensión base'].map((h, i) => (
-                      <th key={i} style={{ padding: '7px 10px', color: 'white', textAlign: i > 0 ? 'right' : 'left', fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700' as const }}>{h}</th>
+                      <th key={i} style={{ padding: '7px 10px', color: 'white', textAlign: i > 0 ? 'right' : 'left', fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '700' as const }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -2224,7 +2224,7 @@ function CalculadoraInner() {
                       <td style={{ padding: '6px 10px', fontWeight: '600' as const, color: AZUL }}>{row.semanas}</td>
                       <td style={{ padding: '6px 10px', textAlign: 'right' as const, color: '#374151' }}>{Math.floor((row.semanas - 500) / 52) + 9.6} aprox.</td>
                       <td style={{ padding: '6px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: NARANJA }}>{row.pct}%</td>
-                      <td style={{ padding: '6px 10px', textAlign: 'right' as const, color: '#94a3b8', fontSize: 'clamp(12px, 0.90vw, 14px)' }}>{row.descripcion}</td>
+                      <td style={{ padding: '6px 10px', textAlign: 'right' as const, color: '#94a3b8', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)' }}>{row.descripcion}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -2232,15 +2232,15 @@ function CalculadoraInner() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', marginBottom: '12px' }}>
               <div style={{ background: '#FFF7ED', borderRadius: '10px', padding: '10px 12px', border: '1px solid #fed7aa' }}>
-                <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: '#92400e', margin: '0 0 3px', fontWeight: '700' as const }}>CESANTÍA (60-64 años)</p>
-                <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#92400e', margin: 0, lineHeight: 1.5 }}>Se aplica un factor reductor: 75% a los 60, 80% a los 61, 85% a los 62, 90% a los 63, 95% a los 64 años. Se requiere acreditar haber dejado de trabajar.</p>
+                <p style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', color: '#92400e', margin: '0 0 3px', fontWeight: '700' as const }}>CESANTÍA (60-64 años)</p>
+                <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#92400e', margin: 0, lineHeight: 1.5 }}>Se aplica un factor reductor: 75% a los 60, 80% a los 61, 85% a los 62, 90% a los 63, 95% a los 64 años. Se requiere acreditar haber dejado de trabajar.</p>
               </div>
               <div style={{ background: '#F0FDF4', borderRadius: '10px', padding: '10px 12px', border: '1px solid #bbf7d0' }}>
-                <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: '#15803d', margin: '0 0 3px', fontWeight: '700' as const }}>VEJEZ (65+ años)</p>
-                <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#15803d', margin: 0, lineHeight: 1.5 }}>Factor del 100%. No requiere acreditar cesantía. Es la modalidad más conveniente si el cliente puede esperar hasta los 65 años.</p>
+                <p style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', color: '#15803d', margin: '0 0 3px', fontWeight: '700' as const }}>VEJEZ (65+ años)</p>
+                <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#15803d', margin: 0, lineHeight: 1.5 }}>Factor del 100%. No requiere acreditar cesantía. Es la modalidad más conveniente si el cliente puede esperar hasta los 65 años.</p>
               </div>
             </div>
-            <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
+            <p style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
               Fuente: Ley del Seguro Social 1973, Arts. 167-168. La cuantía también se incrementa en 2% por cada 52 semanas adicionales sobre las 500 mínimas, con un tope del 100% del SDI promedio.
             </p>
           </div>
@@ -2252,7 +2252,7 @@ function CalculadoraInner() {
         <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'white', maxWidth: 'min(540px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: 'min(100%, 92vw)', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
             <div style={{ background: AZUL, padding: '16px 20px' }}>
-              <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700' as const, color: 'white', margin: 0 }}>📋 Este cliente tiene un diagnóstico en progreso</p>
+              <p style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '700' as const, color: 'white', margin: 0 }}>📋 Este cliente tiene un diagnóstico en progreso</p>
             </div>
             <div style={{ padding: '20px' }}>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#1E293B', margin: '0 0 6px', lineHeight: 1.6 }}>
@@ -2291,8 +2291,8 @@ function CalculadoraInner() {
       {/* ── Modal confirmación cambio de cliente ── */}
       {showConfirmCambio && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: 'min(380px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
-            <h3 style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '700' as const, color: '#334E7B', margin: '0 0 10px' }}>⚠️ ¿Cambiar de cliente?</h3>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11.0px, 1.15vw, 14.1px)', maxWidth: 'min(380px, 88vw)', maxHeight: '88vh', overflowY: 'auto', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+            <h3 style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: '700' as const, color: '#334E7B', margin: '0 0 10px' }}>⚠️ ¿Cambiar de cliente?</h3>
             <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#64748b', margin: '0 0 20px', lineHeight: 1.6 }}>
               {diagGuardadoId
                 ? 'El diagnóstico ya fue guardado. Puedes cambiar de cliente sin perder nada.'
@@ -2323,20 +2323,20 @@ function CalculadoraInner() {
       {showDetalle250 && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(13,36,64,0.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={() => setShowDetalle250(false)}>
-          <div style={{ background: 'white', borderRadius: '12px', padding: 'clamp(11.4px, 1.32vw, 15.8px)', maxWidth: 'min(720px, 88vw)', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
+          <div style={{ background: 'white', borderRadius: '12px', padding: 'clamp(10.8px, 1.16vw, 13.9px)', maxWidth: 'min(720px, 88vw)', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
             onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div>
-                <h3 style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '700' as const, color: AZUL, margin: 0 }}>Desglose completo — 250 semanas cotizadas</h3>
+                <h3 style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: '700' as const, color: AZUL, margin: 0 }}>Desglose completo — 250 semanas cotizadas</h3>
                 <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#94a3b8', margin: '4px 0 0' }}>SDI promedio ponderado: <strong style={{ color: NARANJA }}>{fmtMXN2(sdiPromedio)}</strong></p>
               </div>
-              <button onClick={() => setShowDetalle250(false)} style={{ background: 'none', border: 'none', fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
+              <button onClick={() => setShowDetalle250(false)} style={{ background: 'none', border: 'none', fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
             </div>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'clamp(11px, 0.78vw, 12.5px)' }}>
               <thead>
                 <tr style={{ background: '#F4F6F9' }}>
                   {['#', 'Fecha inicio', 'Fecha fin', 'Semanas', 'SDI diario', 'SDI mensual', 'Peso'].map((h, i) => (
-                    <th key={i} style={{ padding: '8px 10px', textAlign: i > 0 ? 'right' : 'center', fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700' as const, color: '#64748b', borderBottom: '2px solid #e2e8f0' }}>{h}</th>
+                    <th key={i} style={{ padding: '8px 10px', textAlign: i > 0 ? 'right' : 'center', fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '700' as const, color: '#64748b', borderBottom: '2px solid #e2e8f0' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -2355,7 +2355,7 @@ function CalculadoraInner() {
                 <tr style={{ background: '#EEF2F8', borderTop: '2px solid #e2e8f0' }}>
                   <td colSpan={3} style={{ padding: '8px 10px', fontWeight: '700' as const, color: AZUL }}>Promedio ponderado</td>
                   <td style={{ padding: '8px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: AZUL }}>{periodos.reduce((s, p) => s + p.semanas, 0)}</td>
-                  <td style={{ padding: '8px 10px', textAlign: 'right' as const, fontWeight: '800' as const, color: NARANJA, fontSize: 'clamp(11.5px, 0.87vw, 14px)' }}>{fmtMXN2(sdiPromedio)}</td>
+                  <td style={{ padding: '8px 10px', textAlign: 'right' as const, fontWeight: '800' as const, color: NARANJA, fontSize: 'clamp(9.6px, 0.76vw, 12.3px)' }}>{fmtMXN2(sdiPromedio)}</td>
                   <td style={{ padding: '8px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: AZUL }}>{fmtMXN(sdiPromedio * 30.4)}</td>
                   <td style={{ padding: '8px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: AZUL }}>100%</td>
                 </tr>
@@ -2369,20 +2369,20 @@ function CalculadoraInner() {
       {showHistorialCompleto && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(13,36,64,0.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={() => setShowHistorialCompleto(false)}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: 'min(680px, 88vw)', maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11.0px, 1.15vw, 14.1px)', maxWidth: 'min(680px, 88vw)', maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
             onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div>
-                <h3 style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '700' as const, color: AZUL, margin: 0 }}>Historial laboral completo</h3>
+                <h3 style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: '700' as const, color: AZUL, margin: 0 }}>Historial laboral completo</h3>
                 <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#94a3b8', margin: '4px 0 0' }}>{periodosCompletos.length} períodos · {Math.round(periodosCompletos.reduce((s: number, p: any) => s + (p.semanas || 0), 0))} semanas totales · ordenado del más antiguo al más reciente</p>
               </div>
-              <button onClick={() => setShowHistorialCompleto(false)} style={{ background: 'none', border: 'none', fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
+              <button onClick={() => setShowHistorialCompleto(false)} style={{ background: 'none', border: 'none', fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
             </div>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'clamp(11px, 0.78vw, 12.5px)' }}>
               <thead>
                 <tr style={{ background: '#F4F6F9' }}>
                   {['#', 'Fecha inicio', 'Fecha fin', 'Semanas', 'SDI diario', 'Patrón'].map((h, i) => (
-                    <th key={i} style={{ padding: '8px 10px', textAlign: i > 0 ? 'right' : 'center', fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700' as const, color: '#64748b', borderBottom: '2px solid #e2e8f0' }}>{h}</th>
+                    <th key={i} style={{ padding: '8px 10px', textAlign: i > 0 ? 'right' : 'center', fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '700' as const, color: '#64748b', borderBottom: '2px solid #e2e8f0' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -2398,7 +2398,7 @@ function CalculadoraInner() {
                     <td style={{ padding: '7px 10px', textAlign: 'right' as const, color: '#374151' }}>{p.fecha_fin?.slice(0, 10) || 'Vigente'}</td>
                     <td style={{ padding: '7px 10px', textAlign: 'right' as const, fontWeight: '600' as const, color: '#374151' }}>{(p.semanas || 0).toFixed(2)}</td>
                     <td style={{ padding: '7px 10px', textAlign: 'right' as const, fontWeight: '700' as const, color: NARANJA }}>{fmtMXN2(p.sdi || 0)}</td>
-                    <td style={{ padding: '7px 10px', textAlign: 'right' as const, color: '#64748b', fontSize: 'clamp(12px, 0.90vw, 14px)' }}>{p.patron || '—'}</td>
+                    <td style={{ padding: '7px 10px', textAlign: 'right' as const, color: '#64748b', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)' }}>{p.patron || '—'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -2415,11 +2415,11 @@ function CalculadoraInner() {
 
             {/* Header azul */}
             <div style={{ background: AZUL, padding: '26px 28px 20px', textAlign: 'center' as const }}>
-              <div style={{ fontSize: 'clamp(18.0px, 1.56vw, 25.0px)', fontWeight: '900' as const, color: 'white', letterSpacing: '-1px', fontFamily: 'Arial Black, sans-serif', marginBottom: '6px' }}>
+              <div style={{ fontSize: 'clamp(15.6px, 1.25vw, 20.0px)', fontWeight: '900' as const, color: 'white', letterSpacing: '-1px', fontFamily: 'Arial Black, sans-serif', marginBottom: '6px' }}>
                 KSE<sup style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', verticalAlign: 'super' }}>®</sup>
               </div>
-              <h2 style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700' as const, color: 'white', margin: '0 0 4px' }}>Calculadora de Pensión</h2>
-              <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#93C5FD', margin: 0 }}>Completa los dos pasos para continuar</p>
+              <h2 style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700' as const, color: 'white', margin: '0 0 4px' }}>Calculadora de Pensión</h2>
+              <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#93C5FD', margin: 0 }}>Completa los dos pasos para continuar</p>
             </div>
 
             <div style={{ padding: '20px 24px 24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -2434,11 +2434,11 @@ function CalculadoraInner() {
                     <p style={{ margin: 0, fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700' as const, color: clienteId ? VERDE : '#374151' }}>
                       {clienteId ? `Cliente: ${clientes.find(c => c.id === clienteId)?.nombre ?? ''}` : 'Seleccionar cliente'}
                     </p>
-                    {!clienteId && <p style={{ margin: '1px 0 0', fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#94A3B8' }}>Requerido</p>}
+                    {!clienteId && <p style={{ margin: '1px 0 0', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#94A3B8' }}>Requerido</p>}
                   </div>
                   {clienteId && (
                     <button onClick={() => setClienteId('')}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'clamp(13px, 1.00vw, 16px)', color: '#94A3B8', padding: '0 2px' }}>✕</button>
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', color: '#94A3B8', padding: '0 2px' }}>✕</button>
                   )}
                 </div>
                 {!clienteId && (
@@ -2450,20 +2450,20 @@ function CalculadoraInner() {
               </div>
 
               {/* Paso 2: Modo de entrada */}
-              <div style={{ border: `1px solid ${datos.semanas_totales > 0 ? VERDE + '44' : '#E1E7F0'}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(14.0px, 1.5vw, 19.4px) clamp(14.0px, 1.67vw, 21.1px)', background: datos.semanas_totales > 0 ? '#E6F4EE' : 'white', transition: 'all 0.2s' }}>
+              <div style={{ border: `1px solid ${datos.semanas_totales > 0 ? VERDE + '44' : '#E1E7F0'}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(13.3px, 1.32vw, 17.1px) clamp(13.2px, 1.34vw, 16.9px)', background: datos.semanas_totales > 0 ? '#E6F4EE' : 'white', transition: 'all 0.2s' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: datos.semanas_totales > 0 ? '0' : '12px' }}>
-                  <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: datos.semanas_totales > 0 ? VERDE : '#E1E7F0', color: datos.semanas_totales > 0 ? 'white' : '#132135', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 'clamp(12px, 0.90vw, 14px)' }}>
+                  <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: datos.semanas_totales > 0 ? VERDE : '#E1E7F0', color: datos.semanas_totales > 0 ? 'white' : '#132135', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 'clamp(9.6px, 0.79vw, 12.3px)' }}>
                     {datos.semanas_totales > 0 ? '✓' : '2'}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ margin: 0, fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: '#132135' }}>
+                    <p style={{ margin: 0, fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', fontWeight: 700, color: '#132135' }}>
                       {datos.semanas_totales > 0 ? `Datos cargados — ${datos.semanas_totales} semanas` : 'Datos del trabajador'}
                     </p>
-                    {datos.semanas_totales === 0 && !modoEntrada && <p style={{ margin: '4px 0 0', fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#66738A' }}>¿Cómo quieres ingresar los datos?</p>}
+                    {datos.semanas_totales === 0 && !modoEntrada && <p style={{ margin: '4px 0 0', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#66738A' }}>¿Cómo quieres ingresar los datos?</p>}
                   </div>
                   {modoEntrada && datos.semanas_totales === 0 && (
                     <button onClick={() => setModoEntrada(null)}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#66738A', padding: '6px 8px', fontFamily: 'inherit' }}>‹ Cambiar</button>
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#66738A', padding: '6px 8px', fontFamily: 'inherit' }}>‹ Cambiar</button>
                   )}
                 </div>
 
@@ -2474,21 +2474,21 @@ function CalculadoraInner() {
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '12px' }}>
                         <button onClick={() => setModoEntrada('auto')}
                           style={{ width: '100%', padding: '20px', background: 'white', border: `2px solid ${NARANJA}`, borderRadius: '14px', cursor: 'pointer', boxShadow: '0 4px 16px rgba(232,98,44,0.14)', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '12px', textAlign: 'left' as const }}>
-                          <span style={{ width: 42, height: 42, borderRadius: '50%', flexShrink: 0, background: NARANJA, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(14.0px, 1.23vw, 19.4px)', fontWeight: 700 }}>↑</span>
+                          <span style={{ width: 42, height: 42, borderRadius: '50%', flexShrink: 0, background: NARANJA, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(13.3px, 1.08vw, 17.1px)', fontWeight: 700 }}>↑</span>
                           <div>
-                            <div style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, color: '#132135' }}>Cargar constancia del IMSS</div>
-                            <div style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#66738A', marginTop: '3px', lineHeight: 1.5 }}>Sofía lee el PDF y llena los datos sola. Es la vía recomendada: evita errores de captura.</div>
+                            <div style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: 700, color: '#132135' }}>Cargar constancia del IMSS</div>
+                            <div style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#66738A', marginTop: '3px', lineHeight: 1.5 }}>Sofía lee el PDF y llena los datos sola. Es la vía recomendada: evita errores de captura.</div>
                           </div>
-                          <span style={{ marginLeft: 'auto', fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', color: NARANJA, alignSelf: 'center' }}>›</span>
+                          <span style={{ marginLeft: 'auto', fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', color: NARANJA, alignSelf: 'center' }}>›</span>
                         </button>
                         <button onClick={() => setModoEntrada('manual')}
                           style={{ width: '100%', padding: '20px', background: 'white', border: '1px solid #E1E7F0', borderRadius: '14px', cursor: 'pointer', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '12px', textAlign: 'left' as const }}>
-                          <span style={{ width: 42, height: 42, borderRadius: '50%', flexShrink: 0, background: '#E1E7F0', color: '#132135', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(14.0px, 1.23vw, 19.4px)', fontWeight: 700 }}>✎</span>
+                          <span style={{ width: 42, height: 42, borderRadius: '50%', flexShrink: 0, background: '#E1E7F0', color: '#132135', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(13.3px, 1.08vw, 17.1px)', fontWeight: 700 }}>✎</span>
                           <div>
-                            <div style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, color: '#132135' }}>Capturar a mano</div>
-                            <div style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#66738A', marginTop: '3px', lineHeight: 1.5 }}>Para cuando no tienes el PDF o la constancia es un escaneo.</div>
+                            <div style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: 700, color: '#132135' }}>Capturar a mano</div>
+                            <div style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#66738A', marginTop: '3px', lineHeight: 1.5 }}>Para cuando no tienes el PDF o la constancia es un escaneo.</div>
                           </div>
-                          <span style={{ marginLeft: 'auto', fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', color: '#C7D0DD', alignSelf: 'center' }}>›</span>
+                          <span style={{ marginLeft: 'auto', fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', color: '#C7D0DD', alignSelf: 'center' }}>›</span>
                         </button>
                       </div>
                     )}
@@ -2496,7 +2496,7 @@ function CalculadoraInner() {
                     {/* Pantalla B: Carga automática PDF */}
                     {modoEntrada === 'auto' && (
                       <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '10px' }}>
-                        <p style={{ margin: '0 0 6px', fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#66738A', lineHeight: 1.55 }}>
+                        <p style={{ margin: '0 0 6px', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#66738A', lineHeight: 1.55 }}>
                           Debe ser el PDF que emite SISEC, no una foto ni un escaneo. Sofía lee el documento y llena los datos.
                         </p>
                         <label style={{ width: '100%', padding: '15px', background: extracting ? '#E1E7F0' : NARANJA, color: extracting ? '#66738A' : 'white', boxShadow: extracting ? 'none' : '0 3px 10px rgba(232,98,44,0.34)', cursor: extracting ? 'not-allowed' : 'pointer', fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '600' as const, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxSizing: 'border-box' as const, opacity: extracting ? 0.8 : 1, borderRadius: '10px' }}>
@@ -2507,11 +2507,11 @@ function CalculadoraInner() {
                           }} />
                         </label>
                         {extracting && (
-                          <div style={{ background: '#F5F7FA', borderRadius: '10px', padding: '14px 16px', fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#132135', lineHeight: 1.55 }}>
+                          <div style={{ background: '#F5F7FA', borderRadius: '10px', padding: '14px 16px', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#132135', lineHeight: 1.55 }}>
                             Sofía está leyendo el documento. Suele tomar entre 10 y 30 segundos.
                           </div>
                         )}
-                        <p style={{ margin: 0, fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: '#94A3B8' }}>Solo archivos PDF del portal oficial del IMSS. No funciona con fotos ni escaneos.</p>
+                        <p style={{ margin: 0, fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', color: '#94A3B8' }}>Solo archivos PDF del portal oficial del IMSS. No funciona con fotos ni escaneos.</p>
                       </div>
                     )}
 
@@ -2523,31 +2523,31 @@ function CalculadoraInner() {
                         </p>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '8px' }}>
                           <div style={{ gridColumn: '1 / -1' }}>
-                            <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px' }}>Nombre del trabajador</label>
+                            <label style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px' }}>Nombre del trabajador</label>
                             <input type="text" placeholder="Nombre completo"
                               onChange={e => setDatos(prev => ({ ...prev, nombre_trabajador: e.target.value }))}
                               style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
                           </div>
                           <div>
-                            <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px' }}>Semanas cotizadas *</label>
+                            <label style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px' }}>Semanas cotizadas *</label>
                             <input type="number" placeholder="Ej. 850" min={0} max={2000}
                               onChange={e => { const val = Number(e.target.value); if (val > 0) setDatos(prev => ({ ...prev, semanas_totales: val })) }}
                               style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
                           </div>
                           <div>
-                            <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px' }}>NSS</label>
+                            <label style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px' }}>NSS</label>
                             <input type="text" placeholder="11 dígitos"
                               onChange={e => setDatos(prev => ({ ...prev, nss: e.target.value }))}
                               style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
                           </div>
                           <div>
-                            <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px' }}>SDI actual ($/día)</label>
+                            <label style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '600' as const, color: '#94A3B8', display: 'block', marginBottom: '4px' }}>SDI actual ($/día)</label>
                             <input type="number" placeholder="Ej. 450.00" min={0}
                               onChange={e => { const val = Number(e.target.value); if (val > 0) setDatos(prev => ({ ...prev, sdi_actual: val })) }}
                               style={{ width: '100%', padding: '9px 12px', border: '1px solid #E2E8F0', borderRadius: '10px', fontSize: 'clamp(11px, 0.78vw, 12.5px)', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
                           </div>
                         </div>
-                        <p style={{ margin: 0, fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: '#94A3B8' }}>* Las semanas son requeridas para habilitar el botón Continuar.</p>
+                        <p style={{ margin: 0, fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', color: '#94A3B8' }}>* Las semanas son requeridas para habilitar el botón Continuar.</p>
                       </div>
                     )}
                   </>
@@ -2558,7 +2558,7 @@ function CalculadoraInner() {
               <button
                 onClick={() => setMostrarCaratula(false)}
                 disabled={!clienteId || datos.semanas_totales === 0}
-                style={{ width: '100%', padding: '13px', background: clienteId && datos.semanas_totales > 0 ? AZUL : '#E5E7EB', color: clienteId && datos.semanas_totales > 0 ? 'white' : '#9CA3AF', border: 'none', cursor: clienteId && datos.semanas_totales > 0 ? 'pointer' : 'not-allowed', fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700' as const, fontFamily: 'inherit', transition: 'all 0.2s' }}>
+                style={{ width: '100%', padding: '13px', background: clienteId && datos.semanas_totales > 0 ? AZUL : '#E5E7EB', color: clienteId && datos.semanas_totales > 0 ? 'white' : '#9CA3AF', border: 'none', cursor: clienteId && datos.semanas_totales > 0 ? 'pointer' : 'not-allowed', fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '700' as const, fontFamily: 'inherit', transition: 'all 0.2s' }}>
                 {clienteId && datos.semanas_totales > 0 ? '→ Continuar a la calculadora' : 'Completa los dos pasos para continuar'}
               </button>
 
@@ -2578,11 +2578,11 @@ function CalculadoraInner() {
             {/* Header */}
             <div style={{ padding: '16px 20px', borderBottom: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <p style={{ margin: 0, fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700' as const, color: AZUL }}>Seleccionar cliente</p>
-                <p style={{ margin: '2px 0 0', fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#94A3B8' }}>Selecciona un Prospecto o cliente en Diagnóstico</p>
+                <p style={{ margin: 0, fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '700' as const, color: AZUL }}>Seleccionar cliente</p>
+                <p style={{ margin: '2px 0 0', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#94A3B8' }}>Selecciona un Prospecto o cliente en Diagnóstico</p>
               </div>
               <button onClick={() => { setShowClienteModal(false); setBuscarCliente('') }}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', color: '#94A3B8', lineHeight: 1, padding: '0 4px' }}>✕</button>
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', color: '#94A3B8', lineHeight: 1, padding: '0 4px' }}>✕</button>
             </div>
 
             {/* Buscador */}
@@ -2628,15 +2628,15 @@ function CalculadoraInner() {
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '600' as const, color: '#1e293b' }}>{c.nombre}</div>
-                    <div style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#94A3B8' }}>{c.telefono ?? ''}</div>
+                    <div style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#94A3B8' }}>{c.telefono ?? ''}</div>
                   </div>
-                  <span style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700' as const, padding: '3px 10px', background: c.etapa_kanban === 'diagnostico' ? '#DCFCE7' : '#EEF2F8', color: c.etapa_kanban === 'diagnostico' ? '#15803D' : AZUL, flexShrink: 0 }}>
+                  <span style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '700' as const, padding: '3px 10px', background: c.etapa_kanban === 'diagnostico' ? '#DCFCE7' : '#EEF2F8', color: c.etapa_kanban === 'diagnostico' ? '#15803D' : AZUL, flexShrink: 0 }}>
                     {c.etapa_kanban === 'diagnostico' ? 'Diagnóstico' : 'Prospecto'}
                   </span>
                 </button>
               ))}
               {clientes.filter(c => c.nombre.toLowerCase().includes(buscarCliente.toLowerCase())).length === 0 && (
-                <div style={{ padding: 'clamp(11px, 1.3vw, 16px)', textAlign: 'center' as const, color: '#94A3B8', fontSize: 'clamp(11px, 0.78vw, 12.5px)' }}>Sin resultados</div>
+                <div style={{ padding: 'clamp(11.0px, 1.15vw, 14.1px)', textAlign: 'center' as const, color: '#94A3B8', fontSize: 'clamp(11px, 0.78vw, 12.5px)' }}>Sin resultados</div>
               )}
             </div>
           </div>
@@ -2659,7 +2659,7 @@ function CalculadoraInner() {
                 </div>
               )}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', gap: '10px', overflowX: 'auto' }}>
-                <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700' as const, color: '#1e293b', margin: 0, whiteSpace: 'nowrap' }}>
+                <p style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '700' as const, color: '#1e293b', margin: 0, whiteSpace: 'nowrap' }}>
                   {TABS[tab]}
                   {clienteSeleccionado && <span style={{ color: AZUL, fontWeight: '600' as const, fontSize: 'clamp(11px, 0.78vw, 12.5px)' }}> · {clienteSeleccionado.nombre}</span>}
                   {diagGuardadoId && <span style={{ color: estatus === 'autorizado' ? VERDE : '#f59e0b', fontWeight: '600' as const, fontSize: '12.5px' }}> · {estatus === 'autorizado' ? '✅ Autorizado' : '📝 Borrador'}</span>}
@@ -2667,7 +2667,7 @@ function CalculadoraInner() {
                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
                   <button
                     onClick={() => setShowGuia(!showGuia)}
-                    style={{ padding: '5px 10px', background: showGuia ? '#EEF2F8' : 'white', border: '1px solid #E5E7EB', cursor: 'pointer', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '600' as const, color: '#334E7B', fontFamily: 'inherit' }}
+                    style={{ padding: '5px 10px', background: showGuia ? '#EEF2F8' : 'white', border: '1px solid #E5E7EB', cursor: 'pointer', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '600' as const, color: '#334E7B', fontFamily: 'inherit' }}
                     title="Glosario de términos"
                   >
                     📖 Glosario
@@ -2680,15 +2680,15 @@ function CalculadoraInner() {
             {showGuia && (
               <div style={{ position: 'absolute' as const, top: 0, right: 0, width: 'min(100%, 360px)', maxWidth: '92vw', height: '100%', background: 'white', borderLeft: '1px solid #E1E7F0', zIndex: 50, overflowY: 'auto' as const, boxShadow: '-8px 0 32px rgba(13,36,64,0.14)' }}>
                 <div style={{ background: '#0D2440', padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky' as const, top: 0, zIndex: 1 }}>
-                  <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: 'white', margin: 0 }}>Glosario</p>
-                  <button onClick={() => setShowGuia(false)} aria-label="Cerrar" style={{ background: 'rgba(255,255,255,.12)', border: 'none', color: 'white', cursor: 'pointer', fontSize: 'clamp(13px, 1.00vw, 16px)', lineHeight: 1, width: '32px', height: '32px', borderRadius: '10px' }}>✕</button>
+                  <p style={{ fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', fontWeight: 700, color: 'white', margin: 0 }}>Glosario</p>
+                  <button onClick={() => setShowGuia(false)} aria-label="Cerrar" style={{ background: 'rgba(255,255,255,.12)', border: 'none', color: 'white', cursor: 'pointer', fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', lineHeight: 1, width: '32px', height: '32px', borderRadius: '10px' }}>✕</button>
                 </div>
                 <div style={{ padding: '16px' }}>
                   {Object.entries(GLOSARIO).map(([id, g]) => (
-                    <div key={id} style={{ padding: 'clamp(11px, 1.25vw, 16px) clamp(11.4px, 1.23vw, 15.8px)', marginBottom: '10px', background: '#F5F7FA', borderRadius: '12px' }}>
-                      <p style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, color: '#132135', margin: '0 0 6px' }}>{g.titulo}</p>
-                      <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#132135', margin: '0 0 6px', lineHeight: 1.65 }}>{g.desc}</p>
-                      {g.ejemplo && <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: '#66738A', margin: 0, lineHeight: 1.6 }}>{g.ejemplo}</p>}
+                    <div key={id} style={{ padding: 'clamp(11.0px, 1.1vw, 14.1px) clamp(10.8px, 1.08vw, 13.9px)', marginBottom: '10px', background: '#F5F7FA', borderRadius: '12px' }}>
+                      <p style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: 700, color: '#132135', margin: '0 0 6px' }}>{g.titulo}</p>
+                      <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#132135', margin: '0 0 6px', lineHeight: 1.65 }}>{g.desc}</p>
+                      {g.ejemplo && <p style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', color: '#66738A', margin: 0, lineHeight: 1.6 }}>{g.ejemplo}</p>}
                     </div>
                   ))}
                 </div>
@@ -2735,12 +2735,12 @@ function CalculadoraInner() {
                             onClick={() => setMenuAbierto(abierto ? null : gi)}
                             style={{ width: '100%', padding: '10px 8px', border: 'none', borderRadius: '10px', cursor: 'pointer', background: activo ? AZUL : 'white', fontFamily: 'inherit', transition: 'all 0.15s', display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '4px', boxShadow: activo ? '0 2px 8px rgba(51,78,123,0.3)' : '0 1px 2px rgba(0,0,0,0.06)' }}>
                             {/* Ícono grande */}
-                            <span style={{ fontSize: 'clamp(14.0px, 1.21vw, 19.4px)', lineHeight: 1, display: 'block' }}>
-                              <i className={`ti ${g.tiIcon}`} style={{ color: activo ? 'white' : '#94A3B8', fontSize: 'clamp(14.0px, 1.21vw, 19.4px)' }} />
+                            <span style={{ fontSize: 'clamp(13.3px, 1.07vw, 17.1px)', lineHeight: 1, display: 'block' }}>
+                              <i className={`ti ${g.tiIcon}`} style={{ color: activo ? 'white' : '#94A3B8', fontSize: 'clamp(13.3px, 1.07vw, 17.1px)' }} />
                             </span>
                             {/* Label */}
                             <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                              <span style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: activo ? '700' : '500', color: activo ? 'white' : '#9CA3AF', whiteSpace: 'nowrap' as const }}>{g.label}</span>
+                              <span style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: activo ? '700' : '500', color: activo ? 'white' : '#9CA3AF', whiteSpace: 'nowrap' as const }}>{g.label}</span>
                               <span style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: activo ? 'rgba(255,255,255,0.7)' : '#CBD5E1', display: 'inline-block', transform: abierto ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.15s' }}>▾</span>
                             </div>
                             {/* Indicador completado */}
@@ -2753,7 +2753,7 @@ function CalculadoraInner() {
                           {abierto && (
                             <div style={{ position: 'absolute' as const, top: 'calc(100% + 4px)', left: 0, minWidth: '210px', background: 'white', borderRadius: '10px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', border: `1px solid ${BORDE}`, zIndex: 100, overflow: 'hidden' }}>
                               <div style={{ background: AZUL, padding: '8px 14px' }}>
-                                <span style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: 'white', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: 'white', display: 'flex', alignItems: 'center', gap: '6px' }}>
                                   <i className={`ti ${g.tiIcon}`} style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)' }} /> {g.label}
                                 </span>
                               </div>
@@ -2764,12 +2764,12 @@ function CalculadoraInner() {
                                   <button key={tabIdx}
                                     onClick={() => { setTab(tabIdx); setMenuAbierto(null) }}
                                     style={{ width: '100%', padding: '10px 14px', border: 'none', borderBottom: `1px solid ${BORDE}`, cursor: 'pointer', background: esCurrent ? '#EEF2F8' : 'white', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '10px', textAlign: 'left' as const, transition: 'background 0.1s' }}>
-                                    <div style={{ width: '22px', height: '22px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700', background: esCompletado ? VERDE : esCurrent ? AZUL : '#F1F5F9', color: esCompletado || esCurrent ? 'white' : '#94A3B8' }}>
+                                    <div style={{ width: '22px', height: '22px', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '700', background: esCompletado ? VERDE : esCurrent ? AZUL : '#F1F5F9', color: esCompletado || esCurrent ? 'white' : '#94A3B8' }}>
                                       {esCompletado ? '✓' : si + 1}
                                     </div>
                                     <div style={{ flex: 1 }}>
                                       <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: esCurrent ? '700' : '500', color: esCurrent ? AZUL : esCompletado ? '#374151' : '#64748B' }}>{g.nombres[si]}</div>
-                                      {esCurrent && <div style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: AZUL, marginTop: '1px' }}>← Estás aquí</div>}
+                                      {esCurrent && <div style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', color: AZUL, marginTop: '1px' }}>← Estás aquí</div>}
                                     </div>
                                     {esCurrent && <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: AZUL, flexShrink: 0 }} />}
                                   </button>
@@ -2787,9 +2787,9 @@ function CalculadoraInner() {
 
                   {/* Opciones adicionales — regímenes alternativos */}
                   <div style={{ marginLeft: 'auto', display: 'flex', gap: '6px', alignItems: 'center' }}>
-                    <span style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: '#94A3B8', whiteSpace: 'nowrap' as const }}>Opciones:</span>
+                    <span style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', color: '#94A3B8', whiteSpace: 'nowrap' as const }}>Opciones:</span>
                     <button onClick={() => setTab(12)}
-                      style={{ padding: '6px 12px', borderRadius: '10px', border: `1px solid ${tab === 12 ? '#0891B2' : '#E2E8F0'}`, background: tab === 12 ? '#ECFEFF' : 'white', color: tab === 12 ? '#0891B2' : '#64748B', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' as const }}>
+                      style={{ padding: '6px 12px', borderRadius: '10px', border: `1px solid ${tab === 12 ? '#0891B2' : '#E2E8F0'}`, background: tab === 12 ? '#ECFEFF' : 'white', color: tab === 12 ? '#0891B2' : '#64748B', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' as const }}>
                       <i className="ti ti-droplet" style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', marginRight: '4px' }} />Mod. 10 / Ley 97
                     </button>
                   </div>
@@ -2815,18 +2815,18 @@ function CalculadoraInner() {
                      cortar la ultima contra el borde en tableta. Con 0 0 auto
                      conservan su ancho y la franja se desplaza, que ya estaba
                      previsto en el contenedor. */
-                  <div key={i} style={{ flex: '0 0 auto', padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.32vw, 15.8px)', borderRight: `1px solid ${BORDE}`, background: 'white', minWidth: '132px' }}>
+                  <div key={i} style={{ flex: '0 0 auto', padding: 'clamp(9.6px, 1.05vw, 12.3px) clamp(10.8px, 1.16vw, 13.9px)', borderRight: `1px solid ${BORDE}`, background: 'white', minWidth: '132px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '3px' }}>
                       <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: dotColor, flexShrink: 0, display: 'inline-block' }} />
                       <span style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A', whiteSpace: 'nowrap' as const }}>{k.label}</span>
                     </div>
-                    <div style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, color: '#132135', whiteSpace: 'nowrap' as const, fontVariantNumeric: 'tabular-nums' as const }}>{k.value}</div>
+                    <div style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: 700, color: '#132135', whiteSpace: 'nowrap' as const, fontVariantNumeric: 'tabular-nums' as const }}>{k.value}</div>
                   </div>
                 )
               })}
             </div>
 {/* Contenido de la pestaña actual */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)', background: '#F5F7FA', fontSize: 'clamp(12px, 0.90vw, 14px)', minWidth: 0, position: 'relative' as const }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: 'clamp(9.6px, 1.05vw, 12.3px) clamp(10.8px, 1.08vw, 13.9px)', background: '#F5F7FA', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', minWidth: 0, position: 'relative' as const }}>
 
               {/* ── Botón guardar borrador flotante — visible en todos los tabs ── */}
               {sdiPromedio > 0 && (
@@ -2846,7 +2846,7 @@ function CalculadoraInner() {
 
             {/* ── Tab -1: Datos generales ── */}
             {tab === -1 && (
-              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 'clamp(9px, 1.1vw, 14px)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 'clamp(9.0px, 0.97vw, 12.3px)' }}>
 
                 {/* Hero KPIs — resumen del caso */}
                 {(escenarios[0]?.pension_mensual || sdiPromedio > 0) && (
@@ -2856,12 +2856,12 @@ function CalculadoraInner() {
                       <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>
                         SU PENSIÓN HOY, SIN MODALIDAD 40
                       </p>
-                      <p style={{ fontSize: 'clamp(19.9px, 2.11vw, 27.7px)', fontWeight: 800, color: 'white', margin: '8px 0 0', lineHeight: 1, letterSpacing: '-.035em', whiteSpace: 'nowrap' as const, fontVariantNumeric: 'tabular-nums' as const }}>
+                      <p style={{ fontSize: 'clamp(17.3px, 1.69vw, 22.2px)', fontWeight: 800, color: 'white', margin: '8px 0 0', lineHeight: 1, letterSpacing: '-.035em', whiteSpace: 'nowrap' as const, fontVariantNumeric: 'tabular-nums' as const }}>
                         {escenarios[0]?.pension_mensual
                           ? new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(escenarios[0].pension_mensual)
                           : '—'}
                       </p>
-                      <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: 'rgba(255,255,255,.68)', margin: '10px 0 0' }}>
+                      <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: 'rgba(255,255,255,.68)', margin: '10px 0 0' }}>
                         {datos.nombre_trabajador || 'Trabajador'} — la constancia del IMSS es la base de todo el cálculo.
                       </p>
                     </div>
@@ -2874,7 +2874,7 @@ function CalculadoraInner() {
                       ].map((k, i) => (
                         <div key={i} style={{ background: '#0D2440', padding: '13px 18px' }}>
                           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k.label}</p>
-                          <p style={{ fontSize: 'clamp(14.0px, 1.19vw, 19.4px)', fontWeight: 700, color: k.color, margin: '3px 0 0', whiteSpace: 'nowrap' as const, fontVariantNumeric: 'tabular-nums' as const }}>{k.value}</p>
+                          <p style={{ fontSize: 'clamp(13.3px, 1.05vw, 17.1px)', fontWeight: 700, color: k.color, margin: '3px 0 0', whiteSpace: 'nowrap' as const, fontVariantNumeric: 'tabular-nums' as const }}>{k.value}</p>
                           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.44)', margin: '2px 0 0' }}>{k.sub}</p>
                         </div>
                       ))}
@@ -2883,7 +2883,7 @@ function CalculadoraInner() {
                 )}
 
                 {/* Leyenda del sistema de colores */}
-                <div style={{ display: 'flex', gap: 'clamp(9px, 1.1vw, 14px)', padding: '10px 15px', background: '#FFFFFF', border: '1px solid #E1E7F0', borderRadius: '12px', flexWrap: 'wrap' as const, alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: 'clamp(9.0px, 0.97vw, 12.3px)', padding: '10px 15px', background: '#FFFFFF', border: '1px solid #E1E7F0', borderRadius: '12px', flexWrap: 'wrap' as const, alignItems: 'center' }}>
                   <span style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A', marginRight: '2px' }}>Procedencia del dato</span>
                   {[
                     { color: AZUL, label: 'Dato IMSS (constancia)' },
@@ -2893,7 +2893,7 @@ function CalculadoraInner() {
                   ].map((item, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
                       <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: item.color, display: 'inline-block', flexShrink: 0 }} />
-                      <span style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#132135' }}>{item.label}</span>
+                      <span style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#132135' }}>{item.label}</span>
                     </div>
                   ))}
                 </div>
@@ -2901,10 +2901,10 @@ function CalculadoraInner() {
 
 
                 {/* Card Identificación — borde azul */}
-                <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: 'clamp(14.0px, 1.5vw, 19.4px) clamp(14.0px, 1.67vw, 21.1px)', boxShadow: '0 1px 3px rgba(19,33,53,0.06)' }}>
+                <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: 'clamp(13.3px, 1.32vw, 17.1px) clamp(13.2px, 1.34vw, 16.9px)', boxShadow: '0 1px 3px rgba(19,33,53,0.06)' }}>
                   <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', marginBottom: '16px' }}>
-                    <span style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: '#132135' }}>Identificación</span>
-                    <span style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#66738A' }}>{clientes.find(c => c.id === clienteId)?.nombre || 'Sin cliente'}</span>
+                    <span style={{ fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', fontWeight: 700, color: '#132135' }}>Identificación</span>
+                    <span style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#66738A' }}>{clientes.find(c => c.id === clienteId)?.nombre || 'Sin cliente'}</span>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '8px' }}>
                     {[
@@ -2914,8 +2914,8 @@ function CalculadoraInner() {
                       { label: 'Edad actual / Régimen', value: datos.edad_actual ? `${datos.edad_actual.toFixed(1)} años${datos.ley ? ' · Ley ' + datos.ley : ''}` : '' },
                     ].map((k, i) => (
                       <div key={i}>
-                        <div style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#66738A', marginBottom: '6px' }}>{k.label}</div>
-                        <div style={{ padding: '12px 14px', background: k.value ? '#F5F7FA' : 'white', border: '1px solid #E1E7F0', borderRadius: '10px', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: k.highlight ? 700 : 500, color: k.value ? '#132135' : '#66738A', fontStyle: k.value ? 'normal' : 'italic' }}>
+                        <div style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#66738A', marginBottom: '6px' }}>{k.label}</div>
+                        <div style={{ padding: '12px 14px', background: k.value ? '#F5F7FA' : 'white', border: '1px solid #E1E7F0', borderRadius: '10px', fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: k.highlight ? 700 : 500, color: k.value ? '#132135' : '#66738A', fontStyle: k.value ? 'normal' : 'italic' }}>
                           {k.value || '—'}
                         </div>
                       </div>
@@ -2924,10 +2924,10 @@ function CalculadoraInner() {
                 </div>
 
                 {/* Card Cotización — borde naranja */}
-                <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: 'clamp(14.0px, 1.5vw, 19.4px) clamp(14.0px, 1.67vw, 21.1px)', boxShadow: '0 1px 3px rgba(19,33,53,0.06)' }}>
+                <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: 'clamp(13.3px, 1.32vw, 17.1px) clamp(13.2px, 1.34vw, 16.9px)', boxShadow: '0 1px 3px rgba(19,33,53,0.06)' }}>
                   <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', marginBottom: '16px' }}>
-                    <span style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: '#132135' }}>Cotización</span>
-                    <span style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 600, color: conservacion.vigente ? VERDE : '#DC2626' }}>{datos.semanas_totales ? (conservacion.vigente ? '✓ Vigente' : '✕ Vencida') : '—'}</span>
+                    <span style={{ fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', fontWeight: 700, color: '#132135' }}>Cotización</span>
+                    <span style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: 600, color: conservacion.vigente ? VERDE : '#DC2626' }}>{datos.semanas_totales ? (conservacion.vigente ? '✓ Vigente' : '✕ Vencida') : '—'}</span>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px', marginBottom: '10px' }}>
                     {[
@@ -2936,7 +2936,7 @@ function CalculadoraInner() {
                       { label: 'Netas', value: datos.semanas_totales ? (datos.semanas_totales - datos.semanas_descontadas) : '—', bg: '#EEF2F8', color: AZUL, border: AZUL },
                     ].map((k, i) => (
                       <div key={i} style={{ textAlign: 'center' as const, padding: '10px 8px', background: k.bg, border: `1px solid ${k.border}`, borderRadius: '10px' }}>
-                        <div style={{ fontSize: 'clamp(14.0px, 1.19vw, 19.4px)', fontWeight: '800' as const, color: k.color, lineHeight: 1 }}>{k.value}</div>
+                        <div style={{ fontSize: 'clamp(13.3px, 1.05vw, 17.1px)', fontWeight: '800' as const, color: k.color, lineHeight: 1 }}>{k.value}</div>
                         <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#94A3B8', marginTop: '4px' }}>{k.label}</div>
                       </div>
                     ))}
@@ -2958,7 +2958,7 @@ function CalculadoraInner() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
                   {/* Card Familia — borde verde */}
                   <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: '10px 15px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-                    <span style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, background: '#F0F7F4', color: VERDE, padding: '3px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '12px' }}>Familia y beneficiarios</span>
+                    <span style={{ fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', fontWeight: 700, background: '#F0F7F4', color: VERDE, padding: '3px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '12px' }}>Familia y beneficiarios</span>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '6px' }}>
                       {[
                         { label: 'Cónyuge', value: datos.tiene_conyuge ? 'Sí' : 'No', ok: datos.tiene_conyuge },
@@ -2966,7 +2966,7 @@ function CalculadoraInner() {
                         { label: 'Padres dep.', value: String(datos.num_padres), ok: datos.num_padres > 0 },
                       ].map(({ label, value, ok }, i) => (
                         <div key={i} style={{ textAlign: 'center' as const, padding: '10px 6px', background: ok ? '#F0F7F4' : '#F8FAFC', border: `1px solid ${ok ? '#86EFAC' : '#E2E8F0'}`, borderRadius: '10px' }}>
-                          <div style={{ fontSize: 'clamp(14.0px, 1.21vw, 19.4px)', fontWeight: '800' as const, color: ok ? VERDE : '#9CA3AF' }}>{value}</div>
+                          <div style={{ fontSize: 'clamp(13.3px, 1.07vw, 17.1px)', fontWeight: '800' as const, color: ok ? VERDE : '#9CA3AF' }}>{value}</div>
                           <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#94A3B8', marginTop: '3px' }}>{label}</div>
                         </div>
                       ))}
@@ -2975,8 +2975,8 @@ function CalculadoraInner() {
 
                   {/* Card Tabla edad — borde morado */}
                   <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: '10px 15px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-                    <span style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, background: '#F5F3FF', color: '#7C3AED', padding: '3px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '12px' }}>% Pensión por edad (Ley 73)</span>
-                    <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: 'clamp(12px, 0.90vw, 14px)' }}>
+                    <span style={{ fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', fontWeight: 700, background: '#F5F3FF', color: '#7C3AED', padding: '3px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '12px' }}>% Pensión por edad (Ley 73)</span>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: 'clamp(9.6px, 0.79vw, 12.3px)' }}>
                       <thead>
                         <tr style={{ background: AZUL }}>
                           {['Edad', '% Cuantía', 'Tipo'].map((h, i) => (
@@ -2991,14 +2991,14 @@ function CalculadoraInner() {
                             <tr key={i} style={{ background: isActive ? '#EEF2F8' : i % 2 === 0 ? 'white' : '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
                               <td style={{ padding: '6px 8px', textAlign: 'center' as const, fontWeight: isActive ? '700' : '400' as const, color: isActive ? AZUL : '#374151' }}>{edad} años</td>
                               <td style={{ padding: '6px 8px', textAlign: 'center' as const, fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700' as const, color: isActive ? AZUL : '#374151' }}>{pct}</td>
-                              <td style={{ padding: '6px 8px', color: '#64748B', fontSize: 'clamp(11.5px, 0.87vw, 14px)' }}>{tipo as string}</td>
+                              <td style={{ padding: '6px 8px', color: '#64748B', fontSize: 'clamp(9.6px, 0.76vw, 12.3px)' }}>{tipo as string}</td>
                             </tr>
                           )
                         })}
                         <tr style={{ background: VERDE }}>
                           <td style={{ padding: '6px 8px', textAlign: 'center' as const, fontWeight: '700' as const, color: 'white' }}>65+ años</td>
                           <td style={{ padding: '6px 8px', textAlign: 'center' as const, fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700' as const, color: 'white' }}>100%</td>
-                          <td style={{ padding: '6px 8px', color: 'white', fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600' as const }}>Vejez (IDEL)</td>
+                          <td style={{ padding: '6px 8px', color: 'white', fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '600' as const }}>Vejez (IDEL)</td>
                         </tr>
                       </tbody>
                     </table>
@@ -3146,8 +3146,8 @@ function CalculadoraInner() {
           const resumenNode = (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div style={{ background: AZUL, padding: '16px 20px', borderRadius: '10px' }}>
-                <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '800' as const, color: 'white', margin: '0 0 4px' }}>Resumen Ejecutivo — Proyecto de Pensión con Modalidad 40</p>
-                <div style={{ display: 'flex', gap: 'clamp(9px, 1.1vw, 14px)', fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#93C5FD' }}>
+                <p style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '800' as const, color: 'white', margin: '0 0 4px' }}>Resumen Ejecutivo — Proyecto de Pensión con Modalidad 40</p>
+                <div style={{ display: 'flex', gap: 'clamp(9.0px, 0.97vw, 12.3px)', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#93C5FD' }}>
                   <span>{datos.nombre_trabajador || 'Trabajador'}</span>
                   {datos.nss && <span>NSS: {datos.nss}</span>}
                   {datos.ley && <span>Régimen: Ley {datos.ley}</span>}
@@ -3162,16 +3162,16 @@ function CalculadoraInner() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
                   {escsConMod40.map((esc: any, i: number) => (
                     <div key={i} style={{ background: esc.recomendado ? VERDE : 'white', border: esc.recomendado ? 'none' : '1.5px solid #E2E8F0', borderRadius: '10px', padding: '14px', textAlign: 'center' as const, boxShadow: esc.recomendado ? '0 4px 12px rgba(46,125,90,0.2)' : '0 1px 3px rgba(0,0,0,0.06)' }}>
-                      {esc.recomendado && <div style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: 'rgba(255,255,255,0.8)', marginBottom: '6px', fontWeight: '600' as const }}>⭐ RECOMENDADO</div>}
-                      <div style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: esc.recomendado ? 'rgba(255,255,255,0.7)' : '#94A3B8', marginBottom: '4px' }}>{esc.mod40_meses} meses Mod. 40</div>
-                      <div style={{ fontSize: 'clamp(14.0px, 1.19vw, 19.4px)', fontWeight: '800' as const, color: esc.recomendado ? 'white' : AZUL, letterSpacing: '-0.5px' }}>
+                      {esc.recomendado && <div style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', color: 'rgba(255,255,255,0.8)', marginBottom: '6px', fontWeight: '600' as const }}>⭐ RECOMENDADO</div>}
+                      <div style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: esc.recomendado ? 'rgba(255,255,255,0.7)' : '#94A3B8', marginBottom: '4px' }}>{esc.mod40_meses} meses Mod. 40</div>
+                      <div style={{ fontSize: 'clamp(13.3px, 1.05vw, 17.1px)', fontWeight: '800' as const, color: esc.recomendado ? 'white' : AZUL, letterSpacing: '-0.5px' }}>
                         {fmtMXN(esc.pension_mensual)}
                       </div>
-                      <div style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: esc.recomendado ? 'rgba(255,255,255,0.7)' : '#64748B', marginTop: '2px' }}>mensual</div>
+                      <div style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: esc.recomendado ? 'rgba(255,255,255,0.7)' : '#64748B', marginTop: '2px' }}>mensual</div>
                       <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700' as const, color: esc.recomendado ? 'white' : '#92400E', marginTop: '8px' }}>
                         {fmtMXN(esc.aportacion_banco || esc.costo_total || 0)}
                       </div>
-                      <div style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: esc.recomendado ? 'rgba(255,255,255,0.6)' : '#94A3B8' }}>inversión total</div>
+                      <div style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', color: esc.recomendado ? 'rgba(255,255,255,0.6)' : '#94A3B8' }}>inversión total</div>
                     </div>
                   ))}
                 </div>
@@ -3229,13 +3229,13 @@ function CalculadoraInner() {
               {/* Header */}
               <div style={{ background: '#0891B2', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: '#BAE6FD', margin: '0 0 3px', fontWeight: '600' }}>Cotización Voluntaria</p>
-                  <p style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '800', color: 'white', margin: 0 }}>Modalidad 10 — Conservación de Derechos</p>
+                  <p style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', color: '#BAE6FD', margin: '0 0 3px', fontWeight: '600' }}>Cotización Voluntaria</p>
+                  <p style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: '800', color: 'white', margin: 0 }}>Modalidad 10 — Conservación de Derechos</p>
                 </div>
                 {escM10 && (
                   <div style={{ textAlign: 'right' as const }}>
-                    <div style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: '#BAE6FD', marginBottom: '2px' }}>Pensión mejorada</div>
-                    <div style={{ fontSize: 'clamp(14.5px, 1.27vw, 20.2px)', fontWeight: '900', color: 'white', letterSpacing: '-1px' }}>{fmtMXN2(escM10.pension_mensual)}</div>
+                    <div style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', color: '#BAE6FD', marginBottom: '2px' }}>Pensión mejorada</div>
+                    <div style={{ fontSize: 'clamp(12.6px, 1.02vw, 16.2px)', fontWeight: '900', color: 'white', letterSpacing: '-1px' }}>{fmtMXN2(escM10.pension_mensual)}</div>
                   </div>
                 )}
               </div>
@@ -3259,11 +3259,11 @@ function CalculadoraInner() {
                       { icon: '', title: 'Tasa ~22%', desc: 'Paga el 100% de cuotas: aprox. 22% del SBC registrado por año' },
                       { icon: '', title: 'Conserva derechos', desc: 'Mantiene vigentes los derechos ante el IMSS (pensión, invalidez)' },
                     ].map(({ icon, title, desc }, i) => (
-                      <div key={i} style={{ display: 'flex', gap: '14px', padding: 'clamp(11px, 1.25vw, 16px) clamp(11.4px, 1.23vw, 15.8px)', background: '#F5F7FA', borderRadius: '12px' }}>
+                      <div key={i} style={{ display: 'flex', gap: '14px', padding: 'clamp(11.0px, 1.1vw, 14.1px) clamp(10.8px, 1.08vw, 13.9px)', background: '#F5F7FA', borderRadius: '12px' }}>
                         <span style={{ width: 6, height: 6, borderRadius: 999, background: '#0891B2', flexShrink: 0, marginTop: 8 }} />
                         <div style={{ minWidth: 0 }}>
-                          <div style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 600, color: '#132135' }}>{title}</div>
-                          <div style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#66738A', marginTop: 2, lineHeight: 1.55 }}>{desc}</div>
+                          <div style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: 600, color: '#132135' }}>{title}</div>
+                          <div style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#66738A', marginTop: 2, lineHeight: 1.55 }}>{desc}</div>
                         </div>
                       </div>
                     ))}
@@ -3280,10 +3280,10 @@ function CalculadoraInner() {
                       <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>
                         SU PENSIÓN CON MODALIDAD 10
                       </p>
-                      <p style={{ fontSize: 'clamp(27.6px, 3.04vw, 38.3px)', fontWeight: 800, color: 'white', margin: '8px 0 0', lineHeight: 1, letterSpacing: '-.035em', whiteSpace: 'nowrap' as const, fontVariantNumeric: 'tabular-nums' as const }}>
+                      <p style={{ fontSize: 'clamp(21.5px, 2.19vw, 27.6px)', fontWeight: 800, color: 'white', margin: '8px 0 0', lineHeight: 1, letterSpacing: '-.035em', whiteSpace: 'nowrap' as const, fontVariantNumeric: 'tabular-nums' as const }}>
                         {fmtMXN2(escM10.pension_mensual)}
                       </p>
-                      <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: 'rgba(255,255,255,.68)', margin: '10px 0 0' }}>
+                      <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: 'rgba(255,255,255,.68)', margin: '10px 0 0' }}>
                         Vía alterna del Art. 13 fr. I LSS. No exige cotización previa y conserva cobertura médica.
                       </p>
                     </div>
@@ -3296,7 +3296,7 @@ function CalculadoraInner() {
                       ].map((k, i) => (
                         <div key={i} style={{ background: '#0D2440', padding: '13px 18px' }}>
                           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k.label}</p>
-                          <p style={{ fontSize: 'clamp(14.5px, 1.26vw, 20.2px)', fontWeight: 700, color: k.color, margin: '3px 0 0', whiteSpace: 'nowrap' as const, fontVariantNumeric: 'tabular-nums' as const }}>{k.value}</p>
+                          <p style={{ fontSize: 'clamp(12.6px, 1.01vw, 16.2px)', fontWeight: 700, color: k.color, margin: '3px 0 0', whiteSpace: 'nowrap' as const, fontVariantNumeric: 'tabular-nums' as const }}>{k.value}</p>
                           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.44)', margin: '2px 0 0' }}>{k.sub}</p>
                         </div>
                       ))}
@@ -3331,9 +3331,9 @@ function CalculadoraInner() {
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'clamp(11px, 0.78vw, 12.5px)' }}>
                           <thead>
                             <tr style={{ background: '#F4F6F9' }}>
-                              <th style={{ padding: '7px 10px', textAlign: 'left' as const, fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#66738A', fontWeight: '700' }}>Concepto</th>
-                              <th style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: '#0891B2', fontWeight: '700' }}>Mod 10</th>
-                              <th style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: '#334E7B', fontWeight: '700' }}>Mod 40</th>
+                              <th style={{ padding: '7px 10px', textAlign: 'left' as const, fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#66738A', fontWeight: '700' }}>Concepto</th>
+                              <th style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', color: '#0891B2', fontWeight: '700' }}>Mod 10</th>
+                              <th style={{ padding: '7px 10px', textAlign: 'center' as const, fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', color: '#334E7B', fontWeight: '700' }}>Mod 40</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -3371,8 +3371,8 @@ function CalculadoraInner() {
               {!escM10 && (
                 <div style={DS.card}>
                   <div style={{ textAlign: 'center' as const, padding: '24px 18px', color: '#94A3B8' }}>
-                    <div style={{ fontSize: 'clamp(22.8px, 1.98vw, 31.7px)', marginBottom: '12px' }}>📋</div>
-                    <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', margin: '0 0 6px' }}>Carga la constancia IMSS para ver el análisis de Modalidad 10</p>
+                    <div style={{ fontSize: 'clamp(17.8px, 1.42vw, 22.8px)', marginBottom: '12px' }}>📋</div>
+                    <p style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', margin: '0 0 6px' }}>Carga la constancia IMSS para ver el análisis de Modalidad 10</p>
                     <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)' }}>El sistema calcula automáticamente el escenario de Mod 10 con los datos de semanas cotizadas y SDI del trabajador</p>
                   </div>
                 </div>

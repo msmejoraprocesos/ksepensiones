@@ -294,7 +294,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   if (checking) return (
     <div style={{ display: 'flex', height: '100vh', background: 'white', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ color: '#94a3b8', fontSize: 'clamp(11.5px, 0.87vw, 14px)' }}>Cargando...</div>
+      <div style={{ color: '#94a3b8', fontSize: 'clamp(9.6px, 0.76vw, 12.3px)' }}>Cargando...</div>
     </div>
   )
 
@@ -334,7 +334,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         {!isMobile && (
         <div style={{ flex: 1, maxWidth: 'min(400px, 88vw)', maxHeight: '88vh', overflowY: 'auto', position: 'relative' as const, margin: '0 12px' }}>
           <div style={{ position: 'relative' as const }}>
-            <span style={{ position: 'absolute' as const, left: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: '#9CA3AF' }}>🔍</span>
+            <span style={{ position: 'absolute' as const, left: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', color: '#9CA3AF' }}>🔍</span>
             <input
               type="text"
               placeholder="Buscar clientes, diagnósticos, financiamientos..."
@@ -358,7 +358,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                       style={{ padding: '10px 16px', borderBottom: '1px solid #F3F4F6', cursor: 'pointer', display: 'flex', gap: '10px', alignItems: 'center' }}
                       onMouseEnter={e => (e.currentTarget.style.background = '#F8FAFC')}
                       onMouseLeave={e => (e.currentTarget.style.background = 'white')}>
-                      <span style={{ fontSize: 'clamp(11.4px, 0.98vw, 15.8px)' }}>{r.icono}</span>
+                      <span style={{ fontSize: 'clamp(10.8px, 0.86vw, 13.9px)' }}>{r.icono}</span>
                       <div>
                         <p style={{ fontSize: '12px', fontWeight: '700', color: '#111827', margin: '0 0 1px' }}>{r.titulo}</p>
                         <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>{r.sub}</p>
@@ -377,7 +377,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div style={{ position: 'relative' as const, marginRight: '4px', marginLeft: 'auto' }}>
           <button onClick={() => setShowNotif(p => !p)}
             style={{ position: 'relative' as const, padding: '6px 8px', background: 'none', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-            <span style={{ fontSize: 'clamp(13px, 1.00vw, 16px)' }}>🔔</span>
+            <span style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)' }}>🔔</span>
             {noLeidas > 0 && (
               <span style={{ position: 'absolute' as const, top: '0px', right: '0px', background: '#EF4444', color: 'white', fontSize: '9px', fontWeight: '700', borderRadius: '50%', width: '15px', height: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {noLeidas > 9 ? '9+' : noLeidas}
@@ -401,12 +401,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </div>
                 <div style={{ maxHeight: '380px', overflowY: 'auto' as const }}>
                   {notificaciones.length === 0 ? (
-                    <div style={{ padding: 'clamp(11px, 1.3vw, 16px)', textAlign: 'center' as const, color: '#9CA3AF', fontSize: 'clamp(11px, 0.78vw, 12.5px)' }}>Sin notificaciones</div>
+                    <div style={{ padding: 'clamp(11.0px, 1.15vw, 14.1px)', textAlign: 'center' as const, color: '#9CA3AF', fontSize: 'clamp(11px, 0.78vw, 12.5px)' }}>Sin notificaciones</div>
                   ) : notificaciones.map((n: any) => (
                     <div key={n.id}
                       onClick={() => { marcarLeida(n.id); setShowNotif(false); if (n.url_destino) router.push(n.url_destino) }}
                       style={{ padding: '12px 16px', borderBottom: '1px solid #F3F4F6', cursor: n.url_destino ? 'pointer' : 'default', background: n.leida ? 'white' : '#EFF6FF', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                      <span style={{ fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', flexShrink: 0 }}>
+                      <span style={{ fontSize: 'clamp(10.8px, 0.86vw, 13.9px)', flexShrink: 0 }}>
                         {n.tipo === 'cliente_sin_contacto' ? '👤' : n.tipo === 'financiamiento_por_vencer' ? '💳' : n.tipo === 'actividad_pendiente' ? '📅' : n.tipo === 'solicitud_canalizacion' ? '🔄' : '🔔'}
                       </span>
                       <div style={{ flex: 1 }}>
@@ -534,7 +534,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                   }}>
-                    <span style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', flexShrink: 0, width: '16px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{item.icon}</span>
+                    <span style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', flexShrink: 0, width: '16px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{item.icon}</span>
                     {(!collapsed || isMobile) && <span>{item.label}</span>}
                   </div>
                 </Link>
@@ -579,7 +579,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             return (
               <button key={item.href} onClick={() => router.push(item.href)}
                 style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '2px', padding: '4px 8px', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '8px', flex: 1 }}>
-                <span style={{ fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', opacity: isActive ? 1 : 0.5 }}>{item.icon}</span>
+                <span style={{ fontSize: 'clamp(10.8px, 0.86vw, 13.9px)', opacity: isActive ? 1 : 0.5 }}>{item.icon}</span>
                 <span style={{ fontSize: '9px', fontWeight: isActive ? '700' : '400', color: isActive ? AZUL : '#9CA3AF', fontFamily: 'inherit' }}>{item.label}</span>
                 {isActive && <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: AZUL }} />}
               </button>
@@ -593,7 +593,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'white', width: '100%', maxWidth: 'min(400px, 88vw)', maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
             <div style={{ background: '#F59E0B', padding: '16px 20px' }}>
-              <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '800' as const, color: 'white', margin: 0 }}>⚠️ Tienes un diagnóstico sin guardar</p>
+              <p style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '800' as const, color: 'white', margin: 0 }}>⚠️ Tienes un diagnóstico sin guardar</p>
             </div>
             <div style={{ padding: '20px' }}>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#374151', margin: '0 0 20px', lineHeight: 1.6 }}>
@@ -627,9 +627,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'white', width: '100%', maxWidth: 'min(400px, 88vw)', maxHeight: '88vh', overflowY: 'auto', borderRadius: '12px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', overflow: 'hidden' }}>
             <div style={{ background: AZUL, padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700' as const, color: 'white', margin: 0 }}>🔒 Cambiar contraseña</p>
+              <p style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '700' as const, color: 'white', margin: 0 }}>🔒 Cambiar contraseña</p>
               <button onClick={() => { setShowCambiarPwd(false); setPwdNueva(''); setPwdConfirmar(''); setPwdError('') }}
-                style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', lineHeight: 1 }}>×</button>
+                style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', fontSize: 'clamp(10.8px, 0.86vw, 13.9px)', lineHeight: 1 }}>×</button>
             </div>
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
               <div>

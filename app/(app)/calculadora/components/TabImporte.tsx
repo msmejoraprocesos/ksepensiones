@@ -31,9 +31,9 @@ export default function TabImporte({ escenarios, datos, setTab, Tip }: Props) {
 
   if (!escRec || escRec.mod40_meses === 0) return (
     <div style={{ textAlign: 'center', padding: '30px 18px', color: K.muted }}>
-      <i className="ti ti-coin-off" style={{ fontSize: 'clamp(22.8px, 1.98vw, 31.7px)', display: 'block', marginBottom: '12px' }} />
-      <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)' }}>Completa los datos y el salario Mod. 40 para ver el importe</p>
-      <button onClick={() => setTab(2)} style={{ marginTop: '14px', padding: '11px 22px', background: K.navy800, color: 'white', border: 'none', borderRadius: '9px', cursor: 'pointer', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 600, fontFamily: 'inherit' }}>
+      <i className="ti ti-coin-off" style={{ fontSize: 'clamp(17.8px, 1.42vw, 22.8px)', display: 'block', marginBottom: '12px' }} />
+      <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)' }}>Completa los datos y el salario Mod. 40 para ver el importe</p>
+      <button onClick={() => setTab(2)} style={{ marginTop: '14px', padding: '11px 22px', background: K.navy800, color: 'white', border: 'none', borderRadius: '9px', cursor: 'pointer', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: 600, fontFamily: 'inherit' }}>
         Ir a Salario Mod. 40
       </button>
     </div>
@@ -56,7 +56,7 @@ export default function TabImporte({ escenarios, datos, setTab, Tip }: Props) {
   const totalDesglose = DESGLOSE.reduce((s, d) => s + d.value, 0)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.1vw, 14px)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(9.0px, 0.97vw, 12.3px)' }}>
       <style>{`
         @media (max-width: 1000px) {
           .kse-2col { grid-template-columns: 1fr !important; }
@@ -79,10 +79,10 @@ export default function TabImporte({ escenarios, datos, setTab, Tip }: Props) {
 
         <div className="kse-hero3" style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'minmax(210px,.85fr) 120px minmax(300px,1.6fr)', alignItems: 'stretch', padding: '20px 22px 16px', gap: '4px' }}>
 
-          <div style={{ background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.13)', borderRadius: '14px', padding: 'clamp(14.0px, 1.5vw, 19.4px) clamp(14.0px, 1.67vw, 21.1px)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={{ background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.13)', borderRadius: '14px', padding: 'clamp(13.3px, 1.32vw, 17.1px) clamp(13.2px, 1.34vw, 16.9px)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <span style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)' }}>HOY</span>
-            <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: 'rgba(255,255,255,.78)', margin: '8px 0 0', ...nw }}>Su pensión sin Modalidad 40</p>
-            <p style={{ fontSize: 'clamp(19.0px, 1.65vw, 26.4px)', fontWeight: 700, color: 'white', margin: '8px 0 0', lineHeight: 1, letterSpacing: '-.025em', ...nw, ...num }}>{fmtMXN(pensionActual)}</p>
+            <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: 'rgba(255,255,255,.78)', margin: '8px 0 0', ...nw }}>Su pensión sin Modalidad 40</p>
+            <p style={{ fontSize: 'clamp(16.5px, 1.32vw, 21.1px)', fontWeight: 700, color: 'white', margin: '8px 0 0', lineHeight: 1, letterSpacing: '-.025em', ...nw, ...num }}>{fmtMXN(pensionActual)}</p>
             <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.5)', margin: '10px 0 0', ...nw, ...num }}>{fmtMXN(pensionActual * 12)} al año</p>
           </div>
 
@@ -94,7 +94,7 @@ export default function TabImporte({ escenarios, datos, setTab, Tip }: Props) {
                   <path d="M4 10 H14 M10 5 L15 10 L10 15" stroke={K.navy900} strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </span>
-              <span style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: 700, color: K.gold, marginTop: '10px', ...nw }}>Modalidad 40</span>
+              <span style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: 700, color: K.gold, marginTop: '10px', ...nw }}>Modalidad 40</span>
               <span style={{ fontSize: '12px', color: 'rgba(255,255,255,.55)', marginTop: '3px', ...nw }}>{escRec.mod40_umas} UMAs &middot; {escRec.mod40_meses} meses</span>
             </div>
             <div style={{ width: 2, flex: 1, background: `linear-gradient(180deg, ${K.gold}88, transparent)` }} />
@@ -102,18 +102,18 @@ export default function TabImporte({ escenarios, datos, setTab, Tip }: Props) {
 
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingLeft: '30px', minWidth: 0 }}>
             <span style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: K.gold }}>CON MODALIDAD 40</span>
-            <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: 'rgba(255,255,255,.8)', margin: '8px 0 0' }}>Su pensión mensual, de por vida</p>
-            <p style={{ fontSize: 'clamp(23.8px, 2.38vw, 33.0px)', fontWeight: 800, color: 'white', letterSpacing: '-.038em', margin: '6px 0 0', lineHeight: 1, ...nw, ...num }}>
+            <p style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: 'rgba(255,255,255,.8)', margin: '8px 0 0' }}>Su pensión mensual, de por vida</p>
+            <p style={{ fontSize: 'clamp(18.6px, 1.72vw, 23.8px)', fontWeight: 800, color: 'white', letterSpacing: '-.038em', margin: '6px 0 0', lineHeight: 1, ...nw, ...num }}>
               {fmtMXN2(escRec.pension_mensual)}
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '18px' }}>
-              <span style={{ background: K.green, color: 'white', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, padding: '8px 14px', borderRadius: 999, ...nw, ...num }}>
+              <span style={{ background: K.green, color: 'white', fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: 700, padding: '8px 14px', borderRadius: 999, ...nw, ...num }}>
                 +{fmtMXN2(incremento)} cada mes
               </span>
-              <span style={{ background: 'transparent', color: 'white', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 600, padding: '8px 14px', borderRadius: 999, border: '1px solid rgba(255,255,255,.26)', ...nw }}>
+              <span style={{ background: 'transparent', color: 'white', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: 600, padding: '8px 14px', borderRadius: 999, border: '1px solid rgba(255,255,255,.26)', ...nw }}>
                 {multiplo.toFixed(1)}x su pensión actual
               </span>
-              <span style={{ background: 'transparent', color: 'white', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 600, padding: '8px 14px', borderRadius: 999, border: '1px solid rgba(255,255,255,.26)', ...nw }}>
+              <span style={{ background: 'transparent', color: 'white', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: 600, padding: '8px 14px', borderRadius: 999, border: '1px solid rgba(255,255,255,.26)', ...nw }}>
                 +{pctMejora.toFixed(1)}%
               </span>
             </div>
@@ -141,11 +141,11 @@ export default function TabImporte({ escenarios, datos, setTab, Tip }: Props) {
         </div>
       </section>
 
-      <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1.15fr) minmax(300px, 1fr)', gap: 'clamp(9px, 1.1vw, 14px)' }}>
+      <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1.15fr) minmax(300px, 1fr)', gap: 'clamp(9.0px, 0.97vw, 12.3px)' }}>
 
         {/* ── Desglose ──────────────────────────────────────────── */}
-        <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
-          <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: K.ink, margin: '0 0 18px' }}>Cómo se arma la pensión</p>
+        <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11.0px, 1.15vw, 14.1px)' }}>
+          <p style={{ fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', fontWeight: 700, color: K.ink, margin: '0 0 18px' }}>Cómo se arma la pensión</p>
 
           {totalDesglose > 0 && (
             <div style={{ display: 'flex', height: '42px', borderRadius: '9px', overflow: 'hidden', marginBottom: '20px' }}>
@@ -153,7 +153,7 @@ export default function TabImporte({ escenarios, datos, setTab, Tip }: Props) {
                 const pct = (d.value / totalDesglose) * 100
                 return (
                   <div key={i} style={{ width: `${pct}%`, background: d.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {pct > 8 && <span style={{ color: 'white', fontWeight: 700, fontSize: 'clamp(12px, 0.90vw, 14px)', ...num }}>{pct.toFixed(1)}%</span>}
+                    {pct > 8 && <span style={{ color: 'white', fontWeight: 700, fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', ...num }}>{pct.toFixed(1)}%</span>}
                   </div>
                 )
               })}
@@ -164,32 +164,32 @@ export default function TabImporte({ escenarios, datos, setTab, Tip }: Props) {
             {DESGLOSE.map((d, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '14px', background: K.paper, borderRadius: '10px', padding: '14px 16px' }}>
                 <span style={{ width: 5, height: 32, background: d.color, borderRadius: 3, flexShrink: 0 }} />
-                <span style={{ flex: 1, fontSize: 'clamp(13px, 1.00vw, 16px)', color: K.ink, fontWeight: 600 }}>{d.label}</span>
-                <span style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, color: K.ink, ...nw, ...num }}>{fmtMXN2(d.value)}</span>
+                <span style={{ flex: 1, fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', color: K.ink, fontWeight: 600 }}>{d.label}</span>
+                <span style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: 700, color: K.ink, ...nw, ...num }}>{fmtMXN2(d.value)}</span>
               </div>
             ))}
           </div>
 
           <div style={{ marginTop: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px', background: K.navy900, borderRadius: '10px', padding: '16px 20px' }}>
-            <span style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', color: 'rgba(255,255,255,.78)' }}>Pensión anual total</span>
-            <span style={{ fontSize: 'clamp(14.0px, 1.19vw, 19.4px)', fontWeight: 700, color: 'white', ...nw, ...num }}>{fmtMXN2(escRec.pension_mensual * 12)}</span>
+            <span style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', color: 'rgba(255,255,255,.78)' }}>Pensión anual total</span>
+            <span style={{ fontSize: 'clamp(13.3px, 1.05vw, 17.1px)', fontWeight: 700, color: 'white', ...nw, ...num }}>{fmtMXN2(escRec.pension_mensual * 12)}</span>
           </div>
 
           <div style={{ marginTop: '10px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <div style={{ flex: 1, minWidth: '150px', background: K.greenSoft, borderRadius: '10px', padding: '14px 16px' }}>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: 0 }}>Pensión mensual</p>
-              <p style={{ fontSize: 'clamp(14.0px, 1.21vw, 19.4px)', fontWeight: 700, color: K.green, margin: '2px 0 0', ...nw, ...num }}>{fmtMXN2(escRec.pension_mensual)}</p>
+              <p style={{ fontSize: 'clamp(13.3px, 1.07vw, 17.1px)', fontWeight: 700, color: K.green, margin: '2px 0 0', ...nw, ...num }}>{fmtMXN2(escRec.pension_mensual)}</p>
             </div>
             <div style={{ flex: 1, minWidth: '150px', background: K.orangeSoft, borderRadius: '10px', padding: '14px 16px' }}>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: 0 }}>Aguinaldo anual</p>
-              <p style={{ fontSize: 'clamp(14.0px, 1.21vw, 19.4px)', fontWeight: 700, color: K.orange, margin: '2px 0 0', ...nw, ...num }}>{fmtMXN2(escRec.aguinaldo_anual ?? 0)}</p>
+              <p style={{ fontSize: 'clamp(13.3px, 1.07vw, 17.1px)', fontWeight: 700, color: K.orange, margin: '2px 0 0', ...nw, ...num }}>{fmtMXN2(escRec.aguinaldo_anual ?? 0)}</p>
             </div>
           </div>
         </div>
 
         {/* ── Factor por edad, con curva ────────────────────────── */}
-        <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
-          <p style={{ fontSize: 'clamp(11.4px, 1.01vw, 15.8px)', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>
+        <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11.0px, 1.15vw, 14.1px)' }}>
+          <p style={{ fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>
             Si se pensiona más tarde <Tip id="factorEdad" />
           </p>
           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: '0 0 14px' }}>Toque un año para comparar</p>
@@ -229,7 +229,7 @@ export default function TabImporte({ escenarios, datos, setTab, Tip }: Props) {
             )
           })()}
 
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'clamp(12px, 0.90vw, 14px)', marginTop: '12px' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', marginTop: '12px' }}>
             <thead>
               <tr style={{ borderTop: `1px solid ${K.line}`, borderBottom: `1px solid ${K.line}` }}>
                 {['Edad', 'Factor', 'Mensual', 'Anual'].map((hd, i) => (
@@ -260,8 +260,8 @@ export default function TabImporte({ escenarios, datos, setTab, Tip }: Props) {
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <button onClick={() => setTab(8)}
-          style={{ padding: '10px 18px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
-          Escenarios <i className="ti ti-arrow-right" style={{ fontSize: 'clamp(13px, 1.00vw, 16px)' }} />
+          style={{ padding: '10px 18px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
+          Escenarios <i className="ti ti-arrow-right" style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)' }} />
         </button>
       </div>
     </div>

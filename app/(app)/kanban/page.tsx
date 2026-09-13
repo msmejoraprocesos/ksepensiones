@@ -155,8 +155,8 @@ export default function KanbanPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 56px)', background: '#F4F6F9' }}>
       {/* Header — fijo arriba mientras se hace scroll de toda la página */}
-      <div style={{ position: 'sticky' as const, top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #e2e8f0', padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <h1 style={{ color: AZUL, fontSize: 'clamp(14.5px, 1.27vw, 20.2px)', fontWeight: 700, margin: 0 }}>Pipeline de Clientes</h1>
+      <div style={{ position: 'sticky' as const, top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid #e2e8f0', padding: 'clamp(9.6px, 1.05vw, 12.3px) clamp(10.8px, 1.08vw, 13.9px)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <h1 style={{ color: AZUL, fontSize: 'clamp(12.6px, 1.02vw, 16.2px)', fontWeight: 700, margin: 0 }}>Pipeline de Clientes</h1>
 
         {/* KPIs rápidos */}
         <div style={{ display: 'flex', gap: '12px', flex: 1 }}>
@@ -169,7 +169,7 @@ export default function KanbanPage() {
           ].map((k, i) => (
             <div key={i} style={{ background: '#F4F6F9', borderRadius: '10px', padding: '5px 12px', border: '1px solid #e2e8f0' }}>
               <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#94a3b8' }}>{k.label}</div>
-              <div style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: 700, color: k.color }}>{k.value}</div>
+              <div style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: 700, color: k.color }}>{k.value}</div>
             </div>
           ))}
         </div>
@@ -204,9 +204,9 @@ export default function KanbanPage() {
                   <div style={{ position: 'sticky' as const, top: '65px', zIndex: 2, background: colBg, borderRadius: '12px 12px 0 0', padding: '10px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: col.color }} />
-                      <span style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: col.cierre ? col.color : '#374151' }}>{col.label}</span>
+                      <span style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: col.cierre ? col.color : '#374151' }}>{col.label}</span>
                     </div>
-                    <span style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', background: col.bg, color: col.color, padding: '1px 7px', borderRadius: '10px', border: `1px solid ${col.color}30` }}>
+                    <span style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', background: col.bg, color: col.color, padding: '1px 7px', borderRadius: '10px', border: `1px solid ${col.color}30` }}>
                       {cards.length}
                     </span>
                   </div>
@@ -228,7 +228,7 @@ export default function KanbanPage() {
                         }}>
                         {/* Nombre */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
-                          <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: AZUL, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', flexShrink: 0 }}>
+                          <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: AZUL, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', flexShrink: 0 }}>
                             {cliente.nombre.charAt(0).toUpperCase()}
                           </div>
                           <span style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700', color: '#1e293b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cliente.nombre}</span>
@@ -245,7 +245,7 @@ export default function KanbanPage() {
 
                         {/* Monto */}
                         {cliente.monto_acordado && (
-                          <div style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: AZUL, fontWeight: '700', marginBottom: '4px' }}>
+                          <div style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: AZUL, fontWeight: '700', marginBottom: '4px' }}>
                             💰 {fmtMXN(cliente.monto_acordado)}
                             {cliente.monto_cobrado && cliente.monto_cobrado > 0 && (
                               <span style={{ color: '#94a3b8', fontWeight: '400' }}> · cobrado {fmtMXN(cliente.monto_cobrado)}</span>
@@ -270,7 +270,7 @@ export default function KanbanPage() {
 
                     {/* Drop zone vacía */}
                     {cards.length === 0 && (
-                      <div style={{ border: `2px dashed ${isDragOver ? col.color : '#e2e8f0'}`, borderRadius: '10px', padding: '20px 8px', textAlign: 'center', color: isDragOver ? col.color : '#cbd5e1', fontSize: 'clamp(12px, 0.90vw, 14px)', transition: 'all 0.15s' }}>
+                      <div style={{ border: `2px dashed ${isDragOver ? col.color : '#e2e8f0'}`, borderRadius: '10px', padding: '20px 8px', textAlign: 'center', color: isDragOver ? col.color : '#cbd5e1', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', transition: 'all 0.15s' }}>
                         {isDragOver ? 'Suelta aquí' : 'Sin clientes'}
                       </div>
                     )}
@@ -286,28 +286,28 @@ export default function KanbanPage() {
       {modal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => { if (e.target === e.currentTarget) setModal(null) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11.4px, 1.32vw, 15.8px)', width: 'min(100%, 480px)', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(10.8px, 1.16vw, 13.9px)', width: 'min(100%, 480px)', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
             {/* Header modal */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: AZUL, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '700' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: AZUL, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: '700' }}>
                 {modal.cliente.nombre.charAt(0).toUpperCase()}
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '700', color: '#1e293b' }}>{modal.cliente.nombre}</div>
-                <div style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#94a3b8' }}>
+                <div style={{ fontSize: 'clamp(11.0px, 0.88vw, 14.1px)', fontWeight: '700', color: '#1e293b' }}>{modal.cliente.nombre}</div>
+                <div style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#94a3b8' }}>
                   {COLUMNAS.find(c => c.id === modal.cliente.etapa_kanban)?.label ?? modal.cliente.etapa_kanban}
                 </div>
               </div>
-              <button onClick={() => setModal(null)} style={{ background: 'none', border: 'none', fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
+              <button onClick={() => setModal(null)} style={{ background: 'none', border: 'none', fontSize: 'clamp(10.8px, 0.86vw, 13.9px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
             </div>
 
             {/* Mover de etapa */}
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', marginBottom: '6px' }}>Etapa en el pipeline</label>
+              <label style={{ display: 'block', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: '#374151', marginBottom: '6px' }}>Etapa en el pipeline</label>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                 {COLUMNAS.map(col => (
                   <button key={col.id} onClick={() => moverCliente(modal.cliente.id, col.id)}
-                    style={{ padding: '5px 10px', borderRadius: '10px', border: `1.5px solid ${modal.cliente.etapa_kanban === col.id ? col.color : '#e2e8f0'}`, background: modal.cliente.etapa_kanban === col.id ? col.bg : 'white', color: modal.cliente.etapa_kanban === col.id ? col.color : '#64748b', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '600', cursor: 'pointer' }}>
+                    style={{ padding: '5px 10px', borderRadius: '10px', border: `1.5px solid ${modal.cliente.etapa_kanban === col.id ? col.color : '#e2e8f0'}`, background: modal.cliente.etapa_kanban === col.id ? col.bg : 'white', color: modal.cliente.etapa_kanban === col.id ? col.color : '#64748b', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '600', cursor: 'pointer' }}>
                     {col.label}
                   </button>
                 ))}
@@ -317,24 +317,24 @@ export default function KanbanPage() {
             {/* Servicio y pago */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px', marginBottom: '12px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Servicio</label>
+                <label style={{ display: 'block', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Servicio</label>
                 <select defaultValue={modal.cliente.servicio_contratado ?? ''} onChange={e => actualizarCliente(modal.cliente.id, { servicio_contratado: e.target.value || null })} style={inputSt}>
                   <option value="">— Sin definir —</option>
                   {SERVICIOS.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Estatus de pago</label>
+                <label style={{ display: 'block', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Estatus de pago</label>
                 <select defaultValue={modal.cliente.estatus_pago ?? 'Pendiente'} onChange={e => actualizarCliente(modal.cliente.id, { estatus_pago: e.target.value })} style={inputSt}>
                   {PAGOS.map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Monto acordado ($)</label>
+                <label style={{ display: 'block', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Monto acordado ($)</label>
                 <input type="number" defaultValue={modal.cliente.monto_acordado ?? ''} onBlur={e => actualizarCliente(modal.cliente.id, { monto_acordado: parseFloat(e.target.value) || null })} placeholder="0" style={inputSt} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Monto cobrado ($)</label>
+                <label style={{ display: 'block', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Monto cobrado ($)</label>
                 <input type="number" defaultValue={modal.cliente.monto_cobrado ?? ''} onBlur={e => actualizarCliente(modal.cliente.id, { monto_cobrado: parseFloat(e.target.value) || null })} placeholder="0" style={inputSt} />
               </div>
             </div>
@@ -346,7 +346,7 @@ export default function KanbanPage() {
                 { icon: '✉️', label: modal.cliente.email ?? '—' },
                 { icon: '📝', label: modal.cliente.notas ?? '—' },
               ].map((item, i) => (
-                <div key={i} style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#64748b', marginBottom: i < 2 ? '4px' : '0', display: 'flex', gap: '6px' }}>
+                <div key={i} style={{ fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', color: '#64748b', marginBottom: i < 2 ? '4px' : '0', display: 'flex', gap: '6px' }}>
                   <span>{item.icon}</span><span>{item.label}</span>
                 </div>
               ))}
@@ -369,32 +369,32 @@ export default function KanbanPage() {
       {showNuevo && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => { if (e.target === e.currentTarget) setShowNuevo(false) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11.4px, 1.32vw, 15.8px)', width: 'min(100%, 460px)', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
-            <h2 style={{ color: AZUL, fontSize: 'clamp(11.4px, 0.98vw, 15.8px)', fontWeight: '700', margin: '0 0 20px' }}>Nuevo cliente</h2>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(10.8px, 1.16vw, 13.9px)', width: 'min(100%, 460px)', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+            <h2 style={{ color: AZUL, fontSize: 'clamp(10.8px, 0.86vw, 13.9px)', fontWeight: '700', margin: '0 0 20px' }}>Nuevo cliente</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Nombre *</label>
+                <label style={{ display: 'block', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Nombre *</label>
                 <input value={form.nombre} onChange={e => setForm(p => ({ ...p, nombre: e.target.value }))} placeholder="Nombre completo" style={inputSt} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Teléfono</label>
+                  <label style={{ display: 'block', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Teléfono</label>
                   <input value={form.telefono} onChange={e => setForm(p => ({ ...p, telefono: e.target.value }))} placeholder="55 1234 5678" style={inputSt} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Email</label>
+                  <label style={{ display: 'block', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Email</label>
                   <input value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder="correo@ejemplo.com" style={inputSt} />
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Etapa inicial</label>
+                  <label style={{ display: 'block', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Etapa inicial</label>
                   <select value={form.etapa_kanban} onChange={e => setForm(p => ({ ...p, etapa_kanban: e.target.value }))} style={inputSt}>
                     {COLUMNAS.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Servicio</label>
+                  <label style={{ display: 'block', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Servicio</label>
                   <select value={form.servicio_contratado} onChange={e => setForm(p => ({ ...p, servicio_contratado: e.target.value }))} style={inputSt}>
                     <option value="">— Sin definir —</option>
                     {SERVICIOS.map(s => <option key={s} value={s}>{s}</option>)}
@@ -403,28 +403,28 @@ export default function KanbanPage() {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Monto ($)</label>
+                  <label style={{ display: 'block', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Monto ($)</label>
                   <input type="number" value={form.monto_acordado} onChange={e => setForm(p => ({ ...p, monto_acordado: e.target.value }))} placeholder="0" style={inputSt} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Cobrado ($)</label>
+                  <label style={{ display: 'block', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Cobrado ($)</label>
                   <input type="number" value={form.monto_cobrado} onChange={e => setForm(p => ({ ...p, monto_cobrado: e.target.value }))} placeholder="0" style={inputSt} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Pago</label>
+                  <label style={{ display: 'block', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Pago</label>
                   <select value={form.estatus_pago} onChange={e => setForm(p => ({ ...p, estatus_pago: e.target.value }))} style={inputSt}>
                     {PAGOS.map(p => <option key={p} value={p}>{p}</option>)}
                   </select>
                 </div>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Notas</label>
+                <label style={{ display: 'block', fontSize: 'clamp(9.6px, 0.79vw, 12.3px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Notas</label>
                 <textarea value={form.notas} onChange={e => setForm(p => ({ ...p, notas: e.target.value }))} rows={2} style={{ ...inputSt, resize: 'none' }} />
               </div>
             </div>
             <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
-              <button onClick={() => setShowNuevo(false)} style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '10px', fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
-              <button onClick={guardarNuevo} disabled={saving || !form.nombre.trim()} style={{ flex: 2, padding: '10px', background: saving || !form.nombre.trim() ? '#94a3b8' : AZUL, color: 'white', border: 'none', borderRadius: '10px', fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer' }}>
+              <button onClick={() => setShowNuevo(false)} style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '10px', fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '600', cursor: 'pointer' }}>Cancelar</button>
+              <button onClick={guardarNuevo} disabled={saving || !form.nombre.trim()} style={{ flex: 2, padding: '10px', background: saving || !form.nombre.trim() ? '#94a3b8' : AZUL, color: 'white', border: 'none', borderRadius: '10px', fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer' }}>
                 {saving ? 'Guardando...' : 'Guardar cliente'}
               </button>
             </div>

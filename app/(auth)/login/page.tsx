@@ -104,7 +104,7 @@ export default function LoginPage() {
         {/* Headline central */}
         <div style={{ position: 'relative', zIndex: 1 }}>
           <h1 style={{
-            fontSize: 'clamp(27.6px, 2.39vw, 38.3px)',
+            fontSize: 'clamp(21.5px, 1.72vw, 27.6px)',
             fontWeight: '900',
             color: 'white',
             lineHeight: 1.1,
@@ -171,7 +171,7 @@ export default function LoginPage() {
                 borderRight: i < 2 ? '1px solid rgba(255,255,255,0.2)' : 'none',
                 paddingLeft: i > 0 ? '20px' : '0'
               }}>
-                <div style={{ fontSize: 'clamp(13.6px, 1.21vw, 19.4px)', fontWeight: '900', color: 'white', textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>{s.value}</div>
+                <div style={{ fontSize: 'clamp(13.3px, 1.07vw, 17.1px)', fontWeight: '900', color: 'white', textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>{s.value}</div>
                 <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)' }}>{s.label}</div>
               </div>
             ))}
@@ -204,7 +204,7 @@ export default function LoginPage() {
         }}>
           {mode === 'login' ? (
             <>
-              <h2 style={{ fontSize: 'clamp(14.6px, 1.27vw, 20.3px)', fontWeight: '800', color: AZUL, margin: '0 0 6px', letterSpacing: '-0.5px', textAlign: 'center' }}>
+              <h2 style={{ fontSize: 'clamp(12.6px, 1.01vw, 16.2px)', fontWeight: '800', color: AZUL, margin: '0 0 6px', letterSpacing: '-0.5px', textAlign: 'center' }}>
                 Bienvenido de nuevo
               </h2>
               <p style={{ color: '#94a3b8', fontSize: '14px', margin: '0 0 28px', textAlign: 'center' }}>
@@ -279,7 +279,7 @@ export default function LoginPage() {
                 style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', fontSize: '13px', fontWeight: '600', padding: '0 0 20px', marginLeft: '-2px' }}>
                 ← Volver
               </button>
-              <h2 style={{ fontSize: 'clamp(13.6px, 1.21vw, 19.4px)', fontWeight: '800', color: AZUL, margin: '0 0 6px', textAlign: 'center' }}>Recuperar contraseña</h2>
+              <h2 style={{ fontSize: 'clamp(13.3px, 1.07vw, 17.1px)', fontWeight: '800', color: AZUL, margin: '0 0 6px', textAlign: 'center' }}>Recuperar contraseña</h2>
               <p style={{ color: '#94a3b8', fontSize: '13px', margin: '0 0 24px', textAlign: 'center' }}>Te enviaremos un enlace para restablecer tu contraseña.</p>
               {error && <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', padding: '10px 14px', color: '#dc2626', fontSize: '13px', marginBottom: '16px' }}>⚠️ {error}</div>}
               {message && <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '10px 14px', color: '#16a34a', fontSize: '13px', marginBottom: '16px' }}>✓ {message}</div>}

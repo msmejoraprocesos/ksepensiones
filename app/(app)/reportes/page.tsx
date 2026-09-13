@@ -215,11 +215,11 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
   const r: any = null // para el fmt de actividades
 
   return (
-    <div style={{ height: 'calc(100vh - 48px)', overflowY: 'auto', background: '#F4F6FB', padding: 'clamp(10px, 1.2vw, 14px) clamp(11.4px, 1.23vw, 15.8px)' }}>
+    <div style={{ height: 'calc(100vh - 48px)', overflowY: 'auto', background: '#F4F6FB', padding: 'clamp(9.6px, 1.05vw, 12.3px) clamp(10.8px, 1.08vw, 13.9px)' }}>
 
       {/* Header */}
       <div style={{ marginBottom: '20px' }}>
-        <h1 style={{ fontSize: 'clamp(14.5px, 1.27vw, 20.2px)', fontWeight: 700, color: AZUL, margin: '0 0 4px' }}>📋 Reportes</h1>
+        <h1 style={{ fontSize: 'clamp(12.6px, 1.02vw, 16.2px)', fontWeight: 700, color: AZUL, margin: '0 0 4px' }}>📋 Reportes</h1>
         <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#6B7280', margin: 0 }}>Exporta tu información en Excel o PDF</p>
       </div>
 
@@ -228,7 +228,7 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr auto auto', gap: '12px', alignItems: 'flex-end' }}>
 
           <div>
-            <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Tipo de reporte</label>
+            <label style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Tipo de reporte</label>
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const }}>
               {REPORTES.map(r => (
                 <button key={r.id} onClick={() => { setTipoReporte(r.id as Reporte); setDatos([]) }}
@@ -242,12 +242,12 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
           {tipoReporte !== 'cartera' && (
             <>
               <div>
-                <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Desde</label>
+                <label style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Desde</label>
                 <input type="date" value={fechaInicio} onChange={e => setFechaInicio(e.target.value)}
                   style={{ width: '100%', padding: '7px 10px', border: '1px solid #D1D5DB', fontSize: 'clamp(11px, 0.78vw, 12.5px)', borderRadius: '10px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
               </div>
               <div>
-                <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Hasta</label>
+                <label style={{ fontSize: 'clamp(9.6px, 0.76vw, 12.3px)', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Hasta</label>
                 <input type="date" value={fechaFin} onChange={e => setFechaFin(e.target.value)}
                   style={{ width: '100%', padding: '7px 10px', border: '1px solid #D1D5DB', fontSize: 'clamp(11px, 0.78vw, 12.5px)', borderRadius: '10px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
               </div>
@@ -340,7 +340,7 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
 
       {datos.length === 0 && !cargando && (
         <div style={{ background: 'white', border: '1px dashed #D1D5DB', borderRadius: '10px', padding: '28px 18px', textAlign: 'center' as const, color: '#9CA3AF' }}>
-          <p style={{ fontSize: 'clamp(18.0px, 1.56vw, 25.0px)', margin: '0 0 8px' }}>📋</p>
+          <p style={{ fontSize: 'clamp(15.6px, 1.25vw, 20.0px)', margin: '0 0 8px' }}>📋</p>
           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', margin: 0 }}>Selecciona un tipo de reporte y haz clic en "Generar"</p>
         </div>
       )}
