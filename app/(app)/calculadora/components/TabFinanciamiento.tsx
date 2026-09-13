@@ -33,8 +33,8 @@ export default function TabFinanciamiento({
 
   if (!escRec || escRec.mod40_meses === 0) return (
     <div style={{ textAlign: 'center', padding: '60px', color: K.muted }}>
-      <i className="ti ti-building-bank" style={{ fontSize: '48px', display: 'block', marginBottom: '12px' }} />
-      <p style={{ fontSize: '15px' }}>Completa las pestañas anteriores para ver el financiamiento</p>
+      <i className="ti ti-building-bank" style={{ fontSize: 'clamp(30px, 3.00vw, 48px)', display: 'block', marginBottom: '12px' }} />
+      <p style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)' }}>Completa las pestañas anteriores para ver el financiamiento</p>
     </div>
   )
 
@@ -62,7 +62,7 @@ export default function TabFinanciamiento({
   const maxPen = Math.max(pensionBase, pensionDurante, pensionFinal, 1)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 1.6vw, 20px)' }}>
       <style>{`
         @media (max-width: 1000px) {
           .kse-2col { grid-template-columns: 1fr !important; }
@@ -82,13 +82,13 @@ export default function TabFinanciamiento({
               {fmtMXN(total)}
             </p>
             {sobrecosto > 0 && (
-              <span style={{ background: 'rgba(255,255,255,.13)', color: K.gold, fontSize: '15px', fontWeight: 700, padding: '9px 16px', borderRadius: 999, border: `1px solid ${K.gold}55`, ...nw, ...num }}>
+              <span style={{ background: 'rgba(255,255,255,.13)', color: K.gold, fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: 700, padding: '9px 16px', borderRadius: 999, border: `1px solid ${K.gold}55`, ...nw, ...num }}>
                 +{sobrecosto.toFixed(1)}% sobre cotizar mes a mes
               </span>
             )}
           </div>
           {sobrecosto > 0 && (
-            <p style={{ fontSize: '15px', color: 'rgba(255,255,255,.68)', margin: '10px 0 0' }}>
+            <p style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: 'rgba(255,255,255,.68)', margin: '10px 0 0' }}>
               Pagar retroactivo agrega actualizaciones y recargos: {fmtMXN(total - costoBase)} más que cotizar desde hoy.
             </p>
           )}
@@ -102,25 +102,25 @@ export default function TabFinanciamiento({
             { label: 'Pensión al liquidar', value: fmtMXN2(pensionFinal), sub: 'libre de descuento', color: K.greenLt },
           ].map((k, i) => (
             <div key={i} style={{ background: K.navy900, padding: '18px 24px' }}>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k.label}</p>
-              <p style={{ fontSize: '24px', fontWeight: 700, color: k.color, margin: '3px 0 0', ...nw, ...num }}>{k.value}</p>
-              <p style={{ fontSize: '13px', color: 'rgba(255,255,255,.44)', margin: '2px 0 0' }}>{k.sub}</p>
+              <p style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k.label}</p>
+              <p style={{ fontSize: 'clamp(18px, 1.50vw, 24px)', fontWeight: 700, color: k.color, margin: '3px 0 0', ...nw, ...num }}>{k.value}</p>
+              <p style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', color: 'rgba(255,255,255,.44)', margin: '2px 0 0' }}>{k.sub}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1.3fr) minmax(280px, 1fr)', gap: '20px' }}>
+      <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1.3fr) minmax(280px, 1fr)', gap: 'clamp(12px, 1.6vw, 20px)' }}>
 
         {/* ── Distribucion del pago ──────────────────────────────── */}
-        <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px' }}>
-          <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>De dónde sale el dinero</p>
-          <p style={{ fontSize: '13px', color: K.muted, margin: '0 0 18px' }}>Distribución del pago retroactivo</p>
+        <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(14px, 1.9vw, 24px)' }}>
+          <p style={{ fontSize: 'clamp(16px, 1.25vw, 20px)', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>De dónde sale el dinero</p>
+          <p style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', color: K.muted, margin: '0 0 18px' }}>Distribución del pago retroactivo</p>
 
           <div style={{ display: 'flex', height: '42px', borderRadius: '9px', overflow: 'hidden', marginBottom: '20px' }}>
             {slices.map((s, i) => (
               <div key={i} style={{ width: anim ? `${s.pct}%` : '0%', background: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'width .9s cubic-bezier(.22,1,.36,1)' }}>
-                {s.pct > 9 && <span style={{ color: 'white', fontWeight: 700, fontSize: '15px', ...num }}>{s.pct.toFixed(1)}%</span>}
+                {s.pct > 9 && <span style={{ color: 'white', fontWeight: 700, fontSize: 'clamp(12.5px, 0.94vw, 15px)', ...num }}>{s.pct.toFixed(1)}%</span>}
               </div>
             ))}
           </div>
@@ -129,47 +129,47 @@ export default function TabFinanciamiento({
             {slices.map((s, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '14px', background: K.paper, borderRadius: '10px', padding: '14px 16px' }}>
                 <span style={{ width: 5, height: 32, background: s.color, borderRadius: 3, flexShrink: 0 }} />
-                <span style={{ flex: 1, fontSize: '17px', color: K.ink, fontWeight: 600 }}>{s.label}</span>
+                <span style={{ flex: 1, fontSize: 'clamp(14px, 1.06vw, 17px)', color: K.ink, fontWeight: 600 }}>{s.label}</span>
                 <span style={{ textAlign: 'right' }}>
-                  <span style={{ display: 'block', fontSize: '17px', fontWeight: 700, color: K.ink, ...nw, ...num }}>{fmtMXN(s.val)}</span>
-                  <span style={{ display: 'block', fontSize: '13px', color: K.muted, ...num }}>{s.pct.toFixed(1)}%</span>
+                  <span style={{ display: 'block', fontSize: 'clamp(14px, 1.06vw, 17px)', fontWeight: 700, color: K.ink, ...nw, ...num }}>{fmtMXN(s.val)}</span>
+                  <span style={{ display: 'block', fontSize: 'clamp(11px, 0.80vw, 13px)', color: K.muted, ...num }}>{s.pct.toFixed(1)}%</span>
                 </span>
               </div>
             ))}
           </div>
 
           <div style={{ marginTop: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px', background: K.navy900, borderRadius: '10px', padding: '16px 20px' }}>
-            <span style={{ fontSize: '17px', color: 'rgba(255,255,255,.78)' }}>Total</span>
-            <span style={{ fontSize: '24px', fontWeight: 700, color: 'white', ...nw, ...num }}>{fmtMXN(total)}</span>
+            <span style={{ fontSize: 'clamp(14px, 1.06vw, 17px)', color: 'rgba(255,255,255,.78)' }}>Total</span>
+            <span style={{ fontSize: 'clamp(18px, 1.50vw, 24px)', fontWeight: 700, color: 'white', ...nw, ...num }}>{fmtMXN(total)}</span>
           </div>
         </div>
 
         {/* ── Parametros + pension disponible ────────────────────── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 1.6vw, 20px)' }}>
 
-          <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px' }}>
-            <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 16px' }}>Parámetros del crédito</p>
+          <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(14px, 1.9vw, 24px)' }}>
+            <p style={{ fontSize: 'clamp(16px, 1.25vw, 20px)', fontWeight: 700, color: K.ink, margin: '0 0 16px' }}>Parámetros del crédito</p>
             {[
               { label: 'Duración del trámite', value: duracionTramiteMeses, onChange: setDuracionTramiteMeses, options: [12, 18, 24, 30, 36, 48, 60], fmt: (v: number) => `${v} meses` },
               { label: 'Plazo del crédito', value: plazoCredito, onChange: setPlazoCredito, options: [12, 24, 36, 48, 60, 72, 84, 96, 108, 120], fmt: (v: number) => `${v} meses (${(v / 12).toFixed(1)} anios)` },
             ].map((f, i) => (
               <div key={i} style={{ marginBottom: '14px' }}>
-                <label style={{ display: 'block', fontSize: '15px', color: K.muted, marginBottom: '6px' }}>{f.label}</label>
+                <label style={{ display: 'block', fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: K.muted, marginBottom: '6px' }}>{f.label}</label>
                 <select value={f.value} onChange={e => f.onChange(Number(e.target.value))}
-                  style={{ width: '100%', height: '48px', border: `1px solid ${K.line}`, borderRadius: '10px', padding: '0 14px', fontSize: '17px', fontFamily: 'inherit', background: K.card, color: K.ink, fontWeight: 600, boxSizing: 'border-box', cursor: 'pointer' }}>
+                  style={{ width: '100%', height: '48px', border: `1px solid ${K.line}`, borderRadius: '10px', padding: '0 14px', fontSize: 'clamp(14px, 1.06vw, 17px)', fontFamily: 'inherit', background: K.card, color: K.ink, fontWeight: 600, boxSizing: 'border-box', cursor: 'pointer' }}>
                   {f.options.map(o => <option key={o} value={o}>{f.fmt(o)}</option>)}
                 </select>
               </div>
             ))}
             <div style={{ background: K.orangeSoft, borderRadius: '10px', padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-              <span style={{ fontSize: '15px', color: K.ink }}>Tasa del banco regulado</span>
-              <span style={{ fontSize: '20px', fontWeight: 800, color: K.orange, ...nw, ...num }}>{tasaBanco}% anual</span>
+              <span style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: K.ink }}>Tasa del banco regulado</span>
+              <span style={{ fontSize: 'clamp(16px, 1.25vw, 20px)', fontWeight: 800, color: K.orange, ...nw, ...num }}>{tasaBanco}% anual</span>
             </div>
           </div>
 
-          <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: '24px' }}>
-            <p style={{ fontSize: '20px', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Qué cobra en cada etapa</p>
-            <p style={{ fontSize: '13px', color: K.muted, margin: '0 0 18px' }}>Pensión mensual disponible</p>
+          <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(14px, 1.9vw, 24px)' }}>
+            <p style={{ fontSize: 'clamp(16px, 1.25vw, 20px)', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Qué cobra en cada etapa</p>
+            <p style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', color: K.muted, margin: '0 0 18px' }}>Pensión mensual disponible</p>
 
             {[
               { label: 'Sin Mod. 40 (hoy)', value: pensionBase, color: '#9AA7B8', nota: '' },
@@ -178,13 +178,13 @@ export default function TabFinanciamiento({
             ].map((e, i) => (
               <div key={i} style={{ marginBottom: '14px' }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '10px', marginBottom: '6px' }}>
-                  <span style={{ fontSize: '15px', color: K.ink, fontWeight: i === 2 ? 700 : 500 }}>{e.label}</span>
+                  <span style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: K.ink, fontWeight: i === 2 ? 700 : 500 }}>{e.label}</span>
                   <span style={{ fontSize: i === 2 ? '20px' : '17px', fontWeight: 700, color: e.color, ...nw, ...num }}>{fmtMXN2(e.value)}</span>
                 </div>
                 <div style={{ height: '10px', background: K.paper, borderRadius: 999, overflow: 'hidden' }}>
                   <div style={{ height: '100%', width: anim ? `${(e.value / maxPen) * 100}%` : '0%', background: e.color, borderRadius: 999, transition: 'width .9s cubic-bezier(.22,1,.36,1)' }} />
                 </div>
-                {e.nota && <p style={{ fontSize: '13px', color: K.muted, margin: '5px 0 0' }}>{e.nota}</p>}
+                {e.nota && <p style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', color: K.muted, margin: '5px 0 0' }}>{e.nota}</p>}
               </div>
             ))}
           </div>
@@ -193,8 +193,8 @@ export default function TabFinanciamiento({
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <button onClick={() => setTab(11)}
-          style={{ padding: '13px 24px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '17px', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
-          El entregable <i className="ti ti-arrow-right" style={{ fontSize: '16px' }} />
+          style={{ padding: '13px 24px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: 'clamp(14px, 1.06vw, 17px)', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
+          El entregable <i className="ti ti-arrow-right" style={{ fontSize: 'clamp(13px, 1.00vw, 16px)' }} />
         </button>
       </div>
     </div>

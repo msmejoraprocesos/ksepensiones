@@ -147,19 +147,29 @@ describe('consistencia de layout entre módulos', () => {
     expect(conTope).toEqual([])
   })
 
-  it('el padding del contenedor raíz es uniforme', () => {
-    /* Había ocho valores distintos: unas pantallas pegadas al borde y otras
-       con aire de sobra. Se verifica que cada módulo declare el padding
-       estándar en alguna parte, sin intentar adivinar cuál es su contenedor
-       raíz — eso depende de la estructura de cada archivo. */
-    const ACEPTADOS = ["20px 24px", "20px 24px 40px"]
+  it('el padding del contenedor raíz es uniforme y fluido', () => {
+    /* Había ocho valores distintos, y además fijos: un padding de 24px es
+       holgado en un monitor de 1920 y se come el 12% del ancho en un teléfono
+       de 390. Ahora todos usan el mismo patrón con clamp. */
     const sinEstandar = MODULOS.filter(m => {
       const s = leer(`app/(app)/${m}/page.tsx`)
-      return !ACEPTADOS.some(a => s.includes(`padding: '${a}'`))
+      return !/padding: 'clamp\(12px, 1\.6vw, 20px\) clamp\(14px, 1\.9vw, 24px\)/.test(s)
     })
     // Seguimiento es un calendario a pantalla completa: su contenedor no lleva
     // padding porque la rejilla ocupa todo el alto disponible.
     expect(sinEstandar.filter(m => m !== 'seguimiento')).toEqual([])
+  })
+
+  it('la tipografía es fluida, no de píxeles fijos', () => {
+    /* Este es el problema que reportó el uso real: en tableta todo se veía
+       correcto pero demasiado grande, porque la escala no cambiaba con el
+       ancho disponible. */
+    const conFijos = MODULOS.filter(m => {
+      const s = leer(`app/(app)/${m}/page.tsx`)
+      const fijos = [...s.matchAll(/fontSize: '(\d+)px'/g)].map(x => Number(x[1]))
+      return fijos.some(n => n >= 13)
+    })
+    expect(conFijos).toEqual([])
   })
 })
 

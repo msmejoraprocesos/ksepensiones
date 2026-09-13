@@ -294,7 +294,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   if (checking) return (
     <div style={{ display: 'flex', height: '100vh', background: 'white', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ color: '#94a3b8', fontSize: '14px' }}>Cargando...</div>
+      <div style={{ color: '#94a3b8', fontSize: 'clamp(11.5px, 0.87vw, 14px)' }}>Cargando...</div>
     </div>
   )
 
@@ -334,7 +334,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         {!isMobile && (
         <div style={{ flex: 1, maxWidth: '400px', position: 'relative' as const, margin: '0 12px' }}>
           <div style={{ position: 'relative' as const }}>
-            <span style={{ position: 'absolute' as const, left: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: '14px', color: '#9CA3AF' }}>🔍</span>
+            <span style={{ position: 'absolute' as const, left: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: 'clamp(11.5px, 0.87vw, 14px)', color: '#9CA3AF' }}>🔍</span>
             <input
               type="text"
               placeholder="Buscar clientes, diagnósticos, financiamientos..."
@@ -358,7 +358,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                       style={{ padding: '10px 16px', borderBottom: '1px solid #F3F4F6', cursor: 'pointer', display: 'flex', gap: '10px', alignItems: 'center' }}
                       onMouseEnter={e => (e.currentTarget.style.background = '#F8FAFC')}
                       onMouseLeave={e => (e.currentTarget.style.background = 'white')}>
-                      <span style={{ fontSize: '18px' }}>{r.icono}</span>
+                      <span style={{ fontSize: 'clamp(14.5px, 1.12vw, 18px)' }}>{r.icono}</span>
                       <div>
                         <p style={{ fontSize: '12px', fontWeight: '700', color: '#111827', margin: '0 0 1px' }}>{r.titulo}</p>
                         <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>{r.sub}</p>
@@ -377,7 +377,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div style={{ position: 'relative' as const, marginRight: '4px', marginLeft: 'auto' }}>
           <button onClick={() => setShowNotif(p => !p)}
             style={{ position: 'relative' as const, padding: '6px 8px', background: 'none', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-            <span style={{ fontSize: '16px' }}>🔔</span>
+            <span style={{ fontSize: 'clamp(13px, 1.00vw, 16px)' }}>🔔</span>
             {noLeidas > 0 && (
               <span style={{ position: 'absolute' as const, top: '0px', right: '0px', background: '#EF4444', color: 'white', fontSize: '9px', fontWeight: '700', borderRadius: '50%', width: '15px', height: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {noLeidas > 9 ? '9+' : noLeidas}
@@ -389,7 +389,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <div style={{ position: 'fixed' as const, inset: 0, zIndex: 39 }} onClick={() => setShowNotif(false)} />
               <div style={{ position: 'absolute' as const, right: 0, top: '40px', width: 'min(100%, 340px)', background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: 40, overflow: 'hidden' }}>
                 <div style={{ padding: '12px 16px', borderBottom: '1px solid #E5E7EB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <p style={{ fontSize: '13px', fontWeight: '700', color: '#111827', margin: 0 }}>
+                  <p style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '700', color: '#111827', margin: 0 }}>
                     Notificaciones
                     {noLeidas > 0 && <span style={{ background: '#EF4444', color: 'white', fontSize: '10px', padding: '1px 6px', borderRadius: '10px', marginLeft: '6px' }}>{noLeidas}</span>}
                   </p>
@@ -401,12 +401,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </div>
                 <div style={{ maxHeight: '380px', overflowY: 'auto' as const }}>
                   {notificaciones.length === 0 ? (
-                    <div style={{ padding: '24px', textAlign: 'center' as const, color: '#9CA3AF', fontSize: '13px' }}>Sin notificaciones</div>
+                    <div style={{ padding: 'clamp(14px, 1.9vw, 24px)', textAlign: 'center' as const, color: '#9CA3AF', fontSize: 'clamp(11px, 0.80vw, 13px)' }}>Sin notificaciones</div>
                   ) : notificaciones.map((n: any) => (
                     <div key={n.id}
                       onClick={() => { marcarLeida(n.id); setShowNotif(false); if (n.url_destino) router.push(n.url_destino) }}
                       style={{ padding: '12px 16px', borderBottom: '1px solid #F3F4F6', cursor: n.url_destino ? 'pointer' : 'default', background: n.leida ? 'white' : '#EFF6FF', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                      <span style={{ fontSize: '18px', flexShrink: 0 }}>
+                      <span style={{ fontSize: 'clamp(14.5px, 1.12vw, 18px)', flexShrink: 0 }}>
                         {n.tipo === 'cliente_sin_contacto' ? '👤' : n.tipo === 'financiamiento_por_vencer' ? '💳' : n.tipo === 'actividad_pendiente' ? '📅' : n.tipo === 'solicitud_canalizacion' ? '🔄' : '🔔'}
                       </span>
                       <div style={{ flex: 1 }}>
@@ -445,21 +445,21 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <div style={{ position: 'absolute', top: 'calc(100% + 6px)', right: 0, background: 'white', borderRadius: '10px', boxShadow: '0 4px 24px rgba(0,0,0,0.12)', border: '1px solid #e2e8f0', minWidth: '200px', overflow: 'hidden', zIndex: 50 }}>
                 <div style={{ padding: '12px 14px', borderBottom: '1px solid #f1f5f9', background: '#F8FAFC' }}>
                   <img src="/logo-kse.png" alt="KSE" style={{ height: '18px', objectFit: 'contain', marginBottom: '6px', display: 'block', opacity: 0.7 }} />
-                  <div style={{ fontSize: '13px', fontWeight: '700', color: AZUL }}>{userName}</div>
+                  <div style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '700', color: AZUL }}>{userName}</div>
                   <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>{userEmail}</div>
                 </div>
                 <div style={{ padding: '6px' }}>
                   <Link href="/configuracion" onClick={() => setShowUserMenu(false)}
-                    style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', borderRadius: '6px', textDecoration: 'none', color: '#374151', fontSize: '13px' }}>
+                    style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', borderRadius: '6px', textDecoration: 'none', color: '#374151', fontSize: 'clamp(11px, 0.80vw, 13px)' }}>
                     ⚙️ Configuración
                   </Link>
                   <button onClick={() => { setShowUserMenu(false); setShowCambiarPwd(true) }}
-                    style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#374151', fontSize: '13px', textAlign: 'left' as const, fontFamily: 'inherit' }}>
+                    style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#374151', fontSize: 'clamp(11px, 0.80vw, 13px)', textAlign: 'left' as const, fontFamily: 'inherit' }}>
                     🔒 Cambiar contraseña
                   </button>
                   <div style={{ borderTop: '1px solid #f1f5f9', margin: '4px 0' }} />
                   <button onClick={handleLogout}
-                    style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: '13px', textAlign: 'left' as const, fontFamily: 'inherit' }}>
+                    style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', padding: '8px 10px', borderRadius: '6px', background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 'clamp(11px, 0.80vw, 13px)', textAlign: 'left' as const, fontFamily: 'inherit' }}>
                     ↩ Cerrar sesión
                   </button>
                 </div>
@@ -528,13 +528,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     borderLeft: `3px solid ${isActive ? NARANJA : 'transparent'}`,
                     background: isActive ? '#fff5f2' : 'transparent',
                     color: isActive ? NARANJA : '#64748b',
-                    fontSize: '13px',
+                    fontSize: 'clamp(11px, 0.80vw, 13px)',
                     fontWeight: isActive ? '600' : '400',
                     cursor: 'pointer',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                   }}>
-                    <span style={{ fontSize: '14px', flexShrink: 0, width: '16px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{item.icon}</span>
+                    <span style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', flexShrink: 0, width: '16px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{item.icon}</span>
                     {(!collapsed || isMobile) && <span>{item.label}</span>}
                   </div>
                 </Link>
@@ -571,7 +571,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             return (
               <button key={item.href} onClick={() => router.push(item.href)}
                 style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '2px', padding: '4px 8px', background: 'none', border: 'none', cursor: 'pointer', borderRadius: '8px', flex: 1 }}>
-                <span style={{ fontSize: '18px', opacity: isActive ? 1 : 0.5 }}>{item.icon}</span>
+                <span style={{ fontSize: 'clamp(14.5px, 1.12vw, 18px)', opacity: isActive ? 1 : 0.5 }}>{item.icon}</span>
                 <span style={{ fontSize: '9px', fontWeight: isActive ? '700' : '400', color: isActive ? AZUL : '#9CA3AF', fontFamily: 'inherit' }}>{item.label}</span>
                 {isActive && <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: AZUL }} />}
               </button>
@@ -585,15 +585,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'white', width: '100%', maxWidth: '400px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)' }}>
             <div style={{ background: '#F59E0B', padding: '16px 20px' }}>
-              <p style={{ fontSize: '14px', fontWeight: '800' as const, color: 'white', margin: 0 }}>⚠️ Tienes un diagnóstico sin guardar</p>
+              <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '800' as const, color: 'white', margin: 0 }}>⚠️ Tienes un diagnóstico sin guardar</p>
             </div>
             <div style={{ padding: '20px' }}>
-              <p style={{ fontSize: '13px', color: '#374151', margin: '0 0 20px', lineHeight: 1.6 }}>
+              <p style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', color: '#374151', margin: '0 0 20px', lineHeight: 1.6 }}>
                 Si sales ahora perderás el avance actual — los datos cargados, la configuración de Mod 40 y el análisis generado no se guardarán.
               </p>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button onClick={() => { setShowNavGuard(false); pendingNavRef.current = null }}
-                  style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '13px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
                   ← Volver y guardar
                 </button>
                 <button onClick={() => {
@@ -603,7 +603,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   setShowNavGuard(false)
                   if (dest) router.push(dest)
                 }}
-                  style={{ flex: 1, padding: '10px', background: '#DC2626', color: 'white', border: 'none', fontSize: '13px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ flex: 1, padding: '10px', background: '#DC2626', color: 'white', border: 'none', fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
                   Salir sin guardar
                 </button>
               </div>
@@ -619,9 +619,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: 'white', width: '100%', maxWidth: '400px', borderRadius: '12px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', overflow: 'hidden' }}>
             <div style={{ background: AZUL, padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <p style={{ fontSize: '14px', fontWeight: '700' as const, color: 'white', margin: 0 }}>🔒 Cambiar contraseña</p>
+              <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700' as const, color: 'white', margin: 0 }}>🔒 Cambiar contraseña</p>
               <button onClick={() => { setShowCambiarPwd(false); setPwdNueva(''); setPwdConfirmar(''); setPwdError('') }}
-                style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', fontSize: '18px', lineHeight: 1 }}>×</button>
+                style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', fontSize: 'clamp(14.5px, 1.12vw, 18px)', lineHeight: 1 }}>×</button>
             </div>
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
               <div>
@@ -634,13 +634,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </div>
                 <input type="text" value={pwdNueva} onChange={e => { setPwdNueva(e.target.value); setPwdError('') }}
                   placeholder="Mínimo 10 chars, mayúscula, número, símbolo"
-                  style={{ width: '100%', padding: '9px 10px', border: `1px solid ${pwdError ? '#EF4444' : '#D1D5DB'}`, borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit', fontWeight: '600' }} />
+                  style={{ width: '100%', padding: '9px 10px', border: `1px solid ${pwdError ? '#EF4444' : '#D1D5DB'}`, borderRadius: '6px', fontSize: 'clamp(11px, 0.80vw, 13px)', boxSizing: 'border-box' as const, fontFamily: 'inherit', fontWeight: '600' }} />
               </div>
               <div>
                 <label style={{ fontSize: '11px', fontWeight: '600' as const, color: '#6B7280', display: 'block', marginBottom: '4px' }}>Confirmar contraseña</label>
                 <input type="password" value={pwdConfirmar} onChange={e => { setPwdConfirmar(e.target.value); setPwdError('') }}
                   placeholder="Repite la contraseña"
-                  style={{ width: '100%', padding: '9px 10px', border: `1px solid ${pwdError ? '#EF4444' : '#D1D5DB'}`, borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
+                  style={{ width: '100%', padding: '9px 10px', border: `1px solid ${pwdError ? '#EF4444' : '#D1D5DB'}`, borderRadius: '6px', fontSize: 'clamp(11px, 0.80vw, 13px)', boxSizing: 'border-box' as const, fontFamily: 'inherit' }} />
               </div>
               <div style={{ background: '#F8FAFC', borderRadius: '6px', padding: '10px 12px', fontSize: '11px', color: '#6B7280', lineHeight: 1.6 }}>
                 <strong style={{ color: '#374151' }}>Criterios de seguridad:</strong><br />
@@ -651,11 +651,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               {pwdError && <p style={{ fontSize: '12px', color: '#EF4444', margin: 0, fontWeight: '600' }}>⚠️ {pwdError}</p>}
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button onClick={() => { setShowCambiarPwd(false); setPwdNueva(''); setPwdConfirmar(''); setPwdError('') }}
-                  style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', borderRadius: '6px', fontSize: '13px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ flex: 1, padding: '10px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', borderRadius: '6px', fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
                   Cancelar
                 </button>
                 <button onClick={cambiarPassword} disabled={pwdGuardando || !pwdNueva}
-                  style={{ flex: 1, padding: '10px', background: AZUL, color: 'white', border: 'none', borderRadius: '6px', fontSize: '13px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit', opacity: pwdGuardando || !pwdNueva ? 0.6 : 1 }}>
+                  style={{ flex: 1, padding: '10px', background: AZUL, color: 'white', border: 'none', borderRadius: '6px', fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit', opacity: pwdGuardando || !pwdNueva ? 0.6 : 1 }}>
                   {pwdGuardando ? 'Guardando...' : 'Actualizar contraseña'}
                 </button>
               </div>

@@ -42,7 +42,20 @@ export const K = {
 /** Paleta para series de datos, en orden de asignación. */
 export const COLORES_SERIE = [K.navy600, K.green, K.orange, K.purple, K.cyan, K.navy800] as const
 
-/** Escala tipográfica: 13 · 15 · 17 · 20 · 26 · 34. */
+/**
+ * Escala tipográfica fluida.
+ *
+ * Antes eran píxeles fijos: un 26px se ve bien en un monitor de 1920 y resulta
+ * enorme en una tableta de 820, porque no cambia con el espacio disponible.
+ *
+ * Cada tamaño va de un mínimo a un máximo según el ancho del viewport. Los
+ * factores están calculados para que el máximo se alcance cerca de 1600px y el
+ * mínimo cerca de 700: el escritorio conserva la escala, la tableta baja un
+ * escalón y el teléfono dos.
+ *
+ * Los valores numéricos (T.label, T.body...) siguen disponibles para SVG y
+ * cálculos, donde clamp no aplica.
+ */
 export const T = {
   label:  13,
   body:   15,
@@ -50,6 +63,16 @@ export const T = {
   h3:     20,
   h2:     26,
   stat:   34,
+} as const
+
+/** Versión fluida, para usar en `fontSize` de estilos en línea. */
+export const TF = {
+  label:  'clamp(11px, 0.80vw, 13px)',
+  body:   'clamp(12.5px, 0.94vw, 15px)',
+  bodyLg: 'clamp(14px, 1.06vw, 17px)',
+  h3:     'clamp(16px, 1.25vw, 20px)',
+  h2:     'clamp(19px, 1.62vw, 26px)',
+  stat:   'clamp(23px, 2.12vw, 34px)',
 } as const
 
 /** Cifra principal de una pantalla: se adapta al ancho disponible. */

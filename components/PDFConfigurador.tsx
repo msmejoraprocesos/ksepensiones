@@ -70,7 +70,7 @@ function PDFPreview({ config, logoUrl, razonSocial, asesorNombre, encabezadoColo
     <div style={{ background: '#F4F6FB', padding: '10px', borderRadius: '8px', fontFamily: 'Arial, sans-serif', fontSize: '9px', color: '#1E293B', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', width: '100%', position: 'relative' }}>
 
       {config.mostrar_watermark && (
-        <div style={{ position: 'absolute', top: '32%', left: '10%', fontSize: '36px', color: '#DC2626', opacity: 0.08, fontWeight: '900', transform: 'rotate(-15deg)', pointerEvents: 'none', zIndex: 0 }}>
+        <div style={{ position: 'absolute', top: '32%', left: '10%', fontSize: 'clamp(24px, 2.25vw, 36px)', color: '#DC2626', opacity: 0.08, fontWeight: '900', transform: 'rotate(-15deg)', pointerEvents: 'none', zIndex: 0 }}>
           BORRADOR
         </div>
       )}
@@ -88,7 +88,7 @@ function PDFPreview({ config, logoUrl, razonSocial, asesorNombre, encabezadoColo
           <div style={{ fontSize: '7px', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '2px' }}>
             {encabezadoTitulo || 'Diagnóstico Pensional'}
           </div>
-          <div style={{ fontSize: '13px', fontWeight: '700', color: 'white', marginBottom: '2px' }}>María González López</div>
+          <div style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '700', color: 'white', marginBottom: '2px' }}>María González López</div>
           <div style={{ fontSize: '7.5px', color: 'rgba(255,255,255,0.75)' }}>
             {asesorNombre ? `Elaborado por: ${asesorNombre}` : razonSocial || 'KSE Pensiones'} · {hoy}
           </div>
@@ -264,7 +264,7 @@ export default function PDFConfigurador({ config, onChange, logoUrl, razonSocial
   )
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '20px', alignItems: 'start' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 'clamp(12px, 1.6vw, 20px)', alignItems: 'start' }}>
 
       {/* ── Controles ── */}
       <div>

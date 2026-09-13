@@ -215,12 +215,12 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
   const r: any = null // para el fmt de actividades
 
   return (
-    <div style={{ height: 'calc(100vh - 48px)', overflowY: 'auto', background: '#F4F6FB', padding: '20px 24px' }}>
+    <div style={{ height: 'calc(100vh - 48px)', overflowY: 'auto', background: '#F4F6FB', padding: 'clamp(12px, 1.6vw, 20px) clamp(14px, 1.9vw, 24px)' }}>
 
       {/* Header */}
       <div style={{ marginBottom: '20px' }}>
-        <h1 style={{ fontSize: '26px', fontWeight: 700, color: AZUL, margin: '0 0 4px' }}>📋 Reportes</h1>
-        <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>Exporta tu información en Excel o PDF</p>
+        <h1 style={{ fontSize: 'clamp(19px, 1.62vw, 26px)', fontWeight: 700, color: AZUL, margin: '0 0 4px' }}>📋 Reportes</h1>
+        <p style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', color: '#6B7280', margin: 0 }}>Exporta tu información en Excel o PDF</p>
       </div>
 
       {/* Controles */}
@@ -228,11 +228,11 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr auto auto', gap: '12px', alignItems: 'flex-end' }}>
 
           <div>
-            <label style={{ fontSize: '14px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Tipo de reporte</label>
+            <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Tipo de reporte</label>
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const }}>
               {REPORTES.map(r => (
                 <button key={r.id} onClick={() => { setTipoReporte(r.id as Reporte); setDatos([]) }}
-                  style={{ padding: '6px 12px', background: tipoReporte === r.id ? AZUL : 'white', color: tipoReporte === r.id ? 'white' : '#374151', border: `1px solid ${tipoReporte === r.id ? AZUL : '#E5E7EB'}`, fontSize: '13px', fontWeight: tipoReporte === r.id ? '700' : '400', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
+                  style={{ padding: '6px 12px', background: tipoReporte === r.id ? AZUL : 'white', color: tipoReporte === r.id ? 'white' : '#374151', border: `1px solid ${tipoReporte === r.id ? AZUL : '#E5E7EB'}`, fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: tipoReporte === r.id ? '700' : '400', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px' }}>
                   {r.label}
                 </button>
               ))}
@@ -242,21 +242,21 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
           {tipoReporte !== 'cartera' && (
             <>
               <div>
-                <label style={{ fontSize: '14px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Desde</label>
+                <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Desde</label>
                 <input type="date" value={fechaInicio} onChange={e => setFechaInicio(e.target.value)}
-                  style={{ width: '100%', padding: '7px 10px', border: '1px solid #D1D5DB', fontSize: '13px', borderRadius: '10px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
+                  style={{ width: '100%', padding: '7px 10px', border: '1px solid #D1D5DB', fontSize: 'clamp(11px, 0.80vw, 13px)', borderRadius: '10px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
               </div>
               <div>
-                <label style={{ fontSize: '14px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Hasta</label>
+                <label style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Hasta</label>
                 <input type="date" value={fechaFin} onChange={e => setFechaFin(e.target.value)}
-                  style={{ width: '100%', padding: '7px 10px', border: '1px solid #D1D5DB', fontSize: '13px', borderRadius: '10px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
+                  style={{ width: '100%', padding: '7px 10px', border: '1px solid #D1D5DB', fontSize: 'clamp(11px, 0.80vw, 13px)', borderRadius: '10px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
               </div>
             </>
           )}
 
           <div style={{ gridColumn: tipoReporte === 'cartera' ? '2 / -1' : 'auto', display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
             <button onClick={cargarDatos} disabled={cargando || !userId}
-              style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', opacity: cargando ? 0.7 : 1, whiteSpace: 'nowrap' as const }}>
+              style={{ padding: '8px 16px', background: AZUL, color: 'white', border: 'none', fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', opacity: cargando ? 0.7 : 1, whiteSpace: 'nowrap' as const }}>
               {cargando ? 'Generando…' : 'Generar reporte'}
             </button>
           </div>
@@ -268,16 +268,16 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
         <>
           {/* Barra de exportación */}
           <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', padding: '12px 16px', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <p style={{ fontSize: '13px', color: '#374151', margin: 0, fontWeight: '600' }}>
+            <p style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', color: '#374151', margin: 0, fontWeight: '600' }}>
               {datos.length} registro{datos.length !== 1 ? 's' : ''} encontrado{datos.length !== 1 ? 's' : ''}
             </p>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button onClick={exportarExcel} disabled={generando === 'excel'}
-                style={{ padding: '7px 14px', background: '#16A34A', color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', opacity: generando === 'excel' ? 0.7 : 1 }}>
+                style={{ padding: '7px 14px', background: '#16A34A', color: 'white', border: 'none', fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', opacity: generando === 'excel' ? 0.7 : 1 }}>
                 {generando === 'excel' ? 'Generando...' : '📊 Exportar Excel'}
               </button>
               <button onClick={exportarPDF} disabled={generando === 'pdf'}
-                style={{ padding: '7px 14px', background: NARANJA, color: 'white', border: 'none', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', opacity: generando === 'pdf' ? 0.7 : 1 }}>
+                style={{ padding: '7px 14px', background: NARANJA, color: 'white', border: 'none', fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', opacity: generando === 'pdf' ? 0.7 : 1 }}>
                 {generando === 'pdf' ? 'Generando…' : 'Exportar PDF'}
               </button>
             </div>
@@ -286,7 +286,7 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
           {/* Tabla de preview */}
           <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', overflow: 'hidden' }}>
             <div style={{ overflowX: 'auto' as const }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: '13px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: 'clamp(11px, 0.80vw, 13px)' }}>
                 <thead>
                   <tr style={{ background: AZUL }}>
                     {cols.map((col, i) => (
@@ -324,7 +324,7 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
               />
             </div>
             {datos.length > 50 && (
-              <div style={{ padding: '10px 16px', background: '#F8FAFC', borderTop: '1px solid #E5E7EB', fontSize: '13px', color: '#6B7280', textAlign: 'center' as const }}>
+              <div style={{ padding: '10px 16px', background: '#F8FAFC', borderTop: '1px solid #E5E7EB', fontSize: 'clamp(11px, 0.80vw, 13px)', color: '#6B7280', textAlign: 'center' as const }}>
                 Mostrando 50 de {datos.length} registros — el archivo exportado incluye todos
               </div>
             )}
@@ -340,8 +340,8 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
 
       {datos.length === 0 && !cargando && (
         <div style={{ background: 'white', border: '1px dashed #D1D5DB', borderRadius: '10px', padding: '48px', textAlign: 'center' as const, color: '#9CA3AF' }}>
-          <p style={{ fontSize: '32px', margin: '0 0 8px' }}>📋</p>
-          <p style={{ fontSize: '13px', margin: 0 }}>Selecciona un tipo de reporte y haz clic en "Generar"</p>
+          <p style={{ fontSize: 'clamp(22px, 2.00vw, 32px)', margin: '0 0 8px' }}>📋</p>
+          <p style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', margin: 0 }}>Selecciona un tipo de reporte y haz clic en "Generar"</p>
         </div>
       )}
     </div>

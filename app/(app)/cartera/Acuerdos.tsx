@@ -108,7 +108,7 @@ export default function Acuerdos({ orgs }: { orgs: any[] }) {
             const atraso = diasEntre(a.fecha_compromiso, new Date())
             const vencido = atraso > 0
             return (
-              <div key={a.id} style={{ display: 'flex', gap: 14, alignItems: 'flex-start', padding: '16px 18px', marginBottom: 8, borderRadius: 12, background: vencido ? K.redSoft : K.paper, border: vencido ? `1px solid ${K.red}22` : 'none' }}>
+              <div key={a.id} style={{ display: 'flex', gap: 14, alignItems: 'flex-start', padding: 'clamp(11px, 1.25vw, 16px) clamp(12px, 1.4vw, 18px)', marginBottom: 8, borderRadius: 12, background: vencido ? K.redSoft : K.paper, border: vencido ? `1px solid ${K.red}22` : 'none' }}>
                 <span style={{ width: 8, height: 8, borderRadius: 999, background: vencido ? K.red : K.amber, flexShrink: 0, marginTop: 8 }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>

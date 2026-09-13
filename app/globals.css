@@ -174,3 +174,26 @@ html, body { overflow-x: hidden; max-width: 100%; }
     min-width: 420px;
   }
 }
+
+
+/* ── Escala fluida ─────────────────────────────────────────────────────────
+   La tipografia y el espaciado usan clamp() con factores en vw, asi que
+   crecen y decrecen con el ancho del viewport. Estas reglas cubren lo que
+   queda fuera de los estilos en linea.                                     */
+
+/* Los controles de formulario heredan la escala del cuerpo. */
+input, select, textarea, button {
+  font-size: clamp(12.5px, 0.94vw, 15px);
+}
+
+/* En tableta el interlineado cerrado cansa: se abre un poco. */
+@media (max-width: 1024px) {
+  body { line-height: 1.55; }
+}
+
+/* En telefono los titulos bajan un escalon mas: a 390px de ancho, un titulo
+   de 19px ocupa casi media linea. */
+@media (max-width: 480px) {
+  h1 { font-size: clamp(17px, 4.6vw, 20px) !important; }
+  h2 { font-size: clamp(16px, 4.2vw, 19px) !important; }
+}

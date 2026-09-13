@@ -205,7 +205,7 @@ export default function SeguimientoPage() {
         {/* Cabecera días */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '1px solid #E1E7F0' }}>
           {DIAS.map(d => (
-            <div key={d} style={{ padding: '8px 0', textAlign: 'center', fontSize: '15px', fontWeight: '700', color: '#94a3b8' }}>{d}</div>
+            <div key={d} style={{ padding: '8px 0', textAlign: 'center', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '700', color: '#94a3b8' }}>{d}</div>
           ))}
         </div>
         {/* Semanas */}
@@ -220,7 +220,7 @@ export default function SeguimientoPage() {
                   style={{ minHeight: '100px', padding: '6px', borderRight: i < 6 ? '1px solid #f1f5f9' : 'none', background: esFecha ? '#EEF2F8' : 'white', cursor: day ? 'pointer' : 'default' }}>
                   {day && (
                     <>
-                      <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: esHoy ? AZUL : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', fontWeight: esHoy ? '700' : '400', color: esHoy ? 'white' : day.getMonth() !== fecha.getMonth() ? '#cbd5e1' : '#374151', marginBottom: '4px' }}>
+                      <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: esHoy ? AZUL : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: esHoy ? '700' : '400', color: esHoy ? 'white' : day.getMonth() !== fecha.getMonth() ? '#cbd5e1' : '#374151', marginBottom: '4px' }}>
                         {day.getDate()}
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
@@ -228,15 +228,15 @@ export default function SeguimientoPage() {
                           const cfg = TIPO_CONFIG[a.tipo] ?? TIPO_CONFIG.nota
                           return (
                             <div key={a.id} onClick={e => { e.stopPropagation(); setDetalle(a) }}
-                              style={{ fontSize: '13px', padding: '2px 5px', borderRadius: '4px', background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer', textDecoration: a.estatus === 'completado' ? 'line-through' : 'none' }}>
+                              style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', padding: '2px 5px', borderRadius: '4px', background: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}`, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', cursor: 'pointer', textDecoration: a.estatus === 'completado' ? 'line-through' : 'none' }}>
                               {TIPO_ICONS[a.tipo]} {a.titulo}{a.fecha_programada ? ' ' + new Date(a.fecha_programada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : ''}
                             </div>
                           )
                         })}
-                        {acts.length > 3 && <div style={{ fontSize: '13px', color: '#94a3b8', padding: '1px 4px' }}>+{acts.length - 3} más</div>}
+                        {acts.length > 3 && <div style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', color: '#94a3b8', padding: '1px 4px' }}>+{acts.length - 3} más</div>}
                       </div>
                       <button onClick={e => { e.stopPropagation(); openModal(day.toISOString().split('T')[0]) }}
-                        style={{ marginTop: '4px', fontSize: '13px', color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', padding: '1px 4px', borderRadius: '4px' }}>+ agregar</button>
+                        style={{ marginTop: '4px', fontSize: 'clamp(11px, 0.80vw, 13px)', color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', padding: '1px 4px', borderRadius: '4px' }}>+ agregar</button>
                     </>
                   )}
                 </div>
@@ -266,8 +266,8 @@ export default function SeguimientoPage() {
             return (
               <div key={i} onClick={() => { setFecha(d); if (vista === 'semana') setVista('dia') }}
                 style={{ padding: '8px 4px', textAlign: 'center', cursor: 'pointer', borderLeft: '1px solid #f1f5f9' }}>
-                <div style={{ fontSize: '15px', color: '#94a3b8', fontWeight: '600' }}>{DIAS[d.getDay()]}</div>
-                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: esHoy ? AZUL : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: esHoy ? '700' : '500', color: esHoy ? 'white' : '#374151', margin: '2px auto 0' }}>
+                <div style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: '#94a3b8', fontWeight: '600' }}>{DIAS[d.getDay()]}</div>
+                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: esHoy ? AZUL : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: esHoy ? '700' : '500', color: esHoy ? 'white' : '#374151', margin: '2px auto 0' }}>
                   {d.getDate()}
                 </div>
               </div>
@@ -281,7 +281,7 @@ export default function SeguimientoPage() {
             <div>
               {HORAS.map((h, hi) => (
                 <div key={h} style={{ height: HORA_H, borderBottom: '1px solid #f1f5f9', background: hi % 2 === 0 ? '#FAFBFC' : 'white', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end', paddingRight: '8px', paddingTop: '2px' }}>
-                  <span style={{ fontSize: '15px', fontWeight: '700', color: '#475569' }}>{h.toString().padStart(2, '0')}:00</span>
+                  <span style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '700', color: '#475569' }}>{h.toString().padStart(2, '0')}:00</span>
                 </div>
               ))}
             </div>
@@ -310,10 +310,10 @@ export default function SeguimientoPage() {
                   return (
                     <div key={a.id} onClick={e => { e.stopPropagation(); setDetalle(a) }}
                       style={{ position: 'absolute', top, left: `${leftPct}%`, width: `${widthPct}%`, height: '36px', borderRadius: '10px', padding: '3px 6px', background: cfg.bg, border: `1px solid ${cfg.border}`, cursor: 'pointer', zIndex: 10 + col, opacity: a.estatus === 'completado' ? 0.6 : 1, boxSizing: 'border-box', overflow: 'hidden' }}>
-                      <div style={{ fontSize: '13px', fontWeight: '700', color: cfg.color, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: a.estatus === 'completado' ? 'line-through' : 'none' }}>
+                      <div style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '700', color: cfg.color, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: a.estatus === 'completado' ? 'line-through' : 'none' }}>
                         {TIPO_ICONS[a.tipo]} {d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })} {a.titulo}
                       </div>
-                      {a.clientes?.nombre && <div style={{ fontSize: '13px', color: cfg.color, opacity: 0.8 }}>{a.clientes.nombre}</div>}
+                      {a.clientes?.nombre && <div style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', color: cfg.color, opacity: 0.8 }}>{a.clientes.nombre}</div>}
                     </div>
                   )
                 })}
@@ -336,33 +336,33 @@ export default function SeguimientoPage() {
       {/* Header */}
       <div style={{ background: 'white', borderBottom: '1px solid #E1E7F0', padding: '10px 20px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
         {/* Nav */}
-        <button onClick={() => navegar(-1)} style={{ width: '28px', height: '28px', borderRadius: '10px', border: '1px solid #E1E7F0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>‹</button>
-        <button onClick={() => setFecha(new Date())} style={{ padding: '4px 12px', borderRadius: '10px', border: '1px solid #E1E7F0', background: 'white', cursor: 'pointer', fontSize: '15px', fontWeight: '600', color: '#374151' }}>Hoy</button>
+        <button onClick={() => navegar(-1)} style={{ width: '28px', height: '28px', borderRadius: '10px', border: '1px solid #E1E7F0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(11.5px, 0.87vw, 14px)' }}>‹</button>
+        <button onClick={() => setFecha(new Date())} style={{ padding: '4px 12px', borderRadius: '10px', border: '1px solid #E1E7F0', background: 'white', cursor: 'pointer', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '600', color: '#374151' }}>Hoy</button>
         <button onClick={() => { setFechaBuscar(fecha.toISOString().split('T')[0]); setShowBuscarFecha(true) }}
           title="Buscar fecha"
-          style={{ width: '28px', height: '28px', borderRadius: '10px', border: '1px solid #E1E7F0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>📅</button>
-        <button onClick={() => navegar(1)} style={{ width: '28px', height: '28px', borderRadius: '10px', border: '1px solid #E1E7F0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}>›</button>
+          style={{ width: '28px', height: '28px', borderRadius: '10px', border: '1px solid #E1E7F0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(11.5px, 0.87vw, 14px)' }}>📅</button>
+        <button onClick={() => navegar(1)} style={{ width: '28px', height: '28px', borderRadius: '10px', border: '1px solid #E1E7F0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(11.5px, 0.87vw, 14px)' }}>›</button>
 
-        <h2 style={{ fontSize: '15px', fontWeight: '700', color: AZUL, margin: 0, flex: 1, textTransform: 'capitalize' }}>{titulo()}</h2>
+        <h2 style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '700', color: AZUL, margin: 0, flex: 1, textTransform: 'capitalize' }}>{titulo()}</h2>
 
         {/* Vista toggles */}
         <div style={{ display: 'flex', border: '1px solid #E1E7F0', borderRadius: '10px', overflow: 'hidden' }}>
           {(['mes', 'semana', 'dia'] as const).map(v => (
             <button key={v} onClick={() => setVista(v)}
-              style={{ padding: '6px 12px', background: vista === v ? AZUL : 'white', color: vista === v ? 'white' : '#64748b', border: 'none', cursor: 'pointer', fontSize: '15px', fontWeight: '600', textTransform: 'capitalize' }}>
+              style={{ padding: '6px 12px', background: vista === v ? AZUL : 'white', color: vista === v ? 'white' : '#64748b', border: 'none', cursor: 'pointer', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '600', textTransform: 'capitalize' }}>
               {v === 'dia' ? 'Día' : v === 'semana' ? 'Semana' : 'Mes'}
             </button>
           ))}
         </div>
 
         <button onClick={() => openModal(fecha.toISOString().split('T')[0])}
-          style={{ background: NARANJA, border: 'none', color: 'white', borderRadius: '10px', padding: '8px 16px', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+          style={{ background: NARANJA, border: 'none', color: 'white', borderRadius: '10px', padding: '8px 16px', fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '700', cursor: 'pointer' }}>
           + Nueva actividad
         </button>
       </div>
 
       {mensaje && (
-        <div style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)', background: AZUL, color: 'white', padding: '12px 24px', borderRadius: '14px', fontSize: '13px', fontWeight: '600', zIndex: 700, boxShadow: '0 8px 24px rgba(0,0,0,0.25)' }}>
+        <div style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)', background: AZUL, color: 'white', padding: '12px 24px', borderRadius: '14px', fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '600', zIndex: 700, boxShadow: '0 8px 24px rgba(0,0,0,0.25)' }}>
           {mensaje}
         </div>
       )}
@@ -386,13 +386,13 @@ export default function SeguimientoPage() {
       {showBuscarFecha && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => { if (e.target === e.currentTarget) setShowBuscarFecha(false) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: 'min(100%, 320px)', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
-            <h3 style={{ color: AZUL, fontSize: '16px', fontWeight: '700', margin: '0 0 16px' }}>📅 Buscar fecha</h3>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(14px, 1.9vw, 24px)', width: 'min(100%, 320px)', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+            <h3 style={{ color: AZUL, fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '700', margin: '0 0 16px' }}>📅 Buscar fecha</h3>
             <input type="date" value={fechaBuscar} onChange={e => setFechaBuscar(e.target.value)} autoFocus
-              style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', outline: 'none', boxSizing: 'border-box', marginBottom: '18px' }} />
+              style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: 'clamp(11.5px, 0.87vw, 14px)', outline: 'none', boxSizing: 'border-box', marginBottom: '18px' }} />
             <div style={{ display: 'flex', gap: '10px' }}>
               <button onClick={() => setShowBuscarFecha(false)}
-                style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '10px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '10px', fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '600', cursor: 'pointer' }}>
                 Cancelar
               </button>
               <button disabled={!fechaBuscar} onClick={() => {
@@ -400,7 +400,7 @@ export default function SeguimientoPage() {
                 setFecha(new Date(fechaBuscar + 'T12:00:00'))
                 setShowBuscarFecha(false)
               }}
-                style={{ flex: 1, padding: '10px', background: fechaBuscar ? AZUL : '#cbd5e1', color: 'white', border: 'none', borderRadius: '10px', fontSize: '13px', fontWeight: '700', cursor: fechaBuscar ? 'pointer' : 'not-allowed' }}>
+                style={{ flex: 1, padding: '10px', background: fechaBuscar ? AZUL : '#cbd5e1', color: 'white', border: 'none', borderRadius: '10px', fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '700', cursor: fechaBuscar ? 'pointer' : 'not-allowed' }}>
                 Ir a la fecha
               </button>
             </div>
@@ -412,54 +412,54 @@ export default function SeguimientoPage() {
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => { if (e.target === e.currentTarget) setShowModal(false) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: 'min(100%, 440px)', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
-            <h3 style={{ color: AZUL, fontSize: '16px', fontWeight: '700', margin: '0 0 18px' }}>Nueva actividad</h3>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(14px, 1.9vw, 24px)', width: 'min(100%, 440px)', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+            <h3 style={{ color: AZUL, fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '700', margin: '0 0 18px' }}>Nueva actividad</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Título *</label>
+                <label style={{ display: 'block', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Título *</label>
                 <input value={form.titulo} onChange={e => setForm(p => ({ ...p, titulo: e.target.value }))} placeholder="Ej. Llamada de seguimiento"
-                  style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
+                  style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: 'clamp(11.5px, 0.87vw, 14px)', boxSizing: 'border-box', outline: 'none' }} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Tipo</label>
+                  <label style={{ display: 'block', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Tipo</label>
                   <select value={form.tipo} onChange={e => setForm(p => ({ ...p, tipo: e.target.value }))}
-                    style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', background: 'white' }}>
+                    style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: 'clamp(11.5px, 0.87vw, 14px)', boxSizing: 'border-box', outline: 'none', background: 'white' }}>
                     {Object.entries(TIPO_CONFIG).map(([k, v]) => <option key={k} value={k}>{TIPO_ICONS[k]} {v.label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Hora</label>
+                  <label style={{ display: 'block', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Hora</label>
                   <input type="time" value={horaSel} onChange={e => setHoraSel(e.target.value)}
-                    style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
+                    style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: 'clamp(11.5px, 0.87vw, 14px)', boxSizing: 'border-box', outline: 'none' }} />
                 </div>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Fecha</label>
+                <label style={{ display: 'block', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Fecha</label>
                 <input type="date" value={fechaSel} onChange={e => setFechaSel(e.target.value)}
-                  style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }} />
+                  style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: 'clamp(11.5px, 0.87vw, 14px)', boxSizing: 'border-box', outline: 'none' }} />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Cliente</label>
+                <label style={{ display: 'block', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Cliente</label>
                 <select value={form.cliente_id} onChange={e => setForm(p => ({ ...p, cliente_id: e.target.value }))}
-                  style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box', outline: 'none', background: 'white' }}>
+                  style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: 'clamp(11.5px, 0.87vw, 14px)', boxSizing: 'border-box', outline: 'none', background: 'white' }}>
                   <option value="">— Sin cliente —</option>
                   {clientes.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
                 </select>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Notas</label>
+                <label style={{ display: 'block', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '700', color: '#374151', marginBottom: '5px' }}>Notas</label>
                 <textarea value={form.notas} onChange={e => setForm(p => ({ ...p, notas: e.target.value }))} rows={2}
-                  style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box', resize: 'none', outline: 'none' }} />
+                  style={{ display: 'block', width: '100%', padding: '9px 12px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: 'clamp(11.5px, 0.87vw, 14px)', boxSizing: 'border-box', resize: 'none', outline: 'none' }} />
               </div>
             </div>
             <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
               <button onClick={() => setShowModal(false)} aria-label="Cerrar"
-                style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+                style={{ flex: 1, padding: '10px', background: '#F1F5F9', color: '#64748b', border: 'none', borderRadius: '10px', fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '600', cursor: 'pointer' }}>
                 Cancelar
               </button>
               <button onClick={guardar} disabled={guardando || !form.titulo.trim()}
-                style={{ flex: 2, padding: '10px', background: guardando || !form.titulo.trim() ? '#94a3b8' : NARANJA, color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: '700', cursor: guardando ? 'not-allowed' : 'pointer' }}>
+                style={{ flex: 2, padding: '10px', background: guardando || !form.titulo.trim() ? '#94a3b8' : NARANJA, color: 'white', border: 'none', borderRadius: '10px', fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700', cursor: guardando ? 'not-allowed' : 'pointer' }}>
                 {guardando ? 'Guardando...' : 'Crear actividad'}
               </button>
             </div>
@@ -471,36 +471,36 @@ export default function SeguimientoPage() {
       {detalle && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           onClick={e => { if (e.target === e.currentTarget) setDetalle(null) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: '24px', width: 'min(100%, 380px)', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(14px, 1.9vw, 24px)', width: 'min(100%, 380px)', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
             {(() => {
               const cfg = TIPO_CONFIG[detalle.tipo] ?? TIPO_CONFIG.nota
               return (
                 <>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                    <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: cfg.bg, border: `1px solid ${cfg.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>
+                    <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: cfg.bg, border: `1px solid ${cfg.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(14.5px, 1.12vw, 18px)' }}>
                       {TIPO_ICONS[detalle.tipo]}
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '15px', fontWeight: '700', color: '#1e293b' }}>{detalle.titulo}</div>
-                      <div style={{ fontSize: '15px', color: cfg.color, fontWeight: '600' }}>{cfg.label}</div>
+                      <div style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '700', color: '#1e293b' }}>{detalle.titulo}</div>
+                      <div style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', color: cfg.color, fontWeight: '600' }}>{cfg.label}</div>
                     </div>
-                    <button onClick={() => setDetalle(null)} aria-label="Cerrar" style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
+                    <button onClick={() => setDetalle(null)} aria-label="Cerrar" style={{ background: 'none', border: 'none', fontSize: 'clamp(14.5px, 1.12vw, 18px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
                     {detalle.fecha_programada && (
-                      <div style={{ fontSize: '13px', color: '#64748b' }}>
+                      <div style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', color: '#64748b' }}>
                         📅 {new Date(detalle.fecha_programada).toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
                       </div>
                     )}
-                    {detalle.clientes?.nombre && <div style={{ fontSize: '13px', color: '#64748b' }}>👤 {detalle.clientes.nombre}</div>}
-                    {detalle.notas && <div style={{ fontSize: '13px', color: '#64748b', fontStyle: 'italic' }}>📝 {detalle.notas}</div>}
-                    <div style={{ fontSize: '15px', padding: '4px 10px', borderRadius: '14px', background: detalle.estatus === 'completado' ? '#f0fdf4' : '#FEF4EC', color: detalle.estatus === 'completado' ? VERDE : NARANJA, fontWeight: '600', display: 'inline-block' }}>
+                    {detalle.clientes?.nombre && <div style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', color: '#64748b' }}>👤 {detalle.clientes.nombre}</div>}
+                    {detalle.notas && <div style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', color: '#64748b', fontStyle: 'italic' }}>📝 {detalle.notas}</div>}
+                    <div style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', padding: '4px 10px', borderRadius: '14px', background: detalle.estatus === 'completado' ? '#f0fdf4' : '#FEF4EC', color: detalle.estatus === 'completado' ? VERDE : NARANJA, fontWeight: '600', display: 'inline-block' }}>
                       {detalle.estatus === 'completado' ? '✓ Completado' : '⏳ Pendiente'}
                     </div>
                   </div>
                   {/* Comentario / Minuta */}
                   <div style={{ marginBottom: '12px' }}>
-                    <label style={{ display: 'block', fontSize: '15px', fontWeight: '700', color: '#475569', marginBottom: '5px' }}>
+                    <label style={{ display: 'block', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '700', color: '#475569', marginBottom: '5px' }}>
                       📝 Comentarios / Minuta
                     </label>
                     <textarea
@@ -508,7 +508,7 @@ export default function SeguimientoPage() {
                       onChange={e => setComentarioDetalle(e.target.value)}
                       rows={3}
                       placeholder="Agrega notas, acuerdos o resultados de esta actividad..."
-                      style={{ display: 'block', width: '100%', padding: '8px 10px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '15px', resize: 'none', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' as const }}
+                      style={{ display: 'block', width: '100%', padding: '8px 10px', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: 'clamp(12.5px, 0.94vw, 15px)', resize: 'none', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' as const }}
                     />
                     {comentarioDetalle !== (detalle.comentario ?? '') && (
                       <button onClick={async () => {
@@ -519,7 +519,7 @@ export default function SeguimientoPage() {
                         setDetalle(d => d ? { ...d, comentario: comentarioDetalle } : d)
                         setSavingComentario(false)
                       }} disabled={savingComentario}
-                        style={{ marginTop: '5px', padding: '5px 14px', background: AZUL, color: 'white', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: '600', cursor: 'pointer' }}>
+                        style={{ marginTop: '5px', padding: '5px 14px', background: AZUL, color: 'white', border: 'none', borderRadius: '10px', fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '600', cursor: 'pointer' }}>
                         {savingComentario ? 'Guardando...' : '💾 Guardar comentario'}
                       </button>
                     )}
@@ -527,23 +527,23 @@ export default function SeguimientoPage() {
 
                   {/* Estatus badge */}
                   <div style={{ padding: '7px 12px', background: detalle.estatus === 'completado' ? '#f0fdf4' : '#F4F6F9', borderRadius: '10px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '16px' }}>{detalle.estatus === 'completado' ? '✅' : '⏳'}</span>
-                    <span style={{ fontSize: '13px', fontWeight: '600', color: detalle.estatus === 'completado' ? VERDE : '#64748b' }}>
+                    <span style={{ fontSize: 'clamp(13px, 1.00vw, 16px)' }}>{detalle.estatus === 'completado' ? '✅' : '⏳'}</span>
+                    <span style={{ fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '600', color: detalle.estatus === 'completado' ? VERDE : '#64748b' }}>
                       {detalle.estatus === 'completado' ? 'Completado' : 'Pendiente'}
                     </span>
                   </div>
 
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button onClick={() => completar(detalle)}
-                      style={{ flex: 1, padding: '9px', background: detalle.estatus === 'pendiente' ? VERDE : '#F1F5F9', color: detalle.estatus === 'pendiente' ? 'white' : '#64748b', border: detalle.estatus !== 'pendiente' ? '1px solid #e2e8f0' : 'none', borderRadius: '10px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                      style={{ flex: 1, padding: '9px', background: detalle.estatus === 'pendiente' ? VERDE : '#F1F5F9', color: detalle.estatus === 'pendiente' ? 'white' : '#64748b', border: detalle.estatus !== 'pendiente' ? '1px solid #e2e8f0' : 'none', borderRadius: '10px', fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '600', cursor: 'pointer' }}>
                       {detalle.estatus === 'pendiente' ? '✅ Completar' : '🔄 Reabrir'}
                     </button>
                     <button onClick={() => { setDetalle(null) }}
-                      style={{ flex: 1, padding: '9px', background: '#F4F6F9', color: '#64748b', border: '1px solid #E1E7F0', borderRadius: '10px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                      style={{ flex: 1, padding: '9px', background: '#F4F6F9', color: '#64748b', border: '1px solid #E1E7F0', borderRadius: '10px', fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '600', cursor: 'pointer' }}>
                       ✕ Cerrar
                     </button>
                     <button onClick={() => eliminar(detalle.id)}
-                      style={{ flex: 1, padding: '9px', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '10px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                      style={{ flex: 1, padding: '9px', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '10px', fontSize: 'clamp(11px, 0.80vw, 13px)', fontWeight: '600', cursor: 'pointer' }}>
                       🗑️ Eliminar
                     </button>
                   </div>

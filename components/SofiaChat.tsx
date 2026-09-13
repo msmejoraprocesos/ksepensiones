@@ -118,7 +118,7 @@ export function SofiaChat({ contextoCliente }: SofiaChatProps) {
           padding: 0, overflow: 'hidden', transition: 'all 0.2s',
         }}>
         {abierto
-          ? <span style={{ color: 'white', fontSize: '20px', fontWeight: '700' }}>✕</span>
+          ? <span style={{ color: 'white', fontSize: 'clamp(16px, 1.25vw, 20px)', fontWeight: '700' }}>✕</span>
           : <img src="/sofia-avatar.svg" alt="Sofía" style={{ width: '52px', height: '52px', objectFit: 'contain' }} />
         }
       </button>
@@ -152,7 +152,7 @@ export function SofiaChat({ contextoCliente }: SofiaChatProps) {
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <p style={{ fontSize: '15px', fontWeight: '700', color: 'white', margin: 0 }}>Sofía IA</p>
+                <p style={{ fontSize: 'clamp(12.5px, 0.94vw, 15px)', fontWeight: '700', color: 'white', margin: 0 }}>Sofía IA</p>
                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22C55E', animation: 'sofiaOnline 1.5s ease-in-out infinite' }} />
               </div>
               <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)', margin: 0 }}>
@@ -194,7 +194,7 @@ export function SofiaChat({ contextoCliente }: SofiaChatProps) {
                   borderRadius: m.role === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
                   background: m.role === 'user' ? AZUL : '#F4F6FB',
                   color: m.role === 'user' ? 'white' : '#374151',
-                  fontSize: '13px', lineHeight: 1.55,
+                  fontSize: 'clamp(11px, 0.80vw, 13px)', lineHeight: 1.55,
                   boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
                 }}>
                   {renderTexto(m.content)}
@@ -236,7 +236,7 @@ export function SofiaChat({ contextoCliente }: SofiaChatProps) {
               disabled={enviando}
               style={{
                 flex: 1, padding: '9px 14px', border: '1.5px solid #E5E7EB',
-                borderRadius: '22px', fontSize: '13px', fontFamily: 'inherit',
+                borderRadius: '22px', fontSize: 'clamp(11px, 0.80vw, 13px)', fontFamily: 'inherit',
                 outline: 'none', background: '#F8FAFC', transition: 'border 0.2s',
               }}
               onFocus={e => e.target.style.borderColor = AZUL}
@@ -248,9 +248,9 @@ export function SofiaChat({ contextoCliente }: SofiaChatProps) {
                 background: enviando || !input.trim() ? '#E5E7EB' : NARANJA,
                 border: 'none', cursor: enviando || !input.trim() ? 'default' : 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '16px', transition: 'background 0.2s',
+                fontSize: 'clamp(13px, 1.00vw, 16px)', transition: 'background 0.2s',
               }}>
-              <span style={{ color: enviando || !input.trim() ? '#9CA3AF' : 'white', fontSize: '14px', marginLeft: '2px' }}>➤</span>
+              <span style={{ color: enviando || !input.trim() ? '#9CA3AF' : 'white', fontSize: 'clamp(11.5px, 0.87vw, 14px)', marginLeft: '2px' }}>➤</span>
             </button>
           </div>
         </div>

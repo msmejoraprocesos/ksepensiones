@@ -89,7 +89,7 @@ export default function CarteraPage() {
     setTramos(p => p.map((t, j) => (j === i ? { ...t, ...patch } : t)))
 
   return (
-    <div style={{ padding: '20px 24px 40px' }}>
+    <div style={{ padding: 'clamp(12px, 1.6vw, 20px) clamp(14px, 1.9vw, 24px) clamp(24px, 3vw, 40px)' }}>
 
       <section style={{ position: 'relative', overflow: 'hidden', borderRadius: 18, background: franja() }}>
         <div style={halo()} />
@@ -297,7 +297,7 @@ export default function CarteraPage() {
           que el sistema no conoce. */}
       {suspendiendo && (
         <div onClick={() => setSuspendiendo(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(13,36,64,.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div onClick={e => e.stopPropagation()} style={{ background: K.card, borderRadius: 16, width: '100%', maxWidth: 460, padding: '26px 28px' }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: K.card, borderRadius: 16, width: '100%', maxWidth: 460, padding: 'clamp(16px, 2vw, 26px) clamp(16px, 2.2vw, 28px)' }}>
             <p style={{ fontSize: 22, fontWeight: 700, color: K.ink, margin: 0 }}>¿Suspender a {suspendiendo.nombre}?</p>
             <p style={{ fontSize: 15, color: K.muted, margin: '10px 0 0', lineHeight: 1.6 }}>
               Lleva {suspendiendo.diasVencido} días vencido pasada la tolerancia. Sus {suspendiendo.asientos ?? 1} usuarios perderán el acceso de inmediato, aunque su información queda intacta y vuelve al registrar el pago.
