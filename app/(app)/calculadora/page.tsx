@@ -1111,22 +1111,25 @@ function CalculadoraInner() {
   }, [])
 
   async function loadClientes(uid: string) {
-    const { data } = await supabase.from('clientes')
+    const { data, error: eClientes } = await supabase.from('clientes')
       .select('id, nombre, etapa_kanban, telefono, tipo_servicio')
       .eq('asesor_id', uid)
       .in('etapa_kanban', ['prospecto', 'diagnostico'])
       .eq('activo', true)
       .order('created_at', { ascending: false })
+    if (eClientes) avisoError('No se pudo cargar la lista de clientes', 'Podrás calcular, pero no vincular el diagnóstico a un cliente hasta recargar.')
     setClientes(data ?? [])
   }
 
   async function loadFinancieras() {
-    const { data } = await supabase.from('financieras').select('*').eq('activa', true).order('orden')
+    const { data, error: eFin } = await supabase.from('financieras').select('*').eq('activa', true).order('orden')
+    if (eFin) avisoError('No se pudo cargar el catálogo de financieras', 'Podrás terminar el diagnóstico, pero no asignar financiera hasta recargar.')
     if (data?.length) { setFinancieras(data); setFinSelId(data[0].id) }
   }
 
   async function loadAsesorPerfil(uid: string) {
-    const { data } = await supabase.from('perfiles_usuario').select('nombre, razon_social, logo_url, encabezado_color, encabezado_titulo, encabezado_logo_size, encabezado_font_size, pdf_config').eq('id', uid).single()
+    const { data, error: ePerfil } = await supabase.from('perfiles_usuario').select('nombre, razon_social, logo_url, encabezado_color, encabezado_titulo, encabezado_logo_size, encabezado_font_size, pdf_config').eq('id', uid).single()
+    if (ePerfil) avisoError('No se pudo cargar tu perfil', 'El PDF saldrá con la configuración de fábrica: sin tu logo ni tus colores.')
     if (data) setAsesorPerfil(data)
   }
 
@@ -1743,7 +1746,13 @@ function CalculadoraInner() {
 
   // ── Restaurar borrador ──────────────────────────────────────────
   async function restaurarBorrador(diagId: string, cId: string) {
-    const { data: diag } = await supabase.from('diagnosticos').select('*').eq('id', diagId).single()
+    const { data: diag, error: eDiag } = await supabase.from('diagnosticos').select('*').eq('id', diagId).single()
+    if (eDiag) {
+      /* Sin esto, un diagnóstico que no carga deja la calculadora en blanco y
+         el asesor vuelve a capturar la constancia desde cero. */
+      avisoError('No se pudo abrir el diagnóstico', 'Revisa tu conexión y vuelve a intentar. Tus datos guardados siguen intactos.')
+      return
+    }
     if (!diag) return
     setClienteId(cId)
     setDiagGuardadoId(diag.id)

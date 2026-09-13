@@ -228,7 +228,7 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr auto auto', gap: '12px', alignItems: 'flex-end' }}>
 
           <div>
-            <label style={{ fontSize: '10.5px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Tipo de reporte</label>
+            <label style={{ fontSize: '14px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Tipo de reporte</label>
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' as const }}>
               {REPORTES.map(r => (
                 <button key={r.id} onClick={() => { setTipoReporte(r.id as Reporte); setDatos([]) }}
@@ -242,12 +242,12 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
           {tipoReporte !== 'cartera' && (
             <>
               <div>
-                <label style={{ fontSize: '10.5px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Desde</label>
+                <label style={{ fontSize: '14px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Desde</label>
                 <input type="date" value={fechaInicio} onChange={e => setFechaInicio(e.target.value)}
                   style={{ width: '100%', padding: '7px 10px', border: '1px solid #D1D5DB', fontSize: '13px', borderRadius: '10px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
               </div>
               <div>
-                <label style={{ fontSize: '10.5px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Hasta</label>
+                <label style={{ fontSize: '14px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Hasta</label>
                 <input type="date" value={fechaFin} onChange={e => setFechaFin(e.target.value)}
                   style={{ width: '100%', padding: '7px 10px', border: '1px solid #D1D5DB', fontSize: '13px', borderRadius: '10px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
               </div>

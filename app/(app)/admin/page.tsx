@@ -581,7 +581,7 @@ function AdminFormulasInner() {
                     <div key={edad} style={{ flex: '1 0 80px', padding: '12px', background: parseInt(edad) === 65 ? '#F0FDF4' : '#F9FAFB', border: '1px solid ' + (parseInt(edad) === 65 ? '#86EFAC' : '#E1E7F0'), textAlign: 'center' }}>
                       <div style={{ fontSize: '13px', color: '#9CA3AF', fontWeight: '600', marginBottom: '4px' }}>{edad} años</div>
                       <div style={{ fontSize: '22px', fontWeight: '900', color: parseInt(edad) === 65 ? '#065F46' : AZUL }}>{(factor * 100).toFixed(0)}%</div>
-                      <div style={{ fontSize: '9.5px', color: '#9CA3AF', marginTop: '2px' }}>{parseInt(edad) === 65 ? 'Vejez' : 'Cesantía'}</div>
+                      <div style={{ fontSize: '13px', color: '#9CA3AF', marginTop: '2px' }}>{parseInt(edad) === 65 ? 'Vejez' : 'Cesantía'}</div>
                     </div>
                   ))}
                 </div>
@@ -601,7 +601,7 @@ function AdminFormulasInner() {
                     <div key={a.label} style={{ flex: '1 0 140px', padding: '12px 14px', background: '#F9FAFB', border: '1px solid #E5E7EB' }}>
                       <div style={{ fontSize: '15px', fontWeight: '600', color: '#374151', marginBottom: '4px' }}>{a.label}</div>
                       <div style={{ fontSize: '24px', fontWeight: '900', color: a.color }}>{a.pct.toFixed(0)}%</div>
-                      <div style={{ fontSize: '9.5px', color: '#9CA3AF', marginTop: '3px' }}>{a.legal}</div>
+                      <div style={{ fontSize: '13px', color: '#9CA3AF', marginTop: '3px' }}>{a.legal}</div>
                     </div>
                   ))}
                 </div>
@@ -840,13 +840,13 @@ function AdminFormulasInner() {
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {[{ label: 'Nombre', key: 'nombre', type: 'text', placeholder: 'Ej. Grupo Financiero XYZ' }].map(f => (
                 <div key={f.key}>
-                  <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>{f.label}</label>
+                  <label style={{ fontSize: '14px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>{f.label}</label>
                   <input type="text" placeholder={f.placeholder} value={(formOrg as any)[f.key]} onChange={e => setFormOrg(p => ({ ...p, [f.key]: e.target.value }))}
                     style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box', fontFamily: 'inherit' }} />
                 </div>
               ))}
               <div>
-                <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Plan</label>
+                <label style={{ fontSize: '14px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Plan</label>
                 <select value={formOrg.plan} onChange={e => setFormOrg(p => ({ ...p, plan: e.target.value }))} style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', fontFamily: 'inherit', background: 'white' }}>
                   <option value="individual">Individual (1 asesor)</option>
                   <option value="equipo">Equipo (2-10 asesores)</option>
@@ -854,11 +854,11 @@ function AdminFormulasInner() {
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Asientos</label>
+                <label style={{ fontSize: '14px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Asientos</label>
                 <input type="number" value={formOrg.asientos} onChange={e => setFormOrg(p => ({ ...p, asientos: parseInt(e.target.value) || 1 }))} style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box', fontFamily: 'inherit' }} />
               </div>
               <div>
-                <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Vencimiento (opcional)</label>
+                <label style={{ fontSize: '14px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>Vencimiento (opcional)</label>
                 <input type="date" value={formOrg.fecha_vencimiento} onChange={e => setFormOrg(p => ({ ...p, fecha_vencimiento: e.target.value }))} style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box', fontFamily: 'inherit' }} />
               </div>
               <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
@@ -884,14 +884,14 @@ function AdminFormulasInner() {
                 { label: 'Teléfono WhatsApp (10 dígitos)', state: nuevoTelefono, set: setNuevoTelefono, type: 'tel', placeholder: 'Ej. 4421234567', required: true },
               ].map(f => (
                 <div key={f.label}>
-                  <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '3px' }}>{f.label} <span style={{ color: '#EF4444' }}>*</span></label>
+                  <label style={{ fontSize: '14px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '3px' }}>{f.label} <span style={{ color: '#EF4444' }}>*</span></label>
                   <input type={f.type} placeholder={f.placeholder} value={f.state} onChange={e => f.set(e.target.value)} required={f.required}
                     style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box', fontFamily: 'inherit' }} />
                 </div>
               ))}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
-                  <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280' }}>Contraseña temporal <span style={{ color: '#EF4444' }}>*</span></label>
+                  <label style={{ fontSize: '14px', fontWeight: '600', color: '#6B7280' }}>Contraseña temporal <span style={{ color: '#EF4444' }}>*</span></label>
                   <button type="button" onClick={() => setNuevoPassword(generarPasswordAdmin())}
                     style={{ fontSize: '15px', color: NARANJA, background: 'none', border: 'none', cursor: 'pointer', fontWeight: '600', fontFamily: 'inherit' }}>🎲 Generar</button>
                 </div>
@@ -899,7 +899,7 @@ function AdminFormulasInner() {
                   style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box', fontFamily: 'inherit', fontWeight: '600' }} />
               </div>
               <div>
-                <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '3px' }}>Rol</label>
+                <label style={{ fontSize: '14px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '3px' }}>Rol</label>
                 <select value={nuevoRol} onChange={e => setNuevoRol(e.target.value as 'asesor' | 'org_admin')}
                   style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', fontFamily: 'inherit', background: 'white' }}>
                   <option value="asesor">Asesor — solo ve sus propios clientes</option>
@@ -907,7 +907,7 @@ function AdminFormulasInner() {
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>¿Cómo enviar las credenciales?</label>
+                <label style={{ fontSize: '14px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '4px' }}>¿Cómo enviar las credenciales?</label>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   {([['email', '📧 Email'], ['whatsapp', '💬 WhatsApp'], ['ambos', '📧+💬 Ambos']] as const).map(([val, lbl]) => (
                     <button key={val} type="button" onClick={() => setNuevoEnvioMetodo(val)}
@@ -917,12 +917,12 @@ function AdminFormulasInner() {
                   ))}
                 </div>
                 {(nuevoEnvioMetodo === 'whatsapp' || nuevoEnvioMetodo === 'ambos') && !nuevoTelefono && (
-                  <p style={{ fontSize: '10.5px', color: '#DC2626', margin: '4px 0 0' }}>⚠️ Ingresa el teléfono para enviar por WhatsApp</p>
+                  <p style={{ fontSize: '14px', color: '#DC2626', margin: '4px 0 0' }}>⚠️ Ingresa el teléfono para enviar por WhatsApp</p>
                 )}
               </div>
               {organizaciones.length > 0 && (
                 <div>
-                  <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '3px' }}>Organización (opcional)</label>
+                  <label style={{ fontSize: '14px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '3px' }}>Organización (opcional)</label>
                   <select value={nuevoOrgId} onChange={e => setNuevoOrgId(e.target.value)}
                     style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', fontFamily: 'inherit', background: 'white' }}>
                     <option value="">— Individual (sin organización) —</option>
@@ -950,7 +950,7 @@ function AdminFormulasInner() {
             <div style={{ background: AZUL, padding: '14px 20px' }}><p style={{ fontSize: '14px', fontWeight: '700', color: 'white', margin: 0 }}>🔑 Cambiar contraseña</p></div>
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div>
-                <label style={{ fontSize: '10.5px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '3px' }}>Nueva contraseña</label>
+                <label style={{ fontSize: '14px', fontWeight: '600', color: '#6B7280', display: 'block', marginBottom: '3px' }}>Nueva contraseña</label>
                 <input type="password" value={nuevoPassword} onChange={e => setNuevoPassword(e.target.value)} placeholder="Mínimo 6 caracteres"
                   style={{ width: '100%', padding: '8px 10px', border: '1px solid #D1D5DB', fontSize: '13px', boxSizing: 'border-box', fontFamily: 'inherit' }} />
               </div>
