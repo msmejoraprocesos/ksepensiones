@@ -225,7 +225,7 @@ export default function AltaCliente({ tramos, onCreado, onCerrar }: Props) {
         </div>
 
         <div style={{ padding: '18px 26px', borderTop: `1px solid ${K.line}`, display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-          <button onClick={intentarCerrar} style={{ padding: '13px 20px', borderRadius: 10, border: `1px solid ${K.line}`, background: 'transparent', color: K.muted, fontSize: 17, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+          <button onClick={intentarCerrar} style={{ padding: '10px 16px', borderRadius: 10, border: `1px solid ${K.line}`, background: 'transparent', color: K.muted, fontSize: 17, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
             Cancelar
           </button>
           <button onClick={crear} disabled={guardando}

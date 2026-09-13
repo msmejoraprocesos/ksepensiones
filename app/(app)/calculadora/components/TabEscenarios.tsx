@@ -67,7 +67,7 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
   const pctRec = Math.min(100, (escSel.roi / HORIZONTE_MESES) * 100)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 1.6vw, 20px)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.1vw, 14px)' }}>
       <style>{`
         @media (max-width: 1000px) {
           .kse-2col { grid-template-columns: 1fr !important; }
@@ -140,9 +140,9 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
       )}
 
       {vista === 'cards' && (
-        <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1.35fr) minmax(280px, 1fr)', gap: 'clamp(12px, 1.6vw, 20px)' }}>
+        <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1.35fr) minmax(280px, 1fr)', gap: 'clamp(9px, 1.1vw, 14px)' }}>
 
-          <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(14px, 1.9vw, 24px)' }}>
+          <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
             <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Comparativo visual de pensión mensual</p>
             <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: '0 0 18px' }}>Toque una barra para ver el escenario en detalle</p>
 
@@ -172,7 +172,7 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
           </div>
 
           <div className="kse-detalle" style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', overflow: 'hidden', alignSelf: 'start' }}>
-            <div style={{ background: colorSel, padding: '20px 22px' }}>
+            <div style={{ background: colorSel, padding: '14px 16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
                 <span style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: 700, color: 'rgba(255,255,255,0.85)', ...nw }}>
                   {escSel.recomendado && '* '}Escenario {idxSel + 1}
@@ -203,7 +203,7 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
               ))}
             </div>
 
-            <div style={{ background: K.paper, borderTop: `1px solid ${K.line}`, padding: '16px 22px' }}>
+            <div style={{ background: K.paper, borderTop: `1px solid ${K.line}`, padding: '12px 16px' }}>
               <div style={{ display: 'flex', height: '10px', borderRadius: 999, overflow: 'hidden', background: 'rgba(0,0,0,0.06)' }}>
                 <span style={{ width: `${pctRec}%`, background: K.muted }} />
                 <span style={{ flex: 1, background: K.greenLt }} />
@@ -276,7 +276,7 @@ export default function TabEscenarios({ escenarios, setTab }: Props) {
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <button onClick={() => setTab(10)}
-          style={{ padding: '13px 24px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
+          style={{ padding: '10px 18px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
           Financiamiento <i className="ti ti-arrow-right" style={{ fontSize: 'clamp(13px, 1.00vw, 16px)' }} />
         </button>
       </div>

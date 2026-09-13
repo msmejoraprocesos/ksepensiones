@@ -539,7 +539,7 @@ function SimuladorVidaReal({ pensionSin, pensionCon }: { pensionSin: number; pen
 
   return (
     <div style={{ background: 'white', border: '1px solid #E5E7EB', marginTop: '4px' }}>
-      <div style={{ background: AZUL, padding: 'clamp(12px, 1.6vw, 20px) clamp(14px, 1.9vw, 24px)' }}>
+      <div style={{ background: AZUL, padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)' }}>
         <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#93C5FD', margin: '0 0 2px', fontWeight: '700' }}>
           Simulador de vida real
         </p>
@@ -2093,12 +2093,12 @@ function CalculadoraInner() {
               </div>
               <div style={{ padding: '14px 20px', borderTop: '1px solid #E5E7EB', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                 <button onClick={() => setShowValidacion(false)}
-                  style={{ padding: '9px 16px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12.5px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ padding: '7px 13px', background: '#F8FAFC', color: '#374151', border: '1px solid #E5E7EB', fontSize: '12.5px', fontWeight: '600' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
                   ✕ Corregir datos
                 </button>
                 {!hayErrores && (
                   <button onClick={() => { setShowValidacion(false); guardarDiagnostico(estatusPendiente, true) }}
-                    style={{ padding: '9px 16px', background: '#F59E0B', color: 'white', border: 'none', fontSize: '12.5px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
+                    style={{ padding: '7px 13px', background: '#F59E0B', color: 'white', border: 'none', fontSize: '12.5px', fontWeight: '700' as const, cursor: 'pointer', fontFamily: 'inherit' }}>
                     Continuar de todos modos →
                   </button>
                 )}
@@ -2114,7 +2114,7 @@ function CalculadoraInner() {
         const esAutorizacion = estatus === 'autorizado'
         return (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-            <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(14px, 1.9vw, 24px)', maxWidth: '660px', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+            <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: '660px', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
               <div style={{ fontSize: 'clamp(18px, 1.55vw, 25px)', textAlign: 'center' as const, marginBottom: '8px' }}>🎯</div>
               <h3 style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '700' as const, color: '#334E7B', margin: '0 0 10px', textAlign: 'center' as const }}>
                 {esAutorizacion ? '¡Diagnóstico autorizado!' : '¡Diagnóstico guardado!'}
@@ -2142,7 +2142,7 @@ function CalculadoraInner() {
       {showGlosario && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={e => { if (e.target === e.currentTarget) setShowGlosario(false) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(14px, 1.9vw, 24px)', maxWidth: '700px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: '700px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700' as const, color: AZUL, margin: 0 }}>📖 Glosario de términos</p>
               <button onClick={() => setShowGlosario(false)} aria-label="Cerrar" style={{ background: 'none', border: 'none', fontSize: 'clamp(14.5px, 1.12vw, 18px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
@@ -2176,7 +2176,7 @@ function CalculadoraInner() {
       {showGuiaEdadMod40 && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={e => { if (e.target === e.currentTarget) setShowGuiaEdadMod40(false) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(14px, 1.9vw, 24px)', maxWidth: '700px', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: '700px', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700' as const, color: AZUL, margin: 0 }}>¿Por qué pedimos años Y meses, no solo años?</p>
               <button onClick={() => setShowGuiaEdadMod40(false)} style={{ background: 'none', border: 'none', fontSize: 'clamp(14.5px, 1.12vw, 18px)', cursor: 'pointer', color: '#94a3b8' }}>✕</button>
@@ -2201,7 +2201,7 @@ function CalculadoraInner() {
       {showTooltipCuantia && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={e => { if (e.target === e.currentTarget) setShowTooltipCuantia(false) }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(14px, 1.9vw, 24px)', maxWidth: '660px', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: '660px', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <div>
                 <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700' as const, color: AZUL, margin: 0 }}>Tabla de cuantía de pensión — Ley 73</p>
@@ -2291,7 +2291,7 @@ function CalculadoraInner() {
       {/* ── Modal confirmación cambio de cliente ── */}
       {showConfirmCambio && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(14px, 1.9vw, 24px)', maxWidth: '380px', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: '380px', width: 'min(100%, 92vw)', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
             <h3 style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: '700' as const, color: '#334E7B', margin: '0 0 10px' }}>⚠️ ¿Cambiar de cliente?</h3>
             <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#64748b', margin: '0 0 20px', lineHeight: 1.6 }}>
               {diagGuardadoId
@@ -2323,7 +2323,7 @@ function CalculadoraInner() {
       {showDetalle250 && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(13,36,64,0.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={() => setShowDetalle250(false)}>
-          <div style={{ background: 'white', borderRadius: '16px', padding: 'clamp(16px, 2.2vw, 28px)', maxWidth: '860px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
+          <div style={{ background: 'white', borderRadius: '12px', padding: 'clamp(12px, 1.5vw, 18px)', maxWidth: '860px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
             onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div>
@@ -2369,7 +2369,7 @@ function CalculadoraInner() {
       {showHistorialCompleto && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(13,36,64,0.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
           onClick={() => setShowHistorialCompleto(false)}>
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(14px, 1.9vw, 24px)', maxWidth: '760px', maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', maxWidth: '760px', maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
             onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div>
@@ -2411,7 +2411,7 @@ function CalculadoraInner() {
       {/* ══ MODAL 1: Bienvenida — ambos campos obligatorios ══ */}
       {appInicializado && mostrarCaratula && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(2px)' }}>
-          <div style={{ background: 'white', borderRadius: '16px', maxWidth: '880px', width: 'min(100%, 94vw)', maxHeight: '92vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(13,36,64,0.28)' }}>
+          <div style={{ background: 'white', borderRadius: '12px', maxWidth: '880px', width: 'min(100%, 94vw)', maxHeight: '92vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(13,36,64,0.28)' }}>
 
             {/* Header azul */}
             <div style={{ background: AZUL, padding: '26px 28px 20px', textAlign: 'center' as const }}>
@@ -2636,7 +2636,7 @@ function CalculadoraInner() {
                 </button>
               ))}
               {clientes.filter(c => c.nombre.toLowerCase().includes(buscarCliente.toLowerCase())).length === 0 && (
-                <div style={{ padding: 'clamp(14px, 1.9vw, 24px)', textAlign: 'center' as const, color: '#94A3B8', fontSize: 'clamp(11px, 0.78vw, 12.5px)' }}>Sin resultados</div>
+                <div style={{ padding: 'clamp(11px, 1.3vw, 16px)', textAlign: 'center' as const, color: '#94A3B8', fontSize: 'clamp(11px, 0.78vw, 12.5px)' }}>Sin resultados</div>
               )}
             </div>
           </div>
@@ -2679,7 +2679,7 @@ function CalculadoraInner() {
             {/* ── Panel glosario deslizable ── */}
             {showGuia && (
               <div style={{ position: 'absolute' as const, top: 0, right: 0, width: 'min(100%, 360px)', maxWidth: '92vw', height: '100%', background: 'white', borderLeft: '1px solid #E1E7F0', zIndex: 50, overflowY: 'auto' as const, boxShadow: '-8px 0 32px rgba(13,36,64,0.14)' }}>
-                <div style={{ background: '#0D2440', padding: '20px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky' as const, top: 0, zIndex: 1 }}>
+                <div style={{ background: '#0D2440', padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky' as const, top: 0, zIndex: 1 }}>
                   <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: 'white', margin: 0 }}>Glosario</p>
                   <button onClick={() => setShowGuia(false)} aria-label="Cerrar" style={{ background: 'rgba(255,255,255,.12)', border: 'none', color: 'white', cursor: 'pointer', fontSize: 'clamp(13px, 1.00vw, 16px)', lineHeight: 1, width: '32px', height: '32px', borderRadius: '10px' }}>✕</button>
                 </div>
@@ -2826,7 +2826,7 @@ function CalculadoraInner() {
               })}
             </div>
 {/* Contenido de la pestaña actual */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: 'clamp(12px, 1.6vw, 20px) clamp(14px, 1.9vw, 24px)', background: '#F5F7FA', fontSize: 'clamp(12px, 0.90vw, 14px)', minWidth: 0, position: 'relative' as const }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', background: '#F5F7FA', fontSize: 'clamp(12px, 0.90vw, 14px)', minWidth: 0, position: 'relative' as const }}>
 
               {/* ── Botón guardar borrador flotante — visible en todos los tabs ── */}
               {sdiPromedio > 0 && (
@@ -2846,17 +2846,17 @@ function CalculadoraInner() {
 
             {/* ── Tab -1: Datos generales ── */}
             {tab === -1 && (
-              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 'clamp(12px, 1.6vw, 20px)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 'clamp(9px, 1.1vw, 14px)' }}>
 
                 {/* Hero KPIs — resumen del caso */}
                 {(escenarios[0]?.pension_mensual || sdiPromedio > 0) && (
-                  <section style={{ position: 'relative' as const, overflow: 'hidden', borderRadius: '18px', background: 'linear-gradient(118deg, #0D2440 0%, #14375F 60%, #245287 100%)' }}>
+                  <section style={{ position: 'relative' as const, overflow: 'hidden', borderRadius: '14px', background: 'linear-gradient(118deg, #0D2440 0%, #14375F 60%, #245287 100%)' }}>
                     <div style={{ position: 'absolute' as const, width: 440, height: 440, right: -150, top: -190, borderRadius: 999, pointerEvents: 'none' as const, background: 'radial-gradient(circle, #E8622C33 0%, transparent 68%)' }} />
-                    <div style={{ position: 'relative' as const, padding: '28px 34px 22px' }}>
+                    <div style={{ position: 'relative' as const, padding: '14px 18px 10px' }}>
                       <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>
                         SU PENSIÓN HOY, SIN MODALIDAD 40
                       </p>
-                      <p style={{ fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 800, color: 'white', margin: '8px 0 0', lineHeight: 1, letterSpacing: '-.035em', whiteSpace: 'nowrap' as const, fontVariantNumeric: 'tabular-nums' as const }}>
+                      <p style={{ fontSize: 'clamp(28px, 3.2vw, 42px)', fontWeight: 800, color: 'white', margin: '8px 0 0', lineHeight: 1, letterSpacing: '-.035em', whiteSpace: 'nowrap' as const, fontVariantNumeric: 'tabular-nums' as const }}>
                         {escenarios[0]?.pension_mensual
                           ? new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(escenarios[0].pension_mensual)
                           : '—'}
@@ -2872,7 +2872,7 @@ function CalculadoraInner() {
                         { label: 'Edad actual', value: datos.edad_actual ? `${datos.edad_actual.toFixed(1)} años` : '—', sub: 'al día de hoy', color: 'white' },
                         { label: 'Régimen', value: `Ley ${datos.ley || '73'}`, sub: datos.ley === '97' ? 'cuenta individual' : 'pensión por cuantía', color: 'white' },
                       ].map((k, i) => (
-                        <div key={i} style={{ background: '#0D2440', padding: '18px 24px' }}>
+                        <div key={i} style={{ background: '#0D2440', padding: '13px 18px' }}>
                           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k.label}</p>
                           <p style={{ fontSize: 'clamp(17px, 1.35vw, 22px)', fontWeight: 700, color: k.color, margin: '3px 0 0', whiteSpace: 'nowrap' as const, fontVariantNumeric: 'tabular-nums' as const }}>{k.value}</p>
                           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.44)', margin: '2px 0 0' }}>{k.sub}</p>
@@ -2883,7 +2883,7 @@ function CalculadoraInner() {
                 )}
 
                 {/* Leyenda del sistema de colores */}
-                <div style={{ display: 'flex', gap: 'clamp(12px, 1.6vw, 20px)', padding: '14px 18px', background: '#FFFFFF', border: '1px solid #E1E7F0', borderRadius: '12px', flexWrap: 'wrap' as const, alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: 'clamp(9px, 1.1vw, 14px)', padding: '10px 15px', background: '#FFFFFF', border: '1px solid #E1E7F0', borderRadius: '12px', flexWrap: 'wrap' as const, alignItems: 'center' }}>
                   <span style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A', marginRight: '2px' }}>Procedencia del dato</span>
                   {[
                     { color: AZUL, label: 'Dato IMSS (constancia)' },
@@ -2957,7 +2957,7 @@ function CalculadoraInner() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
                   {/* Card Familia — borde verde */}
-                  <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: '14px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+                  <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: '10px 15px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
                     <span style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, background: '#F0F7F4', color: VERDE, padding: '3px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '12px' }}>Familia y beneficiarios</span>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '6px' }}>
                       {[
@@ -2974,7 +2974,7 @@ function CalculadoraInner() {
                   </div>
 
                   {/* Card Tabla edad — borde morado */}
-                  <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: '14px 18px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+                  <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: '10px 15px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
                     <span style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, background: '#F5F3FF', color: '#7C3AED', padding: '3px 8px', borderRadius: '4px', display: 'inline-block', marginBottom: '12px' }}>% Pensión por edad (Ley 73)</span>
                     <table style={{ width: '100%', borderCollapse: 'collapse' as const, fontSize: 'clamp(12px, 0.90vw, 14px)' }}>
                       <thead>
@@ -3147,7 +3147,7 @@ function CalculadoraInner() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div style={{ background: AZUL, padding: '16px 20px', borderRadius: '10px' }}>
                 <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '800' as const, color: 'white', margin: '0 0 4px' }}>Resumen Ejecutivo — Proyecto de Pensión con Modalidad 40</p>
-                <div style={{ display: 'flex', gap: 'clamp(12px, 1.6vw, 20px)', fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#93C5FD' }}>
+                <div style={{ display: 'flex', gap: 'clamp(9px, 1.1vw, 14px)', fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#93C5FD' }}>
                   <span>{datos.nombre_trabajador || 'Trabajador'}</span>
                   {datos.nss && <span>NSS: {datos.nss}</span>}
                   {datos.ley && <span>Régimen: Ley {datos.ley}</span>}
@@ -3274,9 +3274,9 @@ function CalculadoraInner() {
               {/* KPIs si hay datos */}
               {escM10 && (
                 <>
-                  <section style={{ position: 'relative' as const, overflow: 'hidden', borderRadius: '18px', background: 'linear-gradient(118deg, #0D2440 0%, #14375F 60%, #0891B2 100%)' }}>
+                  <section style={{ position: 'relative' as const, overflow: 'hidden', borderRadius: '14px', background: 'linear-gradient(118deg, #0D2440 0%, #14375F 60%, #0891B2 100%)' }}>
                     <div style={{ position: 'absolute' as const, width: 420, height: 420, right: -150, top: -180, borderRadius: 999, pointerEvents: 'none' as const, background: 'radial-gradient(circle, #0891B244 0%, transparent 68%)' }} />
-                    <div style={{ position: 'relative' as const, padding: '28px 34px 22px' }}>
+                    <div style={{ position: 'relative' as const, padding: '14px 18px 10px' }}>
                       <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>
                         SU PENSIÓN CON MODALIDAD 10
                       </p>
@@ -3294,7 +3294,7 @@ function CalculadoraInner() {
                         { label: 'Recuperación AFORE', value: '− ' + fmtMXN2(escM10.recuperacion_afore), sub: 'se devuelve al resolver', color: '#1FA873' },
                         { label: 'Cobertura médica', value: 'Incluida', sub: 'trabajador y familia', color: 'white' },
                       ].map((k, i) => (
-                        <div key={i} style={{ background: '#0D2440', padding: '18px 24px' }}>
+                        <div key={i} style={{ background: '#0D2440', padding: '13px 18px' }}>
                           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k.label}</p>
                           <p style={{ fontSize: 'clamp(17.5px, 1.44vw, 23px)', fontWeight: 700, color: k.color, margin: '3px 0 0', whiteSpace: 'nowrap' as const, fontVariantNumeric: 'tabular-nums' as const }}>{k.value}</p>
                           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.44)', margin: '2px 0 0' }}>{k.sub}</p>

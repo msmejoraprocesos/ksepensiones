@@ -153,7 +153,7 @@ describe('consistencia de layout entre módulos', () => {
        de 390. Ahora todos usan el mismo patrón con clamp. */
     const sinEstandar = MODULOS.filter(m => {
       const s = leer(`app/(app)/${m}/page.tsx`)
-      return !/padding: 'clamp\(12px, 1\.6vw, 20px\) clamp\(14px, 1\.9vw, 24px\)/.test(s)
+      return !/padding: 'clamp\(10px, 1\.2vw, 14px\) clamp\(12px, 1\.4vw, 18px\)/.test(s)
     })
     // Seguimiento es un calendario a pantalla completa: su contenedor no lleva
     // padding porque la rejilla ocupa todo el alto disponible.

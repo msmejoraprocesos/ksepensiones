@@ -67,7 +67,7 @@ export default function TabCostoMod40({ escenarios, sys, getMod40Pct, setTab }: 
   const cuotaPromedio = totalMeses > 0 ? escRec.costo_total / totalMeses : 0
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 1.6vw, 20px)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.1vw, 14px)' }}>
       <style>{`
         @media (max-width: 1000px) {
           .kse-2col { grid-template-columns: 1fr !important; }
@@ -78,12 +78,12 @@ export default function TabCostoMod40({ escenarios, sys, getMod40Pct, setTab }: 
       `}</style>
 
       {/* ── Franja de cifras ───────────────────────────────────── */}
-      <section style={{ position: 'relative', overflow: 'hidden', borderRadius: '18px', background: `linear-gradient(118deg, ${K.navy900} 0%, ${K.navy800} 60%, ${K.navy600} 100%)` }}>
+      <section style={{ position: 'relative', overflow: 'hidden', borderRadius: '14px', background: `linear-gradient(118deg, ${K.navy900} 0%, ${K.navy800} 60%, ${K.navy600} 100%)` }}>
         <div style={{ position: 'absolute', width: 460, height: 460, right: -150, top: -190, borderRadius: 999, pointerEvents: 'none', background: `radial-gradient(circle, ${K.orange}33 0%, transparent 68%)` }} />
-        <div style={{ position: 'relative', padding: '28px 34px 22px' }}>
+        <div style={{ position: 'relative', padding: '14px 18px 10px' }}>
           <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>LO QUE CUESTA MODALIDAD 40</p>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap', marginTop: '8px' }}>
-            <p style={{ fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
+            <p style={{ fontSize: 'clamp(28px, 3.2vw, 42px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
               {fmtMXN2(escRec.inversion_neta)}
             </p>
             <span style={{ fontSize: 'clamp(13px, 1.00vw, 16px)', color: 'rgba(255,255,255,.7)' }}>de inversión neta</span>
@@ -115,7 +115,7 @@ export default function TabCostoMod40({ escenarios, sys, getMod40Pct, setTab }: 
             { label: 'Cuota mensual promedio', value: fmtMXN2(cuotaPromedio), sub: 'varía cada año', color: K.gold },
             { label: 'Se recupera en', value: `${escRec.roi} meses`, sub: t.label, color: K.greenLt },
           ].map((k, i) => (
-            <div key={i} style={{ background: K.navy900, padding: '18px 24px' }}>
+            <div key={i} style={{ background: K.navy900, padding: '13px 18px' }}>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k.label}</p>
               <p style={{ fontSize: 'clamp(17px, 1.35vw, 22px)', fontWeight: 700, color: k.color, margin: '3px 0 0', ...nw, ...num }}>{k.value}</p>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.44)', margin: '2px 0 0' }}>{k.sub}</p>
@@ -124,10 +124,10 @@ export default function TabCostoMod40({ escenarios, sys, getMod40Pct, setTab }: 
         </div>
       </section>
 
-      <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(340px, 1.6fr) minmax(280px, 1fr)', gap: 'clamp(12px, 1.6vw, 20px)' }}>
+      <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(340px, 1.6fr) minmax(280px, 1fr)', gap: 'clamp(9px, 1.1vw, 14px)' }}>
 
         {/* ── Desglose anio por anio ─────────────────────────────── */}
-        <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(14px, 1.9vw, 24px)' }}>
+        <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
           <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Cuánto se paga cada año</p>
           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: '0 0 18px' }}>
             La tasa sube cada año por decreto, así que la cuota también
@@ -172,9 +172,9 @@ export default function TabCostoMod40({ escenarios, sys, getMod40Pct, setTab }: 
         </div>
 
         {/* ── Paneles laterales ──────────────────────────────────── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 1.6vw, 20px)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.1vw, 14px)' }}>
 
-          <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(14px, 1.9vw, 24px)' }}>
+          <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
             <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: '0 0 14px' }}>Flujo de caja</p>
             {[
               { label: 'Costo total de Mod. 40', value: fmtMXN2(escRec.costo_total), color: K.ink },
@@ -191,7 +191,7 @@ export default function TabCostoMod40({ escenarios, sys, getMod40Pct, setTab }: 
             </div>
           </div>
 
-          <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(14px, 1.9vw, 24px)' }}>
+          <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
             <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: '0 0 14px' }}>Rentabilidad</p>
             {[
               { label: 'Ganancia acumulada a los 80 años', value: fmtMXN(escRec.ganancia_a80), color: K.green, fuerte: true },
@@ -217,7 +217,7 @@ export default function TabCostoMod40({ escenarios, sys, getMod40Pct, setTab }: 
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <button onClick={() => setTab(5)}
-          style={{ padding: '13px 24px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
+          style={{ padding: '10px 18px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
           Importe de pensión <i className="ti ti-arrow-right" style={{ fontSize: 'clamp(13px, 1.00vw, 16px)' }} />
         </button>
       </div>

@@ -215,7 +215,7 @@ ${fechaInicio !== fechaFin ? `<div class="meta"><span>Período: ${fmtFecha(fecha
   const r: any = null // para el fmt de actividades
 
   return (
-    <div style={{ height: 'calc(100vh - 48px)', overflowY: 'auto', background: '#F4F6FB', padding: 'clamp(12px, 1.6vw, 20px) clamp(14px, 1.9vw, 24px)' }}>
+    <div style={{ height: 'calc(100vh - 48px)', overflowY: 'auto', background: '#F4F6FB', padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)' }}>
 
       {/* Header */}
       <div style={{ marginBottom: '20px' }}>

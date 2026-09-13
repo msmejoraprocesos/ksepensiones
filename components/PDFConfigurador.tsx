@@ -76,7 +76,7 @@ function PDFPreview({ config, logoUrl, razonSocial, asesorNombre, encabezadoColo
       )}
 
       {/* Header — usa datos del Perfil */}
-      <div style={{ background: PRIMARY, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderRadius: '6px 6px 0 0', position: 'relative', zIndex: 1 }}>
+      <div style={{ background: PRIMARY, padding: '10px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderRadius: '6px 6px 0 0', position: 'relative', zIndex: 1 }}>
         <div style={{ flex: 1 }}>
           {config.header_layout !== 'solo_texto' && (
             logoUrl
@@ -264,7 +264,7 @@ export default function PDFConfigurador({ config, onChange, logoUrl, razonSocial
   )
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 'clamp(12px, 1.6vw, 20px)', alignItems: 'start' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 'clamp(9px, 1.1vw, 14px)', alignItems: 'start' }}>
 
       {/* ── Controles ── */}
       <div>

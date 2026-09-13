@@ -362,13 +362,16 @@ function MiDiaInner() {
   )
 
   const kpi = (label: string, value: string, sub?: string, color = '#374151', filled = false, delta?: number | null, minH = 'auto') => {
-    /* El sistema de diseño no tiñe el fondo de cada tarjeta según su color:
-       nueve tintes distintos en una fila compiten entre sí y ninguno destaca.
-       El color vive en la cifra, el fondo se queda neutro. */
+    /* Diez tarjetas blancas idénticas en fila no tienen jerarquía: no hay
+       forma de saber cuál importa. Los fondos saturados del diseño anterior
+       tampoco servían — competían entre sí.
+       
+       El punto medio: una barra superior en el color de la métrica. Agrupa
+       visualmente sin teñir el contenido ni restar contraste a la cifra. */
     return (
-      <div style={{ background: filled ? color : '#FFFFFF', border: '1px solid #E1E7F0', padding: 'clamp(12px, 1.6vw, 20px) clamp(14px, 1.9vw, 24px)', textAlign: 'center' as const, borderRadius: '12px', boxShadow: filled ? 'none' : '0 1px 3px rgba(19,33,53,0.06)', display: 'flex', flexDirection: 'column' as const, justifyContent: 'center', minHeight: minH }}>
+      <div style={{ background: filled ? color : '#FFFFFF', border: '1px solid #E1E7F0', borderTop: filled ? 'none' : `3px solid ${color}`, padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', textAlign: 'center' as const, borderRadius: '12px', boxShadow: filled ? 'none' : '0 1px 3px rgba(19,33,53,0.06)', display: 'flex', flexDirection: 'column' as const, justifyContent: 'center', minHeight: minH }}>
         <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: filled ? 'rgba(255,255,255,0.72)' : '#66738A', fontWeight: 500, marginBottom: '5px', whiteSpace: 'nowrap' as const, overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
-        <div style={{ fontSize: 'clamp(17px, 1.35vw, 22px)', fontWeight: 700, color: filled ? 'white' : color, letterSpacing: '-0.025em', fontVariantNumeric: 'tabular-nums' as const }}>{value}</div>
+        <div style={{ fontSize: 'clamp(20px, 1.6vw, 26px)', fontWeight: 800, color: filled ? 'white' : color, letterSpacing: '-0.03em', lineHeight: 1.1, fontVariantNumeric: 'tabular-nums' as const }}>{value}</div>
         {sub && <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: filled ? 'rgba(255,255,255,0.7)' : '#66738A', marginTop: '3px' }}>{sub}</div>}
         {delta !== undefined && delta !== null && (
           <div style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', fontWeight: '700' as const, color: filled ? 'white' : (delta >= 0 ? VERDE : '#DC2626'), marginTop: '2px' }}>
@@ -403,9 +406,9 @@ function MiDiaInner() {
       {/* ── Modal de gráfica maximizada ── */}
       {chartModal && (
         <div onClick={() => setChartModal(null)}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(14px, 1.9vw, 24px)', backdropFilter: 'blur(2px)' }}>
+          style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(11px, 1.3vw, 16px)', backdropFilter: 'blur(2px)' }}>
           <div onClick={e => e.stopPropagation()}
-            style={{ background: 'white', borderRadius: '16px', width: '100%', maxWidth: '900px', maxHeight: '85vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.25)' }}>
+            style={{ background: 'white', borderRadius: '12px', width: '100%', maxWidth: '900px', maxHeight: '85vh', overflow: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.25)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', borderBottom: '1px solid #E2E8F0' }}>
               <div>
                 <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: '700', color: '#111827', margin: 0 }}>{chartModal.titulo}</p>
@@ -443,7 +446,7 @@ function MiDiaInner() {
         }
       `}</style>
       {/* Header */}
-      <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E1E7F0', padding: '18px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: '8px' }}>
+      <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E1E7F0', padding: '13px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: '8px' }}>
         <div>
           <h1 style={{ fontSize: 'clamp(18px, 1.45vw, 23px)', fontWeight: 700, color: '#132135', margin: 0, letterSpacing: '-0.015em' }}>
             Buenos días, <span style={{ color: NARANJA }}>{nombreAsesor}</span>
@@ -613,7 +616,7 @@ function MiDiaInner() {
                   const max = Math.max(...counts.map(c => c.n), 1)
                   const total = counts.reduce((s, c) => s + c.n, 0)
                   return (
-                    <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 'clamp(12px, 1.6vw, 20px)', height: '100%', justifyContent: 'center', padding: '10px 0' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 'clamp(9px, 1.1vw, 14px)', height: '100%', justifyContent: 'center', padding: '10px 0' }}>
                       {counts.map((c, i) => (
                         <div key={i}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
@@ -679,7 +682,7 @@ function MiDiaInner() {
                     </div>
                   )
                   const expandido = (
-                    <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 'clamp(14px, 1.9vw, 24px)', height: '100%', justifyContent: 'center', padding: '10px 0' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 'clamp(10px, 1.2vw, 16px)', height: '100%', justifyContent: 'center', padding: '10px 0' }}>
                       <div style={{ flex: '0 0 450px', display: 'flex', justifyContent: 'center' }}>{donutSVG(450, 7)}</div>
                       <div style={{ display: 'flex', gap: '32px', justifyContent: 'center', flexWrap: 'wrap' as const }}>
                         <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A', margin: '0', fontWeight: '600', width: '100%', textAlign: 'center' as const }}>Total: {fmtMXN(total)}</p>
@@ -1049,7 +1052,7 @@ function MiDiaInner() {
       {showOnboarding && (
         <div style={{ position: 'fixed' as const, inset: 0, background: 'rgba(15,23,42,0.6)', zIndex: 500, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
           <div style={{ background: '#FFFFFF', width: '100%', maxWidth: '460px', boxShadow: '0 24px 64px rgba(0,0,0,0.3)', borderRadius: '14px', overflow: 'hidden' }}>
-            <div style={{ background: AZUL, padding: 'clamp(12px, 1.6vw, 20px) clamp(14px, 1.9vw, 24px)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ background: AZUL, padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <p style={{ fontSize: 'clamp(14.5px, 1.12vw, 18px)', fontWeight: '800' as const, color: 'white', margin: '0 0 6px' }}>👋 ¡Bienvenido a KSE Pensiones!</p>
                 <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#93C5FD', margin: 0, lineHeight: 1.4 }}>Estos son tus primeros pasos para empezar a trabajar</p>
@@ -1093,7 +1096,7 @@ function MiDiaInner() {
 export default function MiDiaPage() {
   return (
     <Suspense fallback={
-      <div style={{ padding: 'clamp(12px, 1.6vw, 20px) clamp(14px, 1.9vw, 24px)' }}>
+      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)' }}>
         <TarjetasSkeleton n={4} />
       </div>
     }>

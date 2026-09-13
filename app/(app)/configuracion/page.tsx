@@ -560,7 +560,7 @@ function CatalogosActividad({ userId, supabase }: { userId: string; supabase: an
             )}
           </div>
         ))}
-        <div style={{ padding: '14px 18px', borderTop: '2px solid #E5E7EB', background: '#F5F7FA' }}>
+        <div style={{ padding: '10px 15px', borderTop: '2px solid #E5E7EB', background: '#F5F7FA' }}>
           <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#374151', margin: '0 0 10px' }}>
             + Nueva opción para {catInfo?.label.replace(/^[^\s]+\s/, '')}
           </p>
@@ -936,18 +936,18 @@ export default function ConfiguracionPage() {
       {/* Sin tope de ancho: los otros diez modulos usan el viewport completo, y
           un contenedor centrado aqui dejaba franjas vacias a los lados que hacian
           ver la pantalla como de otro diseño. */}
-      <div style={{ padding: 'clamp(12px, 1.6vw, 20px) clamp(14px, 1.9vw, 24px) clamp(24px, 3vw, 40px)', display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 1.6vw, 20px)' }}>
+      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px) clamp(20px, 2.4vw, 32px)', display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.1vw, 14px)' }}>
 
         {cargando ? (
           <div style={{ display: 'flex', flexDirection: 'column' as const, gap: '12px' }}>
             <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: '16px 20px', height: '76px', opacity: 0.5 }} />
-            <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: 'clamp(14px, 1.9vw, 24px)', height: '300px', opacity: 0.3 }} />
+            <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #E1E7F0', padding: 'clamp(11px, 1.3vw, 16px)', height: '300px', opacity: 0.3 }} />
           </div>
         ) : (<>
 
         {/* Banner primera vez */}
         {isFirstTime && (
-          <div style={{ background: 'linear-gradient(135deg, #1B3A6B, #2c5282)', borderRadius: '14px', padding: 'clamp(12px, 1.6vw, 20px) clamp(14px, 1.9vw, 24px)', display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ background: 'linear-gradient(135deg, #1B3A6B, #2c5282)', borderRadius: '14px', padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', display: 'flex', alignItems: 'center', gap: '16px' }}>
             <span style={{ fontSize: 'clamp(22px, 2.00vw, 32px)' }}>👋</span>
             <div style={{ flex: 1 }}>
               <p style={{ color: 'white', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', margin: '0 0 4px' }}>¡Bienvenido a KSE Pensiones!</p>
@@ -1012,11 +1012,11 @@ export default function ConfiguracionPage() {
         </div>
         {/* ── TAB: PERFIL ── */}
         {tabActiva === 'perfil' && (
-        <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(14px, 1.9vw, 24px)', border: '1px solid #E1E7F0' }}>
+        <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', border: '1px solid #E1E7F0' }}>
           {sectionTitle('👤', 'Identidad del asesor', 'Esta información aparece en el encabezado de tus propuestas PDF')}
 
           {/* Logo: subir (izq) + mini preview (der) */}
-          <div style={{ marginBottom: '20px', display: 'flex', gap: 'clamp(12px, 1.6vw, 20px)', alignItems: 'center' }}>
+          <div style={{ marginBottom: '20px', display: 'flex', gap: 'clamp(9px, 1.1vw, 14px)', alignItems: 'center' }}>
             <div style={{ flex: 1 }}>
               <label style={labelSt}>Logo del asesor {tooltip('PNG con fondo transparente recomendado. Mínimo 200×80px para buena resolución en el PDF')}</label>
               <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', color: '#64748b', margin: '0 0 8px', lineHeight: 1.5 }}>
@@ -1160,9 +1160,9 @@ export default function ConfiguracionPage() {
 
         {/* ── TAB: SISTEMA ── */}
         {tabActiva === 'sistema' && (
-        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 'clamp(12px, 1.6vw, 20px)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 'clamp(9px, 1.1vw, 14px)' }}>
 
-        <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(14px, 1.9vw, 24px)', border: '1px solid #E1E7F0' }}>
+        <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', border: '1px solid #E1E7F0' }}>
           {sectionTitle('📊', 'Variables del sistema 2026', 'Valores oficiales que usa la calculadora para todos los diagnósticos')}
         {(() => {
             const today = new Date()
@@ -1346,7 +1346,7 @@ export default function ConfiguracionPage() {
         </div>
 
         {/* ── SECCIÓN 3: Preview PDF (dentro del tab sistema) ── */}
-        <div id="encabezado" style={{ background: 'white', borderRadius: '14px', padding: 'clamp(14px, 1.9vw, 24px)', border: '1px solid #E1E7F0' }}>
+        <div id="encabezado" style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', border: '1px solid #E1E7F0' }}>
           {sectionTitle('🎨', 'Encabezado de propuestas PDF', 'Personaliza cómo se ve el encabezado en tus documentos')}
 
           {/* Configuración del encabezado */}
@@ -1444,7 +1444,7 @@ export default function ConfiguracionPage() {
               </div>
             )}
             {materiales.length === 0 && materialesNuevos.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: 'clamp(14px, 1.9vw, 24px)', background: '#F4F6F9', borderRadius: '10px', color: '#94a3b8', fontSize: 'clamp(11px, 0.78vw, 12.5px)' }}>
+              <div style={{ textAlign: 'center', padding: 'clamp(11px, 1.3vw, 16px)', background: '#F4F6F9', borderRadius: '10px', color: '#94a3b8', fontSize: 'clamp(11px, 0.78vw, 12.5px)' }}>
                 <div style={{ fontSize: 'clamp(22px, 2.00vw, 32px)', marginBottom: '8px' }}>📄</div>
                 No hay materiales configurados.<br />
                 Agrega guías, videos o links que ayuden a tus clientes a entender el proceso.
@@ -1595,20 +1595,20 @@ export default function ConfiguracionPage() {
         )} {/* fin tab sistema */}
 
         {/* ── TAB: FINANCIERAS ── */}
-        <div style={{ display: tabActiva === 'financieras' ? 'block' : 'none', background: 'white', borderRadius: '14px', padding: 'clamp(14px, 1.9vw, 24px)', border: '1px solid #E1E7F0' }}>
+        <div style={{ display: tabActiva === 'financieras' ? 'block' : 'none', background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', border: '1px solid #E1E7F0' }}>
           {sectionTitle('💳', 'Financieras y elegibilidad', 'Configura las instituciones con las que trabajas y sus criterios de elegibilidad')}
           <FinancierasElegibilidad userId={userId} supabase={supabase} />
         </div>
 
         {/* ── TAB: CATÁLOGOS ── */}
-        <div style={{ display: tabActiva === 'catalogos' ? 'block' : 'none', background: 'white', borderRadius: '14px', padding: 'clamp(14px, 1.9vw, 24px)', border: '1px solid #E1E7F0' }}>
+        <div style={{ display: tabActiva === 'catalogos' ? 'block' : 'none', background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', border: '1px solid #E1E7F0' }}>
           {sectionTitle('📋', 'Catálogos de actividad', 'Personaliza las opciones que aparecen al registrar una actividad con un cliente')}
           <CatalogosActividad userId={userId} supabase={supabase} />
         </div>
 
         {/* ── TAB: PDF ── */}
         {tabActiva === 'pdf' && (
-          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(14px, 1.9vw, 24px)', border: '1px solid #E1E7F0' }}>
+          <div style={{ background: 'white', borderRadius: '14px', padding: 'clamp(11px, 1.3vw, 16px)', border: '1px solid #E1E7F0' }}>
             {sectionTitle('📄', 'Diseño del diagnóstico PDF', 'Personaliza cómo se ve el PDF que recibe tu cliente — el preview se actualiza en tiempo real')}
 
             <PDFConfigurador

@@ -200,7 +200,7 @@ export default function TabCliente({
           </div>
         </div>
         {periodos.length === 0 ? (
-          <div style={{ padding: 'clamp(14px, 1.9vw, 24px)', textAlign: 'center' as const, color: '#94A3B8', background: '#F9FAFB', border: '1px dashed #E5E7EB', borderRadius: '8px' }}>
+          <div style={{ padding: 'clamp(11px, 1.3vw, 16px)', textAlign: 'center' as const, color: '#94A3B8', background: '#F9FAFB', border: '1px dashed #E5E7EB', borderRadius: '8px' }}>
             <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', margin: 0 }}>Carga la constancia IMSS para ver el cálculo del SDI</p>
           </div>
         ) : (
@@ -277,7 +277,7 @@ export default function TabCliente({
 
       {/* Siguiente */}
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <button onClick={() => setTab(1)} style={{ padding: '13px 24px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
+        <button onClick={() => setTab(1)} style={{ padding: '10px 18px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
           Cuantías anuales <i className="ti ti-arrow-right" style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)' }} />
         </button>
       </div>

@@ -108,7 +108,7 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
     <div style={{ background: 'white', border: '1px solid #E1E7F0', borderRadius: '14px', overflow: 'hidden' }}>
 
       {/* Header */}
-      <div style={{ padding: 'clamp(12px, 1.6vw, 20px) clamp(14px, 1.9vw, 24px)', background: '#EEF2F8', borderBottom: '1px solid #D1D5DB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', background: '#EEF2F8', borderBottom: '1px solid #D1D5DB', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <p style={{ fontSize: 'clamp(11.5px, 0.87vw, 14px)', fontWeight: 700, color: AZUL, margin: '0 0 4px' }}>📁 Expediente de documentos</p>
           {docsRequeridos.length > 0 ? (
@@ -132,7 +132,7 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
 
       {/* Documentos faltantes requeridos */}
       {faltantes.length > 0 && (
-        <div style={{ padding: '12px 20px', background: '#FFFBEB', borderBottom: '1px solid #FDE68A' }}>
+        <div style={{ padding: '9px 16px', background: '#FFFBEB', borderBottom: '1px solid #FDE68A' }}>
           <p style={{ fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: '700', color: '#92400E', margin: '0 0 8px' }}>
             ⚠️ {faltantes.length} documento{faltantes.length !== 1 ? 's' : ''} requerido{faltantes.length !== 1 ? 's' : ''} por {institucionNombre} sin agregar:
           </p>
@@ -150,7 +150,7 @@ function ExpedienteDocumentos({ clienteId, clienteNombre, instituciones, institu
       {/* Lista de documentos como cards */}
       <div style={{ padding: '14px 20px', display: 'flex', flexDirection: 'column' as const, gap: '8px' }}>
         {docs.length === 0 ? (
-          <div style={{ padding: 'clamp(16px, 2.2vw, 28px)', textAlign: 'center' as const, background: '#F5F7FA', borderRadius: '10px', border: '1px dashed #D1D5DB' }}>
+          <div style={{ padding: 'clamp(12px, 1.5vw, 18px)', textAlign: 'center' as const, background: '#F5F7FA', borderRadius: '10px', border: '1px dashed #D1D5DB' }}>
             <p style={{ fontSize: 'clamp(17px, 1.37vw, 22px)', margin: '0 0 6px' }}>📂</p>
             <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: '#66738A', margin: 0 }}>Sin documentos en el expediente</p>
           </div>
@@ -346,9 +346,9 @@ function FinanciamientoPage() {
   const finFiltrados = filtroEstatus === 'todos' ? financiamientos : financiamientos.filter((f: any) => f.estatus === filtroEstatus)
 
   if (loading) return (
-    <div style={{ padding: 'clamp(12px, 1.6vw, 20px) clamp(14px, 1.9vw, 24px)' }}>
+    <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)' }}>
       <TarjetasSkeleton n={4} />
-      <div style={{ marginTop: 20, background: 'white', border: '1px solid #E1E7F0', borderRadius: 14, overflow: 'hidden' }}>
+      <div style={{ marginTop: 14, background: 'white', border: '1px solid #E1E7F0', borderRadius: 14, overflow: 'hidden' }}>
         <TablaSkeleton filas={6} columnas={5} />
       </div>
     </div>
@@ -370,7 +370,7 @@ function FinanciamientoPage() {
         </div>
       </div>
 
-      <div style={{ padding: 'clamp(12px, 1.6vw, 20px) clamp(14px, 1.9vw, 24px)' }}>
+      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)' }}>
         {/* KPIs */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '12px', marginBottom: '20px' }}>
           {[

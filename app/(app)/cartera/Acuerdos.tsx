@@ -60,7 +60,7 @@ export default function Acuerdos({ orgs }: { orgs: any[] }) {
   }
 
   return (
-    <div style={{ ...tarjeta, marginTop: 20, overflow: 'hidden' }}>
+    <div style={{ ...tarjeta, marginTop: 14, overflow: 'hidden' }}>
       <div style={{ padding: '20px 22px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
         <div>
           <p style={{ fontSize: 20, fontWeight: 700, color: K.ink, margin: 0 }}>Acuerdos de palabra</p>
@@ -91,7 +91,7 @@ export default function Acuerdos({ orgs }: { orgs: any[] }) {
               value={form.descripcion} onChange={e => setForm(p => ({ ...p, descripcion: e.target.value }))}
               style={{ ...campo, marginTop: 10 }} />
             {error && <p style={{ fontSize: 15, color: K.red, margin: '10px 0 0' }}>{error}</p>}
-            <button onClick={guardar} style={{ marginTop: 12, padding: '12px 20px', borderRadius: 10, border: 'none', background: K.navy800, color: 'white', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <button onClick={guardar} style={{ marginTop: 12, padding: '9px 16px', borderRadius: 10, border: 'none', background: K.navy800, color: 'white', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
               Guardar acuerdo
             </button>
           </div>

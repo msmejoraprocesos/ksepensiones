@@ -53,22 +53,22 @@ export default function TabCuantias({ res, sdiPromedio, datos, setTab, Tip }: Pr
   const pension100 = res.factorEdad ? res.pensionMensual / res.factorEdad : res.pensionMensual
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 1.6vw, 20px)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.1vw, 14px)' }}>
       <style>{CSS}</style>
 
       {/* ── Franja: la pension de hoy ──────────────────────────── */}
-      <section style={{ position: 'relative', overflow: 'hidden', borderRadius: '18px', background: `linear-gradient(118deg, ${K.navy900} 0%, ${K.navy800} 60%, ${K.navy600} 100%)` }}>
+      <section style={{ position: 'relative', overflow: 'hidden', borderRadius: '14px', background: `linear-gradient(118deg, ${K.navy900} 0%, ${K.navy800} 60%, ${K.navy600} 100%)` }}>
         <div style={{ position: 'absolute', width: 440, height: 440, right: -150, top: -190, borderRadius: 999, pointerEvents: 'none', background: `radial-gradient(circle, ${K.orange}33 0%, transparent 68%)` }} />
-        <div style={{ position: 'relative', padding: '28px 34px 22px' }}>
+        <div style={{ position: 'relative', padding: '14px 18px 10px' }}>
           <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>
             SU PENSIÓN SI SE RETIRA HOY, SIN MODALIDAD 40
           </p>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap', marginTop: '8px' }}>
-            <p style={{ fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
+            <p style={{ fontSize: 'clamp(28px, 3.2vw, 42px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
               {fmtMXN2(res.pensionMensual)}
             </p>
             {res.pmg_aplica && (
-              <span style={{ background: 'rgba(255,255,255,.13)', color: K.gold, fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 700, padding: '9px 16px', borderRadius: 999, border: `1px solid ${K.gold}55`, ...nw }}>
+              <span style={{ background: 'rgba(255,255,255,.13)', color: K.gold, fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 700, padding: '7px 13px', borderRadius: 999, border: `1px solid ${K.gold}55`, ...nw }}>
                 Pensión mínima garantizada
               </span>
             )}
@@ -86,7 +86,7 @@ export default function TabCuantias({ res, sdiPromedio, datos, setTab, Tip }: Pr
             ['SDI promedio 250 sem.', fmtMXN2(sdiPromedio), 'base real del cálculo', 'white'],
             ['Factor por edad', `${(res.factorEdad * 100).toFixed(0)}%`, `a los ${edadBase} anios`, K.greenLt],
           ].map((k, i) => (
-            <div key={i} style={{ background: K.navy900, padding: '18px 24px' }}>
+            <div key={i} style={{ background: K.navy900, padding: '13px 18px' }}>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k[0]}</p>
               <p style={{ fontSize: 'clamp(17px, 1.35vw, 22px)', fontWeight: 700, color: k[3], margin: '3px 0 0', ...nw, ...num }}>{k[1]}</p>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.44)', margin: '2px 0 0' }}>{k[2]}</p>
@@ -95,10 +95,10 @@ export default function TabCuantias({ res, sdiPromedio, datos, setTab, Tip }: Pr
         </div>
       </section>
 
-      <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1.15fr) minmax(280px, 1fr)', gap: 'clamp(12px, 1.6vw, 20px)' }}>
+      <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1.15fr) minmax(280px, 1fr)', gap: 'clamp(9px, 1.1vw, 14px)' }}>
 
         {/* ── Desglose ──────────────────────────────────────────── */}
-        <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(14px, 1.9vw, 24px)' }}>
+        <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
           <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: '0 0 18px' }}>De qué se compone la pensión anual</p>
 
           <div style={{ display: 'flex', height: '42px', borderRadius: '9px', overflow: 'hidden', marginBottom: '20px' }}>
@@ -132,7 +132,7 @@ export default function TabCuantias({ res, sdiPromedio, datos, setTab, Tip }: Pr
         </div>
 
         {/* ── Factores ──────────────────────────────────────────── */}
-        <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(14px, 1.9vw, 24px)' }}>
+        <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
           <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: '0 0 14px' }}>Factores del cálculo</p>
           {[
             ['SDI promedio 250 sem.', fmtMXN2(sdiPromedio)],
@@ -168,7 +168,7 @@ export default function TabCuantias({ res, sdiPromedio, datos, setTab, Tip }: Pr
       </div>
 
       {/* ── Tabla por edad, con curva ──────────────────────────── */}
-      <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(14px, 1.9vw, 24px)' }}>
+      <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
         <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>
           Pensión por edad de retiro <Tip id="factorEdad" />
         </p>
@@ -243,7 +243,7 @@ export default function TabCuantias({ res, sdiPromedio, datos, setTab, Tip }: Pr
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <button onClick={() => setTab(2)}
-          style={{ padding: '13px 24px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
+          style={{ padding: '10px 18px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
           Salario Mod. 40 <i className="ti ti-arrow-right" style={{ fontSize: 'clamp(13px, 1.00vw, 16px)' }} />
         </button>
       </div>

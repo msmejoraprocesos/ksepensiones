@@ -145,7 +145,7 @@ export default function EncuestaPage({ params }: { params: { token: string } }) 
                 { val: 'no', label: '👎 No', color: '#DC2626', bg: '#FEF2F2', border: '#FECACA' },
               ].map(op => (
                 <button key={op.val} onClick={() => setRecomendaria(op.val)}
-                  style={{ padding: '14px 18px', background: recomendaria === op.val ? op.bg : 'white', color: recomendaria === op.val ? op.color : '#374151', border: `2px solid ${recomendaria === op.val ? op.border : '#E5E7EB'}`, fontSize: '14px', fontWeight: recomendaria === op.val ? '700' : '400', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', textAlign: 'left', transition: 'all 0.15s' }}>
+                  style={{ padding: '10px 15px', background: recomendaria === op.val ? op.bg : 'white', color: recomendaria === op.val ? op.color : '#374151', border: `2px solid ${recomendaria === op.val ? op.border : '#E5E7EB'}`, fontSize: '14px', fontWeight: recomendaria === op.val ? '700' : '400', cursor: 'pointer', fontFamily: 'inherit', borderRadius: '10px', textAlign: 'left', transition: 'all 0.15s' }}>
                   {op.label}
                 </button>
               ))}

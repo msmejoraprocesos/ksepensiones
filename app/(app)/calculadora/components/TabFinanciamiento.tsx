@@ -62,7 +62,7 @@ export default function TabFinanciamiento({
   const maxPen = Math.max(pensionBase, pensionDurante, pensionFinal, 1)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 1.6vw, 20px)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.1vw, 14px)' }}>
       <style>{`
         @media (max-width: 1000px) {
           .kse-2col { grid-template-columns: 1fr !important; }
@@ -73,16 +73,16 @@ export default function TabFinanciamiento({
       `}</style>
 
       {/* ── Franja de cifras ───────────────────────────────────── */}
-      <section style={{ position: 'relative', overflow: 'hidden', borderRadius: '18px', background: `linear-gradient(118deg, ${K.navy900} 0%, ${K.navy800} 60%, ${K.navy600} 100%)` }}>
+      <section style={{ position: 'relative', overflow: 'hidden', borderRadius: '14px', background: `linear-gradient(118deg, ${K.navy900} 0%, ${K.navy800} 60%, ${K.navy600} 100%)` }}>
         <div style={{ position: 'absolute', width: 460, height: 460, right: -150, top: -190, borderRadius: 999, pointerEvents: 'none', background: `radial-gradient(circle, ${K.orange}33 0%, transparent 68%)` }} />
-        <div style={{ position: 'relative', padding: '28px 34px 22px' }}>
+        <div style={{ position: 'relative', padding: '14px 18px 10px' }}>
           <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>TOTAL A FINANCIAR</p>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap', marginTop: '8px' }}>
-            <p style={{ fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
+            <p style={{ fontSize: 'clamp(28px, 3.2vw, 42px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
               {fmtMXN(total)}
             </p>
             {sobrecosto > 0 && (
-              <span style={{ background: 'rgba(255,255,255,.13)', color: K.gold, fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 700, padding: '9px 16px', borderRadius: 999, border: `1px solid ${K.gold}55`, ...nw, ...num }}>
+              <span style={{ background: 'rgba(255,255,255,.13)', color: K.gold, fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 700, padding: '7px 13px', borderRadius: 999, border: `1px solid ${K.gold}55`, ...nw, ...num }}>
                 +{sobrecosto.toFixed(1)}% sobre cotizar mes a mes
               </span>
             )}
@@ -101,7 +101,7 @@ export default function TabFinanciamiento({
             { label: 'Descuento mensual', value: fmtMXN2(descuento), sub: `durante ${plazoCredito} meses`, color: '#FCA5A5' },
             { label: 'Pensión al liquidar', value: fmtMXN2(pensionFinal), sub: 'libre de descuento', color: K.greenLt },
           ].map((k, i) => (
-            <div key={i} style={{ background: K.navy900, padding: '18px 24px' }}>
+            <div key={i} style={{ background: K.navy900, padding: '13px 18px' }}>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k.label}</p>
               <p style={{ fontSize: 'clamp(17px, 1.35vw, 22px)', fontWeight: 700, color: k.color, margin: '3px 0 0', ...nw, ...num }}>{k.value}</p>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.44)', margin: '2px 0 0' }}>{k.sub}</p>
@@ -110,10 +110,10 @@ export default function TabFinanciamiento({
         </div>
       </section>
 
-      <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1.3fr) minmax(280px, 1fr)', gap: 'clamp(12px, 1.6vw, 20px)' }}>
+      <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1.3fr) minmax(280px, 1fr)', gap: 'clamp(9px, 1.1vw, 14px)' }}>
 
         {/* ── Distribucion del pago ──────────────────────────────── */}
-        <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(14px, 1.9vw, 24px)' }}>
+        <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
           <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>De dónde sale el dinero</p>
           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: '0 0 18px' }}>Distribución del pago retroactivo</p>
 
@@ -145,9 +145,9 @@ export default function TabFinanciamiento({
         </div>
 
         {/* ── Parametros + pension disponible ────────────────────── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 1.6vw, 20px)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.1vw, 14px)' }}>
 
-          <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(14px, 1.9vw, 24px)' }}>
+          <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
             <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: '0 0 16px' }}>Parámetros del crédito</p>
             {[
               { label: 'Duración del trámite', value: duracionTramiteMeses, onChange: setDuracionTramiteMeses, options: [12, 18, 24, 30, 36, 48, 60], fmt: (v: number) => `${v} meses` },
@@ -167,7 +167,7 @@ export default function TabFinanciamiento({
             </div>
           </div>
 
-          <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(14px, 1.9vw, 24px)' }}>
+          <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
             <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Qué cobra en cada etapa</p>
             <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: '0 0 18px' }}>Pensión mensual disponible</p>
 
@@ -193,7 +193,7 @@ export default function TabFinanciamiento({
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <button onClick={() => setTab(11)}
-          style={{ padding: '13px 24px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
+          style={{ padding: '10px 18px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
           El entregable <i className="ti ti-arrow-right" style={{ fontSize: 'clamp(13px, 1.00vw, 16px)' }} />
         </button>
       </div>

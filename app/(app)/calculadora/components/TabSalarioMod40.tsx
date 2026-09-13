@@ -86,22 +86,22 @@ export default function TabSalarioMod40({
   const maxPension = Math.max(...escs.map(e => e.pension_mensual), 1)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 1.6vw, 20px)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.1vw, 14px)' }}>
       <style>{CSS}</style>
 
       {/* ── Franja: el resultado de la decision ────────────────── */}
-      <section style={{ position: 'relative', overflow: 'hidden', borderRadius: '18px', background: `linear-gradient(118deg, ${K.navy900} 0%, ${K.navy800} 60%, ${K.navy600} 100%)` }}>
+      <section style={{ position: 'relative', overflow: 'hidden', borderRadius: '14px', background: `linear-gradient(118deg, ${K.navy900} 0%, ${K.navy800} 60%, ${K.navy600} 100%)` }}>
         <div style={{ position: 'absolute', width: 440, height: 440, right: -150, top: -190, borderRadius: 999, pointerEvents: 'none', background: `radial-gradient(circle, ${K.orange}33 0%, transparent 68%)` }} />
-        <div style={{ position: 'relative', padding: '28px 34px 22px' }}>
+        <div style={{ position: 'relative', padding: '14px 18px 10px' }}>
           <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>
             PENSIÓN PROYECTADA CON ESTOS PARÁMETROS
           </p>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap', marginTop: '8px' }}>
-            <p style={{ fontSize: 'clamp(40px, 5vw, 64px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
+            <p style={{ fontSize: 'clamp(28px, 3.2vw, 42px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
               {escRec ? fmtMXN2(escRec.pension_mensual) : '\u2014'}
             </p>
             {escRec && pensionActual > 0 && (
-              <span style={{ background: K.green, color: 'white', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, padding: '9px 16px', borderRadius: 999, ...nw, ...num }}>
+              <span style={{ background: K.green, color: 'white', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, padding: '7px 13px', borderRadius: 999, ...nw, ...num }}>
                 +{fmtMXN2(escRec.pension_mensual - pensionActual)} cada mes
               </span>
             )}
@@ -117,7 +117,7 @@ export default function TabSalarioMod40({
             ['Inversión neta', escRec ? fmtMXN(escRec.inversion_neta) : '\u2014', 'descontando AFORE', K.gold],
             ['Recuperación', escRec ? `${escRec.roi} meses` : '\u2014', 'de pensión mejorada', K.greenLt],
           ].map((k, i) => (
-            <div key={i} style={{ background: K.navy900, padding: '18px 24px' }}>
+            <div key={i} style={{ background: K.navy900, padding: '13px 18px' }}>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k[0]}</p>
               <p style={{ fontSize: 'clamp(17px, 1.35vw, 22px)', fontWeight: 700, color: k[3], margin: '3px 0 0', ...nw, ...num }}>{k[1]}</p>
               <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.44)', margin: '2px 0 0' }}>{k[2]}</p>
@@ -127,7 +127,7 @@ export default function TabSalarioMod40({
       </section>
 
       {/* Resumen fijo — solo en movil, ver CSS arriba */}
-      <div className="kse-resumen-fijo" style={{ alignItems: 'center', justifyContent: 'space-between', gap: '12px', background: K.navy900, borderRadius: '12px', padding: '14px 18px', boxShadow: '0 4px 16px rgba(13,36,64,.22)' }}>
+      <div className="kse-resumen-fijo" style={{ alignItems: 'center', justifyContent: 'space-between', gap: '12px', background: K.navy900, borderRadius: '12px', padding: '10px 15px', boxShadow: '0 4px 16px rgba(13,36,64,.22)' }}>
         <div style={{ minWidth: 0 }}>
           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.56)', margin: 0 }}>
             {mod40Umas} UMAs · {mod40Meses} meses
@@ -143,10 +143,10 @@ export default function TabSalarioMod40({
         )}
       </div>
 
-      <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) minmax(300px, 1.15fr)', gap: 'clamp(12px, 1.6vw, 20px)' }}>
+      <div className="kse-2col" style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1fr) minmax(300px, 1.15fr)', gap: 'clamp(9px, 1.1vw, 14px)' }}>
 
         {/* ── Decisión estratégica ──────────────────────────────── */}
-        <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(14px, 1.9vw, 24px)' }}>
+        <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '18px' }}>
             <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: 0 }}>Decisión estratégica</p>
             <button onClick={resetParametrosMod40}
@@ -222,7 +222,7 @@ export default function TabSalarioMod40({
         </div>
 
         {/* ── Escenarios calculados ─────────────────────────────── */}
-        <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(14px, 1.9vw, 24px)' }}>
+        <div style={{ background: K.card, border: `1px solid ${K.line}`, borderRadius: '14px', boxShadow: '0 1px 3px rgba(19,33,53,0.06)', padding: 'clamp(11px, 1.3vw, 16px)' }}>
           <p style={{ fontSize: 'clamp(15px, 1.15vw, 18px)', fontWeight: 700, color: K.ink, margin: '0 0 4px' }}>Escenarios calculados</p>
           <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: K.muted, margin: '0 0 18px' }}>
             Comparados contra {fmtMXN2(pensionActual)}/mes sin Mod. 40
@@ -272,7 +272,7 @@ export default function TabSalarioMod40({
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <button onClick={() => setTab(3)}
-          style={{ padding: '13px 24px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
+          style={{ padding: '10px 18px', background: K.orange, color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 3px 10px rgba(232,98,44,0.34)' }}>
           SDI 250 sem. <i className="ti ti-arrow-right" style={{ fontSize: 'clamp(13px, 1.00vw, 16px)' }} />
         </button>
       </div>

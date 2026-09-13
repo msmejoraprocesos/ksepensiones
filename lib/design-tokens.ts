@@ -76,7 +76,7 @@ export const TF = {
 } as const
 
 /** Cifra principal de una pantalla: se adapta al ancho disponible. */
-export const HERO_FONT_SIZE = 'clamp(40px, 5vw, 64px)'
+export const HERO_FONT_SIZE = 'clamp(28px, 3.2vw, 42px)'
 
 /* Helpers de estilo en línea, usados en toda la calculadora. */
 export const nw = { whiteSpace: 'nowrap' as const }
@@ -108,7 +108,7 @@ export const halo = (color: string = K.orange) => ({
 
 /** Botón de avance al siguiente paso. */
 export const botonPrimario = {
-  padding: '13px 24px',
+  padding: '10px 18px',
   background: K.orange,
   color: 'white',
   border: 'none',

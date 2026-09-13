@@ -53,7 +53,7 @@ export default function PanelElegibilidad({ datos, setDatos, semanasNetas }: Pro
     <div style={{ background: K.card, borderRadius: '14px', border: `1px solid ${K.line}`, boxShadow: '0 1px 3px rgba(19,33,53,0.06)', overflow: 'hidden' }}>
 
       {/* Veredicto */}
-      <div style={{ padding: 'clamp(12px, 1.6vw, 20px) clamp(14px, 1.9vw, 24px)', background: r.mod40_viable ? K.greenSoft : K.redSoft, borderBottom: `1px solid ${K.line}` }}>
+      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', background: r.mod40_viable ? K.greenSoft : K.redSoft, borderBottom: `1px solid ${K.line}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           <span style={{ width: 30, height: 30, borderRadius: 999, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: r.mod40_viable ? K.green : K.red, color: 'white', fontSize: 15, fontWeight: 700 }}>
             {r.mod40_viable ? '✓' : '!'}
@@ -77,7 +77,7 @@ export default function PanelElegibilidad({ datos, setDatos, semanasNetas }: Pro
       </div>
 
       {/* Captura de los dos datos que la constancia trae y el formulario no pedía */}
-      <div style={{ padding: 'clamp(12px, 1.6vw, 20px) clamp(14px, 1.9vw, 24px)', borderBottom: `1px solid ${K.line}` }}>
+      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', borderBottom: `1px solid ${K.line}` }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
           <div>
             <label style={{ display: 'block', fontSize: 'clamp(12px, 0.90vw, 14px)', color: K.muted, marginBottom: '6px' }}>

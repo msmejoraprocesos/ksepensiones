@@ -89,11 +89,11 @@ export default function CarteraPage() {
     setTramos(p => p.map((t, j) => (j === i ? { ...t, ...patch } : t)))
 
   return (
-    <div style={{ padding: 'clamp(12px, 1.6vw, 20px) clamp(14px, 1.9vw, 24px) clamp(24px, 3vw, 40px)' }}>
+    <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px) clamp(20px, 2.4vw, 32px)' }}>
 
-      <section style={{ position: 'relative', overflow: 'hidden', borderRadius: 18, background: franja() }}>
+      <section style={{ position: 'relative', overflow: 'hidden', borderRadius: 14, background: franja() }}>
         <div style={halo()} />
-        <div style={{ position: 'relative', padding: '26px 30px 20px' }}>
+        <div style={{ position: 'relative', padding: '14px 18px 10px' }}>
           <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>CARTERA</p>
           <p style={{ fontSize: 'clamp(34px,4vw,52px)', fontWeight: 800, color: '#fff', margin: '8px 0 0', lineHeight: 1, letterSpacing: '-.035em', ...nw, ...num }}>
             {cargando ? '—' : mxn(cartera.filter(c => c.estado !== 'sin_contrato').reduce((s, c) => s + (cotizar(c.asientos ?? 1, 'mensual', tramos).totalMensual), 0))}
@@ -104,7 +104,7 @@ export default function CarteraPage() {
         </div>
         <div style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 1, background: 'rgba(255,255,255,.11)' }}>
           {resumen.map(r => (
-            <div key={r.label} style={{ background: K.navy900, padding: '16px 22px' }}>
+            <div key={r.label} style={{ background: K.navy900, padding: '12px 16px' }}>
               <p style={{ fontSize: 13, color: 'rgba(255,255,255,.56)', margin: 0 }}>{r.label}</p>
               <p style={{ fontSize: 26, fontWeight: 700, color: r.color, margin: '2px 0 0', ...num }}>{r.v}</p>
             </div>
@@ -112,7 +112,7 @@ export default function CarteraPage() {
         </div>
       </section>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(340px,1fr))', gap: 20, marginTop: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(340px,1fr))', gap: 20, marginTop: 14 }}>
 
         {/* ── Tabla de precios ─────────────────────────────────── */}
         <div style={tarjeta}>
@@ -174,7 +174,7 @@ export default function CarteraPage() {
 
         {/* ── Cotizador ────────────────────────────────────────── */}
         <div style={tarjeta}>
-          <div style={{ padding: '20px 22px' }}>
+          <div style={{ padding: '14px 16px' }}>
             <p style={{ fontSize: 20, fontWeight: 700, color: K.ink, margin: 0 }}>Cotizador</p>
             <p style={{ fontSize: 13, color: K.muted, margin: '4px 0 16px' }}>Usa la tabla de arriba en tiempo real.</p>
 
@@ -192,7 +192,7 @@ export default function CarteraPage() {
               </label>
             </div>
 
-            <div style={{ marginTop: 18, background: K.navy900, borderRadius: 12, padding: '20px 22px' }}>
+            <div style={{ marginTop: 18, background: K.navy900, borderRadius: 12, padding: '14px 16px' }}>
               <p style={{ fontSize: 13, color: 'rgba(255,255,255,.56)', margin: 0 }}>
                 Total {periodicidad}
               </p>
@@ -216,10 +216,10 @@ export default function CarteraPage() {
       </div>
 
       {/* ── Estado de la cartera ───────────────────────────────── */}
-      <div style={{ ...tarjeta, marginTop: 20, overflow: 'hidden' }}>
+      <div style={{ ...tarjeta, marginTop: 14, overflow: 'hidden' }}>
         <div style={{ padding: '20px 22px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <p style={{ fontSize: 20, fontWeight: 700, color: K.ink, margin: 0 }}>Estado de la cartera</p>
-          <button onClick={() => setAlta(true)} style={{ ...botonPrimario, padding: '11px 20px' }}>
+          <button onClick={() => setAlta(true)} style={{ ...botonPrimario, padding: '9px 16px' }}>
             Dar de alta cliente
           </button>
         </div>
@@ -304,7 +304,7 @@ export default function CarteraPage() {
             </p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 24 }}>
               <button onClick={() => setSuspendiendo(null)}
-                style={{ padding: '13px 20px', borderRadius: 10, border: `1px solid ${K.line}`, background: 'transparent', color: K.muted, fontSize: 17, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ padding: '10px 16px', borderRadius: 10, border: `1px solid ${K.line}`, background: 'transparent', color: K.muted, fontSize: 17, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
                 No, dejar activa
               </button>
               <button onClick={async () => {
@@ -312,7 +312,7 @@ export default function CarteraPage() {
     if (eSusp) { avisoError('No se pudo suspender la organización', eSusp.message); return }
                 setSuspendiendo(null); cargar()
               }}
-                style={{ padding: '13px 20px', borderRadius: 10, border: 'none', background: K.red, color: 'white', fontSize: 17, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                style={{ padding: '10px 16px', borderRadius: 10, border: 'none', background: K.red, color: 'white', fontSize: 17, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
                 Sí, suspender
               </button>
             </div>

@@ -352,7 +352,7 @@ function AdminFormulasInner() {
   if (!isAdmin) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}><p style={{ color: '#374151', fontWeight: '700' }}>🔒 Acceso restringido</p></div>
 
   return (
-    <div style={{ height: 'calc(100vh - 48px)', overflowY: 'auto', background: '#F5F7FA', padding: 'clamp(12px, 1.6vw, 20px) clamp(14px, 1.9vw, 24px) clamp(24px, 3vw, 40px)' }}>
+    <div style={{ height: 'calc(100vh - 48px)', overflowY: 'auto', background: '#F5F7FA', padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px) clamp(20px, 2.4vw, 32px)' }}>
       <style>{`
         .af-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .af-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
@@ -406,7 +406,7 @@ function AdminFormulasInner() {
         ]
         return (
           <div style={{ padding: '14px 24px 0' }}>
-            <div style={{ background: requiereAtencion ? '#FEF2F2' : '#F0FDF4', border: `2px solid ${requiereAtencion ? '#FCA5A5' : '#86EFAC'}`, padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+            <div style={{ background: requiereAtencion ? '#FEF2F2' : '#F0FDF4', border: `2px solid ${requiereAtencion ? '#FCA5A5' : '#86EFAC'}`, padding: '10px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                 <span style={{ fontSize: 'clamp(17px, 1.37vw, 22px)', flexShrink: 0 }}>{requiereAtencion ? '⚠️' : '📅'}</span>
                 <div>

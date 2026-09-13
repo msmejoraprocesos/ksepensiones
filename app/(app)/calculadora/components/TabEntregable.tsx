@@ -182,7 +182,7 @@ export default function TabEntregable({
 
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={generarConSofia} disabled={generandoSofia || !tieneEscenarios}
-                  style={{ flex: 1, padding: '15px 22px', background: !tieneEscenarios ? K.line : K.purple, color: !tieneEscenarios ? K.muted : 'white', border: 'none', borderRadius: '11px', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, cursor: generandoSofia || !tieneEscenarios ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '9px', boxShadow: !tieneEscenarios ? 'none' : '0 3px 12px rgba(109,59,212,.3)' }}>
+                  style={{ flex: 1, padding: '11px 18px', background: !tieneEscenarios ? K.line : K.purple, color: !tieneEscenarios ? K.muted : 'white', border: 'none', borderRadius: '11px', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, cursor: generandoSofia || !tieneEscenarios ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '9px', boxShadow: !tieneEscenarios ? 'none' : '0 3px 12px rgba(109,59,212,.3)' }}>
                   {generandoSofia ? (
                     <>Sofía está generando el diagnóstico…</>
                   ) : (
@@ -240,7 +240,7 @@ export default function TabEntregable({
                 <div key={key}>
                   {key === 'proximos_pasos' ? (
                     <div style={{ background: 'white', borderRadius: '10px', border: `1px solid ${BORDE}`, overflow: 'hidden' }}>
-                      <div style={{ padding: '14px 18px', background: K.card, borderBottom: `1px solid ${K.line}`, fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, color: K.ink }}>
+                      <div style={{ padding: '10px 15px', background: K.card, borderBottom: `1px solid ${K.line}`, fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, color: K.ink }}>
                         Próximos pasos
                       </div>
                       <div style={{ padding: '12px' }}>
@@ -258,7 +258,7 @@ export default function TabEntregable({
                     </div>
                   ) : (
                     <div style={{ background: 'white', borderRadius: '10px', border: `1px solid ${BORDE}`, overflow: 'hidden' }}>
-                      <div style={{ padding: '14px 18px', background: K.card, borderBottom: `1px solid ${K.line}`, fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, color: K.ink }}>
+                      <div style={{ padding: '10px 15px', background: K.card, borderBottom: `1px solid ${K.line}`, fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, color: K.ink }}>
                         {labelBloque(key)}
                       </div>
                       <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -296,17 +296,17 @@ export default function TabEntregable({
 
           {/* Resumen ejecutivo compacto */}
           {escRec && (
-            <section style={{ position: 'relative', overflow: 'hidden', borderRadius: '18px', background: 'linear-gradient(118deg, #0D2440 0%, #14375F 60%, #245287 100%)' }}>
+            <section style={{ position: 'relative', overflow: 'hidden', borderRadius: '14px', background: 'linear-gradient(118deg, #0D2440 0%, #14375F 60%, #245287 100%)' }}>
               <div style={{ position: 'absolute', width: 420, height: 420, right: -150, top: -180, borderRadius: 999, pointerEvents: 'none', background: 'radial-gradient(circle, #E8622C33 0%, transparent 68%)' }} />
               <div style={{ position: 'relative', padding: '26px 32px 20px' }}>
                 <p style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '.08em', color: 'rgba(255,255,255,.5)', margin: 0 }}>
                   LO QUE VA EN EL DIAGNÓSTICO
                 </p>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px', flexWrap: 'wrap', marginTop: '8px' }}>
-                  <p style={{ fontSize: 'clamp(36px, 4.4vw, 56px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+                  <p style={{ fontSize: 'clamp(26px, 3vw, 40px)', fontWeight: 800, color: 'white', margin: 0, lineHeight: 1, letterSpacing: '-.035em', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
                     {fmtMXN(escRec.pension_mensual)}
                   </p>
-                  <span style={{ background: '#12855C', color: 'white', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, padding: '9px 16px', borderRadius: 999, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+                  <span style={{ background: '#12855C', color: 'white', fontSize: 'clamp(13px, 1.00vw, 16px)', fontWeight: 700, padding: '7px 13px', borderRadius: 999, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
                     +{fmtMXN(escRec.pension_mensual - (escBase?.pension_mensual || 0))} cada mes
                   </span>
                 </div>
@@ -317,7 +317,7 @@ export default function TabEntregable({
                   { label: 'Pensión con Mod. 40', value: fmtMXN(escRec.pension_mensual), sub: 'de por vida', color: '#1FA873' },
                   { label: 'Inversión neta', value: fmtMXN(escRec.inversion_neta || 0), sub: 'descontando AFORE', color: '#F2B544' },
                 ].map((k, i) => (
-                  <div key={i} style={{ background: '#0D2440', padding: '18px 24px' }}>
+                  <div key={i} style={{ background: '#0D2440', padding: '13px 18px' }}>
                     <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.56)', margin: 0 }}>{k.label}</p>
                     <p style={{ fontSize: 'clamp(17.5px, 1.44vw, 23px)', fontWeight: 700, color: k.color, margin: '3px 0 0', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>{k.value}</p>
                     <p style={{ fontSize: 'clamp(11px, 0.78vw, 12.5px)', color: 'rgba(255,255,255,.44)', margin: '2px 0 0' }}>{k.sub}</p>
@@ -343,7 +343,7 @@ export default function TabEntregable({
             </div>
             <div style={{ display: 'flex', gap: '12px' }}>
               <button onClick={() => exportarPDF(sofiaOutput)} disabled={!listo}
-                style={{ flex: 1, padding: '14px 18px', background: K.card, color: listo ? K.ink : K.muted, border: `1px solid ${K.line}`, borderRadius: '10px', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 600, cursor: listo ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
+                style={{ flex: 1, padding: '10px 15px', background: K.card, color: listo ? K.ink : K.muted, border: `1px solid ${K.line}`, borderRadius: '10px', fontSize: 'clamp(12px, 0.90vw, 14px)', fontWeight: 600, cursor: listo ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
                 📄 Borrador
               </button>
               <button onClick={async () => { await guardarDiagnostico('autorizado'); exportarPDF(sofiaOutput) }} disabled={!listo}
@@ -375,7 +375,7 @@ function EditableBlock({ label, valor, onChange, color, compact }: {
         style={{ width: '100%', border: `1px solid ${K.line}`, borderRadius: '10px', padding: '12px 14px', fontSize: 'clamp(12px, 0.90vw, 14px)', fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box', outline: 'none', lineHeight: 1.6, color: K.ink }} />
       <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
         <button onClick={() => { onChange(draft); setEditing(false) }} style={{ padding: '9px 18px', background: K.navy800, color: 'white', border: 'none', borderRadius: '9px', fontSize: 'clamp(12px, 0.90vw, 14px)', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600 }}>Guardar</button>
-        <button onClick={() => { setDraft(valor); setEditing(false) }} style={{ padding: '9px 16px', background: 'transparent', color: K.muted, border: `1px solid ${K.line}`, borderRadius: '9px', fontSize: 'clamp(12px, 0.90vw, 14px)', cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
+        <button onClick={() => { setDraft(valor); setEditing(false) }} style={{ padding: '7px 13px', background: 'transparent', color: K.muted, border: `1px solid ${K.line}`, borderRadius: '9px', fontSize: 'clamp(12px, 0.90vw, 14px)', cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
       </div>
     </div>
   )

@@ -401,7 +401,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </div>
                 <div style={{ maxHeight: '380px', overflowY: 'auto' as const }}>
                   {notificaciones.length === 0 ? (
-                    <div style={{ padding: 'clamp(14px, 1.9vw, 24px)', textAlign: 'center' as const, color: '#9CA3AF', fontSize: 'clamp(11px, 0.78vw, 12.5px)' }}>Sin notificaciones</div>
+                    <div style={{ padding: 'clamp(11px, 1.3vw, 16px)', textAlign: 'center' as const, color: '#9CA3AF', fontSize: 'clamp(11px, 0.78vw, 12.5px)' }}>Sin notificaciones</div>
                   ) : notificaciones.map((n: any) => (
                     <div key={n.id}
                       onClick={() => { marcarLeida(n.id); setShowNotif(false); if (n.url_destino) router.push(n.url_destino) }}

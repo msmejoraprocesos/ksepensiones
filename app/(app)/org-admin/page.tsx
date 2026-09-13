@@ -87,7 +87,7 @@ function PanelCanalizaciones({ supabase, userId, asesores }: { supabase: any; us
   }[e] ?? { bg: '#F4F6FB', color: '#6B7280', label: e })
 
   return (
-    <div style={{ padding: 'clamp(12px, 1.6vw, 20px) clamp(14px, 1.9vw, 24px)' }}>
+    <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)' }}>
 
       {/* Pendientes */}
       <div style={{ marginBottom: '20px' }}>
@@ -400,7 +400,7 @@ export default function OrgAdminPage() {
         </div>
       </div>
 
-      <div style={{ padding: 'clamp(12px, 1.6vw, 20px) clamp(14px, 1.9vw, 24px)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ padding: 'clamp(10px, 1.2vw, 14px) clamp(12px, 1.4vw, 18px)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
         {/* Alertas */}
         {pagosPendientes.length > 0 && (
