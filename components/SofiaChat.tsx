@@ -112,7 +112,7 @@ export function SofiaChat({ contextoCliente }: SofiaChatProps) {
           /* Se aleja del borde y baja de tamaño: tapaba el botón de guía del
              termómetro y las últimas filas de varias tablas. */
           position: 'fixed' as const, bottom: 'clamp(12.0px, 1.55vw, 15.5px)', right: 'clamp(12.0px, 1.55vw, 15.5px)', zIndex: 1000,
-          width: '52px', height: '44px', borderRadius: '50%',
+          width: '52px', height: '52px', borderRadius: '50%',
           background: abierto ? '#374151' : AZUL,
           border: `3px solid ${abierto ? '#6B7280' : '#F05B21'}`,
           cursor: 'pointer', boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
@@ -121,7 +121,7 @@ export function SofiaChat({ contextoCliente }: SofiaChatProps) {
         }}>
         {abierto
           ? <span style={{ color: 'white', fontSize: 'clamp(10.8px, 0.89vw, 13.9px)', fontWeight: '700' }}>✕</span>
-          : <img src="/sofia-avatar.svg" alt="Sofía" style={{ width: '52px', height: '44px', objectFit: 'contain' }} />
+          : <img src="/sofia-avatar.svg" alt="Sofía" style={{ width: '52px', height: '52px', objectFit: 'contain' }} />
         }
       </button>
 

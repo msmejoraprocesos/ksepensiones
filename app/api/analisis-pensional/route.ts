@@ -47,6 +47,44 @@ Genera un análisis pensional profesional, claro y personalizado en español mex
 Sé directo, empático y usa lenguaje que cualquier persona pueda entender.
 NO uses tecnicismos innecesarios. SÍ explica las consecuencias reales.
 
+FUNDAMENTO LEGAL — ÚSALO EXACTAMENTE ASÍ, NO LO DEDUZCAS
+Sin estas referencias el modelo infiere "artículo 40" a partir del nombre
+"Modalidad 40", que es incorrecto y destruye la credibilidad del documento
+ante cualquier contador o abogado que lo lea.
+
+- Modalidad 40 = CONTINUACIÓN VOLUNTARIA AL RÉGIMEN OBLIGATORIO.
+  Fundamento: artículos 218, 219 y 220 de la Ley del Seguro Social.
+  El "40" viene de la clasificación administrativa del IMSS, NO del articulado.
+  NUNCA la llames "artículo 40" ni "Art. 40 LSS".
+  Requisitos: haber causado baja y tener 52 semanas cotizadas en los últimos
+  cinco años. El derecho se extingue a los 5 años de la baja (Art. 219).
+  Se pierde por dos meses sin pago o por reingreso al régimen obligatorio
+  (Art. 220).
+
+- Modalidad 10 = INCORPORACIÓN VOLUNTARIA para trabajadores independientes.
+  Fundamento: artículo 13 fracción I LSS.
+  Suma semanas e incluye cobertura médica. Es una vía de ELEGIBILIDAD —
+  sirve para alcanzar las 500 semanas mínimas — NO de cuantía.
+  NO la presentes como alternativa a Modalidad 40 para subir la pensión:
+  son cosas distintas y compararlas por monto induce a error.
+
+- Cuantía de la pensión: artículos 167 y 170 LSS (tabla de cuantía básica e
+  incrementos). Pensión mínima garantizada: artículo 170.
+- Actualización anual de pensiones por INPC: artículo 214 LSS.
+
+RIESGO QUE SIEMPRE DEBES ADVERTIR
+Si el asegurado fallece antes de que se resuelva la pensión, lo aportado en
+Modalidad 40 no regresa como pensión propia: pasa al régimen de viudez y
+orfandad, con reglas y montos distintos. Es el riesgo principal de la
+operación y debe plantearse de frente, no omitirse. Inclúyelo en la sección
+de recomendación.
+
+COHERENCIA DE CIFRAS — OBLIGATORIA
+Cada monto que menciones debe corresponder al escenario que estás nombrando.
+No mezcles la inversión de un escenario con la pensión de otro. Si recomiendas
+un escenario, la inversión, la pensión resultante y los meses de recuperación
+deben ser los de ESE escenario. Verifica antes de escribir.
+
 DATOS DEL DIAGNÓSTICO:
 - Cliente / quien solicita: ${nombre || 'el asegurado'}
 - Trabajador titular (constancia IMSS): ${nombre_trabajador || nombre || 'el asegurado'}
@@ -77,7 +115,7 @@ Genera el análisis con EXACTAMENTE estas 5 secciones en formato JSON:
   
   "opciones_disponibles": "3-4 párrafos explicando cada escenario disponible (E2, E3, E4) en lenguaje simple. Para cada uno explica: qué implica hacer, cuánto cuesta, qué ganancia tiene. Si hay brecha que no se puede cubrir, explica las alternativas (retrasar retiro, ajustar expectativa, ahorros adicionales).",
   
-  "recomendacion": "1-2 párrafos con una recomendación clara y directa. Menciona el escenario óptimo, el costo mensual, el beneficio concreto y por qué es la mejor opción para este caso específico. Si hay urgencia (pocos años para el retiro, pocas semanas), indícalo.",
+  "recomendacion": "1-2 párrafos con una recomendación clara y directa. Menciona el escenario óptimo, el costo mensual, el beneficio concreto y por qué es la mejor opción para este caso específico. Si hay urgencia (pocos años para el retiro, pocas semanas), indícalo. Cierra advirtiendo el riesgo de fallecimiento antes de resolver la pensión, en una frase, sin dramatizar. Todas las cifras deben ser del mismo escenario que recomiendas.",
   
   "proximos_pasos": "Lista de 3-5 acciones concretas y ordenadas que debe tomar el cliente, con tiempos aproximados. Incluye verificar semanas en imss.gob.mx, cuándo iniciar la modalidad recomendada, etc."
 }

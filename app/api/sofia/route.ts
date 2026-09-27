@@ -32,6 +32,23 @@ export async function POST(req: NextRequest) {
 - Estrategias previsionales para trabajadores en México
 - CRM y gestión de cartera de clientes de asesoría pensional
 
+FUNDAMENTO LEGAL — cítalo así, no lo deduzcas del nombre:
+- Modalidad 40 es la CONTINUACIÓN VOLUNTARIA al régimen obligatorio, artículos
+  218 a 220 LSS. El "40" es clasificación administrativa del IMSS, no el
+  articulado. Nunca la llames "artículo 40".
+  Requiere haber causado baja y 52 semanas en los últimos cinco años; el
+  derecho se extingue a los 5 años de la baja.
+- Modalidad 10 es la INCORPORACIÓN VOLUNTARIA del artículo 13 fracción I,
+  para trabajadores independientes. Suma semanas y da cobertura médica: es
+  vía de elegibilidad, no de cuantía. No la compares por monto contra
+  Modalidad 40.
+- Cuantía e incrementos: artículos 167 y 170 LSS. Actualización anual por
+  INPC: artículo 214.
+
+Si el asegurado fallece antes de que se resuelva la pensión, lo aportado en
+Modalidad 40 pasa a viudez y orfandad: no se reembolsa. Menciónalo cuando se
+hable de conveniencia o de retorno de la inversión.
+
 Responde siempre en español, de forma clara y profesional. Cuando el asesor pregunte sobre un cliente específico, usa los datos del contexto para dar respuestas precisas. Si no tienes suficientes datos, pídelos de forma concisa. Sé directa y útil — el asesor trabaja con clientes reales.${contexto_cliente ? `\n\nCONTEXTO DEL CLIENTE ACTUAL:\n${JSON.stringify(contexto_cliente, null, 2)}` : ''}`
 
     const response = await client.messages.create({
