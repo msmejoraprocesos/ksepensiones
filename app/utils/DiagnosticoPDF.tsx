@@ -86,8 +86,13 @@ const s = StyleSheet.create({
   headerSub: { fontSize: 8.5, color: 'rgba(255,255,255,0.75)' },
   headerBadge: { backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 5, paddingVertical: 5, paddingHorizontal: 10, alignItems: 'center' },
   body: { paddingHorizontal: 22, paddingTop: 16 },
-  secLabel: { fontSize: 7.5, fontFamily: 'Helvetica-Bold', color: C.azul, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 7, paddingLeft: 7, borderLeftWidth: 2.5 },
-  sofiaBox: { borderRadius: 5, padding: 9, marginVertical: 6, flexDirection: 'row' },
+  /* marginTop separa el encabezado del bloque anterior. Sin el, el titulo
+     quedaba pegado al ultimo renglon del parrafo de Sofia y se leia encimado.
+     La reserva de espacio para el salto de pagina va en el contenedor de la
+     seccion, no aqui: aplicada a un Text suelto, el motor recalcula la
+     posicion del titulo y lo dibuja sobre el contenido previo. */
+  secLabel: { fontSize: 7.5, fontFamily: 'Helvetica-Bold', color: C.azul, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 12, marginBottom: 7, paddingLeft: 7, borderLeftWidth: 2.5 },
+  sofiaBox: { borderRadius: 5, padding: 9, marginTop: 6, marginBottom: 10, flexDirection: 'row' },
   sofiaText: { fontSize: 8.5, color: C.texto, lineHeight: 1.6, flex: 1 },
   sofiaLabel: { fontSize: 7.5, fontFamily: 'Helvetica-Bold', marginBottom: 3 },
   kpiRow: { flexDirection: 'row', gap: 7, marginBottom: 8 },
@@ -126,7 +131,7 @@ const SofiaBox = ({ tipo, texto, COLOR }: { tipo: 'azul' | 'amarillo' | 'verde';
   }
   const m = map[tipo]
   return (
-    <View style={[s.sofiaBox, { backgroundColor: m.bg, borderLeftWidth: 2.5, borderLeftColor: m.border }]}>
+    <View wrap={false} style={[s.sofiaBox, { backgroundColor: m.bg, borderLeftWidth: 2.5, borderLeftColor: m.border }]}>
       <View style={{ flex: 1 }}>
         <Text style={[s.sofiaLabel, { color: m.lColor }]}>{m.label}</Text>
         <Text style={s.sofiaText}>{texto}</Text>
