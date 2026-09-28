@@ -380,7 +380,12 @@ export const DiagnosticoPDF = ({
                 {cfg.kpi_por_fila >= 3 && (
                   <View style={s.kpi}>
                     <Text style={s.kpiLbl}>Edad de retiro</Text>
-                    <Text style={s.kpiVal}>{escBase?.edad_retiro?.toFixed(0) || datos.edad_min_pension || 60}</Text>
+                    {/* Se toma la edad del escenario recomendado, no la del base.
+                        El base asume retiro a los 65 para obtener el factor del
+                        100%, pero el diagnostico completo esta calculado sobre la
+                        edad que eligio el asesor: el documento mostraba 65 en esta
+                        tarjeta y hablaba de retiro a los 60 en todo el texto. */}
+                    <Text style={s.kpiVal}>{escRec?.edad_retiro?.toFixed(0) || datos.edad_min_pension || escBase?.edad_retiro?.toFixed(0) || 60}</Text>
                     <Text style={s.kpiSub}>años</Text>
                   </View>
                 )}

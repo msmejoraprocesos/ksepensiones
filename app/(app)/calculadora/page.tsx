@@ -15,6 +15,7 @@ import TabCostoMod40 from './components/TabCostoMod40'
 import TabFinanciamiento from './components/TabFinanciamiento'
 import TabProyeccion from './components/TabProyeccion'
 import { avisoError } from '@/app/utils/avisos'
+import { esEscenarioMod40, ID_ESCENARIO_MOD10 } from '@/app/utils/formulas'
 
 const AZUL = '#334E7B'
 const AZUL_DARK = '#1E3A5F'
@@ -1850,6 +1851,25 @@ function CalculadoraInner() {
           e2: { pension_real: escM10?.pension_mensual ?? esc0?.pension_mensual ?? 0 },
           e3: { pension_real: escM40?.pension_mensual ?? esc0?.pension_mensual ?? 0 },
           e4: { pension_real: escUsar?.pension_mensual ?? 0 },
+          /* Los escenarios reales, tal como los imprime la tabla del PDF.
+             Antes solo se mandaban cuatro cajas con una cifra cada una, sin
+             costo ni meses de recuperacion, asi que Sofia no tenia forma de
+             saber que inversion corresponde a que pension: recomendaba
+             $463,238 y prometia los $57,021 de otro escenario. */
+          escenariosDetalle: escenarios
+            .filter(e => esEscenarioMod40(e) || e.id === ID_ESCENARIO_MOD10 || e.id === 'e0')
+            .map(e => ({
+              etiqueta: e.label,
+              es_mod10: e.id === ID_ESCENARIO_MOD10,
+              umas: e.mod40_umas ?? null,
+              meses: e.mod40_meses ?? null,
+              pension_mensual: e.pension_mensual ?? 0,
+              inversion_neta: e.inversion_neta ?? null,
+              costo_total: e.costo_total ?? null,
+              meses_recuperacion: e.roi_meses ?? null,
+              ganancia_a80: e.ganancia_a80 ?? null,
+              recomendado: !!e.recomendado,
+            })),
           escRecomendado: escUsar?.label ?? 'Sin Modalidad 40',
           mod10Activo: !!escM10,
           mod40Activo: (escUsar?.mod40_meses ?? 0) > 0,

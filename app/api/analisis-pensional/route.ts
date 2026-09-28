@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     const {
       nombre, nombre_trabajador, ley, semanas, salarioDiario, salarioMensual, edadActual, edadRetiro,
       aniosRetiro, ingresoDes, inflacion, sys,
-      e1, e2, e3, e4, escRecomendado,
+      e1, e2, e3, e4, escRecomendado, escenariosDetalle,
       mod10Activo, mod10Anios, mod40Activo, mod40UMAs, mod40Anios, mod40Costo,
       tieneISSSTe, aniosISSSTe, aforeSaldo, rendimiento
     } = datos
@@ -79,6 +79,12 @@ orfandad, con reglas y montos distintos. Es el riesgo principal de la
 operación y debe plantearse de frente, no omitirse. Inclúyelo en la sección
 de recomendación.
 
+NO INVENTES DATOS DEL ASEGURADO
+Usa solo lo que aparece en este prompt. No menciones hijos, cónyuge, padres,
+estado civil, profesión ni situación familiar si no están aquí. En un
+diagnóstico que el cliente lee y conserva, un dato inventado —"tu hijo menor"
+cuando no hay hijos registrados— destruye la confianza en todo lo demás.
+
 COHERENCIA DE CIFRAS — OBLIGATORIA
 Cada monto que menciones debe corresponder al escenario que estás nombrando.
 No mezcles la inversión de un escenario con la pensión de otro. Si recomiendas
@@ -96,9 +102,27 @@ DATOS DEL DIAGNÓSTICO:
 - Ingreso deseado al retiro: ${fmtMXN(ingresoDes)}/mes
 - Inflación estimada: ${inflacion}%
 
-RESULTADOS DE LOS 4 ESCENARIOS (en pesos de hoy):
-- E1 Sin acción: ${fmtMXN(e1.pension_real)}/mes (${pctE1}% del objetivo, brecha: ${fmtMXN(brechaE1)})
-- E2 Modalidad 10: ${fmtMXN(e2.pension_real)}/mes (${ingresoDes > 0 ? Math.round((e2.pension_real/ingresoDes)*100) : 0}% del objetivo)
+ESCENARIOS REALES — ESTOS SON LOS QUE APARECEN EN LA TABLA DEL DOCUMENTO
+Cita únicamente estas cifras. Cada renglón es un escenario completo: su
+inversión, su pensión y sus meses de recuperación van juntos y no se mezclan
+con los de otro renglón. Antes de escribir cualquier monto, verifica que
+pertenezca al escenario que estás nombrando.
+
+Nómbralos por sus UMAs y meses — "20 UMAs por 36 meses" — nunca como
+"Escenario 1, 2 o 3": esa numeración no existe en el documento y confunde al
+lector que compara tu texto contra la tabla.
+
+${Array.isArray(escenariosDetalle) && escenariosDetalle.length
+  ? escenariosDetalle.map((e: any) => {
+      if (e.es_mod10) {
+        return `- ${e.etiqueta} (MODALIDAD 10 — vía de elegibilidad, NO comparable por monto): pensión ${fmtMXN(e.pension_mensual)}/mes, inversión ${fmtMXN(e.inversion_neta ?? e.costo_total ?? 0)}. Sirve para sumar semanas, no para subir la cuantía. No la presentes como alternativa barata a Modalidad 40.`
+      }
+      return `- ${e.etiqueta}${e.umas ? ` (${e.umas} UMAs, ${e.meses} meses)` : ''}: pensión ${fmtMXN(e.pension_mensual)}/mes · inversión neta ${fmtMXN(e.inversion_neta ?? 0)} · costo total ${fmtMXN(e.costo_total ?? 0)} · se recupera en ${e.meses_recuperacion ?? '—'} meses · ganancia a 80 años ${fmtMXN(e.ganancia_a80 ?? 0)}${e.recomendado ? '  ← RECOMENDADO' : ''}`
+    }).join('\n')
+  : `- Sin acción: ${fmtMXN(e1.pension_real)}/mes`}
+
+RESUMEN COMPLEMENTARIO:
+- Sin acción: ${fmtMXN(e1.pension_real)}/mes (${pctE1}% del objetivo, brecha: ${fmtMXN(brechaE1)})
 - E3 Modalidad 40: ${fmtMXN(e3.pension_real)}/mes ${mod40Activo ? `(${mod40UMAs} UMAs, ${mod40Anios} años, costo ${fmtMXN(mod40Costo)}/mes)` : ''}
 - E4 Combinada: ${fmtMXN(e4.pension_real)}/mes (${pctE4}% del objetivo) ← RECOMENDADO
 ${ley === '97' ? `- Saldo AFORE: ${fmtMXN(aforeSaldo)}, rendimiento ${rendimiento}%` : ''}
