@@ -59,6 +59,12 @@ interface PDFProps {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const mxn  = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n || 0)
 const mxn2 = (n: number) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n || 0)
+
+// react-pdf 3.x no expone fill/fontSize/fontFamily/textAnchor en los tipos de
+// Text dentro de SVG, aunque sí los aplica en tiempo de ejecución.
+// Alias tipado como any para evitar TS2769 sin perder funcionalidad.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const SvgText = Text as React.ComponentType<any>
 /**
  * Paleta del PDF alineada al sistema de diseño de la aplicación
  * (docs/rediseno/SISTEMA-DISENO.md).
@@ -166,9 +172,10 @@ const ChartBarras = ({ escenarios, COLOR, ACCENT }: { escenarios: Escenario[]; C
           <G key={i}>
             <Rect x={x} y={y} width={barW} height={barH} rx={3} fill={it.color} />
             {it.rec && <Rect x={x - 1} y={y - 1} width={barW + 2} height={barH + 1} rx={3} fill="none" stroke="#16A34A" strokeWidth={1.5} />}
-            <Text style={{ fontSize: 7, fontFamily: 'Helvetica-Bold', fill: it.color, textAlign: 'center' }} x={x + barW / 2} y={y - 3}>{mxn(it.val)}</Text>
-            <Text style={{ fontSize: 6.5, fill: C.textoSm, textAlign: 'center' }} x={x + barW / 2} y={H + 10}>{it.label}</Text>
-            {it.rec && <Text style={{ fontSize: 6, fill: C.verde, textAlign: 'center' }} x={x + barW / 2} y={H + 18}>★</Text>}
+            {/* SVG Text: fill/fontSize/fontFamily como props directas via SvgText */}
+            <SvgText fill={it.color} fontSize={7} fontFamily="Helvetica-Bold" textAnchor="middle" x={x + barW / 2} y={y - 3}>{mxn(it.val)}</SvgText>
+            <SvgText fill={C.textoSm} fontSize={6.5} textAnchor="middle" x={x + barW / 2} y={H + 10}>{it.label}</SvgText>
+            {it.rec && <SvgText fill={C.verde} fontSize={6} textAnchor="middle" x={x + barW / 2} y={H + 18}>★</SvgText>}
           </G>
         )
       })}
@@ -197,14 +204,14 @@ const ChartGauge = ({ meses, ACCENT }: { meses: number; ACCENT: string }) => {
       <Path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`} fill="none" stroke="#F3F4F6" strokeWidth={12} strokeLinecap="round" />
       {/* Fill */}
       <Path d={`M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} L ${x2b} ${y2b} A ${r - 12} ${r - 12} 0 ${large} 0 ${x1b} ${y1b} Z`} fill={color} />
-      {/* Center text */}
-      <Text style={{ fontSize: 18, fontFamily: 'Helvetica-Bold', fill: color, textAlign: 'center' }} x={cx} y={cy - 4}>{meses}</Text>
-      <Text style={{ fontSize: 7, fill: C.textoSm, textAlign: 'center' }} x={cx} y={cy + 8}>meses</Text>
-      <Text style={{ fontSize: 8, fontFamily: 'Helvetica-Bold', fill: color, textAlign: 'center' }} x={cx} y={cy + 22}>{getLabel(meses)}</Text>
+      {/* Center text — props directas via SvgText */}
+      <SvgText fill={color} fontSize={18} fontFamily="Helvetica-Bold" textAnchor="middle" x={cx} y={cy - 4}>{meses}</SvgText>
+      <SvgText fill={C.textoSm} fontSize={7} textAnchor="middle" x={cx} y={cy + 8}>meses</SvgText>
+      <SvgText fill={color} fontSize={8} fontFamily="Helvetica-Bold" textAnchor="middle" x={cx} y={cy + 22}>{getLabel(meses)}</SvgText>
       {/* Scale labels */}
-      <Text style={{ fontSize: 6, fill: C.gris }} x={22} y={cy + 6}>0</Text>
-      <Text style={{ fontSize: 6, fill: C.gris }} x={cx} y={cy - r - 4}>30</Text>
-      <Text style={{ fontSize: 6, fill: C.gris }} x={cx + r - 8} y={cy + 6}>60</Text>
+      <SvgText fill={C.gris} fontSize={6} x={22} y={cy + 6}>0</SvgText>
+      <SvgText fill={C.gris} fontSize={6} textAnchor="middle" x={cx} y={cy - r - 4}>30</SvgText>
+      <SvgText fill={C.gris} fontSize={6} x={cx + r - 8} y={cy + 6}>60</SvgText>
     </Svg></View>
   )
 }
@@ -227,8 +234,8 @@ const ChartTimeline = ({ datos, escRec, COLOR }: { datos: DatosTrabajador; escRe
         return (
           <G key={i}>
             <Circle cx={x} cy={28} r={6} fill={ev.color} />
-            <Text style={{ fontSize: 6.5, fontFamily: 'Helvetica-Bold', fill: ev.color, textAlign: 'center' }} x={x} y={14}>{ev.label}</Text>
-            <Text style={{ fontSize: 6, fill: C.gris, textAlign: 'center' }} x={x} y={42}>{ev.sub}</Text>
+            <SvgText fill={ev.color} fontSize={6.5} fontFamily="Helvetica-Bold" textAnchor="middle" x={x} y={14}>{ev.label}</SvgText>
+            <SvgText fill={C.gris} fontSize={6} textAnchor="middle" x={x} y={42}>{ev.sub}</SvgText>
           </G>
         )
       })}
@@ -263,13 +270,13 @@ const ChartAreaFlujos = ({ escRec, escBase, COLOR }: { escRec: Escenario | undef
       <Path d={`M ${pts.map(p => `${p.x} ${p.ySin}`).join(' L ')}`} fill="none" stroke="#94A3B8" strokeWidth={1} strokeDasharray="3 2" />
       <Path d={`M ${pts.map(p => `${p.x} ${p.yCon}`).join(' L ')}`} fill="none" stroke={COLOR} strokeWidth={1.5} />
       {/* Labels */}
-      <Text style={{ fontSize: 6.5, fill: COLOR, fontFamily: 'Helvetica-Bold' }} x={W - 38} y={pts[pts.length - 1].yCon - 4}>Con</Text>
-      <Text style={{ fontSize: 6.5, fill: C.textoSm }} x={W - 38} y={pts[pts.length - 1].ySin - 4}>Sin</Text>
+      <SvgText fill={COLOR} fontSize={6.5} fontFamily="Helvetica-Bold" x={W - 38} y={pts[pts.length - 1].yCon - 4}>Con</SvgText>
+      <SvgText fill={C.textoSm} fontSize={6.5} x={W - 38} y={pts[pts.length - 1].ySin - 4}>Sin</SvgText>
       {/* Axis */}
       <Line x1={20} y1={H} x2={W - 20} y2={H} stroke={C.borde} strokeWidth={0.5} />
-      <Text style={{ fontSize: 6, fill: C.gris }} x={20} y={H + 10}>{Math.floor(edadRet)}</Text>
-      <Text style={{ fontSize: 6, fill: C.gris, textAlign: 'center' }} x={W / 2} y={H + 10}>{Math.floor(edadRet + years / 2)}</Text>
-      <Text style={{ fontSize: 6, fill: C.gris }} x={W - 40} y={H + 10}>80 años</Text>
+      <SvgText fill={C.gris} fontSize={6} x={20} y={H + 10}>{Math.floor(edadRet)}</SvgText>
+      <SvgText fill={C.gris} fontSize={6} textAnchor="middle" x={W / 2} y={H + 10}>{Math.floor(edadRet + years / 2)}</SvgText>
+      <SvgText fill={C.gris} fontSize={6} x={W - 40} y={H + 10}>80 años</SvgText>
     </Svg></View>
   )
 }
@@ -615,14 +622,16 @@ export const DiagnosticoPDF = ({
             </>
           )}
 
-          {/* Footer */}
-          <View style={s.footer} fixed>
-            <Text style={s.footerText}>{razonSocial || 'KSE Pensiones'}{asesorNombre ? ` · ${asesorNombre}` : ''}</Text>
-            {cfg.footer_mostrar_disclaimer && <Text style={[s.footerText, { maxWidth: 230, textAlign: 'right' }]}>{footerTexto}</Text>}
-            <Text style={[s.footerText, { marginLeft: 10 }]} render={({ pageNumber, totalPages }) => `${pageNumber}/${totalPages}`} fixed />
-          </View>
-
         </View>
+
+        {/* Footer — hijo directo de Page (no del body) para que position:absolute
+            se calcule relativo a la página y se repita correctamente con fixed */}
+        <View style={s.footer} fixed>
+          <Text style={s.footerText}>{razonSocial || 'KSE Pensiones'}{asesorNombre ? ` · ${asesorNombre}` : ''}</Text>
+          {cfg.footer_mostrar_disclaimer && <Text style={[s.footerText, { maxWidth: 230, textAlign: 'center' }]}>{footerTexto}</Text>}
+          <Text style={s.footerText} render={({ pageNumber, totalPages }) => `${pageNumber}/${totalPages}`} fixed />
+        </View>
+
       </Page>
     </Document>
   )
